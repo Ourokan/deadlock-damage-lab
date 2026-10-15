@@ -1,0 +1,686 @@
+"""Event-driven 1v1 fight engine.
+
+Two Fighters shoot each other (and cast abilities / use items) until one dies or time runs out.
+Chance-based things (accuracy, headshots, proc chances, deflects) default to *deterministic expected-value
+accumulators*: a 57% accuracy gun lands exactly 57 of every 100 bullets, spread evenly. This keeps results
+smooth and repeatable for build search. Pass `rng=random.Random(seed)` to sample instead (Monte Carlo).
+
+Damage pipeline for one instance (see Engine.damage):
+    raw (already includes attacker's weapon% / spirit scaling)
+    * attacker outgoing multipliers (items, debuffs like Inhibitor / Silencer)
+    * (1 + target damage-taken amps)            e.g. Napalm, Escalating Exposure (spirit only)
+    * (1 - target resist after reductions)      resist stacking per build.combine_resist
+    -> target immunities, damage-reduction procs, barrier, health, death prevention
+    -> attacker lifesteal, then on-hit hooks for both sides.
+"""
+from __future__ import annotations
+
+import heapq
+import itertools
+import math
+from dataclasses import dataclass, field
+
+from .build import Stats, combine_resist, stack_cdr
+
+INF = float("inf")
+# Melee rotation (assumptions; the API has no light/heavy split): share of landed melees that are heavy, and how
+# long each melee stops the gun.
+HEAVY_SHARE = 0.3
+MELEE_LIGHT_TIME = 0.6
+MELEE_HEAVY_TIME = 1.1
+# Below MELEE_MIN_RATE hits/s a melee event fires every 1/MELEE_MIN_RATE s with a fractional weight (expected
+# damage), so rare meleers still melee within a short fight.
+MELEE_MIN_RATE = 0.2
+
+
+# ---------------------------------------------------------------------------------------------------
+# Effects / modifiers
+# ---------------------------------------------------------------------------------------------------
+class Mods:
+    """Timed modifiers on a fighter. key -> {tag: (value, expire)}; same tag refreshes/replaces."""
+
+    __slots__ = ("d", "engine")
+
+    def __init__(self, engine):
+        self.d = {}
+        self.engine = engine
+
+    def add(self, key, value, duration, tag=None):
+        now = self.engine.t
+        tags = self.d.setdefault(key, {})
+        tags[tag if tag is not None else object()] = (value, now + duration)
+
+    def remove(self, key, tag):
+        self.d.get(key, {}).pop(tag, None)
+
+    def values(self, key):
+        tags = self.d.get(key)
+        if not tags:
+            return []
+        now = self.engine.t
+        out = []
+        dead = []
+        for tg, (v, exp) in tags.items():
+            if exp > now:
+                out.append(v)
+            else:
+                dead.append(tg)
+        for tg in dead:
+            del tags[tg]
+        return out
+
+    def sum(self, key):
+        v = self.values(key)
+        return sum(v) if v else 0.0
+
+    def active(self, key):
+        return bool(self.values(key))
+
+    def get(self, key, tag):
+        x = self.d.get(key, {}).get(tag)
+        if x and x[1] > self.engine.t:
+            return x[0]
+        return None
+
+
+class Accum:
+    """Deterministic Bernoulli: returns how many of n trials succeed so the long-run rate is exactly p."""
+
+    __slots__ = ("x", "rng")
+
+    def __init__(self, rng=None, phase=0.5):
+        self.x = phase   # start half-way so a 50% event fires on the first trial, not the second
+        self.rng = rng
+
+    def take(self, p, n=1):
+        if p <= 0 or n <= 0:
+            return 0
+        if self.rng is not None:
+            return sum(1 for _ in range(n) if self.rng.random() < p)
+        self.x += p * n
+        k = int(self.x)
+        self.x -= k
+        return k
+
+
+@dataclass
+class Skill:
+    accuracy: float = 0.26      # fraction of bullets that hit the target hero (ranked median, data/skill_defaults.json)
+    headshot: float = 0.157     # fraction of hits that are headshots (ranked median)
+    spirit_accuracy: float = 1.0  # fraction of skillshot abilities that land
+    # per-ability damage landing factor, keyed by ability name (see data/landing_rates.json): multiplies all
+    # damage booked under that ability's name. Fitted from real damage shares, so it folds in misses, partial
+    # AoE/DoT uptime and target movement that the hero file doesn't model.
+    ability_landing: dict = field(default_factory=dict)
+    # the same fitted with deadsim.mechanics on (data/landing_rates_mech.json); used instead when mechanics are on
+    ability_landing_mech: dict = field(default_factory=dict)
+    use_abilities: bool = True
+    use_actives: bool = True
+    melee: bool = False         # deprecated, use melee_rate
+    # landed melee hits per second of fight (light and heavy, HEAVY_SHARE heavy). Fitted per hero from real
+    # damage (data/melee_rates.json, loaded by accuracy.hero_default_skill); 0 = no melee.
+    melee_rate: float = 0.0
+    heavy_share: float = HEAVY_SHARE  # share of rotation melees that are heavy
+    # follow an ability that sets up a free hit with a guaranteed heavy melee (Abrams: Shoulder Charge hit). These
+    # come on top of melee_rate; the fitted rates already account for them.
+    combo_melee: bool = True
+    # seconds an enemy DoT (Decay etc.) runs before Dispel Magic cleanses it: about two 1 s ticks, as high-rank
+    # players do (Tyler, Eternus). None = cleanse a DoT only below 50% health (what average ranked data shows).
+    dot_cleanse_delay: float | None = 1.5
+    engage_margin: float = 5.0  # meters a player will close to land an ability that is just out of reach
+    # Used only with deadsim.mechanics on (see that module for the fits):
+    parry_rate: float = 0.15       # share of incoming heavy melees parried
+    spell_parry_rate: float = 0.05  # Counterspell: share of enemy aimed casts a spell parry is timed against
+    summon_focus: float = 0.8      # share of trigger pulls spent on a living enemy turret (assumption)
+    flee_hp: float = 0.15          # run when below this health share and losing (fit, deadsim.mechanics)
+
+
+@dataclass
+class Hit:
+    """Info passed to on-hit hooks."""
+    kind: str            # bullet | spirit | melee | pure
+    source: str
+    amount: float        # final damage dealt to health+barrier
+    raw: float
+    is_ability: bool = False
+    ability: object = None
+    headshots: int = 0
+    hits: int = 0        # bullets that hit (for bullet instances)
+    is_dot: bool = False
+    is_item: bool = False
+    is_ult: bool = False
+
+
+# ---------------------------------------------------------------------------------------------------
+# Fighter
+# ---------------------------------------------------------------------------------------------------
+class Fighter:
+    def __init__(self, engine, name, stats: Stats, skill: Skill, build_opts=None):
+        self.e = engine
+        self.name = name
+        self.st = stats
+        self.skill = skill
+        self.opts = build_opts or {}
+        self.max_hp_base = stats.max_health
+        self.hp = stats.max_health
+        self.mods = Mods(engine)
+        self.barriers = []          # [amount, expire]
+        self.enemy: Fighter = None
+        self.alive = True
+        self.death_time = None
+        self.dmg_out = {}           # source -> damage dealt
+        self.dmg_in = {}
+        self.healed = 0.0
+        self.items_fx = []
+        self.abilities = []         # AbilityState
+        self.clip = stats.clip
+        self.bonus_ammo = 0
+        self.reload_until = 0.0
+        self.shooting_since = 0.0   # start of continuous fire (Intensifying Magazine)
+        self.hit_acc = Accum(engine.rng, 0.5)
+        self.head_acc = Accum(engine.rng, 0.5)
+        self.misc_acc = {}
+        self.gun_locked_until = 0.0
+        self.stat_hooks = []        # callables (fighter) -> dict of dynamic modifiers
+        self.counters = {}          # free-form per-fight state for items/abilities
+        self.shots_fired = 0
+        self.bullets_hit = 0
+        self.headshots_hit = 0
+
+    # ---- helpers -----------------------------------------------------------------------------------
+    def acc(self, key, phase=0.5):
+        a = self.misc_acc.get(key)
+        if a is None:
+            a = self.misc_acc[key] = Accum(self.e.rng, phase)
+        return a
+
+    def mark_debuff(self, key, tag):
+        """Remember an enemy-applied timed modifier so a cleanse (Dispel Magic) can remove it."""
+        self.counters.setdefault("debuffs", set()).add((key, tag))
+
+    def afflicted(self, min_left=0.0, keys=None):
+        """True if an enemy DoT has at least min_left seconds to run, or an enemy debuff (of `keys`, if given)
+        is active."""
+        t = self.e.t
+        if any(end - t >= min_left for end in self.counters.get("dot_until", {}).values()):
+            return True
+        return any(self.mods.get(k, tg) is not None for k, tg in self.counters.get("debuffs", ())
+                   if keys is None or k in keys)
+
+    def dispel(self):
+        """Purge enemy debuffs and DoTs (Engine.dot ticks stop; ad-hoc item DoTs check dispel_epoch)."""
+        for k, tg in self.counters.pop("debuffs", set()):
+            self.mods.remove(k, tg)
+        for k in [k for k in self.counters if isinstance(k, tuple) and k[0] == "dot"]:
+            del self.counters[k]
+        self.counters.pop("dot_until", None)
+        self.counters["dispel_epoch"] = self.counters.get("dispel_epoch", 0) + 1
+
+    @property
+    def max_hp(self):
+        return max(1.0, self.max_hp_base + self.mods.sum("max_health"))
+
+    @property
+    def hp_frac(self):
+        return self.hp / self.max_hp
+
+    def dyn(self, key):
+        """Dynamic (conditional) modifiers from items, e.g. +18% weapon damage while above 65% health."""
+        tot = 0.0
+        for h in self.stat_hooks:
+            v = h(self).get(key)
+            if v:
+                tot += v
+        return tot
+
+    def stat(self, key):
+        return self.mods.sum(key) + self.dyn(key)
+
+    # ---- derived live stats --------------------------------------------------------------------------
+    def spirit_power(self, extra=0.0):
+        return self.st.spirit_power + self.stat("spirit_power") + extra
+
+    def weapon_pct(self):
+        return self.st.weapon_pct + self.stat("weapon_pct")
+
+    def fire_rate(self):
+        return self.st.fire_rate_pct + self.stat("fire_rate") - self.stat("fire_rate_slow")
+
+    def bullet_resists(self):
+        extra = self.mods.values("bullet_resist") + [v for h in self.stat_hooks for k, v in h(self).items() if k == "bullet_resist" and v]
+        return list(self.st.bullet_resist) + list(extra)
+
+    def spirit_resists(self):
+        extra = self.mods.values("spirit_resist") + [v for h in self.stat_hooks for k, v in h(self).items() if k == "spirit_resist" and v]
+        return list(self.st.spirit_resist) + list(extra)
+
+    def can_shoot(self):
+        t = self.e.t
+        return self.alive and not (self.mods.active("stun") or self.mods.active("disarm")) and t >= self.gun_locked_until
+
+    def can_cast(self):
+        return self.alive and not (self.mods.active("stun") or self.mods.active("silence"))
+
+    def can_use_items(self):
+        return self.alive and not (self.mods.active("stun") or self.mods.active("item_silence"))
+
+    # ---- healing / barrier -----------------------------------------------------------------------
+    def heal(self, amount, source="heal", kind="regen"):
+        if not self.alive or amount <= 0:
+            return 0.0
+        # regen is amped by regen amp; heals the fighter casts on itself (abilities, lifesteal, items) by outgoing
+        # healing amp (Healing Booster). healbane etc. are negative heal_received.
+        amp = self.st.heal_amp if kind == "regen" else self.st.heal_amp_cast
+        mult = 1.0 + amp + self.stat("heal_received")
+        amt = min(self.max_hp - self.hp, amount * max(0.0, mult))
+        self.hp += amt
+        self.healed += amt
+        return amt
+
+    def add_barrier(self, amount, duration):
+        self.barriers.append([amount, self.e.t + duration])
+
+    def barrier_total(self):
+        now = self.e.t
+        self.barriers = [b for b in self.barriers if b[1] > now and b[0] > 0]
+        return sum(b[0] for b in self.barriers)
+
+
+# ---------------------------------------------------------------------------------------------------
+# Engine
+# ---------------------------------------------------------------------------------------------------
+@dataclass
+class FightResult:
+    winner: str | None
+    time: float
+    a_hp: float
+    b_hp: float
+    a_dmg: dict
+    b_dmg: dict
+    a_name: str = "A"
+    b_name: str = "B"
+    log: list = field(default_factory=list)
+    escaped: str | None = None     # name of the fighter who ran out of the fight (mechanics.movement)
+    a_splash: dict = field(default_factory=dict)   # damage to other nearby enemy heroes (mechanics.extra_targets)
+    b_splash: dict = field(default_factory=dict)
+    a_summon: dict = field(default_factory=dict)   # damage to enemy summons (mechanics.summons)
+    b_summon: dict = field(default_factory=dict)
+
+    def summary(self):
+        def top(d):
+            return ", ".join(f"{k} {v:.0f}" for k, v in sorted(d.items(), key=lambda x: -x[1])[:6])
+        return (f"winner={self.winner} t={self.time:.2f}s  {self.a_name} hp={self.a_hp:.0f} [{top(self.a_dmg)}]  "
+                f"{self.b_name} hp={self.b_hp:.0f} [{top(self.b_dmg)}]")
+
+
+_UNSET = object()
+
+
+class Engine:
+    def __init__(self, distance=15.0, max_time=30.0, rng=None, log=False, mech=_UNSET):
+        self.t = 0.0
+        self.q = []
+        self.seq = itertools.count()
+        self.distance = distance       # meters between fighters
+        self.max_time = max_time
+        self.rng = rng
+        self.logging = log
+        self.log = []
+        self.fighters = []
+        self.over = False
+        if mech is _UNSET:
+            from . import mechanics
+            mech = mechanics.DEFAULT
+        self.mech = mech               # deadsim.mechanics.Mechanics or None (earlier model)
+        self.escaped = None
+        self.mover = None
+
+    # ---- scheduling -------------------------------------------------------------------------------
+    def at(self, time, fn, *args):
+        heapq.heappush(self.q, (time, next(self.seq), fn, args))
+
+    def after(self, delay, fn, *args):
+        self.at(self.t + max(0.0, delay), fn, *args)
+
+    def note(self, msg):
+        if self.logging:
+            self.log.append(f"{self.t:6.2f} {msg}")
+
+    # ---- damage -------------------------------------------------------------------------------------
+    def damage(self, src: Fighter, dst: Fighter, raw: float, kind: str, source: str, *,
+               ignore_resist=False, is_ability=False, ability=None, is_dot=False, is_item=False,
+               headshots=0, hits=0, procs=True, is_ult=False, nonlethal=False):
+        if self.over or not dst.alive or raw <= 0:
+            return 0.0
+        amt = raw * src.st.outgoing_mult * (1.0 - src.stat("outgoing_penalty")) * (1.0 + src.stat("damage_amp"))
+        if is_ability and src.skill.ability_landing:
+            amt *= src.skill.ability_landing.get(source, 1.0)
+        if kind == "spirit":
+            amt *= (1.0 - src.stat("spirit_outgoing_penalty"))
+            amt *= (1.0 + dst.stat("spirit_amp_taken"))
+        elif kind == "bullet":
+            amt *= (1.0 + dst.stat("bullet_amp_taken"))
+        amt *= (1.0 + dst.stat("damage_taken_amp"))
+        if not ignore_resist:
+            if kind == "bullet":
+                res = combine_resist(dst.bullet_resists(), list(src.st.bullet_shred) + dst.mods.values("bullet_shred"))
+                amt *= (1.0 - res)
+            elif kind == "spirit":
+                res = combine_resist(dst.spirit_resists(), list(src.st.spirit_shred) + dst.mods.values("spirit_shred"))
+                amt *= (1.0 - res)
+            elif kind == "melee":
+                res = combine_resist(dst.st.melee_resist + dst.mods.values("melee_resist"), ())
+                amt *= (1.0 - res)
+        if dst.mods.active("invulnerable") or (kind == "bullet" and dst.mods.active("bullet_immune")):
+            return 0.0
+        if self.mech is not None and (is_ability or is_item) and "spell_parry" in dst.counters:
+            from .mechanics import spell_blocked
+            if spell_blocked(self, src, dst, ability):
+                return 0.0
+        # target-side reductions (Spellbreaker, Plated Armor, ...)
+        for fx in dst.items_fx:
+            f = getattr(fx, "reduce_incoming", None)
+            if f:
+                amt = f(dst, src, amt, kind, is_dot)
+                if amt <= 0:
+                    return 0.0
+        hit = Hit(kind, source, 0.0, raw, is_ability, ability, headshots, hits, is_dot, is_item, is_ult)
+        # barrier then health
+        left = amt
+        for b in dst.barriers:
+            if b[1] > self.t and b[0] > 0 and left > 0:
+                take = min(b[0], left)
+                b[0] -= take
+                left -= take
+        if nonlethal:
+            left = min(left, max(0.0, dst.hp - 1.0))
+        dst.hp -= left
+        hit.amount = amt
+        src.dmg_out[source] = src.dmg_out.get(source, 0.0) + amt
+        dst.dmg_in[source] = dst.dmg_in.get(source, 0.0) + amt
+        if dst.hp <= 0 and dst.mods.active("death_immune"):
+            dst.hp = 1.0
+        if dst.hp <= 0:
+            saved = False
+            for fx in dst.items_fx:
+                f = getattr(fx, "on_lethal", None)
+                if f and f(dst, src):
+                    saved = True
+                    break
+            if not saved:
+                dst.hp = 0.0
+                dst.alive = False
+                dst.death_time = self.t
+                self.note(f"{dst.name} dies to {source}")
+                self.over = True
+        # lifesteal
+        if src.alive and amt > 0:
+            if kind == "bullet":
+                ls = src.st.bullet_lifesteal + src.stat("bullet_lifesteal")
+                if ls:
+                    src.heal(amt * ls, "bullet_lifesteal", "lifesteal")
+            elif kind == "spirit":
+                ls = src.st.spirit_lifesteal + src.stat("spirit_lifesteal")
+                if ls:
+                    src.heal(amt * ls, "spirit_lifesteal", "lifesteal")
+        # hooks
+        if procs:
+            for fx in src.items_fx:
+                f = getattr(fx, "on_damage_dealt", None)
+                if f:
+                    f(src, dst, hit)
+            for ab in src.abilities:
+                f = getattr(ab.impl, "on_damage_dealt", None) if ab.unlocked else None
+                if f:
+                    f(ab.ctx, dst, hit)
+        for fx in dst.items_fx:
+            f = getattr(fx, "on_damage_taken", None)
+            if f:
+                f(dst, src, hit)
+        for ab in dst.abilities:
+            f = getattr(ab.impl, "on_damage_taken", None) if ab.unlocked else None
+            if f:
+                f(ab.ctx, src, hit)
+        return amt
+
+    # ---- DoT --------------------------------------------------------------------------------------
+    def dot(self, src, dst, dps, duration, source, kind="spirit", tick=0.5, tag=None, **kw):
+        """Damage over time; refreshing with the same tag replaces the running DoT."""
+        if duration <= 0 or dps <= 0:
+            return
+        guard = kw.pop("guard", None)   # a summon: its DoT stops when it dies
+        if self.mech is not None and (kw.get("is_ability") or kw.get("is_item")) and "spell_parry" in dst.counters:
+            from .mechanics import spell_blocked
+            if spell_blocked(self, src, dst, kw.get("ability")):
+                return
+        tag = tag or source
+        key = ("dot", tag)
+        token = object()
+        dst.counters[key] = token
+        dst.counters.setdefault("dot_until", {})[tag] = self.t + duration
+        n = max(1, int(round(duration / tick)))
+        per = dps * duration / n
+
+        def tick_fn(i):
+            if dst.counters.get(key) is not token or not dst.alive or (guard is not None and not guard.alive):
+                return
+            self.damage(src, dst, per, kind, source, is_dot=True, **kw)
+            if i + 1 < n:
+                self.after(tick, tick_fn, i + 1)
+        self.after(tick, tick_fn, 0)
+
+    # ---- gun ----------------------------------------------------------------------------------------
+    def bullet_damage(self, f: Fighter, extra_pct=0.0):
+        st = f.st
+        d = self.distance
+        pct = f.weapon_pct() + extra_pct
+        return st.bullet_damage * (1.0 + pct) * st.falloff(d), st.crit_mult(d)
+
+    def gun_tick(self, f: Fighter):
+        if self.over or not f.alive:
+            return
+        t = self.t
+        st = f.st
+        if not f.can_shoot():
+            nxt = max(t + 0.05, f.gun_locked_until)
+            f.shooting_since = None
+            self.at(nxt, self.gun_tick, f)
+            return
+        if f.clip + f.bonus_ammo <= 0:
+            if f.reload_until <= t:
+                rt = st.reload_time * max(0.1, 1.0 + f.stat("reload_mult"))
+                f.reload_until = t + rt
+                f.shooting_since = None
+                for fx in f.items_fx:
+                    g = getattr(fx, "on_reload", None)
+                    if g:
+                        g(f)
+                self.at(f.reload_until, self.finish_reload, f)
+            return
+        if f.shooting_since is None:
+            f.shooting_since = t
+        self.fire(f)
+        cycle = st.cycle_time
+        if st.spin_cycle:
+            # spin fraction rises while firing, decays while not (reloads, locks); cycle time interpolates
+            last = getattr(f, "spin_t", t)
+            gap = max(0.0, t - last - cycle)
+            spin = max(0.0, getattr(f, "spin", 0.0) - gap * st.spin_decay_rate)
+            spin = min(1.0, spin + (t - last - gap) * st.spin_up_rate)
+            f.spin, f.spin_t = spin, t
+            cycle = st.cycle_time + (st.spin_cycle - st.cycle_time) * spin
+        if st.burst_count > 1:
+            cycle += st.burst_count * st.burst_interval
+        interval = cycle / max(0.05, 1.0 + f.fire_rate())
+        self.after(interval, self.gun_tick, f)
+
+    def finish_reload(self, f):
+        if not f.alive or self.over:
+            return
+        f.clip = f.st.clip
+        self.after(0.0, self.gun_tick, f)
+
+    def fire(self, f: Fighter):
+        """One trigger pull: burst_count shots of `pellets` bullets each."""
+        e = f.enemy
+        st = f.st
+        if f.bonus_ammo > 0:
+            f.bonus_ammo -= 1
+        else:
+            f.clip -= 1
+        f.shots_fired += 1
+        ctx = {"extra_pct": 0.0, "bonus_flat_head": 0.0, "pellet_mult": 1.0, "ignore_resist_frac": 0.0,
+               "bonus_spirit": [], "dmg_mult": 1.0}
+        for fx in f.items_fx:
+            g = getattr(fx, "on_shot", None)
+            if g:
+                g(f, ctx)
+        for ab in f.abilities:
+            g = getattr(ab.impl, "on_shot", None) if ab.unlocked else None
+            if g:
+                g(ab.ctx, ctx)
+        n_bullets = int(st.pellets * st.burst_count * ctx["pellet_mult"])
+        if self.mech is not None and self.mech.summons and "summons" in e.counters:
+            from .mechanics import live_summon, shoot_summon
+            s = live_summon(e)
+            if s is not None and f.acc("summon_focus").take(f.skill.summon_focus):
+                shoot_summon(self, f, s, n_bullets)
+                return
+        p_hit = f.skill.accuracy * (1.0 - e.stat("evasion"))
+        hits = f.hit_acc.take(p_hit, n_bullets)
+        if hits <= 0:
+            return
+        heads = f.head_acc.take(f.skill.headshot, hits)
+        f.bullets_hit += hits
+        f.headshots_hit += heads
+        per, crit = self.bullet_damage(f, ctx["extra_pct"])
+        per *= ctx["dmg_mult"]
+        f.counters["bullet_per"] = per
+        f.counters["_last_hits"] = hits
+        crit_eff = 1.0 + (crit - 1.0) * e.st.crit_received_scale * (1.0 + e.stat("crit_taken"))
+        raw = per * (hits - heads) + per * crit_eff * heads + ctx["bonus_flat_head"] * min(heads, 1)
+        frac_ign = ctx["ignore_resist_frac"]
+        if frac_ign > 0:
+            ign_hits = f.acc("armor_piercer").take(frac_ign, hits)
+            if ign_hits:
+                share = ign_hits / hits
+                self.damage(f, e, raw * share, "bullet", "gun", ignore_resist=True, headshots=0, hits=ign_hits, procs=False)
+                raw *= (1 - share)
+        self.damage(f, e, raw, "bullet", "gun", headshots=heads, hits=hits)
+        for kind_src in ctx["bonus_spirit"]:
+            amount, name = kind_src
+            self.damage(f, e, amount * hits, "spirit", name, is_item=True)
+
+    # ---- run ----------------------------------------------------------------------------------------
+    def run(self, a: Fighter, b: Fighter, one_way=False):
+        a.enemy, b.enemy = b, a
+        self.fighters = [a, b]
+        for f in (a, b):
+            for fx in f.items_fx:
+                g = getattr(fx, "on_start", None)
+                if g:
+                    g(f)
+            for ab in f.abilities:
+                ab.start()
+        self.at(0.0, self.gun_tick, a)
+        if not one_way:
+            self.at(0.0, self.gun_tick, b)
+        self.at(0.0, self.think, a)
+        if not one_way:
+            self.at(0.0, self.think, b)
+        for f in ((a,) if one_way else (a, b)):
+            if f.skill.melee_rate > 0:
+                self.at(0.5 / max(f.skill.melee_rate, MELEE_MIN_RATE), self.melee_tick, f)
+        self.at(0.0, self.regen_tick)
+        if self.mech is not None and self.mech.movement:
+            from .mechanics import Mover
+            self.mover = Mover(self)
+        while self.q and not self.over:
+            t, _, fn, args = heapq.heappop(self.q)
+            if t > self.max_time:
+                self.t = self.max_time
+                break
+            self.t = t
+            fn(*args)
+        winner = None
+        if not a.alive and b.alive:
+            winner = b.name
+        elif not b.alive and a.alive:
+            winner = a.name
+        r = FightResult(winner, self.t, a.hp, b.hp, a.dmg_out, b.dmg_out, a.name, b.name, self.log)
+        if self.mech is not None:
+            r.escaped = self.escaped
+            r.a_splash, r.b_splash = a.counters.get("splash", {}), b.counters.get("splash", {})
+            r.a_summon, r.b_summon = a.counters.get("summon_dmg", {}), b.counters.get("summon_dmg", {})
+        return r
+
+    # ---- melee ------------------------------------------------------------------------------------
+    def melee_tick(self, f: Fighter):
+        """One landed melee hit every 1 / melee_rate seconds (weighted events below MELEE_MIN_RATE). A light melee
+        takes MELEE_LIGHT_TIME and a heavy MELEE_HEAVY_TIME of not shooting. Postponed while stunned or busy
+        (gun locked by a cast or channel)."""
+        if self.over or not f.alive or f.skill.melee_rate <= 0:
+            return
+        t = self.t
+        if f.mods.active("stun") or t < f.gun_locked_until:
+            self.at(max(t + 0.1, f.gun_locked_until), self.melee_tick, f)
+            return
+        heavy = f.acc("melee_heavy").take(f.skill.heavy_share, 1) > 0
+        rate = f.skill.melee_rate
+        if self.mech is not None and self.mech.parry:
+            # parried heavies don't land: swing more often so landed melee stays at the fitted rate
+            rate /= max(0.5, 1.0 - f.enemy.skill.parry_rate * f.skill.heavy_share)
+        interval = 1.0 / max(rate, MELEE_MIN_RATE)
+        if self.mover is None or f.counters.get("fleeing") is not True and self.distance <= self.mover.start + 6.0:
+            self.melee_hit(f, heavy, min(1.0, rate * interval))
+        self.after(interval, self.melee_tick, f)
+
+    def melee_hit(self, f: Fighter, heavy: bool, w: float = 1.0):
+        """Land one basic melee (weight w = expected fraction of a hit) and stop the gun for its swing."""
+        t = self.t
+        st = f.st
+        light = st.hero.base.get("light_melee_damage", 0.0)
+        heavy_base = st.hero.base.get("heavy_melee_damage", 0.0) or 2.32 * light
+        grow = st.boons * st.hero.per_boon.get("MODIFIER_VALUE_BASE_MELEE_DAMAGE_FROM_LEVEL", 0.0)
+        if heavy:
+            raw = heavy_base + grow * (heavy_base / light if light else 1.0)
+        else:
+            raw = light + grow
+        raw *= (1.0 + st.melee_pct + f.stat("melee_pct")) * w
+        f.counters["melee_heavy"] = heavy
+        f.counters["melee_weight"] = w
+        f.gun_locked_until = max(f.gun_locked_until, t + (MELEE_HEAVY_TIME if heavy else MELEE_LIGHT_TIME) * w)
+        if heavy and self.mech is not None and self.mech.parry:
+            from .mechanics import parry_check
+            raw *= parry_check(self, f, f.enemy, raw, w)
+            if raw <= 0:
+                return
+        self.damage(f, f.enemy, raw, "melee", "melee", hits=1)
+
+    def regen_tick(self):
+        if self.over:
+            return
+        for f in self.fighters:
+            if f.alive:
+                r = f.st.health_regen + f.stat("regen")
+                if r > 0:
+                    f.heal(r * 0.5, "regen")
+                drain = f.stat("health_drain")
+                if drain > 0:
+                    f.hp = max(1.0, f.hp - drain * 0.5)
+        self.after(0.5, self.regen_tick)
+
+    def think(self, f: Fighter):
+        """Ability / active item decisions, re-evaluated every 0.1 s."""
+        if self.over or not f.alive:
+            return
+        if f.skill.use_abilities and f.can_cast():
+            for ab in f.abilities:
+                if ab.try_cast():
+                    break   # one cast per think step
+        if f.skill.use_actives and f.can_use_items():
+            for fx in f.items_fx:
+                g = getattr(fx, "try_active", None)
+                if g and g(f):
+                    break
+        self.after(0.1, self.think, f)

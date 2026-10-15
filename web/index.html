@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deadlock Damage Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Limelight&display=swap">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a class="mark" href="#test">Damage Lab</a>
+    <nav class="tabs" id="tabs">
+      <a href="#test" data-tab="test">Damage test</a>
+      <a href="#damage" data-tab="damage">Best damage builds</a>
+      <a href="#duel" data-tab="duel">Duel builds</a>
+      <a href="#tank" data-tab="tank">Tank builds</a>
+    </nav>
+    <span class="engine" id="engine" data-state="loading">Loading sim</span>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- Damage test -->
+  <section id="tab-test" class="tab">
+    <div class="intro">
+      <h1>How much damage does this build really do?</h1>
+      <p>Pick a hero and items, set up the target, and the combat sim shoots it for 30 seconds at real ranked aim. Gun, abilities on cooldown, item procs and melee all count.</p>
+    </div>
+
+    <div class="bench">
+      <div class="panel" id="attacker">
+        <div class="panel-h"><h2>Attacker</h2>
+          <div class="presets" id="presets"></div>
+        </div>
+        <div class="row">
+          <label class="f"><span>Hero</span><select id="a-hero"></select></label>
+          <label class="f"><span>Net worth (souls)</span><input id="a-souls" type="number" min="0" step="500" value="27000" list="souls-list"></label>
+          <label class="f"><span>Aim</span>
+            <select id="a-aim">
+              <option value="p25">25th pct ranked</option>
+              <option value="p50" selected>Median ranked</option>
+              <option value="p75">75th pct ranked</option>
+              <option value="p90">90th pct ranked</option>
+              <option value="custom">My own numbers</option>
+            </select></label>
+        </div>
+        <div class="row" id="custom-aim" hidden>
+          <label class="f"><span>Hero accuracy %</span><input id="a-acc" type="number" min="0" max="100" step="0.5" value="26"></label>
+          <label class="f"><span>Headshot % of hits</span><input id="a-hs" type="number" min="0" max="100" step="0.5" value="15.7"></label>
+          <p class="hint">Hero-only numbers, like Statlocker's "accuracy vs heroes".</p>
+        </div>
+        <div class="build" id="a-build"></div>
+        <div class="budget"><div class="bar"><i id="a-bar"></i></div><span id="a-budget"></span></div>
+        <details class="picker" id="a-picker" open>
+          <summary>Add items</summary>
+          <div class="pick-tools">
+            <input id="a-q" type="search" placeholder="Search items">
+            <div class="seg" id="a-slot">
+              <button data-v="" class="on">All</button><button data-v="weapon">Weapon</button><button data-v="vitality">Vitality</button><button data-v="spirit">Spirit</button>
+            </div>
+          </div>
+          <div class="shop" id="a-shop"></div>
+        </details>
+      </div>
+
+      <div class="panel" id="target">
+        <div class="panel-h"><h2>Target</h2>
+          <div class="seg" id="d-mode"><button data-v="plain" class="on">Training dummy</button><button data-v="hero">Enemy build</button></div>
+        </div>
+        <div id="d-plain" class="stack">
+          <div class="row">
+            <label class="f"><span>Max HP</span><input id="d-hp" type="number" min="1" step="50" value="2700"></label>
+            <label class="f"><span>Bullet resist %</span><input id="d-br" type="number" min="-100" max="95" step="1" value="0"></label>
+            <label class="f"><span>Spirit resist %</span><input id="d-sr" type="number" min="-100" max="95" step="1" value="0"></label>
+            <label class="f"><span>Melee resist %</span><input id="d-mr" type="number" min="-100" max="95" step="1" value="0"></label>
+          </div>
+          <p class="hint" id="d-hp-hint"></p>
+        </div>
+        <div id="d-hero" class="stack" hidden>
+          <div class="row">
+            <label class="f"><span>Enemy hero</span><select id="d-heroname"></select></label>
+            <label class="f"><span>Enemy souls</span><input id="d-souls" type="number" min="0" step="500" placeholder="same as attacker"></label>
+          </div>
+          <div class="build" id="d-build"></div>
+          <details class="picker" id="d-picker">
+            <summary>Add enemy items</summary>
+            <div class="pick-tools"><input id="d-q" type="search" placeholder="Search items">
+              <div class="seg" id="d-slot"><button data-v="" class="on">All</button><button data-v="weapon">Weapon</button><button data-v="vitality">Vitality</button><button data-v="spirit">Spirit</button></div>
+            </div>
+            <div class="shop" id="d-shop"></div>
+          </details>
+          <p class="hint">The enemy never shoots or casts. Its items' resists, barriers and damage reduction still apply.</p>
+        </div>
+        <label class="check"><input id="d-immortal" type="checkbox" checked> Refill HP instead of dying, so damage keeps counting for 30 s</label>
+        <button class="run" id="run" disabled>Run damage test</button>
+        <p class="err" id="err" hidden></p>
+      </div>
+    </div>
+
+    <div class="results" id="results">
+      <div class="res-h">
+        <h2>Result</h2>
+        <button class="ghost" id="pin" disabled>Keep for comparison</button>
+      </div>
+      <div class="marks" id="marks"></div>
+      <div class="charts">
+        <figure class="chart"><figcaption>Damage over time</figcaption><div id="timeline"></div></figure>
+        <figure class="chart"><figcaption>Damage by source, 30 s</figcaption><div id="sources"></div></figure>
+      </div>
+      <div class="compare" id="compare" hidden>
+        <h3>Compared runs</h3>
+        <div class="scroll"><table id="cmp"></table></div>
+      </div>
+      <p class="fine" id="used"></p>
+    </div>
+  </section>
+
+  <!-- Precomputed damage search -->
+  <section id="tab-damage" class="tab" hidden>
+    <div class="intro">
+      <h1>Most damage per soul</h1>
+      <p>For each hero and net worth, the item builds that deal the most damage to a training dummy, found by searching from the most popular real build. Same sim and aim as the damage test.</p>
+    </div>
+    <div class="filters">
+      <label class="f"><span>Hero</span><select id="g-hero"></select></label>
+      <label class="f"><span>Net worth</span><select id="g-budget"></select></label>
+      <div class="f"><span>Fight length</span><div class="seg" id="g-obj"></div></div>
+    </div>
+    <div id="g-out"></div>
+  </section>
+
+  <section id="tab-duel" class="tab" hidden>
+    <div class="intro">
+      <h1>Builds that win 1v1</h1>
+      <p>Builds scored across duels against the typical real build of every hero at the same net worth. Win 1, timeout 0.5, loss 0, plus HP left and kill speed.</p>
+    </div>
+    <div class="filters">
+      <label class="f"><span>Hero</span><select id="u-hero"></select></label>
+      <label class="f"><span>Net worth</span><select id="u-budget"></select></label>
+      <label class="f"><span>Rank bracket</span><select id="u-bracket"></select></label>
+    </div>
+    <div id="u-out"></div>
+  </section>
+
+  <section id="tab-tank" class="tab" hidden>
+    <div class="intro">
+      <h1>Builds that stay alive</h1>
+      <p>For the ten heroes real players build tankiest: builds that survive longest while focused by two enemies, keeping the hero's core items and most of its damage.</p>
+    </div>
+    <div class="filters">
+      <label class="f"><span>Hero</span><select id="t-hero"></select></label>
+      <label class="f"><span>Net worth</span><select id="t-budget"></select></label>
+    </div>
+    <div id="t-out"></div>
+  </section>
+
+  <datalist id="souls-list"><option value="10000"><option value="18000"><option value="27000"><option value="37000"><option value="50000"></datalist>
+  <footer class="foot">
+    Combat model built on Deadlock API match data, patch 09-29-2026. Not modeled yet: movement, parry, multi-target items, and some item effects (marked <span class="dot stats"></span> stats only).
+  </footer>
+</main>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,1559 @@
+{
+"3776945997": {
+"name": "Extra Charge",
+"class_name": "upgrade_extra_charge",
+"slot": "spirit",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": false
+},
+"968099481": {
+"name": "Extra Spirit",
+"class_name": "upgrade_improved_spirit",
+"slot": "spirit",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": false
+},
+"2462046703": {
+"name": "Golden Goose Egg",
+"class_name": "upgrade_goose_egg",
+"slot": "spirit",
+"tier": 1,
+"cost": 800,
+"active": true,
+"effect_modeled": false
+},
+"1998374645": {
+"name": "Mystic Burst",
+"class_name": "upgrade_magic_burst",
+"slot": "spirit",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": true
+},
+"754480263": {
+"name": "Mystic Expansion",
+"class_name": "upgrade_magic_reach",
+"slot": "spirit",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": false
+},
+"1439347412": {
+"name": "Mystic Regeneration",
+"class_name": "upgrade_mystic_regeneration",
+"slot": "spirit",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": true
+},
+"2922054143": {
+"name": "Rusted Barrel",
+"class_name": "upgrade_withering_whip",
+"slot": "spirit",
+"tier": 1,
+"cost": 800,
+"active": true,
+"effect_modeled": true
+},
+"465043967": {
+"name": "Spirit Strike",
+"class_name": "upgrade_acolytes_glove",
+"slot": "spirit",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": true
+},
+"1150006784": {
+"name": "Arcane Surge",
+"class_name": "upgrade_arcane_surge",
+"slot": "spirit",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"2971868509": {
+"name": "Bullet Resist Shredder",
+"class_name": "upgrade_bullet_resist_shredder",
+"slot": "spirit",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"1976391348": {
+"name": "Cold Front",
+"class_name": "upgrade_cold_front",
+"slot": "spirit",
+"tier": 2,
+"cost": 1600,
+"active": true,
+"effect_modeled": true
+},
+"380806748": {
+"name": "Compress Cooldown",
+"class_name": "upgrade_magic_tempo",
+"slot": "spirit",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": false
+},
+"2951612397": {
+"name": "Duration Extender",
+"class_name": "upgrade_arcane_extension",
+"slot": "spirit",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": false
+},
+"7409189": {
+"name": "Improved Spirit",
+"class_name": "upgrade_soaring_spirit",
+"slot": "spirit",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": false
+},
+"1102081447": {
+"name": "Mystic Slow",
+"class_name": "upgrade_magic_slow",
+"slot": "spirit",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": false
+},
+"2081037738": {
+"name": "Mystic Vulnerability",
+"class_name": "upgrade_magic_vulnerability",
+"slot": "spirit",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"84321454": {
+"name": "Quicksilver Reload",
+"class_name": "upgrade_quick_silver",
+"slot": "spirit",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"1813726886": {
+"name": "Slowing Hex",
+"class_name": "upgrade_containment",
+"slot": "spirit",
+"tier": 2,
+"cost": 1600,
+"active": true,
+"effect_modeled": false
+},
+"1219329868": {
+"name": "Spirit Sap",
+"class_name": "upgrade_spirit_sap",
+"slot": "spirit",
+"tier": 2,
+"cost": 1600,
+"active": true,
+"effect_modeled": true
+},
+"1925087134": {
+"name": "Suppressor",
+"class_name": "upgrade_suppressor",
+"slot": "spirit",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"3144988365": {
+"name": "Decay",
+"class_name": "upgrade_rupture",
+"slot": "spirit",
+"tier": 3,
+"cost": 3200,
+"active": true,
+"effect_modeled": true
+},
+"2061878743": {
+"name": "Disarming Hex",
+"class_name": "upgrade_greater_withering_whip",
+"slot": "spirit",
+"tier": 3,
+"cost": 3200,
+"active": true,
+"effect_modeled": true
+},
+"1193964439": {
+"name": "Greater Expansion",
+"class_name": "upgrade_tech_range",
+"slot": "spirit",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": false
+},
+"1254091416": {
+"name": "Knockdown",
+"class_name": "upgrade_target_stun",
+"slot": "spirit",
+"tier": 3,
+"cost": 3200,
+"active": true,
+"effect_modeled": true
+},
+"2947183272": {
+"name": "Radiant Regeneration",
+"class_name": "upgrade_resonant_healing",
+"slot": "spirit",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"787198704": {
+"name": "Rapid Recharge",
+"class_name": "upgrade_rapid_recharge",
+"slot": "spirit",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": false
+},
+"619484391": {
+"name": "Silence Wave",
+"class_name": "upgrade_targeted_silence",
+"slot": "spirit",
+"tier": 3,
+"cost": 3200,
+"active": true,
+"effect_modeled": true
+},
+"3190916303": {
+"name": "Spirit Snatch",
+"class_name": "upgrade_spirit_snatch",
+"slot": "spirit",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"3261353684": {
+"name": "Superior Cooldown",
+"class_name": "upgrade_cooldown_reduction",
+"slot": "spirit",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": false
+},
+"2717651715": {
+"name": "Superior Duration",
+"class_name": "upgrade_imbued_duration_extender",
+"slot": "spirit",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": false
+},
+"1292979587": {
+"name": "Surge of Power",
+"class_name": "upgrade_magic_storm",
+"slot": "spirit",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"2121044373": {
+"name": "Tankbuster",
+"class_name": "upgrade_magic_shock",
+"slot": "spirit",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"395944548": {
+"name": "Torment Pulse",
+"class_name": "upgrade_tech_damage_pulse",
+"slot": "spirit",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"3812615317": {
+"name": "Arctic Blast",
+"class_name": "upgrade_arctic_blast",
+"slot": "spirit",
+"tier": 4,
+"cost": 6400,
+"active": true,
+"effect_modeled": true
+},
+"2519598785": {
+"name": "Boundless Spirit",
+"class_name": "upgrade_boundless_spirit",
+"slot": "spirit",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": false
+},
+"2617435668": {
+"name": "Cursed Relic",
+"class_name": "upgrade_glitch",
+"slot": "spirit",
+"tier": 4,
+"cost": 6400,
+"active": true,
+"effect_modeled": true
+},
+"630839635": {
+"name": "Echo Shard",
+"class_name": "upgrade_ability_power_shard",
+"slot": "spirit",
+"tier": 4,
+"cost": 6400,
+"active": true,
+"effect_modeled": true
+},
+"3005970438": {
+"name": "Escalating Exposure",
+"class_name": "upgrade_escalating_exposure",
+"slot": "spirit",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"2533252781": {
+"name": "Ethereal Shift",
+"class_name": "upgrade_self_bubble",
+"slot": "spirit",
+"tier": 4,
+"cost": 6400,
+"active": true,
+"effect_modeled": true
+},
+"2142980412": {
+"name": "Focus Lens",
+"class_name": "upgrade_focus_lens",
+"slot": "spirit",
+"tier": 4,
+"cost": 6400,
+"active": true,
+"effect_modeled": true
+},
+"493591231": {
+"name": "Lightning Scroll",
+"class_name": "upgrade_ultimate_burst",
+"slot": "spirit",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"2800629741": {
+"name": "Magic Carpet",
+"class_name": "upgrade_magic_carpet",
+"slot": "spirit",
+"tier": 4,
+"cost": 6400,
+"active": true,
+"effect_modeled": false
+},
+"3919289022": {
+"name": "Mercurial Magnum",
+"class_name": "upgrade_ethereal_bullets",
+"slot": "spirit",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"3577481646": {
+"name": "Mystic Reverb",
+"class_name": "upgrade_mystic_reverb",
+"slot": "spirit",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"677738769": {
+"name": "Refresher",
+"class_name": "upgrade_ability_refresher",
+"slot": "spirit",
+"tier": 4,
+"cost": 6400,
+"active": true,
+"effect_modeled": true
+},
+"2417568017": {
+"name": "Scourge",
+"class_name": "upgrade_discord",
+"slot": "spirit",
+"tier": 4,
+"cost": 6400,
+"active": true,
+"effect_modeled": true
+},
+"343572757": {
+"name": "Spirit Burn",
+"class_name": "upgrade_spirit_burn",
+"slot": "spirit",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"915014646": {
+"name": "Transcendent Cooldown",
+"class_name": "upgrade_transcendent_cooldown",
+"slot": "spirit",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": false
+},
+"1152158042": {
+"name": "Vortex Web",
+"class_name": "upgrade_aoe_root",
+"slot": "spirit",
+"tier": 4,
+"cost": 6400,
+"active": true,
+"effect_modeled": false
+},
+"2068250483": {
+"name": "Frostbite Charm",
+"class_name": "upgrade_shivas_bracelet",
+"slot": "spirit",
+"tier": 5,
+"cost": 9999,
+"active": false,
+"effect_modeled": false
+},
+"4050602737": {
+"name": "Mystic Conduit",
+"class_name": "upgrade_patrons_blessing",
+"slot": "spirit",
+"tier": 5,
+"cost": 9999,
+"active": false,
+"effect_modeled": false
+},
+"2054088113": {
+"name": "Mystical Piano",
+"class_name": "upgrade_mystical_piano",
+"slot": "spirit",
+"tier": 5,
+"cost": 9999,
+"active": true,
+"effect_modeled": false
+},
+"424779525": {
+"name": "Omnicharge Signet",
+"class_name": "upgrade_omnicharge_pendant",
+"slot": "spirit",
+"tier": 5,
+"cost": 9999,
+"active": false,
+"effect_modeled": false
+},
+"1132564516": {
+"name": "Prism Blast",
+"class_name": "upgrade_prism_blast",
+"slot": "spirit",
+"tier": 5,
+"cost": 9999,
+"active": true,
+"effect_modeled": false
+},
+"4121584236": {
+"name": "Shrink Ray",
+"class_name": "upgrade_shrink_ray",
+"slot": "spirit",
+"tier": 5,
+"cost": 9999,
+"active": true,
+"effect_modeled": false
+},
+"1558545403": {
+"name": "Unstable Concoction",
+"class_name": "upgrade_unstable_concoction",
+"slot": "spirit",
+"tier": 5,
+"cost": 9999,
+"active": true,
+"effect_modeled": false
+},
+"3633614685": {
+"name": "Extra Health",
+"class_name": "upgrade_health",
+"slot": "vitality",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": false
+},
+"2829638276": {
+"name": "Extra Regen",
+"class_name": "upgrade_endurance",
+"slot": "vitality",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": false
+},
+"4139877411": {
+"name": "Extra Stamina",
+"class_name": "upgrade_improved_stamina",
+"slot": "vitality",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": false
+},
+"1672893796": {
+"name": "Grit",
+"class_name": "upgrade_grit",
+"slot": "vitality",
+"tier": 1,
+"cost": 800,
+"active": true,
+"effect_modeled": true
+},
+"1710079648": {
+"name": "Healing Rite",
+"class_name": "upgrade_health_stimpak",
+"slot": "vitality",
+"tier": 1,
+"cost": 800,
+"active": true,
+"effect_modeled": false
+},
+"1437614329": {
+"name": "Melee Lifesteal",
+"class_name": "upgrade_lifestrike_gauntlets",
+"slot": "vitality",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": true
+},
+"4204808176": {
+"name": "Rebuttal",
+"class_name": "upgrade_melee_rebuttal",
+"slot": "vitality",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": false
+},
+"3399065363": {
+"name": "Sprint Boots",
+"class_name": "upgrade_sprint_booster",
+"slot": "vitality",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": false
+},
+"1235347618": {
+"name": "Battle Vest",
+"class_name": "upgrade_regenerating_bullet_shield",
+"slot": "vitality",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"499683006": {
+"name": "Bullet Lifesteal",
+"class_name": "upgrade_vampire",
+"slot": "vitality",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": false
+},
+"1047818222": {
+"name": "Debuff Reducer",
+"class_name": "upgrade_debuff_reducer",
+"slot": "vitality",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": false
+},
+"3970837787": {
+"name": "Enchanter's Emblem",
+"class_name": "upgrade_magic_shield",
+"slot": "vitality",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"2447176615": {
+"name": "Enduring Speed",
+"class_name": "upgrade_cardio_calibrator",
+"slot": "vitality",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": false
+},
+"857669956": {
+"name": "Guardian Ward",
+"class_name": "upgrade_guardian_ward",
+"slot": "vitality",
+"tier": 2,
+"cost": 1600,
+"active": true,
+"effect_modeled": true
+},
+"2603935618": {
+"name": "Healbane",
+"class_name": "upgrade_healbane",
+"slot": "vitality",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"2566692615": {
+"name": "Healing Booster",
+"class_name": "upgrade_healing_booster",
+"slot": "vitality",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": false
+},
+"1644605047": {
+"name": "Reactive Barrier",
+"class_name": "upgrade_vex_barrier",
+"slot": "vitality",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"2059712766": {
+"name": "Restorative Locket",
+"class_name": "upgrade_restorative_locket",
+"slot": "vitality",
+"tier": 2,
+"cost": 1600,
+"active": true,
+"effect_modeled": true
+},
+"3361075077": {
+"name": "Return Fire",
+"class_name": "upgrade_return_fire",
+"slot": "vitality",
+"tier": 2,
+"cost": 1600,
+"active": true,
+"effect_modeled": true
+},
+"876563814": {
+"name": "Spirit Lifesteal",
+"class_name": "upgrade_health_stealing_magic",
+"slot": "vitality",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": false
+},
+"112198670": {
+"name": "Spirit Shielding",
+"class_name": "upgrade_spirit_bubble",
+"slot": "vitality",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"3074274290": {
+"name": "Trophy Collector",
+"class_name": "upgrade_trophy_collector",
+"slot": "vitality",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": false
+},
+"805079544": {
+"name": "Weapon Shielding",
+"class_name": "upgrade_weapon_shielding",
+"slot": "vitality",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"3140772621": {
+"name": "Bullet Resilience",
+"class_name": "upgrade_improved_bullet_armor",
+"slot": "vitality",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"1414025773": {
+"name": "Counterspell",
+"class_name": "upgrade_counterspell",
+"slot": "vitality",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": false
+},
+"3731635960": {
+"name": "Dispel Magic",
+"class_name": "upgrade_reduce_debuff_duration",
+"slot": "vitality",
+"tier": 3,
+"cost": 3200,
+"active": true,
+"effect_modeled": true
+},
+"3585132399": {
+"name": "Fortitude",
+"class_name": "upgrade_chonky",
+"slot": "vitality",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"1409190604": {
+"name": "Fury Trance",
+"class_name": "upgrade_fury_trance",
+"slot": "vitality",
+"tier": 3,
+"cost": 3200,
+"active": true,
+"effect_modeled": true
+},
+"2956256701": {
+"name": "Healing Nova",
+"class_name": "upgrade_health_nova",
+"slot": "vitality",
+"tier": 3,
+"cost": 3200,
+"active": true,
+"effect_modeled": true
+},
+"1252627263": {
+"name": "Lifestrike",
+"class_name": "upgrade_boxing_glove",
+"slot": "vitality",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"600033864": {
+"name": "Majestic Leap",
+"class_name": "upgrade_rocket_booster",
+"slot": "vitality",
+"tier": 3,
+"cost": 3200,
+"active": true,
+"effect_modeled": true
+},
+"1378931225": {
+"name": "Metal Skin",
+"class_name": "upgrade_metal_skin",
+"slot": "vitality",
+"tier": 3,
+"cost": 3200,
+"active": true,
+"effect_modeled": true
+},
+"1804594021": {
+"name": "Rescue Beam",
+"class_name": "upgrade_rescue_beam",
+"slot": "vitality",
+"tier": 3,
+"cost": 3200,
+"active": true,
+"effect_modeled": true
+},
+"2163598980": {
+"name": "Spirit Resilience",
+"class_name": "upgrade_tech_purge",
+"slot": "vitality",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"334300056": {
+"name": "Stamina Mastery",
+"class_name": "upgrade_superior_stamina",
+"slot": "vitality",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": false
+},
+"865958998": {
+"name": "Veil Walker",
+"class_name": "upgrade_veil_walker",
+"slot": "vitality",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": false
+},
+"3270001687": {
+"name": "Warp Stone",
+"class_name": "upgrade_warp_stone",
+"slot": "vitality",
+"tier": 3,
+"cost": 3200,
+"active": true,
+"effect_modeled": true
+},
+"3361811174": {
+"name": "Cheat Death",
+"class_name": "upgrade_cheat_death",
+"slot": "vitality",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"2407781327": {
+"name": "Colossus",
+"class_name": "upgrade_colossus",
+"slot": "vitality",
+"tier": 4,
+"cost": 6400,
+"active": true,
+"effect_modeled": true
+},
+"1662311306": {
+"name": "Divine Barrier",
+"class_name": "upgrade_divine_barrier",
+"slot": "vitality",
+"tier": 4,
+"cost": 6400,
+"active": true,
+"effect_modeled": true
+},
+"2820116164": {
+"name": "Diviner's Kevlar",
+"class_name": "upgrade_diviners_kevlar",
+"slot": "vitality",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"1427630806": {
+"name": "Healing Tempo",
+"class_name": "upgrade_healbuff",
+"slot": "vitality",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"951866250": {
+"name": "Indomitable",
+"class_name": "upgrade_auto_cleanse",
+"slot": "vitality",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"1797283378": {
+"name": "Infuser",
+"class_name": "upgrade_infuser",
+"slot": "vitality",
+"tier": 4,
+"cost": 6400,
+"active": true,
+"effect_modeled": true
+},
+"2037039379": {
+"name": "Inhibitor",
+"class_name": "upgrade_inhibitor",
+"slot": "vitality",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"1250307611": {
+"name": "Juggernaut",
+"class_name": "upgrade_juggernaut",
+"slot": "vitality",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"865846625": {
+"name": "Leech",
+"class_name": "upgrade_damage_recycler",
+"slot": "vitality",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": false
+},
+"1371725689": {
+"name": "Phantom Strike",
+"class_name": "upgrade_phantom_strike",
+"slot": "vitality",
+"tier": 4,
+"cost": 6400,
+"active": true,
+"effect_modeled": true
+},
+"3491236900": {
+"name": "Plated Armor",
+"class_name": "upgrade_deflecting_armor",
+"slot": "vitality",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"1282141666": {
+"name": "Siphon Bullets",
+"class_name": "upgrade_siphon_bullets",
+"slot": "vitality",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"1955841979": {
+"name": "Spellbreaker",
+"class_name": "upgrade_spellbreaker",
+"slot": "vitality",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"3357231760": {
+"name": "Unstoppable",
+"class_name": "upgrade_unstoppable",
+"slot": "vitality",
+"tier": 4,
+"cost": 6400,
+"active": true,
+"effect_modeled": true
+},
+"1055679805": {
+"name": "Vampiric Burst",
+"class_name": "upgrade_surging_power",
+"slot": "vitality",
+"tier": 4,
+"cost": 6400,
+"active": true,
+"effect_modeled": true
+},
+"3028234315": {
+"name": "Witchmail",
+"class_name": "upgrade_absorbing_armor",
+"slot": "vitality",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"3729138568": {
+"name": "Celestial Blessing",
+"class_name": "upgrade_celestial_guidance",
+"slot": "vitality",
+"tier": 5,
+"cost": 9999,
+"active": true,
+"effect_modeled": false
+},
+"3523480953": {
+"name": "Cloak of Opportunity",
+"class_name": "upgrade_cloak_of_opportunity",
+"slot": "vitality",
+"tier": 5,
+"cost": 9999,
+"active": false,
+"effect_modeled": false
+},
+"1825399334": {
+"name": "Electric Slippers",
+"class_name": "upgrade_electric_slippers",
+"slot": "vitality",
+"tier": 5,
+"cost": 9999,
+"active": false,
+"effect_modeled": false
+},
+"230297145": {
+"name": "Eternal Gift",
+"class_name": "upgrade_eternal_gift",
+"slot": "vitality",
+"tier": 5,
+"cost": 9999,
+"active": false,
+"effect_modeled": false
+},
+"3949773228": {
+"name": "Nullification Burst",
+"class_name": "upgrade_nullification_aura",
+"slot": "vitality",
+"tier": 5,
+"cost": 9999,
+"active": true,
+"effect_modeled": false
+},
+"1736094134": {
+"name": "Seraphim Wings",
+"class_name": "upgrade_icarus_wings",
+"slot": "vitality",
+"tier": 5,
+"cost": 9999,
+"active": false,
+"effect_modeled": false
+},
+"2319629810": {
+"name": "Shadow Strike",
+"class_name": "upgrade_shadow_strike",
+"slot": "vitality",
+"tier": 5,
+"cost": 9999,
+"active": false,
+"effect_modeled": false
+},
+"1342610602": {
+"name": "Close Quarters",
+"class_name": "upgrade_close_range",
+"slot": "weapon",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": true
+},
+"1548066885": {
+"name": "Extended Magazine",
+"class_name": "upgrade_clip_size",
+"slot": "weapon",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": false
+},
+"2010028405": {
+"name": "Headshot Booster",
+"class_name": "upgrade_headshot_booster",
+"slot": "weapon",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": true
+},
+"3077079169": {
+"name": "High-Velocity Rounds",
+"class_name": "upgrade_high_velocity_mag",
+"slot": "weapon",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": false
+},
+"1009965641": {
+"name": "Monster Rounds",
+"class_name": "upgrade_non_player_bonus",
+"slot": "weapon",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": false
+},
+"668299740": {
+"name": "Rapid Rounds",
+"class_name": "upgrade_rapid_rounds",
+"slot": "weapon",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": false
+},
+"3862866912": {
+"name": "Restorative Shot",
+"class_name": "upgrade_medic_bullets",
+"slot": "weapon",
+"tier": 1,
+"cost": 800,
+"active": false,
+"effect_modeled": true
+},
+"381961617": {
+"name": "Active Reload",
+"class_name": "upgrade_active_reload",
+"slot": "weapon",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"3403085434": {
+"name": "Fleetfoot",
+"class_name": "upgrade_fleetfoot_boots",
+"slot": "weapon",
+"tier": 2,
+"cost": 1600,
+"active": true,
+"effect_modeled": false
+},
+"2407033488": {
+"name": "Intensifying Magazine",
+"class_name": "upgrade_intensifying_clip",
+"slot": "weapon",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"3977876567": {
+"name": "Kinetic Dash",
+"class_name": "upgrade_kinetic_sash",
+"slot": "weapon",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"3331811235": {
+"name": "Long Range",
+"class_name": "upgrade_long_range",
+"slot": "weapon",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"26002154": {
+"name": "Melee Charge",
+"class_name": "upgrade_melee_charge",
+"slot": "weapon",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"395867183": {
+"name": "Mystic Shot",
+"class_name": "upgrade_crackshot",
+"slot": "weapon",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"2064029594": {
+"name": "Opening Rounds",
+"class_name": "upgrade_pristine_emblem",
+"slot": "weapon",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"1763073141": {
+"name": "Recharging Rush",
+"class_name": "upgrade_rechargingbullets",
+"slot": "weapon",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"393974127": {
+"name": "Slowing Bullets",
+"class_name": "upgrade_slowing_bullets",
+"slot": "weapon",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"1144549437": {
+"name": "Spirit Shredder",
+"class_name": "upgrade_tech_defense_shredders",
+"slot": "weapon",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"3647584222": {
+"name": "Split Shot",
+"class_name": "upgrade_split_shot",
+"slot": "weapon",
+"tier": 2,
+"cost": 1600,
+"active": true,
+"effect_modeled": false
+},
+"98582110": {
+"name": "Stalker",
+"class_name": "upgrade_weapon_backstabber",
+"slot": "weapon",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"4104549924": {
+"name": "Swift Striker",
+"class_name": "upgrade_blitz_bullets",
+"slot": "weapon",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": false
+},
+"2356412290": {
+"name": "Titanic Magazine",
+"class_name": "upgrade_titan_round",
+"slot": "weapon",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": false
+},
+"1770441818": {
+"name": "Weakening Headshot",
+"class_name": "upgrade_headshot_booster2",
+"slot": "weapon",
+"tier": 2,
+"cost": 1600,
+"active": false,
+"effect_modeled": true
+},
+"1932939246": {
+"name": "Alchemical Fire",
+"class_name": "upgrade_thermal_detonator",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": true,
+"effect_modeled": true
+},
+"3294954488": {
+"name": "Ballistic Enchantment",
+"class_name": "upgrade_bulletshredimbue",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"1414319208": {
+"name": "Berserker",
+"class_name": "upgrade_berserker",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"989206714": {
+"name": "Blood Tribute",
+"class_name": "upgrade_blood_tribute",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": true,
+"effect_modeled": true
+},
+"2739107182": {
+"name": "Burst Fire",
+"class_name": "upgrade_burst_fire",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"709540378": {
+"name": "Cultist Sacrifice",
+"class_name": "upgrade_non_player_bonus_sacrifice",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": true,
+"effect_modeled": true
+},
+"2463960640": {
+"name": "Escalating Resilience",
+"class_name": "upgrade_reinforcing_casings",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"690458959": {
+"name": "Express Shot",
+"class_name": "upgrade_express_shot",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"4053935515": {
+"name": "Headhunter",
+"class_name": "upgrade_headhunter",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"2108215830": {
+"name": "Heroic Aura",
+"class_name": "upgrade_dps_aura",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": true,
+"effect_modeled": true
+},
+"2678489038": {
+"name": "Hollow Point",
+"class_name": "upgrade_hollow_point_rounds",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"2481177645": {
+"name": "Hunter's Aura",
+"class_name": "upgrade_bullet_armor_reduction_aura",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"2095565695": {
+"name": "Point Blank",
+"class_name": "upgrade_close_quarter_combat",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"1798666702": {
+"name": "Shadow Weave",
+"class_name": "upgrade_cloaking_device_active",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": true,
+"effect_modeled": true
+},
+"2152872419": {
+"name": "Sharpshooter",
+"class_name": "upgrade_sharpshooter",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"4075861416": {
+"name": "Spirit Rend",
+"class_name": "upgrade_spellslinger_headshots",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"811521119": {
+"name": "Tesla Bullets",
+"class_name": "upgrade_chain_lightning",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"3696726732": {
+"name": "Toxic Bullets",
+"class_name": "upgrade_toxic_bullets",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"3791587546": {
+"name": "Weighted Shots",
+"class_name": "upgrade_weighted_shots",
+"slot": "weapon",
+"tier": 3,
+"cost": 3200,
+"active": false,
+"effect_modeled": true
+},
+"673001892": {
+"name": "Armor Piercer",
+"class_name": "upgrade_aprounds",
+"slot": "weapon",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"710436191": {
+"name": "Capacitor",
+"class_name": "upgrade_capacitor",
+"slot": "weapon",
+"tier": 4,
+"cost": 6400,
+"active": true,
+"effect_modeled": true
+},
+"3884003354": {
+"name": "Crippling Headshot",
+"class_name": "upgrade_banshee_slugs",
+"slot": "weapon",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"800008313": {
+"name": "Crushing Fists",
+"class_name": "upgrade_crushing_fists",
+"slot": "weapon",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"339443430": {
+"name": "Frenzy",
+"class_name": "upgrade_fervor",
+"slot": "weapon",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"365620721": {
+"name": "Glass Cannon",
+"class_name": "upgrade_glass_cannon",
+"slot": "weapon",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": false
+},
+"1396247347": {
+"name": "Lucky Shot",
+"class_name": "upgrade_critshot",
+"slot": "weapon",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"2480592370": {
+"name": "Ricochet",
+"class_name": "upgrade_ricochet",
+"slot": "weapon",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": false
+},
+"1113837674": {
+"name": "Silencer",
+"class_name": "upgrade_proc_silence",
+"slot": "weapon",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"2221211450": {
+"name": "Spellslinger",
+"class_name": "upgrade_enchanted_holsters",
+"slot": "weapon",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"2226497419": {
+"name": "Spiritual Overflow",
+"class_name": "upgrade_tech_overflow",
+"slot": "weapon",
+"tier": 4,
+"cost": 6400,
+"active": false,
+"effect_modeled": true
+},
+"3568217437": {
+"name": "Haunting Shot",
+"class_name": "upgrade_eldritch_shot",
+"slot": "weapon",
+"tier": 5,
+"cost": 9999,
+"active": false,
+"effect_modeled": true
+},
+"3269957497": {
+"name": "Infinite Rounds",
+"class_name": "upgrade_infinite_rounds",
+"slot": "weapon",
+"tier": 5,
+"cost": 9999,
+"active": false,
+"effect_modeled": false
+},
+"64550694": {
+"name": "Runed Gauntlets",
+"class_name": "upgrade_runed_gauntlets",
+"slot": "weapon",
+"tier": 5,
+"cost": 9999,
+"active": false,
+"effect_modeled": true
+}
+}

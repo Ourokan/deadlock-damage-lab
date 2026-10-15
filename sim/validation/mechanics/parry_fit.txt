@@ -1,0 +1,8 @@
+teams 800 mean enemy melee hits landed 101.0 mean team parry success 22.0 miss 23.7
+fit: parries = 16.51 + 0.054 * enemy landed melee hits
+b 90% CI 0.028-0.081
+share of hero melee attempts parried = b/(1+b) = 0.051
+quartile 0 hits 34 parries 19.4
+quartile 1 hits 68 parries 19.1
+quartile 2 hits 107 parries 22.4
+quartile 3 hits 195 parries 27.0

@@ -1,0 +1,55 @@
+{
+ "matches": 600,
+ "ability_dmg_taken_ratio_Counterspell": {
+  "ratio": 0.981,
+  "ci90": [
+   0.966,
+   0.997
+  ],
+  "windows": 21003
+ },
+ "ability_dmg_taken_ratio_Metal Skin": {
+  "ratio": 1.125,
+  "ci90": [
+   1.098,
+   1.153
+  ],
+  "windows": 6337
+ },
+ "ability_dmg_taken_ratio_Spirit Resilience": {
+  "ratio": 0.941,
+  "ci90": [
+   0.928,
+   0.954
+  ],
+  "windows": 23140
+ },
+ "ability_dmg_taken_ratio_Unstoppable": {
+  "ratio": 1.056,
+  "ci90": [
+   1.031,
+   1.08
+  ],
+  "windows": 8305
+ },
+ "Ricochet": {
+  "item_dmg_over_gun_dmg": 0.15,
+  "holder_windows": 4629
+ },
+ "Split Shot": {
+  "item_dmg_over_gun_dmg": 0.2707,
+  "holder_windows": 1458
+ },
+ "Rebuttal": {
+  "dmg_per_180s_window": 45.0,
+  "holder_windows": 3694
+ },
+ "parry_success_per_180s": {
+  "reb": 0.88,
+  "other": 0.47
+ },
+ "parry_windows": {
+  "reb": 1004,
+  "other": 22463
+ }
+}

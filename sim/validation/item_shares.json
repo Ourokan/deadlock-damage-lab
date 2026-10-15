@@ -1,0 +1,173 @@
+{
+ "meta": {
+  "source": "3628 player-matches x 3 duels, 20 s max, real builds both sides",
+  "formula": "(real ability dmg / real gun dmg) / (sim ability dmg / sim gun dmg)"
+ },
+ "items": {
+  "upgrade_magic_shock": {
+   "name": "Tankbuster",
+   "real": 0.02471,
+   "sim": 0.01474
+  },
+  "upgrade_tech_damage_pulse": {
+   "name": "Torment Pulse",
+   "real": 0.01123,
+   "sim": 0.0027
+  },
+  "upgrade_escalating_exposure": {
+   "name": "Escalating Exposure",
+   "real": 0.00805,
+   "sim": 0.0
+  },
+  "upgrade_capacitor": {
+   "name": "Capacitor",
+   "real": 0.00724,
+   "sim": 0.00103
+  },
+  "upgrade_spirit_snatch": {
+   "name": "Spirit Snatch",
+   "real": 0.0068,
+   "sim": 0.00484
+  },
+  "upgrade_toxic_bullets": {
+   "name": "Toxic Bullets",
+   "real": 0.00668,
+   "sim": 0.00767
+  },
+  "upgrade_weapon_backstabber": {
+   "name": "Stalker",
+   "real": 0.00637,
+   "sim": 0.00385
+  },
+  "upgrade_magic_burst": {
+   "name": "Mystic Burst",
+   "real": 0.00587,
+   "sim": 0.00307
+  },
+  "upgrade_spirit_burn": {
+   "name": "Spirit Burn",
+   "real": 0.00581,
+   "sim": 0.00408
+  },
+  "upgrade_headhunter": {
+   "name": "Headhunter",
+   "real": 0.00552,
+   "sim": 0.00637
+  },
+  "upgrade_mystic_reverb": {
+   "name": "Mystic Reverb",
+   "real": 0.00541,
+   "sim": 0.00096
+  },
+  "upgrade_quick_silver": {
+   "name": "Quicksilver Reload",
+   "real": 0.00534,
+   "sim": 0.00378
+  },
+  "upgrade_siphon_bullets": {
+   "name": "Siphon Bullets",
+   "real": 0.00531,
+   "sim": 0.0
+  },
+  "upgrade_express_shot": {
+   "name": "Express Shot",
+   "real": 0.00507,
+   "sim": 0.0
+  },
+  "upgrade_chain_lightning": {
+   "name": "Tesla Bullets",
+   "real": 0.00491,
+   "sim": 0.00262
+  },
+  "upgrade_ethereal_bullets": {
+   "name": "Mercurial Magnum",
+   "real": 0.00464,
+   "sim": 0.01294
+  },
+  "upgrade_cold_front": {
+   "name": "Cold Front",
+   "real": 0.00408,
+   "sim": 0.00185
+  },
+  "upgrade_ricochet": {
+   "name": "Ricochet",
+   "real": 0.00401,
+   "sim": 0.0
+  },
+  "upgrade_arctic_blast": {
+   "name": "Arctic Blast",
+   "real": 0.00343,
+   "sim": 0.00196
+  },
+  "upgrade_crackshot": {
+   "name": "Mystic Shot",
+   "real": 0.00335,
+   "sim": 0.00672
+  },
+  "upgrade_critshot": {
+   "name": "Lucky Shot",
+   "real": 0.00299,
+   "sim": 0.00098
+  },
+  "upgrade_split_shot": {
+   "name": "Split Shot",
+   "real": 0.00206,
+   "sim": 0.0
+  },
+  "upgrade_melee_charge": {
+   "name": "Melee Charge",
+   "real": 0.00198,
+   "sim": 0.0
+  },
+  "upgrade_discord": {
+   "name": "Scourge",
+   "real": 0.00177,
+   "sim": 0.00213
+  },
+  "upgrade_acolytes_glove": {
+   "name": "Spirit Strike",
+   "real": 0.0017,
+   "sim": 0.00112
+  },
+  "upgrade_headshot_booster": {
+   "name": "Headshot Booster",
+   "real": 0.00159,
+   "sim": 0.00097
+  },
+  "upgrade_rupture": {
+   "name": "Decay",
+   "real": 0.00134,
+   "sim": 0.00128
+  },
+  "upgrade_return_fire": {
+   "name": "Return Fire",
+   "real": 0.00122,
+   "sim": 0.00051
+  },
+  "upgrade_thermal_detonator": {
+   "name": "Alchemical Fire",
+   "real": 0.00107,
+   "sim": 0.00046
+  },
+  "upgrade_crushing_fists": {
+   "name": "Crushing Fists",
+   "real": 0.00098,
+   "sim": 0.00046
+  },
+  "upgrade_phantom_strike": {
+   "name": "Phantom Strike",
+   "real": 0.00069,
+   "sim": 0.00072
+  },
+  "upgrade_focus_lens": {
+   "name": "Focus Lens",
+   "real": 0.00056,
+   "sim": 0.00106
+  },
+  "upgrade_melee_rebuttal": {
+   "name": "Rebuttal",
+   "real": 0.00056,
+   "sim": 0.0
+  }
+ }
+}

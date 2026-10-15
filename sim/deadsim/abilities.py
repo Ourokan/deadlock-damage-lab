@@ -1,0 +1,500 @@
+"""Hero ability layer.
+
+Every ability gets an AbilityState in the fight. Its behaviour comes from an AbilityImpl subclass
+registered by the ability's class_name (see deadsim/heroes/*.py). Abilities without a hand-written
+implementation fall back to GenericAbility, which deals the ability's listed damage on cast.
+
+Writing an implementation (the whole API an ability needs):
+
+    from deadsim.abilities import AbilityImpl, register
+
+    @register("ability_incendiary_projectile")          # class_name from data/game/abilities.json
+    class Napalm(AbilityImpl):
+        kind = "skillshot"                               # skillshot | target | aoe | self | passive
+        def cast(self, c):                               # c is a CastCtx
+            c.lock_gun(c.val("AbilityCastDelay"))        # can't shoot while casting
+            c.spirit_hit(c.val("Damage"), delay=c.val("AbilityCastDelay"))
+            c.debuff("damage_taken_amp", c.val("IncomingDamagePercentFromCaster") / 100, c.dur("DebuffDuration"))
+
+CastCtx helpers: val(prop) (upgrades + spirit/boon/melee/weapon scaling + duration/range applied), raw(prop),
+scale(prop) (scaling factor incl. upgrades), light_melee(),
+dur(prop), tier (0-3 upgrades bought), sp (caster spirit power for this ability), dist (meters),
+spirit_hit(amount, ...), dot(dps, duration, ...), bullet_hit(amount), debuff(key, value, duration),
+buff(key, value, duration), barrier(amount, duration), heal(amount), lock_gun(seconds),
+after(delay, fn), engine, me (Fighter), foe (Fighter).
+
+Modifier keys understood by the engine (buff on caster / debuff on enemy):
+    weapon_pct, fire_rate, fire_rate_slow, spirit_power, bullet_resist, spirit_resist,
+    bullet_shred, spirit_shred, damage_taken_amp, spirit_amp_taken, bullet_amp_taken,
+    damage_amp (caster: + all outgoing damage), outgoing_penalty, spirit_outgoing_penalty, bullet_lifesteal, spirit_lifesteal,
+    heal_received, regen, max_health, evasion, crit_taken, reload_mult,
+    stun, silence, disarm, invulnerable, bullet_immune, item_silence (value ignored for states).
+Values are fractions (0.16 = 16%) except spirit_power, regen, max_health (flat).
+"""
+from __future__ import annotations
+
+from .build import combine_resist
+
+REGISTRY = {}
+
+
+def register(*class_names):
+    def deco(cls):
+        for n in class_names:
+            REGISTRY[n] = cls
+        return cls
+    return deco
+
+
+DAMAGE_PROPS = ("Damage", "ImpactDamage", "ExplosionDamage", "ExplodeDamage", "BaseDamage", "LandingDamage",
+                "StompDamage", "PulseDamage", "FullChargeDamage", "MaxDamage", "PerfectDamage", "DelayedDamage")
+DPS_PROPS = ("DPS", "PulseDPS", "TurretDPS", "MaxDPS")
+DUR_PROPS = ("AbilityDuration", "DebuffDuration", "DotDuration", "Duration", "AbilityChannelTime")
+
+
+class CastCtx:
+    def __init__(self, state):
+        self.s = state
+
+    # data access ----------------------------------------------------------------------------------
+    @property
+    def engine(self):
+        return self.s.f.e
+
+    @property
+    def me(self):
+        return self.s.f
+
+    @property
+    def foe(self):
+        return self.s.f.enemy
+
+    @property
+    def tier(self):
+        return self.s.tier
+
+    @property
+    def dist(self):
+        return self.s.f.e.distance
+
+    @property
+    def now(self):
+        return self.s.f.e.t
+
+    @property
+    def sp(self):
+        return self.s.spirit_power()
+
+    @property
+    def state(self):
+        """Per-fight scratch dict for this ability (stacks, toggles, ...)."""
+        return self.s.scratch
+
+    def _special(self, prop):
+        """Bought scale / multiply upgrades for prop: [(upgrade_type, scale_stat_filter, bonus), ...]."""
+        out = []
+        for i, u in enumerate(self.s.ab.scale_upgrades):
+            if i < self.s.tier and prop in u:
+                out.extend(u[prop])
+        return out
+
+    def raw(self, prop, default=0.0):
+        """Base value + bought flat upgrades (and EMultiplyBase % upgrades), no scaling. Cached per tier."""
+        key = (prop, default, self.s.tier)
+        cache = self.s.__dict__.setdefault("_raw_cache", {})
+        v = cache.get(key)
+        if v is None:
+            v = cache[key] = self._raw(prop, default)
+        return v
+
+    def _raw(self, prop, default):
+        ab = self.s.ab
+        v = ab.props.get(prop)
+        v = default if v is None else v
+        for i, u in enumerate(ab.upgrades):
+            if i < self.s.tier and prop in u and u[prop] is not None:
+                v += u[prop]
+        for t, _, b in self._special(prop):
+            if t == "EMultiplyBase":
+                v *= 1.0 + b / 100.0
+        return v
+
+    def scale(self, prop):
+        """The property's scaling factor with bought EAddToScale / EMultiplyScale upgrades applied."""
+        sc = self.s.ab.scale.get(prop)
+        k = sc[2] if sc else 0.0
+        for t, _, b in self._special(prop):
+            if t == "EAddToScale":
+                k += b
+            elif t == "EMultiplyScale" and b:
+                k *= b
+        return k
+
+    def scale_type(self, prop):
+        """(scale class, stat type) of the property, or (None, None). A property with no base scale that gains
+        an EAddToScale upgrade takes the upgrade's stat filter (spirit power when unset)."""
+        sc = self.s.ab.scale.get(prop)
+        if sc:
+            return sc[0], sc[1]
+        for t, filt, _ in self._special(prop):
+            if t == "EAddToScale":
+                return "scale_function_tech_damage" if filt in (None, "ETechPower") else None, filt or "ETechPower"
+        return None, None
+
+    def light_melee(self):
+        """Hero light melee damage at the current level (base + per-boon growth), before melee % bonuses."""
+        h = self.me.st.hero
+        return h.base.get("light_melee_damage", 0.0) + self.me.st.boons * h.per_boon.get(
+            "MODIFIER_VALUE_BASE_MELEE_DAMAGE_FROM_LEVEL", 0.0)
+
+    def val(self, prop, default=0.0):
+        """Value as the game would show it: upgrades, + scaling (spirit power, healing spirit scale, boons,
+        light melee, weapon damage %), duration / range item bonuses."""
+        v = self.raw(prop, default)
+        cls, stype = self.scale_type(prop)
+        k = self.scale(prop)
+        if not k:
+            return v
+        if cls in ("scale_function_tech_damage", "scale_function_healing_spirit_scale") or stype == "ETechPower":
+            v += k * self.sp
+        elif stype == "ETechDuration" or cls == "scale_function_tech_duration":
+            v *= 1.0 + self.s.duration_pct()
+        elif stype in ("ETechRange", "ETechRadius"):
+            v *= 1.0 + self.s.range_pct()
+        elif stype == "ELevelUpBoons":
+            v += k * self.me.st.boons
+        elif stype == "ELightMeleeDamage":
+            v += k * self.light_melee()
+        elif stype == "EBaseWeaponDamageIncrease":
+            v *= 1.0 + k * (self.me.st.weapon_pct + self.me.stat("weapon_pct"))
+        return v
+
+    def dur(self, prop, default=0.0):
+        """Duration with ability-duration bonuses applied even if the property has no scale tag."""
+        return self.raw(prop, default) * (1.0 + self.s.duration_pct())
+
+    def rng(self, prop, default=0.0):
+        return self.raw(prop, default) * (1.0 + self.s.range_pct())
+
+    # effects --------------------------------------------------------------------------------------
+    def spirit_hit(self, amount, *, delay=0.0, name=None, hit_chance=None, ignore_resist=False, nonlethal=False):
+        """Instant spirit damage to the enemy (after delay). hit_chance defaults to caster's spirit_accuracy for
+        skillshots and 1.0 otherwise."""
+        f, e = self.me, self.foe
+        name = name or self.s.ab.name
+        if hit_chance is None:
+            hit_chance = f.skill.spirit_accuracy if self.s.impl.kind == "skillshot" else 1.0
+        amount *= hit_chance
+
+        def go():
+            if f.alive or self.s.impl.post_mortem:
+                f.e.damage(f, e, amount, "spirit", name, is_ability=True, ability=self.s,
+                           is_ult=self.s.ab.ultimate, ignore_resist=ignore_resist, nonlethal=nonlethal)
+        if delay > 0:
+            f.e.after(delay, go)
+        else:
+            go()
+
+    def bullet_hit(self, amount, *, delay=0.0, name=None, headshots=0, hits=1):
+        f, e = self.me, self.foe
+        name = name or self.s.ab.name
+
+        def go():
+            f.e.damage(f, e, amount, "bullet", name, is_ability=True, ability=self.s, headshots=headshots, hits=hits)
+        if delay > 0:
+            f.e.after(delay, go)
+        else:
+            go()
+
+    def dot(self, dps, duration, *, tick=0.5, name=None, kind="spirit", tag=None, delay=0.0, hit_chance=1.0, **kw):
+        """Extra keywords (nonlethal, procs, ...) go to Engine.dot."""
+        f, e = self.me, self.foe
+        name = name or self.s.ab.name
+
+        def go():
+            f.e.dot(f, e, dps * hit_chance, duration, name, kind=kind, tick=tick, tag=tag or name,
+                    is_ability=True, ability=self.s, is_ult=self.s.ab.ultimate, **kw)
+        if delay > 0:
+            f.e.after(delay, go)
+        else:
+            go()
+
+    def gun_volley(self, n_bullets, per_bullet=None, *, name=None, accuracy=None, headshots=True, procs=True,
+                   extra_pct=0.0, kind="bullet"):
+        """Fire n bullets from an ability (e.g. a gun-based ultimate). per_bullet defaults to the hero's
+        current gun bullet (weapon %, falloff included). Accuracy/headshots use the caster's skill."""
+        f, e = self.me, self.foe
+        eng = f.e
+        base, crit = eng.bullet_damage(f, extra_pct)
+        per = base if per_bullet is None else per_bullet
+        acc = f.skill.accuracy if accuracy is None else accuracy
+        hits = f.hit_acc.take(acc * (1.0 - e.stat("evasion")), int(n_bullets))
+        if hits <= 0:
+            return 0
+        heads = f.head_acc.take(f.skill.headshot, hits) if headshots else 0
+        crit_eff = 1.0 + (crit - 1.0) * e.st.crit_received_scale
+        raw = per * (hits - heads) + per * crit_eff * heads
+        eng.damage(f, e, raw, kind, name or self.s.ab.name, is_ability=True, ability=self.s,
+                   headshots=heads, hits=hits, procs=procs, is_ult=self.s.ab.ultimate)
+        return hits
+
+    def melee_hit(self, amount, *, name=None, delay=0.0):
+        f, e = self.me, self.foe
+        amount *= 1.0 + f.st.melee_pct + f.stat("melee_pct")
+
+        def go():
+            f.e.damage(f, e, amount, "melee", name or self.s.ab.name, is_ability=True, ability=self.s)
+        if delay > 0:
+            f.e.after(delay, go)
+        else:
+            go()
+
+    def debuff(self, key, value, duration, tag=None, delay=0.0):
+        """Effect on the enemy. Status resist shortens it."""
+        e = self.foe
+        tag = tag or (self.s.ab.class_name, key)
+        dur = duration * (1.0 - e.st.status_resist - e.stat("status_resist"))
+
+        def go():
+            if not e.alive:
+                return
+            if self.me.e.mech is not None and "spell_parry" in e.counters:
+                from .mechanics import spell_blocked
+                if spell_blocked(self.me.e, self.me, e, self.s):
+                    return
+            e.mods.add(key, value, dur, tag)
+            e.mark_debuff(key, tag)
+            if key in ("stun", "silence", "disarm", "immobilize"):
+                for fx in e.items_fx:
+                    g = getattr(fx, "on_cc", None)
+                    if g:
+                        g(e, key)
+        if delay > 0:
+            self.me.e.after(delay, go)
+        else:
+            go()
+
+    def buff(self, key, value, duration, tag=None):
+        self.me.mods.add(key, value, duration, tag or (self.s.ab.class_name, key))
+
+    def barrier(self, amount, duration):
+        self.me.add_barrier(amount, duration)
+
+    def heal(self, amount):
+        return self.me.heal(amount, self.s.ab.name, "ability")
+
+    def self_damage(self, amount, kind="pure"):
+        """Health cost on the caster: resisted like damage of `kind` (pure = unresisted), never lethal, not
+        counted as damage dealt or taken."""
+        f = self.me
+        if kind == "spirit":
+            amount *= 1.0 - combine_resist(f.spirit_resists(), ())
+        elif kind == "bullet":
+            amount *= 1.0 - combine_resist(f.bullet_resists(), ())
+        f.hp = max(1.0, f.hp - max(0.0, amount))
+
+    def lock_gun(self, seconds):
+        f = self.me
+        f.gun_locked_until = max(f.gun_locked_until, f.e.t + max(0.0, seconds))
+
+    def after(self, delay, fn, *args):
+        self.me.e.after(delay, fn, *args)
+
+
+class AbilityImpl:
+    kind = "skillshot"         # skillshot | target | aoe | self | passive
+    post_mortem = False        # keeps dealing damage after the caster dies (e.g. projectiles in flight)
+    modeled = True             # False for GenericAbility so reports can flag it
+
+    def __init__(self, state):
+        self.s = state
+
+    range_props = ("AbilityCastRange", "Radius", "Range")
+
+    def in_range(self, c: CastCtx):
+        """Within the ability's reach. Players close a few meters to land abilities, so the caster's
+        skill.engage_margin (default 5 m) is added."""
+        r = 0.0
+        for p in self.range_props:
+            r = c.rng(p)
+            if r:
+                break
+        return r <= 0 or c.dist <= r + c.me.skill.engage_margin
+
+    def should_cast(self, c: CastCtx):
+        """Cast as soon as it's ready and the target is in range. Override for conditional casts."""
+        return self.in_range(c)
+
+    def cast(self, c: CastCtx):
+        pass
+
+    def start(self, c: CastCtx):
+        """Called once at fight start (passives, innate effects)."""
+
+
+class GenericAbility(AbilityImpl):
+    """Fallback: listed instant damage on cast + DPS over its duration. Marked unmodeled in reports."""
+    modeled = False
+
+    def should_cast(self, c):
+        return (c.raw("AbilityCooldown") > 0 and self.in_range(c)
+                and (any(c.raw(p) for p in DAMAGE_PROPS) or any(c.raw(p) for p in DPS_PROPS)))
+
+    def cast(self, c):
+        delay = c.raw("AbilityCastDelay")
+        for p in DAMAGE_PROPS:
+            if c.raw(p):
+                c.spirit_hit(c.val(p), delay=delay)
+                break
+        for p in DPS_PROPS:
+            if c.raw(p):
+                d = next((c.dur(q) for q in DUR_PROPS if c.raw(q)), 3.0)
+                c.dot(c.val(p), d, delay=delay)
+                break
+
+
+class AbilityState:
+    def __init__(self, fighter, ab, tier=0, unlocked=True, imbues=()):
+        self.f = fighter
+        self.ab = ab
+        self.tier = tier
+        self.unlocked = unlocked
+        self.imbues = list(imbues)       # Item objects imbued on this ability
+        self.scratch = {}
+        impl_cls = REGISTRY.get(ab.class_name, GenericAbility)
+        self.impl = impl_cls(self)
+        self.ctx = CastCtx(self)
+        self.charges = 0
+        self.next_charge = 0.0
+        self.ready_at = 0.0
+        self.casts = 0
+
+    # stats --------------------------------------------------------------------------------------------
+    def is_charged(self):
+        return self.ctx.raw("AbilityCooldownBetweenCharge") > 0 or self.ctx.raw("AbilityCharges") >= 2
+
+    def max_charges(self):
+        n = int(round(self.ctx.raw("AbilityCharges"))) or 1
+        if self.is_charged():
+            n += self.f.st.bonus_charges
+        return n
+
+    def spirit_power(self):
+        f = self.f
+        sp = f.spirit_power()
+        if self.is_charged():
+            sp += f.st.charged_spirit
+        for it in self.imbues:
+            if it.class_name == "upgrade_magic_storm":
+                sp += it.p("ImbuedTechPower")
+        sp += self.scratch.get("_bonus_spirit", 0.0)
+        return sp
+
+    def duration_pct(self):
+        d = self.f.st.duration_pct
+        for it in self.imbues:
+            if it.class_name == "upgrade_arcane_extension":
+                d += it.p("BonusAbilityDurationPercent") / 100
+        return d + self.scratch.get("_bonus_duration", 0.0)
+
+    def range_pct(self):
+        r = self.f.st.range_pct
+        for it in self.imbues:
+            if it.class_name in ("upgrade_magic_reach", "upgrade_bulletshredimbue"):
+                r += it.p("TechRangeMultiplier") / 100
+        return r
+
+    def cooldown(self):
+        base = self.ctx.raw("AbilityCooldown")
+        reds = [self.f.st.cdr, self.f.stat("cdr")]
+        if self.is_charged():
+            reds.append(self.f.st.charged_cdr)
+        if self.ab.ultimate:
+            reds.append(self.f.st.ult_cdr)
+        for it in self.imbues:
+            if it.class_name == "upgrade_magic_tempo":
+                reds.append(it.p("CooldownReduction") / 100)
+        keep = 1.0
+        for r in reds:
+            keep *= (1.0 - max(0.0, min(0.95, r)))
+        return base * keep
+
+    def charge_delay(self):
+        return self.ctx.raw("AbilityCooldownBetweenCharge") * (1.0 - self.f.st.charge_delay_red)
+
+    # lifecycle ----------------------------------------------------------------------------------------
+    def start(self):
+        self.charges = self.max_charges()
+        self.ready_at = self.f.e.t
+        if self.unlocked:
+            self.impl.start(self.ctx)
+
+    def _recharge(self):
+        t = self.f.e.t
+        while self.charges < self.max_charges() and self.next_charge and t >= self.next_charge:
+            self.charges += 1
+            self.next_charge = self.next_charge + self.cooldown() if self.charges < self.max_charges() else 0.0
+
+    def try_cast(self):
+        if not self.unlocked or self.impl.kind == "passive":
+            return False
+        t = self.f.e.t
+        self._recharge()
+        if self.charges <= 0 or t < self.ready_at:
+            return False
+        if self.f.counters.get("fleeing") and self.impl.kind != "self":
+            return False
+        if not self.impl.should_cast(self.ctx):
+            return False
+        self.cast()
+        return True
+
+    def cast(self):
+        f = self.f
+        t = f.e.t
+        self.casts += 1
+        self.charges -= 1
+        if self.max_charges() > 1:
+            if not self.next_charge:
+                self.next_charge = t + self.cooldown()
+            self.ready_at = t + self.charge_delay()
+        else:
+            self.ready_at = t + self.cooldown()
+            self.next_charge = self.ready_at
+        f.e.note(f"{f.name} casts {self.ab.name}")
+        for fx in f.items_fx:
+            g = getattr(fx, "on_cast", None)
+            if g:
+                g(f, self)
+        if f.enemy is not None:
+            for fx in f.enemy.items_fx:
+                g = getattr(fx, "on_enemy_cast", None)
+                if g:
+                    g(f.enemy, self)
+        self.impl.cast(self.ctx)
+        if f.e.mech is not None:
+            from .mechanics import after_cast
+            after_cast(self)
+        self.scratch.pop("_bonus_spirit", None)
+        self.scratch.pop("_bonus_duration", None)
+
+    def reset_cooldown(self):
+        self.charges = self.max_charges()
+        self.ready_at = self.f.e.t
+        self.next_charge = 0.0
+
+
+_LOADED = False
+
+
+def load_heroes():
+    """Import every module in deadsim/heroes so their @register decorators run (once per process)."""
+    global _LOADED
+    if _LOADED:
+        return
+    _LOADED = True
+    import importlib
+    import pkgutil
+    from . import heroes
+    for m in pkgutil.iter_modules(heroes.__path__):
+        importlib.import_module(f"{heroes.__name__}.{m.name}")
