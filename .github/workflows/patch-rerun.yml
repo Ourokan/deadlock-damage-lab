@@ -134,6 +134,7 @@ jobs:
           path: |
             damage/work/jobs
             damage/work/jobs_order
+            damage/work/jobs_overall
             search/work/jobs*
             survival/work/jobs
             pipeline/work
@@ -179,6 +180,7 @@ jobs:
           python3 damage/scripts/export.py
           python3 search/scripts/export.py
           python3 survival/scripts/export.py
+          python3 damage/scripts/export_overall.py
       - name: Commit to main
         run: |
           git config user.name "github-actions[bot]"

@@ -29,6 +29,7 @@ def main():
     for b in BRACKETS:
         dirs[f"duel_{b}"] = ("search/work/jobs" + suffix(b), len(heroes) * n)
     dirs["survival"] = ("survival/work/jobs", N_TANKS * n)
+    dirs["overall"] = ("damage/work/jobs_overall", len(heroes) * n)
     failed = {}
     for fn in glob.glob(os.path.join(ROOT, "pipeline", "work", "shard_*.json")):
         with open(fn) as f:

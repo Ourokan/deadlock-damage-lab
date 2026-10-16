@@ -418,6 +418,29 @@ async function renderDuelTab() {
     <tbody>${b.popular ? row(b.popular, 'Popular<span class="tag">real</span>', "pop") : ""}${b.builds.map((x, i) => row(x, `#${x.rank || i + 1}`)).join("")}</tbody></table></div>`;
 }
 
+async function renderOverallTab() {
+  const out = $("#o-out"), idx = await load("data/overall/index.json"), id = $("#o-hero").value;
+  const h = idx?.heroes[id];
+  if (!h) { out.innerHTML = '<p class="empty">No overall results for this hero yet.</p>'; return; }
+  const keys = Object.keys(h.budgets);
+  if ($("#o-budget").options.length !== keys.length) fillBudgetSelect($("#o-budget"), keys, $("#o-budget").value);
+  const bk = $("#o-budget").value, b = h.budgets[bk], d = await load(`data/overall/heroes/${id}_${bk}.json`);
+  const ctx = (x) => ({ kind: "overall", hero: Number(id), souls: Number(bk), items: x.items, popular: b.popular.items });
+  const card = (title, x, note) => `<div class="card"><h3>${title}</h3>${bdTiles(ctx(x))}
+    <div class="kv"><span>Damage before dying</span><span><b>${fmt(x.damage_before_death)}</b>${note ? ` (${signed(x.damage_before_death / b.popular.damage_before_death - 1)})` : ""}</span>
+    <span>Time alive</span><span>${fmt(x.time_alive_s, 1)} s</span>
+    <span>Survives 30 s</span><span>${pct(x.survived_30s)}</span>
+    <span>Dummy damage by 15 s</span><span>${fmt(x.dummy_15s)}</span></div>${testBtn(Number(id), bk, x.items, title)}</div>`;
+  const row = (x, label) => `<tr><td>${label}</td><td>${bdTiles(ctx(x))}</td><td class="n">${fmt(x.cost)}</td><td class="n">${fmt(x.F.damage_before_death)}</td><td class="n">${fmt(x.F.time_alive_s, 1)} s</td><td class="n">${pct(x.F.survived_30s)}</td><td>${testBtn(Number(id), bk, x.items, label)}</td></tr>`;
+  const loss = d ? Object.entries(d.best_item_removal_loss).filter(([i]) => S.items[i]).sort((a, b) => b[1] - a[1]) : [];
+  out.innerHTML = `<p class="hint">Damage before dying is averaged over all 41 heroes' typical real builds. Tap any item to see what it adds to the build's damage.</p>
+    <div class="cards">${card("Best overall build", b.best, true)}${card("Popular real build", b.popular, false)}${card("Best raw damage build", b.damage_best, true)}</div>
+    ${d ? `<div class="scroll"><table><thead><tr><th>Build</th><th>Items</th><th class="n">Cost</th><th class="n">Damage before dying</th><th class="n">Time alive</th><th class="n">Survives 30 s</th><th></th></tr></thead>
+    <tbody>${d.builds.map((x, i) => row(x, `#${i + 1}`)).join("")}</tbody></table></div>
+    <div class="cards"><div class="card"><h3>What each best-build item adds</h3><p class="hint">Share of the build's damage before dying lost if that item is removed (1.0 = the popular build's total).</p>
+      <div class="kv">${loss.map(([i, v]) => `<span>${tile(i, { static: true })}</span><span>${fmt(v, 3)}</span>`).join("")}</div></div></div>` : ""}`;
+}
+
 async function renderTankTab() {
   const out = $("#t-out"), id = $("#t-hero").value, d = await load(`data/tank/heroes/${id}.json`);
   if (!d) { out.innerHTML = '<p class="empty">No survival results for this hero.</p>'; return; }
@@ -476,8 +499,8 @@ function closeSheet() { $("#sheet").hidden = true; document.body.classList.remov
 function whyText(ctx, d, x, m) {
   const it = S.items[x.id], pop = new Set((ctx.popular || []).map(Number)), mine = new Set(ctx.items.map(Number));
   const out = [];
-  if (ctx.kind === "duel" || ctx.kind === "tank")
-    out.push(`This build was picked for ${ctx.kind === "duel" ? "winning 1v1 duels" : "staying alive under focus"}, so items can earn their place without adding damage. Damage here is measured on the standard training dummy.`);
+  if (ctx.kind === "duel" || ctx.kind === "tank" || ctx.kind === "overall")
+    out.push(`This build was picked for ${ctx.kind === "duel" ? "winning 1v1 duels" : ctx.kind === "tank" ? "staying alive under focus" : "dealing the most damage before dying against real builds"}, so items can earn their place without adding damage. Damage here is measured on the standard training dummy.`);
   if (pop.size) {
     if (pop.has(x.id)) out.push("The most popular real build buys it too.");
     else {
@@ -530,9 +553,10 @@ function renderSheet() {
 // ---------- tabs ----------
 function showTab() {
   const t = (location.hash || "#test").slice(1).split("/")[0];
-  const tab = ["test", "match", "damage", "duel", "tank", "team"].includes(t) ? t : "test";
+  const tab = ["test", "match", "overall", "damage", "duel", "tank", "team"].includes(t) ? t : "test";
   $$(".tab").forEach((s) => (s.hidden = s.id !== "tab-" + tab));
   $$("#tabs a").forEach((a) => (a.dataset.tab === tab ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
+  if (tab === "overall") renderOverallTab();
   if (tab === "damage") renderDamageTab();
   if (tab === "duel") renderDuelTab();
   if (tab === "tank") renderTankTab();
@@ -546,10 +570,10 @@ async function boot() {
   S.dataNow();
   const opts = heroes.map((h) => `<option value="${h.id}">${esc(h.name)}</option>`).join("");
   $("#a-hero").innerHTML = opts; $("#d-heroname").innerHTML = opts;
-  fillHeroSelect($("#g-hero")); fillHeroSelect($("#u-hero"));
+  fillHeroSelect($("#g-hero")); fillHeroSelect($("#u-hero")); fillHeroSelect($("#o-hero"));
   const tank = await load("data/tank/index.json");
   fillHeroSelect($("#t-hero"), tank ? Object.keys(tank.heroes) : []);
-  for (const s of ["#g-hero", "#u-hero"]) $(s).value = 13;
+  for (const s of ["#g-hero", "#u-hero", "#o-hero"]) $(s).value = 13;
   load("data/patch.json").then((p) => {
     if (!p) return;
     $("#patch").textContent = p.patch;
@@ -596,7 +620,8 @@ async function boot() {
   $("#g-hero").onchange = renderDamageTab; $("#g-budget").onchange = renderDamageTab;
   $("#u-hero").onchange = renderDuelTab; $("#u-budget").onchange = renderDuelTab; $("#u-bracket").onchange = renderDuelTab;
   $("#t-hero").onchange = renderTankTab; $("#t-budget").onchange = renderTankTab;
-  for (const s of ["#g-out", "#g-order", "#u-out", "#t-out"]) $(s).addEventListener("click", onTest);
+  $("#o-hero").onchange = renderOverallTab; $("#o-budget").onchange = renderOverallTab;
+  for (const s of ["#g-out", "#g-order", "#u-out", "#t-out", "#o-out"]) $(s).addEventListener("click", onTest);
   document.addEventListener("click", (e) => {
     const t = e.target.closest(".build.tap .it");
     if (t) openBreakdown(JSON.parse(t.closest(".build").dataset.bd), t.dataset.id);

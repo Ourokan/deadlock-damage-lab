@@ -17,7 +17,8 @@
     <nav class="tabs" id="tabs">
       <a href="#test" data-tab="test">Damage test</a>
       <a href="#match" data-tab="match">Real match</a>
-      <a href="#damage" data-tab="damage">Best damage builds</a>
+      <a href="#overall" data-tab="overall">Best overall builds</a>
+      <a href="#damage" data-tab="damage">Raw damage builds</a>
       <a href="#duel" data-tab="duel">Duel builds</a>
       <a href="#tank" data-tab="tank">Tank builds</a>
       <a href="#team" data-tab="team">Team fight</a>
@@ -153,11 +154,24 @@
     <div id="m-out"></div>
   </section>
 
+  <!-- Overall search: damage dealt before dying, counterplay on -->
+  <section id="tab-overall" class="tab" hidden>
+    <div class="intro">
+      <h1>Best overall builds</h1>
+      <p>Builds ranked by how much damage they deal before dying against the typical real build of every hero at the same net worth. The enemy fights back with double damage (two players on you), never dies, and uses its real items, so health, resists, lifesteal, stuns and silences count. Counterplay is on: targets walk out of Alchemical Fire after 2 s, items the sim overrates compared with real matches are scaled down, and Refresher-style cooldowns are only ready in some fights.</p>
+    </div>
+    <div class="filters">
+      <label class="f"><span>Hero</span><select id="o-hero"></select></label>
+      <label class="f"><span>Net worth</span><select id="o-budget"></select></label>
+    </div>
+    <div id="o-out"></div>
+  </section>
+
   <!-- Precomputed damage search -->
   <section id="tab-damage" class="tab" hidden>
     <div class="intro">
       <h1>Most damage per soul</h1>
-      <p>For each hero and net worth, the item builds that deal the most damage to a training dummy, found by searching from the most popular real build. Same sim and aim as the damage test.</p>
+      <p>For each hero and net worth, the item builds that deal the most damage to a training dummy, found by searching from the most popular real build. Same sim and aim as the damage test. The dummy never moves, cleanses or shoots back, so these builds skip defense and favour items a real target walks out of; see <a href="#overall">Best overall builds</a> for builds that hold up in a fight.</p>
     </div>
     <div class="filters">
       <label class="f"><span>Hero</span><select id="g-hero"></select></label>

@@ -1,8 +1,8 @@
 """Run every search for one slice of the heroes: python3 pipeline/run_shard.py --shard I --of N [--workers 4]
 
 Heroes are dealt round-robin into N shards, so N machines can run the full rerun side by side. For its heroes a
-shard runs the dummy damage search, the item buy order, the duel search in every rank bracket and, for the tank heroes, the survival
-search. Inputs: search/work/snapshots_*.json and item_usage*.json from search/scripts/build_pool.py. Results land
+shard runs the dummy damage search, the item buy order, the duel search in every rank bracket, for the tank heroes the survival search, and the overall search
+(damage before dying, counterplay on). Inputs: search/work/snapshots_*.json and item_usage*.json from search/scripts/build_pool.py. Results land
 in each search's work/jobs*/ folder as usual. A step that fails is retried hero by hero, so one broken hero
 doesn't sink the shard; failures are listed in pipeline/work/shard_<I>.json and the publish step decides.
 """
@@ -25,6 +25,7 @@ def steps(workers):
     for b in BRACKETS:
         yield f"duel_{b}", [py, "search/scripts/search.py", "--bracket", b, "--workers", str(workers)]
     yield "survival", [py, "survival/scripts/survival_search.py", "--only-tanks", "--workers", str(workers)]
+    yield "overall", [py, "damage/scripts/overall_search.py", "--workers", str(workers)]
 
 
 def run(cmd, heroes, budgets=""):
