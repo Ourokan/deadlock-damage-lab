@@ -129,6 +129,54 @@ async function syncDummyHint() {
   $("#use-hp").onclick = () => { $("#d-hp").value = hp; };
 }
 
+// ---------- personal aim (aim.js) ----------
+const AIM_KEY = "ddl.aim";
+const AIM_FIELDS = { acc: "#a-acc", hs: "#a-hs", dist: "#a-dist", steam: "#a-steam" };
+
+function saveAim() {
+  try { localStorage.setItem(AIM_KEY, JSON.stringify(Object.fromEntries(Object.entries(AIM_FIELDS).map(([k, sel]) => [k, $(sel).value])))); } catch { /* storage off */ }
+}
+
+function restoreAim() {
+  let v = null;
+  try { v = JSON.parse(localStorage.getItem(AIM_KEY) || "null"); } catch { /* storage off */ }
+  if (v) for (const [k, sel] of Object.entries(AIM_FIELDS)) if (v[k] != null && v[k] !== "") $(sel).value = v[k];
+}
+
+// Where the typed numbers sit among ranked players of this hero.
+async function renderAimHint() {
+  const d = await load("data/skill_defaults.json");
+  const row = d && (d.heroes[S.A.hero] || d.all);
+  if (!row) return;
+  const acc = parseFloat($("#a-acc").value) / 100, hs = parseFloat($("#a-hs").value) / 100;
+  const nth = (n) => n + ((n % 100 >= 11 && n % 100 <= 13) ? "th" : ["th", "st", "nd", "rd"][n % 10] || "th");
+  const say = (r) => (!r ? "–" : r.below ? "below the 25th" : r.above ? "above the 90th" : `about the ${nth(r.p)}`);
+  const name = S.heroById[S.A.hero]?.name || "this hero";
+  $("#a-dist").placeholder = `default ${fmt(row.median_distance_m, 1)}`;
+  $("#a-aim-hint").textContent = `Hero-only numbers. Among ranked ${name} players that is ${say(Aim.percentile(acc, row.accuracy))} percentile for accuracy`
+    + ` and ${say(Aim.percentile(hs, row.headshot))} for headshots (median ${pct(row.accuracy.p50, 1)} and ${pct(row.headshot.p50, 1)}).`;
+}
+
+async function pullAim() {
+  const btn = $("#a-pull"), msg = $("#a-pull-msg");
+  btn.disabled = true; msg.textContent = "Looking up the player…";
+  try {
+    const who = await Aim.resolve($("#a-steam").value);
+    const hero = S.A.hero, heroName = S.heroById[hero]?.name || "this hero";
+    const r = await Aim.fromMatches(who.id, hero, { onProgress: (a, b) => { msg.textContent = `Reading match ${a} of ${b}…`; } });
+    if (S.A.hero !== hero) { msg.textContent = `The hero changed while loading ${heroName} matches. Press the button again.`; return; }
+    $("#a-acc").value = (r.accuracy * 100).toFixed(1);
+    $("#a-hs").value = (r.headshot * 100).toFixed(1);
+    if (r.distance) $("#a-dist").value = r.distance.toFixed(1);
+    msg.textContent = `${who.name ? `Steam player "${who.name}": ` : ""}${pct(r.accuracy, 1)} accuracy and ${pct(r.headshot, 1)} headshots over ${fmt(r.shots)} shots at heroes in the last ${r.matches} matches`
+      + (r.scope === "hero" ? ` on ${heroName}` : ` (all heroes; fewer than 3 recent ${heroName} matches)`) + (r.distance ? `, median hit distance ${fmt(r.distance, 1)} m.` : ".")
+      + (r.failed && r.matches < 10 ? ` ${r.failed} more could not be read (the API may be busy), so try again for a fuller sample.` : "");
+    saveAim(); renderAimHint();
+  } catch (e) {
+    msg.textContent = e.message;
+  } finally { btn.disabled = false; }
+}
+
 // ---------- target ----------
 function renderTarget() {
   const D = S.D;
@@ -143,7 +191,7 @@ function renderTarget() {
 function request() {
   const A = S.A, D = S.D, num = (s) => { const v = parseFloat($(s).value); return isFinite(v) ? v : null; };
   const req = { hero: A.hero, items: A.items, souls: A.souls, aim: A.aim === "custom" ? "p50" : A.aim };
-  if (A.aim === "custom") { req.accuracy = num("#a-acc") / 100; req.headshot = num("#a-hs") / 100; }
+  if (A.aim === "custom") { const pc = (sel) => { const v = num(sel); return v == null ? null : v / 100; }; req.accuracy = pc("#a-acc"); req.headshot = pc("#a-hs"); req.distance = num("#a-dist"); }
   const immortal = $("#d-immortal").checked;
   if (D.mode === "plain") {
     req.dummy = { hero: "Haze", items: [], hp: num("#d-hp"), immortal,
@@ -520,9 +568,13 @@ async function boot() {
   }
   renderAttacker(); renderTarget(); renderPresets(); syncDummyHint(); renderResult();
 
-  $("#a-hero").onchange = (e) => { S.A.hero = Number(e.target.value); S.A.label = null; renderPresets(); syncDummyHint(); };
+  $("#a-hero").onchange = (e) => { S.A.hero = Number(e.target.value); S.A.label = null; renderPresets(); syncDummyHint(); renderAimHint(); };
   $("#a-souls").onchange = (e) => { S.A.souls = Number(e.target.value) || 0; renderAttacker(); renderPresets(); syncDummyHint(); };
-  $("#a-aim").onchange = (e) => { S.A.aim = e.target.value; renderAttacker(); };
+  $("#a-aim").onchange = (e) => { S.A.aim = e.target.value; renderAttacker(); renderAimHint(); };
+  restoreAim(); renderAimHint();
+  for (const sel of Object.values(AIM_FIELDS)) $(sel).addEventListener("change", () => { saveAim(); renderAimHint(); });
+  $("#a-pull").onclick = pullAim;
+  $("#a-steam").addEventListener("keydown", (e) => { if (e.key === "Enter") pullAim(); });
   wireShop("a", () => S.A.items, () => { S.A.label = null; renderAttacker(); });
   wireShop("d", () => S.D.items, renderTarget);
   $("#d-mode").onclick = (e) => { if (e.target.dataset.v) { S.D.mode = e.target.dataset.v; renderTarget(); } };

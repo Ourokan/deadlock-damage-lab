@@ -6,6 +6,10 @@ Static site, no server. Open `index.html` through any static host (or `python3 -
   numbers) and items; set the target as a training dummy (HP, bullet/spirit/melee resist) or an enemy hero with
   items; run. Shows damage and DPS at 5/15/30 s, 15 s damage per 1,000 item souls, damage by source, a damage
   timeline and kill time. "Keep for comparison" pins up to 5 runs on the same chart and table.
+  "My own numbers" takes accuracy, headshot rate and fight distance, or loads them from a player's last 10 matches
+  (`aim.js`: Steam link, ID or name -> Deadlock API match metadata, hero-only "Enemy Hero Accuracy" stats, the same
+  numbers as `deadsim.accuracy.player_skill`). The page shows where those numbers sit among ranked players of the
+  hero and remembers them in the browser.
 - **Real match** (`match.js`): paste a match ID (or open `#match/<id>`). The page calls the Deadlock API from the
   browser (it allows any origin): the bulk `/v1/matches/metadata` endpoint first, then `/v1/matches/{id}/metadata`,
   which can fall back to Steam for matches the API hasn't stored. Pick a player, a target and a moment in the match;
