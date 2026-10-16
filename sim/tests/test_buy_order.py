@@ -1,6 +1,8 @@
 """Checks of the item buy order logic (damage/scripts/buy_order.py). Run from sim/: python3 -m unittest discover -s tests"""
+import json
 import os
 import sys
+import tempfile
 import unittest
 
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
@@ -58,6 +60,60 @@ class Milestones(unittest.TestCase):
         self.assertEqual(sorted(m["18000"]["items"]), sorted([mm, dec]))
         self.assertEqual(len(m["50000"]["items"]), 3)
         self.assertIsNone(m["10000"]["share_of_best"])
+
+
+class StubPath:
+    """Damage = 100 per target item held plus 10 per component, at any net worth."""
+    def __init__(self, target):
+        self.target = set(target)
+
+    def dmg(self, items, nw):
+        v = sum(100.0 if i in self.target else 10.0 for i in items)
+        return {o: v for o in ("burst_5s", "fight_15s", "sustained_30s")}
+
+
+class Plan(unittest.TestCase):
+    def test_ends_with_exactly_the_target_at_its_cost(self):
+        target = [ID["Mercurial Magnum"], ID["Decay"], ID["Escalating Exposure"], ID["Extra Spirit"]]
+        steps = B.plan(StubPath(target), target, "fight_15s")
+        held = []
+        for s in steps:
+            held = [i for i in held if i not in s["replaces"]] + [s["item"]]
+        self.assertEqual(sorted(held), sorted(target))
+        self.assertEqual(steps[-1]["spent"], S.cost(target))   # components are credited, never paid twice
+        self.assertEqual([s["spent"] for s in steps], sorted(s["spent"] for s in steps))
+
+    def test_item_cap_raises_instead_of_a_partial_order(self):
+        target = [ID["Decay"], ID["Extra Spirit"]]
+        old, S.MAX_ITEMS = S.MAX_ITEMS, 1
+        try:
+            with self.assertRaises(RuntimeError):
+                B.plan(StubPath(target), target, "fight_15s")
+        finally:
+            S.MAX_ITEMS = old
+
+
+class Inputs(unittest.TestCase):
+    def test_published_results_only_on_request(self):
+        old_root, old_flag = B.ROOT, B.USE_PUBLISHED
+        with tempfile.TemporaryDirectory() as d:
+            os.makedirs(os.path.join(d, "out", "heroes"))
+            with open(os.path.join(d, "out", "heroes", "13.json"), "w") as f:
+                json.dump({"budgets": {str(b): {"dummy_hp": 1} for b in BUDGETS}}, f)
+            B.ROOT = d
+            try:
+                B.USE_PUBLISHED = False
+                self.assertEqual(B.search_results(13), {})
+                B.USE_PUBLISHED = True
+                self.assertEqual(sorted(B.search_results(13)), BUDGETS)
+            finally:
+                B.ROOT, B.USE_PUBLISHED = old_root, old_flag
+
+    def test_dummy_hp_interpolates_between_budgets(self):
+        p = B.Path(13, {10000: {"dummy_hp": 1000}, 18000: {"dummy_hp": 2000}})
+        self.assertEqual(p.hp(5000), 1000)
+        self.assertEqual(p.hp(14000), 1500)
+        self.assertEqual(p.hp(60000), 2000)
 
 
 if __name__ == "__main__":

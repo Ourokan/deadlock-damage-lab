@@ -60,8 +60,10 @@ def main():
         "heroes": index,
     }, open(os.path.join(OUT, "index.json"), "w"), indent=1)
     orders = glob.glob(os.path.join(ROOT, "work", "jobs_order", "*.json"))
-    if orders:
+    if orders:   # replace the whole set, so a hero whose order failed this run doesn't keep the old patch's
         os.makedirs(os.path.join(OUT, "order"), exist_ok=True)
+        for fn in glob.glob(os.path.join(OUT, "order", "*.json")):
+            os.remove(fn)
     for fn in orders:
         r = json.load(open(fn))
         keep = {k: r[k] for k in ("hero_id", "hero", "target_budget", "objectives")}
