@@ -6,6 +6,8 @@ out/heroes/<id>.json  per budget: dummy HP, popular build, and per objective the
                       candidate item's damage gain per 1000 souls when added to the popular build
 out/summary.csv       one row per hero x budget x objective
 out/order/<id>.json   per objective: the order to buy the best 50k build in, with milestones (scripts/buy_order.py)
+out/skill/<id>.json   per objective: the ability upgrade order for the best builds, per milestone vs the popular
+                      order (scripts/skill_order.py)
 Item names and costs: search/out/items.json (same ids).
 
 usage: python3 scripts/export.py
@@ -59,21 +61,24 @@ def main():
         "aim": f"Phantom and up ({D.AIM}) hero accuracy and headshot rate, real ability landing and melee rates",
         "heroes": index,
     }, open(os.path.join(OUT, "index.json"), "w"), indent=1)
-    orders = glob.glob(os.path.join(ROOT, "work", "jobs_order", "*.json"))
-    if orders:   # replace the whole set, so a hero whose order failed this run doesn't keep the old patch's
-        os.makedirs(os.path.join(OUT, "order"), exist_ok=True)
-        for fn in glob.glob(os.path.join(OUT, "order", "*.json")):
-            os.remove(fn)
-    for fn in orders:
-        r = json.load(open(fn))
-        keep = {k: r[k] for k in ("hero_id", "hero", "target_budget", "objectives")}
-        json.dump(keep, open(os.path.join(OUT, "order", f"{r['hero_id']}.json"), "w"))
+    copied = {}
+    for name, keys in (("order", ("hero_id", "hero", "target_budget", "objectives")),
+                       ("skill", ("hero_id", "hero", "abilities", "popular_order", "objectives"))):
+        files = glob.glob(os.path.join(ROOT, "work", "jobs_" + name, "*.json"))
+        if files:   # replace the whole set, so a hero whose run failed this time doesn't keep the old patch's
+            os.makedirs(os.path.join(OUT, name), exist_ok=True)
+            for fn in glob.glob(os.path.join(OUT, name, "*.json")):
+                os.remove(fn)
+        for fn in files:
+            r = json.load(open(fn))
+            json.dump({k: r[k] for k in keys}, open(os.path.join(OUT, name, f"{r['hero_id']}.json"), "w"))
+        copied[name] = len(files)
     if rows:
         with open(os.path.join(OUT, "summary.csv"), "w", newline="") as f:
             w = csv.DictWriter(f, fieldnames=list(rows[0]))
             w.writeheader()
             w.writerows(rows)
-    print(len(rows), "rows,", len(index), "heroes,", len(orders), "buy orders ->", OUT)
+    print(len(rows), "rows,", len(index), "heroes,", copied["order"], "buy orders,", copied["skill"], "ability orders ->", OUT)
 
 
 if __name__ == "__main__":

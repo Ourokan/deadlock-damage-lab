@@ -19,7 +19,7 @@ const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v
 const S = {
   whenReady: null, readyNow: null,
   items: {}, byName: {}, heroes: [], heroById: {},
-  A: { hero: 13, souls: 27000, aim: "p75", items: [], label: null },
+  A: { hero: 13, souls: 27000, aim: "p75", items: [], label: null, order: null },   // order: ability ids (API format), null = popular
   D: { mode: "plain", hero: 6, souls: null, items: [] },
   dmgCache: {}, last: null, pins: [], engine: null, ready: false, runId: 0, pending: {},
 };
@@ -102,6 +102,10 @@ function renderAttacker() {
   $("#a-bar").classList.toggle("over", cost > A.souls);
   $("#a-budget").textContent = `${fmt(cost)} of ${fmt(A.souls)} souls in items · ${A.items.length}/12`;
   renderShop("a", A.items);
+  $("#a-abil").innerHTML = A.order
+    ? `Abilities level in the recommended order from Raw damage builds. <button class="chip-btn" id="a-abil-pop">Use the popular order</button>`
+    : "Abilities level in the most played real order.";
+  if (A.order) $("#a-abil-pop").onclick = () => { A.order = null; A.label = null; renderAttacker(); };
 }
 
 async function renderPresets() {
@@ -191,6 +195,7 @@ function renderTarget() {
 function request() {
   const A = S.A, D = S.D, num = (s) => { const v = parseFloat($(s).value); return isFinite(v) ? v : null; };
   const req = { hero: A.hero, items: A.items, souls: A.souls, aim: A.aim === "custom" ? "p50" : A.aim };
+  if (A.order) req.ability_order = A.order;
   if (A.aim === "custom") { const pc = (sel) => { const v = num(sel); return v == null ? null : v / 100; }; req.accuracy = pc("#a-acc"); req.headshot = pc("#a-hs"); req.distance = num("#a-dist"); }
   const immortal = $("#d-immortal").checked;
   if (D.mode === "plain") {
@@ -264,6 +269,7 @@ function shareURL(hash = location.hash) {
   const A = S.A, D = S.D, p = new URLSearchParams(), val = (k) => $(SHARE_NUM[k]).value.trim();
   p.set("h", A.hero); p.set("s", A.souls);
   if (A.items.length) p.set("i", A.items.join("."));
+  if (A.order) p.set("ao", A.order.join("."));
   p.set("aim", A.aim);
   if (A.aim === "custom") for (const k of ["acc", "hs", "dist"]) p.set(k, val(k)); // blanks too, so the recipient's saved aim can't fill them
   if (D.mode === "plain") {
@@ -293,7 +299,8 @@ function readShare() {
   };
   const souls = parseFloat(p.get("s"));
   Object.assign(S.A, { hero, souls: souls >= 0 ? souls : S.A.souls, items: items("i"),
-    aim: AIMS.includes(p.get("aim")) ? p.get("aim") : "p50", label: p.get("n")?.slice(0, 60) || null });
+    aim: AIMS.includes(p.get("aim")) ? p.get("aim") : "p50", label: p.get("n")?.slice(0, 60) || null,
+    order: /^\d+(\.\d+){0,31}$/.test(p.get("ao") || "") ? p.get("ao").split(".").map(Number) : null });
   for (const [k, sel] of Object.entries(SHARE_NUM)) {
     const v = parseFloat(p.get(k)), el = $(sel);
     if (isFinite(v)) el.value = Math.min(Number(el.max || Infinity), Math.max(Number(el.min || -Infinity), v));
@@ -397,12 +404,12 @@ function fillBudgetSelect(sel, keys, keep) {
   sel.innerHTML = keys.map((k) => `<option value="${k}">${fmt(k / 1000)}k souls</option>`).join("");
   if (keys.includes(keep)) sel.value = keep; else sel.value = keys.includes("27000") ? "27000" : keys[0];
 }
-const testBtn = (hero, budget, items, label) => `<button class="chip-btn" data-test='${JSON.stringify({ hero, budget: Number(budget), items, label })}'>Test</button>`;
+const testBtn = (hero, budget, items, label, order = null) => `<button class="chip-btn" data-test='${esc(JSON.stringify({ hero, budget: Number(budget), items, label, order }))}'>Test</button>`;
 
 function onTest(e) {
   const b = e.target.closest("[data-test]"); if (!b) return;
   const t = JSON.parse(b.dataset.test);
-  Object.assign(S.A, { hero: t.hero, souls: t.budget, items: t.items, label: t.label });
+  Object.assign(S.A, { hero: t.hero, souls: t.budget, items: t.items, label: t.label, order: t.order || null });
   location.hash = "test";
   renderAttacker(); renderPresets(); syncDummyHint(); runTest();
 }
@@ -410,7 +417,7 @@ function onTest(e) {
 let gObj = "fight_15s";
 async function renderDamageTab() {
   const id = $("#g-hero").value, d = await damageHero(id), out = $("#g-out");
-  if (!d) { out.innerHTML = '<p class="empty">No damage search results for this hero yet.</p>'; $("#g-order").innerHTML = ""; return; }
+  if (!d) { out.innerHTML = '<p class="empty">No damage search results for this hero yet.</p>'; $("#g-order").innerHTML = $("#g-skill").innerHTML = ""; return; }
   const keys = Object.keys(d.budgets);
   if ($("#g-budget").options.length !== keys.length) fillBudgetSelect($("#g-budget"), keys, $("#g-budget").value);
   const bk = $("#g-budget").value, b = d.budgets[bk], o = b.objectives[gObj], pop = b.popular;
@@ -431,7 +438,30 @@ async function renderDamageTab() {
       <div class="card"><h3>What each best-build item adds</h3><p class="hint">Damage lost if that item is removed.</p>
         <div class="kv">${loss.map(([i, v]) => `<span>${tile(i, { static: true })}</span><span>${fmt(v)}</span>`).join("")}</div></div>
     </div>`;
+  renderSkillOrder(id, bk);
   renderBuyOrder(id);
+}
+
+// ability upgrade order for the best builds (damage/scripts/skill_order.py): tiers at each net worth vs the popular order
+async function renderSkillOrder(id, bk) {
+  const d = await load(`data/damage/skill/${id}.json`), out = $("#g-skill");
+  if (id !== $("#g-hero").value) return;
+  const o = d?.objectives[gObj];
+  if (!o) { out.innerHTML = ""; return; }
+  const name = Object.fromEntries(d.abilities.map((a) => [a.id, a.name]));
+  const spread = (t) => d.abilities.map((a, i) => `${esc(a.name)} ${t[i]}`).join(" · ");
+  const rows = Object.entries(o.budgets).map(([b, r]) => {
+    const g = r.damage / r.popular_damage - 1;
+    const quirk = r.below_fewer_upgrades ? " The sim deals less with these tiers than with fewer upgrades (its cast logic for this hero), so treat this row with care." : "";
+    return `<tr class="${b === bk ? "pop" : ""}"><td class="n">${fmt(b / 1000)}k</td><td>${spread(r.tiers)}<br><span class="hint">popular: ${spread(r.popular_tiers)}.${quirk}</span></td>`
+      + `<td class="n">${fmt(r.points)}</td><td class="n">${fmt(r.damage)}</td><td class="n ${g > 0.0005 ? "up" : g < -0.0005 ? "down" : ""}">${g > -0.0005 && g < 0.0005 ? "same" : signed(g)}</td>`
+      + `<td>${testBtn(Number(id), b, r.items, `Best ${OBJ[gObj]} build, recommended abilities`, o.order)}</td></tr>`;
+  }).join("");
+  const steps = o.steps.map((s) => `<li><b>${esc(name[s.ability])}</b> ${s.tier ? "tier " + s.tier : "unlock"} <span class="hint">lvl ${s.level}${s.net_worth ? ", ~" + fmt(s.net_worth / 1000, 1) + "k" : ""}</span></li>`).join("");
+  out.innerHTML = `<div class="card" style="margin-top:16px"><h3>Ability upgrade order for these builds</h3>
+    <p class="hint">The order to spend ability points in that gives the best ${OBJ[gObj]} damage with each net worth's best build, compared with the most played real order. Upgrades cost 1, 2 and 5 points; one order has to work at every net worth, so a row can sit a little below the best spread for that net worth alone. Numbers are tiers bought (0 to 3).</p>
+    <div class="scroll"><table><thead><tr><th class="n">Net worth</th><th>Tiers</th><th class="n">Points</th><th class="n">${OBJ[gObj]} damage</th><th class="n">vs popular order</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+    <ol class="hint" style="columns:14rem;margin:0;padding-left:1.4rem">${steps}</ol></div>`;
 }
 
 // order to buy the best 50k build in (damage/scripts/buy_order.py), with the net worth milestones on the way
@@ -670,7 +700,7 @@ async function boot() {
   }
   renderAttacker(); renderTarget(); renderPresets(); syncDummyHint(); renderResult();
 
-  $("#a-hero").onchange = (e) => { S.A.hero = Number(e.target.value); S.A.label = null; renderPresets(); syncDummyHint(); renderAimHint(); };
+  $("#a-hero").onchange = (e) => { S.A.hero = Number(e.target.value); S.A.label = null; S.A.order = null; renderAttacker(); renderPresets(); syncDummyHint(); renderAimHint(); };
   $("#a-souls").onchange = (e) => { S.A.souls = Number(e.target.value) || 0; renderAttacker(); renderPresets(); syncDummyHint(); };
   $("#a-aim").onchange = (e) => { S.A.aim = e.target.value; renderAttacker(); renderAimHint(); };
   renderAimHint();
@@ -692,7 +722,7 @@ async function boot() {
   $("#cmp").onclick = (e) => {
     const drop = e.target.dataset.drop, ld = e.target.dataset.load;
     if (drop != null) { S.pins.splice(Number(drop), 1); renderCompare(); drawTimeline(); }
-    if (ld != null) { const p = S.pins[Number(ld)]; Object.assign(S.A, { hero: p.req.hero, souls: p.req.souls, items: [...p.req.items], label: p.label }); renderAttacker(); renderPresets(); }
+    if (ld != null) { const p = S.pins[Number(ld)]; Object.assign(S.A, { hero: p.req.hero, souls: p.req.souls, items: [...p.req.items], label: p.label, order: p.req.ability_order || null }); renderAttacker(); renderPresets(); }
   };
   $("#g-obj").innerHTML = Object.entries(OBJ_LONG).map(([k, l]) => `<button data-v="${k}" class="${k === gObj ? "on" : ""}">${l.split(" (")[0]}</button>`).join("");
   $("#g-obj").onclick = (e) => { if (!e.target.dataset.v) return; gObj = e.target.dataset.v; $$("#g-obj button").forEach((x) => x.classList.toggle("on", x === e.target)); renderDamageTab(); };
@@ -700,7 +730,7 @@ async function boot() {
   $("#u-hero").onchange = renderDuelTab; $("#u-budget").onchange = renderDuelTab; $("#u-bracket").onchange = renderDuelTab;
   $("#t-hero").onchange = renderTankTab; $("#t-budget").onchange = renderTankTab;
   $("#o-hero").onchange = renderOverallTab; $("#o-budget").onchange = renderOverallTab; $("#o-rank").onchange = renderOverallTab;
-  for (const s of ["#g-out", "#g-order", "#u-out", "#t-out", "#o-out"]) $(s).addEventListener("click", onTest);
+  for (const s of ["#g-out", "#g-skill", "#g-order", "#u-out", "#t-out", "#o-out"]) $(s).addEventListener("click", onTest);
   document.addEventListener("click", (e) => {
     const t = e.target.closest(".build.tap .it");
     if (t) openBreakdown(JSON.parse(t.closest(".build").dataset.bd), t.dataset.id);

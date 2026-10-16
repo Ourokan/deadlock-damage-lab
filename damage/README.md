@@ -60,6 +60,22 @@ the best build at 10k, 93% at 18k, 92% at 27k, 94% at 37k. Gaps come from expens
 `work/jobs` from `dummy_search.py` (`--use-published` reads `out/heroes` instead, for local runs) and runs in the
 patch reruns after the damage search.
 
+## Ability upgrade order
+`scripts/skill_order.py`, output `out/skill/<id>.json` (copied by `scripts/export.py`, shown under the Raw damage
+builds tab next to the buy order). Everywhere else the sim levels abilities in the most played real order (Oracle and
+up, `deadsim.fight.popular_ability_order`). This searches the order instead, per hero and objective, on each net
+worth's best build. Ability points follow the game: an unlock at levels 1, 3, 5 and 8, a point at every other level
+(32 in all), upgrades cost 1, 2 and 5 points, and an order buys strictly in sequence, so it saves points when its next
+upgrade is a tier 3 (`deadsim.fight.abilities_for_order`). The milestones (10k to 50k: 12, 20, 24, 28 and 32
+points) each take the tier spread with the most damage relative to the popular order's, under one rule: a single
+order has to pass through all of them. The popular order is one of the candidates, so the summed gain is never
+negative, though one milestone can give up a little for more at others. An upgrade never counts as a loss (each
+spread scores as the best spread it contains), so the order can't win by skipping an upgrade the sim's cast logic
+happens to play worse with; rows where that happens are flagged. Unlocks keep the popular order's sequence, since
+all four come by ~3.8k souls. The damage test takes the order too (`ability_order`, the Test buttons on this card
+load it). Duels, the overall score, survival and team fights still use the popular order. ~1 min per hero on one
+core. It reads `work/jobs` (`--use-published` reads `out/heroes`) and runs in the patch reruns after the buy order.
+
 ## Overall search (damage before dying, counterplay on)
 `scripts/overall_search.py`, output `out/overall/` (`scripts/export_overall.py`). Score = damage the build deals
 before it dies against each of the 41 typical real builds at that net worth: the enemy fights back with x2 damage

@@ -19,7 +19,7 @@ Static site, no server. Open `index.html` through any static host (or `python3 -
   one-for-one swaps of an owned item for an equal or cheaper item from those builds.
 - **Team fight**: up to three heroes a side (each starts with its popular real build) fight in the live sim
   (`bridge.team`, `team.js`). Shows damage, damage taken, heals and shields given to teammates, kills.
-- **Best damage builds** (`damage/out`), **Duel builds** (`search/out`, shows whichever rank brackets exist) and
+- **Best damage builds** (`damage/out`, with the item buy order and the ability upgrade order for the best builds), **Duel builds** (`search/out`, shows whichever rank brackets exist) and
   **Tank builds** (`survival/out`). Every build has a Test button that loads it into the damage test.
 
 ## How the damage test runs in the browser

@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from functools import lru_cache
 
 from .abilities import AbilityState, load_heroes
-from .build import compute_stats
+from .build import NET_WORTH_OFFSET, compute_stats
 from .data import game, DATA_DIR
 from .engine import Engine, Fighter, Skill, _UNSET
 from . import items_fx
@@ -43,6 +43,46 @@ def popular_ability_order(hero_id, rank="oracle_plus"):
     return ()
 
 
+# ability points a tier 1, 2 and 3 upgrade costs (4 abilities x 8 = the 32 points a hero earns by level 36)
+UPGRADE_AP = (1, 2, 5)
+
+
+def ability_budget(hero, souls):
+    """(ability unlocks, ability points) a hero has earned at this net worth: one or the other per level reached
+    (levels from souls - NET_WORTH_OFFSET, like compute_stats)."""
+    hero = game().hero(hero)
+    s = max(0.0, souls - NET_WORTH_OFFSET)
+    got = [b for g, b in zip(hero.level_gold, hero.level_bonus) if s >= g]
+    return got.count("unlock"), got.count("point")
+
+
+def abilities_for_order(hero, order, souls):
+    """(tiers, unlocked) after following `order` as far as this net worth's unlocks and ability points allow.
+
+    order: ability ids in the Deadlock API's ability-order format (the first time an id appears unlocks it, each
+    later time buys its next upgrade). Strictly in order: an upgrade waits until its points are there and nothing
+    after it is bought first, like a player saving for a tier 3."""
+    hero = game().hero(hero)
+    ids = [a.id for a in hero.abilities]
+    unlocks, points = ability_budget(hero, souls)
+    tiers, unlocked = [0] * len(ids), [False] * len(ids)
+    for aid in order:
+        if aid not in ids:
+            continue
+        i = ids.index(aid)
+        if not unlocked[i]:
+            if unlocks < 1:
+                break
+            unlocks -= 1
+            unlocked[i] = True
+        elif tiers[i] < 3:
+            if points < UPGRADE_AP[tiers[i]]:
+                break
+            points -= UPGRADE_AP[tiers[i]]
+            tiers[i] += 1
+    return tiers, unlocked
+
+
 @dataclass
 class Loadout:
     hero: object
@@ -52,6 +92,7 @@ class Loadout:
     skill: Skill = field(default_factory=Skill)
     tiers: list | None = None                # upgrades bought per ability [t1, t2, t3, t4] (0-3); None = auto
     unlocked: list | None = None             # [bool]*4; None = auto from souls
+    ability_order: list | None = None        # ability ids, API format (abilities_for_order); None = popular order
     imbues: dict = field(default_factory=dict)   # item name -> ability index (0-3); auto = best damage ability
     name: str | None = None
 
@@ -108,7 +149,10 @@ def make_fighter(engine, lo: Loadout, name=None):
     if engine.mech is not None and skill.ability_landing_mech:
         skill = dataclasses.replace(skill, ability_landing=skill.ability_landing_mech)
     f = Fighter(engine, name or lo.name or hero.name, st, skill)
-    tiers, unlocked = _auto_abilities(hero, st.souls)
+    if lo.ability_order:
+        tiers, unlocked = abilities_for_order(hero, lo.ability_order, st.souls)
+    else:
+        tiers, unlocked = _auto_abilities(hero, st.souls)
     if lo.tiers is not None:
         tiers = list(lo.tiers)
     if lo.unlocked is not None:
