@@ -88,6 +88,38 @@ class TestPatterns(unittest.TestCase):
         g.hp, f.hp = g.max_hp, f.max_hp * 0.2
         self.assertTrue(f.plan.allows(ult))
 
+    def test_imbue_follows_replays(self):
+        """Real Mo & Krill players put Quicksilver Reload on Scorn (Burrow would be the highest-damage default)."""
+        e = Engine(distance=10, max_time=1)
+        f = make_fighter(e, Loadout("Mo & Krill", ["Quicksilver Reload"], souls=15000))
+        self.assertEqual([i.name for i in f.abilities[0].imbues], ["Quicksilver Reload"])
+        off = make_fighter(e, Loadout("Mo & Krill", ["Quicksilver Reload"], souls=15000, skill=Skill(fight_pattern=False)))
+        self.assertEqual(off.abilities[0].imbues, [])
+
+
+class TestScornHeal(unittest.TestCase):
+    def test_heal_counts_item_procs(self):
+        """Replays: Mo heals 1.2 x (Scorn + Mystic Burst + Quicksilver Reload) on the tick Scorn lands."""
+        from deadsim.engine import Fighter
+        asked = []
+        orig = Fighter.heal
+
+        def spy(self, amount, source="heal", kind="regen"):
+            if source == "Scorn":
+                asked.append(amount)
+            return orig(self, amount, source, kind)
+        Fighter.heal = spy
+        try:
+            lo = Loadout("Mo & Krill", ["Mystic Burst", "Quicksilver Reload"], souls=15000,
+                         skill=Skill(accuracy=0.3, use_actives=False), unlocked=[True, True, False, False])
+            r = time_to_kill(lo, Loadout("Abrams", [], souls=15000), max_time=3.0)   # Burrow at 0, one Scorn at 1.5
+        finally:
+            Fighter.heal = orig
+        procs = sum(r.a_dmg.get(k, 0) for k in ("Scorn", "Mystic Burst", "Quicksilver Reload"))
+        self.assertGreater(r.a_dmg.get("Quicksilver Reload", 0), 0)
+        self.assertEqual(len(asked), 1)
+        self.assertAlmostEqual(asked[0], 1.2 * procs, places=6)
+
 
 # default behaviour (patterns on), pinned so a change to deadsim.patterns or data/fight_patterns.json shows up:
 # (hero, enemy, winner, time, damage dealt, damage taken) at 20k souls, accuracy 0.3, no items, mechanics default

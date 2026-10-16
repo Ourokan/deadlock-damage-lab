@@ -93,6 +93,15 @@
    "fit_error": {
     "slot_order": 0.912,
     "replay_order": 0.902
+   },
+   "imbue": "ability_incendiary_projectile",
+   "replay_imbue": {
+    "share": 1.0,
+    "hits": 164,
+    "matches": 10,
+    "by_ability": {
+     "ability_incendiary_projectile": 164
+    }
    }
   },
   "2": {
@@ -300,6 +309,17 @@
    "fit_error": {
     "slot_order": 0.715,
     "replay_order": 0.729
+   },
+   "imbue": "citadel_ability_hornet_sting",
+   "replay_imbue": {
+    "share": 0.886,
+    "hits": 343,
+    "matches": 27,
+    "by_ability": {
+     "citadel_ability_hornet_sting": 304,
+     "citadel_ability_hornet_snipe": 33,
+     "citadel_ability_hornet_leap": 6
+    }
    }
   },
   "4": {
@@ -599,6 +619,16 @@
    "fit_error": {
     "slot_order": 0.825,
     "replay_order": 0.82
+   },
+   "imbue": "citadel_ability_card_toss",
+   "replay_imbue": {
+    "share": 0.932,
+    "hits": 1541,
+    "matches": 66,
+    "by_ability": {
+     "citadel_ability_card_toss": 1436,
+     "citadel_ability_wraith_rapidfire": 105
+    }
    }
   },
   "8": {
@@ -704,6 +734,15 @@
    "fit_error": {
     "slot_order": 2.334,
     "replay_order": 2.361
+   },
+   "imbue": "citadel_ability_shieldedsentry",
+   "replay_imbue": {
+    "share": 1.0,
+    "hits": 24,
+    "matches": 3,
+    "by_ability": {
+     "citadel_ability_shieldedsentry": 24
+    }
    }
   },
   "10": {
@@ -907,6 +946,15 @@
    "fit_error": {
     "slot_order": 0.505,
     "replay_order": 0.521
+   },
+   "imbue": "citadel_ability_stomp",
+   "replay_imbue": {
+    "share": 1.0,
+    "hits": 50,
+    "matches": 4,
+    "by_ability": {
+     "citadel_ability_stomp": 50
+    }
    }
   },
   "12": {
@@ -1620,6 +1668,16 @@
    "fit_error": {
     "slot_order": 0.303,
     "replay_order": 0.339
+   },
+   "imbue": "ability_intimidate",
+   "replay_imbue": {
+    "share": 0.998,
+    "hits": 1307,
+    "matches": 33,
+    "by_ability": {
+     "ability_intimidate": 1304,
+     "ability_burrow": 3
+    }
    }
   },
   "19": {
@@ -1920,6 +1978,15 @@
    "fit_error": {
     "slot_order": 1.371,
     "replay_order": 1.386
+   },
+   "imbue": "ability_warden_crowd_control",
+   "replay_imbue": {
+    "share": 1.0,
+    "hits": 103,
+    "matches": 10,
+    "by_ability": {
+     "ability_warden_crowd_control": 103
+    }
    }
   },
   "27": {
@@ -2126,6 +2193,15 @@
    "fit_error": {
     "slot_order": 0.328,
     "replay_order": 0.329
+   },
+   "imbue": "ability_lash_flog",
+   "replay_imbue": {
+    "share": 1.0,
+    "hits": 1329,
+    "matches": 44,
+    "by_ability": {
+     "ability_lash_flog": 1329
+    }
    }
   },
   "35": {
@@ -2527,6 +2603,15 @@
    "fit_error": {
     "slot_order": 1.298,
     "replay_order": 1.292
+   },
+   "imbue": "ability_viper_debuffdagger",
+   "replay_imbue": {
+    "share": 1.0,
+    "hits": 127,
+    "matches": 16,
+    "by_ability": {
+     "ability_viper_debuffdagger": 127
+    }
    }
   },
   "60": {
@@ -2723,6 +2808,16 @@
    "fit_error": {
     "slot_order": 0.632,
     "replay_order": 0.632
+   },
+   "imbue": "ability_vampirebat_steallife",
+   "replay_imbue": {
+    "share": 0.998,
+    "hits": 1273,
+    "matches": 58,
+    "by_ability": {
+     "ability_vampirebat_steallife": 1270,
+     "ability_vampirebat_lovebites": 3
+    }
    }
   },
   "64": {
@@ -3008,6 +3103,16 @@
    "fit_error": {
     "slot_order": 0.662,
     "replay_order": 0.682
+   },
+   "imbue": "ability_frank_shocktarget2",
+   "replay_imbue": {
+    "share": 0.708,
+    "hits": 24,
+    "matches": 3,
+    "by_ability": {
+     "ability_frank_shocktarget2": 17,
+     "ability_frank_painaura": 7
+    }
    }
   },
   "67": {
@@ -3395,6 +3500,15 @@
    "fit_error": {
     "slot_order": 0.0,
     "replay_order": 0.0
+   },
+   "imbue": "ability_necro_hauntingskull",
+   "replay_imbue": {
+    "share": 1.0,
+    "hits": 31,
+    "matches": 3,
+    "by_ability": {
+     "ability_necro_hauntingskull": 31
+    }
    }
   },
   "77": {

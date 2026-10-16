@@ -39,6 +39,16 @@ def pattern(hero_id):
     return _load().get(str(hero_id))
 
 
+def imbue_target(hero, unlocked):
+    """Slot real players imbue (row "imbue", measured from Quicksilver Reload hits in replays), or None when the hero
+    has no such row or that ability is not unlocked yet."""
+    row = pattern(hero.id) or {}
+    for i, ab in enumerate(hero.abilities):
+        if ab.class_name == row.get("imbue") and (i >= len(unlocked) or unlocked[i]):
+            return i
+    return None
+
+
 class Plan:
     def __init__(self, f, row):
         self.f = f
