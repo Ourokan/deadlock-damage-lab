@@ -54,13 +54,14 @@ def main():
         name = G.hero(hid).name
         json.dump({"hero_id": hid, "hero": name, "budgets": per}, open(os.path.join(OUT, "heroes", f"{hid}.json"), "w"))
         index.append({"id": hid, "name": name, "budgets": summ})
-    json.dump({
-        "generated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "patch": patch_state.load()["patch"],
-        "objectives": {k: f"damage dealt to the dummy in the first {v:g} s" for k, v in D.WINDOWS.items()},
-        "dummy": "never acts, no resists, refills instead of dying, HP = weighted median of real builds at the budget",
-        "aim": f"Phantom and up ({D.AIM}) hero accuracy and headshot rate, real ability landing and melee rates",
-        "heroes": index,
-    }, open(os.path.join(OUT, "index.json"), "w"), indent=1)
+    if index:   # with no local damage jobs (an ability order run on published builds) keep the published index
+        json.dump({
+            "generated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "patch": patch_state.load()["patch"],
+            "objectives": {k: f"damage dealt to the dummy in the first {v:g} s" for k, v in D.WINDOWS.items()},
+            "dummy": "never acts, no resists, refills instead of dying, HP = weighted median of real builds at the budget",
+            "aim": f"Phantom and up ({D.AIM}) hero accuracy and headshot rate, real ability landing and melee rates",
+            "heroes": index,
+        }, open(os.path.join(OUT, "index.json"), "w"), indent=1)
     copied = {}
     for name, keys in (("order", ("hero_id", "hero", "target_budget", "objectives")),
                        ("skill", ("hero_id", "hero", "abilities", "popular_order", "objectives"))):
