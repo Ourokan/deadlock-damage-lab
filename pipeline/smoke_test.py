@@ -33,6 +33,7 @@ for hid in G.heroes:
     row = patterns.pattern(hid)
     assert row is not None, f"no fight_patterns.json row for {G.hero(hid).name}"
     names = {a.class_name for a in G.hero(hid).abilities}
-    gone = [c for c in row["order"] + row["ult_after"] + [row["prefight"] or next(iter(names))] if c not in names]
+    gone = [c for c in row["order"] + row["ult_after"] + [row["prefight"] or next(iter(names))] + [row.get("imbue") or next(iter(names))]
+            if c not in names]
     assert not gone, f"fight_patterns.json: {G.hero(hid).name} lists abilities it no longer has: {gone}"
 print("fight patterns ok:", len(G.heroes), "heroes")

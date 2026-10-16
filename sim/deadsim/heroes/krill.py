@@ -2,7 +2,8 @@
 
 Assumptions:
 - Scorn: instant hit after the cast delay on the single target in radius; heals DamageHealMult x damage actually
-  dealt (hero multiplier). T3 debuff is modeled as a stacking damage_taken_amp (one stack per cast, 16 s each);
+  dealt (hero multiplier), counting the item procs the hit sets off (Quicksilver Reload, Mystic Burst ...). Replays
+  show this: Mo's health jumps by 1.20 x (Scorn + Mystic Burst + Quicksilver) on the same tick. T3 debuff is modeled as a stacking damage_taken_amp (one stack per cast, 16 s each);
   in a 1v1 all damage the foe takes comes from Mo, so this equals "+15% damage from Mo & Krill".
 - Burrow: Mo travels underground to the target (BURROW_TRAVEL s, gun locked, burrow bullet/spirit resist active),
   then emerges and spins on top of the target for SpinDuration (gun locked). The knock-up/slow are movement and
@@ -43,8 +44,11 @@ class Scorn(_Base):
         def go():
             if not c.me.alive or not c.foe.alive:
                 return
-            amt = c.engine.damage(c.me, c.foe, dmg, "spirit", self.s.ab.name, is_ability=True, ability=self.s)
-            c.heal(amt * c.raw("DamageHealMult"))
+            before = sum(c.me.dmg_out.values())
+            c.engine.damage(c.me, c.foe, dmg, "spirit", self.s.ab.name, is_ability=True, ability=self.s)
+            # Scorn + the item procs its hit sets off synchronously inside engine.damage (Mystic Burst, Quicksilver).
+            # Delayed procs (Mystic Reverb, DoTs) land later and don't count.
+            c.heal((sum(c.me.dmg_out.values()) - before) * c.raw("DamageHealMult"))
             if c.tier >= 3:
                 c.debuff("damage_taken_amp", c.raw("DamageBonus") / 100, c.dur("DebuffDuration"),
                          tag=("scorn_t3", self.s.casts))

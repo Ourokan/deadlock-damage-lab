@@ -161,6 +161,8 @@ def make_fighter(engine, lo: Loadout, name=None):
     for it in items:
         if it.class_name in IMBUE_CLASSES:
             idx = lo.imbues.get(it.name, lo.imbues.get(it.class_name))
+            if idx is None and skill.fight_pattern:
+                idx = patterns.imbue_target(hero, unlocked)
             if idx is None:
                 idx = _default_imbue_target(hero, unlocked)
             imbue_map.setdefault(idx, []).append(it)

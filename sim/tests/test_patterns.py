@@ -27,6 +27,10 @@ class TestPatterns(unittest.TestCase):
             names = {a.class_name for a in G.hero(hid).abilities}
             for c in row["order"] + row["ult_after"] + ([row["prefight"]] if row["prefight"] else []):
                 self.assertIn(c, names, G.hero(hid).name)
+            if row.get("imbue"):
+                ab = next((a for a in G.hero(hid).abilities if a.class_name == row["imbue"]), None)
+                self.assertIsNotNone(ab, G.hero(hid).name)
+                self.assertFalse(ab.ultimate, G.hero(hid).name)
 
     def test_krill_opens_burrowed(self):
         """Mo emerges on the target at t=0: spin damage starts at once and Burrow is on cooldown."""
@@ -87,6 +91,38 @@ class TestPatterns(unittest.TestCase):
         self.assertTrue(f.plan.allows(ult))
         g.hp, f.hp = g.max_hp, f.max_hp * 0.2
         self.assertTrue(f.plan.allows(ult))
+
+    def test_imbue_follows_replays(self):
+        """Real Mo & Krill players put Quicksilver Reload on Scorn (Burrow would be the highest-damage default)."""
+        e = Engine(distance=10, max_time=1)
+        f = make_fighter(e, Loadout("Mo & Krill", ["Quicksilver Reload"], souls=15000))
+        self.assertEqual([i.name for i in f.abilities[0].imbues], ["Quicksilver Reload"])
+        off = make_fighter(e, Loadout("Mo & Krill", ["Quicksilver Reload"], souls=15000, skill=Skill(fight_pattern=False)))
+        self.assertEqual(off.abilities[0].imbues, [])
+
+
+class TestScornHeal(unittest.TestCase):
+    def test_heal_counts_item_procs(self):
+        """Replays: Mo heals 1.2 x (Scorn + Mystic Burst + Quicksilver Reload) on the tick Scorn lands."""
+        from deadsim.engine import Fighter
+        asked = []
+        orig = Fighter.heal
+
+        def spy(self, amount, source="heal", kind="regen"):
+            if source == "Scorn":
+                asked.append(amount)
+            return orig(self, amount, source, kind)
+        Fighter.heal = spy
+        try:
+            lo = Loadout("Mo & Krill", ["Mystic Burst", "Quicksilver Reload"], souls=15000,
+                         skill=Skill(accuracy=0.3, use_actives=False), unlocked=[True, True, False, False])
+            r = time_to_kill(lo, Loadout("Abrams", [], souls=15000), max_time=3.0)   # Burrow at 0, one Scorn at 1.5
+        finally:
+            Fighter.heal = orig
+        procs = sum(r.a_dmg.get(k, 0) for k in ("Scorn", "Mystic Burst", "Quicksilver Reload"))
+        self.assertGreater(r.a_dmg.get("Quicksilver Reload", 0), 0)
+        self.assertEqual(len(asked), 1)
+        self.assertAlmostEqual(asked[0], 1.2 * procs, places=6)
 
 
 # default behaviour (patterns on), pinned so a change to deadsim.patterns or data/fight_patterns.json shows up:
