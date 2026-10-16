@@ -212,6 +212,21 @@ differ from the old "highest base damage" pick: Mo & Krill Scorn (not Burrow, 99
 Vindicta Crow Familiar, McGinnis Mini Turret, Warden Alchemical Flask, Graves Jar of Dead. An explicit
 `Loadout.imbues` still wins.
 
+Imbue evidence also comes from Mercurial Magnum's charge hit (same tick, 40+ damage) and Mystic Reverb's echo
+(194 ticks after the triggering hit). Picks need 20+ votes in 3+ matches and an 80% majority. 18 heroes qualify;
+9 differ from the old default (also Paradox Kinetic Carbine, Yamato Power Slash, Deadman Danny Chimera Mk1).
+
+Imbue item fixes (2026-10-16):
+- Mercurial Magnum's bullet bonus is "+X% Base Bullet Damage" (X = 20 + 0.38 x Spirit Power), not X flat damage.
+  Replays: each proc is ~0.4-0.55 x the hero's base bullet damage (Wraith median 4, Warden 11, Holliday 31). The sim
+  gave ~10x that; its real-data factor goes from 0.18 to 0.83 after the fix.
+- Mystic Reverb's 22% imbued lifesteal never applied: it was added as a 0.01 s mod after engine.damage had already
+  applied lifesteal. It now heals on the hit. Its real/sim damage factor drops from 6.5 to 3.6 with the replay imbue
+  targets (the rest is its 16 m echo hitting other heroes in team fights).
+- data/item_landing.json was refit on the current sim (fight patterns and these fixes); other factors moved by up to
+  ~0.1 except Cold Front (2.1 -> 1.7).
+- Frostbite Charm and Omnicharge Signet (cost 9999) appear in no real builds and are not modeled.
+
 Scorn healing: Mo's health jumps by 1.20 x (Scorn + Mystic Burst + Quicksilver Reload damage) on the tick Scorn lands
 (two Phantom+ replays, pawn health vs same-tick damage events), so Scorn's heal now counts the item procs its hit sets
 off. With Mystic Burst + Quicksilver on Scorn at 18k souls, Mo heals 26% more in a 30 s duel vs Abrams (974 -> 1227).

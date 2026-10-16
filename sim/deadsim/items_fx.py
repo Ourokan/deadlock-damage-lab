@@ -1009,7 +1009,10 @@ class ImbueCharge(FX):
             self.pending = None
             self.spirit(t, self.v("Damage"), procs=False)
         if hit.kind == "bullet" and hit.hits and not hit.is_ability and f.mods.active("mercurial"):
-            self.spirit(t, self.v("BulletsBonusMagicDamage") * shots_hit(f, hit), procs=False)
+            # "+X% Base Bullet Damage" per bullet (X = 20 + 0.38 x Spirit Power), not flat damage: in replays each
+            # proc is ~0.4-0.55 x the hero's base bullet damage (Wraith median 4, Warden 11, Holliday 31).
+            pct = self.v("BulletsBonusMagicDamage") / 100
+            self.spirit(t, f.st.bullet_damage * pct * hit.hits, procs=False)
 
     def on_reload(self, f):
         f.mods.d.pop("mercurial", None)
@@ -1032,7 +1035,9 @@ class MysticReverb(FX):
     def on_damage_dealt(self, f, t, hit):
         if hit.kind != "spirit" or hit.ability is None or self.item not in hit.ability.imbues or hit.is_dot:
             return
-        f.mods.add("spirit_lifesteal", self.item.p("ImbueAbilityLifesteal") / 100, 0.01, "reverb")
+        # imbued lifesteal on this hit (engine.damage applies lifesteal before these hooks, so a short spirit_lifesteal
+        # mod here would only reach the next hit)
+        f.heal(hit.amount * self.item.p("ImbueAbilityLifesteal") / 100, "spirit_lifesteal", "lifesteal")
         if not self.ready() or hit.amount < self.item.p("MinimumDamage", 0):
             return
         self.use()

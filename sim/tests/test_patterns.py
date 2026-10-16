@@ -100,6 +100,13 @@ class TestPatterns(unittest.TestCase):
         off = make_fighter(e, Loadout("Mo & Krill", ["Quicksilver Reload"], souls=15000, skill=Skill(fight_pattern=False)))
         self.assertEqual(off.abilities[0].imbues, [])
 
+    def test_imbue_falls_back_while_target_is_locked(self):
+        e = Engine(distance=10, max_time=1)
+        f = make_fighter(e, Loadout("Mo & Krill", ["Quicksilver Reload"], souls=15000,
+                                    unlocked=[False, True, True, True]))
+        self.assertEqual(f.abilities[0].imbues, [])
+        self.assertEqual(sum(len(s.imbues) for s in f.abilities), 1)
+
 
 class TestScornHeal(unittest.TestCase):
     def test_heal_counts_item_procs(self):
