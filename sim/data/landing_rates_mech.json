@@ -171,13 +171,13 @@
   "Paradox": {
    "Pulse Grenade": {
     "class": "citadel_ability_chrono_pulse_grenade",
-    "landing": 1.56,
+    "landing": 1.57,
     "real_share": 0.1137,
     "sim_share": 0.1222
    },
    "Kinetic Carbine": {
     "class": "citadel_ability_chrono_kinetic_carbine",
-    "landing": 2.61,
+    "landing": 2.62,
     "real_share": 0.3179,
     "sim_share": 0.1954
    },
@@ -205,7 +205,7 @@
   "Kelvin": {
    "Frost Grenade": {
     "class": "ability_ice_grenade",
-    "landing": 0.8,
+    "landing": 0.79,
     "real_share": 0.2661,
     "sim_share": 0.2152
    },
@@ -337,7 +337,7 @@
    },
    "Sand Blast": {
     "class": "ability_throw_sand",
-    "landing": 1.09,
+    "landing": 1.1,
     "real_share": 0.0438,
     "sim_share": 0.0475
    },
@@ -391,7 +391,7 @@
   "Warden": {
    "Alchemical Flask": {
     "class": "ability_warden_crowd_control",
-    "landing": 0.32,
+    "landing": 0.31,
     "real_share": 0.1329,
     "sim_share": 0.1954
    },
@@ -437,7 +437,7 @@
    },
    "Flog": {
     "class": "ability_lash_flog",
-    "landing": 1.39,
+    "landing": 1.4,
     "real_share": 0.1757,
     "sim_share": 0.141
    },
@@ -471,7 +471,7 @@
   "Pocket": {
    "Barrage": {
     "class": "synth_barrage",
-    "landing": 1.55,
+    "landing": 1.54,
     "real_share": 0.2394,
     "sim_share": 0.1464
    },
@@ -503,7 +503,7 @@
    },
    "Dust Devil": {
     "class": "mirage_tornado",
-    "landing": 0.35,
+    "landing": 0.36,
     "real_share": 0.0623,
     "sim_share": 0.1075
    },
@@ -709,13 +709,13 @@
   "Apollo": {
    "Disengaging Sigil": {
     "class": "ability_fencer_throwblade",
-    "landing": 0.8,
+    "landing": 0.85,
     "real_share": 0.1558,
     "sim_share": 0.1384
    },
    "Flawless Advance": {
     "class": "ability_fencer_lunge",
-    "landing": 0.51,
+    "landing": 0.57,
     "real_share": 0.2143,
     "sim_share": 0.2771
    },
@@ -735,7 +735,7 @@
    },
    "Chimera Mk1": {
     "class": "ability_deadpack_rocketeer",
-    "landing": 0.453,
+    "landing": 0.45,
     "real_share": 0.2441,
     "sim_share": 0.2954
    },
@@ -747,7 +747,7 @@
    },
    "Close The Deal": {
     "class": "ability_deadpack_ultimate",
-    "landing": 0.159,
+    "landing": 0.16,
     "real_share": 0.0431,
     "sim_share": 0.149
    }
@@ -827,7 +827,7 @@
    },
    "Royal Pestments": {
     "class": "ability_ratking_ratarmor",
-    "landing": 1.03,
+    "landing": 1.04,
     "real_share": 0.0325,
     "sim_share": 0.0187
    },
@@ -857,6 +857,7 @@
     "real_share": 0.1448,
     "sim_share": 0.3109
    }
-  }
+  },
+  "Graves": {}
  }
 }

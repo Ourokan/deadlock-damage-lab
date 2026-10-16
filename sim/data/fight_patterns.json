@@ -91,8 +91,8 @@
     ]
    },
    "fit_error": {
-    "slot_order": 0.908,
-    "replay_order": 0.898
+    "slot_order": 0.912,
+    "replay_order": 0.902
    }
   },
   "2": {
@@ -197,8 +197,8 @@
     ]
    },
    "fit_error": {
-    "slot_order": 0.509,
-    "replay_order": 0.477
+    "slot_order": 0.591,
+    "replay_order": 0.557
    }
   },
   "3": {
@@ -406,7 +406,7 @@
    },
    "fit_error": {
     "slot_order": 0.336,
-    "replay_order": 0.292
+    "replay_order": 0.32
    }
   },
   "6": {
@@ -503,7 +503,7 @@
    },
    "fit_error": {
     "slot_order": 0.416,
-    "replay_order": 0.417
+    "replay_order": 0.416
    }
   },
   "7": {
@@ -598,7 +598,7 @@
    },
    "fit_error": {
     "slot_order": 0.825,
-    "replay_order": 0.846
+    "replay_order": 0.82
    }
   },
   "8": {
@@ -805,7 +805,7 @@
    },
    "fit_error": {
     "slot_order": 0.553,
-    "replay_order": 0.529
+    "replay_order": 0.534
    }
   },
   "11": {
@@ -906,7 +906,7 @@
    },
    "fit_error": {
     "slot_order": 0.505,
-    "replay_order": 0.547
+    "replay_order": 0.521
    }
   },
   "12": {
@@ -1009,7 +1009,7 @@
    },
    "fit_error": {
     "slot_order": 0.589,
-    "replay_order": 0.576
+    "replay_order": 0.595
    }
   },
   "13": {
@@ -1209,7 +1209,7 @@
    },
    "fit_error": {
     "slot_order": 0.935,
-    "replay_order": 0.933
+    "replay_order": 0.929
    }
   },
   "15": {
@@ -1312,7 +1312,7 @@
    },
    "fit_error": {
     "slot_order": 1.411,
-    "replay_order": 1.291
+    "replay_order": 1.296
    }
   },
   "16": {
@@ -1619,7 +1619,7 @@
    },
    "fit_error": {
     "slot_order": 0.303,
-    "replay_order": 0.341
+    "replay_order": 0.339
    }
   },
   "19": {
@@ -1718,7 +1718,7 @@
    },
    "fit_error": {
     "slot_order": 0.52,
-    "replay_order": 0.531
+    "replay_order": 0.524
    }
   },
   "20": {
@@ -2125,7 +2125,7 @@
    },
    "fit_error": {
     "slot_order": 0.328,
-    "replay_order": 0.326
+    "replay_order": 0.329
    }
   },
   "35": {
@@ -2223,7 +2223,7 @@
    },
    "fit_error": {
     "slot_order": 0.615,
-    "replay_order": 0.635
+    "replay_order": 0.638
    }
   },
   "50": {
@@ -2327,8 +2327,8 @@
     ]
    },
    "fit_error": {
-    "slot_order": 0.359,
-    "replay_order": 0.375
+    "slot_order": 0.357,
+    "replay_order": 0.377
    }
   },
   "52": {
@@ -2427,8 +2427,8 @@
     ]
    },
    "fit_error": {
-    "slot_order": 0.919,
-    "replay_order": 0.926
+    "slot_order": 0.91,
+    "replay_order": 0.91
    }
   },
   "58": {
@@ -2526,7 +2526,7 @@
    },
    "fit_error": {
     "slot_order": 1.298,
-    "replay_order": 1.326
+    "replay_order": 1.292
    }
   },
   "60": {
@@ -2722,7 +2722,7 @@
    },
    "fit_error": {
     "slot_order": 0.632,
-    "replay_order": 0.622
+    "replay_order": 0.632
    }
   },
   "64": {
@@ -2810,7 +2810,7 @@
    },
    "fit_error": {
     "slot_order": 0.429,
-    "replay_order": 0.436
+    "replay_order": 0.433
    }
   },
   "65": {
@@ -2907,7 +2907,7 @@
    },
    "fit_error": {
     "slot_order": 0.563,
-    "replay_order": 0.559
+    "replay_order": 0.565
    }
   },
   "66": {
@@ -3007,7 +3007,7 @@
    },
    "fit_error": {
     "slot_order": 0.662,
-    "replay_order": 0.697
+    "replay_order": 0.682
    }
   },
   "67": {
@@ -3107,7 +3107,7 @@
    },
    "fit_error": {
     "slot_order": 0.274,
-    "replay_order": 0.305
+    "replay_order": 0.299
    }
   },
   "69": {
@@ -3204,7 +3204,7 @@
    },
    "fit_error": {
     "slot_order": 0.554,
-    "replay_order": 0.527
+    "replay_order": 0.519
    }
   },
   "72": {
@@ -3299,7 +3299,7 @@
    },
    "fit_error": {
     "slot_order": 0.814,
-    "replay_order": 0.84
+    "replay_order": 0.846
    }
   },
   "76": {
@@ -3399,16 +3399,8 @@
   },
   "77": {
    "name": "Apollo",
-   "order": [
-    "ability_fencer_throwblade",
-    "ability_fencer_lunge",
-    "ability_fencer_riposte",
-    "ability_fencer_ultimate"
-   ],
-   "ult_after": [
-    "ability_fencer_throwblade",
-    "ability_fencer_lunge"
-   ],
+   "order": [],
+   "ult_after": [],
    "prefight": null,
    "guide_order": [
     "ability_fencer_lunge",
@@ -3498,8 +3490,19 @@
    },
    "fit_error": {
     "slot_order": 0.679,
-    "replay_order": 0.69
-   }
+    "replay_order": 0.775
+   },
+   "replay_order": [
+    "ability_fencer_throwblade",
+    "ability_fencer_lunge",
+    "ability_fencer_riposte",
+    "ability_fencer_ultimate"
+   ],
+   "replay_ult_after": [
+    "ability_fencer_throwblade",
+    "ability_fencer_lunge"
+   ],
+   "dropped": "the replay combo fits the real damage mix worse than slot order in the sim (mean |log landing| 0.68 -> 0.78), which points at a gap in this hero's ability model; slot order kept"
   },
   "78": {
    "name": "Deadman Danny",
@@ -3695,7 +3698,7 @@
    },
    "fit_error": {
     "slot_order": 0.697,
-    "replay_order": 0.719
+    "replay_order": 0.705
    }
   },
   "80": {
@@ -3799,7 +3802,7 @@
    },
    "fit_error": {
     "slot_order": 0.148,
-    "replay_order": 0.146
+    "replay_order": 0.142
    }
   },
   "81": {
@@ -3901,7 +3904,7 @@
    },
    "fit_error": {
     "slot_order": 0.43,
-    "replay_order": 0.437
+    "replay_order": 0.431
    }
   },
   "84": {
@@ -4000,7 +4003,7 @@
    },
    "fit_error": {
     "slot_order": 0.673,
-    "replay_order": 0.663
+    "replay_order": 0.66
    }
   },
   "85": {
@@ -4105,7 +4108,7 @@
    },
    "fit_error": {
     "slot_order": 0.84,
-    "replay_order": 0.842
+    "replay_order": 0.828
    }
   }
  }

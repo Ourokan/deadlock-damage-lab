@@ -193,9 +193,11 @@ Sources, scripts in `scripts/fight_patterns/`:
   Surge rather than Static Charge into Storm Cloud.
 
 Check against the real damage mix (`fit_check.py`, mechanics on): a replay combo is used only when the sim's damage
-mix with it fits the real damage matrix within 0.05 of slot order (mean |log landing factor|). Haze, Yamato and
-Sinclair fit worse with their real order, which points at gaps in those ability models, so they keep slot order for
-now. Landing factors were refit for the 36 heroes whose fights changed (`scripts/refit_landing_heroes.py`).
+mix with it fits the real damage matrix within 0.05 of slot order (mean |log landing factor|). Haze, Yamato,
+Sinclair and Apollo fit worse with their real order, which points at gaps in those ability models, so they keep slot
+order for now. The ultimate stops waiting for its setup when no setup ability is off cooldown, when either side is
+below 30% health, or after 4 s. Landing factors were refit for every hero whose fights changed
+(`scripts/refit_landing_heroes.py`). `tests/test_patterns.py` pins a few duels with patterns on.
 
 Mo & Krill: Mo is underground when 26% of all fights start, 36% after laning (47% have a Burrow cast in the 10 s
 before the first hit), 9-24% in lane. So "most fights" holds for committed mid-game engages more than for lane
