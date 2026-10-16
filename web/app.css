@@ -78,6 +78,9 @@ input[type=number], input[type=search], select { width: 100%; padding: 7px 9px; 
 input[type=number] { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .hint, .fine { margin: 0; font-size: .85rem; color: var(--muted); }
 .check { display: flex; gap: 8px; align-items: center; font-size: .9rem; }
+#custom-aim > .hint, .aim-load { flex: 1 1 100%; }
+.aim-load { display: flex; gap: 8px; align-items: center; }
+.aim-load input { flex: 1 1 auto; min-width: 0; padding: 7px 9px; border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: inherit; }
 
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; width: max-content; max-width: 100%; }
 .seg button { border: 0; background: transparent; padding: 5px 10px; cursor: pointer; font: 600 .8rem var(--head); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
