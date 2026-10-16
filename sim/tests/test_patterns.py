@@ -27,6 +27,10 @@ class TestPatterns(unittest.TestCase):
             names = {a.class_name for a in G.hero(hid).abilities}
             for c in row["order"] + row["ult_after"] + ([row["prefight"]] if row["prefight"] else []):
                 self.assertIn(c, names, G.hero(hid).name)
+            if row.get("imbue"):
+                ab = next((a for a in G.hero(hid).abilities if a.class_name == row["imbue"]), None)
+                self.assertIsNotNone(ab, G.hero(hid).name)
+                self.assertFalse(ab.ultimate, G.hero(hid).name)
 
     def test_krill_opens_burrowed(self):
         """Mo emerges on the target at t=0: spin damage starts at once and Burrow is on cooldown."""

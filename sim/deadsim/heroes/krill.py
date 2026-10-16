@@ -46,7 +46,9 @@ class Scorn(_Base):
                 return
             before = sum(c.me.dmg_out.values())
             c.engine.damage(c.me, c.foe, dmg, "spirit", self.s.ab.name, is_ability=True, ability=self.s)
-            c.heal((sum(c.me.dmg_out.values()) - before) * c.raw("DamageHealMult"))   # Scorn + the procs it set off
+            # Scorn + the item procs its hit sets off synchronously inside engine.damage (Mystic Burst, Quicksilver).
+            # Delayed procs (Mystic Reverb, DoTs) land later and don't count.
+            c.heal((sum(c.me.dmg_out.values()) - before) * c.raw("DamageHealMult"))
             if c.tier >= 3:
                 c.debuff("damage_taken_amp", c.raw("DamageBonus") / 100, c.dur("DebuffDuration"),
                          tag=("scorn_t3", self.s.casts))
