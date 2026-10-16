@@ -3177,7 +3177,7 @@
   "name": "Chimera Peace Bringer",
   "weapon_info": {
    "can_zoom": true,
-   "bullet_damage": 12.0,
+   "bullet_damage": 15.0,
    "bullet_gravity_scale": 0.05,
    "bullet_inherit_shooter_velocity_scale": 0.0,
    "bullet_lifetime": 2.0,
@@ -3273,10 +3273,10 @@
    "shots_per_second_with_reload": 2.014388489208633,
    "bullets_per_second": 4.0,
    "bullets_per_second_with_reload": 2.014388489208633,
-   "damage_per_second": 48.0,
-   "damage_per_second_with_reload": 24.172661870503596,
-   "damage_per_shot": 12.0,
-   "damage_per_magazine": 168.0
+   "damage_per_second": 60.0,
+   "damage_per_second_with_reload": 30.215827338129493,
+   "damage_per_shot": 15.0,
+   "damage_per_magazine": 210.0
   },
   "properties": {
    "AbilityUnitTargetLimit": {

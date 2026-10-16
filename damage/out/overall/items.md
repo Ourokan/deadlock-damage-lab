@@ -1,183 +1,183 @@
-# Items in best overall vs best damage vs popular builds
+# Items in best overall vs best damage vs popular builds (Phantom and up)
 
-Count of the 41 heroes whose build holds the item, per budget. Slot spend = mean souls per build.
+Count of heroes whose build holds the item, per budget. Slot spend = mean souls per build.
 
 ## 10000 net worth
 
 | Item | Overall | Damage (dummy 15 s) | Popular |
 |---|---:|---:|---:|
-| Decay | 21 | 7 | 0 |
-| Spirit Sap | 22 | 1 | 1 |
-| Mystic Burst | 10 | 13 | 16 |
-| Extra Charge | 12 | 6 | 13 |
-| Mystic Expansion | 8 | 5 | 15 |
-| Extra Regen | 8 | 3 | 15 |
-| Mystic Shot | 7 | 17 | 3 |
-| Improved Spirit | 4 | 10 | 15 |
-| Extra Spirit | 7 | 7 | 7 |
-| Close Quarters | 6 | 6 | 8 |
-| Restorative Shot | 6 | 5 | 8 |
-| Melee Lifesteal | 6 | 4 | 7 |
-| Silence Wave | 9 | 0 | 0 |
-| Spirit Strike | 5 | 5 | 6 |
-| Extra Health | 6 | 1 | 6 |
-| Enchanter's Emblem | 6 | 2 | 3 |
-| Opening Rounds | 3 | 1 | 9 |
-| Titanic Magazine | 2 | 5 | 5 |
-| Monster Rounds | 3 | 0 | 6 |
-| Alchemical Fire | 0 | 15 | 0 |
-| Extra Stamina | 3 | 1 | 4 |
+| Spirit Sap | 30 | 4 | 1 |
+| Mystic Shot | 15 | 33 | 3 |
+| Enchanter's Emblem | 19 | 3 | 3 |
+| Improved Spirit | 7 | 26 | 13 |
+| Decay | 14 | 6 | 0 |
+| Extra Charge | 8 | 7 | 10 |
+| Mystic Burst | 4 | 9 | 17 |
+| Extra Health | 10 | 0 | 6 |
+| Return Fire | 9 | 0 | 0 |
+| Melee Lifesteal | 5 | 0 | 7 |
+| Titanic Magazine | 2 | 10 | 5 |
+| Extra Regen | 2 | 0 | 15 |
+| Spirit Lifesteal | 6 | 0 | 2 |
+| Mystic Expansion | 2 | 1 | 12 |
+| Suppressor | 6 | 0 | 1 |
+| Guardian Ward | 5 | 0 | 4 |
+| Extra Spirit | 2 | 7 | 5 |
+| Spirit Snatch | 5 | 1 | 2 |
+| Spirit Strike | 3 | 4 | 4 |
+| Close Quarters | 3 | 3 | 5 |
+| Opening Rounds | 1 | 2 | 11 |
+| Grit | 4 | 0 | 4 |
+| Silence Wave | 5 | 0 | 0 |
+| Alchemical Fire | 0 | 14 | 0 |
 | Rapid Recharge | 2 | 5 | 3 |
-| Quicksilver Reload | 2 | 0 | 7 |
-| Trophy Collector | 0 | 0 | 13 |
-| Spirit Lifesteal | 3 | 0 | 3 |
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 1288 | 3141 | 2693 |
-| spirit | 4761 | 4585 | 3220 |
-| vitality | 1932 | 254 | 1912 |
+| weapon | 1249 | 4020 | 2829 |
+| spirit | 4254 | 3824 | 3220 |
+| vitality | 2498 | 156 | 1854 |
 
 ## 18000 net worth
 
 | Item | Overall | Damage (dummy 15 s) | Popular |
 |---|---:|---:|---:|
-| Mystic Shot | 21 | 34 | 7 |
-| Decay | 28 | 16 | 0 |
-| Enchanter's Emblem | 28 | 7 | 8 |
-| Spirit Sap | 25 | 2 | 0 |
-| Improved Spirit | 6 | 20 | 22 |
-| Extra Charge | 9 | 10 | 8 |
-| Headhunter | 13 | 1 | 5 |
-| Spirit Snatch | 10 | 6 | 7 |
-| Mystic Burst | 6 | 6 | 13 |
-| Close Quarters | 8 | 3 | 7 |
-| Mystic Expansion | 4 | 3 | 18 |
-| Spirit Lifesteal | 9 | 0 | 5 |
-| Extra Regen | 5 | 4 | 9 |
-| Titanic Magazine | 4 | 11 | 5 |
-| Spirit Resilience | 9 | 0 | 0 |
-| Toxic Bullets | 3 | 14 | 3 |
-| Rapid Recharge | 5 | 5 | 6 |
-| Restorative Shot | 5 | 3 | 8 |
-| Escalating Exposure | 5 | 9 | 0 |
-| Mystic Vulnerability | 4 | 3 | 7 |
-| Alchemical Fire | 0 | 20 | 0 |
-| Silence Wave | 6 | 0 | 0 |
-| Opening Rounds | 1 | 4 | 11 |
-| Swift Striker | 1 | 3 | 11 |
-| Melee Lifesteal | 3 | 3 | 3 |
+| Mystic Shot | 24 | 36 | 7 |
+| Decay | 22 | 24 | 0 |
+| Enchanter's Emblem | 24 | 10 | 8 |
+| Spirit Sap | 20 | 14 | 1 |
+| Improved Spirit | 9 | 23 | 16 |
+| Headhunter | 17 | 6 | 5 |
+| Return Fire | 17 | 0 | 0 |
+| Bullet Resist Shredder | 11 | 8 | 8 |
+| Close Quarters | 10 | 5 | 8 |
+| Extra Charge | 8 | 9 | 8 |
+| Suppressor | 12 | 0 | 4 |
+| Spirit Lifesteal | 12 | 0 | 3 |
+| Mystic Vulnerability | 5 | 16 | 7 |
+| Spirit Snatch | 7 | 9 | 6 |
+| Mystic Burst | 3 | 6 | 18 |
+| Titanic Magazine | 7 | 7 | 4 |
+| Rapid Recharge | 5 | 7 | 6 |
+| Mystic Expansion | 2 | 1 | 20 |
+| Swift Striker | 3 | 7 | 9 |
+| Spirit Resilience | 8 | 0 | 1 |
+| Toxic Bullets | 1 | 20 | 1 |
+| Silence Wave | 8 | 0 | 0 |
+| Alchemical Fire | 0 | 22 | 0 |
+| Extra Health | 6 | 0 | 3 |
+| Weapon Shielding | 7 | 0 | 0 |
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 3532 | 5463 | 4800 |
-| spirit | 7200 | 9307 | 5541 |
-| vitality | 4429 | 410 | 4722 |
+| weapon | 4273 | 7629 | 4683 |
+| spirit | 6283 | 7024 | 5424 |
+| vitality | 4624 | 546 | 4820 |
 
 ## 27000 net worth
 
 | Item | Overall | Damage (dummy 15 s) | Popular |
 |---|---:|---:|---:|
-| Mystic Shot | 28 | 29 | 5 |
-| Decay | 26 | 20 | 0 |
-| Enchanter's Emblem | 27 | 6 | 10 |
-| Escalating Exposure | 16 | 31 | 4 |
-| Spirit Sap | 25 | 3 | 1 |
-| Rapid Recharge | 12 | 6 | 14 |
-| Headhunter | 16 | 3 | 5 |
-| Titanic Magazine | 9 | 17 | 7 |
-| Spirit Snatch | 11 | 7 | 8 |
-| Spirit Resilience | 13 | 0 | 7 |
-| Improved Spirit | 4 | 11 | 21 |
-| Toxic Bullets | 6 | 21 | 3 |
-| Superior Duration | 8 | 9 | 9 |
-| Focus Lens | 7 | 13 | 0 |
-| Superior Cooldown | 6 | 4 | 10 |
-| Spirit Rend | 10 | 2 | 0 |
-| Diviner's Kevlar | 10 | 0 | 0 |
-| Spirit Lifesteal | 8 | 0 | 5 |
-| Swift Striker | 3 | 4 | 12 |
-| Recharging Rush | 4 | 7 | 5 |
-| Tankbuster | 2 | 1 | 15 |
-| Alchemical Fire | 0 | 22 | 0 |
-| Silence Wave | 7 | 0 | 0 |
-| Mystic Vulnerability | 4 | 2 | 7 |
-| Berserker | 6 | 0 | 2 |
+| Mystic Shot | 24 | 33 | 7 |
+| Decay | 27 | 29 | 0 |
+| Enchanter's Emblem | 30 | 8 | 8 |
+| Spirit Sap | 22 | 9 | 1 |
+| Improved Spirit | 7 | 28 | 18 |
+| Headhunter | 18 | 4 | 5 |
+| Spirit Resilience | 16 | 0 | 7 |
+| Spirit Snatch | 12 | 8 | 7 |
+| Titanic Magazine | 9 | 18 | 6 |
+| Toxic Bullets | 6 | 29 | 3 |
+| Escalating Exposure | 11 | 13 | 3 |
+| Rapid Recharge | 9 | 8 | 11 |
+| Spirit Rend | 10 | 16 | 0 |
+| Bullet Resist Shredder | 11 | 2 | 10 |
+| Superior Duration | 9 | 6 | 7 |
+| Superior Cooldown | 7 | 7 | 11 |
+| Swift Striker | 7 | 6 | 11 |
+| Close Quarters | 7 | 6 | 8 |
+| Suppressor | 10 | 0 | 3 |
+| Mystic Vulnerability | 6 | 7 | 6 |
+| Escalating Resilience | 9 | 2 | 0 |
+| Recharging Rush | 6 | 5 | 4 |
+| Return Fire | 9 | 0 | 0 |
+| Diviner's Kevlar | 8 | 0 | 0 |
+| Spirit Lifesteal | 7 | 0 | 3 |
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 6380 | 7629 | 6498 |
-| spirit | 11180 | 16020 | 10478 |
-| vitality | 6439 | 332 | 6732 |
+| weapon | 7356 | 10654 | 6732 |
+| spirit | 10380 | 12839 | 9932 |
+| vitality | 6263 | 507 | 7044 |
 
 ## 37000 net worth
 
 | Item | Overall | Damage (dummy 15 s) | Popular |
 |---|---:|---:|---:|
-| Escalating Exposure | 28 | 37 | 7 |
-| Decay | 31 | 24 | 0 |
-| Enchanter's Emblem | 28 | 7 | 7 |
-| Mystic Shot | 22 | 25 | 6 |
-| Superior Duration | 16 | 25 | 15 |
-| Spirit Resilience | 18 | 0 | 10 |
-| Rapid Recharge | 12 | 11 | 13 |
-| Superior Cooldown | 10 | 5 | 23 |
-| Spirit Rend | 17 | 7 | 0 |
-| Focus Lens | 7 | 31 | 0 |
-| Spirit Snatch | 11 | 7 | 8 |
-| Titanic Magazine | 8 | 16 | 7 |
-| Headhunter | 13 | 1 | 6 |
-| Diviner's Kevlar | 14 | 0 | 0 |
-| Toxic Bullets | 6 | 19 | 3 |
-| Spirit Sap | 12 | 3 | 1 |
-| Tankbuster | 6 | 1 | 19 |
-| Improved Spirit | 6 | 7 | 12 |
-| Boundless Spirit | 5 | 6 | 13 |
-| Bullet Resist Shredder | 6 | 1 | 7 |
-| Greater Expansion | 2 | 0 | 18 |
-| Rusted Barrel | 7 | 2 | 0 |
-| Swift Striker | 2 | 5 | 12 |
-| Mercurial Magnum | 1 | 17 | 3 |
-| Infuser | 7 | 0 | 1 |
+| Escalating Exposure | 25 | 35 | 6 |
+| Mystic Shot | 26 | 24 | 8 |
+| Enchanter's Emblem | 26 | 8 | 9 |
+| Decay | 18 | 29 | 0 |
+| Superior Duration | 15 | 20 | 14 |
+| Toxic Bullets | 15 | 28 | 5 |
+| Spirit Resilience | 20 | 0 | 11 |
+| Spirit Rend | 19 | 9 | 0 |
+| Titanic Magazine | 12 | 15 | 7 |
+| Diviner's Kevlar | 18 | 0 | 1 |
+| Spirit Snatch | 13 | 8 | 8 |
+| Superior Cooldown | 9 | 7 | 21 |
+| Rapid Recharge | 11 | 7 | 14 |
+| Bullet Resist Shredder | 12 | 4 | 10 |
+| Headhunter | 13 | 1 | 5 |
+| Spirit Sap | 10 | 3 | 1 |
+| Metal Skin | 11 | 0 | 0 |
+| Swift Striker | 4 | 9 | 12 |
+| Improved Spirit | 4 | 10 | 10 |
+| Mercurial Magnum | 2 | 20 | 3 |
+| Tankbuster | 4 | 2 | 15 |
+| Focus Lens | 2 | 22 | 0 |
+| Hunter's Aura | 7 | 0 | 6 |
+| Escalating Resilience | 9 | 0 | 0 |
+| Spellslinger | 7 | 5 | 1 |
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 7688 | 7844 | 7902 |
-| spirit | 15980 | 24527 | 15688 |
-| vitality | 8917 | 371 | 8078 |
+| weapon | 10068 | 10185 | 7863 |
+| spirit | 13327 | 21776 | 14537 |
+| vitality | 9210 | 761 | 9210 |
 
 ## 50000 net worth
 
 | Item | Overall | Damage (dummy 15 s) | Popular |
 |---|---:|---:|---:|
-| Escalating Exposure | 33 | 40 | 12 |
-| Decay | 28 | 27 | 0 |
-| Mystic Shot | 23 | 34 | 5 |
-| Superior Duration | 17 | 31 | 16 |
-| Focus Lens | 20 | 37 | 0 |
-| Boundless Spirit | 16 | 24 | 24 |
-| Enchanter's Emblem | 23 | 10 | 7 |
-| Spirit Rend | 19 | 18 | 2 |
-| Spirit Resilience | 21 | 0 | 10 |
-| Rapid Recharge | 15 | 11 | 16 |
-| Toxic Bullets | 11 | 28 | 4 |
-| Spirit Snatch | 12 | 11 | 8 |
-| Diviner's Kevlar | 16 | 4 | 1 |
-| Titanic Magazine | 9 | 18 | 8 |
-| Dispel Magic | 14 | 0 | 8 |
-| Tankbuster | 9 | 0 | 20 |
-| Superior Cooldown | 9 | 6 | 9 |
-| Mercurial Magnum | 3 | 24 | 4 |
-| Metal Skin | 11 | 0 | 0 |
-| Spellslinger | 10 | 1 | 1 |
-| Recharging Rush | 5 | 10 | 6 |
-| Spirit Sap | 10 | 0 | 0 |
-| Greater Expansion | 3 | 1 | 20 |
-| Headhunter | 7 | 1 | 5 |
-| Alchemical Fire | 1 | 23 | 0 |
+| Escalating Exposure | 33 | 37 | 11 |
+| Mystic Shot | 28 | 32 | 8 |
+| Superior Duration | 21 | 27 | 16 |
+| Spirit Rend | 25 | 19 | 1 |
+| Enchanter's Emblem | 21 | 13 | 9 |
+| Decay | 18 | 29 | 0 |
+| Rapid Recharge | 15 | 13 | 14 |
+| Boundless Spirit | 10 | 22 | 18 |
+| Toxic Bullets | 11 | 27 | 5 |
+| Spirit Resilience | 16 | 0 | 12 |
+| Titanic Magazine | 12 | 18 | 6 |
+| Diviner's Kevlar | 18 | 2 | 1 |
+| Spirit Snatch | 13 | 10 | 7 |
+| Tankbuster | 10 | 2 | 18 |
+| Focus Lens | 4 | 36 | 0 |
+| Bullet Resist Shredder | 12 | 4 | 8 |
+| Mercurial Magnum | 5 | 25 | 4 |
+| Superior Cooldown | 9 | 5 | 12 |
+| Spellslinger | 13 | 3 | 2 |
+| Recharging Rush | 9 | 5 | 8 |
+| Opening Rounds | 4 | 9 | 12 |
+| Berserker | 9 | 0 | 5 |
+| Spirit Sap | 10 | 0 | 1 |
+| Swift Striker | 4 | 6 | 10 |
+| Alchemical Fire | 1 | 24 | 0 |
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 10400 | 10751 | 9717 |
-| spirit | 22634 | 31551 | 22517 |
-| vitality | 10420 | 1268 | 10146 |
+| weapon | 12527 | 12507 | 9444 |
+| spirit | 20117 | 30010 | 20410 |
+| vitality | 10654 | 1015 | 11337 |

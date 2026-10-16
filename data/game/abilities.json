@@ -16643,12 +16643,12 @@
   "description": {
    "desc": "Launch a salvo of spirit missiles that lodge into the ground along a line. The missiles explode after a delay or upon detecting an enemy, dealing spirit damage and marking the target.Shooting a marked enemy with a charged shot consumes a mark to deal bonus spirit damage and apply a fading slow.Hold and drag to select the angle.",
    "t1_desc": "-12s Cooldown",
-   "t2_desc": "+20 Damage+35 Marked Damage",
+   "t2_desc": "+30 Damage+45 Marked Damage",
    "t3_desc": "+2 Missiles, Longer Range, and Improved Spirit Scaling"
   },
   "properties": {
    "AbilityCooldown": {
-    "value": 30.0,
+    "value": 25.0,
     "label": "Cooldown",
     "postfix": "s",
     "scale": {
@@ -16733,7 +16733,7 @@
      "class_name": "scale_function_tech_damage",
      "subclass_name": "CoatedDamage_scale_function",
      "specific_stat_scale_type": "ETechPower",
-     "stat_scale": 0.9
+     "stat_scale": 1.1
     }
    },
    "CoatedSlowPercent": {
@@ -16759,14 +16759,14 @@
     "AbilityCooldown": -12.0
    },
    {
-    "Damage": 20.0,
-    "CoatedDamage": 35.0
+    "Damage": 30.0,
+    "CoatedDamage": 45.0
    },
    {
     "MarksTotal": 2.0,
     "Range": 14.0,
-    "CoatedDamage": 0.2,
-    "Damage": 0.225
+    "CoatedDamage": 0.35,
+    "Damage": 0.35
    }
   ],
   "weapon_info": null
@@ -16784,7 +16784,7 @@
    "desc": "Hold Jump / mantle to fly, building up heat. When max heat is reached, your jetpack will begin to overheat.Overheating: After a short delay, dive to the ground. Upon impact, create an explosion that deals damage and launches you and nearby enemies. If no hero is hit, you stun yourself. Press Ability 2 to dive early.Cooling Down: After overheating, the jetpack cannot be used until it fully cools down.Slows affect you while airborne. You always explode on death.",
    "t1_desc": "Heat vents faster while grounded",
    "t2_desc": "On Hero Hit: Heal and take no self damage",
-   "t3_desc": "On Hero Hit: -40% Cooldown and +120 Spirit Damage"
+   "t3_desc": "On Hero Hit: -50% Cooldown and +120 Spirit Damage"
   },
   "properties": {
    "AbilityCooldown": {
@@ -16795,10 +16795,10 @@
      "class_name": "scale_function_multi_stats",
      "subclass_name": "AbilityCooldown_sf",
      "specific_stat_scale_type": "ELevelUpBoons",
-     "stat_scale": -0.25,
+     "stat_scale": -0.45,
      "scaling_stats": [
-      "ETechCooldown",
-      "ELevelUpBoons"
+      "ELevelUpBoons",
+      "ETechCooldown"
      ]
     }
    },
@@ -16842,9 +16842,6 @@
     "label": "Heat Gain",
     "postfix": "/s"
    },
-   "HeatGainRateSlowPercentEffectiveness": {
-    "value": 75.0
-   },
    "HeatGainRateVTOL": {
     "value": 60.0
    },
@@ -16865,7 +16862,7 @@
     "postfix": "s"
    },
    "MaxHealthSelfDamagePercent": {
-    "value": 12.0,
+    "value": 10.0,
     "label": "Self Damage",
     "postfix": "% Max Health"
    },
@@ -16886,7 +16883,7 @@
      "class_name": "scale_function_ability_weapon_damage",
      "subclass_name": "ExplosionBulletDamage_sf",
      "specific_stat_scale_type": "EBaseWeaponDamageIncrease",
-     "stat_scale": 1.15
+     "stat_scale": 1.4
     }
    },
    "Radius": {
@@ -16906,12 +16903,12 @@
     "HeatDrainRate": -4.0
    },
    {
-    "HealOnHit": 1.0,
+    "HealOnHit": 2.0,
     "SelfDamageReductionOnPlayerHitPercent": 100.0
    },
    {
     "ExplosionDamage": 120.0,
-    "OverheatLockoutDurationReductionOnPlayerHitPercent": 40.0
+    "OverheatLockoutDurationReductionOnPlayerHitPercent": 50.0
    }
   ],
   "weapon_info": null
@@ -17129,14 +17126,14 @@
     "postfix": "%"
    },
    "BonusDamagePercent": {
-    "value": 50.0,
+    "value": 75.0,
     "label": "Bonus Damage",
     "postfix": "%"
    }
   },
   "upgrades": [
    {
-    "Damage": 50.0
+    "Damage": 90.0
    },
    {
     "AbilityCooldown": -35.0
