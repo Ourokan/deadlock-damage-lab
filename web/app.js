@@ -304,6 +304,7 @@ function readShare() {
     Object.assign(S.D, { mode: "hero", hero: S.heroById[eh] ? eh : S.D.hero, items: items("ei") });
   }
   $("#d-immortal").checked = p.get("die") !== "1";
+  if (dropped) S.A.label = null; // "Popular" etc. no longer describes a build missing items
   if (dropped) $("#share-note").textContent += ` ${dropped} item${dropped > 1 ? "s" : ""} from this link no longer exist${dropped > 1 ? "" : "s"} in the current patch, so ${dropped > 1 ? "they were" : "it was"} left out.`;
   return true;
 }
