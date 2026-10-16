@@ -33,25 +33,25 @@
   "Seven": {
    "Lightning Ball": {
     "class": "citadel_ability_lightning_ball",
-    "landing": 0.13,
+    "landing": 0.31,
     "real_share": 0.1887,
     "sim_share": 0.3964
    },
    "Static Charge": {
     "class": "citadel_ability_static_charge",
-    "landing": 0.34,
+    "landing": 0.81,
     "real_share": 0.0568,
     "sim_share": 0.0437
    },
    "Power Surge": {
     "class": "ability_power_surge",
-    "landing": 0.79,
+    "landing": 0.53,
     "real_share": 0.1592,
     "sim_share": 0.205
    },
    "Storm Cloud": {
     "class": "citadel_ability_storm_cloud",
-    "landing": 0.16,
+    "landing": 0.81,
     "real_share": 0.2828,
     "sim_share": 0.1933
    }

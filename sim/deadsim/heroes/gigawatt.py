@@ -9,16 +9,22 @@ Assumptions:
 - Storm Cloud: Seven can't shoot while channeling; target is damaged every DamageInterval while inside the
   expanding radius (line of sight assumed). A stun on Seven ends the channel. One lightning strike
   (LightningStrikes) lands on the target at the start. Cast only when the target is above 20% and the cloud's
-  DPS beats Seven's expected gun DPS (incl. Power Surge), both at their real landing rates, since he can't shoot
-  while channeling. Not recast while
-  channeling (a Refresher reset mid-channel would otherwise stack two clouds).
+  DPS is at least COMMIT_MARGIN x Seven's expected gun DPS (incl. Power Surge), since he can't shoot while
+  channeling. Both sides are compared before landing factors, so the decision is the same in the landing fit and
+  in use. Not recast while channeling (a Refresher reset mid-channel would otherwise stack two clouds).
 """
 from deadsim.abilities import AbilityImpl, register
 
 BALL_CONTACT_FRAC = 0.5
-def gun_dps(c):
+# Players commit to the Storm Cloud channel far less often than "cloud DPS beats gun DPS": 158 Phantom+ replays have it
+# in 29% of fights, a median 5.5 s in. Requiring twice the gun's DPS fits the real damage mix (Storm Cloud landing
+# factor 0.81 vs 0.16 at 1x, scripts/landing_rates.py --hero Seven with mechanics on).
+COMMIT_MARGIN = 2.0
+
+
+def gun_dps(c, landing=True):
     """Sustained expected gun DPS (no reload), incl. an active Power Surge proc per trigger pull that hits, scaled by
-    its real landing rate like the engine scales its damage."""
+    its real landing rate like the engine scales its damage (landing=False: before landing factors)."""
     f = c.me
     st = f.st
     per, crit = c.engine.bullet_damage(f)
@@ -29,7 +35,8 @@ def gun_dps(c):
         if ab.ab.class_name == "ability_power_surge" and c.now < ab.scratch.get("until", -1):
             hit = 1.0 - (1.0 - acc) ** (st.pellets * st.burst_count)
             procs = min(pulls * hit, 1.0 / max(0.05, ab.ctx.raw("ChainTickRate", 0.2)))
-            dps += ab.ctx.val("DamagePerChain") * procs * f.skill.ability_landing.get(ab.ab.name, 1.0)
+            lf = f.skill.ability_landing.get(ab.ab.name, 1.0) if landing else 1.0
+            dps += ab.ctx.val("DamagePerChain") * procs * lf
     return dps
 
 
@@ -88,11 +95,10 @@ class StormCloud(AbilityImpl):
     range_props = ("Radius",)
 
     def should_cast(self, c):
-        """Only worth giving up the gun when the cloud out-damages it (both before resists)."""
+        """Only worth giving up the gun when the cloud clearly out-damages it (both before resists and landing)."""
         if c.now < c.state.get("end", -1):   # still channeling (a Refresher reset doesn't stack a second cloud)
             return False
-        landing = c.me.skill.ability_landing.get(self.s.ab.name, 1.0)
-        return self.in_range(c) and c.foe.hp_frac > 0.2 and c.val("DPS") * landing >= gun_dps(c)
+        return self.in_range(c) and c.foe.hp_frac > 0.2 and c.val("DPS") >= COMMIT_MARGIN * gun_dps(c, landing=False)
 
     def cast(self, c):
         chan = c.dur("AbilityChannelTime")
