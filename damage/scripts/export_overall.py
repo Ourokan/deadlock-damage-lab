@@ -76,9 +76,14 @@ def main():
     patch = patch_state.load()["patch"]
     for br, bj in jobs.items():
         lo, hi, aim, _ = BRACKETS[br]
+        # cells this run didn't finish (check_results.py allows 5% missing) keep their last result, marked with
+        # the patch it was built for so the site can say so
+        prev_patch = brackets.get(br, {}).get("patch")
+        for h in heroes.values():
+            for cell in h["brackets"].get(br, {}).values():
+                cell.setdefault("patch", prev_patch)
         brackets[br] = {"id": br, "label": LABELS[br], "min_badge": lo, "aim_percentile": aim, "patch": patch,
                         "generated": now}
-        # cells this run didn't finish (check_results.py allows 5% missing) keep their last result
         for (h, b), r in sorted(bj.items()):
             best, pop = r["builds"][0], r["popular"]
             if b not in hp_cache:
@@ -86,7 +91,8 @@ def main():
             best_d15 = D.run_dummy(h, tuple(best["items"]), b, hp_cache[b])[0]["fight_15s"]
             e = {"best": {k: v for k, v in best["F"].items() if k != "matchups"} | {"items": best["items"],
                                                                                    "dummy_15s": round(best_d15, 1)},
-                 "popular": {k: v for k, v in pop["F"].items() if k != "matchups"} | {"items": pop["items"]}}
+                 "popular": {k: v for k, v in pop["F"].items() if k != "matchups"} | {"items": pop["items"]},
+                 "patch": patch}
             got = dmg.get((br, h, b))
             if got:
                 dit, dr, d15, p15 = got

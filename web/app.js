@@ -499,7 +499,8 @@ async function renderOverallTab() {
   if ($("#o-budget").options.length !== keys.length) fillBudgetSelect($("#o-budget"), keys, $("#o-budget").value);
   const bk = $("#o-budget").value, b = hb[bk], d = await load(`data/overall/heroes/${id}_${br}_${bk}.json`);
   const latest = idx.brackets.map((x) => x.generated).sort().pop();
-  const stale = meta[br] && meta[br].generated < latest ? ` These ${esc(meta[br].label)} results are from an earlier run (${esc(meta[br].generated.slice(0, 10))}, patch ${esc(meta[br].patch)}); they refresh after the brackets before them.` : "";
+  const old = b.patch && meta[br] && b.patch !== meta[br].patch ? ` This hero and net worth didn't finish in the latest run, so it shows the patch ${esc(b.patch)} result.` : "";
+  const stale = old || (meta[br] && meta[br].generated < latest ? ` These ${esc(meta[br].label)} results are from an earlier run (${esc(meta[br].generated.slice(0, 10))}, patch ${esc(meta[br].patch)}); they refresh after the brackets before them.` : "");
   const ctx = (x) => ({ kind: "overall", hero: Number(id), souls: Number(bk), items: x.items, popular: b.popular.items });
   const card = (title, x, note) => `<div class="card"><h3>${title}</h3>${bdTiles(ctx(x))}
     <div class="kv"><span>Damage before dying</span><span><b>${fmt(x.damage_before_death)}</b>${note ? ` (${signed(x.damage_before_death / b.popular.damage_before_death - 1)})` : ""}</span>
