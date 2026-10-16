@@ -438,7 +438,7 @@ class Engine:
                 dst.alive = False
                 dst.death_time = self.t
                 self.note(f"{dst.name} dies to {source}")
-                self.over = True
+                self.on_death(dst, src)
         # lifesteal
         if src.alive and amt > 0:
             if kind == "bullet":
@@ -468,6 +468,10 @@ class Engine:
             if f:
                 f(ab.ctx, src, hit)
         return amt
+
+    def on_death(self, dead, killer):
+        """A fighter just died. 1v1: the fight is over (team.TeamEngine retargets instead)."""
+        self.over = True
 
     # ---- DoT --------------------------------------------------------------------------------------
     def dot(self, src, dst, dps, duration, source, kind="spirit", tick=0.5, tag=None, **kw):

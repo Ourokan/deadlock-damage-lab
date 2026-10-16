@@ -80,3 +80,25 @@ def breakdown(req_json):
         for x in out["items"]:
             x.setdefault("share", {})[m] = round(extra * max(0.0, x["loss"][m]) / pos, 1) if pos > 0 else 0.0
     return json.dumps(out)
+
+
+def team(req_json):
+    """Team fight (2v2, 3v3). {"a": [{"hero", "items", "souls"?, "aim"?}], "b": [...], "souls": 27000,
+    "focus": "focus" | "spread", "distance": null, "max_time": 40} -> deadsim.team.TeamResult.to_dict()."""
+    from deadsim import Loadout
+    from deadsim.team import team_fight
+    q = json.loads(req_json)
+    G = game()
+    souls = q.get("souls")
+    sides = []
+    for side in ("a", "b"):
+        team = []
+        for m in q.get(side, [])[:6]:
+            hero = G.hero(m["hero"])
+            items = [_item(G, x).name for x in m.get("items", [])]
+            team.append(Loadout(hero.name, items, souls=m.get("souls") or souls,
+                                skill=hero_default_skill(hero.name, m.get("aim") or q.get("aim") or "p50")))
+        sides.append(team)
+    r = team_fight(sides[0], sides[1], distance=q.get("distance") or 15.0, max_time=q.get("max_time") or 40.0,
+                   focus=q.get("focus") or "focus")
+    return json.dumps(r.to_dict())

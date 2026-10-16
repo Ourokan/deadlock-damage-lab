@@ -1,0 +1,101 @@
+"""Tests for deadsim.team (2v2 / 3v3 fights). Run from sim/:
+    python3 -m unittest discover -s tests
+"""
+import os
+import sys
+import unittest
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+from deadsim import Loadout, Skill, duel  # noqa: E402
+from deadsim.mechanics import Mechanics  # noqa: E402
+from deadsim.team import team_fight, team_item_value  # noqa: E402
+
+S = 20000
+
+
+def lo(hero, items=(), **kw):
+    return Loadout(hero, list(items), souls=S, skill=Skill(accuracy=0.3, **kw))
+
+
+class TestOneVsOne(unittest.TestCase):
+    def test_matches_duel_without_movement(self):
+        a, b = lo("Haze", ["Rapid Rounds", "Toxic Bullets"]), lo("Infernus", ["Extra Spirit", "Mystic Burst"])
+        d = duel(a, b, max_time=40, mechanics=Mechanics(movement=False))
+        t = team_fight([a], [b], max_time=40)
+        self.assertEqual(t.winner, {"Haze (A)": "A", "Infernus (B)": "B", None: None}[d.winner])
+        self.assertAlmostEqual(t.time, d.time, delta=1.0)
+        self.assertAlmostEqual(t.fighters[0]["damage"], sum(d.a_dmg.values()), delta=0.05 * sum(d.a_dmg.values()))
+
+
+class TestTeams(unittest.TestCase):
+    def test_fight_ends_when_a_team_is_dead(self):
+        a = [lo("Haze", ["Rapid Rounds", "Toxic Bullets"]), lo("Wraith", ["Rapid Rounds"])]
+        b = [lo("Haze"), lo("Wraith")]
+        r = team_fight(a, b, max_time=90)
+        self.assertEqual(r.winner, "A")
+        self.assertTrue(all(not x["alive"] for x in r.team("B")))
+        self.assertEqual(r.total("A", "kills"), 2)
+
+    def test_two_beat_one(self):
+        r = team_fight([lo("Haze"), lo("Haze")], [lo("Haze")], max_time=90)
+        self.assertEqual(r.winner, "A")
+
+    def test_focus_and_spread(self):
+        a = [lo("Haze"), lo("Wraith"), lo("Abrams")]
+        b = [lo("Seven"), lo("Infernus"), lo("Lash")]
+        for focus in ("focus", "spread"):
+            r = team_fight(a, b, focus=focus)
+            self.assertEqual(len(r.fighters), 6)
+            self.assertGreater(r.total("A", "damage"), 0)
+        guns = dict(use_abilities=False, use_actives=False)   # area abilities would splash the others
+        f = team_fight([lo(x.hero, **guns) for x in a], [lo(x.hero, **guns) for x in b], focus="focus", max_time=3)
+        hit = [x for x in f.team("B") if x["damage_taken"] > 0]
+        self.assertEqual(len(hit), 1)     # everyone shoots the same target at the start
+
+
+class TestSupport(unittest.TestCase):
+    def test_healing_nova_heals_teammate(self):
+        a = [lo("Haze"), lo("Dynamo", ["Healing Nova"])]
+        b = [lo("Haze", ["Rapid Rounds"]), lo("Wraith", ["Rapid Rounds"])]
+        r = team_fight(a, b)
+        sup = r.team("A")[1]
+        self.assertGreater(sup["healing_given_by_source"].get("Healing Nova", 0), 0)
+
+    def test_rescue_beam_heals_the_teammate(self):
+        a = [lo("Haze"), lo("Dynamo", ["Rescue Beam"])]
+        b = [lo("Haze", ["Rapid Rounds"]), lo("Wraith", ["Rapid Rounds"])]
+        r = team_fight(a, b)
+        self.assertGreater(r.team("A")[1]["healing_given_by_source"].get("Rescue Beam", 0), 0)
+
+    def test_divine_barrier_on_teammate(self):
+        a = [lo("Haze"), lo("Abrams", ["Divine Barrier"])]
+        b = [lo("Haze", ["Rapid Rounds"]), lo("Wraith", ["Rapid Rounds"])]
+        r = team_fight(a, b)
+        self.assertGreater(r.team("A")[1]["barrier_given"], 0)
+
+    def test_item_value(self):
+        a = [lo("Haze"), lo("Dynamo", ["Healing Nova"])]
+        b = [lo("Haze", ["Rapid Rounds"]), lo("Wraith", ["Rapid Rounds"])]
+        v = team_item_value(a, b, 1, "Healing Nova")
+        self.assertGreater(v["delta"]["healing_given"], 0)
+        self.assertEqual(set(v["delta"]), {"damage", "damage_taken", "healing_given", "kills", "deaths", "swing", "win", "time"})
+
+
+class TestArea(unittest.TestCase):
+    def test_area_abilities_hit_other_enemies(self):
+        a = [lo("Dynamo")]
+        b = [lo("Haze"), lo("Wraith")]
+        on = team_fight(a, b, max_time=20)
+        off = team_fight(a, b, max_time=20, aoe_share=0.0)
+        self.assertGreater(on.team("A")[0]["damage"], off.team("A")[0]["damage"])
+
+    def test_ricochet_hits_real_teammates(self):
+        a = [lo("Haze", ["Ricochet"])]
+        b = [lo("Abrams"), lo("Wraith")]
+        r = team_fight(a, b, max_time=10)
+        self.assertGreater(r.team("A")[0]["damage_by_source"].get("Ricochet", 0), 0)
+
+
+if __name__ == "__main__":
+    unittest.main()

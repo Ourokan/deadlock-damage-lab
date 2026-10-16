@@ -20,6 +20,7 @@
       <a href="#damage" data-tab="damage">Best damage builds</a>
       <a href="#duel" data-tab="duel">Duel builds</a>
       <a href="#tank" data-tab="tank">Tank builds</a>
+      <a href="#team" data-tab="team">Team fight</a>
     </nav>
     <span class="engine" id="engine" data-state="loading">Loading sim</span>
   </div>
@@ -185,6 +186,25 @@
     <div id="t-out"></div>
   </section>
 
+  <section id="tab-team" class="tab" hidden>
+    <div class="intro">
+      <h1>Team fights</h1>
+      <p>Up to three heroes a side fight in the live sim. Heals, barriers and auras on teammates count, and area abilities also hit the enemies standing near the target. Each hero starts with its most popular real build at this net worth.</p>
+    </div>
+    <div class="filters">
+      <label class="f"><span>Net worth (souls)</span><input id="tf-souls" type="number" min="0" step="500" value="27000" list="souls-list"></label>
+      <div class="f"><span>Targets</span><div class="seg" id="tf-focus"><button data-v="focus" class="on">Focus the weakest</button><button data-v="spread">One each</button></div></div>
+    </div>
+    <div class="bench tf-bench">
+      <div class="panel"><h2>Team A</h2><div id="tf-a" class="stack"></div></div>
+      <div class="panel"><h2>Team B</h2><div id="tf-b" class="stack"></div></div>
+    </div>
+    <datalist id="tf-items"></datalist>
+    <button class="run" id="tf-run" disabled>Run team fight</button>
+    <p class="err" id="tf-err" hidden></p>
+    <div id="tf-out"></div>
+  </section>
+
   <datalist id="souls-list"><option value="10000"><option value="18000"><option value="27000"><option value="37000"><option value="50000"></datalist>
   <footer class="foot">
     Combat model built on Deadlock API match data, patch <span id="patch">09-29-2026</span><span id="patch-updated"></span>. Not modeled yet: movement, parry, multi-target items, and some item effects (marked <span class="dot stats"></span> stats only).
@@ -202,5 +222,6 @@
 </div>
 <script src="app.js"></script>
 <script src="match.js"></script>
+<script src="team.js"></script>
 </body>
 </html>

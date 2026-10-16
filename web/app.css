@@ -213,3 +213,7 @@ body.sheet-open { overflow: hidden; }
 #m-pick .filters .f { flex: 1 1 240px; }
 #m-pick .run { justify-self: start; }
 #m-out { margin-top: 18px; }
+/* Team fight tab */
+.tf-m { display: grid; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.tf-table .tf-tot td { font-weight: 600; border-top: 1px solid var(--fg); }
+#tab-team > * { min-width: 0; }
