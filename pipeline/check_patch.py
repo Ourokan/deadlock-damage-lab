@@ -7,6 +7,8 @@ Pulls the current game data and changelog from the Deadlock API and compares the
                same patch's builds.
   more data    same patch and game data, but the patch now has 7 or 14 full days of games while the results
                used fewer (the duel brackets read 7 or 14 days). Reruns once at each mark.
+  standard     the standard rank bracket (search/scripts/build_pool.PRIMARY) differs from the one the results were
+               built for (patch.json "standard"). Reruns right away on the same patch's builds.
 Prints the decision and, under GitHub Actions, writes action (none|wait|rerun) and reason to $GITHUB_OUTPUT.
 --apply (only acted on when the decision is rerun) writes the new game data to data/game and the new window to
 data/patch.json. --force reruns even when nothing changed.
@@ -23,6 +25,8 @@ import tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "data"))
 import patch_state as P  # noqa: E402
+sys.path.insert(0, os.path.join(ROOT, "search", "scripts"))
+from build_pool import PRIMARY  # noqa: E402
 
 MIN_DAYS = 3
 MILESTONES = (7, 14)
@@ -39,7 +43,7 @@ def decide(state, game_hash, patches, today, force=False):
     yesterday = today - datetime.timedelta(days=1)
     cur_date = P.patch_date(state["patch"])
     new_date, new_title = latest_patch(patches)
-    new = dict(state, builds_through=str(yesterday), game_hash=game_hash)
+    new = dict(state, builds_through=str(yesterday), game_hash=game_hash, standard=PRIMARY)
     if new_date and cur_date and new_date > cur_date:
         start = new_date + datetime.timedelta(days=1)
         have = (yesterday - start).days + 1
@@ -51,6 +55,8 @@ def decide(state, game_hash, patches, today, force=False):
     used = len(P.build_days(state))
     if game_hash != state["game_hash"]:
         return "rerun", f"game data changed on patch {state['patch']} (hotfix)", new
+    if state.get("standard") != PRIMARY:
+        return "rerun", f"standard rank bracket is now {PRIMARY} (results built for {state.get('standard', 'all')})", new
     for m in MILESTONES:
         if used < m <= have:
             return "rerun", f"patch {state['patch']} now has {have} full days of games (results used {used})", new
