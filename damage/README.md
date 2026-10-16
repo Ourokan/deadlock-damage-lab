@@ -25,7 +25,8 @@ The precomputed search below uses the same function.
   ability landing and melee rates. It casts abilities on cooldown, uses actives, and stands at the hero's real
   median fight distance.
 - **Budgets**: net worth 10k, 18k, 27k, 37k and 50k. Item spend is capped at the share real players hold in items
-  (same as the duel search). Max 12 items, and no item together with its own component.
+  (same as the duel search). Max 12 items, no item together with its own component, and
+  no more 3200+ / 6400+ soul items than 9 in 10 Phantom+ players hold at that net worth (search README, Rules).
 - **Objectives**, all from one 30 s run: damage by 5 s (`burst_5s`), by 15 s (`fight_15s`) and by 30 s
   (`sustained_30s`).
 - **Search**: one per objective, starting from the most popular real build. Each round values every candidate item

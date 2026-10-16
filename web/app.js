@@ -429,7 +429,7 @@ async function renderDamageTab() {
     + `<td class="n">${fmt(x.damage.fight_15s / (x.cost / 1000))}</td><td>${testBtn(Number(id), bk, x.items, label.replace(/<[^>]+>/g, ""))}</td></tr>`;
   const val = Object.entries(o.item_value_on_popular).filter(([i, v]) => S.items[i] && v.gain > 0).sort((a, b) => b[1].per_1000_souls - a[1].per_1000_souls).slice(0, 12);
   const loss = Object.entries(o.best_item_removal_loss).filter(([i]) => S.items[i]).sort((a, b) => b[1] - a[1]);
-  out.innerHTML = `<p class="hint">Best build: <b class="up">${signed(gain)}</b> damage in the ${OBJ[gObj]} window over the most popular real build. Dummy has ${fmt(b.dummy_hp)} HP, item budget ${fmt(b.item_budget)} souls. Tap any item to see what it adds.</p>
+  out.innerHTML = `<p class="hint">Best build: <b class="up">${signed(gain)}</b> damage in the ${OBJ[gObj]} window over the most popular real build. Dummy has ${fmt(b.dummy_hp)} HP, item budget ${fmt(b.item_budget)} souls, and no more 3200+ and 6400+ soul items than 9 in 10 Phantom+ players hold at this net worth. Tap any item to see what it adds.</p>
     <div class="scroll"><table><thead><tr><th>Build</th><th>Items</th><th class="n">Cost</th>${cols.map((k) => `<th class="n">${OBJ[k]}</th>`).join("")}<th class="n">15 s per 1k</th><th></th></tr></thead>
     <tbody>${row(pop, 'Popular<span class="tag">real</span>', "pop")}${o.builds.map((x, i) => row(x, `#${i + 1}`)).join("")}</tbody></table></div>
     <div class="cards">
@@ -484,7 +484,7 @@ async function renderBuyOrder(id) {
   }
   while (k < ms.length) rows.push(msRow(ms[k++]));
   out.innerHTML = `<div class="card" style="margin-top:16px"><h3>Buy order to the best ${fmt(d.target_budget / 1000)}k build</h3>
-    <p class="hint">Each step buys the item that adds the most ${OBJ[gObj]} damage per soul at the net worth you can afford it, counting the hero's level then. Upgrades credit the component you hold. Milestone rows compare what you hold there with the best build for that exact net worth, which may use items you'd later sell.</p>
+    <p class="hint">Each step buys the item that adds the most ${OBJ[gObj]} damage per soul at the net worth you can afford it, counting the hero's level then. Upgrades credit the component you hold, and an expensive item waits until real players hold that many at your net worth. Milestone rows compare what you hold there with the best build for that exact net worth, which may use items you'd later sell.</p>
     <div class="scroll"><table><thead><tr><th class="n">Net worth</th><th>Buy</th><th class="n">Pays</th><th class="n">${OBJ[gObj]} damage</th><th></th></tr></thead>
     <tbody>${rows.join("")}</tbody></table></div></div>`;
 }

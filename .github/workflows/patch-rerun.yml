@@ -117,6 +117,7 @@ jobs:
             data/builds/aggregates
             search/work/snapshots_*.json
             search/work/item_usage*.json
+            search/work/tier_caps*.json
 
   tier_phantom:
     needs: [detect, data]
