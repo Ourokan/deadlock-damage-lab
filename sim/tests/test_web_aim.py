@@ -26,8 +26,14 @@ META = {"match_info": {
                 {"account_id": 8, "stats": [{"custom_user_stats": [{"id": 2, "value": 3}]}]}]}}
 
 
-def node(expr):
-    js = f"const Aim = require({json.dumps(os.path.abspath(AIM_JS))});\n(async () => console.log(JSON.stringify(await ({expr}))))();"
+def node(expr, routes=None):
+    """Evaluate expr with aim.js loaded. fetch is stubbed: routes maps an API path to a JSON body, a number to
+    that HTTP status, anything else is a 404, so the tests never touch the network."""
+    stub = (f"const ROUTES = {json.dumps(routes or {})};\n"
+            "global.fetch = async (url) => { const r = ROUTES[url.replace('https://api.deadlock-api.com', '')];"
+            " return typeof r === 'number' ? { ok: false, status: r } : r === undefined ? { ok: false, status: 404 }"
+            " : { ok: true, status: 200, json: async () => r }; };\n")
+    js = stub + f"const Aim = require({json.dumps(os.path.abspath(AIM_JS))});\n(async () => console.log(JSON.stringify(await ({expr}))))();"
     return json.loads(subprocess.run(["node", "-e", js], capture_output=True, text=True, check=True).stdout)
 
 
@@ -50,6 +56,24 @@ class WebAim(unittest.TestCase):
         got = node("Promise.all(['[U:1:34500250]', '34500250', '76561197994765978',"
                    " 'https://steamcommunity.com/profiles/76561197994765978/'].map(Aim.resolve))")
         self.assertEqual([r["id"] for r in got], [34500250] * 4)
+
+    def test_from_matches(self):
+        def meta(shots, hits, heads):
+            m = json.loads(json.dumps(META))
+            m["match_info"]["players"][0]["stats"][-1]["custom_user_stats"][:3] = [
+                {"id": 1, "value": shots}, {"id": 2, "value": hits}, {"id": 3, "value": heads}]
+            return m
+        hist = [{"match_id": i, "hero_id": 1 if i < 5 else 2, "game_mode": 1, "start_time": 100 - i} for i in range(8)]
+        hist.append({"match_id": 99, "hero_id": 1, "game_mode": 4, "start_time": 200})  # not a normal match
+        routes = {"/v1/players/7/match-history": hist, "/v1/matches/99/metadata": meta(1000, 1000, 1000),
+                  "/v1/matches/0/metadata": meta(100, 30, 6), "/v1/matches/1/metadata": 429,
+                  "/v1/matches/2/metadata": meta(300, 60, 6), "/v1/matches/5/metadata": meta(50, 50, 50)}
+        r = node("Aim.fromMatches(7, 1, { n: 10 })", routes)  # 5 hero-1 matches: 0 and 2 readable, 1 rate-limited
+        self.assertEqual((r["scope"], r["matches"], r["failed"], r["shots"], r["hits"], r["headshots"]),
+                         ("hero", 2, 1, 400, 90, 12))
+        self.assertAlmostEqual(r["accuracy"], 90 / 400)
+        r = node("Aim.fromMatches(7, 3, { n: 1 })", routes)  # no hero-3 matches: all heroes, newest readable first
+        self.assertEqual((r["scope"], r["matches"], r["shots"]), ("all", 1, 100))
 
     def test_percentile(self):
         q = {"p25": 0.2, "p50": 0.26, "p75": 0.32, "p90": 0.39}
