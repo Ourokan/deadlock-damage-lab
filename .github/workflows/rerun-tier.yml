@@ -2,8 +2,8 @@ name: Rerun one rank tier
 
 # Called by patch-rerun.yml once per rank tier (pipeline/tiers.json), in order. Runs the tier's searches across 16
 # machines (pipeline/run_shard.py --tier), commits the new results to main and redeploys the site, so each tier
-# shows up on the site as soon as it is done. The publish step also reads the earlier tiers' results from this run,
-# and the exports keep the published results of tiers that were not rerun.
+# shows up on the site as soon as it is done. The publish step reads only this tier's work (so a tier that failed
+# its check never reaches the site through a later one); the exports keep every other tier's published results.
 
 on:
   workflow_call:
@@ -77,7 +77,7 @@ jobs:
           path: .
       - uses: actions/download-artifact@v4
         with:
-          pattern: work-*
+          pattern: work-${{ inputs.tier }}-*
           path: .
           merge-multiple: true
       - uses: actions/setup-python@v5
