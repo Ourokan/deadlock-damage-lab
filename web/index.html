@@ -108,6 +108,7 @@
         <button class="ghost" id="pin" disabled>Keep for comparison</button>
       </div>
       <div class="marks" id="marks"></div>
+      <div id="res-build"></div>
       <div class="charts">
         <figure class="chart"><figcaption>Damage over time</figcaption><div id="timeline"></div></figure>
         <figure class="chart"><figcaption>Damage by source, 30 s</figcaption><div id="sources"></div></figure>
@@ -164,6 +165,16 @@
     Combat model built on Deadlock API match data, patch 09-29-2026. Not modeled yet: movement, parry, multi-target items, and some item effects (marked <span class="dot stats"></span> stats only).
   </footer>
 </main>
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-in" role="dialog" aria-modal="true" aria-labelledby="sh-title">
+    <div class="sheet-h">
+      <h2 id="sh-title">Item</h2>
+      <button class="ghost" id="sh-close" aria-label="Close">Close</button>
+    </div>
+    <div class="seg" id="sh-marks"></div>
+    <div id="sh-body"></div>
+  </div>
+</div>
 <script src="app.js"></script>
 </body>
 </html>
