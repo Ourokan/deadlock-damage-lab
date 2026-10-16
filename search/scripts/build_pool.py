@@ -107,6 +107,8 @@ def tier_caps(bracket=PRIMARY):
                 _caps[bracket] = {int(b): {int(t): c for t, c in v.items()} for b, v in caps.items()}
                 break
         else:
+            print(f"warning: no work/tier_caps*.json for {bracket}, using DEFAULT_TIER_CAPS (run build_pool.py)",
+                  file=sys.stderr)
             _caps[bracket] = DEFAULT_TIER_CAPS
     return _caps[bracket]
 

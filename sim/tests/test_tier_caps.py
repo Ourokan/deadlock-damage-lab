@@ -1,7 +1,9 @@
 """Checks of the item tier caps (search/scripts/build_pool.py TIER_STEPS): builds hold no more expensive items than
 real players of the bracket do at that net worth. Run from sim/: python3 -m unittest discover -s tests"""
+import json
 import os
 import sys
+import tempfile
 import unittest
 from collections import Counter
 
@@ -30,6 +32,34 @@ class Caps(unittest.TestCase):
         self.assertEqual(P.quantile_cap(Counter({0: 91, 1: 9})), 0)
         self.assertEqual(P.quantile_cap(Counter({0: 89, 1: 11})), 1)
         self.assertEqual(P.quantile_cap(Counter({2: 5})), 2)
+
+    def test_caps_file_round_trip(self):
+        old_root = P.ROOT
+        with tempfile.TemporaryDirectory() as d:
+            os.makedirs(os.path.join(d, "work"))
+            caps = {str(b): {str(t): 2 for t in P.TIER_STEPS} for b in P.BUDGETS}
+            with open(os.path.join(d, "work", "tier_caps_eternus.json"), "w") as f:
+                json.dump({"bracket": "eternus", "caps": caps}, f)
+            P.ROOT = d
+            P._caps.pop("eternus", None)
+            try:
+                self.assertEqual(P.tier_caps("eternus")[18000], {6400: 2, 3200: 2})
+                self.assertEqual(P.caps_for_limit(P.item_budget(18000), "eternus"), {6400: 2, 3200: 2})
+            finally:
+                P.ROOT = old_root
+                P._caps.pop("eternus", None)
+
+    def test_milestones_wait_for_the_step_net_worth(self):
+        mm = ID["Mercurial Magnum"]
+
+        class Flat:
+            def dmg(self, items, nw):
+                return {o: 1.0 for o in ("burst_5s", "fight_15s", "sustained_30s")}
+
+        steps = [{"item": mm, "replaces": [], "spent": 6400, "net_worth": 27000}]
+        m = B.milestones(Flat(), {}, steps, "fight_15s")
+        self.assertEqual(m["18000"]["items"], [])
+        self.assertEqual(m["27000"]["items"], [mm])
 
     def test_caps_follow_the_budget(self):
         self.assertEqual(P.caps_for_limit(P.item_budget(18000)), P.DEFAULT_TIER_CAPS[18000])

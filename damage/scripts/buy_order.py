@@ -145,7 +145,8 @@ def plan(path, target, obj):
             gain = path.dmg(new, nw)[obj] - path.dmg(owned, nw)[obj]
             # (buyable without waiting for the tier caps, damage per soul): a capped piece waits for the rest
             score = (nw_cap <= nw_spend, gain / max(1, paid))
-            if best is None or score > best[0] or (score == best[0] and paid < best[3]):
+            if best is None or score[0] > best[0][0] or (score[0] == best[0][0] and (
+                    score[1] > best[0][1] + 1e-12 or (abs(score[1] - best[0][1]) <= 1e-12 and paid < best[3]))):
                 best = (score, p, new, paid, nw, gain)
         if best is None:   # every remaining piece is blocked (item cap): don't save a partial order as finished
             raise RuntimeError(f"no buyable piece left toward {sorted(set(target) - set(owned))}")
