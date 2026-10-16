@@ -64,7 +64,8 @@ def search_results(hero):
         if os.path.exists(fn):
             with open(fn) as f:
                 out[b] = json.load(f)
-    if len(out) < len(BUDGETS):
+    # published results only when this hero has no fresh jobs at all, so a rerun never mixes in the old patch
+    if not out:
         fn = os.path.join(ROOT, "out", "heroes", f"{hero}.json")
         if os.path.exists(fn):
             with open(fn) as f:
@@ -127,8 +128,8 @@ def plan(path, target, obj):
             score = gain / max(1, paid)
             if best is None or score > best[0] + 1e-12 or (abs(score - best[0]) <= 1e-12 and paid < best[3]):
                 best = (score, p, new, paid, nw, gain)
-        if best is None:
-            break
+        if best is None:   # every remaining piece is blocked (item cap): don't save a partial order as finished
+            raise RuntimeError(f"no buyable piece left toward {sorted(set(target) - set(owned))}")
         _, p, new, paid, nw, gain = best
         replaced = [i for i in owned if i not in new]
         owned, spent = new, spent + paid
@@ -164,8 +165,9 @@ def order_job(hero):
     g = S.G()
     t0 = time.time()
     res = search_results(hero)
-    if 50000 not in res:
-        raise RuntimeError(f"no 50k damage search result for hero {hero}")
+    missing = [b for b in BUDGETS if b not in res]
+    if missing:
+        raise RuntimeError(f"hero {hero}: no damage search result at {missing}")
     path = Path(hero, res)
     out = {"hero_id": hero, "hero": g.hero(hero).name, "target_budget": 50000, "objectives": {}}
     for obj in D.WINDOWS:
@@ -188,8 +190,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--heroes", default="")
-    ap.add_argument("--budgets", default="", help="ignored (the order always targets 50k); accepted for run_shard")
+    ap.add_argument("--budgets", default="", help="the order needs every budget; a run limited to some skips it")
     a = ap.parse_args()
+    if a.budgets and {int(b) for b in a.budgets.split(",")} != set(BUDGETS):
+        print("buy order skipped: it needs the damage search at every budget")
+        return
     g = S.G()
     heroes = [g.hero(int(h) if h.isdigit() else h).id for h in a.heroes.split(",") if h] or sorted(g.heroes)
     with Pool(a.workers) as p:

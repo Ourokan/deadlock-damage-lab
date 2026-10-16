@@ -297,7 +297,7 @@ function onTest(e) {
 let gObj = "fight_15s";
 async function renderDamageTab() {
   const id = $("#g-hero").value, d = await damageHero(id), out = $("#g-out");
-  if (!d) { out.innerHTML = '<p class="empty">No damage search results for this hero yet.</p>'; return; }
+  if (!d) { out.innerHTML = '<p class="empty">No damage search results for this hero yet.</p>'; $("#g-order").innerHTML = ""; return; }
   const keys = Object.keys(d.budgets);
   if ($("#g-budget").options.length !== keys.length) fillBudgetSelect($("#g-budget"), keys, $("#g-budget").value);
   const bk = $("#g-budget").value, b = d.budgets[bk], o = b.objectives[gObj], pop = b.popular;
