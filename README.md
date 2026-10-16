@@ -44,10 +44,15 @@ anyway). `pipeline/check_patch.py` pulls the game data and changelog from the De
 
 A rerun pulls player builds (`data/scripts/fetch_builds.py`, cached between runs; the SQL endpoint allows ~20
 queries an hour, so 14 days take ~3 hours and a fetch that runs out of time continues on the next run), rebuilds
-the opponent pools, runs the damage, duel (all brackets) and survival searches on 16 machines
-(`pipeline/run_shard.py`), checks they finished (`pipeline/check_results.py`), commits the new `out/` folders,
-game data and `data/patch.json` to `main` and redeploys the site. If a step fails, nothing is committed and the
-site keeps the previous results. The site footer shows the patch and when the results were built.
+the opponent pools, then reruns the searches one rank tier at a time (`.github/workflows/rerun-tier.yml`), in the
+order of `pipeline/tiers.json`: Phantom and up first, then Ascendant and up, Eternus and up, and all ranks. Phantom
+and up is the standard (`build_pool.PRIMARY`): its tier runs the damage, buy order, survival, duel and overall
+searches; the later tiers run the duel and overall searches in their bracket. Each tier runs on 16 machines
+(`pipeline/run_shard.py --tier`), checks it finished (`pipeline/check_results.py --tier`), commits the new `out/`
+folders, game data and `data/patch.json` to `main` and redeploys the site before the next tier starts, so the
+standard results show up first. Only tiers listed in `enabled` run (for now just Phantom and up); the others keep
+their last published results, and the site says which run they come from. If a tier fails, nothing is committed for
+it and the site keeps its previous results. The site footer shows the patch and when the results were built.
 
 Not rerun automatically: the counter-item analysis (`counters/`), and the sim's fitted inputs in `sim/data/`
 (aim percentiles, ability landing and melee rates), which keep their 09-29-2026 fit until refitted by hand. A new

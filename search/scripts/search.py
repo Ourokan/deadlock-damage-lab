@@ -10,7 +10,7 @@ Opponents (per budget, from scripts/build_pool.py snapshots of current-patch ran
      (robustness against less typical builds).
   S  screening pool: the 16 most-played heroes of F. Used to estimate item values cheaply.
 
-Fight: deadsim.duel, 30 s cap, both sides at ranked median aim with real ability landing and melee rates
+Fight: deadsim.duel, 30 s cap, both sides at the bracket's aim percentile with real ability landing and melee rates
 (hero_default_skill), distance = mean of the two heroes' real median engagement distances. Both sides have the same
 net worth; the candidate may spend ITEM_SHARE of it on items, the share real players hold in items at that worth.
 

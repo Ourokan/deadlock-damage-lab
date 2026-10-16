@@ -40,6 +40,11 @@ BRACKETS = {
 }
 
 
+# Phantom and up is the standard (Tyler, 2026-10-16): the dummy damage, buy order, survival and overall searches use
+# its builds and aim, and the site opens on it. Patch reruns go tier by tier in pipeline/tiers.json order.
+PRIMARY = "phantom"
+
+
 def suffix(bracket):
     return "" if bracket in (None, "all") else "_" + bracket
 

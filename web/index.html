@@ -46,8 +46,8 @@
           <label class="f"><span>Aim</span>
             <select id="a-aim">
               <option value="p25">25th pct ranked</option>
-              <option value="p50" selected>Median ranked</option>
-              <option value="p75">75th pct ranked</option>
+              <option value="p50">Median ranked</option>
+              <option value="p75" selected>75th pct ranked (Phantom+, standard)</option>
               <option value="p90">90th pct ranked</option>
               <option value="custom">My own numbers</option>
             </select></label>
@@ -158,10 +158,11 @@
   <section id="tab-overall" class="tab" hidden>
     <div class="intro">
       <h1>Best overall builds</h1>
-      <p>Builds ranked by how much damage they deal before dying against the typical real build of every hero at the same net worth. The enemy fights back with double damage (two players on you), never dies, and uses its real items, so health, resists, lifesteal, stuns and silences count. Counterplay is on: targets walk out of Alchemical Fire after 2 s, items the sim overrates compared with real matches are scaled down, and Refresher-style cooldowns are only ready in some fights.</p>
+      <p>Builds ranked by how much damage they deal before dying against the typical real build of every hero at the same net worth. The enemy fights back with double damage (two players on you), never dies, and uses its real items, so health, resists, lifesteal, stuns and silences count. Counterplay is on: targets walk out of Alchemical Fire after 2 s, items the sim overrates compared with real matches are scaled down, and Refresher-style cooldowns are only ready in some fights. Phantom and up is the standard rank and refreshes first after each patch; higher ranks and all ranks follow.</p>
     </div>
     <div class="filters">
       <label class="f"><span>Hero</span><select id="o-hero"></select></label>
+      <label class="f"><span>Rank</span><select id="o-rank"></select></label>
       <label class="f"><span>Net worth</span><select id="o-budget"></select></label>
     </div>
     <div id="o-out"></div>
@@ -171,7 +172,7 @@
   <section id="tab-damage" class="tab" hidden>
     <div class="intro">
       <h1>Most damage per soul</h1>
-      <p>For each hero and net worth, the item builds that deal the most damage to a training dummy, found by searching from the most popular real build. Same sim and aim as the damage test. The dummy never moves, cleanses or shoots back, so these builds skip defense and favour items a real target walks out of; see <a href="#overall">Best overall builds</a> for builds that hold up in a fight.</p>
+      <p>For each hero and net worth, the item builds that deal the most damage to a training dummy, found by searching from the most popular real build of Phantom and up players, at their aim (75th percentile ranked), the site's standard. The dummy never moves, cleanses or shoots back, so these builds skip defense and favour items a real target walks out of; see <a href="#overall">Best overall builds</a> for builds that hold up in a fight.</p>
     </div>
     <div class="filters">
       <label class="f"><span>Hero</span><select id="g-hero"></select></label>

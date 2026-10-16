@@ -6,6 +6,9 @@ out/opponents.json      per budget: the real opponent builds every build was tes
 out/heroes/<id>.json    per hero, rank bracket and budget: top builds with stats and the best build's matchups
 out/summary.csv         one row per hero x budget, for spreadsheets
 
+Brackets with no local jobs keep what out/ already has (patch reruns run the brackets one tier at a time and can
+switch tiers off: pipeline/tiers.json); each bracket in index.json says which patch and run it was built for.
+
 usage: python3 scripts/export.py
 """
 import csv
@@ -70,6 +73,13 @@ def main():
     os.makedirs(os.path.join(OUT, "heroes"), exist_ok=True)
     jobs = {b: bracket_jobs(b) for b in BRACKETS}
     jobs = {b: j for b, j in jobs.items() if j}
+    now, patch = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), patch_state.load()["patch"]
+    old = {}
+    if os.path.exists(os.path.join(OUT, "index.json")):
+        old = json.load(open(os.path.join(OUT, "index.json")))
+    old_meta = {x["id"]: x for x in old.get("brackets", [])}
+    carry = [b for b in BRACKETS if b in old_meta and b not in jobs]
+    old_patch = old.get("patch")
 
     items = {str(i.id): {"name": i.name, "class_name": i.class_name, "slot": i.slot, "tier": i.tier, "cost": i.cost,
                          "active": i.activation != "passive", "effect_modeled": i.class_name in MODELED}
@@ -88,7 +98,11 @@ def main():
                 "typical": [{"hero_id": h, "items": list(it), "weight": round(w, 5)} for h, it, w in p["F"]],
                 "random": [{"hero_id": h, "items": list(it), "weight": round(w, 5)} for h, it, w in p["F2"]],
             }
+    if carry and os.path.exists(os.path.join(OUT, "opponents.json")):
+        prev = json.load(open(os.path.join(OUT, "opponents.json")))
+        opp.update({br: prev[br] for br in carry if br in prev})
     json.dump(opp, open(os.path.join(OUT, "opponents.json"), "w"))
+    old_summary = {h["id"]: h["brackets"] for h in old.get("heroes", [])}
 
     index_heroes, rows = [], []
     for hid in sorted(G.heroes):
@@ -111,6 +125,11 @@ def main():
                              "popular_win_rate": pop["win_rate"],
                              "best_build": " | ".join(G.items[i].name for i in best["items"]),
                              "popular_build": " | ".join(G.items[i].name for i in pop["items"])})
+        hero_fn = os.path.join(OUT, "heroes", f"{hid}.json")
+        if carry and os.path.exists(hero_fn):
+            prev = json.load(open(hero_fn))["brackets"]
+            per.update({br: prev[br] for br in carry if br in prev})
+            summary.update({br: old_summary[hid][br] for br in carry if br in old_summary.get(hid, {})})
         if not per:
             continue
         json.dump({"hero_id": hid, "hero": h.name, "brackets": per},
@@ -118,16 +137,22 @@ def main():
         index_heroes.append({"id": hid, "name": h.name, "brackets": summary})
 
     index = {
-        "generated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "patch": patch_state.load()["patch"],
+        "generated": now,
+        "patch": patch,
         "budgets": [{"souls": b, "item_budget": item_budget(b)} for b in BUDGETS],
         "brackets": [{"id": br, "min_badge": BRACKETS[br][0], "max_badge": BRACKETS[br][1], "aim_percentile": BRACKETS[br][2],
-                      "label": BRACKET_LABELS[br]} for br in jobs],
+                      "label": BRACKET_LABELS[br],
+                      "patch": patch if br in jobs else old_meta[br].get("patch", old_patch),
+                      "generated": now if br in jobs else old_meta[br].get("generated", old.get("generated"))}
+                     for br in BRACKETS if br in jobs or br in carry],
         "fight": {"type": "1v1 duel", "max_time_s": search.MAX_TIME,
                   "score": "win 1 / timeout 0.5 / loss 0, + 0.3 x HP margin, + 0.2 x speed on wins"},
         "heroes": index_heroes,
     }
     json.dump(index, open(os.path.join(OUT, "index.json"), "w"), indent=1)
+    if carry and os.path.exists(os.path.join(OUT, "summary.csv")):
+        with open(os.path.join(OUT, "summary.csv"), newline="") as f:
+            rows += [r for r in csv.DictReader(f) if r.get("bracket") in carry]
     if rows:
         with open(os.path.join(OUT, "summary.csv"), "w", newline="") as f:
             w = csv.DictWriter(f, fieldnames=list(rows[0]))

@@ -2,7 +2,7 @@
 keeping the hero's core items and most of its damage.
 
 Survival: survival.survive() against every typical real build at the same net worth (search/ "F" pool, one per hero,
-weighted by how often the hero reaches that worth). Both sides fight normally at ranked median aim; the enemy never
+weighted by how often the hero reaches that worth). Both sides fight normally at the standard bracket's aim (build_pool.PRIMARY); the enemy never
 dies and its damage is multiplied by FOCUS (2 = focused by two enemies of that build; at 1 most tanks outlive a 60 s
 cap, so builds can't be told apart). Score per fight = seconds alive (cap 60) + 5 x HP fraction left if alive.
 Build score = weighted mean over the pool.
@@ -37,10 +37,12 @@ sys.path.insert(0, os.path.join(ROOT, "..", "damage", "scripts"))
 sys.path.insert(0, ROOT)
 
 import search as S  # noqa: E402
-from build_pool import BUDGETS, item_budget  # noqa: E402
+from build_pool import BRACKETS, BUDGETS, PRIMARY, item_budget  # noqa: E402
 import dummy_search as D  # noqa: E402
 from survival import survive  # noqa: E402
 
+S.BRACKET = PRIMARY        # standard rank bracket: its opponent builds and aim
+AIM = BRACKETS[PRIMARY][2]
 MAX_TIME = 60.0
 FOCUS = 2.0
 REPORT_FOCUS = (1.0, 2.0, 3.0)
@@ -87,7 +89,7 @@ class Evaluator:
         if key not in self.cache:
             out = []
             for oh, oit, w in self.pools[pool]:
-                r = survive(self.h, key[0], self.souls, oh, oit, max_time=MAX_TIME, focus=focus)
+                r = survive(self.h, key[0], self.souls, oh, oit, max_time=MAX_TIME, focus=focus, aim=AIM, enemy_aim=AIM)
                 out.append((oh, w, r))
                 self.fights += 1
             self.cache[key] = out
@@ -252,7 +254,7 @@ def main():
     ap.add_argument("--only-tanks", action="store_true", help="drop --heroes that are not among the tank heroes")
     a = ap.parse_args()
     g = S.G()
-    usage = json.load(open(os.path.join(ROOT, "..", "search", "work", "item_usage.json")))
+    usage = json.load(open(os.path.join(ROOT, "..", "search", "work", f"item_usage_{PRIMARY}.json")))
     order, share = tank_heroes(usage)
     heroes = [g.hero(int(h) if h.isdigit() else h).id for h in a.heroes.split(",") if h] or order[:N_TANKS]
     if a.only_tanks:

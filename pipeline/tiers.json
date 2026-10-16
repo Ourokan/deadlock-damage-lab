@@ -1,0 +1,5 @@
+{
+ "_note": "Patch reruns run these rank brackets in order, each one published to the site before the next starts. The first is the standard bracket (build_pool.PRIMARY): it also runs the dummy damage, buy order and survival searches. Only brackets in enabled run; the rest keep their last published results.",
+ "order": ["phantom", "ascendant", "eternus", "all"],
+ "enabled": ["phantom"]
+}
