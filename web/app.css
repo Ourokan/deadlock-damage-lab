@@ -63,6 +63,7 @@ button, input, select { font: inherit; color: inherit; }
 
 .wrap { padding-block: 24px 48px; display: grid; gap: 24px; }
 .tab { display: grid; gap: 20px; min-width: 0; }
+.tab > * { min-width: 0; }
 .intro { display: grid; gap: 6px; max-width: 68ch; }
 .intro p { margin: 0; color: var(--muted); }
 
@@ -208,3 +209,10 @@ body.sheet-open { overflow: hidden; }
 .bd-row .dot { background: var(--slot, var(--line)); }
 
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* real match import */
+#m-form .run { padding: 9px 16px; }
+#m-pick { margin-top: 14px; }
+#m-pick .filters .f { flex: 1 1 240px; }
+#m-pick .run { justify-self: start; }
+#m-out { margin-top: 18px; }

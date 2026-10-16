@@ -25,6 +25,7 @@ const S = {
 };
 
 S.whenReady = new Promise((res) => (S.readyNow = res));
+S.dataReady = new Promise((res) => (S.dataNow = res));
 
 // ---------- data ----------
 const cached = {};
@@ -501,8 +502,8 @@ function renderSheet() {
 
 // ---------- tabs ----------
 function showTab() {
-  const t = (location.hash || "#test").slice(1);
-  const tab = ["test", "damage", "duel", "tank"].includes(t) ? t : "test";
+  const t = (location.hash || "#test").slice(1).split("/")[0];
+  const tab = ["test", "match", "damage", "duel", "tank"].includes(t) ? t : "test";
   $$(".tab").forEach((s) => (s.hidden = s.id !== "tab-" + tab));
   $$("#tabs a").forEach((a) => (a.dataset.tab === tab ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
   if (tab === "damage") renderDamageTab();
@@ -515,6 +516,7 @@ async function boot() {
   const [items, heroes] = await Promise.all([getJSON("data/items.json"), getJSON("data/heroes.json")]);
   S.items = items; S.heroes = heroes;
   for (const h of heroes) S.heroById[h.id] = h;
+  S.dataNow();
   const opts = heroes.map((h) => `<option value="${h.id}">${esc(h.name)}</option>`).join("");
   $("#a-hero").innerHTML = opts; $("#d-heroname").innerHTML = opts;
   fillHeroSelect($("#g-hero")); fillHeroSelect($("#u-hero"));
