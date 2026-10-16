@@ -33,7 +33,7 @@ for fn in glob.glob(os.path.join(sys.argv[1], "raw", "*.ndjson")):
             if aid in AB:
                 who[r["a"] & 0x3FFF][AB[aid][0]] += 1
     pawn = {e: c.most_common(1)[0][0] for e, c in who.items()}
-    hits = collections.defaultdict(list)     # (attacker, victim) -> [(tick, ability id)]
+    hits = collections.defaultdict(list)     # attacker * 100000 + victim (the extract's "a") -> [(tick, ability id)]
     qr = []
     for r in rows:
         if r["k"] != "dmg" or not r.get("s"):
@@ -50,11 +50,17 @@ for fn in glob.glob(os.path.join(sys.argv[1], "raw", "*.ndjson")):
             continue
         near = [(abs(t2 - t), a) for t2, a in hits[key] if abs(t2 - t) <= TOL and AB[a][0] == hid]
         if near:
-            votes[hid][AB[min(near)[1]][1]] += 1
-            matches[hid].add(fn)
+            d = min(near)[0]
+            closest = {a for dt, a in near if dt == d}
+            if len(closest) == 1:            # two of the hero's abilities on the same tick: ambiguous, no vote
+                votes[hid][AB[closest.pop()][1]] += 1
+                matches[hid].add(fn)
 
 with open(sys.argv[2]) as fh:
     pats = json.load(fh)
+for row in pats["heroes"].values():          # a rerun rewrites every hero; ones below the thresholds get none
+    row.pop("imbue", None)
+    row.pop("replay_imbue", None)
 for hid, c in sorted(votes.items()):
     n = sum(c.values())
     cls, k = c.most_common(1)[0]
