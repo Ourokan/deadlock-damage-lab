@@ -4,7 +4,7 @@ Quicksilver Reload's bonus damage is its own damage event (item id as ability_id
 ability's hit, so every Quicksilver hit votes for the hero ability that hit the same victim within TOL ticks.
 Mercurial Magnum and the other imbue items leave no such trace; their holders are assumed to pick the same ability.
 Writes {hero id: {"imbue": class name, "share": float, "hits": int, "matches": int}} into the patterns file
-("imbue" fields; heroes with fewer than MIN_HITS votes or MIN_MATCHES matches are left out).
+("imbue" fields; heroes under MIN_HITS votes, MIN_MATCHES matches or a MIN_SHARE majority are left out).
 
 usage: python3 -I replay_imbues.py <work dir> <fight_patterns.json>
 """
@@ -20,6 +20,7 @@ QR = next(i.id for i in G.items.values() if i.class_name == "upgrade_quick_silve
 TOL = 2
 MIN_HITS = 20
 MIN_MATCHES = 3
+MIN_SHARE = 0.8      # a split pick (Victor 68%) stays on the sim's default
 
 votes = collections.defaultdict(collections.Counter)
 matches = collections.defaultdict(set)
@@ -66,7 +67,7 @@ for hid, c in sorted(votes.items()):
     cls, k = c.most_common(1)[0]
     row = pats["heroes"].get(str(hid))
     print(f"{G.hero(hid).name:16s} {cls:34s} {k / n:5.0%} of {n} hits, {len(matches[hid])} matches")
-    if row is None or n < MIN_HITS or len(matches[hid]) < MIN_MATCHES:
+    if row is None or n < MIN_HITS or len(matches[hid]) < MIN_MATCHES or k / n < MIN_SHARE:
         continue
     row["imbue"] = cls
     row["replay_imbue"] = {"share": round(k / n, 3), "hits": n, "matches": len(matches[hid]),
