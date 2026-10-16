@@ -116,9 +116,10 @@ their own ticks instead of using `Engine.dot`/`CastCtx.dot` are not purged. 13-1
 
 ## New mechanics: parry, summons, nearby enemies, movement (2026-10-15)
 
-`deadsim/mechanics.py`, **off by default** (`mechanics.DEFAULT = None`) so the step 3 searches that were running keep
-their numbers. Turn on per fight with `duel(a, b, mechanics=Mechanics())`, or for everything with
-`deadsim.mechanics.DEFAULT = Mechanics()`. With it on, `hero_default_skill` landing factors switch to
+`deadsim/mechanics.py`, **on by default since 2026-10-16** (`mechanics.DEFAULT = Mechanics()`; it was off while the
+step 3 searches ran). Turn off per fight with `duel(a, b, mechanics=None)`, or for everything with
+`deadsim.mechanics.DEFAULT = None`. The dummy in `time_to_kill` doesn't run, parry or time Counterspell, and the
+survival search runs with movement off (an escape would count as surviving). With it on, `hero_default_skill` landing factors switch to
 `data/landing_rates_mech.json` (refit with the mechanics on; median factor x0.97, McGinnis turret x2.3).
 Real data: 600 ranked matches (badge 60+, 2026-10-10..13) with full damage matrix and 1 s position/health tracks
 (`scripts/mechanics/fetch_mech.py`); every number below is in `validation/mechanics/`. Damage-matrix arrays are

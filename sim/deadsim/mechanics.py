@@ -1,13 +1,17 @@
-"""Opt-in combat mechanics (added 2026-10-15): parry, enemy summons that can be shot, other enemies near the target
+"""Combat mechanics (added 2026-10-15, on by default since 2026-10-16): parry, enemy summons that can be shot, other enemies near the target
 (multi-target items), and movement (escape and chase, slows, dashes, mobility items).
 
-All of it is off unless the Engine gets a Mechanics object, so runs started on the earlier model keep their numbers:
+An Engine built without a mechanics value uses DEFAULT (Mechanics(): all on, no extra nearby enemies):
 
     from deadsim.mechanics import Mechanics
-    duel(a, b, mechanics=Mechanics())                       # parry, summons and movement on
+    duel(a, b)                                              # parry, summons and movement on
+    duel(a, b, mechanics=None)                              # the earlier model
     duel(a, b, mechanics=Mechanics(movement=False))
     duel(a, b, mechanics=Mechanics(extra_targets=1.0))      # a team fight with one more enemy hero next to the target
-    import deadsim.mechanics; deadsim.mechanics.DEFAULT = Mechanics()   # on for every Engine built without one
+    import deadsim.mechanics; deadsim.mechanics.DEFAULT = None   # off for every Engine built without one
+
+time_to_kill's dummy never runs, parries or times Counterspell; survival/survival.py turns movement off (an
+escape would count as surviving).
 
 Settings fitted to real ranked matches (validation/README.md, "New mechanics"):
 - Parry: Skill.parry_rate = share of incoming heavy melees the defender parries (0.15: 5% of all hero melees, from
@@ -52,7 +56,6 @@ from .build import combine_resist
 from .data import GAME
 from .items_fx import BuildUp, FX, CC_KEYS, _basic_melee
 
-DEFAULT = None   # Mechanics() turns the mechanics on for every Engine built without an explicit value
 
 SUMMON_ACC_MULT = 2.5       # accuracy on a turret vs on a hero (it stands still), capped at SUMMON_ACC_MAX: assumption
 SUMMON_ACC_MAX = 0.9
@@ -72,6 +75,9 @@ class Mechanics:
     movement: bool = True
     extra_targets: float = 0.0   # expected other enemy heroes near the target (multi-target items)
     escape_dist: float = 40.0    # gap (m) at which a runner is out of the fight
+
+
+DEFAULT = Mechanics()   # None turns the new mechanics off for every Engine built without an explicit value
 
 
 _RAW = None

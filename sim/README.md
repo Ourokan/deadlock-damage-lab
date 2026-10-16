@@ -16,7 +16,7 @@ Skill(accuracy=0.3, headshot=0.2)                               # or manual
 hero_default_skill("Abrams", melee_rate_override=0.5, heavy_share=0.4)  # own melee frequency (landed hits/s)
 compute_stats("Haze", items, souls=15000)                       # static stats only
 from deadsim.mechanics import Mechanics                         # parry, shootable turrets, escape/chase, nearby enemies
-r = duel(me, foe, mechanics=Mechanics(extra_targets=0.25))     # off by default; r.escaped, r.a_splash, r.b_summon
+r = duel(me, foe, mechanics=Mechanics(extra_targets=0.25))     # on by default (mechanics=None for the old model); r.escaped, r.a_splash, r.b_summon
 ```
 
 - Souls are net worth. Ability unlock order and upgrades default to the most popular real order for that

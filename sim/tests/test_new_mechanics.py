@@ -19,10 +19,21 @@ class TestOff(unittest.TestCase):
         a = Loadout("Abrams", ["Extra Health", "Rebuttal"], souls=15000, skill=Skill(accuracy=0.3, melee_rate=0.3))
         b = Loadout("McGinnis", ["Extra Spirit", "Split Shot"], souls=15000, skill=Skill(accuracy=0.3))
         r1 = duel(a, b, mechanics=None)
-        r2 = duel(a, b)   # DEFAULT is None
+        saved, M.DEFAULT = M.DEFAULT, None
+        try:
+            r2 = duel(a, b)   # unset -> DEFAULT
+        finally:
+            M.DEFAULT = saved
         self.assertEqual((r1.winner, round(r1.time, 3), round(r1.a_hp, 3)), (r2.winner, round(r2.time, 3), round(r2.a_hp, 3)))
         self.assertIsNone(r1.escaped)
         self.assertEqual(r1.b_summon, {})
+
+    def test_default_is_on(self):
+        self.assertIsInstance(M.DEFAULT, Mechanics)
+        a = Loadout("Abrams", [], souls=15000, skill=Skill(accuracy=0.3, melee_rate=0.3))
+        b = Loadout("McGinnis", [], souls=15000, skill=Skill(accuracy=0.3))
+        r = duel(a, b)
+        self.assertGreater(sum(r.a_summon.values()), 0.0)   # Abrams shoots the turret
 
 
 class TestParry(unittest.TestCase):
