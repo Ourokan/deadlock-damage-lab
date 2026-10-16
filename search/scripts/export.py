@@ -113,7 +113,7 @@ def main():
                 r = bj.get((hid, b))
                 if not r:
                     continue
-                e = budget_entry(r)
+                e = budget_entry(r) | {"patch": patch}
                 per.setdefault(br, {})[str(b)] = e
                 best, pop = e["builds"][0], e["popular"]
                 summary.setdefault(br, {})[str(b)] = {
@@ -126,10 +126,20 @@ def main():
                              "best_build": " | ".join(G.items[i].name for i in best["items"]),
                              "popular_build": " | ".join(G.items[i].name for i in pop["items"])})
         hero_fn = os.path.join(OUT, "heroes", f"{hid}.json")
-        if carry and os.path.exists(hero_fn):
+        if os.path.exists(hero_fn):
+            # brackets not rerun, and cells a rerun didn't finish (check_results.py allows 5% missing), keep their
+            # last result, marked with the patch it was built for
             prev = json.load(open(hero_fn))["brackets"]
-            per.update({br: prev[br] for br in carry if br in prev})
-            summary.update({br: old_summary[hid][br] for br in carry if br in old_summary.get(hid, {})})
+            for br, cells in prev.items():
+                if br not in carry and br not in jobs:
+                    continue
+                for b, cell in cells.items():
+                    if b in per.get(br, {}):
+                        continue
+                    cell.setdefault("patch", old_meta.get(br, {}).get("patch", old_patch))
+                    per.setdefault(br, {})[b] = cell
+                    if b in old_summary.get(hid, {}).get(br, {}):
+                        summary.setdefault(br, {})[b] = old_summary[hid][br][b]
         if not per:
             continue
         json.dump({"hero_id": hid, "hero": h.name, "brackets": per},

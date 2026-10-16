@@ -45,11 +45,15 @@ def score_damage_best(args):
     """The dummy damage search's best 15 s build (standard bracket) scored with the overall test in this bracket."""
     bracket, hero, budget = args
     fn = os.path.join(ROOT, "work", "jobs", f"{hero}_{budget}.json")
-    if not os.path.exists(fn):
-        return args, None
+    if os.path.exists(fn):
+        d = json.load(open(fn))
+    else:   # later tiers don't rerun the dummy search: use the published standard-bracket builds
+        fn = os.path.join(ROOT, "out", "heroes", f"{hero}.json")
+        d = json.load(open(fn))["budgets"].get(str(budget)) if os.path.exists(fn) else None
+        if not d:
+            return args, None
     O.set_bracket(bracket)
     O._phases()
-    d = json.load(open(fn))
     best = d["objectives"]["fight_15s"]["builds"][0]
     r = O.Evaluator(hero, budget, S.load_pools(budget)).run(best["items"], "F", detail=True)
     r.pop("matchups")
