@@ -236,9 +236,9 @@ function readShare() {
   if (!p.has("h")) return false;
   const hero = Number(p.get("h"));
   if (!S.heroById[hero]) return false;
-  const items = (k) => [...new Set((p.get(k) || "").split(".").filter((x) => x && S.items[x]).map(Number))].slice(0, 12);
-  const souls = Number(p.get("s"));
-  Object.assign(S.A, { hero, souls: isFinite(souls) && souls >= 0 ? souls : S.A.souls, items: items("i"),
+  const items = (k) => [...new Set((p.get(k) || "").split(".").filter((x) => /^\d+$/.test(x) && Object.hasOwn(S.items, x)).map(Number))].slice(0, 12);
+  const souls = parseFloat(p.get("s"));
+  Object.assign(S.A, { hero, souls: souls >= 0 ? souls : S.A.souls, items: items("i"),
     aim: AIMS.includes(p.get("aim")) ? p.get("aim") : "p50", label: p.get("n")?.slice(0, 60) || null });
   for (const [k, sel] of Object.entries(SHARE_NUM)) if (p.has(k) && isFinite(parseFloat(p.get(k)))) $(sel).value = parseFloat(p.get(k));
   if (p.get("t") === "hero") {
