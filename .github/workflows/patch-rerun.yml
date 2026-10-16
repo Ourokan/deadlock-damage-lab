@@ -16,6 +16,10 @@ on:
         description: "Rerun even if nothing changed"
         type: boolean
         default: false
+      refetch:
+        description: "Download player builds even if the cached ones are under 24 hours old"
+        type: boolean
+        default: false
 
 concurrency:
   group: patch-rerun
@@ -78,14 +82,21 @@ jobs:
           key: player-builds-${{ needs.detect.outputs.patch_start }}-${{ github.run_id }}
           restore-keys: player-builds-${{ needs.detect.outputs.patch_start }}-
       - id: fetch
-        name: Fetch player builds (resumes; stops early near the job time limit)
+        name: Fetch player builds (skipped when the cache is under 24 h old; resumes; stops early near the job time limit)
+        # a complete download stamps the folder; within 24 h of that stamp the cached builds are used as they are
         run: |
+          stamp=data/builds/player_builds/.fetched_at
+          if [ "${{ inputs.refetch }}" != "true" ] && [ -f "$stamp" ] && [ $(( $(date +%s) - $(cat "$stamp") )) -lt 86400 ]; then
+            echo "complete=true" >> "$GITHUB_OUTPUT"
+            echo "Using cached player builds from $(date -u -d @"$(cat "$stamp")" '+%Y-%m-%d %H:%M UTC') (under 24 h old)." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
           end=$(python3 -c 'import json; print(json.load(open("data/patch.json"))["builds_through"])')
           set +e
           python3 data/scripts/fetch_builds.py data/builds/player_builds data/game/raw/items.json "$end" --max-days 14 --deadline-min 270
           code=$?
           set -e
-          if [ $code -eq 0 ]; then echo "complete=true" >> "$GITHUB_OUTPUT";
+          if [ $code -eq 0 ]; then date +%s > "$stamp"; echo "complete=true" >> "$GITHUB_OUTPUT";
           elif [ $code -eq 3 ]; then echo "complete=false" >> "$GITHUB_OUTPUT"; echo "Builds not all fetched yet; the next scheduled run continues." >> "$GITHUB_STEP_SUMMARY";
           else exit $code; fi
       - if: always()
