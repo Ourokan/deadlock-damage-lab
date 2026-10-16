@@ -167,7 +167,8 @@ async function pullAim() {
     $("#a-hs").value = (r.headshot * 100).toFixed(1);
     if (r.distance) $("#a-dist").value = r.distance.toFixed(1);
     msg.textContent = `${who.name ? who.name + ": " : ""}${pct(r.accuracy, 1)} accuracy and ${pct(r.headshot, 1)} headshots over ${fmt(r.shots)} shots at heroes in the last ${r.matches} matches`
-      + (r.scope === "hero" ? ` on ${heroName}` : ` (all heroes; fewer than 3 recent ${heroName} matches)`) + (r.distance ? `, median hit distance ${fmt(r.distance, 1)} m.` : ".");
+      + (r.scope === "hero" ? ` on ${heroName}` : ` (all heroes; fewer than 3 recent ${heroName} matches)`) + (r.distance ? `, median hit distance ${fmt(r.distance, 1)} m.` : ".")
+      + (r.failed && r.matches < 10 ? ` ${r.failed} more could not be read (the API may be busy), so try again for a fuller sample.` : "");
     saveAim(); renderAimHint();
   } catch (e) {
     msg.textContent = e.message;

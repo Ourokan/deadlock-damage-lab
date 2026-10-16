@@ -70,13 +70,15 @@ const Aim = (() => {
     const onHero = normal.filter((m) => m.hero_id === heroId);
     const pool = (onHero.length >= min ? onHero : normal).slice(0, n * 2);
     const scope = onHero.length >= min ? "hero" : "all";
-    let shots = 0, hits = 0, heads = 0, used = 0, next = 0;
+    let shots = 0, hits = 0, heads = 0, used = 0, next = 0, failed = 0;
     const dist = {};
     const worker = async () => {
       while (used < n && next < pool.length) {
         const m = pool[next++];
         let cs = null;
-        try { cs = matchStats(await get(`/v1/matches/${m.match_id}/metadata`), accountId); } catch { /* not ingested yet */ }
+        try { cs = matchStats(await get(`/v1/matches/${m.match_id}/metadata`), accountId); } catch (e) {
+          if (e.status !== 404) failed++; // 404 = not ingested yet; anything else (429, 5xx, network) is a failed read
+        }
         if (!cs || used >= n) continue;
         used++; shots += cs[SHOTS]; hits += cs[HITS] || 0; heads += cs[HEADS] || 0;
         for (const [k, v] of Object.entries(cs)) if (typeof k === "string" && k.startsWith(DIST)) { const b = k.slice(DIST.length); dist[b] = (dist[b] || 0) + v; }
@@ -84,9 +86,10 @@ const Aim = (() => {
       }
     };
     await Promise.all([worker(), worker(), worker()]);
-    if (!shots) throw new Error("No recent matches with aim stats yet. New matches can take a while to show up.");
+    if (!shots) throw new Error(failed ? "The Deadlock API did not answer for your matches (it may be rate limiting). Try again in a minute."
+      : "No recent matches with aim stats yet. New matches can take a while to show up.");
     return { accuracy: hits / shots, headshot: heads / Math.max(1, hits), distance: medianDistance(dist),
-      matches: used, scope, shots, hits, headshots: heads };
+      matches: used, failed, scope, shots, hits, headshots: heads };
   }
 
   // Where a value sits in a {p25, p50, p75, p90} spread, as a rough ranked percentile (linear between points).
