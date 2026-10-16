@@ -153,13 +153,37 @@ def dot_cleanse_delay(badge=None):
     return 1.5 if badge >= 111 else 3.0
 
 
+ITEM_LANDING = os.path.join(HERE, "..", "data", "item_landing.json")
+ITEM_LANDING_MIN_HOLDERS = 40
+
+
+def item_landing():
+    """{item name: real-data damage factor} for items whose own damage the 1v1 sim over-predicts (factor < 1,
+    clipped at 0.25; data/item_landing.json, scripts/item_landing.py). Items real players get MORE from are left
+    at 1: that excess is mostly hitting several heroes in team fights, which a 1v1 should not count."""
+    try:
+        rows = json.load(open(ITEM_LANDING))["items"]
+    except (OSError, ValueError, KeyError):
+        return {}
+    return {r["name"]: max(0.25, r["landing"]) for r in rows.values()
+            if r["landing"] < 1.0 and r["holders"] >= ITEM_LANDING_MIN_HOLDERS}
+
+
+def zone_exit_time(badge=None):
+    """Seconds a player stays in an avoidable ground zone (Alchemical Fire, 10 m radius, 5 s) before walking out:
+    reaction time plus the walk to the edge. Assumption, like dot_cleanse_delay: 2.0 s for ranked overall,
+    1.5 s from Ascendant up. Not measurable from the API (no zone positions)."""
+    return 1.5 if badge is not None and badge >= 101 else 2.0
+
+
 def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_override=None, heavy_share=None,
-                       badge=None):
+                       badge=None, counterplay=False):
     """Population aim for a hero (current-patch ranked sample, hero-only accuracy). pct: p25 | p50 | p75 | p90.
     landing=True also applies each ability's real-data landing factor (clipped to 0.05-1.5); melee=True sets the
     hero's real melee rate. melee_rate_override (landed melees per second) and heavy_share (0-1) replace the
     data defaults with the user's own numbers. badge (match rank, e.g. 111 = Eternus 1) sets rank-dependent
-    habits: how fast Dispel Magic is used on a DoT (dot_cleanse_delay)."""
+    habits: how fast Dispel Magic is used on a DoT (dot_cleanse_delay). counterplay=True turns on realistic
+    target behaviour: walking out of ground zones (zone_exit_s) and real-data item damage factors (item_landing)."""
     d = json.load(open(DEFAULTS))
     h = game().hero(hero)
     row = d["heroes"].get(str(h.id)) or d["all"]
@@ -174,6 +198,9 @@ def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_ove
     if heavy_share is not None:
         sk.heavy_share = min(1.0, max(0.0, float(heavy_share)))
     sk.dot_cleanse_delay = dot_cleanse_delay(badge)
+    if counterplay:   # realistic mode: targets walk out of zones, item damage calibrated to real matches
+        sk.zone_exit_s = zone_exit_time(badge)
+        sk.item_landing = item_landing()
     return sk
 
 

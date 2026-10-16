@@ -103,6 +103,19 @@ class Accum:
         return k
 
 
+FIGHT_GAP = 60.0   # assumed seconds between hero fights (counterplay mode); items with shorter cooldowns are ready
+
+
+def long_cooldowns_spent(f):
+    for fx in f.items_fx:
+        it = getattr(fx, "item", None)
+        if it is None or it.activation == "passive" or not hasattr(fx, "cd"):
+            continue
+        c = fx.cd()
+        if c > FIGHT_GAP and f.skill.fight_phase >= FIGHT_GAP / c:
+            fx.ready_at = max(fx.ready_at, c - FIGHT_GAP)
+
+
 @dataclass
 class Skill:
     accuracy: float = 0.26      # fraction of bullets that hit the target hero (ranked median, data/skill_defaults.json)
@@ -133,6 +146,17 @@ class Skill:
     spell_parry_rate: float = 0.05  # Counterspell: share of enemy aimed casts a spell parry is timed against
     summon_focus: float = 0.8      # share of trigger pulls spent on a living enemy turret (assumption)
     flee_hp: float = 0.15          # run when below this health share and losing (fit, deadsim.mechanics)
+    # Counterplay (off by default; accuracy.hero_default_skill(counterplay=True) turns it on):
+    # seconds THIS fighter stays inside an avoidable ground zone (Alchemical Fire) before walking out.
+    # None = stands in it for the whole duration, like a training dummy.
+    zone_exit_s: float | None = None
+    # where this fight falls in the match (0-1, None = every item cooldown ready, as before). An active item whose
+    # cooldown C is longer than FIGHT_GAP was spent in an earlier fight unless phase < FIGHT_GAP / C, so over a pool
+    # of fights with spread phases a Refresher (300 s) is ready in ~20% of them instead of all.
+    fight_phase: float | None = None
+    # per-item damage factor keyed by item name, fitted from real damage (data/item_landing.json, factors < 1
+    # only): procs spent on creeps, charges used outside fights. Multiplies damage booked under that item.
+    item_landing: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -355,6 +379,8 @@ class Engine:
         amt = raw * src.st.outgoing_mult * (1.0 - src.stat("outgoing_penalty")) * (1.0 + src.stat("damage_amp"))
         if is_ability and src.skill.ability_landing:
             amt *= src.skill.ability_landing.get(source, 1.0)
+        if is_item and src.skill.item_landing:
+            amt *= src.skill.item_landing.get(source, 1.0)
         if kind == "spirit":
             amt *= (1.0 - src.stat("spirit_outgoing_penalty"))
             amt *= (1.0 + dst.stat("spirit_amp_taken"))
@@ -580,6 +606,8 @@ class Engine:
                 g = getattr(fx, "on_start", None)
                 if g:
                     g(f)
+            if f.skill.fight_phase is not None:
+                long_cooldowns_spent(f)
             for ab in f.abilities:
                 ab.start()
         self.at(0.0, self.gun_tick, a)
