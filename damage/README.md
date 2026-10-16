@@ -46,3 +46,13 @@ per 1000 souls when added to the popular build), `summary.csv`. Item names and c
   item effects aren't modeled (`effect_modeled` in items.json).
 
 `python3 scripts/dummy_search.py --workers 4 && python3 scripts/export.py` (resumes from `work/jobs`).
+
+## Overall search (damage before dying, counterplay on)
+`scripts/overall_search.py`, output `out/overall/` (`scripts/export_overall.py`). Score = damage the build deals
+before it dies against each of the 41 typical real builds at that net worth: the enemy fights back with x2 damage
+and never dies, 30 s cap. Survivability, CC on the enemy and the enemy's own counters (resists, Dispel Magic) all
+count. Counterplay is on (`hero_default_skill(counterplay=True)`): targets leave Alchemical Fire after 2 s
+(1.5 s from Ascendant), item damage the sim over-predicts versus real matches is scaled down
+(`sim/data/item_landing.json`), and actives with cooldowns over 60 s are ready only in their share of fights.
+Why and results: `/mnt/project-files/analysis/build_scoring_review.md`. ~3 h on 4 cores (resumes from
+`work/jobs_overall`).

@@ -552,7 +552,9 @@ class AlchemicalFire(FX):
         d = self.dur("AbilityDuration", 5)
         dps, inc, mx = self.v("DPS"), self.v("DPSIncrease"), self.v("DPSMax")
         t = f.enemy
-        for i in range(int(d / 0.5)):
+        if t.skill.zone_exit_s is not None:   # counterplay: the target walks out of the fire
+            d = min(d, t.skill.zone_exit_s)
+        for i in range(int(d / 0.5 + 1e-9)):
             cur = min(mx, dps + inc * (i * 0.5))
             f.e.after(0.5 * (i + 1), lambda c=cur: self.spirit(t, c * 0.5 * f.skill.spirit_accuracy, is_dot=True))
         self.debuff(t, "bullet_shred", abs(self.v("BulletArmorReduction")) / 100, d)
