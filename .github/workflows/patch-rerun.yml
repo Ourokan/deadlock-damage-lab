@@ -133,6 +133,7 @@ jobs:
           name: work-${{ matrix.shard }}
           path: |
             damage/work/jobs
+            damage/work/jobs_order
             search/work/jobs*
             survival/work/jobs
             pipeline/work

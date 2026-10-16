@@ -74,6 +74,14 @@ def main():
         json.dump(sorted(heroes, key=lambda h: h["name"]), fh)
     counts = {k: copy_out(os.path.join(ROOT, src), os.path.join(data, k))
               for k, src in [("damage", "damage/out"), ("duel", "search/out"), ("tank", "survival/out")]}
+    order = glob.glob(os.path.join(ROOT, "damage/out/order/*.json"))
+    os.makedirs(os.path.join(data, "damage", "order"), exist_ok=True)
+    for f in order:
+        with open(f) as fh:
+            d = json.load(fh)
+        with open(os.path.join(data, "damage", "order", os.path.basename(f)), "w") as fh:
+            json.dump(d, fh, separators=(",", ":"))
+    counts["buy_order"] = len(order)
     os.makedirs(os.path.join(WEB, "py"), exist_ok=True)
     build_zip(os.path.join(WEB, "py", "sim.zip"))
     if a.pyodide:
