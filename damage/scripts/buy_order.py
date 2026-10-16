@@ -17,8 +17,8 @@ for each objective as the target and works out the order to buy it in:
 Same dummy as the damage search: no resists, refills instead of dying, HP interpolated from the median real build
 HP at each budget.
 
-usage: python3 scripts/buy_order.py [--workers 4] [--heroes Haze]
-Reads work/jobs/<hero>_<budget>.json from dummy_search.py when present, else out/heroes/<id>.json. Writes
+usage: python3 scripts/buy_order.py [--workers 4] [--heroes Haze] [--use-published]
+Reads work/jobs/<hero>_<budget>.json from dummy_search.py (out/heroes/<id>.json with --use-published). Writes
 work/jobs_order/<hero_id>.json (resumes); scripts/export.py copies them to out/order/.
 """
 from __future__ import annotations
@@ -56,6 +56,9 @@ def net_worth_for(spend):
     return nw
 
 
+USE_PUBLISHED = False   # --use-published: read out/heroes (local runs without work/jobs); never in the reruns
+
+
 def search_results(hero):
     """{budget: {"dummy_hp", "objectives": {obj: {"best_items", "best"}}, "popular"}} from the damage search."""
     out = {}
@@ -64,8 +67,8 @@ def search_results(hero):
         if os.path.exists(fn):
             with open(fn) as f:
                 out[b] = json.load(f)
-    # published results only when this hero has no fresh jobs at all, so a rerun never mixes in the old patch
-    if not out:
+    # published results only on request, so a rerun never mixes in the previous patch's out/heroes
+    if USE_PUBLISHED and not out:
         fn = os.path.join(ROOT, "out", "heroes", f"{hero}.json")
         if os.path.exists(fn):
             with open(fn) as f:
@@ -158,7 +161,10 @@ def milestones(path, res, steps, obj):
     return out
 
 
-def order_job(hero):
+def order_job(args):
+    hero, use_published = args
+    global USE_PUBLISHED
+    USE_PUBLISHED = use_published
     path_fn = os.path.join(JOBS, f"{hero}.json")
     if os.path.exists(path_fn):
         return path_fn, "skip"
@@ -190,6 +196,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--heroes", default="")
+    ap.add_argument("--use-published", action="store_true",
+                    help="read out/heroes when work/jobs has nothing for a hero (local runs only)")
     ap.add_argument("--budgets", default="", help="the order needs every budget; a run limited to some skips it")
     a = ap.parse_args()
     if a.budgets and {int(b) for b in a.budgets.split(",")} != set(BUDGETS):
@@ -198,7 +206,7 @@ def main():
     g = S.G()
     heroes = [g.hero(int(h) if h.isdigit() else h).id for h in a.heroes.split(",") if h] or sorted(g.heroes)
     with Pool(a.workers) as p:
-        for path_fn, msg in p.imap_unordered(order_job, heroes):
+        for path_fn, msg in p.imap_unordered(order_job, [(h, a.use_published) for h in heroes]):
             print(time.strftime("%H:%M:%S"), msg, flush=True)
 
 

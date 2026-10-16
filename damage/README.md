@@ -56,9 +56,9 @@ sold. Each step records the net worth it's bought at (lowest net worth whose ite
 up to 500). At each milestone (10k to 50k) it records what you hold and its damage against the best build the
 search found for that exact net worth, which may use items you'd later sell. Median across heroes (15 s): 100% of
 the best build at 10k, 93% at 18k, 92% at 27k, 94% at 37k. Gaps come from expensive core items bought as one lump
-(Refresher, Focus Lens) and early items the 50k build drops. ~1 min for all heroes on 4 cores; it reads
-`work/jobs` from `dummy_search.py` (or `out/heroes` when those aren't there) and runs in the patch reruns after the
-damage search.
+(Refresher, Focus Lens) and early items the 50k build drops. ~1 min for all heroes on 4 cores. It reads
+`work/jobs` from `dummy_search.py` (`--use-published` reads `out/heroes` instead, for local runs) and runs in the
+patch reruns after the damage search.
 
 ## Overall search (damage before dying, counterplay on)
 `scripts/overall_search.py`, output `out/overall/` (`scripts/export_overall.py`). Score = damage the build deals
