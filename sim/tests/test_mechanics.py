@@ -132,7 +132,7 @@ class Items(unittest.TestCase):
         sk = Skill(accuracy=0.0, headshot=0.0, use_abilities=False, use_actives=False, melee_rate=1.0,
                    heavy_share=1.0)
         r = time_to_kill(Loadout("Infernus", [], souls=0, skill=sk), Loadout("Abrams", [], souls=0),
-                         distance=10, max_time=4.6)
+                         distance=10, max_time=4.6, mechanics=None)  # no parries
         self.assertAlmostEqual(r.a_dmg.get("melee", 0), 4 * 116, places=6)
 
     def test_user_melee_rate_override(self):
