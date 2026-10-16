@@ -1,11 +1,10 @@
 {
- "_doc": "Per-hero fight behaviour (deadsim.patterns). order: cast priority once the fight is on (abilities not listed follow in slot order). ult_after: the ultimate waits until one of these setup abilities was cast this fight (or SETUP_WAIT s pass). prefight: ability used before the fight starts (its impl's prefight hook runs at t=0). engage_share / start_distance_m: real Phantom+ match_paths (300 matches, Oct 2026): share of fight starts during ability movement, median distance to the nearest enemy when the fight starts. Research fields (engage, ult, holds, range, notes, sources, confidence) come from guides; most guide pages could not be opened, so treat confidence 'low' entries as best guesses. guide_order / guide_ult_after are what guides say; order / ult_after are what the sim uses. A guide combo is used only when it fits the real damage mix (scripts/landing_rates.py, mechanics on) no worse than slot order, within 0.03 of mean |log landing factor| (fit_error); Mo & Krill's burrow opener is kept on Tyler's word.",
+ "_doc": "Per-hero fight behaviour (deadsim.patterns). order: cast priority once the fight is on (abilities not listed follow in slot order). ult_after: the ultimate waits until one of these setup abilities was cast this fight (or SETUP_WAIT s pass). prefight: ability used before the fight starts (its impl's prefight hook runs at t=0). order and ult_after come from 158 Phantom+ replays (Oct 2026, Deadlock API demo extracts, 'replay' block): a fight is a run of hero-vs-hero damage with gaps under 8 s and at least 300 damage; order ranks abilities cast in >= 10% of fights by which one usually comes first; ult_after lists abilities cast before the ultimate in >= 60% of fights with an ultimate. engage_share / start_distance_m: real match_paths (300 matches): share of fight starts during ability movement, median distance to the nearest enemy when the fight starts. guide_* and the other research fields (engage, ult, holds, range, notes, sources, confidence) come from web guides, kept for reference. A combo is used only when it fits the real damage mix (scripts/landing_rates.py, mechanics on) within 0.05 of slot order's mean |log landing factor| (fit_error); otherwise order is empty and 'dropped' says why. Mo & Krill's burrow opener stays on (Tyler).",
  "heroes": {
   "1": {
    "name": "Infernus",
    "order": [
     "ability_incendiary_projectile",
-    "ability_afterburn",
     "ability_flame_dash",
     "ability_fire_bomb"
    ],
@@ -18,10 +17,6 @@
     "ability_fire_bomb"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.908,
-    "guide": 0.912
-   },
    "engage": "ability_flame_dash",
    "engage_share": 0.2,
    "start_distance_m": null,
@@ -39,12 +34,80 @@
     "https://mobalytics.gg/deadlock/infernus-guide",
     "https://deadlock.wiki/Concussive_Combustion",
     "https://deadlock.wiki/Napalm"
-   ]
+   ],
+   "replay": {
+    "matches": 47,
+    "fights": 1109,
+    "abilities": {
+     "Napalm": {
+      "cast_share": 0.724,
+      "first_share": 0.511,
+      "pre_share": 0.077,
+      "median_first_cast_s": 2.27,
+      "ult_after_share": 0.535
+     },
+     "Flame Dash": {
+      "cast_share": 0.684,
+      "first_share": 0.251,
+      "pre_share": 0.083,
+      "median_first_cast_s": 4.77,
+      "ult_after_share": 0.487
+     },
+     "Afterburn": {
+      "cast_share": 0.0,
+      "first_share": 0.0,
+      "pre_share": 0.0,
+      "median_first_cast_s": null,
+      "ult_after_share": 0.0
+     },
+     "Concussive Combustion": {
+      "cast_share": 0.244,
+      "first_share": 0.078,
+      "pre_share": 0.044,
+      "median_first_cast_s": 4.55,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Napalm",
+       "Flame Dash"
+      ],
+      0.264
+     ],
+     [
+      [
+       "Napalm"
+      ],
+      0.14
+     ],
+     [
+      [
+       "Flame Dash"
+      ],
+      0.099
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.908,
+    "replay_order": 0.898
+   }
   },
   "2": {
    "name": "Seven",
-   "order": [],
-   "ult_after": [],
+   "order": [
+    "ability_power_surge",
+    "citadel_ability_lightning_ball",
+    "citadel_ability_static_charge",
+    "citadel_ability_storm_cloud"
+   ],
+   "ult_after": [
+    "citadel_ability_lightning_ball",
+    "citadel_ability_static_charge",
+    "ability_power_surge"
+   ],
    "prefight": null,
    "guide_order": [
     "citadel_ability_static_charge",
@@ -55,10 +118,6 @@
    "guide_ult_after": [
     "citadel_ability_static_charge"
    ],
-   "fit_error": {
-    "slot_order": 0.509,
-    "guide": 1.177
-   },
    "engage": null,
    "engage_share": 0.0,
    "start_distance_m": null,
@@ -77,17 +136,83 @@
     "https://games.gg/deadlock/guides/seven-deadlock-guide/",
     "https://deadlockmod.com/guides/seven-hero-guide-lightning-teamfighter"
    ],
-   "dropped": "guide combo fits the real damage mix worse than slot order (mean |log landing| 0.51 -> 1.18), so the sim keeps slot order"
+   "replay": {
+    "matches": 24,
+    "fights": 526,
+    "abilities": {
+     "Lightning Ball": {
+      "cast_share": 0.798,
+      "first_share": 0.338,
+      "pre_share": 0.219,
+      "median_first_cast_s": 0.9,
+      "ult_after_share": 0.651
+     },
+     "Static Charge": {
+      "cast_share": 0.717,
+      "first_share": 0.232,
+      "pre_share": 0.106,
+      "median_first_cast_s": 1.36,
+      "ult_after_share": 0.645
+     },
+     "Power Surge": {
+      "cast_share": 0.709,
+      "first_share": 0.34,
+      "pre_share": 0.224,
+      "median_first_cast_s": 1.22,
+      "ult_after_share": 0.638
+     },
+     "Storm Cloud": {
+      "cast_share": 0.289,
+      "first_share": 0.048,
+      "pre_share": 0.027,
+      "median_first_cast_s": 5.45,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Power Surge",
+       "Static Charge",
+       "Lightning Ball"
+      ],
+      0.095
+     ],
+     [
+      [
+       "Power Surge",
+       "Lightning Ball",
+       "Static Charge"
+      ],
+      0.086
+     ],
+     [
+      [
+       "Lightning Ball",
+       "Static Charge",
+       "Power Surge"
+      ],
+      0.086
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.509,
+    "replay_order": 0.477
+   }
   },
   "3": {
    "name": "Vindicta",
    "order": [
-    "citadel_ability_hornet_sting",
-    "citadel_ability_hornet_chain",
     "citadel_ability_hornet_leap",
+    "citadel_ability_hornet_chain",
+    "citadel_ability_hornet_sting",
     "citadel_ability_hornet_snipe"
    ],
-   "ult_after": [],
+   "ult_after": [
+    "citadel_ability_hornet_chain",
+    "citadel_ability_hornet_sting"
+   ],
    "prefight": null,
    "guide_order": [
     "citadel_ability_hornet_sting",
@@ -96,10 +221,6 @@
     "citadel_ability_hornet_snipe"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.715,
-    "guide": 0.739
-   },
    "engage": "citadel_ability_hornet_leap",
    "engage_share": 0.37,
    "start_distance_m": null,
@@ -117,17 +238,83 @@
     "https://games.gg/deadlock/guides/vindicta-build-guide/",
     "https://eguidemagazine.com/wp-content/pages/deadlock-vindicta-guide.html",
     "https://mobalytics.gg/deadlock/vindicta-guide"
-   ]
+   ],
+   "replay": {
+    "matches": 42,
+    "fights": 1157,
+    "abilities": {
+     "Stake": {
+      "cast_share": 0.718,
+      "first_share": 0.297,
+      "pre_share": 0.217,
+      "median_first_cast_s": 0.58,
+      "ult_after_share": 0.633
+     },
+     "Flight": {
+      "cast_share": 0.589,
+      "first_share": 0.248,
+      "pre_share": 0.172,
+      "median_first_cast_s": 1.27,
+      "ult_after_share": 0.473
+     },
+     "Crow Familiar": {
+      "cast_share": 0.834,
+      "first_share": 0.295,
+      "pre_share": 0.135,
+      "median_first_cast_s": 0.73,
+      "ult_after_share": 0.66
+     },
+     "Assassinate": {
+      "cast_share": 0.508,
+      "first_share": 0.111,
+      "pre_share": 0.045,
+      "median_first_cast_s": 3.62,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Flight",
+       "Stake",
+       "Crow Familiar"
+      ],
+      0.131
+     ],
+     [
+      [
+       "Crow Familiar"
+      ],
+      0.086
+     ],
+     [
+      [
+       "Stake",
+       "Crow Familiar",
+       "Assassinate"
+      ],
+      0.067
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.715,
+    "replay_order": 0.729
+   }
   },
   "4": {
    "name": "Lady Geist",
    "order": [
-    "ability_blood_shards",
     "ability_blood_bomb",
+    "ability_blood_shards",
     "ability_life_drain",
     "ability_health_swap"
    ],
-   "ult_after": [],
+   "ult_after": [
+    "ability_blood_bomb",
+    "ability_life_drain",
+    "ability_blood_shards"
+   ],
    "prefight": null,
    "guide_order": [
     "ability_blood_shards",
@@ -136,10 +323,6 @@
     "ability_health_swap"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.336,
-    "guide": 0.334
-   },
    "engage": null,
    "engage_share": 0.01,
    "start_distance_m": null,
@@ -161,7 +344,70 @@
     "https://deadlockmod.com/guides/lady-geist-hero-guide-health-cost-burst",
     "https://games.gg/deadlock/guides/deadlock-lady-geist-guide/",
     "https://mobalytics.gg/deadlock/lady-geist-guide"
-   ]
+   ],
+   "replay": {
+    "matches": 21,
+    "fights": 535,
+    "abilities": {
+     "Essence Bomb": {
+      "cast_share": 0.895,
+      "first_share": 0.548,
+      "pre_share": 0.404,
+      "median_first_cast_s": 0.03,
+      "ult_after_share": 0.758
+     },
+     "Life Drain": {
+      "cast_share": 0.72,
+      "first_share": 0.151,
+      "pre_share": 0.084,
+      "median_first_cast_s": 1.53,
+      "ult_after_share": 0.663
+     },
+     "Malice": {
+      "cast_share": 0.802,
+      "first_share": 0.234,
+      "pre_share": 0.168,
+      "median_first_cast_s": 0.44,
+      "ult_after_share": 0.726
+     },
+     "Soul Exchange": {
+      "cast_share": 0.178,
+      "first_share": 0.036,
+      "pre_share": 0.002,
+      "median_first_cast_s": 10.52,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Essence Bomb",
+       "Malice",
+       "Life Drain"
+      ],
+      0.155
+     ],
+     [
+      [
+       "Essence Bomb",
+       "Life Drain",
+       "Malice"
+      ],
+      0.142
+     ],
+     [
+      [
+       "Essence Bomb",
+       "Malice"
+      ],
+      0.101
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.336,
+    "replay_order": 0.292
+   }
   },
   "6": {
    "name": "Abrams",
@@ -170,7 +416,10 @@
     "citadel_ability_bull_heal",
     "citadel_ability_bull_leap"
    ],
-   "ult_after": [],
+   "ult_after": [
+    "citadel_ability_bull_heal",
+    "citadel_ability_bull_charge"
+   ],
    "prefight": null,
    "guide_order": [
     "citadel_ability_bull_charge",
@@ -178,10 +427,6 @@
     "citadel_ability_bull_leap"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.416,
-    "guide": 0.417
-   },
    "engage": "citadel_ability_bull_charge",
    "engage_share": 0.25,
    "start_distance_m": null,
@@ -199,14 +444,75 @@
     "https://fandomwire.com/best-abrams-build-in-deadlock-items-upgrade-combos/",
     "https://deadlock.wiki/Shoulder_Charge",
     "https://games.gg/deadlock/guides/deadlock-abrams-guide/"
-   ]
+   ],
+   "replay": {
+    "matches": 44,
+    "fights": 1133,
+    "abilities": {
+     "Siphon Life": {
+      "cast_share": 0.645,
+      "first_share": 0.214,
+      "pre_share": 0.076,
+      "median_first_cast_s": 2.02,
+      "ult_after_share": 0.631
+     },
+     "Shoulder Charge": {
+      "cast_share": 0.795,
+      "first_share": 0.576,
+      "pre_share": 0.143,
+      "median_first_cast_s": 1.47,
+      "ult_after_share": 0.71
+     },
+     "Infernal Resilience": {
+      "cast_share": 0.0,
+      "first_share": 0.0,
+      "pre_share": 0.0,
+      "median_first_cast_s": null,
+      "ult_after_share": 0.0
+     },
+     "Seismic Impact": {
+      "cast_share": 0.213,
+      "first_share": 0.05,
+      "pre_share": 0.033,
+      "median_first_cast_s": 6.62,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Shoulder Charge",
+       "Siphon Life"
+      ],
+      0.285
+     ],
+     [
+      [
+       "Shoulder Charge"
+      ],
+      0.175
+     ],
+     [
+      [
+       "Siphon Life",
+       "Shoulder Charge"
+      ],
+      0.132
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.416,
+    "replay_order": 0.417
+   }
   },
   "7": {
    "name": "Wraith",
    "order": [
-    "citadel_ability_card_toss",
     "citadel_ability_wraith_rapidfire",
-    "citadel_ability_psychic_lift"
+    "citadel_ability_card_toss",
+    "citadel_ability_psychic_lift",
+    "citadel_ability_projectmind"
    ],
    "ult_after": [],
    "prefight": null,
@@ -216,10 +522,6 @@
     "citadel_ability_psychic_lift"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.825,
-    "guide": 0.829
-   },
    "engage": null,
    "engage_share": 0.03,
    "start_distance_m": null,
@@ -237,16 +539,78 @@
     "https://mobalytics.gg/deadlock/wraith-guide",
     "https://www.dexerto.com/wikis/deadlock/wraith/",
     "https://bo3.gg/games/articles/wraith-guide-deadlock"
-   ]
+   ],
+   "replay": {
+    "matches": 67,
+    "fights": 1462,
+    "abilities": {
+     "Card Trick": {
+      "cast_share": 0.841,
+      "first_share": 0.347,
+      "pre_share": 0.093,
+      "median_first_cast_s": 2.0,
+      "ult_after_share": 0.484
+     },
+     "Project Mind": {
+      "cast_share": 0.332,
+      "first_share": 0.113,
+      "pre_share": 0.036,
+      "median_first_cast_s": 6.7,
+      "ult_after_share": 0.295
+     },
+     "Full Auto": {
+      "cast_share": 0.648,
+      "first_share": 0.352,
+      "pre_share": 0.178,
+      "median_first_cast_s": 1.22,
+      "ult_after_share": 0.422
+     },
+     "Telekinesis": {
+      "cast_share": 0.297,
+      "first_share": 0.096,
+      "pre_share": 0.035,
+      "median_first_cast_s": 3.95,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Full Auto",
+       "Card Trick"
+      ],
+      0.183
+     ],
+     [
+      [
+       "Card Trick"
+      ],
+      0.154
+     ],
+     [
+      [
+       "Card Trick",
+       "Full Auto"
+      ],
+      0.079
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.825,
+    "replay_order": 0.846
+   }
   },
   "8": {
    "name": "McGinnis",
    "order": [
     "citadel_ability_shieldedsentry",
     "citadel_ability_fissure_wall",
+    "citadel_ability_mobile_resupply",
     "citadel_ability_rocket_barrage"
    ],
    "ult_after": [
+    "citadel_ability_shieldedsentry",
     "citadel_ability_fissure_wall"
    ],
    "prefight": null,
@@ -258,10 +622,6 @@
    "guide_ult_after": [
     "citadel_ability_fissure_wall"
    ],
-   "fit_error": {
-    "slot_order": 2.334,
-    "guide": 2.361
-   },
    "engage": "citadel_ability_shieldedsentry",
    "engage_share": 0.0,
    "start_distance_m": null,
@@ -283,7 +643,68 @@
     "https://mobalytics.gg/blog/deadlock-mcginnis-guide/",
     "https://www.dexerto.com/wikis/deadlock/mcginnis/",
     "https://deadlock.wiki/Heavy_Barrage"
-   ]
+   ],
+   "replay": {
+    "matches": 13,
+    "fights": 304,
+    "abilities": {
+     "Mini Turret": {
+      "cast_share": 0.829,
+      "first_share": 0.543,
+      "pre_share": 0.332,
+      "median_first_cast_s": 0.66,
+      "ult_after_share": 0.747
+     },
+     "Medicinal Specter": {
+      "cast_share": 0.562,
+      "first_share": 0.102,
+      "pre_share": 0.039,
+      "median_first_cast_s": 5.59,
+      "ult_after_share": 0.446
+     },
+     "Spectral Wall": {
+      "cast_share": 0.717,
+      "first_share": 0.28,
+      "pre_share": 0.145,
+      "median_first_cast_s": 1.71,
+      "ult_after_share": 0.687
+     },
+     "Heavy Barrage": {
+      "cast_share": 0.273,
+      "first_share": 0.026,
+      "pre_share": 0.02,
+      "median_first_cast_s": 7.44,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Mini Turret",
+       "Spectral Wall",
+       "Medicinal Specter"
+      ],
+      0.115
+     ],
+     [
+      [
+       "Mini Turret",
+       "Spectral Wall"
+      ],
+      0.102
+     ],
+     [
+      [
+       "Mini Turret"
+      ],
+      0.095
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 2.334,
+    "replay_order": 2.361
+   }
   },
   "10": {
    "name": "Paradox",
@@ -294,8 +715,7 @@
     "citadel_ability_chrono_swap"
    ],
    "ult_after": [
-    "citadel_ability_chrono_time_wall",
-    "citadel_ability_chrono_pulse_grenade"
+    "citadel_ability_chrono_time_wall"
    ],
    "prefight": null,
    "guide_order": [
@@ -308,10 +728,6 @@
     "citadel_ability_chrono_time_wall",
     "citadel_ability_chrono_pulse_grenade"
    ],
-   "fit_error": {
-    "slot_order": 0.553,
-    "guide": 0.531
-   },
    "engage": "citadel_ability_chrono_kinetic_carbine",
    "engage_share": 0.05,
    "start_distance_m": null,
@@ -329,16 +745,80 @@
     "https://lr.sudovanilla.org/r/DeadlockTheGame/comments/1gkvcll/tips_on_paradox",
     "https://www.dexerto.com/wikis/deadlock/paradox/",
     "https://mobalytics.gg/deadlock/paradox-guide"
-   ]
+   ],
+   "replay": {
+    "matches": 50,
+    "fights": 1526,
+    "abilities": {
+     "Pulse Grenade": {
+      "cast_share": 0.635,
+      "first_share": 0.28,
+      "pre_share": 0.117,
+      "median_first_cast_s": 2.61,
+      "ult_after_share": 0.529
+     },
+     "Time Wall": {
+      "cast_share": 0.524,
+      "first_share": 0.114,
+      "pre_share": 0.036,
+      "median_first_cast_s": 3.17,
+      "ult_after_share": 0.606
+     },
+     "Kinetic Carbine": {
+      "cast_share": 0.73,
+      "first_share": 0.455,
+      "pre_share": 0.325,
+      "median_first_cast_s": 0.8,
+      "ult_after_share": 0.599
+     },
+     "Paradoxical Swap": {
+      "cast_share": 0.307,
+      "first_share": 0.033,
+      "pre_share": 0.008,
+      "median_first_cast_s": 3.83,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Kinetic Carbine"
+      ],
+      0.14
+     ],
+     [
+      [
+       "Kinetic Carbine",
+       "Pulse Grenade",
+       "Time Wall"
+      ],
+      0.087
+     ],
+     [
+      [
+       "Kinetic Carbine",
+       "Pulse Grenade"
+      ],
+      0.067
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.553,
+    "replay_order": 0.529
+   }
   },
   "11": {
    "name": "Dynamo",
    "order": [
     "citadel_ability_stomp",
     "citadel_ability_self_vacuum",
-    "citadel_ability_nikuman"
+    "citadel_ability_nikuman",
+    "citadel_ability_void_sphere"
    ],
-   "ult_after": [],
+   "ult_after": [
+    "citadel_ability_stomp"
+   ],
    "prefight": null,
    "guide_order": [
     "citadel_ability_stomp",
@@ -346,10 +826,6 @@
     "citadel_ability_nikuman"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.505,
-    "guide": 0.53
-   },
    "engage": null,
    "engage_share": 0.09,
    "start_distance_m": null,
@@ -371,25 +847,87 @@
     "https://games.gg/deadlock/guides/deadlock-dynamo-guide/",
     "https://bo3.gg/games/articles/dynamo-guide-deadlock",
     "https://deadlock.wiki/Kinetic_Pulse"
-   ]
+   ],
+   "replay": {
+    "matches": 32,
+    "fights": 789,
+    "abilities": {
+     "Kinetic Pulse": {
+      "cast_share": 0.84,
+      "first_share": 0.651,
+      "pre_share": 0.275,
+      "median_first_cast_s": 0.81,
+      "ult_after_share": 0.601
+     },
+     "Quantum Entanglement": {
+      "cast_share": 0.432,
+      "first_share": 0.113,
+      "pre_share": 0.033,
+      "median_first_cast_s": 6.45,
+      "ult_after_share": 0.298
+     },
+     "Rejuvenating Aurora": {
+      "cast_share": 0.432,
+      "first_share": 0.104,
+      "pre_share": 0.061,
+      "median_first_cast_s": 5.67,
+      "ult_after_share": 0.31
+     },
+     "Singularity": {
+      "cast_share": 0.213,
+      "first_share": 0.063,
+      "pre_share": 0.009,
+      "median_first_cast_s": 4.51,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Kinetic Pulse"
+      ],
+      0.285
+     ],
+     [
+      [
+       "Kinetic Pulse",
+       "Rejuvenating Aurora"
+      ],
+      0.086
+     ],
+     [
+      [
+       "Kinetic Pulse",
+       "Quantum Entanglement"
+      ],
+      0.079
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.505,
+    "replay_order": 0.547
+   }
   },
   "12": {
    "name": "Kelvin",
    "order": [
     "ability_ice_grenade",
+    "ability_icepath",
+    "ability_icebeam",
+    "ability_ice_dome"
+   ],
+   "ult_after": [
+    "ability_ice_grenade",
+    "ability_icepath",
     "ability_icebeam"
    ],
-   "ult_after": [],
    "prefight": null,
    "guide_order": [
     "ability_ice_grenade",
     "ability_icebeam"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.589,
-    "guide": 0.564
-   },
    "engage": "ability_icepath",
    "engage_share": 0.37,
    "start_distance_m": null,
@@ -411,7 +949,68 @@
     "https://deadlockmod.com/guides/kelvin-hero-guide-frost-control",
     "https://www.dexerto.com/wikis/deadlock/kelvin/",
     "https://mobalytics.gg/deadlock/kelvin-guide"
-   ]
+   ],
+   "replay": {
+    "matches": 34,
+    "fights": 848,
+    "abilities": {
+     "Frost Grenade": {
+      "cast_share": 0.894,
+      "first_share": 0.493,
+      "pre_share": 0.281,
+      "median_first_cast_s": 0.7,
+      "ult_after_share": 0.808
+     },
+     "Ice Path": {
+      "cast_share": 0.612,
+      "first_share": 0.267,
+      "pre_share": 0.192,
+      "median_first_cast_s": 1.09,
+      "ult_after_share": 0.616
+     },
+     "Arctic Beam": {
+      "cast_share": 0.782,
+      "first_share": 0.185,
+      "pre_share": 0.071,
+      "median_first_cast_s": 0.58,
+      "ult_after_share": 0.709
+     },
+     "Frozen Shelter": {
+      "cast_share": 0.239,
+      "first_share": 0.029,
+      "pre_share": 0.015,
+      "median_first_cast_s": 8.0,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Frost Grenade",
+       "Arctic Beam"
+      ],
+      0.119
+     ],
+     [
+      [
+       "Frost Grenade"
+      ],
+      0.114
+     ],
+     [
+      [
+       "Frost Grenade",
+       "Arctic Beam",
+       "Ice Path"
+      ],
+      0.112
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.589,
+    "replay_order": 0.576
+   }
   },
   "13": {
    "name": "Haze",
@@ -426,10 +1025,6 @@
    "guide_ult_after": [
     "ability_sleep_dagger"
    ],
-   "fit_error": {
-    "slot_order": 1.247,
-    "guide": 1.469
-   },
    "engage": "ability_smoke_bomb",
    "engage_share": 0.0,
    "start_distance_m": null,
@@ -448,17 +1043,87 @@
     "https://www.dexerto.com/gaming/deadlock-haze-build-best-items-abilities-more-2883362",
     "https://www.destructoid.com/deadlock-best-haze-build/"
    ],
-   "dropped": "guide combo fits the real damage mix worse than slot order (mean |log landing| 1.25 -> 1.47), so the sim keeps slot order"
+   "replay": {
+    "matches": 90,
+    "fights": 2139,
+    "abilities": {
+     "Sleep Dagger": {
+      "cast_share": 0.823,
+      "first_share": 0.71,
+      "pre_share": 0.238,
+      "median_first_cast_s": 1.0,
+      "ult_after_share": 0.876
+     },
+     "Smoke Bomb": {
+      "cast_share": 0.336,
+      "first_share": 0.128,
+      "pre_share": 0.063,
+      "median_first_cast_s": 6.48,
+      "ult_after_share": 0.253
+     },
+     "Fixation": {
+      "cast_share": 0.0,
+      "first_share": 0.0,
+      "pre_share": 0.0,
+      "median_first_cast_s": null,
+      "ult_after_share": 0.0
+     },
+     "Bullet Dance": {
+      "cast_share": 0.234,
+      "first_share": 0.026,
+      "pre_share": 0.013,
+      "median_first_cast_s": 4.67,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Sleep Dagger"
+      ],
+      0.401
+     ],
+     [
+      [
+       "Sleep Dagger",
+       "Smoke Bomb"
+      ],
+      0.131
+     ],
+     [
+      [
+       "Sleep Dagger",
+       "Bullet Dance"
+      ],
+      0.108
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 1.247,
+    "replay_order": 1.415
+   },
+   "replay_order": [
+    "ability_sleep_dagger",
+    "ability_smoke_bomb",
+    "ability_bullet_flurry"
+   ],
+   "replay_ult_after": [
+    "ability_sleep_dagger"
+   ],
+   "dropped": "the replay combo fits the real damage mix worse than slot order in the sim (mean |log landing| 1.25 -> 1.42), which points at a gap in this hero's ability model; slot order kept"
   },
   "14": {
    "name": "Holliday",
    "order": [
     "ability_explosive_barrel",
+    "ability_bounce_pad",
     "ability_crackshot",
-    "ability_gravity_lasso",
-    "ability_bounce_pad"
+    "ability_gravity_lasso"
    ],
-   "ult_after": [],
+   "ult_after": [
+    "ability_explosive_barrel"
+   ],
    "prefight": null,
    "guide_order": [
     "ability_explosive_barrel",
@@ -467,10 +1132,6 @@
     "ability_bounce_pad"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.935,
-    "guide": 0.919
-   },
    "engage": "ability_bounce_pad",
    "engage_share": 0.0,
    "start_distance_m": null,
@@ -488,7 +1149,68 @@
     "https://mobalytics.gg/deadlock/holliday-guide",
     "https://deadlock.wiki/Powder_Keg",
     "https://beebom.com/deadlock-holliday-build-guide/amp/"
-   ]
+   ],
+   "replay": {
+    "matches": 36,
+    "fights": 1033,
+    "abilities": {
+     "Powder Keg": {
+      "cast_share": 0.898,
+      "first_share": 0.493,
+      "pre_share": 0.344,
+      "median_first_cast_s": -0.19,
+      "ult_after_share": 0.755
+     },
+     "Bounce Pad": {
+      "cast_share": 0.679,
+      "first_share": 0.27,
+      "pre_share": 0.215,
+      "median_first_cast_s": 2.05,
+      "ult_after_share": 0.498
+     },
+     "Crackshot": {
+      "cast_share": 0.597,
+      "first_share": 0.167,
+      "pre_share": 0.047,
+      "median_first_cast_s": 2.97,
+      "ult_after_share": 0.325
+     },
+     "Spirit Lasso": {
+      "cast_share": 0.313,
+      "first_share": 0.05,
+      "pre_share": 0.026,
+      "median_first_cast_s": 2.94,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Bounce Pad",
+       "Powder Keg",
+       "Crackshot"
+      ],
+      0.108
+     ],
+     [
+      [
+       "Powder Keg"
+      ],
+      0.104
+     ],
+     [
+      [
+       "Powder Keg",
+       "Crackshot"
+      ],
+      0.083
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.935,
+    "replay_order": 0.933
+   }
   },
   "15": {
    "name": "Bebop",
@@ -498,7 +1220,10 @@
     "citadel_ability_uppercut",
     "citadel_ability_bebop_laser_beam"
    ],
-   "ult_after": [],
+   "ult_after": [
+    "citadel_ability_sticky_bomb",
+    "citadel_ability_hook"
+   ],
    "prefight": null,
    "guide_order": [
     "citadel_ability_hook",
@@ -507,10 +1232,6 @@
     "citadel_ability_bebop_laser_beam"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 1.411,
-    "guide": 1.291
-   },
    "engage": "citadel_ability_hook",
    "engage_share": 0.01,
    "start_distance_m": null,
@@ -528,16 +1249,84 @@
     "https://rennerusa.com/pages/deadlock-bebop-guide.html",
     "https://deadlock.wiki/Grapple_Arm",
     "https://deadlock.wiki/Hyper_Beam"
-   ]
+   ],
+   "replay": {
+    "matches": 75,
+    "fights": 2046,
+    "abilities": {
+     "Exploding Uppercut": {
+      "cast_share": 0.758,
+      "first_share": 0.053,
+      "pre_share": 0.02,
+      "median_first_cast_s": 1.58,
+      "ult_after_share": 0.583
+     },
+     "Sticky Bomb": {
+      "cast_share": 0.833,
+      "first_share": 0.3,
+      "pre_share": 0.145,
+      "median_first_cast_s": 0.94,
+      "ult_after_share": 0.635
+     },
+     "Grapple Arm": {
+      "cast_share": 0.771,
+      "first_share": 0.544,
+      "pre_share": 0.315,
+      "median_first_cast_s": 0.36,
+      "ult_after_share": 0.64
+     },
+     "Hyper Beam": {
+      "cast_share": 0.197,
+      "first_share": 0.054,
+      "pre_share": 0.022,
+      "median_first_cast_s": 5.19,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Grapple Arm",
+       "Sticky Bomb",
+       "Exploding Uppercut"
+      ],
+      0.285
+     ],
+     [
+      [
+       "Grapple Arm",
+       "Exploding Uppercut",
+       "Sticky Bomb"
+      ],
+      0.139
+     ],
+     [
+      [
+       "Sticky Bomb",
+       "Exploding Uppercut",
+       "Grapple Arm"
+      ],
+      0.085
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 1.411,
+    "replay_order": 1.291
+   }
   },
   "16": {
    "name": "Calico",
    "order": [
-    "ability_nano_clustergrenade",
     "ability_nano_dash",
+    "ability_nano_clustergrenade",
+    "ability_nano_catform",
     "ability_nano_shadow_pulse"
    ],
-   "ult_after": [],
+   "ult_after": [
+    "ability_nano_clustergrenade",
+    "ability_nano_dash"
+   ],
    "prefight": null,
    "guide_order": [
     "ability_nano_clustergrenade",
@@ -545,10 +1334,6 @@
     "ability_nano_shadow_pulse"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.914,
-    "guide": 0.903
-   },
    "engage": "ability_nano_catform",
    "engage_share": 0.0,
    "start_distance_m": null,
@@ -566,17 +1351,82 @@
     "https://mobalytics.gg/deadlock/calico-guide",
     "https://www.dexerto.com/wikis/deadlock/calico/",
     "https://beebom.com/deadlock-calico-build-guide/"
-   ]
+   ],
+   "replay": {
+    "matches": 33,
+    "fights": 904,
+    "abilities": {
+     "Gloom Bombs": {
+      "cast_share": 0.832,
+      "first_share": 0.195,
+      "pre_share": 0.121,
+      "median_first_cast_s": 1.09,
+      "ult_after_share": 0.929
+     },
+     "Leaping Slash": {
+      "cast_share": 0.91,
+      "first_share": 0.585,
+      "pre_share": 0.345,
+      "median_first_cast_s": 0.14,
+      "ult_after_share": 0.939
+     },
+     "Ava": {
+      "cast_share": 0.652,
+      "first_share": 0.202,
+      "pre_share": 0.041,
+      "median_first_cast_s": 2.33,
+      "ult_after_share": 0.597
+     },
+     "Return to Shadows": {
+      "cast_share": 0.326,
+      "first_share": 0.003,
+      "pre_share": 0.001,
+      "median_first_cast_s": 5.38,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Leaping Slash",
+       "Gloom Bombs",
+       "Ava"
+      ],
+      0.168
+     ],
+     [
+      [
+       "Leaping Slash",
+       "Gloom Bombs"
+      ],
+      0.15
+     ],
+     [
+      [
+       "Leaping Slash",
+       "Gloom Bombs",
+       "Return to Shadows"
+      ],
+      0.097
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.914,
+    "replay_order": 0.934
+   }
   },
   "17": {
    "name": "Grey Talon",
    "order": [
-    "ability_immobilize_trap",
     "ability_charged_shot",
     "ability_power_jump",
+    "ability_immobilize_trap",
     "ability_guided_arrow"
    ],
-   "ult_after": [],
+   "ult_after": [
+    "ability_charged_shot"
+   ],
    "prefight": null,
    "guide_order": [
     "ability_immobilize_trap",
@@ -585,10 +1435,6 @@
     "ability_guided_arrow"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.527,
-    "guide": 0.496
-   },
    "engage": null,
    "engage_share": 0.31,
    "start_distance_m": null,
@@ -606,19 +1452,79 @@
     "https://www.dexerto.com/wikis/deadlock/grey-talon/",
     "https://deadlock.wiki/Charged_Shot",
     "https://mobalytics.gg/deadlock/grey-talon-guide"
-   ]
+   ],
+   "replay": {
+    "matches": 27,
+    "fights": 781,
+    "abilities": {
+     "Charged Shot": {
+      "cast_share": 0.816,
+      "first_share": 0.403,
+      "pre_share": 0.241,
+      "median_first_cast_s": 0.36,
+      "ult_after_share": 0.719
+     },
+     "Rain of Arrows": {
+      "cast_share": 0.625,
+      "first_share": 0.23,
+      "pre_share": 0.145,
+      "median_first_cast_s": 1.38,
+      "ult_after_share": 0.455
+     },
+     "Spirit Snare": {
+      "cast_share": 0.515,
+      "first_share": 0.187,
+      "pre_share": 0.149,
+      "median_first_cast_s": 2.06,
+      "ult_after_share": 0.5
+     },
+     "Guided Owl": {
+      "cast_share": 0.228,
+      "first_share": 0.055,
+      "pre_share": 0.044,
+      "median_first_cast_s": 5.45,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Charged Shot"
+      ],
+      0.12
+     ],
+     [
+      [
+       "Charged Shot",
+       "Rain of Arrows",
+       "Spirit Snare"
+      ],
+      0.086
+     ],
+     [
+      [
+       "Charged Shot",
+       "Rain of Arrows"
+      ],
+      0.081
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.527,
+    "replay_order": 0.514
+   }
   },
   "18": {
    "name": "Mo & Krill",
    "order": [
-    "ability_burrow",
     "ability_intimidate",
+    "ability_burrow",
     "ability_throw_sand",
     "ability_ult_combo"
    ],
    "ult_after": [
-    "ability_burrow",
-    "ability_throw_sand"
+    "ability_intimidate"
    ],
    "prefight": "ability_burrow",
    "guide_order": [
@@ -631,10 +1537,6 @@
     "ability_burrow",
     "ability_throw_sand"
    ],
-   "fit_error": {
-    "slot_order": 0.303,
-    "guide": 0.322
-   },
    "engage": "ability_burrow",
    "engage_share": 0.07,
    "start_distance_m": null,
@@ -652,16 +1554,86 @@
     "https://mobalytics.gg/deadlock/mo-and-krill-guide",
     "https://liquipedia.net/deadlock/Mo_%26_Krill",
     "https://hawk.live/posts/deadlock-mo-krill-ultimate-guide"
-   ]
+   ],
+   "replay": {
+    "matches": 42,
+    "fights": 1133,
+    "abilities": {
+     "Scorn": {
+      "cast_share": 0.931,
+      "first_share": 0.523,
+      "pre_share": 0.078,
+      "median_first_cast_s": 0.78,
+      "ult_after_share": 0.763
+     },
+     "Burrow": {
+      "cast_share": 0.572,
+      "first_share": 0.226,
+      "pre_share": 0.164,
+      "median_first_cast_s": 4.05,
+      "ult_after_share": 0.438
+     },
+     "Sand Blast": {
+      "cast_share": 0.615,
+      "first_share": 0.149,
+      "pre_share": 0.075,
+      "median_first_cast_s": 3.61,
+      "ult_after_share": 0.429
+     },
+     "Combo": {
+      "cast_share": 0.312,
+      "first_share": 0.059,
+      "pre_share": 0.013,
+      "median_first_cast_s": 4.7,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Scorn"
+      ],
+      0.169
+     ],
+     [
+      [
+       "Burrow",
+       "Scorn",
+       "Sand Blast"
+      ],
+      0.096
+     ],
+     [
+      [
+       "Scorn",
+       "Sand Blast"
+      ],
+      0.086
+     ]
+    ],
+    "burrow_opener": {
+     "underground_at_fight_start": 0.26,
+     "after_laning_burrow_within_10s_before_fight": 0.47,
+     "laning_burrow_within_10s_before_fight": 0.16
+    }
+   },
+   "fit_error": {
+    "slot_order": 0.303,
+    "replay_order": 0.341
+   }
   },
   "19": {
    "name": "Shiv",
    "order": [
     "citadel_ability_shiv_dagger",
     "citadel_ability_shiv_dash",
-    "citadel_ability_shiv_killing_blow"
+    "citadel_ability_shiv_killing_blow",
+    "citadel_ability_shiv_defer_damage"
    ],
-   "ult_after": [],
+   "ult_after": [
+    "citadel_ability_shiv_dagger",
+    "citadel_ability_shiv_dash"
+   ],
    "prefight": null,
    "guide_order": [
     "citadel_ability_shiv_dagger",
@@ -669,10 +1641,6 @@
     "citadel_ability_shiv_killing_blow"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.52,
-    "guide": 0.533
-   },
    "engage": "citadel_ability_shiv_dash",
    "engage_share": 0.0,
    "start_distance_m": null,
@@ -690,12 +1658,75 @@
     "https://esports.gg/guides/deadlock/best-shiv-deadlock-build-slicer-and-dicer",
     "https://beebom.com/deadlock-shiv-build-guide/",
     "https://mobalytics.gg/deadlock/shiv-guide"
-   ]
+   ],
+   "replay": {
+    "matches": 59,
+    "fights": 1438,
+    "abilities": {
+     "Serrated Knives": {
+      "cast_share": 0.926,
+      "first_share": 0.763,
+      "pre_share": 0.344,
+      "median_first_cast_s": 0.28,
+      "ult_after_share": 0.88
+     },
+     "Slice and Dice": {
+      "cast_share": 0.795,
+      "first_share": 0.154,
+      "pre_share": 0.063,
+      "median_first_cast_s": 3.53,
+      "ult_after_share": 0.828
+     },
+     "Bloodletting": {
+      "cast_share": 0.476,
+      "first_share": 0.04,
+      "pre_share": 0.003,
+      "median_first_cast_s": 9.73,
+      "ult_after_share": 0.284
+     },
+     "Killing Blow": {
+      "cast_share": 0.284,
+      "first_share": 0.018,
+      "pre_share": 0.007,
+      "median_first_cast_s": 10.15,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Serrated Knives",
+       "Slice and Dice"
+      ],
+      0.209
+     ],
+     [
+      [
+       "Serrated Knives",
+       "Slice and Dice",
+       "Bloodletting"
+      ],
+      0.204
+     ],
+     [
+      [
+       "Serrated Knives"
+      ],
+      0.124
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.52,
+    "replay_order": 0.531
+   }
   },
   "20": {
    "name": "Ivy",
    "order": [
     "citadel_ability_tengu_urn",
+    "citadel_ability_tengu_airlift",
+    "citadel_ability_tengu_stone_form",
     "citadel_ability_tangotether"
    ],
    "ult_after": [],
@@ -705,10 +1736,6 @@
     "citadel_ability_tangotether"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.939,
-    "guide": 0.965
-   },
    "engage": null,
    "engage_share": 0.11,
    "start_distance_m": null,
@@ -730,16 +1757,79 @@
     "https://games.gg/deadlock/guides/deadlock-ivy-guide/",
     "https://deadlock.wiki/Stone_Form",
     "https://deadlock.wiki/Air_Drop"
-   ]
+   ],
+   "replay": {
+    "matches": 33,
+    "fights": 809,
+    "abilities": {
+     "Entangling Thorns": {
+      "cast_share": 0.729,
+      "first_share": 0.413,
+      "pre_share": 0.214,
+      "median_first_cast_s": 2.5,
+      "ult_after_share": 0.403
+     },
+     "Kudzu Connection": {
+      "cast_share": 0.282,
+      "first_share": 0.07,
+      "pre_share": 0.036,
+      "median_first_cast_s": 4.66,
+      "ult_after_share": 0.11
+     },
+     "Stone Form": {
+      "cast_share": 0.7,
+      "first_share": 0.215,
+      "pre_share": 0.069,
+      "median_first_cast_s": 3.84,
+      "ult_after_share": 0.235
+     },
+     "Air Drop": {
+      "cast_share": 0.447,
+      "first_share": 0.226,
+      "pre_share": 0.057,
+      "median_first_cast_s": 0.65,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Entangling Thorns",
+       "Stone Form"
+      ],
+      0.13
+     ],
+     [
+      [
+       "Entangling Thorns"
+      ],
+      0.072
+     ],
+     [
+      [
+       "Stone Form",
+       "Entangling Thorns"
+      ],
+      0.069
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.939,
+    "replay_order": 0.972
+   }
   },
   "25": {
    "name": "Warden",
    "order": [
     "ability_warden_crowd_control",
     "ability_warden_lock_down",
+    "ability_warden_high_alert",
     "ability_warden_riot_protocol"
    ],
    "ult_after": [
+    "ability_warden_crowd_control",
+    "ability_warden_high_alert",
     "ability_warden_lock_down"
    ],
    "prefight": null,
@@ -751,10 +1841,6 @@
    "guide_ult_after": [
     "ability_warden_lock_down"
    ],
-   "fit_error": {
-    "slot_order": 1.371,
-    "guide": 1.386
-   },
    "engage": null,
    "engage_share": 0.0,
    "start_distance_m": null,
@@ -772,7 +1858,69 @@
     "https://criticalhits.com.br/dicas/deadlock-guia-de-build-para-warden/",
     "https://beebom.com/deadlock-warden-build-guide/",
     "https://www.dexerto.com/wikis/deadlock/warden/"
-   ]
+   ],
+   "replay": {
+    "matches": 10,
+    "fights": 235,
+    "abilities": {
+     "Alchemical Flask": {
+      "cast_share": 0.911,
+      "first_share": 0.591,
+      "pre_share": 0.264,
+      "median_first_cast_s": 0.56,
+      "ult_after_share": 0.852
+     },
+     "Willpower": {
+      "cast_share": 0.66,
+      "first_share": 0.187,
+      "pre_share": 0.089,
+      "median_first_cast_s": 2.86,
+      "ult_after_share": 0.721
+     },
+     "Binding Word": {
+      "cast_share": 0.723,
+      "first_share": 0.132,
+      "pre_share": 0.068,
+      "median_first_cast_s": 1.72,
+      "ult_after_share": 0.754
+     },
+     "Last Stand": {
+      "cast_share": 0.26,
+      "first_share": 0.026,
+      "pre_share": 0.017,
+      "median_first_cast_s": 10.77,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Alchemical Flask",
+       "Binding Word",
+       "Willpower"
+      ],
+      0.209
+     ],
+     [
+      [
+       "Alchemical Flask"
+      ],
+      0.132
+     ],
+     [
+      [
+       "Willpower",
+       "Alchemical Flask",
+       "Binding Word"
+      ],
+      0.098
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 1.371,
+    "replay_order": 1.386
+   }
   },
   "27": {
    "name": "Yamato",
@@ -786,10 +1934,6 @@
     "citadel_ability_infinity_slash"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.835,
-    "guide": 0.914
-   },
    "engage": "citadel_ability_flying_strike",
    "engage_share": 0.0,
    "start_distance_m": null,
@@ -808,18 +1952,89 @@
     "https://www.dexerto.com/wikis/deadlock/yamato/",
     "https://destructoid.com/?p=590672"
    ],
-   "dropped": "guide combo fits the real damage mix worse than slot order (mean |log landing| 0.83 -> 0.91), so the sim keeps slot order"
+   "replay": {
+    "matches": 60,
+    "fights": 1515,
+    "abilities": {
+     "Power Slash": {
+      "cast_share": 0.604,
+      "first_share": 0.158,
+      "pre_share": 0.036,
+      "median_first_cast_s": 4.48,
+      "ult_after_share": 0.595
+     },
+     "Flying Slash": {
+      "cast_share": 0.736,
+      "first_share": 0.457,
+      "pre_share": 0.304,
+      "median_first_cast_s": 0.44,
+      "ult_after_share": 0.8
+     },
+     "Crimson Slash": {
+      "cast_share": 0.849,
+      "first_share": 0.314,
+      "pre_share": 0.033,
+      "median_first_cast_s": 2.05,
+      "ult_after_share": 0.833
+     },
+     "Shadow Transformation": {
+      "cast_share": 0.261,
+      "first_share": 0.017,
+      "pre_share": 0.009,
+      "median_first_cast_s": 8.95,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Flying Slash",
+       "Crimson Slash",
+       "Power Slash"
+      ],
+      0.212
+     ],
+     [
+      [
+       "Crimson Slash"
+      ],
+      0.1
+     ],
+     [
+      [
+       "Flying Slash",
+       "Crimson Slash"
+      ],
+      0.099
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.835,
+    "replay_order": 0.96
+   },
+   "replay_order": [
+    "citadel_ability_flying_strike",
+    "citadel_ability_healing_slash",
+    "citadel_ability_power_slash",
+    "citadel_ability_infinity_slash"
+   ],
+   "replay_ult_after": [
+    "citadel_ability_flying_strike",
+    "citadel_ability_healing_slash"
+   ],
+   "dropped": "the replay combo fits the real damage mix worse than slot order in the sim (mean |log landing| 0.83 -> 0.96), which points at a gap in this hero's ability model; slot order kept"
   },
   "31": {
    "name": "Lash",
    "order": [
+    "citadel_ability_lash_ultimate",
     "citadel_ability_lash",
     "citadel_ability_lash_down_strike",
-    "ability_lash_flog",
-    "citadel_ability_lash_ultimate"
+    "ability_lash_flog"
    ],
    "ult_after": [
-    "citadel_ability_lash_down_strike"
+    "citadel_ability_lash"
    ],
    "prefight": null,
    "guide_order": [
@@ -831,10 +2046,6 @@
    "guide_ult_after": [
     "citadel_ability_lash_down_strike"
    ],
-   "fit_error": {
-    "slot_order": 0.328,
-    "guide": 0.325
-   },
    "engage": "citadel_ability_lash",
    "engage_share": 0.01,
    "start_distance_m": null,
@@ -852,16 +2063,83 @@
     "https://esports.gg/guides/deadlock/best-lash-deadlock-build-fly-and-fight",
     "https://www.dexerto.com/wikis/deadlock/lash/",
     "https://mobalytics.gg/deadlock/lash-guide"
-   ]
+   ],
+   "replay": {
+    "matches": 73,
+    "fights": 2100,
+    "abilities": {
+     "Ground Strike": {
+      "cast_share": 0.824,
+      "first_share": 0.334,
+      "pre_share": 0.27,
+      "median_first_cast_s": 0.06,
+      "ult_after_share": 0.36
+     },
+     "Grapple": {
+      "cast_share": 0.634,
+      "first_share": 0.288,
+      "pre_share": 0.213,
+      "median_first_cast_s": 1.62,
+      "ult_after_share": 0.616
+     },
+     "Flog": {
+      "cast_share": 0.849,
+      "first_share": 0.264,
+      "pre_share": 0.04,
+      "median_first_cast_s": 1.0,
+      "ult_after_share": 0.452
+     },
+     "Death Slam": {
+      "cast_share": 0.243,
+      "first_share": 0.071,
+      "pre_share": 0.063,
+      "median_first_cast_s": 1.28,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Grapple",
+       "Ground Strike",
+       "Flog"
+      ],
+      0.126
+     ],
+     [
+      [
+       "Ground Strike",
+       "Flog",
+       "Grapple"
+      ],
+      0.123
+     ],
+     [
+      [
+       "Ground Strike",
+       "Flog"
+      ],
+      0.113
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.328,
+    "replay_order": 0.326
+   }
   },
   "35": {
    "name": "Viscous",
    "order": [
     "viscous_goo_grenade",
     "viscous_telepunch",
+    "viscous_restorative_goo",
     "viscous_goo_bowling_ball"
    ],
-   "ult_after": [],
+   "ult_after": [
+    "viscous_goo_grenade",
+    "viscous_telepunch"
+   ],
    "prefight": null,
    "guide_order": [
     "viscous_goo_grenade",
@@ -869,10 +2147,6 @@
     "viscous_goo_bowling_ball"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.615,
-    "guide": 0.618
-   },
    "engage": "viscous_goo_bowling_ball",
    "engage_share": 0.01,
    "start_distance_m": null,
@@ -890,12 +2164,79 @@
     "https://deadlockmod.com/guides/viscous-hero-guide-goo-bruiser",
     "https://www.dexerto.com/wikis/deadlock/viscous/",
     "https://mobalytics.gg/deadlock/viscous-guide"
-   ]
+   ],
+   "replay": {
+    "matches": 13,
+    "fights": 365,
+    "abilities": {
+     "Splatter": {
+      "cast_share": 0.896,
+      "first_share": 0.479,
+      "pre_share": 0.318,
+      "median_first_cast_s": 0.22,
+      "ult_after_share": 0.676
+     },
+     "The Cube": {
+      "cast_share": 0.395,
+      "first_share": 0.085,
+      "pre_share": 0.049,
+      "median_first_cast_s": 5.36,
+      "ult_after_share": 0.463
+     },
+     "Puddle Punch": {
+      "cast_share": 0.773,
+      "first_share": 0.362,
+      "pre_share": 0.236,
+      "median_first_cast_s": 0.52,
+      "ult_after_share": 0.657
+     },
+     "Goo Ball": {
+      "cast_share": 0.296,
+      "first_share": 0.044,
+      "pre_share": 0.027,
+      "median_first_cast_s": 6.1,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Splatter",
+       "Puddle Punch"
+      ],
+      0.156
+     ],
+     [
+      [
+       "Puddle Punch",
+       "Splatter"
+      ],
+      0.142
+     ],
+     [
+      [
+       "Splatter"
+      ],
+      0.14
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.615,
+    "replay_order": 0.635
+   }
   },
   "50": {
    "name": "Pocket",
-   "order": [],
-   "ult_after": [],
+   "order": [
+    "synth_barrage",
+    "synth_plasma_flux",
+    "synth_affliction",
+    "synth_pulse"
+   ],
+   "ult_after": [
+    "synth_barrage"
+   ],
    "prefight": null,
    "guide_order": [
     "synth_affliction",
@@ -904,10 +2245,6 @@
     "synth_pulse"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.359,
-    "guide": 0.42
-   },
    "engage": "synth_plasma_flux",
    "engage_share": 0.15,
    "start_distance_m": null,
@@ -930,12 +2267,75 @@
     "https://deadlocklabs.gg/builds/noct-s-shameless-pocket-build-672782/",
     "https://mobalytics.gg/deadlock/pocket-guide"
    ],
-   "dropped": "guide combo fits the real damage mix worse than slot order (mean |log landing| 0.36 -> 0.42), so the sim keeps slot order"
+   "replay": {
+    "matches": 33,
+    "fights": 855,
+    "abilities": {
+     "Barrage": {
+      "cast_share": 0.73,
+      "first_share": 0.53,
+      "pre_share": 0.385,
+      "median_first_cast_s": -0.19,
+      "ult_after_share": 0.665
+     },
+     "Flying Cloak": {
+      "cast_share": 0.875,
+      "first_share": 0.29,
+      "pre_share": 0.12,
+      "median_first_cast_s": 2.49,
+      "ult_after_share": 0.527
+     },
+     "Enchanter's Satchel": {
+      "cast_share": 0.816,
+      "first_share": 0.087,
+      "pre_share": 0.033,
+      "median_first_cast_s": 2.73,
+      "ult_after_share": 0.458
+     },
+     "Affliction": {
+      "cast_share": 0.304,
+      "first_share": 0.061,
+      "pre_share": 0.007,
+      "median_first_cast_s": 4.27,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Barrage",
+       "Flying Cloak",
+       "Enchanter's Satchel"
+      ],
+      0.308
+     ],
+     [
+      [
+       "Flying Cloak",
+       "Enchanter's Satchel"
+      ],
+      0.103
+     ],
+     [
+      [
+       "Flying Cloak",
+       "Enchanter's Satchel",
+       "Barrage"
+      ],
+      0.065
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.359,
+    "replay_order": 0.375
+   }
   },
   "52": {
    "name": "Mirage",
    "order": [
     "mirage_fire_beetles",
+    "mirage_teleport",
     "mirage_tornado",
     "mirage_sand_phantom"
    ],
@@ -947,10 +2347,6 @@
     "mirage_sand_phantom"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.919,
-    "guide": 0.919
-   },
    "engage": "mirage_fire_beetles",
    "engage_share": 0.04,
    "start_distance_m": null,
@@ -972,12 +2368,80 @@
     "https://tacter.com/deadlock/guides/deadlock-mirage-build-guide-ce0f24f7",
     "https://www.dexerto.com/wikis/deadlock/mirage/",
     "https://mobalytics.gg/deadlock/mirage-guide"
-   ]
+   ],
+   "replay": {
+    "matches": 14,
+    "fights": 346,
+    "abilities": {
+     "Fire Scarabs": {
+      "cast_share": 0.806,
+      "first_share": 0.564,
+      "pre_share": 0.127,
+      "median_first_cast_s": 2.2,
+      "ult_after_share": 0.415
+     },
+     "Dust Devil": {
+      "cast_share": 0.575,
+      "first_share": 0.098,
+      "pre_share": 0.014,
+      "median_first_cast_s": 8.52,
+      "ult_after_share": 0.34
+     },
+     "Djinn's Mark": {
+      "cast_share": 0.46,
+      "first_share": 0.147,
+      "pre_share": 0.023,
+      "median_first_cast_s": 9.66,
+      "ult_after_share": 0.283
+     },
+     "Traveler": {
+      "cast_share": 0.153,
+      "first_share": 0.084,
+      "pre_share": 0.069,
+      "median_first_cast_s": 4.16,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Fire Scarabs",
+       "Dust Devil"
+      ],
+      0.156
+     ],
+     [
+      [
+       "Fire Scarabs"
+      ],
+      0.147
+     ],
+     [
+      [
+       "Fire Scarabs",
+       "Dust Devil",
+       "Djinn's Mark"
+      ],
+      0.116
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.919,
+    "replay_order": 0.926
+   }
   },
   "58": {
    "name": "Vyper",
-   "order": [],
-   "ult_after": [],
+   "order": [
+    "ability_viper_snakedash",
+    "ability_viper_debuffdagger",
+    "ability_viper_venom",
+    "ability_viper_petrifybola"
+   ],
+   "ult_after": [
+    "ability_viper_debuffdagger"
+   ],
    "prefight": null,
    "guide_order": [
     "ability_viper_debuffdagger",
@@ -985,10 +2449,6 @@
     "ability_viper_petrifybola"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 1.298,
-    "guide": 1.346
-   },
    "engage": "ability_viper_snakedash",
    "engage_share": 0.0,
    "start_distance_m": null,
@@ -1007,7 +2467,67 @@
     "https://beebom.com/deadlock-vyper-build-guide/",
     "https://deadlock.wiki/Viper"
    ],
-   "dropped": "guide combo fits the real damage mix worse than slot order (mean |log landing| 1.30 -> 1.35), so the sim keeps slot order"
+   "replay": {
+    "matches": 21,
+    "fights": 471,
+    "abilities": {
+     "Screwjab Dagger": {
+      "cast_share": 0.839,
+      "first_share": 0.497,
+      "pre_share": 0.225,
+      "median_first_cast_s": 0.52,
+      "ult_after_share": 0.722
+     },
+     "Lethal Venom": {
+      "cast_share": 0.605,
+      "first_share": 0.096,
+      "pre_share": 0.03,
+      "median_first_cast_s": 3.34,
+      "ult_after_share": 0.506
+     },
+     "Slither": {
+      "cast_share": 0.584,
+      "first_share": 0.293,
+      "pre_share": 0.221,
+      "median_first_cast_s": 0.53,
+      "ult_after_share": 0.593
+     },
+     "Petrifying Bola": {
+      "cast_share": 0.344,
+      "first_share": 0.057,
+      "pre_share": 0.028,
+      "median_first_cast_s": 5.21,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Screwjab Dagger"
+      ],
+      0.117
+     ],
+     [
+      [
+       "Slither",
+       "Screwjab Dagger",
+       "Lethal Venom"
+      ],
+      0.115
+     ],
+     [
+      [
+       "Screwjab Dagger",
+       "Lethal Venom"
+      ],
+      0.11
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 1.298,
+    "replay_order": 1.326
+   }
   },
   "60": {
    "name": "Sinclair",
@@ -1020,10 +2540,6 @@
     "ability_magician_animalhexarea"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 1.864,
-    "guide": 1.972
-   },
    "engage": null,
    "engage_share": 0.08,
    "start_distance_m": null,
@@ -1042,14 +2558,84 @@
     "https://deadlock.wiki/Audience_Participation",
     "https://mobalytics.gg/deadlock/sinclair-guide"
    ],
-   "dropped": "guide combo fits the real damage mix worse than slot order (mean |log landing| 1.86 -> 1.97), so the sim keeps slot order"
+   "replay": {
+    "matches": 15,
+    "fights": 429,
+    "abilities": {
+     "Vexing Bolt": {
+      "cast_share": 0.786,
+      "first_share": 0.168,
+      "pre_share": 0.121,
+      "median_first_cast_s": 0.58,
+      "ult_after_share": 0.52
+     },
+     "Spectral Assistant": {
+      "cast_share": 0.807,
+      "first_share": 0.443,
+      "pre_share": 0.298,
+      "median_first_cast_s": 0.75,
+      "ult_after_share": 0.507
+     },
+     "Rabbit Hex": {
+      "cast_share": 0.634,
+      "first_share": 0.256,
+      "pre_share": 0.152,
+      "median_first_cast_s": 1.8,
+      "ult_after_share": 0.539
+     },
+     "Audience Participation": {
+      "cast_share": 0.354,
+      "first_share": 0.093,
+      "pre_share": 0.07,
+      "median_first_cast_s": 4.25,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Spectral Assistant",
+       "Vexing Bolt"
+      ],
+      0.145
+     ],
+     [
+      [
+       "Spectral Assistant",
+       "Vexing Bolt",
+       "Rabbit Hex"
+      ],
+      0.128
+     ],
+     [
+      [
+       "Rabbit Hex",
+       "Spectral Assistant",
+       "Vexing Bolt"
+      ],
+      0.096
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 1.864,
+    "replay_order": 1.973
+   },
+   "replay_order": [
+    "ability_magician_animalhexarea",
+    "ability_magician_cloneturret",
+    "ability_magician_magicbolt",
+    "ability_magician_copyult"
+   ],
+   "replay_ult_after": [],
+   "dropped": "the replay combo fits the real damage mix worse than slot order in the sim (mean |log landing| 1.86 -> 1.97), which points at a gap in this hero's ability model; slot order kept"
   },
   "63": {
    "name": "Mina",
    "order": [
-    "ability_vampirebat_lovebites",
     "ability_vampirebat_steallife",
-    "ability_vampirebat_batswarm"
+    "ability_vampirebat_batswarm",
+    "ability_vampirebat_batblink"
    ],
    "ult_after": [],
    "prefight": null,
@@ -1059,10 +2645,6 @@
     "ability_vampirebat_batswarm"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.632,
-    "guide": 0.626
-   },
    "engage": null,
    "engage_share": 0.1,
    "start_distance_m": null,
@@ -1080,13 +2662,75 @@
     "https://mobalytics.gg/deadlock/mina-guide",
     "https://www.dodge.gg/en-US/deadlock/news/mina-build-2026",
     "https://www.shacknews.com/article/145592/mina-abilities-deadlock"
-   ]
+   ],
+   "replay": {
+    "matches": 58,
+    "fights": 1612,
+    "abilities": {
+     "Rake": {
+      "cast_share": 0.779,
+      "first_share": 0.62,
+      "pre_share": 0.072,
+      "median_first_cast_s": 2.03,
+      "ult_after_share": 0.476
+     },
+     "Sanguine Retreat": {
+      "cast_share": 0.478,
+      "first_share": 0.13,
+      "pre_share": 0.027,
+      "median_first_cast_s": 5.41,
+      "ult_after_share": 0.3
+     },
+     "Love Bites": {
+      "cast_share": 0.0,
+      "first_share": 0.0,
+      "pre_share": 0.0,
+      "median_first_cast_s": null,
+      "ult_after_share": 0.0
+     },
+     "Nox Nostra": {
+      "cast_share": 0.285,
+      "first_share": 0.123,
+      "pre_share": 0.075,
+      "median_first_cast_s": 2.65,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Rake"
+      ],
+      0.306
+     ],
+     [
+      [
+       "Rake",
+       "Sanguine Retreat"
+      ],
+      0.188
+     ],
+     [
+      [
+       "Rake",
+       "Sanguine Retreat",
+       "Nox Nostra"
+      ],
+      0.05
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.632,
+    "replay_order": 0.622
+   }
   },
   "64": {
    "name": "Drifter",
    "order": [
     "drifter_shadow_mark",
-    "drifter_blood_blast"
+    "drifter_blood_blast",
+    "drifter_darkness"
    ],
    "ult_after": [],
    "prefight": null,
@@ -1095,10 +2739,6 @@
     "drifter_blood_blast"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.429,
-    "guide": 0.439
-   },
    "engage": "drifter_shadow_mark",
    "engage_share": 0.1,
    "start_distance_m": null,
@@ -1111,17 +2751,79 @@
     "https://www.dexerto.com/wikis/deadlock/drifter/",
     "https://www.dodge.gg/en-US/deadlock/news/drifter-build-2026",
     "https://deadlock.wiki/Stalker%27s_Mark"
-   ]
+   ],
+   "replay": {
+    "matches": 65,
+    "fights": 1826,
+    "abilities": {
+     "Rend": {
+      "cast_share": 0.882,
+      "first_share": 0.365,
+      "pre_share": 0.044,
+      "median_first_cast_s": 1.28,
+      "ult_after_share": 0.466
+     },
+     "Stalker's Mark": {
+      "cast_share": 0.802,
+      "first_share": 0.51,
+      "pre_share": 0.25,
+      "median_first_cast_s": 0.53,
+      "ult_after_share": 0.534
+     },
+     "Bloodscent": {
+      "cast_share": 0.0,
+      "first_share": 0.0,
+      "pre_share": 0.0,
+      "median_first_cast_s": null,
+      "ult_after_share": 0.0
+     },
+     "Eternal Night": {
+      "cast_share": 0.194,
+      "first_share": 0.083,
+      "pre_share": 0.07,
+      "median_first_cast_s": 4.1,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Stalker's Mark",
+       "Rend"
+      ],
+      0.373
+     ],
+     [
+      [
+       "Rend",
+       "Stalker's Mark"
+      ],
+      0.188
+     ],
+     [
+      [
+       "Rend"
+      ],
+      0.142
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.429,
+    "replay_order": 0.436
+   }
   },
   "65": {
    "name": "Venator",
    "order": [
-    "ability_priest_flashbang",
     "ability_priest_beartrap",
+    "ability_priest_flashbang",
     "ability_priest_knockback",
     "ability_priest_weaponswap"
    ],
-   "ult_after": [],
+   "ult_after": [
+    "ability_priest_flashbang"
+   ],
    "prefight": null,
    "guide_order": [
     "ability_priest_flashbang",
@@ -1130,10 +2832,6 @@
     "ability_priest_weaponswap"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.563,
-    "guide": 0.56
-   },
    "engage": null,
    "engage_share": 0.0,
    "start_distance_m": null,
@@ -1151,12 +2849,80 @@
     "https://www.dexerto.com/wikis/deadlock/venator-2/",
     "https://www.dodge.gg/en-US/deadlock/news/venator-build-2026",
     "https://games.gg/deadlock/guides/deadlock-venator-build-guide/"
-   ]
+   ],
+   "replay": {
+    "matches": 60,
+    "fights": 1434,
+    "abilities": {
+     "Consecrating Grenade": {
+      "cast_share": 0.768,
+      "first_share": 0.357,
+      "pre_share": 0.136,
+      "median_first_cast_s": 2.0,
+      "ult_after_share": 0.706
+     },
+     "Gutshot": {
+      "cast_share": 0.729,
+      "first_share": 0.289,
+      "pre_share": 0.018,
+      "median_first_cast_s": 4.03,
+      "ult_after_share": 0.554
+     },
+     "Hex-Lined Snap Trap": {
+      "cast_share": 0.544,
+      "first_share": 0.252,
+      "pre_share": 0.149,
+      "median_first_cast_s": 3.47,
+      "ult_after_share": 0.456
+     },
+     "Ira Domini": {
+      "cast_share": 0.271,
+      "first_share": 0.046,
+      "pre_share": 0.032,
+      "median_first_cast_s": 5.75,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Gutshot",
+       "Consecrating Grenade"
+      ],
+      0.083
+     ],
+     [
+      [
+       "Gutshot"
+      ],
+      0.075
+     ],
+     [
+      [
+       "Consecrating Grenade"
+      ],
+      0.073
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.563,
+    "replay_order": 0.559
+   }
   },
   "66": {
    "name": "Victor",
-   "order": [],
-   "ult_after": [],
+   "order": [
+    "ability_frank_shocktarget2",
+    "ability_frank_selfzap",
+    "ability_frank_painaura",
+    "ability_frank_revive"
+   ],
+   "ult_after": [
+    "ability_frank_shocktarget2",
+    "ability_frank_selfzap",
+    "ability_frank_painaura"
+   ],
    "prefight": null,
    "guide_order": [
     "ability_frank_painaura",
@@ -1164,10 +2930,6 @@
     "ability_frank_shocktarget2"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.662,
-    "guide": 0.693
-   },
    "engage": "ability_frank_selfzap",
    "engage_share": 0.01,
    "start_distance_m": null,
@@ -1186,25 +2948,86 @@
     "https://www.allgreatquotes.com/news/deadlock-victor-guide.html",
     "https://deadlock.wiki/Shocking_Reanimation"
    ],
-   "dropped": "guide combo fits the real damage mix worse than slot order (mean |log landing| 0.66 -> 0.69), so the sim keeps slot order"
+   "replay": {
+    "matches": 32,
+    "fights": 720,
+    "abilities": {
+     "Pain Battery": {
+      "cast_share": 0.861,
+      "first_share": 0.562,
+      "pre_share": 0.099,
+      "median_first_cast_s": 2.5,
+      "ult_after_share": 0.845
+     },
+     "Jumpstart": {
+      "cast_share": 0.711,
+      "first_share": 0.237,
+      "pre_share": 0.075,
+      "median_first_cast_s": 3.58,
+      "ult_after_share": 0.729
+     },
+     "Aura of Suffering": {
+      "cast_share": 0.59,
+      "first_share": 0.135,
+      "pre_share": 0.047,
+      "median_first_cast_s": 6.33,
+      "ult_after_share": 0.929
+     },
+     "Shocking Reanimation": {
+      "cast_share": 0.215,
+      "first_share": 0.007,
+      "pre_share": 0.004,
+      "median_first_cast_s": 12.83,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Pain Battery",
+       "Jumpstart",
+       "Aura of Suffering"
+      ],
+      0.19
+     ],
+     [
+      [
+       "Pain Battery"
+      ],
+      0.133
+     ],
+     [
+      [
+       "Pain Battery",
+       "Jumpstart"
+      ],
+      0.107
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.662,
+    "replay_order": 0.697
+   }
   },
   "67": {
    "name": "Paige",
    "order": [
     "ability_bookworm_aoemagic",
-    "ability_bookworm_dragonfire"
+    "ability_bookworm_dragonfire",
+    "ability_bookworm_knightbarrier",
+    "ability_bookworm_knightcharge"
    ],
-   "ult_after": [],
+   "ult_after": [
+    "ability_bookworm_dragonfire",
+    "ability_bookworm_aoemagic"
+   ],
    "prefight": null,
    "guide_order": [
     "ability_bookworm_aoemagic",
     "ability_bookworm_dragonfire"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.274,
-    "guide": 0.272
-   },
    "engage": null,
    "engage_share": 0.0,
    "start_distance_m": null,
@@ -1222,12 +3045,82 @@
     "https://mobalytics.gg/deadlock/builds/rina-spirit-paige",
     "https://games.gg/deadlock/guides/deadlock-paige-hero-guide/",
     "https://deadlock.wiki/Bookworm"
-   ]
+   ],
+   "replay": {
+    "matches": 55,
+    "fights": 1400,
+    "abilities": {
+     "Bookwyrm": {
+      "cast_share": 0.756,
+      "first_share": 0.236,
+      "pre_share": 0.184,
+      "median_first_cast_s": 0.25,
+      "ult_after_share": 0.648
+     },
+     "Plot Armor": {
+      "cast_share": 0.662,
+      "first_share": 0.256,
+      "pre_share": 0.136,
+      "median_first_cast_s": 2.03,
+      "ult_after_share": 0.506
+     },
+     "Captivating Read": {
+      "cast_share": 0.805,
+      "first_share": 0.399,
+      "pre_share": 0.266,
+      "median_first_cast_s": 0.28,
+      "ult_after_share": 0.645
+     },
+     "Rallying Charge": {
+      "cast_share": 0.251,
+      "first_share": 0.055,
+      "pre_share": 0.043,
+      "median_first_cast_s": 3.74,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Captivating Read",
+       "Bookwyrm",
+       "Plot Armor"
+      ],
+      0.121
+     ],
+     [
+      [
+       "Plot Armor",
+       "Captivating Read",
+       "Bookwyrm"
+      ],
+      0.105
+     ],
+     [
+      [
+       "Captivating Read",
+       "Bookwyrm"
+      ],
+      0.101
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.274,
+    "replay_order": 0.305
+   }
   },
   "69": {
    "name": "The Doorman",
-   "order": [],
-   "ult_after": [],
+   "order": [
+    "ability_doorman_bomb",
+    "ability_doorman_hotel",
+    "ability_doorman_doorway",
+    "ability_doorman_luggage_cart"
+   ],
+   "ult_after": [
+    "ability_doorman_bomb"
+   ],
    "prefight": null,
    "guide_order": [
     "ability_doorman_luggage_cart",
@@ -1235,10 +3128,6 @@
     "ability_doorman_hotel"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.554,
-    "guide": 0.607
-   },
    "engage": null,
    "engage_share": 0.01,
    "start_distance_m": null,
@@ -1257,20 +3146,76 @@
     "https://deadlock.wiki/Call_Bell",
     "https://www.exitlag.com/blog/doorman-deadlock/"
    ],
-   "dropped": "guide combo fits the real damage mix worse than slot order (mean |log landing| 0.55 -> 0.61), so the sim keeps slot order"
+   "replay": {
+    "matches": 22,
+    "fights": 642,
+    "abilities": {
+     "Call Bell": {
+      "cast_share": 0.894,
+      "first_share": 0.682,
+      "pre_share": 0.383,
+      "median_first_cast_s": 0.11,
+      "ult_after_share": 0.664
+     },
+     "Doorway": {
+      "cast_share": 0.332,
+      "first_share": 0.101,
+      "pre_share": 0.075,
+      "median_first_cast_s": 4.0,
+      "ult_after_share": 0.257
+     },
+     "Luggage Cart": {
+      "cast_share": 0.551,
+      "first_share": 0.111,
+      "pre_share": 0.044,
+      "median_first_cast_s": 4.33,
+      "ult_after_share": 0.395
+     },
+     "Hotel Guest": {
+      "cast_share": 0.237,
+      "first_share": 0.062,
+      "pre_share": 0.033,
+      "median_first_cast_s": 4.7,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Call Bell"
+      ],
+      0.313
+     ],
+     [
+      [
+       "Call Bell",
+       "Luggage Cart"
+      ],
+      0.143
+     ],
+     [
+      [
+       "Luggage Cart",
+       "Call Bell"
+      ],
+      0.047
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.554,
+    "replay_order": 0.527
+   }
   },
   "72": {
    "name": "Billy",
    "order": [
     "ability_punkgoat_goatflip",
     "ability_punkgoat_ult",
-    "ability_punkgoat_blasted",
-    "ability_punkgoat_tether"
+    "ability_punkgoat_tether",
+    "ability_punkgoat_blasted"
    ],
-   "ult_after": [
-    "ability_punkgoat_ult",
-    "ability_punkgoat_goatflip"
-   ],
+   "ult_after": [],
    "prefight": null,
    "guide_order": [
     "ability_punkgoat_goatflip",
@@ -1282,10 +3227,6 @@
     "ability_punkgoat_ult",
     "ability_punkgoat_goatflip"
    ],
-   "fit_error": {
-    "slot_order": 0.814,
-    "guide": 0.834
-   },
    "engage": "ability_punkgoat_goatflip",
    "engage_share": 0.0,
    "start_distance_m": null,
@@ -1298,14 +3239,74 @@
     "https://www.dodge.gg/en-US/deadlock/news/billy-build-2026",
     "https://games.gg/deadlock/guides/deadlock-billy-guide/",
     "https://deadlock.wiki/Chain_Gang"
-   ]
+   ],
+   "replay": {
+    "matches": 28,
+    "fights": 627,
+    "abilities": {
+     "Bashdown": {
+      "cast_share": 0.831,
+      "first_share": 0.362,
+      "pre_share": 0.054,
+      "median_first_cast_s": 1.78,
+      "ult_after_share": 0.567
+     },
+     "Rising Ram": {
+      "cast_share": 0.699,
+      "first_share": 0.399,
+      "pre_share": 0.174,
+      "median_first_cast_s": 2.21,
+      "ult_after_share": 0.582
+     },
+     "Blasted": {
+      "cast_share": 0.386,
+      "first_share": 0.056,
+      "pre_share": 0.021,
+      "median_first_cast_s": 15.31,
+      "ult_after_share": 0.095
+     },
+     "Chain Gang": {
+      "cast_share": 0.321,
+      "first_share": 0.091,
+      "pre_share": 0.059,
+      "median_first_cast_s": 3.97,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Rising Ram",
+       "Bashdown"
+      ],
+      0.158
+     ],
+     [
+      [
+       "Bashdown"
+      ],
+      0.1
+     ],
+     [
+      [
+       "Rising Ram",
+       "Bashdown",
+       "Chain Gang"
+      ],
+      0.088
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.814,
+    "replay_order": 0.84
+   }
   },
   "76": {
    "name": "Graves",
    "order": [
     "ability_necro_zombiewall",
     "ability_necro_hauntingskull",
-    "ability_necro_fear",
     "ability_necro_gravestone"
    ],
    "ult_after": [],
@@ -1317,10 +3318,6 @@
     "ability_necro_gravestone"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.0,
-    "guide": 0.0
-   },
    "engage": null,
    "engage_share": 0.01,
    "start_distance_m": null,
@@ -1338,16 +3335,80 @@
     "https://mobalytics.gg/deadlock/graves-guide",
     "https://www.dexerto.com/wikis/deadlock/graves/",
     "https://games.gg/deadlock/guides/deadlock-graves-guide/"
-   ]
+   ],
+   "replay": {
+    "matches": 24,
+    "fights": 578,
+    "abilities": {
+     "Jar of Dead": {
+      "cast_share": 0.768,
+      "first_share": 0.298,
+      "pre_share": 0.161,
+      "median_first_cast_s": 0.57,
+      "ult_after_share": 0.449
+     },
+     "Grasping Hands": {
+      "cast_share": 0.753,
+      "first_share": 0.495,
+      "pre_share": 0.31,
+      "median_first_cast_s": 0.3,
+      "ult_after_share": 0.565
+     },
+     "Essence Theft": {
+      "cast_share": 0.0,
+      "first_share": 0.0,
+      "pre_share": 0.0,
+      "median_first_cast_s": null,
+      "ult_after_share": 0.0
+     },
+     "Borrowed Decree": {
+      "cast_share": 0.254,
+      "first_share": 0.097,
+      "pre_share": 0.062,
+      "median_first_cast_s": 3.44,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Grasping Hands",
+       "Jar of Dead"
+      ],
+      0.301
+     ],
+     [
+      [
+       "Jar of Dead",
+       "Grasping Hands"
+      ],
+      0.144
+     ],
+     [
+      [
+       "Jar of Dead"
+      ],
+      0.114
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.0,
+    "replay_order": 0.0
+   }
   },
   "77": {
    "name": "Apollo",
    "order": [
+    "ability_fencer_throwblade",
     "ability_fencer_lunge",
-    "ability_fencer_ultimate",
-    "ability_fencer_throwblade"
+    "ability_fencer_riposte",
+    "ability_fencer_ultimate"
    ],
-   "ult_after": [],
+   "ult_after": [
+    "ability_fencer_throwblade",
+    "ability_fencer_lunge"
+   ],
    "prefight": null,
    "guide_order": [
     "ability_fencer_lunge",
@@ -1355,10 +3416,6 @@
     "ability_fencer_throwblade"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.679,
-    "guide": 0.672
-   },
    "engage": "ability_fencer_lunge",
    "engage_share": 0.0,
    "start_distance_m": null,
@@ -1380,17 +3437,82 @@
     "https://kami-labs.fr/deadlock/build-apollon-apollo/",
     "https://www.dodge.gg/en-US/deadlock/news/apollo-build-2026",
     "https://deadlock.wiki/Itani_Lo_Sahn"
-   ]
+   ],
+   "replay": {
+    "matches": 28,
+    "fights": 762,
+    "abilities": {
+     "Disengaging Sigil": {
+      "cast_share": 0.776,
+      "first_share": 0.37,
+      "pre_share": 0.063,
+      "median_first_cast_s": 3.11,
+      "ult_after_share": 0.709
+     },
+     "Riposte": {
+      "cast_share": 0.631,
+      "first_share": 0.228,
+      "pre_share": 0.063,
+      "median_first_cast_s": 4.16,
+      "ult_after_share": 0.566
+     },
+     "Flawless Advance": {
+      "cast_share": 0.702,
+      "first_share": 0.285,
+      "pre_share": 0.028,
+      "median_first_cast_s": 5.2,
+      "ult_after_share": 0.686
+     },
+     "Itani Lo Sahn": {
+      "cast_share": 0.23,
+      "first_share": 0.039,
+      "pre_share": 0.02,
+      "median_first_cast_s": 9.38,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Disengaging Sigil",
+       "Flawless Advance",
+       "Riposte"
+      ],
+      0.085
+     ],
+     [
+      [
+       "Disengaging Sigil"
+      ],
+      0.084
+     ],
+     [
+      [
+       "Riposte",
+       "Disengaging Sigil",
+       "Flawless Advance"
+      ],
+      0.076
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.679,
+    "replay_order": 0.69
+   }
   },
   "78": {
    "name": "Deadman Danny",
    "order": [
     "ability_deadpack_chargeblast",
-    "ability_deadpack_flamethrower",
     "ability_deadpack_rocketeer",
+    "ability_deadpack_flamethrower",
     "ability_deadpack_ultimate"
    ],
-   "ult_after": [],
+   "ult_after": [
+    "ability_deadpack_chargeblast",
+    "ability_deadpack_rocketeer"
+   ],
    "prefight": null,
    "guide_order": [
     "ability_deadpack_chargeblast",
@@ -1399,10 +3521,6 @@
     "ability_deadpack_ultimate"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.909,
-    "guide": 0.895
-   },
    "engage": "ability_deadpack_rocketeer",
    "engage_share": 0.0,
    "start_distance_m": null,
@@ -1415,16 +3533,81 @@
     "https://powerupgaming.co.uk/2026/10/14/deadlock-deadman-danny-guide-best-build-tips-abilities-and-more/",
     "https://gameriv.com/deadlock-new-hero-deadman-danny-abilities-explained/",
     "https://mobalytics.gg/deadlock/deadman-danny-guide"
-   ]
+   ],
+   "replay": {
+    "matches": 139,
+    "fights": 3719,
+    "abilities": {
+     "Strix Salvo": {
+      "cast_share": 0.803,
+      "first_share": 0.571,
+      "pre_share": 0.392,
+      "median_first_cast_s": -0.12,
+      "ult_after_share": 0.714
+     },
+     "Chimera Mk1": {
+      "cast_share": 0.569,
+      "first_share": 0.183,
+      "pre_share": 0.056,
+      "median_first_cast_s": 5.05,
+      "ult_after_share": 0.655
+     },
+     "Jettison Fuel": {
+      "cast_share": 0.649,
+      "first_share": 0.163,
+      "pre_share": 0.052,
+      "median_first_cast_s": 2.76,
+      "ult_after_share": 0.526
+     },
+     "Close The Deal": {
+      "cast_share": 0.259,
+      "first_share": 0.027,
+      "pre_share": 0.014,
+      "median_first_cast_s": 7.56,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Strix Salvo"
+      ],
+      0.131
+     ],
+     [
+      [
+       "Strix Salvo",
+       "Jettison Fuel"
+      ],
+      0.105
+     ],
+     [
+      [
+       "Strix Salvo",
+       "Jettison Fuel",
+       "Chimera Mk1"
+      ],
+      0.105
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.909,
+    "replay_order": 0.909
+   }
   },
   "79": {
    "name": "Rem",
    "order": [
     "ability_familiar_ability02",
-    "ability_familiar_ability01",
-    "ability_familiar_helpinghands"
+    "ability_familiar_helpinghands",
+    "ability_familiar_attach",
+    "ability_familiar_ability01"
    ],
-   "ult_after": [],
+   "ult_after": [
+    "ability_familiar_ability02",
+    "ability_familiar_attach"
+   ],
    "prefight": null,
    "guide_order": [
     "ability_familiar_ability02",
@@ -1432,10 +3615,6 @@
     "ability_familiar_helpinghands"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.697,
-    "guide": 0.69
-   },
    "engage": null,
    "engage_share": 0.16,
    "start_distance_m": null,
@@ -1453,17 +3632,85 @@
     "https://www.shacknews.com/article/147587/deadlock-rem-abilities-stats-how-to-play",
     "https://www.dodge.gg/en-US/deadlock/news/rem-build-2026",
     "https://deadlock.wiki/Naptime"
-   ]
+   ],
+   "replay": {
+    "matches": 27,
+    "fights": 674,
+    "abilities": {
+     "Pillow Toss": {
+      "cast_share": 0.822,
+      "first_share": 0.444,
+      "pre_share": 0.252,
+      "median_first_cast_s": 0.38,
+      "ult_after_share": 0.748
+     },
+     "Tag Along": {
+      "cast_share": 0.795,
+      "first_share": 0.205,
+      "pre_share": 0.147,
+      "median_first_cast_s": 0.16,
+      "ult_after_share": 0.82
+     },
+     "Lil Helpers": {
+      "cast_share": 0.389,
+      "first_share": 0.169,
+      "pre_share": 0.12,
+      "median_first_cast_s": 1.65,
+      "ult_after_share": 0.217
+     },
+     "Naptime": {
+      "cast_share": 0.677,
+      "first_share": 0.095,
+      "pre_share": 0.061,
+      "median_first_cast_s": 0.33,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Pillow Toss",
+       "Tag Along",
+       "Naptime"
+      ],
+      0.291
+     ],
+     [
+      [
+       "Tag Along",
+       "Pillow Toss",
+       "Naptime"
+      ],
+      0.088
+     ],
+     [
+      [
+       "Lil Helpers",
+       "Pillow Toss",
+       "Tag Along"
+      ],
+      0.065
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.697,
+    "replay_order": 0.719
+   }
   },
   "80": {
    "name": "Silver",
    "order": [
+    "ability_werewolf_netshot",
     "ability_werewolf_kickflip",
     "ability_werewolf_unloadgun",
-    "ability_werewolf_netshot",
     "ability_werewolf_transformation"
    ],
-   "ult_after": [],
+   "ult_after": [
+    "ability_werewolf_unloadgun",
+    "ability_werewolf_kickflip",
+    "ability_werewolf_netshot"
+   ],
    "prefight": null,
    "guide_order": [
     "ability_werewolf_kickflip",
@@ -1472,10 +3719,6 @@
     "ability_werewolf_transformation"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.148,
-    "guide": 0.143
-   },
    "engage": null,
    "engage_share": 0.03,
    "start_distance_m": null,
@@ -1493,12 +3736,85 @@
     "https://tracklock.gg/articles/deadlock-hero-spotlight-silver",
     "https://games.gg/deadlock/guides/deadlock-silver-guide/",
     "https://deadlock.wiki/Lycan_Curse"
-   ]
+   ],
+   "replay": {
+    "matches": 25,
+    "fights": 583,
+    "abilities": {
+     "Slam Fire": {
+      "cast_share": 0.801,
+      "first_share": 0.141,
+      "pre_share": 0.038,
+      "median_first_cast_s": 2.73,
+      "ult_after_share": 0.876
+     },
+     "Boot Kick": {
+      "cast_share": 0.808,
+      "first_share": 0.247,
+      "pre_share": 0.074,
+      "median_first_cast_s": 2.19,
+      "ult_after_share": 0.86
+     },
+     "Entangling Bola": {
+      "cast_share": 0.753,
+      "first_share": 0.532,
+      "pre_share": 0.225,
+      "median_first_cast_s": 0.84,
+      "ult_after_share": 0.881
+     },
+     "Lycan Curse": {
+      "cast_share": 0.331,
+      "first_share": 0.029,
+      "pre_share": 0.009,
+      "median_first_cast_s": 8.48,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Entangling Bola",
+       "Boot Kick",
+       "Slam Fire"
+      ],
+      0.292
+     ],
+     [
+      [
+       "Entangling Bola",
+       "Slam Fire",
+       "Boot Kick"
+      ],
+      0.127
+     ],
+     [
+      [
+       "Boot Kick",
+       "Entangling Bola",
+       "Slam Fire"
+      ],
+      0.098
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.148,
+    "replay_order": 0.146
+   }
   },
   "81": {
    "name": "Celeste",
-   "order": [],
-   "ult_after": [],
+   "order": [
+    "ability_unicorn_luminousstrike",
+    "ability_unicorn_radiantblast",
+    "ability_unicorn_prismaticguard",
+    "ability_unicorn_dazzlingorb"
+   ],
+   "ult_after": [
+    "ability_unicorn_radiantblast",
+    "ability_unicorn_prismaticguard",
+    "ability_unicorn_luminousstrike"
+   ],
    "prefight": null,
    "guide_order": [
     "ability_unicorn_radiantblast",
@@ -1506,10 +3822,6 @@
     "ability_unicorn_dazzlingorb"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.43,
-    "guide": 0.501
-   },
    "engage": null,
    "engage_share": 0.0,
    "start_distance_m": null,
@@ -1528,13 +3840,76 @@
     "https://deadlock.wiki/Dazzling_Trick",
     "https://deadlock.wiki/Shining_Wonder"
    ],
-   "dropped": "guide combo fits the real damage mix worse than slot order (mean |log landing| 0.43 -> 0.50), so the sim keeps slot order"
+   "replay": {
+    "matches": 32,
+    "fights": 752,
+    "abilities": {
+     "Light Eater": {
+      "cast_share": 0.867,
+      "first_share": 0.229,
+      "pre_share": 0.044,
+      "median_first_cast_s": 0.75,
+      "ult_after_share": 0.769
+     },
+     "Dazzling Trick": {
+      "cast_share": 0.657,
+      "first_share": 0.068,
+      "pre_share": 0.017,
+      "median_first_cast_s": 2.56,
+      "ult_after_share": 0.62
+     },
+     "Radiant Daggers": {
+      "cast_share": 0.878,
+      "first_share": 0.654,
+      "pre_share": 0.517,
+      "median_first_cast_s": -0.41,
+      "ult_after_share": 0.886
+     },
+     "Shining Wonder": {
+      "cast_share": 0.305,
+      "first_share": 0.021,
+      "pre_share": 0.011,
+      "median_first_cast_s": 7.02,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Radiant Daggers",
+       "Light Eater",
+       "Dazzling Trick"
+      ],
+      0.274
+     ],
+     [
+      [
+       "Radiant Daggers",
+       "Light Eater"
+      ],
+      0.13
+     ],
+     [
+      [
+       "Radiant Daggers",
+       "Dazzling Trick",
+       "Light Eater"
+      ],
+      0.074
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.43,
+    "replay_order": 0.437
+   }
   },
   "84": {
    "name": "Rat King",
    "order": [
     "ability_ratking_scrap_grenade",
     "ability_ratking_ratnibble",
+    "ability_ratking_ratarmor",
     "ability_ratking_standard_bearer"
    ],
    "ult_after": [],
@@ -1545,10 +3920,6 @@
     "ability_ratking_standard_bearer"
    ],
    "guide_ult_after": [],
-   "fit_error": {
-    "slot_order": 0.673,
-    "guide": 0.678
-   },
    "engage": null,
    "engage_share": 0.0,
    "start_distance_m": null,
@@ -1566,16 +3937,82 @@
     "https://finalboss.io/deadlock-how-to-play-rat-king-abilities-and-early-build-guide",
     "https://powerupgaming.co.uk/2026/10/08/deadlock-rat-king-guide-best-build-abilities-tips-and-more/",
     "https://www.positioniseverything.net/rat-king-abilities-and-beginner-guide-for-deadlock/"
-   ]
+   ],
+   "replay": {
+    "matches": 134,
+    "fights": 3290,
+    "abilities": {
+     "Scrap Grenade": {
+      "cast_share": 0.878,
+      "first_share": 0.483,
+      "pre_share": 0.308,
+      "median_first_cast_s": 0.9,
+      "ult_after_share": 0.588
+     },
+     "Rat Swarm": {
+      "cast_share": 0.781,
+      "first_share": 0.234,
+      "pre_share": 0.123,
+      "median_first_cast_s": 1.23,
+      "ult_after_share": 0.57
+     },
+     "Royal Pestments": {
+      "cast_share": 0.761,
+      "first_share": 0.182,
+      "pre_share": 0.059,
+      "median_first_cast_s": 2.38,
+      "ult_after_share": 0.541
+     },
+     "Rule, Ratannia!": {
+      "cast_share": 0.199,
+      "first_share": 0.058,
+      "pre_share": 0.041,
+      "median_first_cast_s": 5.55,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Scrap Grenade",
+       "Rat Swarm",
+       "Royal Pestments"
+      ],
+      0.193
+     ],
+     [
+      [
+       "Scrap Grenade",
+       "Royal Pestments",
+       "Rat Swarm"
+      ],
+      0.09
+     ],
+     [
+      [
+       "Rat Swarm",
+       "Scrap Grenade",
+       "Royal Pestments"
+      ],
+      0.089
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.673,
+    "replay_order": 0.663
+   }
   },
   "85": {
    "name": "Solomon",
    "order": [
-    "ability_chessmaster_throwbishop",
     "ability_chessmaster_forkpiece",
+    "ability_chessmaster_throwbishop",
+    "ability_chessmaster_knightbuff",
     "ability_chessmaster_queen"
    ],
    "ult_after": [
+    "ability_chessmaster_knightbuff",
     "ability_chessmaster_forkpiece"
    ],
    "prefight": null,
@@ -1587,10 +4024,6 @@
    "guide_ult_after": [
     "ability_chessmaster_forkpiece"
    ],
-   "fit_error": {
-    "slot_order": 0.84,
-    "guide": 0.834
-   },
    "engage": "ability_chessmaster_throwbishop",
    "engage_share": 0.01,
    "start_distance_m": null,
@@ -1612,7 +4045,68 @@
     "https://gameriv.com/deadlock-solomon-abilities-explained-bishops-knights-rooks-and-a-deadly-queen/",
     "https://games.gg/deadlock/guides/deadlock-solomon-guide/",
     "https://steamdb.com/en/deadlock/heroes/solomon"
-   ]
+   ],
+   "replay": {
+    "matches": 80,
+    "fights": 2019,
+    "abilities": {
+     "Setup Bishop": {
+      "cast_share": 0.549,
+      "first_share": 0.279,
+      "pre_share": 0.18,
+      "median_first_cast_s": 1.41,
+      "ult_after_share": 0.544
+     },
+     "Kingside Knight": {
+      "cast_share": 0.621,
+      "first_share": 0.278,
+      "pre_share": 0.108,
+      "median_first_cast_s": 3.77,
+      "ult_after_share": 0.657
+     },
+     "Rook Battery": {
+      "cast_share": 0.687,
+      "first_share": 0.309,
+      "pre_share": 0.128,
+      "median_first_cast_s": 1.97,
+      "ult_after_share": 0.699
+     },
+     "Develop Queen": {
+      "cast_share": 0.163,
+      "first_share": 0.023,
+      "pre_share": 0.009,
+      "median_first_cast_s": 12.27,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Rook Battery"
+      ],
+      0.087
+     ],
+     [
+      [
+       "Kingside Knight",
+       "Rook Battery"
+      ],
+      0.078
+     ],
+     [
+      [
+       "Setup Bishop",
+       "Rook Battery",
+       "Kingside Knight"
+      ],
+      0.071
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.84,
+    "replay_order": 0.842
+   }
   }
  }
 }
