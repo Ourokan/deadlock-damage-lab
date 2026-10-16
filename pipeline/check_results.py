@@ -1,7 +1,7 @@
 """Check a rerun tier is complete enough to publish: python3 pipeline/check_results.py --tier phantom [--min-share 0.95]
 
 Counts the tier's finished search jobs per step (pipeline/run_shard.py steps) against heroes x budgets (10 tank heroes for survival, one per hero for
-the buy order), lists the heroes the shards reported as failed, writes a table to $GITHUB_STEP_SUMMARY under GitHub Actions and exits 1 when any
+the buy and ability orders), lists the heroes the shards reported as failed, writes a table to $GITHUB_STEP_SUMMARY under GitHub Actions and exits 1 when any
 step has less than --min-share of its jobs, so the old results stay up rather than a site with holes.
 """
 import argparse
@@ -24,12 +24,13 @@ def main():
     a = ap.parse_args()
     with open(os.path.join(ROOT, "data", "game", "heroes.json")) as f:
         heroes = {h["id"]: h["name"] for h in json.load(f)}
-    # step -> (jobs dir, expected job files): one per hero x budget, except the buy order (one per hero)
+    # step -> (jobs dir, expected job files): one per hero x budget, except the buy and ability orders (one per hero)
     n = len(BUDGETS)
     t = a.tier
     dirs = {}
     if t == PRIMARY:
-        dirs = {"damage": ("damage/work/jobs", len(heroes) * n), "buy_order": ("damage/work/jobs_order", len(heroes))}
+        dirs = {"damage": ("damage/work/jobs", len(heroes) * n), "buy_order": ("damage/work/jobs_order", len(heroes)),
+                "skill_order": ("damage/work/jobs_skill", len(heroes))}
     dirs[f"duel_{t}"] = ("search/work/jobs" + suffix(t), len(heroes) * n)
     if t == PRIMARY:
         dirs["survival"] = ("survival/work/jobs", N_TANKS * n)

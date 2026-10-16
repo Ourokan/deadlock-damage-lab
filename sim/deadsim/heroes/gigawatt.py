@@ -9,22 +9,27 @@ Assumptions:
 - Storm Cloud: Seven can't shoot while channeling; target is damaged every DamageInterval while inside the
   expanding radius (line of sight assumed). A stun on Seven ends the channel. One lightning strike
   (LightningStrikes) lands on the target at the start. Cast only when the target is above 20% and the cloud's
-  DPS beats Seven's expected gun DPS (incl. Power Surge), since he can't shoot while channeling.
+  DPS beats Seven's expected gun DPS (incl. Power Surge), both at their real landing rates, since he can't shoot
+  while channeling. Not recast while
+  channeling (a Refresher reset mid-channel would otherwise stack two clouds).
 """
 from deadsim.abilities import AbilityImpl, register
 
 BALL_CONTACT_FRAC = 0.5
 def gun_dps(c):
-    """Sustained expected gun DPS (no reload), incl. an active Power Surge proc per trigger pull."""
+    """Sustained expected gun DPS (no reload), incl. an active Power Surge proc per trigger pull that hits, scaled by
+    its real landing rate like the engine scales its damage."""
     f = c.me
     st = f.st
     per, crit = c.engine.bullet_damage(f)
-    pulls = (1.0 + f.fire_rate()) / st.cycle_time
+    pulls = 1.0 / st.shot_interval(f.fire_rate())   # a burst is one pull
     acc = f.skill.accuracy
     dps = per * st.pellets * st.burst_count * pulls * acc * (1 + f.skill.headshot * (crit - 1))
     for ab in f.abilities:
         if ab.ab.class_name == "ability_power_surge" and c.now < ab.scratch.get("until", -1):
-            dps += ab.ctx.val("DamagePerChain") * pulls * min(1.0, acc * st.burst_count)
+            hit = 1.0 - (1.0 - acc) ** (st.pellets * st.burst_count)
+            procs = min(pulls * hit, 1.0 / max(0.05, ab.ctx.raw("ChainTickRate", 0.2)))
+            dps += ab.ctx.val("DamagePerChain") * procs * f.skill.ability_landing.get(ab.ab.name, 1.0)
     return dps
 
 
@@ -84,7 +89,10 @@ class StormCloud(AbilityImpl):
 
     def should_cast(self, c):
         """Only worth giving up the gun when the cloud out-damages it (both before resists)."""
-        return self.in_range(c) and c.foe.hp_frac > 0.2 and c.val("DPS") >= gun_dps(c)
+        if c.now < c.state.get("end", -1):   # still channeling (a Refresher reset doesn't stack a second cloud)
+            return False
+        landing = c.me.skill.ability_landing.get(self.s.ab.name, 1.0)
+        return self.in_range(c) and c.foe.hp_frac > 0.2 and c.val("DPS") * landing >= gun_dps(c)
 
     def cast(self, c):
         chan = c.dur("AbilityChannelTime")
@@ -97,12 +105,12 @@ class StormCloud(AbilityImpl):
             c.buff("bullet_resist", c.raw("BulletResistOnActive") / 100, chan, tag=st["res_tag"])
         if c.raw("LightningStrikes"):
             c.spirit_hit(c.val("LightningStrikeDamage"), delay=c.raw("LightningStrikeDelay"), name="Storm Cloud")
-        c.after(c.raw("DamageInterval", 0.3), self.tick, c)
+        c.after(c.raw("DamageInterval", 0.3), self.tick, c, st["start"])
 
-    def tick(self, c):
+    def tick(self, c, start):
         st = c.state
         me, foe = c.me, c.foe
-        if not me.alive or not foe.alive or c.now > st["end"] + 1e-9:
+        if not me.alive or not foe.alive or c.now > st["end"] + 1e-9 or st["start"] != start:
             return
         if me.mods.active("stun"):          # channel broken
             me.gun_locked_until = c.now
@@ -115,4 +123,4 @@ class StormCloud(AbilityImpl):
         if c.dist <= r0 + (r1 - r0) * grow:
             c.engine.damage(me, foe, c.val("DPS") * dt, "spirit", self.s.ab.name, is_ability=True,
                             ability=self.s, is_dot=True, is_ult=True)
-        c.after(dt, self.tick, c)
+        c.after(dt, self.tick, c, start)

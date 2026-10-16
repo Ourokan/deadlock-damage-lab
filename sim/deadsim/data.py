@@ -83,6 +83,7 @@ class Hero:
     invest: dict               # slot -> [(threshold, bonus)]
     weapon: dict               # weapon_info of primary gun
     abilities: list = field(default_factory=list)  # [Ability] in slot order
+    level_bonus: list = field(default_factory=list)  # per level 1..N: "unlock" (an ability unlock), "point" (an ability point) or None
 
 
 @lru_cache(maxsize=1)
@@ -174,6 +175,9 @@ class Game:
                    for slot, rows in h["souls_invested_bonuses"].items()}
             hero = Hero(h["id"], h["name"], h["class_name"], h["starting_stats"], h["level_up_per_boon"],
                         [g for _, g in lv], inv, weapons.get(h["id"], {}))
+            for k, _ in lv:
+                cur = h["level_info"][str(k)].get("bonus_currencies") or []
+                hero.level_bonus.append("unlock" if "EAbilityUnlocks" in cur else "point" if "EAbilityPoints" in cur else None)
             for slot in ("signature1", "signature2", "signature3", "signature4"):
                 ref = h["abilities"].get(slot)
                 if ref and ref["id"] in abil:

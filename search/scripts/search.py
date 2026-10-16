@@ -24,7 +24,9 @@ Search (deterministic, the sim has no randomness):
   measured values; evaluate the best proposals on S, the best few on F; move to the best F improvement.
   Everything evaluated on F goes to an archive; the top builds are re-checked on F2.
 
-Constraints: <= 12 items, total cost <= item budget, no duplicates, never an item together with its own component.
+Constraints: <= 12 items, total cost <= item budget, no duplicates, never an item together with its own component,
+and no more expensive items than real players of the bracket hold at that budget (build_pool.TIER_STEPS: at 18k
+Phantom+, no 6400-soul item and at most three costing 3200 or more).
 
 usage: python3 scripts/search.py [--bracket all|low|phantom|ascendant|eternus|eternus5] [--workers 4] [--heroes "Haze,Abrams"] [--budgets 18000,37000]
 Results: work/jobs/<hero_id>_<budget>.json (one per job; existing ones are skipped, so it resumes).
@@ -48,7 +50,7 @@ from deadsim import Loadout, duel, game, compute_stats  # noqa: E402
 from deadsim.abilities import load_heroes  # noqa: E402
 from deadsim.accuracy import default_distance, hero_default_skill  # noqa: E402
 from deadsim.items_fx import MODELED  # noqa: E402
-from build_pool import BUDGETS, BRACKETS, item_budget, suffix  # noqa: E402
+from build_pool import BUDGETS, BRACKETS, caps_for_limit, item_budget, suffix  # noqa: E402
 
 MAX_TIME = 30.0
 MAX_ITEMS = 12
@@ -202,6 +204,9 @@ def valid(items, limit):
         return False
     if sum(g.items[i].cost for i in items) > limit:
         return False
+    caps = caps_for_limit(limit, BRACKET)
+    if caps and any(sum(1 for i in items if g.items[i].cost >= t) > c for t, c in caps.items()):
+        return False
     s = set(items)
     for i in items:
         if component_ids(g.items[i]) & s:
@@ -213,6 +218,7 @@ def candidates(limit, usage):
     """Items the search may use: tiers 1-4 with a modeled effect or always-on stats; tier 5 only if real players
     buy them at this budget."""
     g = G()
+    caps = caps_for_limit(limit, BRACKET)
     out = []
     for it in g.items.values():
         if it.cost <= 0 or it.cost > limit or it.class_name in EXCLUDE:
@@ -220,6 +226,8 @@ def candidates(limit, usage):
         if not (it.class_name in MODELED or it.innate):
             continue
         if it.tier == 5 and sum(c.get(str(it.id), 0) for c in usage.values()) < 50:
+            continue
+        if caps and any(c == 0 and it.cost >= t for t, c in caps.items()):   # the bracket's players rarely hold one yet
             continue
         out.append(it.id)
     return out

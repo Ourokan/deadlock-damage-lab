@@ -2,7 +2,7 @@
 
 run(json_str) takes the page's form as JSON and returns damage_test()'s result plus the settings actually used:
     {"hero": "Haze", "items": [ids or names], "souls": 27000, "aim": "p50", "accuracy": null, "headshot": null,
-     "distance": null, "dummy": {"hero": "Abrams", "items": [...], "souls": null, "hp": null,
+     "distance": null, "ability_order": null, "dummy": {"hero": "Abrams", "items": [...], "souls": null, "hp": null,
      "bullet_resist": null, "spirit_resist": null, "melee_resist": null, "immortal": true}}
 """
 import json
@@ -33,7 +33,8 @@ def _setup(q):
         souls=dq.get("souls"), hp=dq.get("hp"),
         bullet_resist=dq.get("bullet_resist"), spirit_resist=dq.get("spirit_resist"),
         melee_resist=dq.get("melee_resist"), immortal=bool(dq.get("immortal", True)))
-    kw = dict(souls=q.get("souls"), dummy=dummy, skill=skill, distance=q.get("distance"))
+    kw = dict(souls=q.get("souls"), dummy=dummy, skill=skill, distance=q.get("distance"),
+              ability_order=[int(x) for x in q.get("ability_order") or []] or None)
     return hero, items, kw
 
 

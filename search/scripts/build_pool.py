@@ -5,8 +5,9 @@ items the player held at the last purchase moment where the held item cost was s
 (players hold ~80-89% of net worth in items; calibrated on validation/matches_sample.jsonl.gz, which has real
 net worth over time). Rows whose final net worth never reached B are skipped for that budget.
 
-Writes work/snapshots_<B>.json: {hero_id: [[item_ids, won, badge], ...]} (reservoir sample, up to CAP per hero)
-and work/item_usage.json (how often each item appears per hero per budget).
+Writes work/snapshots_<B>.json: {hero_id: [[item_ids, won, badge], ...]} (reservoir sample, up to CAP per hero),
+work/item_usage.json (how often each item appears per hero per budget) and work/tier_caps.json (how many expensive
+items the bracket's players hold at each budget, the cap every search puts on its builds, see TIER_STEPS).
 
 usage: python3 scripts/build_pool.py [bracket]   (see BRACKETS)
 """
@@ -45,6 +46,18 @@ BRACKETS = {
 PRIMARY = "phantom"
 
 
+# Builds the searches may pick hold no more expensive items than real players of the bracket do at that net worth
+# (Tyler, 2026-10-16: a 6400-soul item at 18k net worth is out of reach). For each step T, a build may hold at most
+# as many items costing >= T as TIER_CAP_Q of the bracket's players hold at that budget. A souls budget alone let the
+# searches put most of it into one or two tier 4 items: at 18k, 87% of the best damage builds held a 6400-soul item
+# against 9% of Phantom+ players.
+TIER_STEPS = (6400, 3200)
+TIER_CAP_Q = 0.9
+# Phantom+ caps (patch 09-29-2026), used when work/tier_caps*.json hasn't been built
+DEFAULT_TIER_CAPS = {10000: {6400: 0, 3200: 1}, 18000: {6400: 0, 3200: 3}, 27000: {6400: 1, 3200: 5},
+                     37000: {6400: 3, 3200: 7}, 50000: {6400: 4, 3200: 9}}
+
+
 def suffix(bracket):
     return "" if bracket in (None, "all") else "_" + bracket
 
@@ -62,6 +75,52 @@ def item_share(b):
 
 def item_budget(b):
     return int(round(item_share(b) * b / 50) * 50)
+
+
+def tier_counts(items, cost):
+    """{step: number of items costing >= step} (cost: item id -> souls)."""
+    return {t: sum(1 for i in items if cost.get(i, 0) >= t) for t in TIER_STEPS}
+
+
+def quantile_cap(counter, q=TIER_CAP_Q):
+    """Smallest count that at least q of the rows hold no more than ({count: rows})."""
+    n, run = sum(counter.values()), 0
+    for c in sorted(counter):
+        run += counter[c]
+        if run >= q * n:
+            return c
+    return max(counter, default=0)
+
+
+_caps = {}
+
+
+def tier_caps(bracket=PRIMARY):
+    """{budget: {step: max items costing >= step}} for a bracket: work/tier_caps*.json from main(), else the
+    standard bracket's file, else DEFAULT_TIER_CAPS."""
+    if bracket not in _caps:
+        for b in (bracket, PRIMARY):
+            path = os.path.join(ROOT, "work", f"tier_caps{suffix(b)}.json")
+            if os.path.exists(path):
+                with open(path) as f:
+                    caps = json.load(f)["caps"]
+                _caps[bracket] = {int(b): {int(t): c for t, c in v.items()} for b, v in caps.items()}
+                break
+        else:
+            print(f"warning: no work/tier_caps*.json for {bracket}, using DEFAULT_TIER_CAPS (run build_pool.py)",
+                  file=sys.stderr)
+            _caps[bracket] = DEFAULT_TIER_CAPS
+    return _caps[bracket]
+
+
+def caps_for_limit(limit, bracket=PRIMARY):
+    """Tier caps for an item spend limit: those of the highest budget whose item budget fits in it (the lowest
+    budget's below that). None for an unlimited spend (>= 10**8)."""
+    if limit >= 10 ** 8:
+        return None
+    caps = tier_caps(bracket)
+    fit = [b for b in sorted(caps) if item_budget(b) <= limit]
+    return caps[fit[-1] if fit else min(caps)]
 
 
 def timeline(purchases, cost):
@@ -107,6 +166,7 @@ def main():
     res = {b: defaultdict(list) for b in BUDGETS}
     seen = {b: Counter() for b in BUDGETS}
     usage = {b: defaultdict(Counter) for b in BUDGETS}
+    held = {b: {t: Counter() for t in TIER_STEPS} for b in BUDGETS}
     for fn in files:
         print("reading", os.path.basename(fn), flush=True)
         for line in gzip.open(fn, "rt"):
@@ -124,6 +184,8 @@ def main():
                     continue
                 items = [i for i in s[0] if i in cost]
                 usage[b][h].update(set(items))
+                for t, c in tier_counts(items, cost).items():
+                    held[b][t][c] += 1
                 usage[b][h]["_n"] += 1
                 seen[b][h] += 1
                 row = [items, int(r["won"]), r["badge"]]
@@ -140,6 +202,11 @@ def main():
         print(b, "item budget", item_budget(b), "rows", sum(seen[b].values()))
     json.dump({str(b): {str(h): dict(c) for h, c in usage[b].items()} for b in BUDGETS},
               open(os.path.join(ROOT, "work", f"item_usage{sfx}.json"), "w"))
+    caps = {str(b): {str(t): quantile_cap(held[b][t]) for t in TIER_STEPS} for b in BUDGETS}
+    json.dump({"bracket": bracket, "quantile": TIER_CAP_Q, "caps": caps,
+               "held": {str(b): {str(t): dict(sorted(held[b][t].items())) for t in TIER_STEPS} for b in BUDGETS}},
+              open(os.path.join(ROOT, "work", f"tier_caps{sfx}.json"), "w"), indent=1)
+    print("tier caps (items costing >= step a build may hold):", caps)
 
 
 if __name__ == "__main__":

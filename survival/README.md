@@ -33,7 +33,7 @@ the tested hero keeps shooting back (lifesteal and on-hit heals count) until it 
   build's. Margins 0%, 10% and 25%, one search each.
 - **Moves**: from the popular build, value every candidate item added and every non-core item removed on the 16
   most played enemies, then try add, 1-for-1, 2-for-1 and 1-for-2 swaps that pass the damage rule on all 41.
-  Up to 6 rounds. Same budget rules as the other searches (item share of net worth, max 12 items).
+  Up to 6 rounds. Same budget rules as the other searches (item share of net worth, max 12 items, expensive item caps).
 
 `python3 scripts/survival_search.py --workers 4 && python3 scripts/export.py` (resumes from `work/jobs`).
 

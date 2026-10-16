@@ -24,7 +24,7 @@ def lo(hero, items=(), **kw):
 DUELS = [
     ("Haze", ["Rapid Rounds", "Toxic Bullets", "Restorative Locket"], "Infernus",
      ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Haze (A)", 25.432, 2744.0, 1980.5),
-    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], None, 21.3, 1744.9, 2566.5),
+    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], None, 30.0, 2338.2, 2542.7),   # re-pinned for the Storm Cloud fix
     ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1769.2, 1303.4),
 ]
 
