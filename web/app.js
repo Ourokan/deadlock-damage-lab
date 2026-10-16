@@ -243,14 +243,14 @@ function simCall(type, req) {
 
 function runTest() {
   if (!S.ready) return;
-  const req = request(), id = ++S.runId;
+  const req = request(), url = shareURL(), id = ++S.runId;
   $("#run").disabled = true; $("#run").textContent = "Running…"; showErr("");
   S.pending[id] = (m) => {
     $("#run").disabled = false; $("#run").textContent = "Run damage test";
     if (m.type === "error") { showErr("That run failed: " + lastLine(m.message)); return; }
     S.last = { req, res: m.result, label: S.A.label || `${S.heroById[S.A.hero].name} build`, ms: m.ms };
-    history.replaceState(null, "", shareURL());
     renderResult();
+    try { history.replaceState(null, "", url); } catch { /* sandboxed embed */ }
   };
   S.engine.postMessage({ type: "run", id, req });
 }
@@ -265,7 +265,7 @@ function shareURL(hash = location.hash) {
   p.set("h", A.hero); p.set("s", A.souls);
   if (A.items.length) p.set("i", A.items.join("."));
   p.set("aim", A.aim);
-  if (A.aim === "custom") for (const k of ["acc", "hs", "dist"]) if (val(k)) p.set(k, val(k));
+  if (A.aim === "custom") for (const k of ["acc", "hs", "dist"]) p.set(k, val(k)); // blanks too, so the recipient's saved aim can't fill them
   if (D.mode === "plain") {
     for (const k of ["hp", "br", "sr", "mr"]) if (val(k) && (k === "hp" || Number(val(k)) !== 0)) p.set(k, val(k));
   } else {
@@ -297,6 +297,7 @@ function readShare() {
   for (const [k, sel] of Object.entries(SHARE_NUM)) {
     const v = parseFloat(p.get(k)), el = $(sel);
     if (isFinite(v)) el.value = Math.min(Number(el.max || Infinity), Math.max(Number(el.min || -Infinity), v));
+    else if (p.get(k) === "") el.value = "";
   }
   if (p.get("t") === "hero") {
     const eh = Number(p.get("eh"));
