@@ -18,14 +18,18 @@ const Aim = (() => {
   }
 
   // Steam profile link, SteamID64, SteamID3 ([U:1:n] or the bare number) or a Steam name -> {id, name}.
+  // name is the Steam persona name looked up for the id, so the page can show whose matches it read.
   async function resolve(text) {
     const t = String(text).trim();
     if (!t) throw new Error("Enter your Steam profile link, Steam ID or Steam name.");
-    const u3 = t.match(/\[?U:1:(\d+)\]?/i);
-    if (u3) return { id: Number(u3[1]), name: null };
-    const prof = t.match(/profiles\/(\d{17})/) || t.match(/^(7656\d{13})$/);
-    if (prof) return { id: Number(BigInt(prof[1]) - STEAM64), name: null };
-    if (/^\d{1,10}$/.test(t)) return { id: Number(t), name: null };
+    const u3 = t.match(/^\[?U:1:(\d+)\]?$/i);
+    const prof = t.match(/steamcommunity\.com\/profiles\/(\d{17})/) || t.match(/^(7656\d{13})$/);
+    const id = u3 ? Number(u3[1]) : prof ? Number(BigInt(prof[1]) - STEAM64) : /^\d{1,10}$/.test(t) ? Number(t) : null;
+    if (id != null) {
+      let name = null;
+      try { name = (await get(`/v1/players/steam?account_ids=${id}`))[0]?.personaname || null; } catch { /* name is only a label */ }
+      return { id, name };
+    }
     const vanity = t.match(/steamcommunity\.com\/id\/([^/?#]+)/);
     const q = vanity ? vanity[1] : t;
     let rows = [];

@@ -162,12 +162,13 @@ async function pullAim() {
   btn.disabled = true; msg.textContent = "Looking up the player…";
   try {
     const who = await Aim.resolve($("#a-steam").value);
-    const heroName = S.heroById[S.A.hero]?.name || "this hero";
-    const r = await Aim.fromMatches(who.id, S.A.hero, { onProgress: (a, b) => { msg.textContent = `Reading match ${a} of ${b}…`; } });
+    const hero = S.A.hero, heroName = S.heroById[hero]?.name || "this hero";
+    const r = await Aim.fromMatches(who.id, hero, { onProgress: (a, b) => { msg.textContent = `Reading match ${a} of ${b}…`; } });
+    if (S.A.hero !== hero) { msg.textContent = `The hero changed while loading ${heroName} matches. Press the button again.`; return; }
     $("#a-acc").value = (r.accuracy * 100).toFixed(1);
     $("#a-hs").value = (r.headshot * 100).toFixed(1);
     if (r.distance) $("#a-dist").value = r.distance.toFixed(1);
-    msg.textContent = `${who.name ? who.name + ": " : ""}${pct(r.accuracy, 1)} accuracy and ${pct(r.headshot, 1)} headshots over ${fmt(r.shots)} shots at heroes in the last ${r.matches} matches`
+    msg.textContent = `${who.name ? `Steam player "${who.name}": ` : ""}${pct(r.accuracy, 1)} accuracy and ${pct(r.headshot, 1)} headshots over ${fmt(r.shots)} shots at heroes in the last ${r.matches} matches`
       + (r.scope === "hero" ? ` on ${heroName}` : ` (all heroes; fewer than 3 recent ${heroName} matches)`) + (r.distance ? `, median hit distance ${fmt(r.distance, 1)} m.` : ".")
       + (r.failed && r.matches < 10 ? ` ${r.failed} more could not be read (the API may be busy), so try again for a fuller sample.` : "");
     saveAim(); renderAimHint();

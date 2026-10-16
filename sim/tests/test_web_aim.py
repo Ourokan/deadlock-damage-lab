@@ -46,7 +46,7 @@ class WebAim(unittest.TestCase):
         self.assertIsNone(node(f"Aim.matchStats({json.dumps(META)}, 8)"))  # no shots at heroes
         self.assertIsNone(node(f"Aim.matchStats({json.dumps(META)}, 99)"))
 
-    def test_resolve_ids_without_network(self):
+    def test_resolve_id_formats(self):
         got = node("Promise.all(['[U:1:34500250]', '34500250', '76561197994765978',"
                    " 'https://steamcommunity.com/profiles/76561197994765978/'].map(Aim.resolve))")
         self.assertEqual([r["id"] for r in got], [34500250] * 4)
