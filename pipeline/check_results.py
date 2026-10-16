@@ -1,7 +1,7 @@
 """Check a rerun is complete enough to publish: python3 pipeline/check_results.py [--min-share 0.95]
 
-Counts the finished search jobs per step against heroes x budgets (10 tank heroes for survival), lists the heroes
-the shards reported as failed, writes a table to $GITHUB_STEP_SUMMARY under GitHub Actions and exits 1 when any
+Counts the finished search jobs per step against heroes x budgets (10 tank heroes for survival, one per hero for
+the buy order), lists the heroes the shards reported as failed, writes a table to $GITHUB_STEP_SUMMARY under GitHub Actions and exits 1 when any
 step has less than --min-share of its jobs, so the old results stay up rather than a site with holes.
 """
 import argparse
@@ -23,10 +23,12 @@ def main():
     a = ap.parse_args()
     with open(os.path.join(ROOT, "data", "game", "heroes.json")) as f:
         heroes = {h["id"]: h["name"] for h in json.load(f)}
-    dirs = {"damage": ("damage/work/jobs", len(heroes))}
+    # step -> (jobs dir, expected job files): one per hero x budget, except the buy order (one per hero)
+    n = len(BUDGETS)
+    dirs = {"damage": ("damage/work/jobs", len(heroes) * n), "buy_order": ("damage/work/jobs_order", len(heroes))}
     for b in BRACKETS:
-        dirs[f"duel_{b}"] = ("search/work/jobs" + suffix(b), len(heroes))
-    dirs["survival"] = ("survival/work/jobs", N_TANKS)
+        dirs[f"duel_{b}"] = ("search/work/jobs" + suffix(b), len(heroes) * n)
+    dirs["survival"] = ("survival/work/jobs", N_TANKS * n)
     failed = {}
     for fn in glob.glob(os.path.join(ROOT, "pipeline", "work", "shard_*.json")):
         with open(fn) as f:
@@ -34,9 +36,8 @@ def main():
                 failed.setdefault(step, []).extend(heroes.get(h, str(h)) for h in ids)
     ok = True
     lines = ["| Step | Jobs done | Expected | Failed heroes |", "|---|---|---|---|"]
-    for step, (d, n_heroes) in dirs.items():
+    for step, (d, want) in dirs.items():
         done = len(glob.glob(os.path.join(ROOT, d, "*.json")))
-        want = n_heroes * len(BUDGETS)
         ok &= done >= a.min_share * want
         lines.append(f"| {step} | {done} | {want} | {', '.join(sorted(failed.get(step, []))) or '-'} |")
     lines.append("")

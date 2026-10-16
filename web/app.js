@@ -298,7 +298,7 @@ function onTest(e) {
 let gObj = "fight_15s";
 async function renderDamageTab() {
   const id = $("#g-hero").value, d = await damageHero(id), out = $("#g-out");
-  if (!d) { out.innerHTML = '<p class="empty">No damage search results for this hero yet.</p>'; return; }
+  if (!d) { out.innerHTML = '<p class="empty">No damage search results for this hero yet.</p>'; $("#g-order").innerHTML = ""; return; }
   const keys = Object.keys(d.budgets);
   if ($("#g-budget").options.length !== keys.length) fillBudgetSelect($("#g-budget"), keys, $("#g-budget").value);
   const bk = $("#g-budget").value, b = d.budgets[bk], o = b.objectives[gObj], pop = b.popular;
@@ -319,6 +319,32 @@ async function renderDamageTab() {
       <div class="card"><h3>What each best-build item adds</h3><p class="hint">Damage lost if that item is removed.</p>
         <div class="kv">${loss.map(([i, v]) => `<span>${tile(i, { static: true })}</span><span>${fmt(v)}</span>`).join("")}</div></div>
     </div>`;
+  renderBuyOrder(id);
+}
+
+// order to buy the best 50k build in (damage/scripts/buy_order.py), with the net worth milestones on the way
+async function renderBuyOrder(id) {
+  const d = await load(`data/damage/order/${id}.json`), out = $("#g-order");
+  if (id !== $("#g-hero").value) return;   // the hero changed while this loaded
+  const o = d?.objectives[gObj];
+  if (!o) { out.innerHTML = ""; return; }
+  const ms = Object.entries(o.milestones).map(([b, m]) => [Number(b), m]).sort((a, b) => a[0] - b[0]);
+  const msRow = ([b, m]) => `<tr class="pop"><td><b>${fmt(b / 1000)}k</b></td><td colspan="2">${m.items.length} items, ${fmt(m.cost)} of ${fmt(m.item_budget)} item souls.`
+    + (m.share_of_best != null ? ` ${pct(m.share_of_best)} of the best ${fmt(b / 1000)}k build's damage, ${m.popular_damage ? signed(m.damage / m.popular_damage - 1) : "–"} vs popular.` : "")
+    + `</td><td class="n">${fmt(m.damage)}</td><td>${m.items.length ? testBtn(Number(id), b, m.items, `Buy order at ${fmt(b / 1000)}k`) : ""}</td></tr>`;
+  let k = 0;
+  const rows = [];
+  for (const s of o.steps) {
+    while (k < ms.length && s.net_worth > ms[k][0]) rows.push(msRow(ms[k++]));
+    const rep = s.replaces.filter((i) => S.items[i]).map((i) => S.items[i].name);
+    rows.push(`<tr><td class="n">${fmt(s.net_worth)}</td><td>${tile(s.item, { static: true })}${rep.length ? ` <span class="hint">upgrades ${esc(rep.join(", "))}</span>` : ""}</td>`
+      + `<td class="n">${fmt(s.paid)}</td><td class="n">${fmt(s.damage)} <span class="up">+${fmt(s.gain)}</span></td><td></td></tr>`);
+  }
+  while (k < ms.length) rows.push(msRow(ms[k++]));
+  out.innerHTML = `<div class="card" style="margin-top:16px"><h3>Buy order to the best ${fmt(d.target_budget / 1000)}k build</h3>
+    <p class="hint">Each step buys the item that adds the most ${OBJ[gObj]} damage per soul at the net worth you can afford it, counting the hero's level then. Upgrades credit the component you hold. Milestone rows compare what you hold there with the best build for that exact net worth, which may use items you'd later sell.</p>
+    <div class="scroll"><table><thead><tr><th class="n">Net worth</th><th>Buy</th><th class="n">Pays</th><th class="n">${OBJ[gObj]} damage</th><th></th></tr></thead>
+    <tbody>${rows.join("")}</tbody></table></div></div>`;
 }
 
 async function renderDuelTab() {
@@ -518,7 +544,7 @@ async function boot() {
   $("#g-hero").onchange = renderDamageTab; $("#g-budget").onchange = renderDamageTab;
   $("#u-hero").onchange = renderDuelTab; $("#u-budget").onchange = renderDuelTab; $("#u-bracket").onchange = renderDuelTab;
   $("#t-hero").onchange = renderTankTab; $("#t-budget").onchange = renderTankTab;
-  for (const s of ["#g-out", "#u-out", "#t-out"]) $(s).addEventListener("click", onTest);
+  for (const s of ["#g-out", "#g-order", "#u-out", "#t-out"]) $(s).addEventListener("click", onTest);
   document.addEventListener("click", (e) => {
     const t = e.target.closest(".build.tap .it");
     if (t) openBreakdown(JSON.parse(t.closest(".build").dataset.bd), t.dataset.id);
