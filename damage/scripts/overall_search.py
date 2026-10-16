@@ -22,8 +22,11 @@ Not counted: movement (escape, chase, mobility items), team heals and team auras
 Scores are relative to the hero's most popular real build (1.0 = popular). Same search machinery as the duel search
 (search/scripts/search.py: screen on 16 enemies, confirm on 41, up to 8 rounds, same budget rules).
 
-usage: python3 scripts/overall_search.py [--workers 4] [--heroes Haze] [--budgets 27000]
-Writes work/jobs_overall/<hero_id>_<budget>.json (resumes); scripts/export_overall.py builds out/overall.
+Rank bracket (--bracket, default build_pool.PRIMARY = phantom): the enemy builds come from that bracket's pools and
+both sides use its aim percentile and its lowest badge (Alchemical Fire walk-out time, Dispel Magic timing).
+
+usage: python3 scripts/overall_search.py [--workers 4] [--heroes Haze] [--budgets 27000] [--bracket phantom]
+Writes work/jobs_overall_<bracket>/<hero_id>_<budget>.json (resumes); scripts/export_overall.py builds out/overall.
 """
 from __future__ import annotations
 
@@ -42,19 +45,32 @@ sys.path.insert(0, os.path.join(ROOT, "..", "search", "scripts"))
 sys.path.insert(0, os.path.join(ROOT, "..", "survival"))
 
 import search as S  # noqa: E402
-from build_pool import BUDGETS  # noqa: E402
+from build_pool import BRACKETS, BUDGETS, PRIMARY  # noqa: E402
 from deadsim.accuracy import hero_default_skill  # noqa: E402
 from survival import survive  # noqa: E402
 
 MAX_TIME = 30.0
 FOCUS = 2.0
-JOBS = os.path.join(ROOT, "work", "jobs_overall")
 _sk = {}
+
+
+def jobs_dir(bracket):
+    return os.path.join(ROOT, "work", "jobs_overall_" + bracket)
+
+
+def set_bracket(bracket):
+    global JOBS
+    S.BRACKET, JOBS = bracket, jobs_dir(bracket)
+    _sk.clear()
+
+
+set_bracket(PRIMARY)
 
 
 def skill(h):
     if h not in _sk:
-        _sk[h] = hero_default_skill(S.G().hero(h).name, "p50", counterplay=True)
+        lo, _, aim, _ = BRACKETS[S.BRACKET]
+        _sk[h] = hero_default_skill(S.G().hero(h).name, aim, badge=lo if lo > 0 else None, counterplay=True)
     return _sk[h]
 
 
@@ -127,7 +143,7 @@ def job(args):
         return path, "skip"
     lines = []
     res = S.search(hero, budget, log=lines.append)
-    res.update({"log": lines, "objective": "overall", "focus": FOCUS, "max_time": MAX_TIME, "counterplay": True})
+    res.update({"log": lines, "objective": "overall", "bracket": S.BRACKET, "aim": BRACKETS[S.BRACKET][2], "focus": FOCUS, "max_time": MAX_TIME, "counterplay": True})
     json.dump(res, open(path + ".tmp", "w"))
     os.replace(path + ".tmp", path)
     b, p = res["builds"][0]["F"], res["popular"]["F"]
@@ -141,12 +157,14 @@ def main():
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--heroes", default="")
     ap.add_argument("--budgets", default="")
+    ap.add_argument("--bracket", default=PRIMARY, choices=list(BRACKETS))
     a = ap.parse_args()
+    set_bracket(a.bracket)
     S.Evaluator = Evaluator
     S.MIN_GAIN = 0.004
     _phases()
     g = S.G()
-    heroes = [g.hero(h).id for h in a.heroes.split(",") if h] or sorted(g.heroes)
+    heroes = [g.hero(int(h) if h.isdigit() else h).id for h in a.heroes.split(",") if h] or sorted(g.heroes)
     budgets = [int(b) for b in a.budgets.split(",") if b] or [27000, 18000, 37000, 10000, 50000]
     os.makedirs(JOBS, exist_ok=True)
     jobs = [(h, b) for b in budgets for h in heroes]

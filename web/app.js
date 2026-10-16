@@ -19,7 +19,7 @@ const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v
 const S = {
   whenReady: null, readyNow: null,
   items: {}, byName: {}, heroes: [], heroById: {},
-  A: { hero: 13, souls: 27000, aim: "p50", items: [], label: null },
+  A: { hero: 13, souls: 27000, aim: "p75", items: [], label: null },
   D: { mode: "plain", hero: 6, souls: null, items: [] },
   dmgCache: {}, last: null, pins: [], engine: null, ready: false, runId: 0, pending: {},
 };
@@ -459,27 +459,62 @@ async function renderBuyOrder(id) {
     <tbody>${rows.join("")}</tbody></table></div></div>`;
 }
 
+// rank brackets in the order the reruns refresh them (pipeline/tiers.json); Phantom and up is the standard
+const BRACKET_ORDER = ["phantom", "ascendant", "eternus", "all", "eternus5", "low"];
+function fillBracketSelect(sel, ids, labels) {
+  ids = [...ids].sort((a, b) => (BRACKET_ORDER.indexOf(a) + 99) % 99 - (BRACKET_ORDER.indexOf(b) + 99) % 99);
+  if ([...sel.options].map((o) => o.value).join() === ids.join()) return;
+  const keep = sel.value;
+  sel.innerHTML = ids.map((b) => `<option value="${b}">${esc(labels[b] || b)}</option>`).join("");
+  sel.value = ids.includes(keep) ? keep : ids[0];
+}
+
 async function renderDuelTab() {
   const idx = await load("data/duel/index.json"), out = $("#u-out");
   const id = $("#u-hero").value, d = await load(`data/duel/heroes/${id}.json`);
   if (!idx || !d) { out.innerHTML = '<p class="empty">No duel results for this hero yet.</p>'; return; }
   const brs = Object.keys(d.brackets);
   const sel = $("#u-bracket");
-  if (sel.options.length !== brs.length) {
-    const lab = Object.fromEntries(idx.brackets.map((b) => [b.id, b.label]));
-    const keep = sel.value;
-    sel.innerHTML = brs.map((b) => `<option value="${b}">${esc(lab[b] || b)}</option>`).join("");
-    if (brs.includes(keep)) sel.value = keep;
-  }
+  fillBracketSelect(sel, brs, Object.fromEntries(idx.brackets.map((b) => [b.id, b.label])));
   const br = d.brackets[sel.value];
   const keys = Object.keys(br);
   if ($("#u-budget").options.length !== keys.length) fillBudgetSelect($("#u-budget"), keys, $("#u-budget").value);
   const bk = $("#u-budget").value, b = br[bk];
   const ctx = (x) => ({ kind: "duel", hero: Number(id), souls: Number(bk), items: x.items, popular: b.popular?.items || [] });
   const row = (x, label, cls = "") => `<tr class="${cls}"><td>${label}</td><td>${bdTiles(ctx(x))}</td><td class="n">${fmt(x.cost)}</td><td class="n">${fmt(x.score, 3)}</td><td class="n">${pct(x.win_rate)}</td><td class="n">${pct(x.loss_rate)}</td><td class="n">${x.random_pool ? pct(x.random_pool.win_rate) : "–"}</td><td class="n">${fmt(x.avg_win_time_s, 1)} s</td><td>${testBtn(Number(id), bk, x.items, label.replace(/<[^>]+>/g, ""))}</td></tr>`;
-  out.innerHTML = `<p class="hint">${brs.length} rank bracket${brs.length > 1 ? "s" : ""} finished so far; more appear here as their searches complete. Tap any item to see what it adds to the build's damage.</p>
+  const meta = idx.brackets.find((x) => x.id === sel.value), latest = idx.brackets.map((x) => x.generated || "").sort().pop();
+  const stale = meta?.generated && meta.generated < latest ? ` These ${esc(meta.label)} results are from an earlier run (${esc(meta.generated.slice(0, 10))}, patch ${esc(meta.patch)}); they refresh after the brackets before them.` : "";
+  out.innerHTML = `<p class="hint">${brs.length} rank bracket${brs.length > 1 ? "s" : ""} so far. Phantom and up is the standard and refreshes first after each patch.${stale} Tap any item to see what it adds to the build's damage.</p>
     <div class="scroll"><table><thead><tr><th>Build</th><th>Items</th><th class="n">Cost</th><th class="n">Score</th><th class="n">Win</th><th class="n">Loss</th><th class="n" title="Win rate against randomly drawn real builds">Win vs random</th><th class="n">Time to win</th><th></th></tr></thead>
     <tbody>${b.popular ? row(b.popular, 'Popular<span class="tag">real</span>', "pop") : ""}${b.builds.map((x, i) => row(x, `#${x.rank || i + 1}`)).join("")}</tbody></table></div>`;
+}
+
+async function renderOverallTab() {
+  const out = $("#o-out"), idx = await load("data/overall/index.json"), id = $("#o-hero").value;
+  const h = idx?.heroes[id];
+  if (!h || !Object.keys(h.brackets || {}).length) { out.innerHTML = '<p class="empty">No overall results for this hero yet.</p>'; return; }
+  const meta = Object.fromEntries(idx.brackets.map((x) => [x.id, x]));
+  fillBracketSelect($("#o-rank"), Object.keys(h.brackets), Object.fromEntries(idx.brackets.map((x) => [x.id, x.label])));
+  const br = $("#o-rank").value, hb = h.brackets[br], keys = Object.keys(hb);
+  if ($("#o-budget").options.length !== keys.length) fillBudgetSelect($("#o-budget"), keys, $("#o-budget").value);
+  const bk = $("#o-budget").value, b = hb[bk], d = await load(`data/overall/heroes/${id}_${br}_${bk}.json`);
+  const latest = idx.brackets.map((x) => x.generated).sort().pop();
+  const old = b.patch && meta[br] && b.patch !== meta[br].patch ? ` This hero and net worth didn't finish in the latest run, so it shows the patch ${esc(b.patch)} result.` : "";
+  const stale = old || (meta[br] && meta[br].generated < latest ? ` These ${esc(meta[br].label)} results are from an earlier run (${esc(meta[br].generated.slice(0, 10))}, patch ${esc(meta[br].patch)}); they refresh after the brackets before them.` : "");
+  const ctx = (x) => ({ kind: "overall", hero: Number(id), souls: Number(bk), items: x.items, popular: b.popular.items });
+  const card = (title, x, note) => `<div class="card"><h3>${title}</h3>${bdTiles(ctx(x))}
+    <div class="kv"><span>Damage before dying</span><span><b>${fmt(x.damage_before_death)}</b>${note ? ` (${signed(x.damage_before_death / b.popular.damage_before_death - 1)})` : ""}</span>
+    <span>Time alive</span><span>${fmt(x.time_alive_s, 1)} s</span>
+    <span>Survives 30 s</span><span>${pct(x.survived_30s)}</span>
+    <span>Dummy damage by 15 s</span><span>${fmt(x.dummy_15s)}</span></div>${testBtn(Number(id), bk, x.items, title)}</div>`;
+  const row = (x, label) => `<tr><td>${label}</td><td>${bdTiles(ctx(x))}</td><td class="n">${fmt(x.cost)}</td><td class="n">${fmt(x.F.damage_before_death)}</td><td class="n">${fmt(x.F.time_alive_s, 1)} s</td><td class="n">${pct(x.F.survived_30s)}</td><td>${testBtn(Number(id), bk, x.items, label)}</td></tr>`;
+  const loss = d ? Object.entries(d.best_item_removal_loss).filter(([i]) => S.items[i]).sort((a, b) => b[1] - a[1]) : [];
+  out.innerHTML = `<p class="hint">Damage before dying is averaged over all 41 heroes' typical real builds in this rank bracket, at its aim.${stale} Tap any item to see what it adds to the build's damage.</p>
+    <div class="cards">${card("Best overall build", b.best, true)}${card("Popular real build", b.popular, false)}${b.damage_best ? card("Best raw damage build", b.damage_best, true) : ""}</div>
+    ${d ? `<div class="scroll"><table><thead><tr><th>Build</th><th>Items</th><th class="n">Cost</th><th class="n">Damage before dying</th><th class="n">Time alive</th><th class="n">Survives 30 s</th><th></th></tr></thead>
+    <tbody>${d.builds.map((x, i) => row(x, `#${i + 1}`)).join("")}</tbody></table></div>
+    <div class="cards"><div class="card"><h3>What each best-build item adds</h3><p class="hint">Share of the build's damage before dying lost if that item is removed (1.0 = the popular build's total).</p>
+      <div class="kv">${loss.map(([i, v]) => `<span>${tile(i, { static: true })}</span><span>${fmt(v, 3)}</span>`).join("")}</div></div></div>` : ""}`;
 }
 
 async function renderTankTab() {
@@ -509,7 +544,7 @@ async function bdRequest(ctx) {
     const d = await damageHero(ctx.hero);
     if (d) hp = d.budgets[nearestBudget(Object.keys(d.budgets), ctx.souls)].dummy_hp;
   }
-  return { hero: ctx.hero, items: ctx.items, souls: ctx.souls, aim: "p50", dummy: { hero: "Haze", items: [], hp, immortal: true } };
+  return { hero: ctx.hero, items: ctx.items, souls: ctx.souls, aim: "p75", dummy: { hero: "Haze", items: [], hp, immortal: true } };
 }
 
 async function bdPopular(ctx) {
@@ -540,8 +575,8 @@ function closeSheet() { $("#sheet").hidden = true; document.body.classList.remov
 function whyText(ctx, d, x, m) {
   const it = S.items[x.id], pop = new Set((ctx.popular || []).map(Number)), mine = new Set(ctx.items.map(Number));
   const out = [];
-  if (ctx.kind === "duel" || ctx.kind === "tank")
-    out.push(`This build was picked for ${ctx.kind === "duel" ? "winning 1v1 duels" : "staying alive under focus"}, so items can earn their place without adding damage. Damage here is measured on the standard training dummy.`);
+  if (ctx.kind === "duel" || ctx.kind === "tank" || ctx.kind === "overall")
+    out.push(`This build was picked for ${ctx.kind === "duel" ? "winning 1v1 duels" : ctx.kind === "tank" ? "staying alive under focus" : "dealing the most damage before dying against real builds"}, so items can earn their place without adding damage. Damage here is measured on the standard training dummy.`);
   if (pop.size) {
     if (pop.has(x.id)) out.push("The most popular real build buys it too.");
     else {
@@ -594,9 +629,10 @@ function renderSheet() {
 // ---------- tabs ----------
 function showTab() {
   const t = (location.hash || "#test").slice(1).split("/")[0];
-  const tab = ["test", "match", "damage", "duel", "tank", "team"].includes(t) ? t : "test";
+  const tab = ["test", "match", "overall", "damage", "duel", "tank", "team"].includes(t) ? t : "test";
   $$(".tab").forEach((s) => (s.hidden = s.id !== "tab-" + tab));
   $$("#tabs a").forEach((a) => (a.dataset.tab === tab ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
+  if (tab === "overall") renderOverallTab();
   if (tab === "damage") renderDamageTab();
   if (tab === "duel") renderDuelTab();
   if (tab === "tank") renderTankTab();
@@ -610,10 +646,10 @@ async function boot() {
   S.dataNow();
   const opts = heroes.map((h) => `<option value="${h.id}">${esc(h.name)}</option>`).join("");
   $("#a-hero").innerHTML = opts; $("#d-heroname").innerHTML = opts;
-  fillHeroSelect($("#g-hero")); fillHeroSelect($("#u-hero"));
+  fillHeroSelect($("#g-hero")); fillHeroSelect($("#u-hero")); fillHeroSelect($("#o-hero"));
   const tank = await load("data/tank/index.json");
   fillHeroSelect($("#t-hero"), tank ? Object.keys(tank.heroes) : []);
-  for (const s of ["#g-hero", "#u-hero"]) $(s).value = 13;
+  for (const s of ["#g-hero", "#u-hero", "#o-hero"]) $(s).value = 13;
   load("data/patch.json").then((p) => {
     if (!p) return;
     $("#patch").textContent = p.patch;
@@ -663,7 +699,8 @@ async function boot() {
   $("#g-hero").onchange = renderDamageTab; $("#g-budget").onchange = renderDamageTab;
   $("#u-hero").onchange = renderDuelTab; $("#u-budget").onchange = renderDuelTab; $("#u-bracket").onchange = renderDuelTab;
   $("#t-hero").onchange = renderTankTab; $("#t-budget").onchange = renderTankTab;
-  for (const s of ["#g-out", "#g-order", "#u-out", "#t-out"]) $(s).addEventListener("click", onTest);
+  $("#o-hero").onchange = renderOverallTab; $("#o-budget").onchange = renderOverallTab; $("#o-rank").onchange = renderOverallTab;
+  for (const s of ["#g-out", "#g-order", "#u-out", "#t-out", "#o-out"]) $(s).addEventListener("click", onTest);
   document.addEventListener("click", (e) => {
     const t = e.target.closest(".build.tap .it");
     if (t) openBreakdown(JSON.parse(t.closest(".build").dataset.bd), t.dataset.id);

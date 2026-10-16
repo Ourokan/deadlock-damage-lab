@@ -7,7 +7,7 @@ Dummy: never acts, has no resists and no items, cannot die (lethal damage refill
 has the weighted median max HP of the real typical builds at that budget (items like Tankbuster or Spirit Burn
 scale off target HP, so a realistic pool matters). Damage is counted before it hits HP, so overkill counts.
 
-Attacker: hero_default_skill (ranked median hero accuracy and headshot rate, real ability landing and melee rates),
+Attacker: hero_default_skill (hero accuracy and headshot rate at the standard bracket's aim, Phantom+ p75, real ability landing and melee rates),
 abilities on cooldown, actives used, same item budget as the duel search (the share of net worth real players hold
 in items). Distance: the hero's real median engagement distance.
 
@@ -36,7 +36,7 @@ sys.path.insert(0, os.path.join(ROOT, "..", "sim"))
 sys.path.insert(0, SEARCH)
 
 from deadsim import compute_stats  # noqa: E402
-from build_pool import BUDGETS, item_budget  # noqa: E402
+from build_pool import BRACKETS, BUDGETS, PRIMARY, item_budget  # noqa: E402
 import search as S  # noqa: E402
 sys.path.insert(0, ROOT)
 from dummy import Dummy, damage_test  # noqa: E402
@@ -46,7 +46,8 @@ WINDOWS = {"burst_5s": 5.0, "fight_15s": 15.0, "sustained_30s": 30.0}
 ROUNDS = 8
 MIN_GAIN = 0.002          # relative gain below which a search stops
 TOP_OUT = 10
-AIM = "p50"
+S.BRACKET = PRIMARY        # standard rank bracket: its popular builds, dummy HP and aim
+AIM = BRACKETS[PRIMARY][2]
 DUMMY_HERO = "Haze"       # only its base hitbox is used: no abilities, items or resists
 
 
@@ -199,7 +200,7 @@ def main():
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--heroes", default="")
     ap.add_argument("--budgets", default="")
-    ap.add_argument("--aim", default="p50")
+    ap.add_argument("--aim", default=AIM)
     a = ap.parse_args()
     AIM = a.aim
     g = S.G()

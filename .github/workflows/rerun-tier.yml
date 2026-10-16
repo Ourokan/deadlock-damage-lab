@@ -1,0 +1,121 @@
+name: Rerun one rank tier
+
+# Called by patch-rerun.yml once per rank tier (pipeline/tiers.json), in order. Runs the tier's searches across 16
+# machines (pipeline/run_shard.py --tier), commits the new results to main and redeploys the site, so each tier
+# shows up on the site as soon as it is done. The publish step reads only this tier's work (so a tier that failed
+# its check never reaches the site through a later one); the exports keep every other tier's published results.
+
+on:
+  workflow_call:
+    inputs:
+      tier:
+        type: string
+        required: true
+      reason:
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+env:
+  SHARDS: 16
+
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: game
+          path: data
+      - uses: actions/download-artifact@v4
+        with:
+          name: inputs
+          path: .
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 pipeline/run_shard.py --tier ${{ inputs.tier }} --shard ${{ matrix.shard }} --of $SHARDS
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: work-${{ inputs.tier }}-${{ matrix.shard }}
+          path: |
+            damage/work/jobs
+            damage/work/jobs_order
+            damage/work/jobs_overall_*
+            search/work/jobs*
+            survival/work/jobs
+            pipeline/work
+
+  publish:
+    needs: search
+    # runs when some shards failed too; check_results.py decides whether enough finished
+    if: ${{ !cancelled() && needs.search.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/download-artifact@v4
+        with:
+          name: game
+          path: data
+      - uses: actions/download-artifact@v4
+        with:
+          name: inputs
+          path: .
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: work-${{ inputs.tier }}-*
+          path: .
+          merge-multiple: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check the tier's searches finished
+        run: python3 pipeline/check_results.py --tier ${{ inputs.tier }}
+      - name: Export results for the site
+        run: |
+          python3 - <<'EOF'
+          import datetime, json
+          p = json.load(open("data/patch.json"))
+          p["results_built"] = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+          json.dump(p, open("data/patch.json", "w"), indent=1); open("data/patch.json", "a").write("\n")
+          EOF
+          primary=$(python3 -c 'import sys; sys.path.insert(0, "search/scripts"); from build_pool import PRIMARY; print(PRIMARY)')
+          if [ "${{ inputs.tier }}" = "$primary" ]; then
+            python3 damage/scripts/export.py
+            python3 survival/scripts/export.py
+          fi
+          python3 search/scripts/export.py
+          python3 damage/scripts/export_overall.py
+      - name: Commit to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/game data/patch.json data/builds/aggregates damage/out search/out survival/out
+          git diff --cached --quiet && { echo "No changes to commit"; exit 0; }
+          git commit -m "Rerun searches (${{ inputs.tier }}): ${{ inputs.reason }}"
+          git pull --no-rebase --no-edit origin main
+          git push origin HEAD:main
+
+  deploy:
+    needs: publish
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/pages.yml
+    with:
+      ref: main
