@@ -7,7 +7,12 @@ name: Rerun searches after a patch
 # (rerun-tier.yml). Tiers not in "enabled" are skipped and keep their last results. Nothing is committed for a
 # tier unless its searches finish (pipeline/check_results.py).
 
+# A merged change to pipeline/rerun_request.json also forces a rerun, so Claude (which can't press Run workflow)
+# can start one when asked.
 on:
+  push:
+    branches: [main]
+    paths: [pipeline/rerun_request.json]
   schedule:
     - cron: "17 */6 * * *"
   workflow_dispatch:
@@ -45,7 +50,7 @@ jobs:
         with:
           python-version: "3.12"
       - id: check
-        run: python3 pipeline/check_patch.py --apply ${{ inputs.force && '--force' || '' }}
+        run: python3 pipeline/check_patch.py --apply ${{ (inputs.force || github.event_name == 'push') && '--force' || '' }}
       - id: window
         run: |
           echo "patch_start=$(python3 -c 'import json; print(json.load(open("data/patch.json"))["patch_start"])')" >> "$GITHUB_OUTPUT"
