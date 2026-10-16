@@ -78,8 +78,7 @@ def main():
         lo, hi, aim, _ = BRACKETS[br]
         brackets[br] = {"id": br, "label": LABELS[br], "min_badge": lo, "aim_percentile": aim, "patch": patch,
                         "generated": now}
-        for h in heroes.values():
-            h["brackets"].pop(br, None)
+        # cells this run didn't finish (check_results.py allows 5% missing) keep their last result
         for (h, b), r in sorted(bj.items()):
             best, pop = r["builds"][0], r["popular"]
             if b not in hp_cache:
