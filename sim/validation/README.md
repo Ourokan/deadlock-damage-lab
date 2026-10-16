@@ -1,0 +1,193 @@
+# Combat model validation
+
+How far the step 2 fight model (`deadsim`) can be trusted, checked against hand calculations and 400 real
+ranked matches (badge 60+, current patch, 2026-10-13; `matches_sample.jsonl.gz`, 4,800 player-matches).
+
+## What it is checked against
+
+| Check | Script | Result |
+|---|---|---|
+| Hand-calculated mechanics (resist stacking, falloff, headshots, reload gaps, CDR, spirit scaling, procs) | `tests/test_mechanics.py` | 19 tests pass |
+| Static stats vs in-game stat snapshots (38,587 snapshots, every ~3 min of every match) | `scripts/validate_stats.py` | max health within 1 HP 72%, spirit power exact 74%, weapon damage % exact 72% |
+| Real aim inputs | `scripts/build_skill_defaults.py` | per-hero hero-only accuracy / headshot percentiles + fight distance in `data/skill_defaults.json` |
+| Damage mix by source (gun, each ability, each item) vs the real damage matrix | `scripts/landing_rates.py` | 119 of 129 abilities within 0.2-2x of real after fixes; gun share within 10 points for 26 of 40 heroes |
+| Item proc rates vs wiki per-hero numbers | `tests/test_mechanics.py` | Toxic Bullets build-up within 5% of wiki for Wraith and Ivy |
+
+## Formulas the data pinned down
+
+- **Level:** net worth runs 600 souls ahead of the souls that count toward level, so level = level table at
+  (net worth − 600) and boons = level − 1. True level = ability points + 4; this matches 97% of snapshots.
+  (The first version used boons = level − 2 from raw net worth, which was right early and one boon short after
+  ~15k souls.)
+- **Health / spirit / weapon %:** see the docstring of `deadsim/build.py`. The remaining misses are items whose
+  bonus is conditional or stacking (Hollow Point, Berserker, Enchanter's Emblem, Cultist Sacrifice, Battle Vest);
+  those are handled by item effects in fights, not static stats. In-game spirit power is shown floored.
+- **Item proc build-up** (Toxic Bullets, Silencer, Inhibitor, Spiritual Overflow): build-up per bullet =
+  BuildUpPerShot% × hero base bullet damage × 1.4 × falloff, fitted to deadlock.wiki's per-hero numbers.
+  The raw 1.28%/hit made Toxic Bullets take ~79 hits; real is ~10-20.
+- **Burst guns** (Seven, Paradox, Lash, Sinclair): one trigger pull every cycle_time + burst × intra-burst time,
+  matching the data's bullets/second (the first version fired twice as fast).
+  **Spin-up guns** (McGinnis, Victor) speed up toward their spun-up cycle time while firing.
+- **Ability upgrades:** `abilities.json` merged upgrade tiers and lost the flat part when a tier gave both
+  "+22 damage" and "+0.2 spirit scaling" (63 abilities). `deadsim/data.py` now rebuilds upgrades from
+  `raw/items.json` with their types; `CastCtx.val()` applies scale upgrades.
+
+## Real damage mix and ability landing rates
+
+The Deadlock API has no per-ability hit/miss data. Instead `scripts/landing_rates.py` replays each player's real
+build (items and net worth at 30/60/90% of the match, real gun accuracy and headshot rate) against a real enemy
+from the same match at the same moment, with abilities always landing, and compares each ability's damage
+relative to gun damage with the real damage matrix:
+
+    landing = (real ability dmg / real gun dmg) / (sim ability dmg / sim gun dmg)
+
+Output: `data/landing_rates.json` (per hero, per ability) and `damage_shares.json` (real vs sim share of every
+source). Median landing is 0.59. `Skill.ability_landing` applies the factors in fights;
+`accuracy.hero_default_skill(hero)` loads them by default (`landing=False` to turn off).
+
+What the factor contains, so it is not read as pure aim: missed skillshots, partial time in zones and DoTs,
+casts on creeps, and the fact that every sim duel starts with all cooldowns ready while real match totals
+include gun time spent waiting on cooldowns. Long-cooldown ultimates therefore come out low (0.2-0.4) even when
+modeled correctly. Factors above 1 are mostly abilities that hit several heroes in real team fights
+(Pocket Barrage 1.7, Shiv Slice and Dice 1.5, Celeste Shining Wonder 1.4).
+
+The comparison found and fixed real bugs in about 20 heroes (examples: Haze Fixation proc dealing 40 × spirit,
+Shiv knife bleed at 12 × spirit, Paige +1400% fire rate, Doorman barrier × spirit, Kelvin and Holliday scaling
+counted twice, ultimates that never came into range at duel distance, damage booked under the wrong name).
+
+## Items
+
+`item_shares.json` compares each item's share of all hero damage, real vs sim. After the build-up fix Toxic Bullets
+went from 0% to 0.83% (real 0.67%); Headhunter 0.67% vs 0.55%, Tankbuster 1.5% vs 2.5%, Spirit Burn 0.43% vs
+0.58%. Underrated: Torment Pulse (0.28% vs 1.12%), Mystic Reverb (0.10% vs 0.54%), Capacitor (0.11% vs 0.72%).
+Those handlers should be reviewed before build search leans on them.
+
+Mystic Shot (sim 0.67% vs real 0.34%) was fixed 2026-10-14. Measured as Mystic Shot / gun damage to enemy heroes
+while the item is held (full damage matrix of 80 matches, 126 holders): real 0.32, sim 0.45. Per-proc damage and the
+8 s cooldown match the game data; the gap was that every sim fight opened with the proc ready, while in real games
+62% of Mystic Shot damage lands on creeps and troopers, so the cooldown is usually part spent when a hero fight
+starts. Its cooldown now starts mid-cycle (random point with an rng), giving 0.31. Other cooldown-gated on-hit procs
+start ready too, but they come out underrated, so they were left alone.
+
+Coverage: 115 of 173 shop items have an effect handler on top of their always-on stats (37 of 50 actives); the
+rest are pure stat items or effects with no value in a fixed-distance 1v1 (list at the top of
+`deadsim/items_fx_extra.py`). Proc thresholds are read from the game data (Mystic Burst 80, Tankbuster 165 damage
+per ability hit). Outgoing healing amp (Healing Booster, Healing Tempo) applies to ability heals, lifesteal and
+item heals; regen amp to regen.
+
+## Melee
+
+The API has no melee hit counts, so `scripts/landing_rates.py --fit-melee` fits each hero's landed basic melee
+hits per second (`data/melee_rates.json`) so that sim melee/gun damage matches the real damage matrix. It
+converged in 3 passes. Abrams lands 0.29 rotation melees/s plus a heavy melee after every Shoulder Charge that
+connects (melee is 40% of his real damage), Billy 0.22, Venator 0.19, Drifter
+0.16, Apollo 0.12, and the median hero 0.03. Assumptions: 30% of melees are heavy; a light melee stops the
+gun for 0.6 s and a heavy for 1.1 s. Melee items have handlers: Melee Charge, Crushing Fists, Spirit Snatch,
+Spirit Strike, Lifestrike, Melee Lifesteal. `accuracy.hero_default_skill` loads the rate; users can set their own
+with `hero_default_skill(hero, melee_rate_override=0.5, heavy_share=0.4)` (or `Skill(melee_rate=..., heavy_share=...)`).
+`Skill.combo_melee` (on by default) adds Abrams' charge into heavy melee combo on top of the rate.
+
+`scripts/melee_value.py` measures what melee is worth on real builds: real mid/late-game snapshots of each
+hero against real enemies from the same match, 30 s duels. It compares the hero's real melee rate vs none,
+and each melee item vs a same-cost non-melee item on the same cases (`melee_value.json`). The HP margin is
+(my HP left − enemy HP left) as a fraction of max HP.
+
+| Hero | Win rate from melee | Lifestrike vs Bullet Resilience | Spirit Snatch vs Bullet Resilience | Crushing Fists vs Leech |
+|---|---|---|---|---|
+| Abrams | +27 pts | +0.20 | +0.21 | −0.03 |
+| Billy | +30 pts | +0.20 | +0.13 | −0.03 |
+| Drifter | +22 pts | +0.11 | +0.05 | −0.13 |
+| Calico | +16 pts | +0.09 | +0.06 | −0.11 |
+| Yamato / Apollo | +12 pts | +0.05 / +0.03 | +0.13 / +0.08 | ≈0 |
+| Gun heroes (Infernus, Haze, Shiv, Venator, Silver) | 0-3 pts | −0.05 to +0.07 | −0.08 to +0.02 | −0.04 to −0.25 |
+
+Melee Charge, Melee Lifesteal and Spirit Strike come out within ±0.07 of their comparison item for every hero.
+These rates are what today's average player does on each hero; a player who builds for melee probably melees
+more, which these numbers don't capture.
+
+## Cleanses
+
+Dispel Magic (added 2026-10-14 during step 3): its active purges enemy debuffs and DoTs (`Fighter.dispel`) and heals
+250. The AI fires it at once when silenced/disarmed, and against a DoT (>= 2 s left) only below 50% HP: in real matches
+Decay deals the same damage to Dispel holders as to their teammates (ratio 1.00, 90% CI 0.75-1.30, 600 matches,
+`damage/scripts/decay_vs_dispel.py`). Hero ability DoTs that schedule
+their own ticks instead of using `Engine.dot`/`CastCtx.dot` are not purged. 13-17% of ranked players hold it from
+27k souls up, so DoT builds (Decay, Toxic Bullets, burn abilities) were overvalued before.
+
+## New mechanics: parry, summons, nearby enemies, movement (2026-10-15)
+
+`deadsim/mechanics.py`, **off by default** (`mechanics.DEFAULT = None`) so the step 3 searches that were running keep
+their numbers. Turn on per fight with `duel(a, b, mechanics=Mechanics())`, or for everything with
+`deadsim.mechanics.DEFAULT = Mechanics()`. With it on, `hero_default_skill` landing factors switch to
+`data/landing_rates_mech.json` (refit with the mechanics on; median factor x0.97, McGinnis turret x2.3).
+Real data: 600 ranked matches (badge 60+, 2026-10-10..13) with full damage matrix and 1 s position/health tracks
+(`scripts/mechanics/fetch_mech.py`); every number below is in `validation/mechanics/`. Damage-matrix arrays are
+right-aligned (shorter arrays start later); the scripts align them. Ability damage in the matrix barely drops with
+Spirit Resilience (-8% for 30% spirit resist), so before/after effects of defensive items are weak and noisy.
+
+| Mechanic | Model | Fitted to | Real | Sim |
+|---|---|---|---|---|
+| Parry | defender parries `Skill.parry_rate` of incoming heavy melees: attacker stunned 2.75 s, +25% damage taken | team Parry Success vs enemy melee hits (800 teams) | 5% of hero melees parried (90% CI 2.7-7.5%); 75% of parries are vs troopers | 15% of heavies = 5% of melees |
+| Rebuttal | on parry: heal + return the parried damage, +30% damage 6 s; holders parry 1.9x | parries per 3 min, holders 0.88 vs 0.47 | 0.06% of hero damage, 45 dmg per 3 min held | 0.02% (underrated ~3x) |
+| Counterspell | spell parry timed vs `spell_parry_rate` of enemy aimed casts, blocks that cast for 0.8 s | same-player before/after buying, vs teammates | ability damage taken -4.6% (CI -6.4..-2.6); +50 HP alone explains ~4% (Extra Health -8%) | -2% (rate 0.05) |
+| Turrets | McGinnis turrets have HP (100 + 9/boon, 35% spirit resist); enemy spends `summon_focus` (0.8) of shots on them at 2.5x accuracy | not fittable (see below) | | turret damage -15%, landing 0.06 -> 0.14 |
+| Split Shot | during the active each landed shot adds 2.8 copies on the main target (+ nearby enemies) | Split Shot dmg / gun dmg of holders | 0.271 | 0.266 |
+| Ricochet | bounces 65% of each gun hit to `Mechanics.extra_targets` nearby enemies (booked as splash) | Ricochet dmg / gun dmg of holders | 0.150 = 0.23 bounces per hit | `extra_targets=0.23` gives 0.145 |
+| Escape | below `flee_hp` (0.15) and losing, a fighter stops shooting and runs (sprint after 2 s, dashes); the other chases 85% of the time; escape at 40 m | isolated 1v1s where one side drops below 25% HP (11,720 episodes) | 20% escape, 80% die (of decided) | 21% / 79% |
+
+Escape effect of each item (change in escape share; real is adjusted for hero and 5-min game-time bin, n holders in
+brackets; sim adds the item to real builds; base rate 20%):
+
+| Runner item | Real | Sim | Enemy item | Real | Sim |
+|---|---|---|---|---|---|
+| Warp Stone (312) | +6.5 | +5.3 | Slowing Hex (657) | -1.6 | -4.2 |
+| Fleetfoot (753) | +6.0 | +3.5 | Mystic Slow (88) | -4.6 | -4.2 |
+| Sprint Boots (335) | +5.6 | +2.5 | Slowing Bullets (77) | -2.7 | -2.4 |
+| Enduring Speed (1426) | +3.3 | +3.9 | Cold Front (572) | -0.4 | +0.3 |
+| Dispel Magic (690) | +2.8 | +1.6 | Arctic Blast (174) | +1.9 | -1.8 |
+| Stamina Mastery (653) | +2.6 | +6.1 | Phantom Strike (62) | -3.1 | -1.7 |
+| Extra Health (721, control) | +2.5 | +3.2 | Knockdown (119) | +1.0 | -1.7 |
+| Ethereal Shift (45) | +1.2 | +1.2 | Lifestrike (506) | +0.3 | -0.6 |
+| Extra Stamina (429) | +0.1 | +1.7 | | | |
+| Kinetic Dash (256) | -4.4 | +0.7 | | | |
+| Magic Carpet (33) | +14 | +19 | | | |
+| Majestic Leap (110) | -15 | +2.5 | | | |
+
+Standard error of the real numbers is about 1.5 pts at n=700, 2.3 at n=300, 4 at n=100. Two fixes came from this table:
+Majestic Leap first had an escape leap (sim +74 pts) but real holders escape *less*: it is an engage tool, so it keeps
+only its barrier. Warp Stone's full 11 m teleport gave +23; only 30% of it counts as distance (`WARP_AWAY`).
+
+What the new mechanics change on real build pairs (1,138 duels, `impact.txt`): 11% of duels now end in an escape
+(no winner), 86% of results are unchanged, 1% flip winner; speed unchanged (~12 ms per 30 s duel).
+
+Limits: parry misses (as frequent as successes) cost nothing; light melees are never parried. Turret focus and
+accuracy are assumptions: McGinnis' sim gun share stays ~3% vs 26% real even with every shot on turrets, so her gap
+is elsewhere (Heavy Barrage locking the gun at fight start, the fresh-cooldown bias). Sinclair's Assistant and
+Graves' summons still can't be shot. Nearby enemies only feed Ricochet and Split Shot (AoE abilities already carry
+team-fight hits in their landing factors); splash damage never kills anyone and is reported apart
+(`FightResult.a_splash`). Hero mobility abilities (grapples, teleports, flight) are not modeled; only items, base
+speed, sprint and stamina. Fighters hold their distance unless someone runs, so melee gap-closing is still unvalued.
+Ability slows are applied generically from SlowPercent-type properties at spirit accuracy. Real escape episodes are
+"no teammate and exactly one enemy within 25 m", which is closer to a 1v1 than a team fight but not the same.
+
+## Known gaps (not yet modeled)
+
+- **Melee movement:** melee is now in fights (see "Melee" above), but distance stays fixed (even with movement on, unless someone runs), so gap-closing
+  (Melee Charge's lunge, Lifestrike's slow) has no value.
+- **Fixed distance:** fighters don't move unless `mechanics.movement` is on (escape and chase only; see above). Short-range ultimates use per-hero "approach" constants to be cast.
+- **Summons can't be shot** (fixed for McGinnis turrets with `mechanics.summons`, see above): McGinnis turrets keep full uptime, so her gun share is 2% vs 26% real. Still the
+  worst-matched hero.
+- **Paradox Kinetic Carbine** damage formula is a low-confidence reading of the data (landing 2.95).
+- **Bebop Hyper Beam / Haze Bullet Dance** dominate any 20 s duel that starts with them ready (landing 0.06 /
+  0.15); the models match the data, the gap is the fresh-cooldown bias above.
+- **Multi-target items** (Ricochet, Split Shot) do nothing in a 1v1 without mechanics; see above. Deadman Danny's charged primary fire is
+  modeled as a plain gun.
+- **Attribution:** the game books amp bonuses (Escalating Exposure, Express Shot, Siphon Bullets) under the item;
+  the sim books them under the hit's source. This affects only the item-share comparison.
+- **TTK:** sim 1v1 duels between real builds take a median 19 s (28 s with landing factors) vs 13 s for real
+  deaths, which are mostly team fights with several attackers.
+
+## Speed
+
+About 9 ms per 20-second duel on one core (abilities and items on), after caching. Fine for thousands of fights;
+the build search will want more.

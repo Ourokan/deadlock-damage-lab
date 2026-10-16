@@ -1,0 +1,207 @@
+{
+ "meta": {
+  "what": "landed basic melee hits per second of fight, fitted so sim melee/gun damage matches real damage matrix (scripts/landing_rates.py --fit-melee)"
+ },
+ "heroes": {
+  "1": {
+   "name": "Infernus",
+   "rate": 0.0177,
+   "real_melee_share": 0.0216
+  },
+  "2": {
+   "name": "Seven",
+   "rate": 0.0228,
+   "real_melee_share": 0.0151
+  },
+  "3": {
+   "name": "Vindicta",
+   "rate": 0.0064,
+   "real_melee_share": 0.0063
+  },
+  "4": {
+   "name": "Lady Geist",
+   "rate": 0.0349,
+   "real_melee_share": 0.0219
+  },
+  "6": {
+   "name": "Abrams",
+   "rate": 0.2945,
+   "real_melee_share": 0.3977
+  },
+  "7": {
+   "name": "Wraith",
+   "rate": 0.0088,
+   "real_melee_share": 0.0077
+  },
+  "8": {
+   "name": "McGinnis",
+   "rate": 0.0049,
+   "real_melee_share": 0.0129
+  },
+  "10": {
+   "name": "Paradox",
+   "rate": 0.0749,
+   "real_melee_share": 0.0261
+  },
+  "11": {
+   "name": "Dynamo",
+   "rate": 0.0336,
+   "real_melee_share": 0.0406
+  },
+  "12": {
+   "name": "Kelvin",
+   "rate": 0.0226,
+   "real_melee_share": 0.0263
+  },
+  "13": {
+   "name": "Haze",
+   "rate": 0.0127,
+   "real_melee_share": 0.0172
+  },
+  "14": {
+   "name": "Holliday",
+   "rate": 0.0613,
+   "real_melee_share": 0.0444
+  },
+  "15": {
+   "name": "Bebop",
+   "rate": 0.0396,
+   "real_melee_share": 0.0513
+  },
+  "16": {
+   "name": "Calico",
+   "rate": 0.0971,
+   "real_melee_share": 0.1363
+  },
+  "17": {
+   "name": "Grey Talon",
+   "rate": 0.011,
+   "real_melee_share": 0.0076
+  },
+  "18": {
+   "name": "Mo & Krill",
+   "rate": 0.0347,
+   "real_melee_share": 0.0364
+  },
+  "19": {
+   "name": "Shiv",
+   "rate": 0.1209,
+   "real_melee_share": 0.0718
+  },
+  "20": {
+   "name": "Ivy",
+   "rate": 0.023,
+   "real_melee_share": 0.0367
+  },
+  "25": {
+   "name": "Warden",
+   "rate": 0.0204,
+   "real_melee_share": 0.03
+  },
+  "27": {
+   "name": "Yamato",
+   "rate": 0.1072,
+   "real_melee_share": 0.1688
+  },
+  "31": {
+   "name": "Lash",
+   "rate": 0.0407,
+   "real_melee_share": 0.0266
+  },
+  "35": {
+   "name": "Viscous",
+   "rate": 0.0589,
+   "real_melee_share": 0.0519
+  },
+  "50": {
+   "name": "Pocket",
+   "rate": 0.0209,
+   "real_melee_share": 0.0194
+  },
+  "52": {
+   "name": "Mirage",
+   "rate": 0.0184,
+   "real_melee_share": 0.0213
+  },
+  "58": {
+   "name": "Vyper",
+   "rate": 0.0142,
+   "real_melee_share": 0.014
+  },
+  "60": {
+   "name": "Sinclair",
+   "rate": 0.0445,
+   "real_melee_share": 0.037
+  },
+  "63": {
+   "name": "Mina",
+   "rate": 0.0118,
+   "real_melee_share": 0.0101
+  },
+  "64": {
+   "name": "Drifter",
+   "rate": 0.1553,
+   "real_melee_share": 0.1021
+  },
+  "65": {
+   "name": "Venator",
+   "rate": 0.1946,
+   "real_melee_share": 0.0723
+  },
+  "66": {
+   "name": "Victor",
+   "rate": 0.0338,
+   "real_melee_share": 0.0348
+  },
+  "67": {
+   "name": "Paige",
+   "rate": 0.03,
+   "real_melee_share": 0.021
+  },
+  "69": {
+   "name": "The Doorman",
+   "rate": 0.0433,
+   "real_melee_share": 0.0308
+  },
+  "72": {
+   "name": "Billy",
+   "rate": 0.2178,
+   "real_melee_share": 0.233
+  },
+  "77": {
+   "name": "Apollo",
+   "rate": 0.1225,
+   "real_melee_share": 0.2088
+  },
+  "78": {
+   "name": "Deadman Danny",
+   "rate": 0.008,
+   "real_melee_share": 0.011
+  },
+  "79": {
+   "name": "Rem",
+   "rate": 0.0284,
+   "real_melee_share": 0.0415
+  },
+  "80": {
+   "name": "Silver",
+   "rate": 0.1111,
+   "real_melee_share": 0.0907
+  },
+  "81": {
+   "name": "Celeste",
+   "rate": 0.0519,
+   "real_melee_share": 0.0408
+  },
+  "84": {
+   "name": "Rat King",
+   "rate": 0.0515,
+   "real_melee_share": 0.0513
+  },
+  "85": {
+   "name": "Solomon",
+   "rate": 0.0166,
+   "real_melee_share": 0.0144
+  }
+ }
+}

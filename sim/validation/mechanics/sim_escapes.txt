@@ -1,0 +1,4 @@
+Mechanics(parry=True, summons=True, movement=True, extra_targets=0.0, escape_dist=40.0) {} {'CHASE_PROB': 0.85, 'WARP_AWAY': 0.3}
+duels 2276 all {'died': '1330 (58%)', 'escaped': '311 (13%)', 'still_fighting': '401 (17%)', 'timeout': '135 (6%)', 'won': '129 (6%)', 'n': 2306}
+  mobility {'died': '578 (57%)', 'escaped': '146 (14%)', 'still_fighting': '175 (17%)', 'timeout': '56 (6%)', 'won': '60 (6%)', 'n': 1015}
+  none {'died': '752 (58%)', 'escaped': '165 (13%)', 'still_fighting': '226 (18%)', 'timeout': '79 (6%)', 'won': '69 (5%)', 'n': 1291}

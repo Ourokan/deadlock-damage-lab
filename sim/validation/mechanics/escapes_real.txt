@@ -1,0 +1,18 @@
+all {'died': '7763 (66%)', 'escaped': '1944 (17%)', 'still_fighting': '1233 (11%)', 'won': '780 (7%)', 'n': 11720}
+runner has mobility item {'died': '3048 (70%)', 'escaped': '646 (15%)', 'still_fighting': '388 (9%)', 'won': '296 (7%)', 'n': 4378}
+no mobility item {'died': '4715 (64%)', 'escaped': '1298 (18%)', 'still_fighting': '845 (12%)', 'won': '484 (7%)', 'n': 7342}
+enemy has slow item {'died': '1684 (72%)', 'escaped': '319 (14%)', 'still_fighting': '212 (9%)', 'won': '131 (6%)', 'n': 2346}
+no slow item {'died': '6079 (65%)', 'escaped': '1625 (17%)', 'still_fighting': '1021 (11%)', 'won': '649 (7%)', 'n': 9374}
+   Dispel Magic {'died': '569 (69%)', 'escaped': '143 (17%)', 'still_fighting': '62 (7%)', 'won': '54 (7%)', 'n': 828}
+   Enduring Speed {'died': '1204 (69%)', 'escaped': '270 (15%)', 'still_fighting': '154 (9%)', 'won': '120 (7%)', 'n': 1748}
+   Ethereal Shift {'died': '33 (55%)', 'escaped': '12 (20%)', 'still_fighting': '11 (18%)', 'won': '4 (7%)', 'n': 60}
+   Extra Stamina {'died': '355 (68%)', 'escaped': '74 (14%)', 'still_fighting': '61 (12%)', 'won': '35 (7%)', 'n': 525}
+   Fleetfoot {'died': '635 (71%)', 'escaped': '129 (14%)', 'still_fighting': '73 (8%)', 'won': '61 (7%)', 'n': 898}
+   Kinetic Dash {'died': '228 (74%)', 'escaped': '31 (10%)', 'still_fighting': '29 (9%)', 'won': '19 (6%)', 'n': 307}
+   Magic Carpet {'died': '27 (61%)', 'escaped': '11 (25%)', 'still_fighting': '5 (11%)', 'won': '1 (2%)', 'n': 44}
+   Majestic Leap {'died': '100 (82%)', 'escaped': '12 (10%)', 'still_fighting': '2 (2%)', 'won': '8 (7%)', 'n': 122}
+   Stamina Mastery {'died': '584 (70%)', 'escaped': '118 (14%)', 'still_fighting': '71 (8%)', 'won': '63 (8%)', 'n': 836}
+   Warp Stone {'died': '237 (63%)', 'escaped': '83 (22%)', 'still_fighting': '33 (9%)', 'won': '21 (6%)', 'n': 374}
+gap at low-hp moment, median 10.963576058932594
+escaped: median gap every 2 s [14.4, 22.7, 34.9, 46.9, 59.1, 70.0]
+died: median gap every 2 s [10.2, 94.4, 271.2, 297.5, 308.0, 313.7]
