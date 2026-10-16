@@ -1,0 +1,1618 @@
+{
+ "_doc": "Per-hero fight behaviour (deadsim.patterns). order: cast priority once the fight is on (abilities not listed follow in slot order). ult_after: the ultimate waits until one of these setup abilities was cast this fight (or SETUP_WAIT s pass). prefight: ability used before the fight starts (its impl's prefight hook runs at t=0). engage_share / start_distance_m: real Phantom+ match_paths (300 matches, Oct 2026): share of fight starts during ability movement, median distance to the nearest enemy when the fight starts. Research fields (engage, ult, holds, range, notes, sources, confidence) come from guides; most guide pages could not be opened, so treat confidence 'low' entries as best guesses. guide_order / guide_ult_after are what guides say; order / ult_after are what the sim uses. A guide combo is used only when it fits the real damage mix (scripts/landing_rates.py, mechanics on) no worse than slot order, within 0.03 of mean |log landing factor| (fit_error); Mo & Krill's burrow opener is kept on Tyler's word.",
+ "heroes": {
+  "1": {
+   "name": "Infernus",
+   "order": [
+    "ability_incendiary_projectile",
+    "ability_afterburn",
+    "ability_flame_dash",
+    "ability_fire_bomb"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_incendiary_projectile",
+    "ability_afterburn",
+    "ability_flame_dash",
+    "ability_fire_bomb"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.908,
+    "guide": 0.912
+   },
+   "engage": "ability_flame_dash",
+   "engage_share": 0.2,
+   "start_distance_m": null,
+   "ult": "opener",
+   "holds": [
+    {
+     "ability": "ability_flame_dash",
+     "when": "often kept to chase a fleeing target or disengage if the trade goes badly"
+    }
+   ],
+   "range": "close",
+   "confidence": "medium",
+   "notes": "Napalm the target (slow + amp), keep Afterburn stacks up with gun, Flame Dash through/around them; Concussive Combustion cast when in melee range of the target (3s delay stun), usually to start an all-in.",
+   "sources": [
+    "https://mobalytics.gg/deadlock/infernus-guide",
+    "https://deadlock.wiki/Concussive_Combustion",
+    "https://deadlock.wiki/Napalm"
+   ]
+  },
+  "2": {
+   "name": "Seven",
+   "order": [],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "citadel_ability_static_charge",
+    "citadel_ability_storm_cloud",
+    "citadel_ability_lightning_ball",
+    "ability_power_surge"
+   ],
+   "guide_ult_after": [
+    "citadel_ability_static_charge"
+   ],
+   "fit_error": {
+    "slot_order": 0.509,
+    "guide": 1.177
+   },
+   "engage": null,
+   "engage_share": 0.0,
+   "start_distance_m": null,
+   "ult": "after_cc",
+   "holds": [
+    {
+     "ability": "citadel_ability_storm_cloud",
+     "when": "saved until Static Charge stuns or enemies are pinned, and until enemy hard CC is used (channel is interruptible)"
+    }
+   ],
+   "range": "mid",
+   "confidence": "medium",
+   "notes": "Static Charge the target, then Storm Cloud while they are stunned; Lightning Ball for extra AoE. Power Surge is applied before trading so bullets proc it. In a pure 1v1 the typical poke is Lightning Ball + Static Charge + Power Surge gun.",
+   "sources": [
+    "https://mobalytics.gg/deadlock/seven-guide",
+    "https://games.gg/deadlock/guides/seven-deadlock-guide/",
+    "https://deadlockmod.com/guides/seven-hero-guide-lightning-teamfighter"
+   ],
+   "dropped": "guide combo fits the real damage mix worse than slot order (mean |log landing| 0.51 -> 1.18), so the sim keeps slot order"
+  },
+  "3": {
+   "name": "Vindicta",
+   "order": [
+    "citadel_ability_hornet_sting",
+    "citadel_ability_hornet_chain",
+    "citadel_ability_hornet_leap",
+    "citadel_ability_hornet_snipe"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "citadel_ability_hornet_sting",
+    "citadel_ability_hornet_chain",
+    "citadel_ability_hornet_leap",
+    "citadel_ability_hornet_snipe"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.715,
+    "guide": 0.739
+   },
+   "engage": "citadel_ability_hornet_leap",
+   "engage_share": 0.37,
+   "start_distance_m": null,
+   "ult": "finisher",
+   "holds": [
+    {
+     "ability": "citadel_ability_hornet_chain",
+     "when": "sometimes held to stop an enemy diving her or to pin a fleeing target"
+    }
+   ],
+   "range": "long",
+   "confidence": "medium",
+   "notes": "Send Crow, Stake to pin, take Flight, shoot target into execute range, then Assassinate (bonus damage below 50% HP). Some guides open Crow -> Flight -> Stake.",
+   "sources": [
+    "https://games.gg/deadlock/guides/vindicta-build-guide/",
+    "https://eguidemagazine.com/wp-content/pages/deadlock-vindicta-guide.html",
+    "https://mobalytics.gg/deadlock/vindicta-guide"
+   ]
+  },
+  "4": {
+   "name": "Lady Geist",
+   "order": [
+    "ability_blood_shards",
+    "ability_blood_bomb",
+    "ability_life_drain",
+    "ability_health_swap"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_blood_shards",
+    "ability_blood_bomb",
+    "ability_life_drain",
+    "ability_health_swap"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.336,
+    "guide": 0.334
+   },
+   "engage": null,
+   "engage_share": 0.01,
+   "start_distance_m": null,
+   "ult": "finisher",
+   "holds": [
+    {
+     "ability": "ability_health_swap",
+     "when": "used when Geist is low and the target is healthy (defensive swap) or to finish a low target; often saved for that swing"
+    },
+    {
+     "ability": "ability_life_drain",
+     "when": "used mid-fight to recover HP spent on ability costs"
+    }
+   ],
+   "range": "mid",
+   "confidence": "low",
+   "notes": "Malice to mark/amp, Essence Bomb burst, Life Drain to heal back; Soul Exchange is the swing ult, used when her HP is lower than the enemy's (both defensive and as a kill tool).",
+   "sources": [
+    "https://deadlockmod.com/guides/lady-geist-hero-guide-health-cost-burst",
+    "https://games.gg/deadlock/guides/deadlock-lady-geist-guide/",
+    "https://mobalytics.gg/deadlock/lady-geist-guide"
+   ]
+  },
+  "6": {
+   "name": "Abrams",
+   "order": [
+    "citadel_ability_bull_charge",
+    "citadel_ability_bull_heal",
+    "citadel_ability_bull_leap"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "citadel_ability_bull_charge",
+    "citadel_ability_bull_heal",
+    "citadel_ability_bull_leap"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.416,
+    "guide": 0.417
+   },
+   "engage": "citadel_ability_bull_charge",
+   "engage_share": 0.25,
+   "start_distance_m": null,
+   "ult": "opener",
+   "holds": [
+    {
+     "ability": "citadel_ability_bull_heal",
+     "when": "often used when hurt / in range for sustain rather than strictly first"
+    }
+   ],
+   "range": "close",
+   "confidence": "medium",
+   "notes": "Shoulder Charge the target into a wall for a stun, heavy melee + shotgun, Siphon Life while in range. Seismic Impact is used to engage or follow up (stun on landing), often from above; in small fights it is frequently the opener/gap-closer.",
+   "sources": [
+    "https://fandomwire.com/best-abrams-build-in-deadlock-items-upgrade-combos/",
+    "https://deadlock.wiki/Shoulder_Charge",
+    "https://games.gg/deadlock/guides/deadlock-abrams-guide/"
+   ]
+  },
+  "7": {
+   "name": "Wraith",
+   "order": [
+    "citadel_ability_card_toss",
+    "citadel_ability_wraith_rapidfire",
+    "citadel_ability_psychic_lift"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "citadel_ability_card_toss",
+    "citadel_ability_wraith_rapidfire",
+    "citadel_ability_psychic_lift"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.825,
+    "guide": 0.829
+   },
+   "engage": null,
+   "engage_share": 0.03,
+   "start_distance_m": null,
+   "ult": "opener",
+   "holds": [
+    {
+     "ability": "citadel_ability_projectmind",
+     "when": "kept as an escape (teleport out) when low or when the fight turns; some guides use it aggressively to reposition"
+    }
+   ],
+   "range": "mid",
+   "confidence": "medium",
+   "notes": "Poke with Card Trick, pop Full Auto for the gun trade, Telekinesis the priority target and dump damage during the lift. Project Mind mostly saved for escape.",
+   "sources": [
+    "https://mobalytics.gg/deadlock/wraith-guide",
+    "https://www.dexerto.com/wikis/deadlock/wraith/",
+    "https://bo3.gg/games/articles/wraith-guide-deadlock"
+   ]
+  },
+  "8": {
+   "name": "McGinnis",
+   "order": [
+    "citadel_ability_shieldedsentry",
+    "citadel_ability_fissure_wall",
+    "citadel_ability_rocket_barrage"
+   ],
+   "ult_after": [
+    "citadel_ability_fissure_wall"
+   ],
+   "prefight": null,
+   "guide_order": [
+    "citadel_ability_shieldedsentry",
+    "citadel_ability_fissure_wall",
+    "citadel_ability_rocket_barrage"
+   ],
+   "guide_ult_after": [
+    "citadel_ability_fissure_wall"
+   ],
+   "fit_error": {
+    "slot_order": 2.334,
+    "guide": 2.361
+   },
+   "engage": "citadel_ability_shieldedsentry",
+   "engage_share": 0.0,
+   "start_distance_m": null,
+   "ult": "after_cc",
+   "holds": [
+    {
+     "ability": "citadel_ability_mobile_resupply",
+     "when": "placed when McGinnis/allies are hurt"
+    },
+    {
+     "ability": "citadel_ability_fissure_wall",
+     "when": "sometimes held to cut off a fleeing enemy or block a dive"
+    }
+   ],
+   "range": "mid",
+   "confidence": "medium",
+   "notes": "Turrets placed at the fight spot, Spectral Wall to trap the target (stun/slow on pass-through, back to wall), then Heavy Barrage on the trapped target.",
+   "sources": [
+    "https://mobalytics.gg/blog/deadlock-mcginnis-guide/",
+    "https://www.dexerto.com/wikis/deadlock/mcginnis/",
+    "https://deadlock.wiki/Heavy_Barrage"
+   ]
+  },
+  "10": {
+   "name": "Paradox",
+   "order": [
+    "citadel_ability_chrono_kinetic_carbine",
+    "citadel_ability_chrono_pulse_grenade",
+    "citadel_ability_chrono_time_wall",
+    "citadel_ability_chrono_swap"
+   ],
+   "ult_after": [
+    "citadel_ability_chrono_time_wall",
+    "citadel_ability_chrono_pulse_grenade"
+   ],
+   "prefight": null,
+   "guide_order": [
+    "citadel_ability_chrono_kinetic_carbine",
+    "citadel_ability_chrono_pulse_grenade",
+    "citadel_ability_chrono_time_wall",
+    "citadel_ability_chrono_swap"
+   ],
+   "guide_ult_after": [
+    "citadel_ability_chrono_time_wall",
+    "citadel_ability_chrono_pulse_grenade"
+   ],
+   "fit_error": {
+    "slot_order": 0.553,
+    "guide": 0.531
+   },
+   "engage": "citadel_ability_chrono_kinetic_carbine",
+   "engage_share": 0.05,
+   "start_distance_m": null,
+   "ult": "after_cc",
+   "holds": [
+    {
+     "ability": "citadel_ability_chrono_swap",
+     "when": "used to pull a target into Time Wall/grenade or into allies; sometimes saved to swap out of danger"
+    }
+   ],
+   "range": "mid",
+   "confidence": "medium",
+   "notes": "Charge Carbine before peeking, grenade the enemy, land charged Carbine (time stop), drop Time Wall, then Paradoxical Swap the enemy back onto wall + grenade.",
+   "sources": [
+    "https://lr.sudovanilla.org/r/DeadlockTheGame/comments/1gkvcll/tips_on_paradox",
+    "https://www.dexerto.com/wikis/deadlock/paradox/",
+    "https://mobalytics.gg/deadlock/paradox-guide"
+   ]
+  },
+  "11": {
+   "name": "Dynamo",
+   "order": [
+    "citadel_ability_stomp",
+    "citadel_ability_self_vacuum",
+    "citadel_ability_nikuman"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "citadel_ability_stomp",
+    "citadel_ability_self_vacuum",
+    "citadel_ability_nikuman"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.505,
+    "guide": 0.53
+   },
+   "engage": null,
+   "engage_share": 0.09,
+   "start_distance_m": null,
+   "ult": "opener",
+   "holds": [
+    {
+     "ability": "citadel_ability_void_sphere",
+     "when": "saved as an exit when bursted or when the fight goes badly; sometimes used to blink into Singularity range"
+    },
+    {
+     "ability": "citadel_ability_nikuman",
+     "when": "cast when Dynamo/allies have taken damage"
+    }
+   ],
+   "range": "close",
+   "confidence": "low",
+   "notes": "Kinetic Pulse lift to interrupt, Singularity on grouped/close enemies (channel, interruptible), Aurora heal when hurt. In 1v1 he relies on Pulse + gun.",
+   "sources": [
+    "https://games.gg/deadlock/guides/deadlock-dynamo-guide/",
+    "https://bo3.gg/games/articles/dynamo-guide-deadlock",
+    "https://deadlock.wiki/Kinetic_Pulse"
+   ]
+  },
+  "12": {
+   "name": "Kelvin",
+   "order": [
+    "ability_ice_grenade",
+    "ability_icebeam"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_ice_grenade",
+    "ability_icebeam"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.589,
+    "guide": 0.564
+   },
+   "engage": "ability_icepath",
+   "engage_share": 0.37,
+   "start_distance_m": null,
+   "ult": "defensive",
+   "holds": [
+    {
+     "ability": "ability_icepath",
+     "when": "used to engage/chase or to escape"
+    },
+    {
+     "ability": "ability_ice_dome",
+     "when": "used to save self/allies when low (heal + slow) or to trap enemies for a collapse"
+    }
+   ],
+   "range": "mid",
+   "confidence": "medium",
+   "notes": "Frost Grenade to slow, Arctic Beam to finish while they can't escape; Ice Path for approach/escape. Frozen Shelter is mostly a save/heal, sometimes an offensive trap.",
+   "sources": [
+    "https://deadlockmod.com/guides/kelvin-hero-guide-frost-control",
+    "https://www.dexerto.com/wikis/deadlock/kelvin/",
+    "https://mobalytics.gg/deadlock/kelvin-guide"
+   ]
+  },
+  "13": {
+   "name": "Haze",
+   "order": [],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_sleep_dagger",
+    "ability_stacking_damage",
+    "ability_bullet_flurry"
+   ],
+   "guide_ult_after": [
+    "ability_sleep_dagger"
+   ],
+   "fit_error": {
+    "slot_order": 1.247,
+    "guide": 1.469
+   },
+   "engage": "ability_smoke_bomb",
+   "engage_share": 0.0,
+   "start_distance_m": null,
+   "ult": "after_cc",
+   "holds": [
+    {
+     "ability": "ability_bullet_flurry",
+     "when": "wait until enemy CC is used; cast when close to target(s)"
+    }
+   ],
+   "range": "close",
+   "confidence": "medium",
+   "notes": "Smoke Bomb invisible approach, Sleep Dagger the target, gun them with Fixation stacking (headshots), Bullet Dance at close range once stacks are up / CC baited. Fixation is passive-ish.",
+   "sources": [
+    "https://mobalytics.gg/deadlock/haze-guide",
+    "https://www.dexerto.com/gaming/deadlock-haze-build-best-items-abilities-more-2883362",
+    "https://www.destructoid.com/deadlock-best-haze-build/"
+   ],
+   "dropped": "guide combo fits the real damage mix worse than slot order (mean |log landing| 1.25 -> 1.47), so the sim keeps slot order"
+  },
+  "14": {
+   "name": "Holliday",
+   "order": [
+    "ability_explosive_barrel",
+    "ability_crackshot",
+    "ability_gravity_lasso",
+    "ability_bounce_pad"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_explosive_barrel",
+    "ability_crackshot",
+    "ability_gravity_lasso",
+    "ability_bounce_pad"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.935,
+    "guide": 0.919
+   },
+   "engage": "ability_bounce_pad",
+   "engage_share": 0.0,
+   "start_distance_m": null,
+   "ult": "opener",
+   "holds": [
+    {
+     "ability": "ability_bounce_pad",
+     "when": "kept for escape or to extend lasso / reposition mid-fight"
+    }
+   ],
+   "range": "mid",
+   "confidence": "low",
+   "notes": "Throw Powder Keg at/near target and detonate (shoot/melee it), Crackshot headshots, Spirit Lasso the target and drag them (often into kegs or allies; bounce pad extends lasso).",
+   "sources": [
+    "https://mobalytics.gg/deadlock/holliday-guide",
+    "https://deadlock.wiki/Powder_Keg",
+    "https://beebom.com/deadlock-holliday-build-guide/amp/"
+   ]
+  },
+  "15": {
+   "name": "Bebop",
+   "order": [
+    "citadel_ability_hook",
+    "citadel_ability_sticky_bomb",
+    "citadel_ability_uppercut",
+    "citadel_ability_bebop_laser_beam"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "citadel_ability_hook",
+    "citadel_ability_sticky_bomb",
+    "citadel_ability_uppercut",
+    "citadel_ability_bebop_laser_beam"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 1.411,
+    "guide": 1.291
+   },
+   "engage": "citadel_ability_hook",
+   "engage_share": 0.01,
+   "start_distance_m": null,
+   "ult": "finisher",
+   "holds": [
+    {
+     "ability": "citadel_ability_uppercut",
+     "when": "sometimes held to knock away a diver"
+    }
+   ],
+   "range": "mid",
+   "confidence": "medium",
+   "notes": "Hook -> Sticky Bomb -> Exploding Uppercut -> (re-hook) -> Hyper Beam to finish. Hook pulls from range (~30m) into close.",
+   "sources": [
+    "https://rennerusa.com/pages/deadlock-bebop-guide.html",
+    "https://deadlock.wiki/Grapple_Arm",
+    "https://deadlock.wiki/Hyper_Beam"
+   ]
+  },
+  "16": {
+   "name": "Calico",
+   "order": [
+    "ability_nano_clustergrenade",
+    "ability_nano_dash",
+    "ability_nano_shadow_pulse"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_nano_clustergrenade",
+    "ability_nano_dash",
+    "ability_nano_shadow_pulse"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.914,
+    "guide": 0.903
+   },
+   "engage": "ability_nano_catform",
+   "engage_share": 0.0,
+   "start_distance_m": null,
+   "ult": "finisher",
+   "holds": [
+    {
+     "ability": "ability_nano_shadow_pulse",
+     "when": "also used defensively to go untargetable/heal when low"
+    }
+   ],
+   "range": "close",
+   "confidence": "low",
+   "notes": "Gloom Bombs -> Leaping Slash -> Return to Shadows deletes squishies. Ava (cat form) used for approach/rotation and to escape.",
+   "sources": [
+    "https://mobalytics.gg/deadlock/calico-guide",
+    "https://www.dexerto.com/wikis/deadlock/calico/",
+    "https://beebom.com/deadlock-calico-build-guide/"
+   ]
+  },
+  "17": {
+   "name": "Grey Talon",
+   "order": [
+    "ability_immobilize_trap",
+    "ability_charged_shot",
+    "ability_power_jump",
+    "ability_guided_arrow"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_immobilize_trap",
+    "ability_charged_shot",
+    "ability_power_jump",
+    "ability_guided_arrow"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.527,
+    "guide": 0.496
+   },
+   "engage": null,
+   "engage_share": 0.31,
+   "start_distance_m": null,
+   "ult": "finisher",
+   "holds": [
+    {
+     "ability": "ability_power_jump",
+     "when": "often used to escape divers / gain height"
+    }
+   ],
+   "range": "long",
+   "confidence": "low",
+   "notes": "Spirit Snare (detonate early with Charged Shot) to root, Charged Shot poke, Rain of Arrows for airborne multishot; Guided Owl after softening the target with charged shots.",
+   "sources": [
+    "https://www.dexerto.com/wikis/deadlock/grey-talon/",
+    "https://deadlock.wiki/Charged_Shot",
+    "https://mobalytics.gg/deadlock/grey-talon-guide"
+   ]
+  },
+  "18": {
+   "name": "Mo & Krill",
+   "order": [
+    "ability_burrow",
+    "ability_intimidate",
+    "ability_throw_sand",
+    "ability_ult_combo"
+   ],
+   "ult_after": [
+    "ability_burrow",
+    "ability_throw_sand"
+   ],
+   "prefight": "ability_burrow",
+   "guide_order": [
+    "ability_burrow",
+    "ability_intimidate",
+    "ability_throw_sand",
+    "ability_ult_combo"
+   ],
+   "guide_ult_after": [
+    "ability_burrow",
+    "ability_throw_sand"
+   ],
+   "fit_error": {
+    "slot_order": 0.303,
+    "guide": 0.322
+   },
+   "engage": "ability_burrow",
+   "engage_share": 0.07,
+   "start_distance_m": null,
+   "ult": "after_cc",
+   "holds": [
+    {
+     "ability": "ability_burrow",
+     "when": "if not used to engage, kept to escape"
+    }
+   ],
+   "range": "close",
+   "confidence": "medium",
+   "notes": "Tyler: Mo & Krill start most fights burrowed, so the sim opens with Mo emerging on the target (Burrow cast before t=0, cooldown already running). Burrow is not flagged as ability movement in match_paths, so engage_share undercounts it. Burrow in, knock-up on emerge, Scorn stacks, Sand Blast to disarm, gun; Combo (hold) on the target to finish/secure (Scorn stacks first).",
+   "sources": [
+    "https://mobalytics.gg/deadlock/mo-and-krill-guide",
+    "https://liquipedia.net/deadlock/Mo_%26_Krill",
+    "https://hawk.live/posts/deadlock-mo-krill-ultimate-guide"
+   ]
+  },
+  "19": {
+   "name": "Shiv",
+   "order": [
+    "citadel_ability_shiv_dagger",
+    "citadel_ability_shiv_dash",
+    "citadel_ability_shiv_killing_blow"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "citadel_ability_shiv_dagger",
+    "citadel_ability_shiv_dash",
+    "citadel_ability_shiv_killing_blow"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.52,
+    "guide": 0.533
+   },
+   "engage": "citadel_ability_shiv_dash",
+   "engage_share": 0.0,
+   "start_distance_m": null,
+   "ult": "finisher",
+   "holds": [
+    {
+     "ability": "citadel_ability_shiv_defer_damage",
+     "when": "activated when deferred damage is built up / Shiv is low to clear it"
+    }
+   ],
+   "range": "close",
+   "confidence": "medium",
+   "notes": "Serrated Knives poke, Slice and Dice in, gun/melee to build rage, Killing Blow when target is under execute threshold (resets/rinse-repeat).",
+   "sources": [
+    "https://esports.gg/guides/deadlock/best-shiv-deadlock-build-slicer-and-dicer",
+    "https://beebom.com/deadlock-shiv-build-guide/",
+    "https://mobalytics.gg/deadlock/shiv-guide"
+   ]
+  },
+  "20": {
+   "name": "Ivy",
+   "order": [
+    "citadel_ability_tengu_urn",
+    "citadel_ability_tangotether"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "citadel_ability_tengu_urn",
+    "citadel_ability_tangotether"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.939,
+    "guide": 0.965
+   },
+   "engage": null,
+   "engage_share": 0.11,
+   "start_distance_m": null,
+   "ult": "opener",
+   "holds": [
+    {
+     "ability": "citadel_ability_tengu_stone_form",
+     "when": "used defensively (invulnerable) when low / bursted, or as a stun slam"
+    },
+    {
+     "ability": "citadel_ability_tengu_airlift",
+     "when": "carry an enemy into your team / tower, or rescue an ally"
+    }
+   ],
+   "range": "mid",
+   "confidence": "low",
+   "notes": "Kudzu Connection tether + Entangling Thorns for damage/slow; Stone Form is mainly a save button; Air Drop picks up an enemy and drops them into bad position (or saves ally).",
+   "sources": [
+    "https://games.gg/deadlock/guides/deadlock-ivy-guide/",
+    "https://deadlock.wiki/Stone_Form",
+    "https://deadlock.wiki/Air_Drop"
+   ]
+  },
+  "25": {
+   "name": "Warden",
+   "order": [
+    "ability_warden_crowd_control",
+    "ability_warden_lock_down",
+    "ability_warden_riot_protocol"
+   ],
+   "ult_after": [
+    "ability_warden_lock_down"
+   ],
+   "prefight": null,
+   "guide_order": [
+    "ability_warden_crowd_control",
+    "ability_warden_lock_down",
+    "ability_warden_riot_protocol"
+   ],
+   "guide_ult_after": [
+    "ability_warden_lock_down"
+   ],
+   "fit_error": {
+    "slot_order": 1.371,
+    "guide": 1.386
+   },
+   "engage": null,
+   "engage_share": 0.0,
+   "start_distance_m": null,
+   "ult": "after_cc",
+   "holds": [
+    {
+     "ability": "ability_warden_high_alert",
+     "when": "Willpower shield used when taking damage / to chase or escape"
+    }
+   ],
+   "range": "close",
+   "confidence": "medium",
+   "notes": "Alchemical Flask (slow, weapon dmg + stamina reduction) then Binding Word so they can't dash out; Last Stand channel once target is rooted/close.",
+   "sources": [
+    "https://criticalhits.com.br/dicas/deadlock-guia-de-build-para-warden/",
+    "https://beebom.com/deadlock-warden-build-guide/",
+    "https://www.dexerto.com/wikis/deadlock/warden/"
+   ]
+  },
+  "27": {
+   "name": "Yamato",
+   "order": [],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "citadel_ability_flying_strike",
+    "citadel_ability_power_slash",
+    "citadel_ability_healing_slash",
+    "citadel_ability_infinity_slash"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.835,
+    "guide": 0.914
+   },
+   "engage": "citadel_ability_flying_strike",
+   "engage_share": 0.0,
+   "start_distance_m": null,
+   "ult": "defensive",
+   "holds": [
+    {
+     "ability": "citadel_ability_infinity_slash",
+     "when": "invulnerable transformation used when about to die / to reset the fight; guides warn against engaging without it"
+    }
+   ],
+   "range": "close",
+   "confidence": "low",
+   "notes": "Flying Strike hook to the enemy, Power Slash, Crimson Slash (slow + heal), Shadow Transformation to reset abilities and survive.",
+   "sources": [
+    "https://mobalytics.gg/deadlock/yamato-guide",
+    "https://www.dexerto.com/wikis/deadlock/yamato/",
+    "https://destructoid.com/?p=590672"
+   ],
+   "dropped": "guide combo fits the real damage mix worse than slot order (mean |log landing| 0.83 -> 0.91), so the sim keeps slot order"
+  },
+  "31": {
+   "name": "Lash",
+   "order": [
+    "citadel_ability_lash",
+    "citadel_ability_lash_down_strike",
+    "ability_lash_flog",
+    "citadel_ability_lash_ultimate"
+   ],
+   "ult_after": [
+    "citadel_ability_lash_down_strike"
+   ],
+   "prefight": null,
+   "guide_order": [
+    "citadel_ability_lash",
+    "citadel_ability_lash_down_strike",
+    "ability_lash_flog",
+    "citadel_ability_lash_ultimate"
+   ],
+   "guide_ult_after": [
+    "citadel_ability_lash_down_strike"
+   ],
+   "fit_error": {
+    "slot_order": 0.328,
+    "guide": 0.325
+   },
+   "engage": "citadel_ability_lash",
+   "engage_share": 0.01,
+   "start_distance_m": null,
+   "ult": "after_cc",
+   "holds": [
+    {
+     "ability": "citadel_ability_lash",
+     "when": "Grapple also kept to reposition/escape (resets air jumps)"
+    }
+   ],
+   "range": "close",
+   "confidence": "medium",
+   "notes": "Get height (Grapple), Ground Strike down onto the target (damage scales with height, knocks up), Flog for damage + heal, Death Slam to throw enemies into walls/allies.",
+   "sources": [
+    "https://esports.gg/guides/deadlock/best-lash-deadlock-build-fly-and-fight",
+    "https://www.dexerto.com/wikis/deadlock/lash/",
+    "https://mobalytics.gg/deadlock/lash-guide"
+   ]
+  },
+  "35": {
+   "name": "Viscous",
+   "order": [
+    "viscous_goo_grenade",
+    "viscous_telepunch",
+    "viscous_goo_bowling_ball"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "viscous_goo_grenade",
+    "viscous_telepunch",
+    "viscous_goo_bowling_ball"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.615,
+    "guide": 0.618
+   },
+   "engage": "viscous_goo_bowling_ball",
+   "engage_share": 0.01,
+   "start_distance_m": null,
+   "ult": "opener",
+   "holds": [
+    {
+     "ability": "viscous_restorative_goo",
+     "when": "self or an ally is low / about to die (Cube heals and makes the target invulnerable)"
+    }
+   ],
+   "range": "close",
+   "confidence": "medium",
+   "notes": "Splatter slows and leaves a puddle, then Puddle Punch from the puddle (it counts as melee, so melee items proc). Goo Ball is the dive/engage, best in tight corridors where it bounces back. Cube is the 'save' button.",
+   "sources": [
+    "https://deadlockmod.com/guides/viscous-hero-guide-goo-bruiser",
+    "https://www.dexerto.com/wikis/deadlock/viscous/",
+    "https://mobalytics.gg/deadlock/viscous-guide"
+   ]
+  },
+  "50": {
+   "name": "Pocket",
+   "order": [],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "synth_affliction",
+    "synth_barrage",
+    "synth_plasma_flux",
+    "synth_pulse"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.359,
+    "guide": 0.42
+   },
+   "engage": "synth_plasma_flux",
+   "engage_share": 0.15,
+   "start_distance_m": null,
+   "ult": "opener",
+   "holds": [
+    {
+     "ability": "synth_pulse",
+     "when": "to dodge incoming burst/CC (Satchel hides Pocket, then damages nearby)"
+    },
+    {
+     "ability": "synth_plasma_flux",
+     "when": "kept as the exit: teleport to the cloak after Satchel to escape"
+    }
+   ],
+   "range": "close",
+   "confidence": "medium",
+   "notes": "Affliction dropped at fight start. Barrage is cast in the air (after a dash or jump); the cloak can be thrown and teleported to mid-Barrage without cancelling it. Full nuke is Barrage > Cloak > Satchel > teleport to the cloak. Guides say to plan the exit before committing.",
+   "sources": [
+    "https://www.dexerto.com/wikis/deadlock/pocket/",
+    "https://deadlocklabs.gg/builds/noct-s-shameless-pocket-build-672782/",
+    "https://mobalytics.gg/deadlock/pocket-guide"
+   ],
+   "dropped": "guide combo fits the real damage mix worse than slot order (mean |log landing| 0.36 -> 0.42), so the sim keeps slot order"
+  },
+  "52": {
+   "name": "Mirage",
+   "order": [
+    "mirage_fire_beetles",
+    "mirage_tornado",
+    "mirage_sand_phantom"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "mirage_fire_beetles",
+    "mirage_tornado",
+    "mirage_sand_phantom"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.919,
+    "guide": 0.919
+   },
+   "engage": "mirage_fire_beetles",
+   "engage_share": 0.04,
+   "start_distance_m": null,
+   "ult": "defensive",
+   "holds": [
+    {
+     "ability": "mirage_tornado",
+     "when": "sometimes kept as an escape instead of the engage"
+    },
+    {
+     "ability": "mirage_teleport",
+     "when": "Traveler is used to reposition or escape, not for damage"
+    }
+   ],
+   "range": "mid",
+   "confidence": "medium",
+   "notes": "Scarabs are cast just before or at the start of nearly every fight. He builds Djinn's Mark stacks with gunfire, engages with Tornado (bullet evasion on exit), then activates the Mark to cash the stacks in. Traveler is a long-range teleport used for rotations or getting out.",
+   "sources": [
+    "https://tacter.com/deadlock/guides/deadlock-mirage-build-guide-ce0f24f7",
+    "https://www.dexerto.com/wikis/deadlock/mirage/",
+    "https://mobalytics.gg/deadlock/mirage-guide"
+   ]
+  },
+  "58": {
+   "name": "Vyper",
+   "order": [],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_viper_debuffdagger",
+    "ability_viper_venom",
+    "ability_viper_petrifybola"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 1.298,
+    "guide": 1.346
+   },
+   "engage": "ability_viper_snakedash",
+   "engage_share": 0.0,
+   "start_distance_m": null,
+   "ult": "finisher",
+   "holds": [
+    {
+     "ability": "ability_viper_snakedash",
+     "when": "kept for escape/repositioning once committed (also gives bullet/spirit resist while sliding)"
+    }
+   ],
+   "range": "mid",
+   "confidence": "low",
+   "notes": "Screwjab Dagger pokes, then Lethal Venom, which deals more damage the more health the target is missing. Petrifying Bola locks the target, and Venom ignores Petrify's damage block, so Bola into Venom is the kill combo on a low target. Bola can also stop an escape.",
+   "sources": [
+    "https://mobalytics.gg/deadlock/vyper-guide",
+    "https://beebom.com/deadlock-vyper-build-guide/",
+    "https://deadlock.wiki/Viper"
+   ],
+   "dropped": "guide combo fits the real damage mix worse than slot order (mean |log landing| 1.30 -> 1.35), so the sim keeps slot order"
+  },
+  "60": {
+   "name": "Sinclair",
+   "order": [],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_magician_cloneturret",
+    "ability_magician_magicbolt",
+    "ability_magician_animalhexarea"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 1.864,
+    "guide": 1.972
+   },
+   "engage": null,
+   "engage_share": 0.08,
+   "start_distance_m": null,
+   "ult": "opener",
+   "holds": [
+    {
+     "ability": "ability_magician_animalhexarea",
+     "when": "saved to disable a diver or a priority threat (0.9 s cast delay; does not hit Unstoppable)"
+    }
+   ],
+   "range": "mid",
+   "confidence": "low",
+   "notes": "The Spectral Assistant is dropped first and also fires Vexing Bolts. Vexing Bolt gains damage over travel distance and cuts fire rate. Audience Participation copies the enemy's ultimate, which is then usually used straight away to start the fight.",
+   "sources": [
+    "https://www.dexerto.com/wikis/deadlock/sinclair/",
+    "https://deadlock.wiki/Audience_Participation",
+    "https://mobalytics.gg/deadlock/sinclair-guide"
+   ],
+   "dropped": "guide combo fits the real damage mix worse than slot order (mean |log landing| 1.86 -> 1.97), so the sim keeps slot order"
+  },
+  "63": {
+   "name": "Mina",
+   "order": [
+    "ability_vampirebat_lovebites",
+    "ability_vampirebat_steallife",
+    "ability_vampirebat_batswarm"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_vampirebat_lovebites",
+    "ability_vampirebat_steallife",
+    "ability_vampirebat_batswarm"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.632,
+    "guide": 0.626
+   },
+   "engage": null,
+   "engage_share": 0.1,
+   "start_distance_m": null,
+   "ult": "opener",
+   "holds": [
+    {
+     "ability": "ability_vampirebat_batblink",
+     "when": "escape after bursting (briefly untargetable, recastable)"
+    }
+   ],
+   "range": "mid",
+   "confidence": "low",
+   "notes": "Glass-cannon hit-and-run assassin: she bursts in, then leaves on Sanguine Retreat. Rake scales with the target's missing health and heals her on a kill, so it often lands last. Love Bites procs feed bats to Nox Nostra.",
+   "sources": [
+    "https://mobalytics.gg/deadlock/mina-guide",
+    "https://www.dodge.gg/en-US/deadlock/news/mina-build-2026",
+    "https://www.shacknews.com/article/145592/mina-abilities-deadlock"
+   ]
+  },
+  "64": {
+   "name": "Drifter",
+   "order": [
+    "drifter_shadow_mark",
+    "drifter_blood_blast"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "drifter_shadow_mark",
+    "drifter_blood_blast"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.429,
+    "guide": 0.439
+   },
+   "engage": "drifter_shadow_mark",
+   "engage_share": 0.1,
+   "start_distance_m": null,
+   "ult": "opener",
+   "holds": [],
+   "range": "close",
+   "confidence": "medium",
+   "notes": "He applies Stalker's Mark (a bleed) from range, recasts it to teleport behind the bleeding target, then Rend plus melee at close range. Eternal Night opens fights by blinding enemies and making them count as isolated, which feeds Bloodscent.",
+   "sources": [
+    "https://www.dexerto.com/wikis/deadlock/drifter/",
+    "https://www.dodge.gg/en-US/deadlock/news/drifter-build-2026",
+    "https://deadlock.wiki/Stalker%27s_Mark"
+   ]
+  },
+  "65": {
+   "name": "Venator",
+   "order": [
+    "ability_priest_flashbang",
+    "ability_priest_beartrap",
+    "ability_priest_knockback",
+    "ability_priest_weaponswap"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_priest_flashbang",
+    "ability_priest_beartrap",
+    "ability_priest_knockback",
+    "ability_priest_weaponswap"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.563,
+    "guide": 0.56
+   },
+   "engage": null,
+   "engage_share": 0.0,
+   "start_distance_m": null,
+   "ult": "finisher",
+   "holds": [
+    {
+     "ability": "ability_priest_knockback",
+     "when": "saved for a diver, ideally next to a wall (the stun needs one)"
+    }
+   ],
+   "range": "mid",
+   "confidence": "low",
+   "notes": "Consecrating Grenade is the poke and anti-heal, and it bounces off walls. Snap Trap plus Gutshot into a wall is the lockdown, though guides disagree on which comes first. Ira Domini's last stake does bonus pure damage to low-health targets, so it is the execute; the grenade cannot be used during the ult.",
+   "sources": [
+    "https://www.dexerto.com/wikis/deadlock/venator-2/",
+    "https://www.dodge.gg/en-US/deadlock/news/venator-build-2026",
+    "https://games.gg/deadlock/guides/deadlock-venator-build-guide/"
+   ]
+  },
+  "66": {
+   "name": "Victor",
+   "order": [],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_frank_painaura",
+    "ability_frank_selfzap",
+    "ability_frank_shocktarget2"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.662,
+    "guide": 0.693
+   },
+   "engage": "ability_frank_selfzap",
+   "engage_share": 0.01,
+   "start_distance_m": null,
+   "ult": "defensive",
+   "holds": [
+    {
+     "ability": "ability_frank_shocktarget2",
+     "when": "fired once Pain Battery is charged by damage taken"
+    }
+   ],
+   "range": "close",
+   "confidence": "low",
+   "notes": "Drain-tank: Jumpstart gives speed and regen to close in, Aura of Suffering is the main ramping damage up close, and Pain Battery charges from damage taken before being fired. Shocking Reanimation triggers on lethal damage, so it works as a second life.",
+   "sources": [
+    "https://mobalytics.gg/deadlock/victor-guide",
+    "https://www.allgreatquotes.com/news/deadlock-victor-guide.html",
+    "https://deadlock.wiki/Shocking_Reanimation"
+   ],
+   "dropped": "guide combo fits the real damage mix worse than slot order (mean |log landing| 0.66 -> 0.69), so the sim keeps slot order"
+  },
+  "67": {
+   "name": "Paige",
+   "order": [
+    "ability_bookworm_aoemagic",
+    "ability_bookworm_dragonfire"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_bookworm_aoemagic",
+    "ability_bookworm_dragonfire"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.274,
+    "guide": 0.272
+   },
+   "engage": null,
+   "engage_share": 0.0,
+   "start_distance_m": null,
+   "ult": "finisher",
+   "holds": [
+    {
+     "ability": "ability_bookworm_knightbarrier",
+     "when": "barrier on self/ally when taking burst"
+    }
+   ],
+   "range": "mid",
+   "confidence": "low",
+   "notes": "Captivating Read slows an area, then detonates and immobilizes; guides say to place it where the enemy is moving. Bookwyrm then follows up on the held target. Rallying Charge is a global sweep of knights that heals allies and damages enemies, so it is used to finish weakened enemies or turn a fight anywhere on the map.",
+   "sources": [
+    "https://mobalytics.gg/deadlock/builds/rina-spirit-paige",
+    "https://games.gg/deadlock/guides/deadlock-paige-hero-guide/",
+    "https://deadlock.wiki/Bookworm"
+   ]
+  },
+  "69": {
+   "name": "The Doorman",
+   "order": [],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_doorman_luggage_cart",
+    "ability_doorman_bomb",
+    "ability_doorman_hotel"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.554,
+    "guide": 0.607
+   },
+   "engage": null,
+   "engage_share": 0.01,
+   "start_distance_m": null,
+   "ult": "opener",
+   "holds": [
+    {
+     "ability": "ability_doorman_doorway",
+     "when": "escape or reposition (linked doors)"
+    }
+   ],
+   "range": "mid",
+   "confidence": "low",
+   "notes": "Luggage Cart pulls targets along its path, which sets up Call Bell (a delayed blast with accuracy and move-speed debuffs; short range). Hotel Guest removes a key enemy for a timed challenge. The wiki says stacked bells (T3) can be set up for a burst on whoever comes back from Hotel Guest.",
+   "sources": [
+    "https://mobalytics.gg/deadlock/doorman-guide",
+    "https://deadlock.wiki/Call_Bell",
+    "https://www.exitlag.com/blog/doorman-deadlock/"
+   ],
+   "dropped": "guide combo fits the real damage mix worse than slot order (mean |log landing| 0.55 -> 0.61), so the sim keeps slot order"
+  },
+  "72": {
+   "name": "Billy",
+   "order": [
+    "ability_punkgoat_goatflip",
+    "ability_punkgoat_ult",
+    "ability_punkgoat_blasted",
+    "ability_punkgoat_tether"
+   ],
+   "ult_after": [
+    "ability_punkgoat_ult",
+    "ability_punkgoat_goatflip"
+   ],
+   "prefight": null,
+   "guide_order": [
+    "ability_punkgoat_goatflip",
+    "ability_punkgoat_ult",
+    "ability_punkgoat_blasted",
+    "ability_punkgoat_tether"
+   ],
+   "guide_ult_after": [
+    "ability_punkgoat_ult",
+    "ability_punkgoat_goatflip"
+   ],
+   "fit_error": {
+    "slot_order": 0.814,
+    "guide": 0.834
+   },
+   "engage": "ability_punkgoat_goatflip",
+   "engage_share": 0.0,
+   "start_distance_m": null,
+   "ult": "after_cc",
+   "holds": [],
+   "range": "close",
+   "confidence": "medium",
+   "notes": "Rising Ram dives in, and a hit halves its cooldown. Bashdown pulls and knocks up. Melee keeps Blasted up, restoring ammo and adding bullet damage. Chain Gang stops movement abilities and yanks targets back after about 2.8 s, but breaks on line of sight. NOTE: ability_punkgoat_ult is Bashdown (slot 1); the real ult is ability_punkgoat_tether.",
+   "sources": [
+    "https://www.dodge.gg/en-US/deadlock/news/billy-build-2026",
+    "https://games.gg/deadlock/guides/deadlock-billy-guide/",
+    "https://deadlock.wiki/Chain_Gang"
+   ]
+  },
+  "76": {
+   "name": "Graves",
+   "order": [
+    "ability_necro_zombiewall",
+    "ability_necro_hauntingskull",
+    "ability_necro_fear",
+    "ability_necro_gravestone"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_necro_zombiewall",
+    "ability_necro_hauntingskull",
+    "ability_necro_fear",
+    "ability_necro_gravestone"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.0,
+    "guide": 0.0
+   },
+   "engage": null,
+   "engage_share": 0.01,
+   "start_distance_m": null,
+   "ult": "opener",
+   "holds": [
+    {
+     "ability": "ability_necro_zombiewall",
+     "when": "sometimes held to cut off an escape or shield the gravestone"
+    }
+   ],
+   "range": "mid",
+   "confidence": "low",
+   "notes": "Attrition/control mage. Grasping Hands is a wall that immobilizes, and alt-cast rotates it. Jar of Dead summons Deadheads, and Essence Theft steals weapon damage and spirit resist so close trades favour her. Borrowed Decree places a tombstone that spawns ghouls; place the wall in front of it.",
+   "sources": [
+    "https://mobalytics.gg/deadlock/graves-guide",
+    "https://www.dexerto.com/wikis/deadlock/graves/",
+    "https://games.gg/deadlock/guides/deadlock-graves-guide/"
+   ]
+  },
+  "77": {
+   "name": "Apollo",
+   "order": [
+    "ability_fencer_lunge",
+    "ability_fencer_ultimate",
+    "ability_fencer_throwblade"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_fencer_lunge",
+    "ability_fencer_ultimate",
+    "ability_fencer_throwblade"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.679,
+    "guide": 0.672
+   },
+   "engage": "ability_fencer_lunge",
+   "engage_share": 0.0,
+   "start_distance_m": null,
+   "ult": "finisher",
+   "holds": [
+    {
+     "ability": "ability_fencer_riposte",
+     "when": "parry an incoming attack/CC; on deflect, dashes and stuns"
+    },
+    {
+     "ability": "ability_fencer_throwblade",
+     "when": "Disengaging Sigil as the exit (leaps backward)"
+    }
+   ],
+   "range": "close",
+   "confidence": "medium",
+   "notes": "Flawless Advance dives an isolated target, Itani Lo Sahn bursts it (bonus damage vs half-health targets, Apollo invulnerable, the target can't act or heal), then Disengaging Sigil gets out. Flawless Advance into Riposte is the lane trade.",
+   "sources": [
+    "https://kami-labs.fr/deadlock/build-apollon-apollo/",
+    "https://www.dodge.gg/en-US/deadlock/news/apollo-build-2026",
+    "https://deadlock.wiki/Itani_Lo_Sahn"
+   ]
+  },
+  "78": {
+   "name": "Deadman Danny",
+   "order": [
+    "ability_deadpack_chargeblast",
+    "ability_deadpack_flamethrower",
+    "ability_deadpack_rocketeer",
+    "ability_deadpack_ultimate"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_deadpack_chargeblast",
+    "ability_deadpack_flamethrower",
+    "ability_deadpack_rocketeer",
+    "ability_deadpack_ultimate"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.909,
+    "guide": 0.895
+   },
+   "engage": "ability_deadpack_rocketeer",
+   "engage_share": 0.0,
+   "start_distance_m": null,
+   "ult": "finisher",
+   "holds": [],
+   "range": "mid",
+   "confidence": "low",
+   "notes": "Strix Salvo marks, charged shots consume the marks for bonus spirit damage and a slow, Jettison Fuel strips bullet resistance and vents jetpack heat, and the Chimera dive opens fights. A dive that hits no hero stuns Danny. Close The Deal does more damage to a target under 50% HP. Hero released October 2026; sources are thin.",
+   "sources": [
+    "https://powerupgaming.co.uk/2026/10/14/deadlock-deadman-danny-guide-best-build-tips-abilities-and-more/",
+    "https://gameriv.com/deadlock-new-hero-deadman-danny-abilities-explained/",
+    "https://mobalytics.gg/deadlock/deadman-danny-guide"
+   ]
+  },
+  "79": {
+   "name": "Rem",
+   "order": [
+    "ability_familiar_ability02",
+    "ability_familiar_ability01",
+    "ability_familiar_helpinghands"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_familiar_ability02",
+    "ability_familiar_ability01",
+    "ability_familiar_helpinghands"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.697,
+    "guide": 0.69
+   },
+   "engage": null,
+   "engage_share": 0.16,
+   "start_distance_m": null,
+   "ult": "after_cc",
+   "holds": [
+    {
+     "ability": "ability_familiar_attach",
+     "when": "Tag Along to escape or heal an ally (untargetable while attached)"
+    }
+   ],
+   "range": "long",
+   "confidence": "low",
+   "notes": "Pillow Toss is his main damage, and its cooldown only drops on a hit. Naptime is a channelled gaze through walls that slows, blocks movement abilities, then puts enemies to sleep; it relies on teammates to follow up. Low personal damage makes him weak in a pure 1v1.",
+   "sources": [
+    "https://www.shacknews.com/article/147587/deadlock-rem-abilities-stats-how-to-play",
+    "https://www.dodge.gg/en-US/deadlock/news/rem-build-2026",
+    "https://deadlock.wiki/Naptime"
+   ]
+  },
+  "80": {
+   "name": "Silver",
+   "order": [
+    "ability_werewolf_kickflip",
+    "ability_werewolf_unloadgun",
+    "ability_werewolf_netshot",
+    "ability_werewolf_transformation"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_werewolf_kickflip",
+    "ability_werewolf_unloadgun",
+    "ability_werewolf_netshot",
+    "ability_werewolf_transformation"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.148,
+    "guide": 0.143
+   },
+   "engage": null,
+   "engage_share": 0.03,
+   "start_distance_m": null,
+   "ult": "on_cooldown",
+   "holds": [
+    {
+     "ability": "ability_werewolf_netshot",
+     "when": "kept to catch a fleeing target (slow + stamina denial)"
+    }
+   ],
+   "range": "close",
+   "confidence": "medium",
+   "notes": "Boot Kick stuns and marks, then she backflips; Slam Fire is cast mid-backflip so three empowered shotgun shots land on touchdown (bonus damage scales with the target's current HP). Lycan Curse transforms once enough stacks are built in the fight.",
+   "sources": [
+    "https://tracklock.gg/articles/deadlock-hero-spotlight-silver",
+    "https://games.gg/deadlock/guides/deadlock-silver-guide/",
+    "https://deadlock.wiki/Lycan_Curse"
+   ]
+  },
+  "81": {
+   "name": "Celeste",
+   "order": [],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_unicorn_radiantblast",
+    "ability_unicorn_luminousstrike",
+    "ability_unicorn_dazzlingorb"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.43,
+    "guide": 0.501
+   },
+   "engage": null,
+   "engage_share": 0.0,
+   "start_distance_m": null,
+   "ult": "opener",
+   "holds": [
+    {
+     "ability": "ability_unicorn_prismaticguard",
+     "when": "anti-dive/panic button when being burst (barrier, silences nearby when broken)"
+    }
+   ],
+   "range": "mid",
+   "confidence": "low",
+   "notes": "Light Eater marks enemies in a cone (extra spirit damage plus lifesteal for her), then the delayed Radiant Daggers blast lands on the marked targets. Shining Wonder is a bouncing slow orb that also shortens dashes. No guide gives a sourced combo, so this order is inferred from the ability descriptions.",
+   "sources": [
+    "https://archlinexp.com/images/pages/deadlock-celeste-guide.html",
+    "https://deadlock.wiki/Dazzling_Trick",
+    "https://deadlock.wiki/Shining_Wonder"
+   ],
+   "dropped": "guide combo fits the real damage mix worse than slot order (mean |log landing| 0.43 -> 0.50), so the sim keeps slot order"
+  },
+  "84": {
+   "name": "Rat King",
+   "order": [
+    "ability_ratking_scrap_grenade",
+    "ability_ratking_ratnibble",
+    "ability_ratking_standard_bearer"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [
+    "ability_ratking_scrap_grenade",
+    "ability_ratking_ratnibble",
+    "ability_ratking_standard_bearer"
+   ],
+   "guide_ult_after": [],
+   "fit_error": {
+    "slot_order": 0.673,
+    "guide": 0.678
+   },
+   "engage": null,
+   "engage_share": 0.0,
+   "start_distance_m": null,
+   "ult": "opener",
+   "holds": [
+    {
+     "ability": "ability_ratking_ratarmor",
+     "when": "when taking heavy incoming damage"
+    }
+   ],
+   "range": "mid",
+   "confidence": "low",
+   "notes": "Scrap Grenade slows and pins the target so it cannot dash off attached rats. Rat Swarm (up to 5 rats, each stacking a bullet-resist shred) is followed by gunfire on the same target. The ult's first cast is a team charge (speed, slow immunity, damage reduction); the recast slam knocks up and slows. Released October 2026; sources are thin.",
+   "sources": [
+    "https://finalboss.io/deadlock-how-to-play-rat-king-abilities-and-early-build-guide",
+    "https://powerupgaming.co.uk/2026/10/08/deadlock-rat-king-guide-best-build-abilities-tips-and-more/",
+    "https://www.positioniseverything.net/rat-king-abilities-and-beginner-guide-for-deadlock/"
+   ]
+  },
+  "85": {
+   "name": "Solomon",
+   "order": [
+    "ability_chessmaster_throwbishop",
+    "ability_chessmaster_forkpiece",
+    "ability_chessmaster_queen"
+   ],
+   "ult_after": [
+    "ability_chessmaster_forkpiece"
+   ],
+   "prefight": null,
+   "guide_order": [
+    "ability_chessmaster_throwbishop",
+    "ability_chessmaster_forkpiece",
+    "ability_chessmaster_queen"
+   ],
+   "guide_ult_after": [
+    "ability_chessmaster_forkpiece"
+   ],
+   "fit_error": {
+    "slot_order": 0.84,
+    "guide": 0.834
+   },
+   "engage": "ability_chessmaster_throwbishop",
+   "engage_share": 0.01,
+   "start_distance_m": null,
+   "ult": "after_cc",
+   "holds": [
+    {
+     "ability": "ability_chessmaster_knightbuff",
+     "when": "barrier on self/ally when focused"
+    },
+    {
+     "ability": "ability_chessmaster_forkpiece",
+     "when": "Rook Battery is his main lockdown (33 s CD); don't waste it"
+    }
+   ],
+   "range": "mid",
+   "confidence": "low",
+   "notes": "Strategist who places persistent chess pieces where enemies will be. The Bishop slows and makes damage squares, and the Rook immobilizes; the queen's delayed stun and damage follow the slow or immobilize. At 4 AP the queen executes heroes under 200 HP. Released October 2026; the combo is inferred from articles.",
+   "sources": [
+    "https://gameriv.com/deadlock-solomon-abilities-explained-bishops-knights-rooks-and-a-deadly-queen/",
+    "https://games.gg/deadlock/guides/deadlock-solomon-guide/",
+    "https://steamdb.com/en/deadlock/heroes/solomon"
+   ]
+  }
+ }
+}

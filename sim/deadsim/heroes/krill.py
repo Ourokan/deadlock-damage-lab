@@ -6,7 +6,8 @@ Assumptions:
   in a 1v1 all damage the foe takes comes from Mo, so this equals "+15% damage from Mo & Krill".
 - Burrow: Mo travels underground to the target (BURROW_TRAVEL s, gun locked, burrow bullet/spirit resist active),
   then emerges and spins on top of the target for SpinDuration (gun locked). The knock-up/slow are movement and
-  skipped. Emerging marks Mo as "in melee range" for MELEE_WINDOW s so Combo can follow.
+  skipped. Emerging marks Mo as "in melee range" for MELEE_WINDOW s so Combo can follow. With fight patterns on
+  (default) the first Burrow happens before the fight: Mo emerges on the target at t=0 (Burrow.prefight).
 - Sand Blast: wide cone, treated as always landing (kind aoe): damage + disarm for AbilityDuration.
 - Combo: 4 m cast range, so it is cast only when within range (+ engage margin) or right after Burrow emerges.
   Stuns the target and deals DPS for the channel; Mo can't shoot. Channel breaks if Mo is stunned or dies.
@@ -65,6 +66,18 @@ class Burrow(_Base):
         c.buff("spirit_resist", c.raw("TechResist") / 100, under, tag="burrow_sr")
         c.dot(c.val("DPS"), spin, delay=under, tick=0.25)
         c.me.counters["krill_close_until"] = c.now + under + MELEE_WINDOW
+
+    # Mo & Krill start most fights already burrowed (Tyler; data/fight_patterns.json "prefight"): the approach
+    # happened before t=0, so the fight opens with Mo emerging and spinning on the target, Burrow's cooldown
+    # already running for the time spent underground.
+    def prefight_lead(self, c):
+        return c.raw("AbilityCastDelay") + BURROW_TRAVEL
+
+    def prefight(self, c):
+        spin = c.dur("SpinDuration")
+        c.lock_gun(spin)
+        c.dot(c.val("DPS"), spin, tick=0.25)
+        c.me.counters["krill_close_until"] = c.now + MELEE_WINDOW
 
 
 @register("ability_throw_sand")

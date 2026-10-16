@@ -18,7 +18,7 @@ from .abilities import AbilityState, load_heroes
 from .build import compute_stats
 from .data import game, DATA_DIR
 from .engine import Engine, Fighter, Skill, _UNSET
-from . import items_fx
+from . import items_fx, patterns
 
 # median number of ability events (unlock or upgrade) by net worth, from 200k current-patch ranked rows
 _EVENTS_BY_SOULS = [(0, 1), (500, 2), (1000, 3), (2000, 5), (3000, 6), (4000, 7), (6000, 8), (8000, 9),
@@ -124,6 +124,7 @@ def make_fighter(engine, lo: Loadout, name=None):
         f.abilities.append(AbilityState(f, ab, tiers[i] if i < len(tiers) else 0,
                                         unlocked[i] if i < len(unlocked) else True, imbue_map.get(i, ())))
     items_fx.attach(f, items)
+    patterns.attach(f, hero.id)
     if engine.mech is not None:
         from . import mechanics
         mechanics.attach(f, items)
