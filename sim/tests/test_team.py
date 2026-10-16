@@ -125,5 +125,70 @@ class TestArea(unittest.TestCase):
         self.assertGreater(r.team("A")[0]["damage_by_source"].get("Ricochet", 0), 0)
 
 
+def fighters(a, b, **kw):
+    """Run a team fight and return the two teams' Fighter objects (to inspect buffs and debuffs)."""
+    import deadsim.team as T
+    seen = {}
+    orig = T.TeamEngine.run_team
+
+    def spy(self, ta, tb):
+        seen["a"], seen["b"] = ta, tb
+        return orig(self, ta, tb)
+    T.TeamEngine.run_team = spy
+    try:
+        team_fight(a, b, **kw)
+    finally:
+        T.TeamEngine.run_team = orig
+    return seen["a"], seen["b"]
+
+
+class TestSupportMore(unittest.TestCase):
+    def setUp(self):
+        self.b = [lo("Haze", ["Rapid Rounds"]), lo("Wraith", ["Rapid Rounds"])]
+
+    def test_locket_heals_teammate(self):
+        a = [lo("Haze"), lo("Abrams", ["Restorative Locket"])]
+        b = [lo("Infernus", ["Extra Spirit"]), lo("Seven", ["Extra Spirit"])]   # casters fill the locket
+        r = team_fight(a, b)
+        self.assertGreater(r.team("A")[1]["healing_given_by_source"].get("Restorative Locket", 0), 0)
+
+    def test_heroic_aura_speeds_up_teammate(self):
+        a = [lo("Haze"), lo("Abrams", ["Heroic Aura"])]
+        with_ = team_fight(a, self.b, max_time=8, huddle=1.0)
+        without = team_fight([a[0], lo("Abrams")], self.b, max_time=8, huddle=1.0)
+        self.assertGreater(with_.team("A")[0]["damage"], without.team("A")[0]["damage"])
+
+    def test_hunters_aura_shreds_every_enemy(self):
+        guns = dict(use_abilities=False, use_actives=False)
+        a = [lo("Abrams", ["Hunter's Aura"], **guns)]
+        b = [lo("Haze", **guns), lo("Wraith", **guns)]
+        _, fb = fighters(a, b, max_time=1)
+        self.assertTrue(all(sum(e.mods.values("bullet_shred")) > 0 for e in fb))   # not just the target
+
+    def test_rejuvenating_aurora_heals_teammate(self):
+        a = [lo("Haze"), lo("Dynamo")]
+        r = team_fight(a, self.b)
+        self.assertGreater(r.team("A")[1]["healing_given_by_source"].get("Rejuvenating Aurora", 0), 0)
+
+    def test_kudzu_buffs_teammate(self):
+        fa, _ = fighters([lo("Haze", use_abilities=False), lo("Ivy")], self.b, max_time=3)
+        haze = fa[0]
+        self.assertTrue(any(k[0] == "citadel_ability_tangotether" for k in haze.mods.d.get("fire_rate", {})
+                            if isinstance(k, tuple)))
+
+
+class TestBridge(unittest.TestCase):
+    def test_web_bridge_team(self):
+        import json
+        root = os.path.join(os.path.dirname(__file__), "..", "..")
+        sys.path[:0] = [os.path.join(root, "web"), os.path.join(root, "damage")]
+        import bridge
+        r = json.loads(bridge.team(json.dumps({"a": [{"hero": "Haze", "items": ["Rapid Rounds"]},
+                                                     {"hero": "Dynamo", "items": ["Healing Nova"]}],
+                                               "b": [{"hero": "Abrams"}, {"hero": "Seven"}], "souls": 20000})))
+        self.assertEqual(len(r["fighters"]), 4)
+        self.assertIn(r["winner"], ("A", "B", None))
+
+
 if __name__ == "__main__":
     unittest.main()
