@@ -1,7 +1,7 @@
 """Quick end-to-end check that the searches still run on the current sim: python3 pipeline/smoke_test.py
 
-One duel from the duel search, one dummy damage test and one tank survival fight. Fails if any of them raises or
-returns nothing. Runs in CI on every pull request (.github/workflows/pr-tests.yml).
+One duel from the duel search, one dummy damage test and one tank survival fight, plus a check that every hero's fight
+pattern (sim/data/fight_patterns.json) names abilities it still has. Fails if any of them raises or returns nothing. Runs in CI on every pull request (.github/workflows/pr-tests.yml).
 """
 import os
 import sys
@@ -24,3 +24,15 @@ print("dummy ok:", totals)
 r = survive("Abrams", [], 20000, "Haze", [])
 assert r["time_alive"] > 0 and r["damage_taken"] > 0, r
 print("survival ok:", r["time_alive"], r["damage_taken"])
+
+# every hero has a fight pattern row whose abilities still exist (a patch can rename or add abilities and heroes)
+from deadsim import patterns  # noqa: E402
+from deadsim.data import game  # noqa: E402
+G = game()
+for hid in G.heroes:
+    row = patterns.pattern(hid)
+    assert row is not None, f"no fight_patterns.json row for {G.hero(hid).name}"
+    names = {a.class_name for a in G.hero(hid).abilities}
+    gone = [c for c in row["order"] + row["ult_after"] + [row["prefight"] or next(iter(names))] if c not in names]
+    assert not gone, f"fight_patterns.json: {G.hero(hid).name} lists abilities it no longer has: {gone}"
+print("fight patterns ok:", len(G.heroes), "heroes")

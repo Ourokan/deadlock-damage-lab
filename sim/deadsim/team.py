@@ -32,6 +32,7 @@ from dataclasses import dataclass, field
 
 from .data import game
 from .engine import Engine, Fighter, _UNSET, MELEE_MIN_RATE, long_cooldowns_spent
+from .patterns import fight_start
 from . import items_fx
 
 AOE_SHARE = 0.35   # share of an area hit that also lands on each other enemy (assumption)
@@ -378,6 +379,8 @@ class TeamEngine(Engine):
                 long_cooldowns_spent(f)
             for ab in f.abilities:
                 ab.start()
+        for f in self.fighters:
+            fight_start(f)
         for f in self.fighters:
             self.at(0.0, self.gun_tick, f)
             self.at(0.0, self.think, f)

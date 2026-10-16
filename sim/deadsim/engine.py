@@ -21,6 +21,7 @@ import math
 from dataclasses import dataclass, field
 
 from .build import Stats, combine_resist, stack_cdr
+from .patterns import fight_start
 
 INF = float("inf")
 # Melee rotation (assumptions; the API has no light/heavy split): share of landed melees that are heavy, and how
@@ -157,6 +158,9 @@ class Skill:
     # per-item damage factor keyed by item name, fitted from real damage (data/item_landing.json, factors < 1
     # only): procs spent on creeps, charges used outside fights. Multiplies damage booked under that item.
     item_landing: dict = field(default_factory=dict)
+    # per-hero fight pattern (data/fight_patterns.json, deadsim.patterns): combo cast order, setup before the
+    # ultimate, abilities used before the fight (Mo & Krill arrive under Burrow). False = cast in slot order.
+    fight_pattern: bool = True
 
 
 @dataclass
@@ -197,6 +201,8 @@ class Fighter:
         self.healed = 0.0
         self.items_fx = []
         self.abilities = []         # AbilityState
+        self.plan = None            # deadsim.patterns.Plan (hero fight pattern), None = slot order
+        self.cast_order = None      # abilities in cast priority (plan.order)
         self.clip = stats.clip
         self.bonus_ammo = 0
         self.reload_until = 0.0
@@ -614,6 +620,8 @@ class Engine:
                 long_cooldowns_spent(f)
             for ab in f.abilities:
                 ab.start()
+        for f in (a, b):
+            fight_start(f)
         self.at(0.0, self.gun_tick, a)
         if not one_way:
             self.at(0.0, self.gun_tick, b)
@@ -707,7 +715,7 @@ class Engine:
         if self.over or not f.alive:
             return
         if f.skill.use_abilities and f.can_cast():
-            for ab in f.abilities:
+            for ab in f.cast_order or f.abilities:
                 if ab.try_cast():
                     break   # one cast per think step
         if f.skill.use_actives and f.can_use_items():

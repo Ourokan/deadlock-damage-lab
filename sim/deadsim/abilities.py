@@ -331,6 +331,10 @@ class AbilityImpl:
     def start(self, c: CastCtx):
         """Called once at fight start (passives, innate effects)."""
 
+    def prefight_lead(self, c: CastCtx):
+        """Seconds before t=0 a prefight cast happened (only for impls that define prefight(c))."""
+        return 0.0
+
 
 class GenericAbility(AbilityImpl):
     """Fallback: listed instant damage on cast + DPS over its duration. Marked unmodeled in reports."""
@@ -446,8 +450,21 @@ class AbilityState:
             return False
         if not self.impl.should_cast(self.ctx):
             return False
+        if self.f.plan is not None and not self.f.plan.allows(self):
+            return False
         self.cast()
         return True
+
+    def prefight(self):
+        """Cast before the fight (deadsim.patterns): the impl's prefight(c) runs at t=0 in place of cast(c), and the
+        cooldown counts from impl.prefight_lead(c) s earlier."""
+        lead = self.impl.prefight_lead(self.ctx)
+        self.scratch["prefight"] = True
+        self.cast()
+        self.scratch.pop("prefight", None)
+        self.ready_at -= lead
+        if self.next_charge:
+            self.next_charge -= lead
 
     def cast(self):
         f = self.f
@@ -474,7 +491,10 @@ class AbilityState:
                 g = getattr(fx, "on_enemy_cast", None)
                 if g:
                     g(en, self)
-        self.impl.cast(self.ctx)
+        if self.scratch.get("prefight"):
+            self.impl.prefight(self.ctx)
+        else:
+            self.impl.cast(self.ctx)
         if f.e.mech is not None:
             from .mechanics import after_cast
             after_cast(self)

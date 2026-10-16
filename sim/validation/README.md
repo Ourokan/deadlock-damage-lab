@@ -171,6 +171,40 @@ speed, sprint and stamina. Fighters hold their distance unless someone runs, so 
 Ability slows are applied generically from SlowPercent-type properties at spirit accuracy. Real escape episodes are
 "no teammate and exactly one enemy within 25 m", which is closer to a 1v1 than a team fight but not the same.
 
+## Hero fight patterns (2026-10-16)
+
+Before this the sim cast every ready ability in slot order (1, 2, 3, ult). `deadsim/patterns.py` now gives each hero its
+real combo from `data/fight_patterns.json` (on by default; `Skill(fight_pattern=False)` restores slot order):
+`order` (cast priority), `ult_after` (the ultimate waits for one of these setup casts, at most 4 s) and `prefight`
+(an ability used before the fight; only Mo & Krill have one: Mo arrives under Burrow and spins on the target at t=0,
+Burrow's cooldown already running). Each hero file's own conditions (range, health thresholds) still apply.
+
+Sources, scripts in `scripts/fight_patterns/`:
+- **Replays** (`fetch_replays.py`, `replay_openers.py`): 158 Phantom+ replays (Oct 13-16) through the Deadlock API demo
+  queries (ability cooldown starts = casts, hero-vs-hero damage events). A fight is hero damage to or from the hero
+  with gaps under 8 s and at least 300 damage; 235 to 3,719 fights per hero. `order` ranks the abilities cast in at
+  least 10% of fights by which usually comes first; `ult_after` lists abilities cast before the ultimate in at least
+  60% of fights with one. Per-hero numbers are in each row's `replay` block.
+- **Movement** (`fetch_paths.py`, `path_openers.py`): match_paths of 300 Phantom+ matches. Engage abilities show up
+  as ability movement at 25-37% of fight starts for Abrams, Kelvin, Vindicta and Grey Talon. Burrow is not flagged
+  as ability movement there, so Mo & Krill come from the replays.
+- **Guides** (`guide_order`, `engage`, `ult`, `holds`, `notes`, `sources`): web summaries; most guide pages could not
+  be opened, so they are reference only. The replays overrule them where they differ, e.g. Seven opens with Power
+  Surge rather than Static Charge into Storm Cloud.
+
+Check against the real damage mix (`fit_check.py`, mechanics on): a replay combo is used only when the sim's damage
+mix with it fits the real damage matrix within 0.05 of slot order (mean |log landing factor|). Haze, Yamato,
+Sinclair and Apollo fit worse with their real order, which points at gaps in those ability models, so they keep slot
+order for now. The ultimate stops waiting for its setup when no setup ability is off cooldown, when either side is
+below 30% health, or after 4 s. Landing factors were refit for every hero whose fights changed
+(`scripts/refit_landing_heroes.py`). `tests/test_patterns.py` pins a few duels with patterns on.
+
+Mo & Krill: Mo is underground when 26% of all fights start, 36% after laning (47% have a Burrow cast in the 10 s
+before the first hit), 9-24% in lane. So "most fights" holds for committed mid-game engages more than for lane
+trades; the sim models the committed engage. With it, Mo's 5 s damage on a dummy is ~14% higher at 18k souls.
+Biggest 5 s damage changes elsewhere at 18k: Venator -26% (Snap Trap before Consecrating Grenade), The Doorman -21%
+(Call Bell first), Pocket +10%, Mirage -7%.
+
 ## Known gaps (not yet modeled)
 
 - **Melee movement:** melee is now in fights (see "Melee" above), but distance stays fixed (even with movement on, unless someone runs), so gap-closing
