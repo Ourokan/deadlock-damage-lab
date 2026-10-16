@@ -191,7 +191,7 @@ function renderTarget() {
 function request() {
   const A = S.A, D = S.D, num = (s) => { const v = parseFloat($(s).value); return isFinite(v) ? v : null; };
   const req = { hero: A.hero, items: A.items, souls: A.souls, aim: A.aim === "custom" ? "p50" : A.aim };
-  if (A.aim === "custom") { req.accuracy = num("#a-acc") / 100; req.headshot = num("#a-hs") / 100; req.distance = num("#a-dist"); }
+  if (A.aim === "custom") { const pc = (sel) => { const v = num(sel); return v == null ? null : v / 100; }; req.accuracy = pc("#a-acc"); req.headshot = pc("#a-hs"); req.distance = num("#a-dist"); }
   const immortal = $("#d-immortal").checked;
   if (D.mode === "plain") {
     req.dummy = { hero: "Haze", items: [], hp: num("#d-hp"), immortal,
