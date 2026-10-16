@@ -5,6 +5,7 @@ out/heroes/<id>.json  per budget: dummy HP, popular build, and per objective the
                       DPS, damage by source), each item's loss when removed from the best build, and every
                       candidate item's damage gain per 1000 souls when added to the popular build
 out/summary.csv       one row per hero x budget x objective
+out/order/<id>.json   per objective: the order to buy the best 50k build in, with milestones (scripts/buy_order.py)
 Item names and costs: search/out/items.json (same ids).
 
 usage: python3 scripts/export.py
@@ -58,12 +59,21 @@ def main():
         "aim": "ranked median hero accuracy and headshot rate, real ability landing and melee rates",
         "heroes": index,
     }, open(os.path.join(OUT, "index.json"), "w"), indent=1)
+    orders = glob.glob(os.path.join(ROOT, "work", "jobs_order", "*.json"))
+    if orders:   # replace the whole set, so a hero whose order failed this run doesn't keep the old patch's
+        os.makedirs(os.path.join(OUT, "order"), exist_ok=True)
+        for fn in glob.glob(os.path.join(OUT, "order", "*.json")):
+            os.remove(fn)
+    for fn in orders:
+        r = json.load(open(fn))
+        keep = {k: r[k] for k in ("hero_id", "hero", "target_budget", "objectives")}
+        json.dump(keep, open(os.path.join(OUT, "order", f"{r['hero_id']}.json"), "w"))
     if rows:
         with open(os.path.join(OUT, "summary.csv"), "w", newline="") as f:
             w = csv.DictWriter(f, fieldnames=list(rows[0]))
             w.writeheader()
             w.writerows(rows)
-    print(len(rows), "rows,", len(index), "heroes ->", OUT)
+    print(len(rows), "rows,", len(index), "heroes,", len(orders), "buy orders ->", OUT)
 
 
 if __name__ == "__main__":

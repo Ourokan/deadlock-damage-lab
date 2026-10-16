@@ -68,12 +68,21 @@ def main():
     os.makedirs(data, exist_ok=True)
     shutil.copy(os.path.join(ROOT, "search/out/items.json"), os.path.join(data, "items.json"))
     shutil.copy(os.path.join(ROOT, "data/patch.json"), os.path.join(data, "patch.json"))
+    shutil.copy(os.path.join(ROOT, "sim/data/skill_defaults.json"), os.path.join(data, "skill_defaults.json"))  # ranked aim spread
     with open(os.path.join(ROOT, "damage/out/index.json")) as fh:
         heroes = [{"id": h["id"], "name": h["name"]} for h in json.load(fh)["heroes"]]
     with open(os.path.join(data, "heroes.json"), "w") as fh:
         json.dump(sorted(heroes, key=lambda h: h["name"]), fh)
     counts = {k: copy_out(os.path.join(ROOT, src), os.path.join(data, k))
               for k, src in [("damage", "damage/out"), ("duel", "search/out"), ("tank", "survival/out")]}
+    order = glob.glob(os.path.join(ROOT, "damage/out/order/*.json"))
+    os.makedirs(os.path.join(data, "damage", "order"), exist_ok=True)
+    for f in order:
+        with open(f) as fh:
+            d = json.load(fh)
+        with open(os.path.join(data, "damage", "order", os.path.basename(f)), "w") as fh:
+            json.dump(d, fh, separators=(",", ":"))
+    counts["buy_order"] = len(order)
     os.makedirs(os.path.join(WEB, "py"), exist_ok=True)
     build_zip(os.path.join(WEB, "py", "sim.zip"))
     if a.pyodide:

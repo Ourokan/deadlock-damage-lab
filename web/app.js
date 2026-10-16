@@ -25,6 +25,7 @@ const S = {
 };
 
 S.whenReady = new Promise((res) => (S.readyNow = res));
+S.dataReady = new Promise((res) => (S.dataNow = res));
 
 // ---------- data ----------
 const cached = {};
@@ -128,6 +129,54 @@ async function syncDummyHint() {
   $("#use-hp").onclick = () => { $("#d-hp").value = hp; };
 }
 
+// ---------- personal aim (aim.js) ----------
+const AIM_KEY = "ddl.aim";
+const AIM_FIELDS = { acc: "#a-acc", hs: "#a-hs", dist: "#a-dist", steam: "#a-steam" };
+
+function saveAim() {
+  try { localStorage.setItem(AIM_KEY, JSON.stringify(Object.fromEntries(Object.entries(AIM_FIELDS).map(([k, sel]) => [k, $(sel).value])))); } catch { /* storage off */ }
+}
+
+function restoreAim() {
+  let v = null;
+  try { v = JSON.parse(localStorage.getItem(AIM_KEY) || "null"); } catch { /* storage off */ }
+  if (v) for (const [k, sel] of Object.entries(AIM_FIELDS)) if (v[k] != null && v[k] !== "") $(sel).value = v[k];
+}
+
+// Where the typed numbers sit among ranked players of this hero.
+async function renderAimHint() {
+  const d = await load("data/skill_defaults.json");
+  const row = d && (d.heroes[S.A.hero] || d.all);
+  if (!row) return;
+  const acc = parseFloat($("#a-acc").value) / 100, hs = parseFloat($("#a-hs").value) / 100;
+  const nth = (n) => n + ((n % 100 >= 11 && n % 100 <= 13) ? "th" : ["th", "st", "nd", "rd"][n % 10] || "th");
+  const say = (r) => (!r ? "–" : r.below ? "below the 25th" : r.above ? "above the 90th" : `about the ${nth(r.p)}`);
+  const name = S.heroById[S.A.hero]?.name || "this hero";
+  $("#a-dist").placeholder = `default ${fmt(row.median_distance_m, 1)}`;
+  $("#a-aim-hint").textContent = `Hero-only numbers. Among ranked ${name} players that is ${say(Aim.percentile(acc, row.accuracy))} percentile for accuracy`
+    + ` and ${say(Aim.percentile(hs, row.headshot))} for headshots (median ${pct(row.accuracy.p50, 1)} and ${pct(row.headshot.p50, 1)}).`;
+}
+
+async function pullAim() {
+  const btn = $("#a-pull"), msg = $("#a-pull-msg");
+  btn.disabled = true; msg.textContent = "Looking up the player…";
+  try {
+    const who = await Aim.resolve($("#a-steam").value);
+    const hero = S.A.hero, heroName = S.heroById[hero]?.name || "this hero";
+    const r = await Aim.fromMatches(who.id, hero, { onProgress: (a, b) => { msg.textContent = `Reading match ${a} of ${b}…`; } });
+    if (S.A.hero !== hero) { msg.textContent = `The hero changed while loading ${heroName} matches. Press the button again.`; return; }
+    $("#a-acc").value = (r.accuracy * 100).toFixed(1);
+    $("#a-hs").value = (r.headshot * 100).toFixed(1);
+    if (r.distance) $("#a-dist").value = r.distance.toFixed(1);
+    msg.textContent = `${who.name ? `Steam player "${who.name}": ` : ""}${pct(r.accuracy, 1)} accuracy and ${pct(r.headshot, 1)} headshots over ${fmt(r.shots)} shots at heroes in the last ${r.matches} matches`
+      + (r.scope === "hero" ? ` on ${heroName}` : ` (all heroes; fewer than 3 recent ${heroName} matches)`) + (r.distance ? `, median hit distance ${fmt(r.distance, 1)} m.` : ".")
+      + (r.failed && r.matches < 10 ? ` ${r.failed} more could not be read (the API may be busy), so try again for a fuller sample.` : "");
+    saveAim(); renderAimHint();
+  } catch (e) {
+    msg.textContent = e.message;
+  } finally { btn.disabled = false; }
+}
+
 // ---------- target ----------
 function renderTarget() {
   const D = S.D;
@@ -142,7 +191,7 @@ function renderTarget() {
 function request() {
   const A = S.A, D = S.D, num = (s) => { const v = parseFloat($(s).value); return isFinite(v) ? v : null; };
   const req = { hero: A.hero, items: A.items, souls: A.souls, aim: A.aim === "custom" ? "p50" : A.aim };
-  if (A.aim === "custom") { req.accuracy = num("#a-acc") / 100; req.headshot = num("#a-hs") / 100; }
+  if (A.aim === "custom") { const pc = (sel) => { const v = num(sel); return v == null ? null : v / 100; }; req.accuracy = pc("#a-acc"); req.headshot = pc("#a-hs"); req.distance = num("#a-dist"); }
   const immortal = $("#d-immortal").checked;
   if (D.mode === "plain") {
     req.dummy = { hero: "Haze", items: [], hp: num("#d-hp"), immortal,
@@ -208,7 +257,7 @@ function runTest() {
 
 // ---------- share links ----------
 // The test setup lives in the query string (the hash is the tab), so a link reopens the same test.
-const SHARE_NUM = { acc: "#a-acc", hs: "#a-hs", hp: "#d-hp", br: "#d-br", sr: "#d-sr", mr: "#d-mr", es: "#d-souls" };
+const SHARE_NUM = { acc: "#a-acc", hs: "#a-hs", dist: "#a-dist", hp: "#d-hp", br: "#d-br", sr: "#d-sr", mr: "#d-mr", es: "#d-souls" };
 const AIMS = ["p25", "p50", "p75", "p90", "custom"];
 
 function shareURL(hash = location.hash) {
@@ -216,7 +265,7 @@ function shareURL(hash = location.hash) {
   p.set("h", A.hero); p.set("s", A.souls);
   if (A.items.length) p.set("i", A.items.join("."));
   p.set("aim", A.aim);
-  if (A.aim === "custom") { p.set("acc", val("acc")); p.set("hs", val("hs")); }
+  if (A.aim === "custom") for (const k of ["acc", "hs", "dist"]) if (val(k)) p.set(k, val(k));
   if (D.mode === "plain") {
     for (const k of ["hp", "br", "sr", "mr"]) if (val(k) && (k === "hp" || Number(val(k)) !== 0)) p.set(k, val(k));
   } else {
@@ -359,7 +408,7 @@ function onTest(e) {
 let gObj = "fight_15s";
 async function renderDamageTab() {
   const id = $("#g-hero").value, d = await damageHero(id), out = $("#g-out");
-  if (!d) { out.innerHTML = '<p class="empty">No damage search results for this hero yet.</p>'; return; }
+  if (!d) { out.innerHTML = '<p class="empty">No damage search results for this hero yet.</p>'; $("#g-order").innerHTML = ""; return; }
   const keys = Object.keys(d.budgets);
   if ($("#g-budget").options.length !== keys.length) fillBudgetSelect($("#g-budget"), keys, $("#g-budget").value);
   const bk = $("#g-budget").value, b = d.budgets[bk], o = b.objectives[gObj], pop = b.popular;
@@ -380,6 +429,32 @@ async function renderDamageTab() {
       <div class="card"><h3>What each best-build item adds</h3><p class="hint">Damage lost if that item is removed.</p>
         <div class="kv">${loss.map(([i, v]) => `<span>${tile(i, { static: true })}</span><span>${fmt(v)}</span>`).join("")}</div></div>
     </div>`;
+  renderBuyOrder(id);
+}
+
+// order to buy the best 50k build in (damage/scripts/buy_order.py), with the net worth milestones on the way
+async function renderBuyOrder(id) {
+  const d = await load(`data/damage/order/${id}.json`), out = $("#g-order");
+  if (id !== $("#g-hero").value) return;   // the hero changed while this loaded
+  const o = d?.objectives[gObj];
+  if (!o) { out.innerHTML = ""; return; }
+  const ms = Object.entries(o.milestones).map(([b, m]) => [Number(b), m]).sort((a, b) => a[0] - b[0]);
+  const msRow = ([b, m]) => `<tr class="pop"><td><b>${fmt(b / 1000)}k</b></td><td colspan="2">${m.items.length} items, ${fmt(m.cost)} of ${fmt(m.item_budget)} item souls.`
+    + (m.share_of_best != null ? ` ${pct(m.share_of_best)} of the best ${fmt(b / 1000)}k build's damage, ${m.popular_damage ? signed(m.damage / m.popular_damage - 1) : "–"} vs popular.` : "")
+    + `</td><td class="n">${fmt(m.damage)}</td><td>${m.items.length ? testBtn(Number(id), b, m.items, `Buy order at ${fmt(b / 1000)}k`) : ""}</td></tr>`;
+  let k = 0;
+  const rows = [];
+  for (const s of o.steps) {
+    while (k < ms.length && s.net_worth > ms[k][0]) rows.push(msRow(ms[k++]));
+    const rep = s.replaces.filter((i) => S.items[i]).map((i) => S.items[i].name);
+    rows.push(`<tr><td class="n">${fmt(s.net_worth)}</td><td>${tile(s.item, { static: true })}${rep.length ? ` <span class="hint">upgrades ${esc(rep.join(", "))}</span>` : ""}</td>`
+      + `<td class="n">${fmt(s.paid)}</td><td class="n">${fmt(s.damage)} <span class="up">+${fmt(s.gain)}</span></td><td></td></tr>`);
+  }
+  while (k < ms.length) rows.push(msRow(ms[k++]));
+  out.innerHTML = `<div class="card" style="margin-top:16px"><h3>Buy order to the best ${fmt(d.target_budget / 1000)}k build</h3>
+    <p class="hint">Each step buys the item that adds the most ${OBJ[gObj]} damage per soul at the net worth you can afford it, counting the hero's level then. Upgrades credit the component you hold. Milestone rows compare what you hold there with the best build for that exact net worth, which may use items you'd later sell.</p>
+    <div class="scroll"><table><thead><tr><th class="n">Net worth</th><th>Buy</th><th class="n">Pays</th><th class="n">${OBJ[gObj]} damage</th><th></th></tr></thead>
+    <tbody>${rows.join("")}</tbody></table></div></div>`;
 }
 
 async function renderDuelTab() {
@@ -516,8 +591,8 @@ function renderSheet() {
 
 // ---------- tabs ----------
 function showTab() {
-  const t = (location.hash || "#test").slice(1);
-  const tab = ["test", "damage", "duel", "tank"].includes(t) ? t : "test";
+  const t = (location.hash || "#test").slice(1).split("/")[0];
+  const tab = ["test", "match", "damage", "duel", "tank", "team"].includes(t) ? t : "test";
   $$(".tab").forEach((s) => (s.hidden = s.id !== "tab-" + tab));
   $$("#tabs a").forEach((a) => (a.dataset.tab === tab ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
   if (tab === "damage") renderDamageTab();
@@ -530,6 +605,7 @@ async function boot() {
   const [items, heroes] = await Promise.all([getJSON("data/items.json"), getJSON("data/heroes.json")]);
   S.items = items; S.heroes = heroes;
   for (const h of heroes) S.heroById[h.id] = h;
+  S.dataNow();
   const opts = heroes.map((h) => `<option value="${h.id}">${esc(h.name)}</option>`).join("");
   $("#a-hero").innerHTML = opts; $("#d-heroname").innerHTML = opts;
   fillHeroSelect($("#g-hero")); fillHeroSelect($("#u-hero"));
@@ -546,6 +622,7 @@ async function boot() {
   const d = await damageHero(S.A.hero);
   const b = d?.budgets["27000"];
   if (b) $("#d-hp").value = b.dummy_hp;
+  restoreAim(); // before the link, so a shared link's aim wins over the numbers saved in this browser
   if (readShare()) $("#share-note").hidden = false;
   else if (b) {
     S.A.items = [...b.popular.items]; S.A.label = "Popular";
@@ -555,9 +632,13 @@ async function boot() {
   }
   renderAttacker(); renderTarget(); renderPresets(); syncDummyHint(); renderResult();
 
-  $("#a-hero").onchange = (e) => { S.A.hero = Number(e.target.value); S.A.label = null; renderPresets(); syncDummyHint(); };
+  $("#a-hero").onchange = (e) => { S.A.hero = Number(e.target.value); S.A.label = null; renderPresets(); syncDummyHint(); renderAimHint(); };
   $("#a-souls").onchange = (e) => { S.A.souls = Number(e.target.value) || 0; renderAttacker(); renderPresets(); syncDummyHint(); };
-  $("#a-aim").onchange = (e) => { S.A.aim = e.target.value; renderAttacker(); };
+  $("#a-aim").onchange = (e) => { S.A.aim = e.target.value; renderAttacker(); renderAimHint(); };
+  renderAimHint();
+  for (const sel of Object.values(AIM_FIELDS)) $(sel).addEventListener("change", () => { saveAim(); renderAimHint(); });
+  $("#a-pull").onclick = pullAim;
+  $("#a-steam").addEventListener("keydown", (e) => { if (e.key === "Enter") pullAim(); });
   wireShop("a", () => S.A.items, () => { S.A.label = null; renderAttacker(); });
   wireShop("d", () => S.D.items, renderTarget);
   $("#d-mode").onclick = (e) => { if (e.target.dataset.v) { S.D.mode = e.target.dataset.v; renderTarget(); } };
@@ -580,7 +661,7 @@ async function boot() {
   $("#g-hero").onchange = renderDamageTab; $("#g-budget").onchange = renderDamageTab;
   $("#u-hero").onchange = renderDuelTab; $("#u-budget").onchange = renderDuelTab; $("#u-bracket").onchange = renderDuelTab;
   $("#t-hero").onchange = renderTankTab; $("#t-budget").onchange = renderTankTab;
-  for (const s of ["#g-out", "#u-out", "#t-out"]) $(s).addEventListener("click", onTest);
+  for (const s of ["#g-out", "#g-order", "#u-out", "#t-out"]) $(s).addEventListener("click", onTest);
   document.addEventListener("click", (e) => {
     const t = e.target.closest(".build.tap .it");
     if (t) openBreakdown(JSON.parse(t.closest(".build").dataset.bd), t.dataset.id);

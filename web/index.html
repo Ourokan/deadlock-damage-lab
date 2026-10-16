@@ -16,9 +16,11 @@
     <a class="mark" href="#test">Damage Lab</a>
     <nav class="tabs" id="tabs">
       <a href="#test" data-tab="test">Damage test</a>
+      <a href="#match" data-tab="match">Real match</a>
       <a href="#damage" data-tab="damage">Best damage builds</a>
       <a href="#duel" data-tab="duel">Duel builds</a>
       <a href="#tank" data-tab="tank">Tank builds</a>
+      <a href="#team" data-tab="team">Team fight</a>
     </nav>
     <span class="engine" id="engine" data-state="loading">Loading sim</span>
   </div>
@@ -52,7 +54,13 @@
         <div class="row" id="custom-aim" hidden>
           <label class="f"><span>Hero accuracy %</span><input id="a-acc" type="number" min="0" max="100" step="0.5" value="26"></label>
           <label class="f"><span>Headshot % of hits</span><input id="a-hs" type="number" min="0" max="100" step="0.5" value="15.7"></label>
-          <p class="hint">Hero-only numbers, like Statlocker's "accuracy vs heroes".</p>
+          <label class="f"><span>Fight distance (m)</span><input id="a-dist" type="number" min="1" max="60" step="0.5" placeholder="hero default"></label>
+          <p class="hint" id="a-aim-hint">Hero-only numbers, like Statlocker's "accuracy vs heroes".</p>
+          <div class="aim-load">
+            <input id="a-steam" type="text" placeholder="Steam profile link, Steam ID or name" autocomplete="off" spellcheck="false">
+            <button class="chip-btn" id="a-pull">Load from my matches</button>
+          </div>
+          <p class="hint" id="a-pull-msg">Reads your last 10 matches (on this hero when you have 3 or more) from the Deadlock API.</p>
         </div>
         <div class="build" id="a-build"></div>
         <div class="budget"><div class="bar"><i id="a-bar"></i></div><span id="a-budget"></span></div>
@@ -123,6 +131,30 @@
     </div>
   </section>
 
+  <!-- Real match import (match.js) -->
+  <section id="tab-match" class="tab" hidden>
+    <div class="intro">
+      <h1>Would another build have hit harder?</h1>
+      <p>Paste a match ID. The page loads every player's items from the Deadlock API, puts one player's build against an enemy's build at any point in the match, and tests which builds would have dealt more damage.</p>
+    </div>
+    <form class="filters" id="m-form">
+      <label class="f"><span>Match ID</span><input id="m-id" inputmode="numeric" autocomplete="off" placeholder="e.g. 117564612"></label>
+      <button class="run" id="m-load" type="submit">Load match</button>
+    </form>
+    <p class="hint" id="m-status">Find match IDs on the in-game match history, Statlocker or the Deadlock API.</p>
+    <div id="m-pick" class="stack" hidden>
+      <div class="filters">
+        <label class="f"><span>Player</span><select id="m-a"></select></label>
+        <label class="f"><span>Target</span><select id="m-d"></select></label>
+        <label class="f"><span>Builds at</span><select id="m-t"></select></label>
+      </div>
+      <label class="check"><input id="m-aim" type="checkbox" checked> Use the player's hero accuracy and headshot rate from this match</label>
+      <div class="cards" id="m-sides"></div>
+      <button class="run" id="m-go" type="button">Test what would have dealt more</button>
+    </div>
+    <div id="m-out"></div>
+  </section>
+
   <!-- Precomputed damage search -->
   <section id="tab-damage" class="tab" hidden>
     <div class="intro">
@@ -135,6 +167,7 @@
       <div class="f"><span>Fight length</span><div class="seg" id="g-obj"></div></div>
     </div>
     <div id="g-out"></div>
+    <div id="g-order"></div>
   </section>
 
   <section id="tab-duel" class="tab" hidden>
@@ -162,9 +195,28 @@
     <div id="t-out"></div>
   </section>
 
+  <section id="tab-team" class="tab" hidden>
+    <div class="intro">
+      <h1>Team fights</h1>
+      <p>Up to three heroes a side fight in the live sim. Heals, barriers and auras on teammates count, and area abilities also hit the enemies standing near the target. Each hero starts with its most popular real build at this net worth.</p>
+    </div>
+    <div class="filters">
+      <label class="f"><span>Net worth (souls)</span><input id="tf-souls" type="number" min="0" step="500" value="27000" list="souls-list"></label>
+      <div class="f"><span>Targets</span><div class="seg" id="tf-focus"><button data-v="focus" class="on">Focus the weakest</button><button data-v="spread">One each</button></div></div>
+    </div>
+    <div class="bench tf-bench">
+      <div class="panel"><h2>Team A</h2><div id="tf-a" class="stack"></div></div>
+      <div class="panel"><h2>Team B</h2><div id="tf-b" class="stack"></div></div>
+    </div>
+    <datalist id="tf-items"></datalist>
+    <button class="run" id="tf-run" disabled>Run team fight</button>
+    <p class="err" id="tf-err" hidden></p>
+    <div id="tf-out"></div>
+  </section>
+
   <datalist id="souls-list"><option value="10000"><option value="18000"><option value="27000"><option value="37000"><option value="50000"></datalist>
   <footer class="foot">
-    Combat model built on Deadlock API match data, patch <span id="patch">09-29-2026</span><span id="patch-updated"></span>. Not modeled yet: movement, parry, multi-target items, and some item effects (marked <span class="dot stats"></span> stats only).
+    Combat model built on Deadlock API match data, patch <span id="patch">09-29-2026</span><span id="patch-updated"></span>. Not modeled yet: some item effects (marked <span class="dot stats"></span> stats only).
   </footer>
 </main>
 <div class="sheet" id="sheet" hidden>
@@ -177,6 +229,9 @@
     <div id="sh-body"></div>
   </div>
 </div>
+<script src="aim.js"></script>
 <script src="app.js"></script>
+<script src="match.js"></script>
+<script src="team.js"></script>
 </body>
 </html>

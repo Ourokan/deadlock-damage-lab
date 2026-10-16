@@ -112,11 +112,20 @@ def _debuff(target, key, value, duration, tag):
                 g(target, key)
 
 
+def nearby_enemies(f):
+    """Expected other enemy heroes near f's target: Mechanics.extra_targets in a duel, the living ones in a team fight."""
+    g = getattr(f.e, "nearby_enemies", None)
+    return g(f) if g is not None else f.e.mech.extra_targets
+
+
 def _splash(f, amount, kind, source):
     """Damage to other enemy heroes near the target, mitigated like a hit on the target (its resists stand in for
     theirs), booked in f.counters["splash"]."""
     if amount <= 0:
         return 0.0
+    team_splash = getattr(f.e, "team_splash", None)
+    if team_splash is not None:          # team fight: the other enemies are real fighters
+        return team_splash(f, amount, kind, source)
     e = f.enemy
     amt = amount * f.st.outgoing_mult * (1.0 + f.stat("damage_amp"))
     if kind == "bullet":
@@ -447,7 +456,7 @@ class Ricochet(FX):
     def on_damage_dealt(self, f, t, hit):
         if hit.kind != "bullet" or hit.source != "gun" or not hit.hits:
             return
-        n = f.e.mech.extra_targets
+        n = nearby_enemies(f)
         k = f.acc("ricochet").take(min(1.0, n), 1) if n < 1 else min(int(self.item.p("RicochetTargets", 2)), int(n))
         if k:
             _splash(f, hit.raw * k * self.item.p("RicochetDamagePercent", 65) / 100, "bullet", self.name)
@@ -476,7 +485,7 @@ class SplitShot(FX):
         per = f.counters.get("bullet_per", 0.0)
         if k and per:
             f.e.damage(f, t, per * k * SPLIT_PRIMARY_HIT, "bullet", self.name, is_item=True, procs=False, hits=k)
-        x = f.e.mech.extra_targets
+        x = nearby_enemies(f)
         if x > 0 and per:
             k2 = f.acc("split_side").take(min(1.0, f.skill.accuracy * SPLIT_SECONDARY_COVER * x), 1)
             if k2:
