@@ -18,12 +18,32 @@ def lo(hero, items=(), **kw):
     return Loadout(hero, list(items), souls=S, skill=Skill(accuracy=0.3, **kw))
 
 
+# duel results pinned from main before team fights (Engine.on_death and the cast notice must not change them):
+# (hero, items, enemy, items, winner, time, damage dealt, damage taken)
+DUELS = [
+    ("Haze", ["Rapid Rounds", "Toxic Bullets", "Restorative Locket"], "Infernus",
+     ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Haze (A)", 25.432, 2744.0, 1980.5),
+    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], None, 21.3, 1744.9, 2566.5),
+    ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1769.2, 1303.4),
+]
+
+
+class TestDuelsUnchanged(unittest.TestCase):
+    def test_pinned_duels(self):
+        for a, ai, b, bi, win, t, da, db in DUELS:
+            r = duel(Loadout(a, ai, souls=S, skill=Skill(accuracy=0.3, melee_rate=0.1)),
+                     Loadout(b, bi, souls=S, skill=Skill(accuracy=0.3)))
+            got = (r.winner, round(r.time, 3), round(sum(r.a_dmg.values()), 1), round(sum(r.b_dmg.values()), 1))
+            self.assertEqual(got, (win, t, da, db), a + " vs " + b)
+
+
 class TestOneVsOne(unittest.TestCase):
     def test_matches_duel_without_movement(self):
         a, b = lo("Haze", ["Rapid Rounds", "Toxic Bullets"]), lo("Infernus", ["Extra Spirit", "Mystic Burst"])
         d = duel(a, b, max_time=40, mechanics=Mechanics(movement=False))
         t = team_fight([a], [b], max_time=40)
-        self.assertEqual(t.winner, {"Haze (A)": "A", "Infernus (B)": "B", None: None}[d.winner])
+        side = None if d.winner is None else "A" if d.winner == d.a_name else "B"
+        self.assertEqual(t.winner, side)
         self.assertAlmostEqual(t.time, d.time, delta=1.0)
         self.assertAlmostEqual(t.fighters[0]["damage"], sum(d.a_dmg.values()), delta=0.05 * sum(d.a_dmg.values()))
 
@@ -80,6 +100,14 @@ class TestSupport(unittest.TestCase):
         v = team_item_value(a, b, 1, "Healing Nova")
         self.assertGreater(v["delta"]["healing_given"], 0)
         self.assertEqual(set(v["delta"]), {"damage", "damage_taken", "healing_given", "kills", "deaths", "swing", "win", "time"})
+
+
+class TestTether(unittest.TestCase):
+    def test_lone_ivy_matches_duel(self):
+        a, b = lo("Ivy", ["Extra Spirit"]), lo("Haze", ["Rapid Rounds"])
+        d = duel(a, b, max_time=40, mechanics=Mechanics(movement=False))
+        t = team_fight([a], [b], max_time=40)
+        self.assertAlmostEqual(t.fighters[0]["damage"], sum(d.a_dmg.values()), delta=0.05 * sum(d.a_dmg.values()))
 
 
 class TestArea(unittest.TestCase):

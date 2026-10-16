@@ -251,14 +251,16 @@ def _share_ability(st):
         own_buff = c.buff
 
         def buff(key, value, duration, tag=None, own=own_buff):
-            v = value * tether if tether else value
-            own(key, v, duration, tag)
+            v = value
             if tether:
                 mates = [x for x in f.allies if x is not f and x.alive][:1]
                 k = 1.0
+                if mates:            # alone, Kudzu keeps the duel's no-tether value
+                    v = value * tether
             else:
                 mates = [x for x in f.allies if x is not f and x.alive] if key in keys else []
                 k = eng.huddle
+            own(key, v, duration, tag)
             for x in mates:
                 x.mods.add(key, v * k, duration, (st.ab.class_name, key, f.name, tag))
         c.buff = buff
