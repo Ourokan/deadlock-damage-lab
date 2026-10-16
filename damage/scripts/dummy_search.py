@@ -203,7 +203,7 @@ def main():
     a = ap.parse_args()
     AIM = a.aim
     g = S.G()
-    heroes = [g.hero(h).id for h in a.heroes.split(",") if h] or sorted(g.heroes)
+    heroes = [g.hero(int(h) if h.isdigit() else h).id for h in a.heroes.split(",") if h] or sorted(g.heroes)
     budgets = [int(b) for b in a.budgets.split(",") if b] or BUDGETS
     os.makedirs(os.path.join(ROOT, "work", "jobs"), exist_ok=True)
     jobs = [(h, b) for b in budgets for h in heroes]

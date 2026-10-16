@@ -1,0 +1,198 @@
+name: Rerun searches after a patch
+
+# Every 6 hours: check the Deadlock API for a new patch or a hotfix (pipeline/check_patch.py). When the results are
+# out of date, pull the new game data and player builds, rerun every search across 16 machines, commit the new
+# results to main and redeploy the site. Nothing is committed unless the searches finish (pipeline/check_results.py).
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Rerun even if nothing changed"
+        type: boolean
+        default: false
+
+concurrency:
+  group: patch-rerun
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  SHARDS: 16
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      action: ${{ steps.check.outputs.action }}
+      reason: ${{ steps.check.outputs.reason }}
+      patch_start: ${{ steps.window.outputs.patch_start }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - id: check
+        run: python3 pipeline/check_patch.py --apply ${{ inputs.force && '--force' || '' }}
+      - id: window
+        run: |
+          echo "patch_start=$(python3 -c 'import json; print(json.load(open("data/patch.json"))["patch_start"])')" >> "$GITHUB_OUTPUT"
+          echo "### ${{ steps.check.outputs.action }}: ${{ steps.check.outputs.reason }}" >> "$GITHUB_STEP_SUMMARY"
+      - if: steps.check.outputs.action == 'rerun'
+        uses: actions/upload-artifact@v4
+        with:
+          name: game
+          path: |
+            data/game
+            data/patch.json
+
+  data:
+    needs: detect
+    if: needs.detect.outputs.action == 'rerun'
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    outputs:
+      complete: ${{ steps.fetch.outputs.complete }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: game
+          path: data
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # player builds are ~50 MB a day and the SQL endpoint allows ~20 queries an hour, so keep what was fetched
+      - uses: actions/cache/restore@v4
+        with:
+          path: data/builds/player_builds
+          key: player-builds-${{ needs.detect.outputs.patch_start }}-${{ github.run_id }}
+          restore-keys: player-builds-${{ needs.detect.outputs.patch_start }}-
+      - id: fetch
+        name: Fetch player builds (resumes; stops early near the job time limit)
+        run: |
+          end=$(python3 -c 'import json; print(json.load(open("data/patch.json"))["builds_through"])')
+          set +e
+          python3 data/scripts/fetch_builds.py data/builds/player_builds data/game/raw/items.json "$end" --max-days 14 --deadline-min 270
+          code=$?
+          set -e
+          if [ $code -eq 0 ]; then echo "complete=true" >> "$GITHUB_OUTPUT";
+          elif [ $code -eq 3 ]; then echo "complete=false" >> "$GITHUB_OUTPUT"; echo "Builds not all fetched yet; the next scheduled run continues." >> "$GITHUB_STEP_SUMMARY";
+          else exit $code; fi
+      - if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: data/builds/player_builds
+          key: player-builds-${{ needs.detect.outputs.patch_start }}-${{ github.run_id }}
+      - name: Ability orders for the patch
+        if: steps.fetch.outputs.complete == 'true'
+        run: python3 data/scripts/fetch_analytics.py data/builds/aggregates data/game/raw/heroes.json --slim
+      - name: Opponent pools for every rank bracket
+        if: steps.fetch.outputs.complete == 'true'
+        run: for b in all low phantom ascendant eternus eternus5; do python3 search/scripts/build_pool.py $b; done
+      - if: steps.fetch.outputs.complete == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: inputs
+          path: |
+            data/builds/aggregates
+            search/work/snapshots_*.json
+            search/work/item_usage*.json
+
+  search:
+    needs: data
+    if: needs.data.outputs.complete == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: game
+          path: data
+      - uses: actions/download-artifact@v4
+        with:
+          name: inputs
+          path: .
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 pipeline/run_shard.py --shard ${{ matrix.shard }} --of $SHARDS
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: work-${{ matrix.shard }}
+          path: |
+            damage/work/jobs
+            search/work/jobs*
+            survival/work/jobs
+            pipeline/work
+
+  publish:
+    needs: [detect, data, search]
+    # runs when some shards failed too; check_results.py decides whether enough finished
+    if: ${{ !cancelled() && needs.data.outputs.complete == 'true' && needs.search.result != 'skipped' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/download-artifact@v4
+        with:
+          name: game
+          path: data
+      - uses: actions/download-artifact@v4
+        with:
+          name: inputs
+          path: .
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: work-*
+          path: .
+          merge-multiple: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check every search finished
+        run: python3 pipeline/check_results.py
+      - name: Export results for the site
+        run: |
+          python3 - <<'EOF'
+          import datetime, json
+          p = json.load(open("data/patch.json"))
+          p["results_built"] = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+          json.dump(p, open("data/patch.json", "w"), indent=1); open("data/patch.json", "a").write("\n")
+          EOF
+          python3 damage/scripts/export.py
+          python3 search/scripts/export.py
+          python3 survival/scripts/export.py
+      - name: Commit to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/game data/patch.json data/builds/aggregates damage/out search/out survival/out
+          git diff --cached --quiet && { echo "No changes to commit"; exit 0; }
+          git commit -m "Rerun searches: ${{ needs.detect.outputs.reason }}"
+          git push origin HEAD:main
+
+  deploy:
+    needs: publish
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/pages.yml
+    with:
+      ref: main

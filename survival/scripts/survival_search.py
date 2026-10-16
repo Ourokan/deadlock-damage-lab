@@ -249,11 +249,14 @@ def main():
     ap.add_argument("--heroes", default="")
     ap.add_argument("--budgets", default="")
     ap.add_argument("--focus", type=float, default=FOCUS)
+    ap.add_argument("--only-tanks", action="store_true", help="drop --heroes that are not among the tank heroes")
     a = ap.parse_args()
     g = S.G()
     usage = json.load(open(os.path.join(ROOT, "..", "search", "work", "item_usage.json")))
     order, share = tank_heroes(usage)
-    heroes = [g.hero(h).id for h in a.heroes.split(",") if h] or order[:N_TANKS]
+    heroes = [g.hero(int(h) if h.isdigit() else h).id for h in a.heroes.split(",") if h] or order[:N_TANKS]
+    if a.only_tanks:
+        heroes = [h for h in heroes if h in order[:N_TANKS]]
     print("heroes:", ", ".join(f"{g.hero(h).name} ({share[h]:.0%} vitality)" for h in heroes), flush=True)
     budgets = [int(b) for b in a.budgets.split(",") if b] or BUDGETS
     os.makedirs(os.path.join(ROOT, "work", "jobs"), exist_ok=True)

@@ -20,7 +20,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, ".."))
 sys.path.insert(0, os.path.join(ROOT, "..", "sim"))
 sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.join(ROOT, "..", "data"))
 from deadsim import game  # noqa: E402
+import patch_state  # noqa: E402
 import dummy_search as D  # noqa: E402
 
 OUT = os.path.join(ROOT, "out")
@@ -50,7 +52,7 @@ def main():
         json.dump({"hero_id": hid, "hero": name, "budgets": per}, open(os.path.join(OUT, "heroes", f"{hid}.json"), "w"))
         index.append({"id": hid, "name": name, "budgets": summ})
     json.dump({
-        "generated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "patch": "09-29-2026",
+        "generated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "patch": patch_state.load()["patch"],
         "objectives": {k: f"damage dealt to the dummy in the first {v:g} s" for k, v in D.WINDOWS.items()},
         "dummy": "never acts, no resists, refills instead of dying, HP = weighted median of real builds at the budget",
         "aim": "ranked median hero accuracy and headshot rate, real ability landing and melee rates",

@@ -32,6 +32,27 @@ Real player builds (`data/builds/player_builds/`, ~1 GB) and the searches' `work
 `data/scripts/fetch_builds.py` and `fetch_analytics.py` rebuild them from the Deadlock API.
 `data/builds/aggregates/per_hero/` here keeps only the most played ability order per hero, which is all the sim reads.
 
+## Automatic reruns after a patch
+`.github/workflows/patch-rerun.yml` runs every 6 hours (or by hand from the Actions tab, with "force" to rerun
+anyway). `pipeline/check_patch.py` pulls the game data and changelog from the Deadlock API and compares them with
+`data/patch.json`, the patch the committed results were built for:
+
+- **New patch** (a newer changelog entry): waits until 3 full days of ranked games exist on it, then reruns on
+  builds from the new patch only. It reruns again when the patch reaches 7 and 14 days of games, since the duel
+  brackets read 7 or 14 days.
+- **Hotfix** (gameplay numbers changed, no new changelog): reruns right away on the same patch's builds.
+
+A rerun pulls player builds (`data/scripts/fetch_builds.py`, cached between runs; the SQL endpoint allows ~20
+queries an hour, so 14 days take ~3 hours and a fetch that runs out of time continues on the next run), rebuilds
+the opponent pools, runs the damage, duel (all brackets) and survival searches on 16 machines
+(`pipeline/run_shard.py`), checks they finished (`pipeline/check_results.py`), commits the new `out/` folders,
+game data and `data/patch.json` to `main` and redeploys the site. If a step fails, nothing is committed and the
+site keeps the previous results. The site footer shows the patch and when the results were built.
+
+Not rerun automatically: the counter-item analysis (`counters/`), and the sim's fitted inputs in `sim/data/`
+(aim percentiles, ability landing and melee rates), which keep their 09-29-2026 fit until refitted by hand. A new
+hero's abilities fall back to a generic reading of their game data until they are coded in `sim/deadsim/heroes/`.
+
 ## Run the site locally
 ```
 python3 web/build.py --pyodide <extracted pyodide-core-0.26.4 folder>

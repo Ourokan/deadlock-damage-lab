@@ -21,7 +21,9 @@ from collections import Counter, defaultdict
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.join(HERE, "..")
 sys.path.insert(0, os.path.join(ROOT, "..", "sim"))
+sys.path.insert(0, os.path.join(ROOT, "..", "data"))
 from deadsim import game  # noqa: E402
+import patch_state  # noqa: E402
 
 BUDGETS = [10000, 18000, 27000, 37000, 50000]
 CAP = 600
@@ -92,8 +94,10 @@ def main():
     sfx = suffix(bracket)
     G = game()
     cost = {i: it.cost for i, it in G.items.items() if it.cost > 0}
+    # the patch's full days only (data/patch.json), newest `days` of them
+    patch_days = {f"{d}.jsonl.gz" for d in patch_state.build_days()}
     files = sorted(glob.glob(os.path.join(ROOT, "..", "data", "builds", "player_builds", "*.jsonl.gz")))
-    files = [f for f in files if not f.endswith("2026-10-14.jsonl.gz")][-days:]
+    files = [f for f in files if os.path.basename(f) in patch_days][-days:]
     rnd = random.Random(7)
     res = {b: defaultdict(list) for b in BUDGETS}
     seen = {b: Counter() for b in BUDGETS}

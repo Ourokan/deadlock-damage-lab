@@ -363,6 +363,11 @@ async function boot() {
   const tank = await load("data/tank/index.json");
   fillHeroSelect($("#t-hero"), tank ? Object.keys(tank.heroes) : []);
   for (const s of ["#g-hero", "#u-hero"]) $(s).value = 13;
+  load("data/patch.json").then((p) => {
+    if (!p) return;
+    $("#patch").textContent = p.patch;
+    if (p.results_built) $("#patch-updated").textContent = `, results updated ${p.results_built.slice(0, 10)}`;
+  });
 
   // starting state: Haze's most popular real 27k build against the standard dummy
   const d = await damageHero(S.A.hero);
