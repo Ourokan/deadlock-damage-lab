@@ -50,7 +50,11 @@ Hero ids match `data/game/heroes.json`; item ids match `data/game/shop_items.jso
   measures every candidate item's value added to the current build and every owned item's value removed (on the
   16 most played opponents), proposes 1-for-1, 2-for-1, 1-for-2 and add moves ranked by predicted gain, checks the
   best on the full pool and moves to the best improvement. Up to 8 rounds, stopping when a round gains < 0.004.
-  Rules: max 12 items, total cost within the item budget, no item together with its own component.
+  Rules: max 12 items, total cost within the item budget, no item together with its own component, and no more
+  expensive items than 9 in 10 real players of the bracket hold at that budget (items costing 6400+ and 3200+,
+  `build_pool.TIER_STEPS`, written to `work/tier_caps*.json`). Phantom+: 10k 0 / 1, 18k 0 / 3, 27k 1 / 5,
+  37k 3 / 7, 50k 4 / 9 (6400+ / 3200+). Without it the searches sank the budget into one or two tier 4 items: at 18k,
+  87% of the best damage builds held a 6400-soul item against 9% of Phantom+ players.
   Candidate items: 151 tier 1-4 items with a modeled effect or always-on stats (tier 5 legendaries are never
   bought in real ranked games; Ricochet and Split Shot do nothing in a 1v1).
 - **Robustness**: the top 10 builds are re-run against the random real build pool. A build that drops a lot there

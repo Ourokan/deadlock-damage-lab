@@ -10,7 +10,9 @@ for each objective as the target and works out the order to buy it in:
   extra damage per soul it costs, measured at the net worth you'd have when you can afford it (hero level and
   boons included). Repeat until the target is complete. No selling.
 - Net worth for an item spend: the lowest net worth whose item budget (share of net worth real players hold in
-  items, build_pool.item_budget) covers it, rounded up to 500.
+  items, build_pool.item_budget) covers it, rounded up to 500, and no lower than the first budget where real players
+  hold that many expensive items (build_pool tier caps: no 6400-soul item before 27k at Phantom+). A piece that
+  would break the caps at the current net worth is only bought when nothing else on the path can be.
 - Milestones (10k/18k/27k/37k/50k): what the path holds at each, its damage there, and how close that is to the
   best build the dummy search found for that exact net worth (which is free to pick items you'd later sell).
 
@@ -38,7 +40,7 @@ sys.path.insert(0, os.path.join(ROOT, "..", "search", "scripts"))
 sys.path.insert(0, HERE)
 sys.path.insert(0, ROOT)
 
-from build_pool import BUDGETS, item_budget  # noqa: E402
+from build_pool import BUDGETS, PRIMARY, caps_for_limit, item_budget  # noqa: E402
 import search as S  # noqa: E402
 import dummy_search as D  # noqa: E402
 
@@ -54,6 +56,17 @@ def net_worth_for(spend):
     while item_budget(nw) < spend:
         nw += NW_STEP
     return nw
+
+
+def cap_net_worth(items):
+    """Lowest milestone net worth whose tier caps (build_pool.TIER_STEPS) allow holding these items; 0 when the
+    lowest one does."""
+    g = S.G()
+    for b in BUDGETS:
+        caps = caps_for_limit(item_budget(b), PRIMARY)
+        if all(sum(1 for i in items if g.items[i].cost >= t) <= c for t, c in caps.items()):
+            return 0 if b == BUDGETS[0] else b
+    return BUDGETS[-1]
 
 
 USE_PUBLISHED = False   # --use-published: read out/heroes (local runs without work/jobs); never in the reruns
@@ -114,7 +127,7 @@ def plan(path, target, obj):
     pieces = set(target)
     for i in target:
         pieces |= S.component_ids(g.items[i]) & set(g.items)
-    owned, spent, steps = [], 0, []
+    owned, spent, steps, last_nw = [], 0, [], 0
     while set(target) - set(owned):
         best = None
         for p in pieces:
@@ -126,16 +139,19 @@ def plan(path, target, obj):
             new, paid = after_buy(owned, p)
             if len(new) > S.MAX_ITEMS:
                 continue
-            nw = net_worth_for(spent + paid)
+            nw_spend = net_worth_for(spent + paid)
+            nw_cap = cap_net_worth(new)
+            nw = max(nw_spend, nw_cap, last_nw)
             gain = path.dmg(new, nw)[obj] - path.dmg(owned, nw)[obj]
-            score = gain / max(1, paid)
-            if best is None or score > best[0] + 1e-12 or (abs(score - best[0]) <= 1e-12 and paid < best[3]):
+            # (buyable without waiting for the tier caps, damage per soul): a capped piece waits for the rest
+            score = (nw_cap <= nw_spend, gain / max(1, paid))
+            if best is None or score > best[0] or (score == best[0] and paid < best[3]):
                 best = (score, p, new, paid, nw, gain)
         if best is None:   # every remaining piece is blocked (item cap): don't save a partial order as finished
             raise RuntimeError(f"no buyable piece left toward {sorted(set(target) - set(owned))}")
         _, p, new, paid, nw, gain = best
         replaced = [i for i in owned if i not in new]
-        owned, spent = new, spent + paid
+        owned, spent, last_nw = new, spent + paid, nw
         steps.append({"item": p, "replaces": replaced, "paid": paid, "spent": spent, "net_worth": nw,
                       "gain": round(gain, 1), "damage": round(path.dmg(owned, nw)[obj], 1)})
     return steps
@@ -147,7 +163,7 @@ def milestones(path, res, steps, obj):
         limit = item_budget(b)
         held = []
         for s in steps:
-            if s["spent"] > limit:
+            if s["spent"] > limit or s.get("net_worth", 0) > b:
                 break
             held = [i for i in held if i not in s["replaces"]] + [s["item"]]
         r = res.get(b)
