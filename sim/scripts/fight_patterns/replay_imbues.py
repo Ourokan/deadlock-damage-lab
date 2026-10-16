@@ -1,8 +1,13 @@
 """Which ability each hero imbues, from replay extracts (fetch_replays.py output).
 
-Quicksilver Reload's bonus damage is its own damage event (item id as ability_id) on the same tick as the imbued
-ability's hit, so every Quicksilver hit votes for the hero ability that hit the same victim within TOL ticks.
-Mercurial Magnum and the other imbue items leave no such trace; their holders are assumed to pick the same ability.
+Three imbue items leave their own damage events (item id as ability_id) tied to the imbued ability's hit, so each one
+votes for the hero ability that hit the same victim LAG ticks earlier (within TOL):
+- Quicksilver Reload: its bonus lands on the same tick (LAG 0).
+- Mercurial Magnum: its charge hit lands on the same tick; only events of MERC_MIN+ count, since its small
+  per-bullet procs land on gun ticks.
+- Mystic Reverb: its echo lands 3 s later (194 ticks; 0.5-0.75 x the triggering hit in replays).
+Surge of Power, Ballistic Enchantment, Echo Shard and the stat imbues leave no trace; holders are assumed to pick the
+same ability.
 Writes {hero id: {"imbue": class name, "share": float, "hits": int, "matches": int}} into the patterns file
 ("imbue" fields; heroes under MIN_HITS votes, MIN_MATCHES matches or a MIN_SHARE majority are left out).
 
@@ -16,8 +21,11 @@ AB = {}
 for hid in G.heroes:
     for a in G.hero(hid).abilities:
         AB[a.id] = (hid, a.class_name)
-QR = next(i.id for i in G.items.values() if i.class_name == "upgrade_quick_silver")
-TOL = 2
+ID = {i.class_name: i.id for i in G.items.values()}
+MARKERS = {ID["upgrade_quick_silver"]: (0, 2), ID["upgrade_ethereal_bullets"]: (0, 2),
+           ID["upgrade_mystic_reverb"]: (194, 4)}          # item id -> (LAG, TOL) in ticks
+MERC = ID["upgrade_ethereal_bullets"]
+MERC_MIN = 40
 MIN_HITS = 20
 MIN_MATCHES = 3
 MIN_SHARE = 0.8      # a split pick (Victor 68%) stays on the sim's default
@@ -35,21 +43,21 @@ for fn in glob.glob(os.path.join(sys.argv[1], "raw", "*.ndjson")):
                 who[r["a"] & 0x3FFF][AB[aid][0]] += 1
     pawn = {e: c.most_common(1)[0][0] for e, c in who.items()}
     hits = collections.defaultdict(list)     # attacker * 100000 + victim (the extract's "a") -> [(tick, ability id)]
-    qr = []
+    marks = []
     for r in rows:
         if r["k"] != "dmg" or not r.get("s"):
             continue
         aid = int(r["s"])
-        if aid == QR:
-            qr.append((r["a"], r["tick"]))
+        if aid in MARKERS and (aid != MERC or r["v"] >= MERC_MIN):
+            marks.append((r["a"], r["tick"] - MARKERS[aid][0], MARKERS[aid][1]))
         elif aid in AB:
             hits[r["a"]].append((r["tick"], aid))
-    for key, t in qr:
+    for key, t, tol in marks:
         e = key // 100000
         hid = pawn.get(e)
         if hid is None:
             continue
-        near = [(abs(t2 - t), a) for t2, a in hits[key] if abs(t2 - t) <= TOL and AB[a][0] == hid]
+        near = [(abs(t2 - t), a) for t2, a in hits[key] if abs(t2 - t) <= tol and AB[a][0] == hid]
         if near:
             d = min(near)[0]
             closest = {a for dt, a in near if dt == d}

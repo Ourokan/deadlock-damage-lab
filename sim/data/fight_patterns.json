@@ -312,11 +312,11 @@
    },
    "imbue": "citadel_ability_hornet_sting",
    "replay_imbue": {
-    "share": 0.902,
-    "hits": 337,
-    "matches": 27,
+    "share": 0.915,
+    "hits": 390,
+    "matches": 30,
     "by_ability": {
-     "citadel_ability_hornet_sting": 304,
+     "citadel_ability_hornet_sting": 357,
      "citadel_ability_hornet_snipe": 33
     }
    }
@@ -426,6 +426,17 @@
    "fit_error": {
     "slot_order": 0.336,
     "replay_order": 0.32
+   },
+   "imbue": "ability_blood_bomb",
+   "replay_imbue": {
+    "share": 0.903,
+    "hits": 62,
+    "matches": 6,
+    "by_ability": {
+     "ability_blood_bomb": 56,
+     "ability_life_drain": 4,
+     "ability_blood_shards": 2
+    }
    }
   },
   "6": {
@@ -622,10 +633,10 @@
    "imbue": "citadel_ability_card_toss",
    "replay_imbue": {
     "share": 1.0,
-    "hits": 1436,
+    "hits": 1598,
     "matches": 66,
     "by_ability": {
-     "citadel_ability_card_toss": 1436
+     "citadel_ability_card_toss": 1598
     }
    }
   },
@@ -736,10 +747,10 @@
    "imbue": "citadel_ability_shieldedsentry",
    "replay_imbue": {
     "share": 1.0,
-    "hits": 24,
-    "matches": 3,
+    "hits": 58,
+    "matches": 4,
     "by_ability": {
-     "citadel_ability_shieldedsentry": 24
+     "citadel_ability_shieldedsentry": 58
     }
    }
   },
@@ -843,6 +854,16 @@
    "fit_error": {
     "slot_order": 0.553,
     "replay_order": 0.534
+   },
+   "imbue": "citadel_ability_chrono_kinetic_carbine",
+   "replay_imbue": {
+    "share": 0.992,
+    "hits": 125,
+    "matches": 24,
+    "by_ability": {
+     "citadel_ability_chrono_kinetic_carbine": 124,
+     "citadel_ability_chrono_pulse_grenade": 1
+    }
    }
   },
   "11": {
@@ -948,10 +969,10 @@
    "imbue": "citadel_ability_stomp",
    "replay_imbue": {
     "share": 1.0,
-    "hits": 50,
-    "matches": 4,
+    "hits": 68,
+    "matches": 5,
     "by_ability": {
-     "citadel_ability_stomp": 50
+     "citadel_ability_stomp": 68
     }
    }
   },
@@ -1559,6 +1580,15 @@
    "fit_error": {
     "slot_order": 0.527,
     "replay_order": 0.514
+   },
+   "imbue": "ability_charged_shot",
+   "replay_imbue": {
+    "share": 1.0,
+    "hits": 29,
+    "matches": 3,
+    "by_ability": {
+     "ability_charged_shot": 29
+    }
    }
   },
   "18": {
@@ -1980,10 +2010,10 @@
    "imbue": "ability_warden_crowd_control",
    "replay_imbue": {
     "share": 1.0,
-    "hits": 102,
+    "hits": 165,
     "matches": 10,
     "by_ability": {
-     "ability_warden_crowd_control": 102
+     "ability_warden_crowd_control": 165
     }
    }
   },
@@ -2088,7 +2118,16 @@
     "citadel_ability_flying_strike",
     "citadel_ability_healing_slash"
    ],
-   "dropped": "the replay combo fits the real damage mix worse than slot order in the sim (mean |log landing| 0.83 -> 0.96), which points at a gap in this hero's ability model; slot order kept"
+   "dropped": "the replay combo fits the real damage mix worse than slot order in the sim (mean |log landing| 0.83 -> 0.96), which points at a gap in this hero's ability model; slot order kept",
+   "imbue": "citadel_ability_power_slash",
+   "replay_imbue": {
+    "share": 1.0,
+    "hits": 23,
+    "matches": 6,
+    "by_ability": {
+     "citadel_ability_power_slash": 23
+    }
+   }
   },
   "31": {
    "name": "Lash",
@@ -2194,11 +2233,12 @@
    },
    "imbue": "ability_lash_flog",
    "replay_imbue": {
-    "share": 1.0,
-    "hits": 1329,
-    "matches": 44,
+    "share": 0.977,
+    "hits": 1407,
+    "matches": 48,
     "by_ability": {
-     "ability_lash_flog": 1329
+     "ability_lash_flog": 1375,
+     "citadel_ability_lash_down_strike": 32
     }
    }
   },
@@ -2605,10 +2645,10 @@
    "imbue": "ability_viper_debuffdagger",
    "replay_imbue": {
     "share": 1.0,
-    "hits": 127,
-    "matches": 16,
+    "hits": 175,
+    "matches": 18,
     "by_ability": {
-     "ability_viper_debuffdagger": 127
+     "ability_viper_debuffdagger": 175
     }
    }
   },
@@ -3298,6 +3338,15 @@
    "fit_error": {
     "slot_order": 0.554,
     "replay_order": 0.519
+   },
+   "imbue": "ability_doorman_bomb",
+   "replay_imbue": {
+    "share": 1.0,
+    "hits": 45,
+    "matches": 3,
+    "by_ability": {
+     "ability_doorman_bomb": 45
+    }
    }
   },
   "72": {
@@ -3491,11 +3540,12 @@
    },
    "imbue": "ability_necro_hauntingskull",
    "replay_imbue": {
-    "share": 1.0,
-    "hits": 31,
-    "matches": 3,
+    "share": 0.818,
+    "hits": 44,
+    "matches": 4,
     "by_ability": {
-     "ability_necro_hauntingskull": 31
+     "ability_necro_hauntingskull": 36,
+     "ability_necro_gravestone": 8
     }
    }
   },
@@ -3699,6 +3749,15 @@
    "fit_error": {
     "slot_order": 0.909,
     "replay_order": 0.909
+   },
+   "imbue": "ability_deadpack_rocketeer",
+   "replay_imbue": {
+    "share": 1.0,
+    "hits": 35,
+    "matches": 6,
+    "by_ability": {
+     "ability_deadpack_rocketeer": 35
+    }
    }
   },
   "79": {
@@ -3801,6 +3860,15 @@
    "fit_error": {
     "slot_order": 0.697,
     "replay_order": 0.705
+   },
+   "imbue": "ability_familiar_ability02",
+   "replay_imbue": {
+    "share": 1.0,
+    "hits": 20,
+    "matches": 4,
+    "by_ability": {
+     "ability_familiar_ability02": 20
+    }
    }
   },
   "80": {
