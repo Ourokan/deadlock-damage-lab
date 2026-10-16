@@ -236,22 +236,32 @@ function readShare() {
   if (!p.has("h")) return false;
   const hero = Number(p.get("h"));
   if (!S.heroById[hero]) return false;
-  const items = (k) => [...new Set((p.get(k) || "").split(".").filter((x) => /^\d+$/.test(x) && Object.hasOwn(S.items, x)).map(Number))].slice(0, 12);
+  let dropped = 0;
+  const items = (k) => {
+    const ids = (p.get(k) || "").split(".").filter(Boolean), ok = ids.filter((x) => /^\d+$/.test(x) && Object.hasOwn(S.items, x));
+    dropped += ids.length - ok.length;
+    return [...new Set(ok.map(Number))].slice(0, 12);
+  };
   const souls = parseFloat(p.get("s"));
   Object.assign(S.A, { hero, souls: souls >= 0 ? souls : S.A.souls, items: items("i"),
     aim: AIMS.includes(p.get("aim")) ? p.get("aim") : "p50", label: p.get("n")?.slice(0, 60) || null });
-  for (const [k, sel] of Object.entries(SHARE_NUM)) if (p.has(k) && isFinite(parseFloat(p.get(k)))) $(sel).value = parseFloat(p.get(k));
+  for (const [k, sel] of Object.entries(SHARE_NUM)) {
+    const v = parseFloat(p.get(k)), el = $(sel);
+    if (isFinite(v)) el.value = Math.min(Number(el.max || Infinity), Math.max(Number(el.min || -Infinity), v));
+  }
   if (p.get("t") === "hero") {
     const eh = Number(p.get("eh"));
     Object.assign(S.D, { mode: "hero", hero: S.heroById[eh] ? eh : S.D.hero, items: items("ei") });
   }
   $("#d-immortal").checked = p.get("die") !== "1";
+  if (dropped) $("#share-note").textContent += ` ${dropped} item${dropped > 1 ? "s" : ""} from this link no longer exist${dropped > 1 ? "" : "s"} in the current patch, so ${dropped > 1 ? "they were" : "it was"} left out.`;
   return true;
 }
 
 async function copyShare() {
-  const url = shareURL("#test"), btn = $("#share");
-  history.replaceState(null, "", shareURL());
+  // the address bar holds the last run (see runTest), so the link matches the result on screen even after edits
+  const u = new URL(location.href); u.hash = "test";
+  const url = u.search ? u.href : shareURL("#test"), btn = $("#share");
   try { await navigator.clipboard.writeText(url); btn.textContent = "Link copied"; }
   catch { window.prompt("Copy this link:", url); return; }
   setTimeout(() => (btn.textContent = "Copy link"), 2000);
