@@ -15,6 +15,8 @@ reduction) apply; their actives don't. With `immortal=True` (default) lethal dam
 counting; with False the run stops when it dies and `r["kill_time"]` is set. Numbers given in Dummy override what
 the hero and items would give: `hp` replaces max HP, each `*_resist` (0-1) replaces that resist entirely.
 Attacker aim: `skill` (deadsim Skill) or `aim` percentile of the hero's ranked players (p25/p50/p75/p90).
+Attacker abilities: the popular real order by default; `ability_order` (ability ids, Deadlock API format) follows that
+order instead, as far as the net worth's ability points go (deadsim.fight.abilities_for_order).
 """
 from __future__ import annotations
 
@@ -49,14 +51,15 @@ class _Refill:
 
 
 def damage_test(hero, items, souls=None, dummy: Dummy | None = None, skill: Skill | None = None, aim="p50",
-                marks=(5.0, 15.0, 30.0), distance=None, tiers=None, imbues=None):
+                marks=(5.0, 15.0, 30.0), distance=None, tiers=None, imbues=None, ability_order=None):
     G = game()
     dummy = dummy or Dummy()
     hname = G.hero(hero).name
     skill = skill or hero_default_skill(hname, aim)
     t_max = max(marks)
     e = Engine(distance=distance if distance is not None else default_distance(hname), max_time=t_max)
-    a = make_fighter(e, Loadout(hero, list(items), souls=souls, skill=skill, tiers=tiers, imbues=imbues or {}),
+    a = make_fighter(e, Loadout(hero, list(items), souls=souls, skill=skill, tiers=tiers, imbues=imbues or {},
+                                   ability_order=ability_order),
                      "attacker")
     d = make_fighter(e, Loadout(dummy.hero, list(dummy.items), souls=dummy.souls or a.st.souls,
                                 skill=Skill(accuracy=0, headshot=0, use_abilities=False, use_actives=False)), "dummy")
