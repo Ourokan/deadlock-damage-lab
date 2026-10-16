@@ -19,6 +19,11 @@ from deadsim.mechanics import Mechanics                         # parry, shootab
 r = duel(me, foe, mechanics=Mechanics(extra_targets=0.25))     # on by default (mechanics=None for the old model); r.escaped, r.a_splash, r.b_summon
 ```
 
+- Team fights (2v2, 3v3): `deadsim/team.py`. `team_fight([Loadout...], [Loadout...], focus="focus"|"spread")` returns
+  per-hero damage, damage taken, heals and barriers given to teammates, kills; `team_item_value(a, b, i, item)` is
+  what one item on hero i is worth to the whole team. Heals, barriers and auras reach teammates (`HUDDLE` = share in
+  range), area abilities also hit other enemies (`AOE_SHARE`), Ricochet/Split Shot bounce to real enemies, movement
+  is off. Both shares are assumptions. CLI: `scripts/team_fight.py` (`--support 27000` ranks support items).
 - Souls are net worth. Ability unlock order and upgrades default to the most popular real order for that
   soul count (`Loadout(tiers=..., unlocked=...)` to override).
 - Code: `deadsim/engine.py` (event loop, damage pipeline), `build.py` (stats), `items_fx.py` (item effects),

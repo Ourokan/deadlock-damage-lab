@@ -466,11 +466,14 @@ class AbilityState:
             g = getattr(fx, "on_cast", None)
             if g:
                 g(f, self)
-        if f.enemy is not None:
-            for fx in f.enemy.items_fx:
+        # every enemy hero sees the cast (one in a duel; team.TeamEngine sets f.foes)
+        for en in getattr(f, "foes", None) or ([f.enemy] if f.enemy is not None else []):
+            if not en.alive:
+                continue
+            for fx in en.items_fx:
                 g = getattr(fx, "on_enemy_cast", None)
                 if g:
-                    g(f.enemy, self)
+                    g(en, self)
         self.impl.cast(self.ctx)
         if f.e.mech is not None:
             from .mechanics import after_cast

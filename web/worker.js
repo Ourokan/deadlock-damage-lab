@@ -1,5 +1,5 @@
 // Runs the Python combat sim (deadsim) in Pyodide, off the page's main thread.
-// Messages in: {type:"init", base} then {type:"run"|"breakdown", id, req}. Out: {type:"ready"|"result"|"error", ...}.
+// Messages in: {type:"init", base} then {type:"run"|"breakdown"|"team", id, req}. Out: {type:"ready"|"result"|"error", ...}.
 let py = null;
 
 // b64: the Artifact preview can't serve .zip files, so it gets them as base64 text (written by build.py)
@@ -21,7 +21,7 @@ async function init(base, b64) {
   py.runPython(`
 import sys
 sys.path[:0] = ["/app/sim", "/app/damage"]
-from bridge import run, breakdown
+from bridge import run, breakdown, team
 from deadsim.data import game
 game()
 `);
@@ -33,7 +33,7 @@ self.onmessage = async (e) => {
     if (m.type === "init") {
       await init(m.base, m.b64);
       self.postMessage({ type: "ready" });
-    } else if (m.type === "run" || m.type === "breakdown") {
+    } else if (m.type === "run" || m.type === "breakdown" || m.type === "team") {
       const t = performance.now();
       const out = py.globals.get(m.type)(JSON.stringify(m.req));
       self.postMessage({ type: "result", id: m.id, result: JSON.parse(out), ms: performance.now() - t });
