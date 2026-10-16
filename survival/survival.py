@@ -24,6 +24,8 @@ from deadsim.accuracy import default_distance, hero_default_skill  # noqa: E402
 from deadsim.data import game  # noqa: E402
 from deadsim.engine import Engine  # noqa: E402
 from deadsim.fight import make_fighter  # noqa: E402
+import dataclasses  # noqa: E402
+from deadsim import mechanics  # noqa: E402
 
 _skill, _dist = {}, {}
 
@@ -55,7 +57,9 @@ def survive(hero, items, souls, enemy, enemy_items, enemy_souls=None, max_time=6
             skill: Skill | None = None, enemy_skill: Skill | None = None, distance=None, focus=1.0):
     G = game()
     hn, en = G.hero(hero).name, G.hero(enemy).name
-    e = Engine(distance=distance if distance is not None else (_d(hn) + _d(en)) / 2, max_time=max_time)
+    # movement off: running away would count as surviving, which isn't what this search measures
+    mech = dataclasses.replace(mechanics.DEFAULT, movement=False) if mechanics.DEFAULT else None
+    e = Engine(distance=distance if distance is not None else (_d(hn) + _d(en)) / 2, max_time=max_time, mech=mech)
     me = make_fighter(e, Loadout(hero, list(items), souls=souls, skill=skill or _sk(hn, aim)), "me")
     foe = make_fighter(e, Loadout(enemy, list(enemy_items), souls=enemy_souls or souls,
                                   skill=enemy_skill or _sk(en, enemy_aim)), "enemy")
