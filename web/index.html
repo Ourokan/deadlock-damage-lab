@@ -16,6 +16,7 @@
     <a class="mark" href="#test">Damage Lab</a>
     <nav class="tabs" id="tabs">
       <a href="#test" data-tab="test">Damage test</a>
+      <a href="#match" data-tab="match">Real match</a>
       <a href="#damage" data-tab="damage">Best damage builds</a>
       <a href="#duel" data-tab="duel">Duel builds</a>
       <a href="#tank" data-tab="tank">Tank builds</a>
@@ -121,6 +122,30 @@
     </div>
   </section>
 
+  <!-- Real match import (match.js) -->
+  <section id="tab-match" class="tab" hidden>
+    <div class="intro">
+      <h1>Would another build have hit harder?</h1>
+      <p>Paste a match ID. The page loads every player's items from the Deadlock API, puts one player's build against an enemy's build at any point in the match, and tests which builds would have dealt more damage.</p>
+    </div>
+    <form class="filters" id="m-form">
+      <label class="f"><span>Match ID</span><input id="m-id" inputmode="numeric" autocomplete="off" placeholder="e.g. 117564612"></label>
+      <button class="run" id="m-load" type="submit">Load match</button>
+    </form>
+    <p class="hint" id="m-status">Find match IDs on the in-game match history, Statlocker or the Deadlock API.</p>
+    <div id="m-pick" class="stack" hidden>
+      <div class="filters">
+        <label class="f"><span>Player</span><select id="m-a"></select></label>
+        <label class="f"><span>Target</span><select id="m-d"></select></label>
+        <label class="f"><span>Builds at</span><select id="m-t"></select></label>
+      </div>
+      <label class="check"><input id="m-aim" type="checkbox" checked> Use the player's hero accuracy and headshot rate from this match</label>
+      <div class="cards" id="m-sides"></div>
+      <button class="run" id="m-go" type="button">Test what would have dealt more</button>
+    </div>
+    <div id="m-out"></div>
+  </section>
+
   <!-- Precomputed damage search -->
   <section id="tab-damage" class="tab" hidden>
     <div class="intro">
@@ -177,5 +202,6 @@
   </div>
 </div>
 <script src="app.js"></script>
+<script src="match.js"></script>
 </body>
 </html>
