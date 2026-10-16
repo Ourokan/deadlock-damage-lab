@@ -19,7 +19,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, ".."))
 sys.path.insert(0, os.path.join(ROOT, "..", "sim"))
 sys.path.insert(0, HERE)
+sys.path.insert(0, os.path.join(ROOT, "..", "data"))
 from deadsim import game  # noqa: E402
+import patch_state  # noqa: E402
 from deadsim.items_fx import MODELED  # noqa: E402
 from build_pool import BUDGETS, BRACKETS, item_budget, suffix  # noqa: E402
 import search  # noqa: E402
@@ -117,7 +119,7 @@ def main():
 
     index = {
         "generated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "patch": "09-29-2026",
+        "patch": patch_state.load()["patch"],
         "budgets": [{"souls": b, "item_budget": item_budget(b)} for b in BUDGETS],
         "brackets": [{"id": br, "min_badge": BRACKETS[br][0], "max_badge": BRACKETS[br][1], "aim_percentile": BRACKETS[br][2],
                       "label": BRACKET_LABELS[br]} for br in jobs],

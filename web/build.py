@@ -67,6 +67,7 @@ def main():
     data = os.path.join(WEB, "data")
     os.makedirs(data, exist_ok=True)
     shutil.copy(os.path.join(ROOT, "search/out/items.json"), os.path.join(data, "items.json"))
+    shutil.copy(os.path.join(ROOT, "data/patch.json"), os.path.join(data, "patch.json"))
     with open(os.path.join(ROOT, "damage/out/index.json")) as fh:
         heroes = [{"id": h["id"], "name": h["name"]} for h in json.load(fh)["heroes"]]
     with open(os.path.join(data, "heroes.json"), "w") as fh:

@@ -375,7 +375,7 @@ def main():
     global BRACKET
     BRACKET = a.bracket
     g = G()
-    heroes = [g.hero(h).id for h in a.heroes.split(",") if h] or sorted(g.heroes)
+    heroes = [g.hero(int(h) if h.isdigit() else h).id for h in a.heroes.split(",") if h] or sorted(g.heroes)
     budgets = [int(b) for b in a.budgets.split(",") if b] or BUDGETS
     os.makedirs(os.path.join(ROOT, "work", "jobs" + suffix(BRACKET)), exist_ok=True)
     order = [27000, 18000, 37000, 10000, 50000]
