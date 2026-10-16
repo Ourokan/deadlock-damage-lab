@@ -243,15 +243,79 @@ function simCall(type, req) {
 
 function runTest() {
   if (!S.ready) return;
-  const req = request(), id = ++S.runId;
+  const req = request(), url = shareURL(), id = ++S.runId;
   $("#run").disabled = true; $("#run").textContent = "Running…"; showErr("");
   S.pending[id] = (m) => {
     $("#run").disabled = false; $("#run").textContent = "Run damage test";
     if (m.type === "error") { showErr("That run failed: " + lastLine(m.message)); return; }
     S.last = { req, res: m.result, label: S.A.label || `${S.heroById[S.A.hero].name} build`, ms: m.ms };
     renderResult();
+    try { history.replaceState(null, "", url); } catch { /* sandboxed embed */ }
   };
   S.engine.postMessage({ type: "run", id, req });
+}
+
+// ---------- share links ----------
+// The test setup lives in the query string (the hash is the tab), so a link reopens the same test.
+const SHARE_NUM = { acc: "#a-acc", hs: "#a-hs", dist: "#a-dist", hp: "#d-hp", br: "#d-br", sr: "#d-sr", mr: "#d-mr", es: "#d-souls" };
+const AIMS = ["p25", "p50", "p75", "p90", "custom"];
+
+function shareURL(hash = location.hash) {
+  const A = S.A, D = S.D, p = new URLSearchParams(), val = (k) => $(SHARE_NUM[k]).value.trim();
+  p.set("h", A.hero); p.set("s", A.souls);
+  if (A.items.length) p.set("i", A.items.join("."));
+  p.set("aim", A.aim);
+  if (A.aim === "custom") for (const k of ["acc", "hs", "dist"]) p.set(k, val(k)); // blanks too, so the recipient's saved aim can't fill them
+  if (D.mode === "plain") {
+    for (const k of ["hp", "br", "sr", "mr"]) if (val(k) && (k === "hp" || Number(val(k)) !== 0)) p.set(k, val(k));
+  } else {
+    p.set("t", "hero"); p.set("eh", D.hero);
+    if (D.items.length) p.set("ei", D.items.join("."));
+    if (val("es")) p.set("es", val("es"));
+  }
+  if (!$("#d-immortal").checked) p.set("die", "1");
+  if (A.label) p.set("n", A.label);
+  const u = new URL(location.href);
+  u.search = p.toString(); u.hash = hash;
+  return u.href;
+}
+
+function readShare() {
+  const p = new URLSearchParams(location.search);
+  if (!p.has("h")) return false;
+  const hero = Number(p.get("h"));
+  if (!S.heroById[hero]) return false;
+  let dropped = 0;
+  const items = (k) => {
+    const ids = (p.get(k) || "").split(".").filter(Boolean), ok = ids.filter((x) => /^\d+$/.test(x) && Object.hasOwn(S.items, x));
+    dropped += ids.length - ok.length;
+    return [...new Set(ok.map(Number))].slice(0, 12);
+  };
+  const souls = parseFloat(p.get("s"));
+  Object.assign(S.A, { hero, souls: souls >= 0 ? souls : S.A.souls, items: items("i"),
+    aim: AIMS.includes(p.get("aim")) ? p.get("aim") : "p50", label: p.get("n")?.slice(0, 60) || null });
+  for (const [k, sel] of Object.entries(SHARE_NUM)) {
+    const v = parseFloat(p.get(k)), el = $(sel);
+    if (isFinite(v)) el.value = Math.min(Number(el.max || Infinity), Math.max(Number(el.min || -Infinity), v));
+    else if (p.get(k) === "") el.value = "";
+  }
+  if (p.get("t") === "hero") {
+    const eh = Number(p.get("eh"));
+    Object.assign(S.D, { mode: "hero", hero: S.heroById[eh] ? eh : S.D.hero, items: items("ei") });
+  }
+  $("#d-immortal").checked = p.get("die") !== "1";
+  if (dropped) S.A.label = null; // "Popular" etc. no longer describes a build missing items
+  if (dropped) $("#share-note").textContent += ` ${dropped} item${dropped > 1 ? "s" : ""} from this link no longer exist${dropped > 1 ? "" : "s"} in the current patch, so ${dropped > 1 ? "they were" : "it was"} left out.`;
+  return true;
+}
+
+async function copyShare() {
+  // the address bar holds the last run (see runTest), so the link matches the result on screen even after edits
+  const u = new URL(location.href); u.hash = "test";
+  const url = u.search ? u.href : shareURL("#test"), btn = $("#share");
+  try { await navigator.clipboard.writeText(url); btn.textContent = "Link copied"; }
+  catch { window.prompt("Copy this link:", url); return; }
+  setTimeout(() => (btn.textContent = "Copy link"), 2000);
 }
 
 // ---------- results ----------
@@ -559,9 +623,11 @@ async function boot() {
   // starting state: Haze's most popular real 27k build against the standard dummy
   const d = await damageHero(S.A.hero);
   const b = d?.budgets["27000"];
-  if (b) {
+  if (b) $("#d-hp").value = b.dummy_hp;
+  restoreAim(); // before the link, so a shared link's aim wins over the numbers saved in this browser
+  if (readShare()) $("#share-note").hidden = false;
+  else if (b) {
     S.A.items = [...b.popular.items]; S.A.label = "Popular";
-    $("#d-hp").value = b.dummy_hp;
     S.last = { req: { items: S.A.items }, label: "Popular", note: "Precomputed result for this build (same sim, standard dummy). The live sim takes over when it finishes loading.",
       res: { damage: { "5s": b.popular.damage.burst_5s, "15s": b.popular.damage.fight_15s, "30s": b.popular.damage.sustained_30s },
         dps: { "5s": b.popular.dps.burst_5s, "15s": b.popular.dps.fight_15s, "30s": b.popular.dps.sustained_30s }, sources: b.popular.sources_30s } };
@@ -571,7 +637,7 @@ async function boot() {
   $("#a-hero").onchange = (e) => { S.A.hero = Number(e.target.value); S.A.label = null; renderPresets(); syncDummyHint(); renderAimHint(); };
   $("#a-souls").onchange = (e) => { S.A.souls = Number(e.target.value) || 0; renderAttacker(); renderPresets(); syncDummyHint(); };
   $("#a-aim").onchange = (e) => { S.A.aim = e.target.value; renderAttacker(); renderAimHint(); };
-  restoreAim(); renderAimHint();
+  renderAimHint();
   for (const sel of Object.values(AIM_FIELDS)) $(sel).addEventListener("change", () => { saveAim(); renderAimHint(); });
   $("#a-pull").onclick = pullAim;
   $("#a-steam").addEventListener("keydown", (e) => { if (e.key === "Enter") pullAim(); });
@@ -580,6 +646,7 @@ async function boot() {
   $("#d-mode").onclick = (e) => { if (e.target.dataset.v) { S.D.mode = e.target.dataset.v; renderTarget(); } };
   $("#d-heroname").onchange = (e) => { S.D.hero = Number(e.target.value); };
   $("#run").onclick = runTest;
+  $("#share").onclick = copyShare;
   $("#pin").onclick = () => {
     if (!S.last?.res.timeline) return;
     if (S.pins.length >= 5) S.pins.shift();
