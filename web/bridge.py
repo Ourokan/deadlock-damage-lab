@@ -16,8 +16,8 @@ def _item(G, x):
     return G.item(int(x) if isinstance(x, (int, float)) or str(x).isdigit() else x)
 
 
-def run(req_json):
-    q = json.loads(req_json)
+def _setup(q):
+    """The page's JSON -> (hero name, item names, damage_test kwargs)."""
     G = game()
     hero = G.hero(q["hero"])
     items = [_item(G, x) for x in q.get("items", [])]
@@ -33,12 +33,50 @@ def run(req_json):
         souls=dq.get("souls"), hp=dq.get("hp"),
         bullet_resist=dq.get("bullet_resist"), spirit_resist=dq.get("spirit_resist"),
         melee_resist=dq.get("melee_resist"), immortal=bool(dq.get("immortal", True)))
-    distance = q.get("distance")
-    r = damage_test(hero.name, [i.name for i in items], souls=q.get("souls"), dummy=dummy, skill=skill,
-                    distance=distance)
+    kw = dict(souls=q.get("souls"), dummy=dummy, skill=skill, distance=q.get("distance"))
+    return hero, items, kw
+
+
+def run(req_json):
+    q = json.loads(req_json)
+    hero, items, kw = _setup(q)
+    r = damage_test(hero.name, [i.name for i in items], **kw)
     r["used"] = {
         "hero": hero.name, "items": [i.name for i in items], "item_cost": sum(i.cost for i in items),
-        "accuracy": round(skill.accuracy, 4), "headshot": round(skill.headshot, 4),
-        "distance": distance if distance is not None else default_distance(hero.name),
+        "accuracy": round(kw["skill"].accuracy, 4), "headshot": round(kw["skill"].headshot, 4),
+        "distance": kw["distance"] if kw["distance"] is not None else default_distance(hero.name),
     }
     return json.dumps(r)
+
+
+def breakdown(req_json):
+    """What each item adds to the build's damage, from one run without each item (same request as run()).
+
+    loss: damage lost by each mark when the item is removed. share: the build's damage above the no-item hero split
+    across items in proportion to their positive loss, so base + shares = total. sources: change in each damage
+    source (30 s) the item causes; direct: damage booked under the item's own name (its procs)."""
+    q = json.loads(req_json)
+    hero, items, kw = _setup(q)
+    names = [i.name for i in items]
+    full = damage_test(hero.name, names, **kw)
+    base = damage_test(hero.name, [], **kw)
+    marks = list(full["damage"])
+    out = {"total": full["damage"], "base": base["damage"], "sources": full["sources"], "items": []}
+    for it in items:
+        r = damage_test(hero.name, [n for n in names if n != it.name], **kw)
+        delta = {k: round(v - r["sources"].get(k, 0.0), 1) for k, v in full["sources"].items()}
+        for k, v in r["sources"].items():
+            if k not in full["sources"]:
+                delta[k] = round(-v, 1)
+        out["items"].append({
+            "id": it.id, "name": it.name, "cost": it.cost,
+            "loss": {m: round(full["damage"][m] - r["damage"][m], 1) for m in marks},
+            "direct": round(sum(v for k, v in full["sources"].items() if k == it.name or k.startswith(it.name + " ")), 1),
+            "sources": {k: v for k, v in sorted(delta.items(), key=lambda x: -abs(x[1])) if abs(v) >= 1},
+        })
+    for m in marks:
+        extra = full["damage"][m] - base["damage"][m]
+        pos = sum(max(0.0, x["loss"][m]) for x in out["items"])
+        for x in out["items"]:
+            x.setdefault("share", {})[m] = round(extra * max(0.0, x["loss"][m]) / pos, 1) if pos > 0 else 0.0
+    return json.dumps(out)

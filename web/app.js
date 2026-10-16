@@ -10,16 +10,21 @@ const signed = (n) => (n > 0 ? "+" : "") + fmt(n * 100, 0) + "%";
 const getJSON = async (u) => { const r = await fetch(u); if (!r.ok) throw new Error(u + " " + r.status); return r.json(); };
 
 const OBJ = { burst_5s: "5 s", fight_15s: "15 s", sustained_30s: "30 s" };
+const OBJ_MARK = { burst_5s: "5s", fight_15s: "15s", sustained_30s: "30s" };
+const MARK_LABEL = { "5s": "5 s", "15s": "15 s", "30s": "30 s" };
 const OBJ_LONG = { burst_5s: "First 5 s (burst)", fight_15s: "First 15 s (a fight)", sustained_30s: "Full 30 s (sustained)" };
 const SERIES = ["--accent", "--brass", "--spirit", "--weapon", "--vitality", "--muted"];
 const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
 const S = {
+  whenReady: null, readyNow: null,
   items: {}, byName: {}, heroes: [], heroById: {},
   A: { hero: 13, souls: 27000, aim: "p50", items: [], label: null },
   D: { mode: "plain", hero: 6, souls: null, items: [] },
   dmgCache: {}, last: null, pins: [], engine: null, ready: false, runId: 0, pending: {},
 };
+
+S.whenReady = new Promise((res) => (S.readyNow = res));
 
 // ---------- data ----------
 const cached = {};
@@ -45,6 +50,8 @@ function tile(id, opts = {}) {
     + `${esc(it.name)}${dot}${opts.cost ? ` <span class="c">${fmt(it.cost / 1000, 1)}k</span>` : ""}</${tag}>`;
 }
 const tiles = (ids, opts) => `<div class="build">${ids.map((i) => tile(i, opts)).join("")}</div>`;
+// a build whose items open the per-item breakdown when tapped; ctx = {kind, hero, souls, items, popular, hp?, mark?, req?}
+const bdTiles = (ctx) => `<div class="build tap" data-bd="${esc(JSON.stringify(ctx))}">${ctx.items.map((i) => tile(i)).join("")}</div>`;
 
 function renderShop(prefix, build) {
   const q = $(`#${prefix}-q`).value.trim().toLowerCase();
@@ -164,7 +171,7 @@ function startEngine() {
   }
   S.engine.onmessage = (e) => {
     const m = e.data;
-    if (m.type === "ready") { S.ready = true; state("ready", "Sim ready"); $("#run").disabled = false; runTest(); }
+    if (m.type === "ready") { S.ready = true; S.readyNow(); state("ready", "Sim ready"); $("#run").disabled = false; runTest(); }
     else if (m.type === "result") { S.pending[m.id]?.(m); delete S.pending[m.id]; }
     else if (m.type === "error") {
       if (m.id && S.pending[m.id]) { S.pending[m.id](m); delete S.pending[m.id]; }
@@ -176,6 +183,14 @@ function startEngine() {
 }
 const lastLine = (s) => String(s).trim().split("\n").filter(Boolean).pop();
 function showErr(t) { $("#err").hidden = !t; $("#err").textContent = t || ""; }
+
+function simCall(type, req) {
+  return S.whenReady.then(() => new Promise((resolve, reject) => {
+    const id = ++S.runId;
+    S.pending[id] = (m) => (m.type === "error" ? reject(new Error(lastLine(m.message))) : resolve(m.result));
+    S.engine.postMessage({ type, id, req });
+  }));
+}
 
 function runTest() {
   if (!S.ready) return;
@@ -199,6 +214,8 @@ function renderResult() {
   $("#marks").innerHTML = mark("5s", "5 s") + mark("15s", "15 s") + mark("30s", "30 s")
     + `<div class="mk eff"><span class="l">15 s damage per 1k souls</span><span class="v">${fmt(per1k)}</span><span class="s">${r.kill_time ? `kills in ${fmt(r.kill_time, 1)} s` : `${fmt(cost)} souls in items`}</span></div>`;
   $("#pin").disabled = !r.timeline;
+  $("#res-build").innerHTML = L.req.hero != null && L.req.items.length
+    ? `<p class="hint">Tap an item to see how much of this damage it adds.</p>${bdTiles({ kind: "test", hero: L.req.hero, souls: L.req.souls, items: L.req.items, req: L.req })}` : "";
   drawTimeline();
   drawSources(r.sources, r.damage["30s"]);
   const u = r.used;
@@ -286,12 +303,13 @@ async function renderDamageTab() {
   const bk = $("#g-budget").value, b = d.budgets[bk], o = b.objectives[gObj], pop = b.popular;
   const best = o.builds[0], gain = best.damage[gObj] / pop.damage[gObj] - 1;
   const cols = Object.keys(OBJ);
-  const row = (x, label, cls = "") => `<tr class="${cls}"><td>${label}</td><td>${tiles(x.items, { static: true })}</td><td class="n">${fmt(x.cost)}</td>`
+  const ctx = (x) => ({ kind: "damage", hero: Number(id), souls: Number(bk), items: x.items, popular: pop.items, hp: b.dummy_hp, mark: OBJ_MARK[gObj] });
+  const row = (x, label, cls = "") => `<tr class="${cls}"><td>${label}</td><td>${bdTiles(ctx(x))}</td><td class="n">${fmt(x.cost)}</td>`
     + cols.map((k) => `<td class="n"${k === gObj ? ' style="font-weight:600"' : ""}>${fmt(x.damage[k])}</td>`).join("")
     + `<td class="n">${fmt(x.damage.fight_15s / (x.cost / 1000))}</td><td>${testBtn(Number(id), bk, x.items, label.replace(/<[^>]+>/g, ""))}</td></tr>`;
   const val = Object.entries(o.item_value_on_popular).filter(([i, v]) => S.items[i] && v.gain > 0).sort((a, b) => b[1].per_1000_souls - a[1].per_1000_souls).slice(0, 12);
   const loss = Object.entries(o.best_item_removal_loss).filter(([i]) => S.items[i]).sort((a, b) => b[1] - a[1]);
-  out.innerHTML = `<p class="hint">Best build: <b class="up">${signed(gain)}</b> damage in the ${OBJ[gObj]} window over the most popular real build. Dummy has ${fmt(b.dummy_hp)} HP, item budget ${fmt(b.item_budget)} souls.</p>
+  out.innerHTML = `<p class="hint">Best build: <b class="up">${signed(gain)}</b> damage in the ${OBJ[gObj]} window over the most popular real build. Dummy has ${fmt(b.dummy_hp)} HP, item budget ${fmt(b.item_budget)} souls. Tap any item to see what it adds.</p>
     <div class="scroll"><table><thead><tr><th>Build</th><th>Items</th><th class="n">Cost</th>${cols.map((k) => `<th class="n">${OBJ[k]}</th>`).join("")}<th class="n">15 s per 1k</th><th></th></tr></thead>
     <tbody>${row(pop, 'Popular<span class="tag">real</span>', "pop")}${o.builds.map((x, i) => row(x, `#${i + 1}`)).join("")}</tbody></table></div>
     <div class="cards">
@@ -318,8 +336,9 @@ async function renderDuelTab() {
   const keys = Object.keys(br);
   if ($("#u-budget").options.length !== keys.length) fillBudgetSelect($("#u-budget"), keys, $("#u-budget").value);
   const bk = $("#u-budget").value, b = br[bk];
-  const row = (x, label, cls = "") => `<tr class="${cls}"><td>${label}</td><td>${tiles(x.items, { static: true })}</td><td class="n">${fmt(x.cost)}</td><td class="n">${fmt(x.score, 3)}</td><td class="n">${pct(x.win_rate)}</td><td class="n">${pct(x.loss_rate)}</td><td class="n">${x.random_pool ? pct(x.random_pool.win_rate) : "–"}</td><td class="n">${fmt(x.avg_win_time_s, 1)} s</td><td>${testBtn(Number(id), bk, x.items, label.replace(/<[^>]+>/g, ""))}</td></tr>`;
-  out.innerHTML = `<p class="hint">${brs.length} rank bracket${brs.length > 1 ? "s" : ""} finished so far; more appear here as their searches complete.</p>
+  const ctx = (x) => ({ kind: "duel", hero: Number(id), souls: Number(bk), items: x.items, popular: b.popular?.items || [] });
+  const row = (x, label, cls = "") => `<tr class="${cls}"><td>${label}</td><td>${bdTiles(ctx(x))}</td><td class="n">${fmt(x.cost)}</td><td class="n">${fmt(x.score, 3)}</td><td class="n">${pct(x.win_rate)}</td><td class="n">${pct(x.loss_rate)}</td><td class="n">${x.random_pool ? pct(x.random_pool.win_rate) : "–"}</td><td class="n">${fmt(x.avg_win_time_s, 1)} s</td><td>${testBtn(Number(id), bk, x.items, label.replace(/<[^>]+>/g, ""))}</td></tr>`;
+  out.innerHTML = `<p class="hint">${brs.length} rank bracket${brs.length > 1 ? "s" : ""} finished so far; more appear here as their searches complete. Tap any item to see what it adds to the build's damage.</p>
     <div class="scroll"><table><thead><tr><th>Build</th><th>Items</th><th class="n">Cost</th><th class="n">Score</th><th class="n">Win</th><th class="n">Loss</th><th class="n" title="Win rate against randomly drawn real builds">Win vs random</th><th class="n">Time to win</th><th></th></tr></thead>
     <tbody>${b.popular ? row(b.popular, 'Popular<span class="tag">real</span>', "pop") : ""}${b.builds.map((x, i) => row(x, `#${x.rank || i + 1}`)).join("")}</tbody></table></div>`;
 }
@@ -331,7 +350,7 @@ async function renderTankTab() {
   if ($("#t-budget").options.length !== keys.length) fillBudgetSelect($("#t-budget"), keys, $("#t-budget").value);
   const bk = $("#t-budget").value, b = d.budgets[bk], core = new Set(b.core.map(String));
   const names = { "0": "Keep all the damage", "0.1": "Give up to 10% damage", "0.25": "Give up to 25% damage" };
-  const card = (title, x, note) => `<div class="card"><h3>${title}</h3>${tiles(x.items, { static: true })}
+  const card = (title, x, note) => `<div class="card"><h3>${title}</h3>${bdTiles({ kind: "tank", hero: Number(id), souls: Number(bk), items: x.items, popular: b.popular.items, hp: b.dummy_hp })}
     <div class="kv"><span>Alive vs 2× focus</span><span>${fmt(x.focus_2?.time_alive, 1)} s</span>
     <span>Survives 60 s</span><span>${pct(x.focus_2?.survived_60s)}</span>
     <span>Damage by 15 s</span><span>${fmt(x.damage?.fight_15s)}${x.damage_vs_popular != null && note ? ` (${signed(x.damage_vs_popular)})` : ""}</span>
@@ -339,6 +358,98 @@ async function renderTankTab() {
   out.innerHTML = `<p class="hint">Core items kept in every build: ${b.core.map((i) => S.items[i]?.name).filter(Boolean).join(", ") || "none"}.</p>
     <div class="cards">${card("Popular real build", b.popular, false)}${Object.entries(b.margins).map(([m, v]) => v.builds?.[0] ? card(names[m] || m, v.builds[0], true) : "").join("")}</div>`;
   void core;
+}
+
+// ---------- per-item breakdown ----------
+const BD = { cache: new Map(), ctx: null, item: null, mark: "15s", data: null };
+
+async function bdRequest(ctx) {
+  if (ctx.req) return ctx.req;
+  let hp = ctx.hp;
+  if (hp == null) {
+    const d = await damageHero(ctx.hero);
+    if (d) hp = d.budgets[nearestBudget(Object.keys(d.budgets), ctx.souls)].dummy_hp;
+  }
+  return { hero: ctx.hero, items: ctx.items, souls: ctx.souls, aim: "p50", dummy: { hero: "Haze", items: [], hp, immortal: true } };
+}
+
+async function bdPopular(ctx) {
+  if (ctx.popular) return ctx.popular;
+  const d = await damageHero(ctx.hero);
+  return d ? d.budgets[nearestBudget(Object.keys(d.budgets), ctx.souls)].popular.items : [];
+}
+
+async function openBreakdown(ctx, itemId) {
+  BD.ctx = ctx; BD.item = Number(itemId); BD.mark = ctx.mark || "15s"; BD.data = null;
+  $("#sheet").hidden = false; document.body.classList.add("sheet-open");
+  $("#sh-close").focus();
+  renderSheet();
+  try {
+    ctx.popular = await bdPopular(ctx);
+    const req = await bdRequest(ctx), key = JSON.stringify(req);
+    if (!BD.cache.has(key)) BD.cache.set(key, simCall("breakdown", req));
+    const data = await BD.cache.get(key);
+    if (BD.ctx === ctx) { BD.data = data; renderSheet(); }
+  } catch (e) {
+    BD.cache.clear();
+    if (BD.ctx === ctx) { BD.data = { error: e.message }; renderSheet(); }
+  }
+}
+
+function closeSheet() { $("#sheet").hidden = true; document.body.classList.remove("sheet-open"); BD.ctx = null; }
+
+function whyText(ctx, d, x, m) {
+  const it = S.items[x.id], pop = new Set((ctx.popular || []).map(Number)), mine = new Set(ctx.items.map(Number));
+  const out = [];
+  if (ctx.kind === "duel" || ctx.kind === "tank")
+    out.push(`This build was picked for ${ctx.kind === "duel" ? "winning 1v1 duels" : "staying alive under focus"}, so items can earn their place without adding damage. Damage here is measured on the standard training dummy.`);
+  if (pop.size) {
+    if (pop.has(x.id)) out.push("The most popular real build buys it too.");
+    else {
+      const dropped = [...pop].filter((i) => !mine.has(i) && S.items[i])
+        .sort((a, b) => (S.items[b].slot === it.slot) - (S.items[a].slot === it.slot) || S.items[b].cost - S.items[a].cost)
+        .slice(0, 3).map((i) => S.items[i].name);
+      out.push(`The most popular real build doesn't buy it.${dropped.length ? ` Its souls go here instead of popular picks like ${dropped.join(", ")}.` : ""}`);
+    }
+  }
+  if (x.loss[m] <= 0) {
+    out.push(it && !it.effect_modeled ? "It adds no damage here. Only its always-on stats are modeled, so its own effect isn't counted yet."
+      : "It adds no damage against this target.");
+  } else {
+    const own = x.direct, boosts = Object.entries(x.sources).filter(([k, v]) => v > 0 && k !== it.name && !k.startsWith(it.name + " ")).slice(0, 3);
+    if (own >= 0.5 * x.loss["30s"]) out.push(`Most of its value is its own damage: ${fmt(own)} over 30 s.`);
+    else if (boosts.length) out.push(`It works by making the rest of the build hit harder: ${boosts.map(([k, v]) => `+${fmt(v)} ${k === "gun" ? "gun damage" : k}`).join(", ")} over 30 s.`);
+    const totalCost = d.items.reduce((s, y) => s + y.cost, 0), extra = d.total[m] - d.base[m];
+    const per = x.share[m] / (x.cost / 1000), avg = totalCost ? extra / (totalCost / 1000) : 0;
+    if (avg > 0) out.push(`That's ${fmt(per)} damage per 1,000 souls, ${per >= avg ? "above" : "below"} this build's average of ${fmt(avg)}.`);
+  }
+  if (x.loss[m] > 0 && Math.abs(x.loss[m] - x.share[m]) > 0.15 * Math.max(x.loss[m], 1))
+    out.push(`Removing it alone would cost ${fmt(x.loss[m])}; items overlap or stack with each other, so shares are scaled to add up to the total.`);
+  return out;
+}
+
+function renderSheet() {
+  const ctx = BD.ctx; if (!ctx) return;
+  const it = S.items[BD.item], d = BD.data, m = BD.mark;
+  $("#sh-title").innerHTML = it ? `${esc(it.name)} <span class="c">${fmt(it.cost)} souls</span>` : "Item";
+  $("#sh-title").dataset.slot = it?.slot || "";
+  $("#sh-marks").innerHTML = Object.entries(MARK_LABEL).map(([k, l]) => `<button data-v="${k}" class="${k === m ? "on" : ""}">${l}</button>`).join("");
+  const body = $("#sh-body");
+  if (!d) { body.innerHTML = `<p class="hint">${S.ready ? "Running the build once without each item…" : "The sim is still loading. This fills in as soon as it's ready."}</p>`; return; }
+  if (d.error) { body.innerHTML = `<p class="err">Couldn't measure this build: ${esc(d.error)}</p>`; return; }
+  const x = d.items.find((y) => y.id === BD.item), total = d.total[m];
+  if (!x) { body.innerHTML = '<p class="hint">This item isn\'t in the build.</p>'; return; }
+  const segs = [{ name: "Hero with no items", v: d.base[m], cls: "base" }, ...d.items.map((y) => ({ name: y.name, v: y.share[m], id: y.id, slot: S.items[y.id]?.slot }))];
+  const bar = `<div class="stack-bar" role="img" aria-label="Damage split by item">${segs.filter((sg) => sg.v > 0).map((sg) =>
+    `<i class="${sg.cls || ""}${sg.id === BD.item ? " sel" : ""}" data-slot="${sg.slot || ""}" style="flex-grow:${sg.v}" title="${esc(sg.name)}: ${fmt(sg.v)}"></i>`).join("")}</div>`;
+  const list = [...d.items].sort((a, b) => b.share[m] - a.share[m]).map((y) =>
+    `<button class="bd-row${y.id === BD.item ? " on" : ""}" data-id="${y.id}"><span class="dot" style="--slot:var(--${S.items[y.id]?.slot})"></span><span class="n">${esc(y.name)}</span><span class="v">${fmt(y.share[m])}</span><span class="p">${pct(y.share[m] / total)}</span></button>`).join("");
+  body.innerHTML = `<div class="bd-head"><span class="v">${fmt(x.share[m])}</span><span class="l">of ${fmt(total)} damage by ${MARK_LABEL[m]} (${pct(x.share[m] / total)})</span></div>
+    ${bar}
+    <ul class="why">${whyText(ctx, d, x, m).map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
+    <h3>Whole build, damage by ${MARK_LABEL[m]}</h3>
+    <div class="bd-list"><div class="bd-row base"><span class="dot"></span><span class="n">Hero with no items</span><span class="v">${fmt(d.base[m])}</span><span class="p">${pct(d.base[m] / total)}</span></div>${list}</div>
+    <p class="fine" style="margin-top:12px">Measured live with the current sim against this build's dummy, so totals can differ a little from the table.</p>`;
 }
 
 // ---------- tabs ----------
@@ -406,6 +517,15 @@ async function boot() {
   $("#u-hero").onchange = renderDuelTab; $("#u-budget").onchange = renderDuelTab; $("#u-bracket").onchange = renderDuelTab;
   $("#t-hero").onchange = renderTankTab; $("#t-budget").onchange = renderTankTab;
   for (const s of ["#g-out", "#u-out", "#t-out"]) $(s).addEventListener("click", onTest);
+  document.addEventListener("click", (e) => {
+    const t = e.target.closest(".build.tap .it");
+    if (t) openBreakdown(JSON.parse(t.closest(".build").dataset.bd), t.dataset.id);
+  });
+  $("#sh-close").onclick = closeSheet;
+  $("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") closeSheet(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#sheet").hidden) closeSheet(); });
+  $("#sh-marks").onclick = (e) => { if (e.target.dataset.v) { BD.mark = e.target.dataset.v; renderSheet(); } };
+  $("#sh-body").addEventListener("click", (e) => { const r = e.target.closest(".bd-row[data-id]"); if (r) { BD.item = Number(r.dataset.id); renderSheet(); } });
   window.addEventListener("hashchange", showTab);
   showTab();
   startEngine();
