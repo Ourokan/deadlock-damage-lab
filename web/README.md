@@ -5,7 +5,8 @@ Static site, no server. Open `index.html` through any static host (or `python3 -
 - **Damage test** (main feature): pick a hero, net worth, aim (ranked percentile or your own accuracy and headshot
   numbers) and items; set the target as a training dummy (HP, bullet/spirit/melee resist) or an enemy hero with
   items; run. Shows damage and DPS at 5/15/30 s, 15 s damage per 1,000 item souls, damage by source, a damage
-  timeline and kill time. "Keep for comparison" pins up to 5 runs on the same chart and table.
+  timeline and kill time. "Keep for comparison" pins up to 5 runs on the same chart and table. The whole setup
+  is kept in the address bar after each run (and "Copy link" copies it), so a link reopens and reruns the same test.
 - **Best damage builds** (`damage/out`), **Duel builds** (`search/out`, shows whichever rank brackets exist) and
   **Tank builds** (`survival/out`). Every build has a Test button that loads it into the damage test.
 

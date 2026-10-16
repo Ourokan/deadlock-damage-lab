@@ -205,3 +205,4 @@ body.sheet-open { overflow: hidden; }
 .bd-row .dot { background: var(--slot, var(--line)); }
 
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+.res-h #share { margin-left: auto; white-space: nowrap; }
