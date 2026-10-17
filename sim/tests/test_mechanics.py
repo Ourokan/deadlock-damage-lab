@@ -194,10 +194,6 @@ class Items(unittest.TestCase):
         self.assertAlmostEqual(b.stat("fire_rate_slow"), 0.30)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class FocusLensExpire(unittest.TestCase):
     def test_stored_damage_is_not_amplified_twice(self):
         # Focus Lens re-deals 35% of the damage taken during the silence; that damage already had Escalating
@@ -215,3 +211,8 @@ class FocusLensExpire(unittest.TestCase):
             e.t = t
             fn(*args)
         self.assertAlmostEqual(a.dmg_out.get("Focus Lens", 0.0), 1500.0 * 0.35, delta=1.0)
+
+
+if __name__ == "__main__":
+    unittest.main()
+

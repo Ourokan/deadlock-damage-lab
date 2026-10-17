@@ -381,7 +381,9 @@ class Engine:
                ignore_resist=False, is_ability=False, ability=None, is_dot=False, is_item=False,
                headshots=0, hits=0, procs=True, is_ult=False, nonlethal=False, pure=False):
         """pure=True: raw is already final damage (e.g. Focus Lens re-dealing stored damage), so no outgoing or
-        target amps and no resists; only the realistic-mode landing factor applies."""
+        target amps, no resists and no target-side reducers (all already counted in raw). The realistic-mode item
+        landing factor still applies on purpose: for Focus Lens it is the real/sim ratio of the item's own damage,
+        i.e. how much less real players fit into the silence window."""
         if self.over or not dst.alive or raw <= 0:
             return 0.0
         amt = raw if pure else raw * src.st.outgoing_mult * (1.0 - src.stat("outgoing_penalty")) * (1.0 + src.stat("damage_amp"))
@@ -415,7 +417,7 @@ class Engine:
             if spell_blocked(self, src, dst, ability):
                 return 0.0
         # target-side reductions (Spellbreaker, Plated Armor, ...)
-        for fx in dst.items_fx:
+        for fx in () if pure else dst.items_fx:
             f = getattr(fx, "reduce_incoming", None)
             if f:
                 amt = f(dst, src, amt, kind, is_dot)
