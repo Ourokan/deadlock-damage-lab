@@ -1,4 +1,5 @@
 """Hand-calculated checks of the combat model. Run: python3 -m unittest discover -s tests -v (from sim/)."""
+import heapq
 import os
 import sys
 import unittest
@@ -195,3 +196,22 @@ class Items(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FocusLensExpire(unittest.TestCase):
+    def test_stored_damage_is_not_amplified_twice(self):
+        # Focus Lens re-deals 35% of the damage taken during the silence; that damage already had Escalating
+        # Exposure's spirit amp, so the expire hit must not get the amp again
+        e = Engine(distance=10.0, max_time=30.0)
+        a = make_fighter(e, Loadout("Haze", ["Focus Lens"], souls=30000, skill=PERFECT), "a")
+        d = make_fighter(e, Loadout("Abrams", [], souls=30000, skill=PERFECT), "d")
+        d.abilities = []
+        d.mods.add("spirit_amp_taken", 0.5, 30.0, "test")
+        fl = next(fx for fx in a.items_fx if fx.item.name == "Focus Lens")
+        fl.extra(a, d)
+        e.damage(a, d, 1000.0, "spirit", "test hit", ignore_resist=True)   # lands as 1500 with the amp
+        while e.q and e.t < 10.0:   # step the event queue past the silence
+            t, _, fn, args = heapq.heappop(e.q)
+            e.t = t
+            fn(*args)
+        self.assertAlmostEqual(a.dmg_out.get("Focus Lens", 0.0), 1500.0 * 0.35, delta=1.0)

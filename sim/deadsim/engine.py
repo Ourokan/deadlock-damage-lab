@@ -379,21 +379,26 @@ class Engine:
     # ---- damage -------------------------------------------------------------------------------------
     def damage(self, src: Fighter, dst: Fighter, raw: float, kind: str, source: str, *,
                ignore_resist=False, is_ability=False, ability=None, is_dot=False, is_item=False,
-               headshots=0, hits=0, procs=True, is_ult=False, nonlethal=False):
+               headshots=0, hits=0, procs=True, is_ult=False, nonlethal=False, pure=False):
+        """pure=True: raw is already final damage (e.g. Focus Lens re-dealing stored damage), so no outgoing or
+        target amps and no resists; only the realistic-mode landing factor applies."""
         if self.over or not dst.alive or raw <= 0:
             return 0.0
-        amt = raw * src.st.outgoing_mult * (1.0 - src.stat("outgoing_penalty")) * (1.0 + src.stat("damage_amp"))
+        amt = raw if pure else raw * src.st.outgoing_mult * (1.0 - src.stat("outgoing_penalty")) * (1.0 + src.stat("damage_amp"))
         if is_ability and src.skill.ability_landing:
             amt *= src.skill.ability_landing.get(source, 1.0)
         if is_item and src.skill.item_landing:
             amt *= src.skill.item_landing.get(source, 1.0)
-        if kind == "spirit":
+        if pure:
+            pass
+        elif kind == "spirit":
             amt *= (1.0 - src.stat("spirit_outgoing_penalty"))
             amt *= (1.0 + dst.stat("spirit_amp_taken"))
         elif kind == "bullet":
             amt *= (1.0 + dst.stat("bullet_amp_taken"))
-        amt *= (1.0 + dst.stat("damage_taken_amp"))
-        if not ignore_resist:
+        if not pure:
+            amt *= (1.0 + dst.stat("damage_taken_amp"))
+        if not (ignore_resist or pure):
             if kind == "bullet":
                 res = combine_resist(dst.bullet_resists(), list(src.st.bullet_shred) + dst.mods.values("bullet_shred"))
                 amt *= (1.0 - res)
