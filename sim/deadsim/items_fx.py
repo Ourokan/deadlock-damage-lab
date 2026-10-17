@@ -1247,7 +1247,8 @@ class FocusLens(DamageActive):
         self.debuff(t, "spirit_power", self.item.p("TechPowerReduction"), rd)
         start = sum(t.dmg_in.values())
         pct = self.item.p("PercentDamage") / 100
-        f.e.after(d, lambda: self.spirit(t, (sum(t.dmg_in.values()) - start) * pct, procs=False, ignore_resist=True))
+        # the stored damage already had amps (Escalating Exposure etc.) and resists applied, so it lands as is
+        f.e.after(d, lambda: self.spirit(t, (sum(t.dmg_in.values()) - start) * pct, procs=False, pure=True))
 
 
 @handler("upgrade_rupture")
