@@ -19403,7 +19403,7 @@
   "ability_type": "signature",
   "boss_damage_scale": 1.0,
   "description": {
-   "desc": "Promote an ally to be a knight, granting bonus stamina and barrier for a duration.If self-cast you develop yourself as king instead, granting double the barrier but no stamina. Move ( ): Moves the piece, making it invulnerable during the duration before landing.",
+   "desc": "Promote an ally to be a knight, granting bonus stamina and barrier for a duration.If self-cast you develop yourself as king instead, granting double the barrier but no stamina. Move ( ): Moves the piece, making it invulnerable during the duration before landing. If self-cast, re-activate the ability to move instead.",
    "t2_desc": "+80 Barrier+1 Stamina",
    "t3_desc": "Can target two allies within radius.On Self: Remove all debuffs after a move"
   },
