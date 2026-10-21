@@ -17,7 +17,12 @@ popular builds' median time alive is ~14 s, close to the real median time to kil
   2 s (1.5 s from Ascendant), and items whose own damage the 1v1 sim over-predicts versus real matches are scaled
   down (data/item_landing.json: Mercurial Magnum 0.18, Focus Lens 0.37, Toxic Bullets 0.53, Mystic Shot 0.76...),
   and active items with cooldowns over 60 s (Refresher...) are ready only in their expected share of fights.
-Not counted: movement (escape, chase, mobility items), team heals and team auras, vision.
+Movement (Tyler, 2026-10-21): the duel has no running (an escape would end it), so movement items are credited
+outside it. The score is multiplied by each held item's value in sim/data/movement_value.json: the real Phantom+
+chase (kill participation) x escape (deaths per 10 min) effect of holding it at the same hero, net worth and game
+length (analysis/scripts/kill_participation.py, analysis/out/kill_participation.md), capped for 2 and 3+ items
+at the measured value of holding that many (they overlap).
+Not counted: team heals and team auras, vision.
 
 Scores are relative to the hero's most popular real build (1.0 = popular). Same search machinery as the duel search
 (search/scripts/search.py: screen on 16 enemies, confirm on 41, up to 8 rounds, same budget rules).
@@ -52,6 +57,31 @@ from survival import survive  # noqa: E402
 MAX_TIME = 30.0
 FOCUS = 2.0
 _sk = {}
+MOVE_PATH = os.path.join(ROOT, "..", "sim", "data", "movement_value.json")
+_move = None
+
+
+def movement_value(items):
+    """Product of the held movement items' chase x escape values (1 = no movement item), capped by the measured
+    value of holding that many movement items (stack_cap: they overlap, so two aren't worth the product)."""
+    global _move
+    if _move is None:
+        g = S.G()
+        with open(MOVE_PATH) as f:
+            d = json.load(f)
+        moving = set(d.get("movement_items", d["items"]))
+        _move = ({i: d["items"][it.name] for i, it in g.items.items() if it.name in d["items"]},
+                 {int(k): v for k, v in d.get("stack_cap", {}).items()},
+                 {i for i, it in g.items.items() if it.name in moving})
+    vals, caps, moving = _move
+    held = set(items)
+    v = 1.0
+    for i in held:
+        v *= vals.get(i, 1.0)
+    n = len(held & moving)   # the caps were measured on any movement items held, weighted or not
+    if n >= 2 and caps:
+        v = min(v, caps[min(n, max(caps))])
+    return v
 
 
 def jobs_dir(bracket):
@@ -101,7 +131,7 @@ class Evaluator:
         self.norm = {}
         pop = tuple(sorted(S.popular_build(hero, S.item_budget(budget), pools)))
         for pool in ("S", "F", "F2"):
-            self.norm[pool] = max(1.0, self._mean(self._rows(pop, pool), 2))
+            self.norm[pool] = max(1.0, self._mean(self._rows(pop, pool), 2)) * movement_value(pop)
 
     def _rows(self, items, pool):
         key = (tuple(sorted(items)), pool)
@@ -122,7 +152,8 @@ class Evaluator:
     def run(self, items, pool="F", detail=False):
         rows = self._rows(items, pool)
         dmg = self._mean(rows, 2)
-        score = dmg / self.norm[pool]
+        move = movement_value(items)
+        score = dmg * move / self.norm[pool]
         if not detail:
             return score
         t = self._mean(rows, 3)
@@ -132,6 +163,7 @@ class Evaluator:
             "time_alive_s": round(t, 2),
             "survived_30s": round(self._mean(rows, 4), 4),
             "dps_while_alive": round(dmg / max(0.1, t), 1),
+            "movement_value": round(move, 4),
             "matchups": {str(r[0]): [round(r[2]), round(r[3], 2)] for r in rows},
         }
 
@@ -143,7 +175,7 @@ def job(args):
         return path, "skip"
     lines = []
     res = S.search(hero, budget, log=lines.append)
-    res.update({"log": lines, "objective": "overall", "bracket": S.BRACKET, "aim": BRACKETS[S.BRACKET][2], "focus": FOCUS, "max_time": MAX_TIME, "counterplay": True})
+    res.update({"log": lines, "objective": "overall", "movement": True, "bracket": S.BRACKET, "aim": BRACKETS[S.BRACKET][2], "focus": FOCUS, "max_time": MAX_TIME, "counterplay": True})
     json.dump(res, open(path + ".tmp", "w"))
     os.replace(path + ".tmp", path)
     b, p = res["builds"][0]["F"], res["popular"]["F"]

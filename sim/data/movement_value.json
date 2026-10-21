@@ -1,0 +1,37 @@
+{
+ "_note": "Overall-score multiplier per movement item: real Phantom+ chase (kill participation) x escape (deaths per 10 min) effect at the same hero, net worth and game length; only parts with |z| >= 2, item floor 1, cap 1.25. Static snapshot of patch 09-29-2026 Phantom+ games (2026-09-30 to 2026-10-13), not refit by patch reruns: rerun analysis/scripts/fetch_kda.py and kill_participation.py from the project files to refresh.",
+ "items": {
+  "Arcane Surge": 1.0516,
+  "Enduring Speed": 1.0315,
+  "Extra Stamina": 1.0141,
+  "Fleetfoot": 1.019,
+  "Magic Carpet": 1.0266,
+  "Majestic Leap": 1.0609,
+  "Stalker": 1.0625,
+  "Stamina Mastery": 1.0186,
+  "Veil Walker": 1.0246,
+  "Warp Stone": 1.038
+ },
+ "_stack_note": "Cap on a build's combined value when it holds 2 or 3+ of the movement_items (weighted or not): the measured chase x escape of holding that many vs none (they overlap, so values don't multiply).",
+ "movement_items": [
+  "Sprint Boots",
+  "Extra Stamina",
+  "Enduring Speed",
+  "Arcane Surge",
+  "Kinetic Dash",
+  "Fleetfoot",
+  "Stalker",
+  "Stamina Mastery",
+  "Majestic Leap",
+  "Warp Stone",
+  "Veil Walker",
+  "Shadow Weave",
+  "Phantom Strike",
+  "Magic Carpet",
+  "Ethereal Shift"
+ ],
+ "stack_cap": {
+  "2": 1.0775,
+  "3": 1.1195
+ }
+}
