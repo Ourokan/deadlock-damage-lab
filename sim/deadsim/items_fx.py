@@ -575,6 +575,8 @@ class AlchemicalFire(FX):
         share = 1.0 if inside else held_share(t)
         if share > 0:
             self.spirit(t, cur * 0.5 * share * f.skill.spirit_accuracy, is_dot=True)
+            if not inside:   # still held in the fire: its bullet shred stays on until the next tick
+                self.debuff(t, "bullet_shred", abs(self.v("BulletArmorReduction")) / 100, 0.5 * share + 0.01)
 
 
 @handler("upgrade_blood_tribute")
