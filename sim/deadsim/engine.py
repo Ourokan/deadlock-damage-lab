@@ -607,7 +607,34 @@ class Engine:
         if fc is None:   # E[falloff] and E[falloff x crit] over the spread (headshots get the joint one)
             fall = self.spread_mean(st.falloff)
             fc = self._fall[key] = (fall, self.spread_mean(lambda x: st.falloff(x) * st.crit_mult(x)) / max(fall, 1e-9))
+        for fx in f.items_fx:   # close/long range bonuses pay where falloff is high/low, not at its average
+            g = getattr(fx, "range_band", None)
+            if g:
+                r, bonus, close = g()
+                pct += bonus * self.band_corr(st, r, close)
         return st.bullet_damage * (1.0 + pct) * fc[0], fc[1]
+
+    def band_corr(self, st, r, close):
+        """E[falloff x in band] / E[falloff] - P(in band), band = within r (close) or beyond r: added to the p x bonus a
+        close/long range item puts in weapon_pct, it turns E[falloff] x (1 + p x bonus) into the joint expectation."""
+        key = (id(st), self.distance, r, close)
+        c = self._fall.get(key)
+        if c is None:
+            from .mechanics import DRIFT_MAX, DRIFT_MIN
+            num = den = pin = wsum = 0.0
+            for i in range(161):   # fine grid: the band edge is a step, too sharp for the 7 Gauss-Hermite nodes
+                z = -4.0 + i * 0.05
+                w = math.exp(-0.5 * z * z)
+                x = min(DRIFT_MAX, max(DRIFT_MIN, self.distance * math.exp(self.spread * z)))
+                inb = (x <= r) if close else (x >= r)
+                fl = st.falloff(x)
+                wsum += w
+                den += w * fl
+                if inb:
+                    num += w * fl
+                    pin += w
+            c = self._fall[key] = num / max(den, 1e-12) - pin / wsum
+        return c
 
     def gun_tick(self, f: Fighter):
         if self.over or not f.alive:

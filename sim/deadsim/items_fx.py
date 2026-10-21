@@ -204,12 +204,18 @@ class CloseRange(FX):
         p = f.e.p_within(self.item.p("CloseRangeBonusDamageRange", 15))
         return {"weapon_pct": p * self.item.p("CloseRangeBonusWeaponPower") / 100} if p > 0 else {}
 
+    def range_band(self):
+        return self.item.p("CloseRangeBonusDamageRange", 15), self.item.p("CloseRangeBonusWeaponPower") / 100, True
+
 
 @handler("upgrade_long_range", "upgrade_sharpshooter")
 class LongRange(FX):
     def stat(self, f):
         p = 1.0 - f.e.p_within(self.item.p("LongRangeBonusWeaponPowerMinRange", 15) - 1e-6)
         return {"weapon_pct": p * self.item.p("LongRangeBonusWeaponPower") / 100} if p > 0 else {}
+
+    def range_band(self):
+        return self.item.p("LongRangeBonusWeaponPowerMinRange", 15), self.item.p("LongRangeBonusWeaponPower") / 100, False
 
 
 @handler("upgrade_regenerating_bullet_shield")

@@ -296,7 +296,8 @@ mean +35, sd 200 over 12 paths). Melee keeps its fitted per-second rate; escapes
   0.42% -> 1.04% (real 1.12%), Cold Front 0.25% -> 0.49% (real 0.41%); Stalker overshoots (0.48% -> 1.21%, real 0.64%).
 - Popular 27k builds on the dummy: median 30 s damage -8% (Deadman Danny -28%, Lady Geist -24%; Victor +22%,
   Calico +15% from Torment Pulse / close-range items). Item value on the dummy (median over heroes): Close Quarters
-  +24 -> +73, Sharpshooter +316 -> +351, Long Range +197 -> +156.
+  +24 -> +80, Sharpshooter +316 -> +320, Long Range +197 -> +154, Point Blank +316 -> +296. Close/long range bonuses use
+  the joint expectation with falloff (`Engine.band_corr`): paid where the target actually is, not at the average falloff.
 
 ## Known gaps (not yet modeled)
 
