@@ -135,7 +135,15 @@ class TestRangeSpread(unittest.TestCase):
             e.bullet_damage(f)
         self.assertLess(len(e._fall), 200)
         e.distance = 16.3
-        self.assertEqual(e.bullet_damage(f), still)   # the resting distance stays exact
+        self.assertEqual(e.bullet_damage(f), still)   # the starting distance stays exact
+        for d in (8.0, 12.3, 21.7, 30.1):   # buckets: same value whatever came before, close to exact
+            e.distance = d
+            got = e.bullet_damage(f)[0]
+            exact = Engine(distance=d, mech=SPREAD)
+            h = make_fighter(exact, Loadout("Haze", ["Close Quarters", "Long Range"], souls=27000), "a")
+            k = make_fighter(exact, Loadout("Abrams", [], souls=27000), "d")
+            h.enemy, k.enemy = k, h
+            self.assertAlmostEqual(got, exact.bullet_damage(h)[0], delta=0.01 * got)
 
 
 if __name__ == "__main__":

@@ -379,7 +379,7 @@ class Engine:
         # taken as expectations over it (p_within, spread_mean, reach_ready), so results stay deterministic and an
         # item's value doesn't hinge on one random path.
         self.spread, self.spread_tau = 0.0, 2.0
-        self._fall, self._dseen = {}, set()
+        self._fall, self._d0 = {}, distance
         if mech is not None and getattr(mech, "range_drift", False):
             from .mechanics import drift_params
             self.spread, self.spread_tau = drift_params()
@@ -616,14 +616,10 @@ class Engine:
         return st.bullet_damage * (1.0 + pct) * fc[0], fc[1]
 
     def _dkey(self):
-        """Distance for the spread caches: exact while it holds still (the usual fight), 0.25 m buckets once a chase
-        has moved it through a few values, so the caches stay small and a moving fight doesn't recompute every step."""
+        """Distance for the spread caches: exact at the fight's starting distance (the usual fight), else 0.25 m
+        buckets, so a chase that moves the distance every step keeps the caches small."""
         d = self.distance
-        seen = self._dseen
-        if d in seen or len(seen) < 4:
-            seen.add(d)
-            return d
-        return round(d * 4) / 4
+        return d if d == self._d0 else round(d * 4) / 4
 
     def band_corr(self, st, r, close, d=None):
         """E[falloff x in band] / E[falloff] - P(in band), band = within r (close) or beyond r: added to the p x bonus a
