@@ -162,5 +162,56 @@ class TestRangeSpread(unittest.TestCase):
         self.assertLess(far, near)
 
 
+
+def ability_damage(hero, mech, distance=12.0, p=None):
+    """Damage by source on an idle 1e7 HP Abrams in 30 s; p pins Engine.p_within (the share inside any radius)."""
+    e = Engine(distance=distance, max_time=30, mech=mech)
+    if p is not None:
+        e.p_within = lambda r: p
+    a = make_fighter(e, Loadout(hero, [], souls=27000, skill=Skill(use_actives=False)), "a")
+    d = make_fighter(e, Loadout("Abrams", [], souls=27000, skill=Skill(accuracy=0, use_abilities=False)), "d")
+    d.abilities = []
+    d.max_hp_base = d.hp = 1e7
+    e.run(a, d, one_way=True)
+    return a.dmg_out
+
+
+class TestHeroRangeChecks(unittest.TestCase):
+    def test_reach_matches_fixed_gate(self):
+        """At a fixed distance CastCtx.reach(r) is the old `dist <= r` gate: no walk-in, no expected-wait factor."""
+        for d in (10.0, 20.0, 20.5, 30.0):
+            e = Engine(distance=d, mech=FIXED)
+            f = make_fighter(e, Loadout("Seven", [], souls=27000), "a")
+            state = {}
+            self.assertEqual(e.reach_ready(state, 20.0, f, mean_field=True), d <= 20.0, d)
+            self.assertNotIn("_reach_delay", state)
+
+    def test_p_in_scales_radius_damage(self):
+        """Seven's Storm Cloud deals about p x its damage when the target is inside the storm a share p of the time."""
+        full = ability_damage("Seven", FIXED, p=1.0)["Storm Cloud"]
+        part = ability_damage("Seven", FIXED, p=0.4)["Storm Cloud"]
+        self.assertGreater(part, 0.35 * full)
+        self.assertLess(part, 0.45 * full)
+
+    def test_tether_scales_then_breaks_at_median(self):
+        """Lady Geist's Life Drain drains p x per tick while p >= 0.5 and breaks below (the median-distance check)."""
+        full = ability_damage("Lady Geist", FIXED, p=1.0)["Life Drain"]
+        self.assertAlmostEqual(ability_damage("Lady Geist", FIXED, p=0.6)["Life Drain"], 0.6 * full, delta=0.01 * full)
+        self.assertNotIn("Life Drain", ability_damage("Lady Geist", FIXED, p=0.4))
+
+    def test_haze_fixation_falloff_matches_gun(self):
+        """Haze's Fixation bonus uses the same spread-averaged falloff as her bullets, so its share of gun damage
+        doesn't change with the spread."""
+        for d in (8.0, 16.0):
+            f, s = ability_damage("Haze", FIXED, d), ability_damage("Haze", SPREAD, d)
+            self.assertAlmostEqual(f["Fixation"] / f["gun"], s["Fixation"] / s["gun"], places=6)
+
+    def test_turret_falloff_averaged(self):
+        """McGinnis' Mini Turret falloff averages over the spread: some of the time the target is past falloff start
+        even when the median distance isn't."""
+        self.assertLess(ability_damage("McGinnis", SPREAD, 8.0)["Mini Turret"],
+                        ability_damage("McGinnis", FIXED, 8.0)["Mini Turret"])
+
+
 if __name__ == "__main__":
     unittest.main()
