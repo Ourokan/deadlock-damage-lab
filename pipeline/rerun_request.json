@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-21T10:07:00Z",
- "reason": "Full game build paths start from 0 souls: early game stages at 3k and 6k (new opponent pools)"
+ "requested_at": "2026-10-21T14:00:00Z",
+ "reason": "Full game build paths: laning phase stages (3k/6k, half of 10k) scored over a lane of trades so regen and healing between trades count"
 }

@@ -566,6 +566,19 @@ function invBars(inv) {
   }).join("")}</div>`;
 }
 
+// stage stats: the laning stages are scored over a lane of short trades (regen pays off between them), 10k half lane
+function pathStats(st) {
+  const o = st.overall, p = st.popular, lane = o.mode === "lane" ? o : o.lane, pl = o.mode === "lane" ? p : p.lane;
+  const fight = `<span>Damage before dying</span><span><b>${fmt(o.damage_before_death)}</b> <span class="hint">pop. ${fmt(p.damage_before_death)}</span></span>
+      <span>Time alive</span><span>${fmt(o.time_alive_s, 1)} s <span class="hint">pop. ${fmt(p.time_alive_s, 1)}</span></span>`;
+  if (!lane) return fight;
+  const ls = `<span title="Damage dealt over up to ${lane.trades} short 1v1 trades, health carried between them and healed by regen, out-of-combat regen and Fortitude in the gaps">Lane damage (${lane.trades} trades)</span><span><b>${fmt(lane.damage_before_death)}</b> <span class="hint">pop. ${fmt(pl?.damage_before_death)}</span></span>
+      <span title="Share of the lane's trades played before backing (under 25% health) or dying">Lane played</span><span>${pct(lane.lane_share)} <span class="hint">pop. ${pct(pl?.lane_share)}</span></span>`;
+  return o.mode === "lane" ? ls : `${ls}
+      <span title="Half of this stage's score is the lane, half the 30 s fight">Fight score</span><span>${signed(o.fight_score - 1)}</span>
+      ${fight}`;
+}
+
 async function renderPathTab() {
   const out = $("#p-out"), idx = await load("data/path/index.json"), id = $("#p-hero").value;
   const h = idx?.heroes[id];
@@ -587,8 +600,7 @@ async function renderPathTab() {
     return `<div class="card stage"><h3><span>${fmt(st.budget / 1000)}k</span><span class="${sc >= 1 ? "up" : "down"}">${signed(sc - 1)}</span></h3>
       ${bdTiles(ctx)}
       <p class="hint">${k ? `New: ${fresh.map((i) => esc(name(i))).join(", ") || "nothing"}.` : "Opening build."}${st.sold?.length ? ` Sold: ${st.sold.map((i) => esc(name(i))).join(", ")}.` : ""}${sc === weakest ? " Weakest stage of the path." : ""}</p>
-      <div class="kv"><span>Damage before dying</span><span><b>${fmt(st.overall.damage_before_death)}</b> <span class="hint">pop. ${fmt(st.popular.damage_before_death)}</span></span>
-      <span>Time alive</span><span>${fmt(st.overall.time_alive_s, 1)} s <span class="hint">pop. ${fmt(st.popular.time_alive_s, 1)}</span></span>
+      <div class="kv">${pathStats(st)}
       ${alone ? `<span title="The best overall build for this net worth alone, free to use items a path would have to sell">vs best for ${fmt(st.budget / 1000)}k alone</span><span>${pct(alone.score ? sc / alone.score : null)}</span>` : ""}
       <span>Item souls</span><span>${fmt(st.cost)} / ${fmt(st.item_budget)}</span>
       ${st.lost_to_sales ? `<span title="Half of each sold item's cost, spent for the rest of the game">Lost to sales</span><span>${fmt(st.lost_to_sales)}</span>` : ""}</div>
@@ -608,7 +620,7 @@ async function renderPathTab() {
       + `<td class="n">${fmt(s.paid)}</td><td>${s.spikes.map(spikeTag).join("")}</td></tr>`;
   }).join("");
   const lin = d.lineages.map((x) => `<tr class="${x.start === d.start ? "pop" : ""}"><td>${esc(START_LABEL[x.start] || x.start)}</td>${x.stage_scores.map((v) => `<td class="n ${v >= 1 ? "up" : "down"}">${signed(v - 1)}</td>`).join("")}<td class="n"><b>${fmt(x.path_score, 3)}</b></td></tr>`).join("");
-  out.innerHTML = `<p class="hint">Each stage's score is its damage before dying compared with the most popular real build at that net worth (+0% = popular). Starts from ${esc(START_LABEL[d.start] || d.start)}.${stale} Tap any item to see what it adds.</p>
+  out.innerHTML = `<p class="hint">Each stage's score is its damage compared with the most popular real build at that net worth (+0% = popular): over a lane of short trades at 3k and 6k (so regen and healing between trades count), half lane and half the 30 s fight at 10k, the 30 s fight after that. Starts from ${esc(START_LABEL[d.start] || d.start)}.${stale} Tap any item to see what it adds.</p>
     <div class="stages">${cards}</div>
     <div class="card" style="margin-top:16px"><h3>Buy order and investment spikes</h3>
     <p class="hint">Each step buys the piece with the most fight value per soul against the next stage's enemies; two pieces that only cross a slot threshold together are valued as a pair, so spikes are hit as early as the souls allow. Net worth is when you can afford it at the share of souls real players hold in items. Spike tags are the slot bonus reached (weapon damage %, max health %, flat spirit).</p>

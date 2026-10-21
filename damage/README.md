@@ -102,3 +102,14 @@ soul against the next stage's enemies, counting two pieces as a pair when only t
 `work/jobs_overall_<bracket>` when present (late game target, and the best build per stage alone for comparison).
 Runs per rank tier in the patch reruns after the overall search.
 
+Laning phase (Tyler, 2026-10-21: in lane, regen and other healing can be worth more than pure health). One 30 s fight
+never lets regen pay off, so 3k and 6k are scored as a lane (`overall_search.lane_fight`, `LaneEvaluator`): up to 5
+trades of 4 s against each enemy build (enemy damage x1), health carried from one trade to the next. In the 25 s gap
+between trades the hero heals its health regen for the whole gap, out-of-combat regen after 10 s and Fortitude's % of
+max health after its restore delay (all with regen amp). Under 25% health before a trade it backs, and the rest of
+the lane is lost; a death ends it too. Score = damage dealt over the lane vs the popular build's. 10k (end of lane) is
+half lane, half the 30 s fight (`MixEvaluator`). Trade length, gap, out-of-combat delay and the back threshold are
+assumptions, not fitted to replays; with them the popular builds lose about a third of their health per trade and play
+about 60-70% of the lane. Effect at Haze 3k on top of Extra Spirit: Extra Health goes from the best pick in the 30 s
+fight (+46%) to below Extra Regen and Healing Booster in the lane (+8% vs +16% / +26%).
+
