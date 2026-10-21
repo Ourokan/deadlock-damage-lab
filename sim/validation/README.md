@@ -231,6 +231,35 @@ Scorn healing: Mo's health jumps by 1.20 x (Scorn + Mystic Burst + Quicksilver R
 (two Phantom+ replays, pawn health vs same-tick damage events), so Scorn's heal now counts the item procs its hit sets
 off. With Mystic Burst + Quicksilver on Scorn at 18k souls, Mo heals 26% more in a 30 s duel vs Abrams (974 -> 1227).
 
+## Haze duels and a real 1v1 benchmark (2026-10-21)
+
+Tyler: the popular Haze build won only 28% of 27k Phantom+ duels, though Haze is a duelist. Findings:
+
+- **Real benchmark** (`analysis/scripts/isolated_kills.py`, out: `analysis/out/isolated_kills.json`): Phantom+
+  ranked, 7 days, 21.8k matches. An isolated kill has no other hero death within 15 s; only kills where killer and
+  victim net worth are within 10% count (the sim gives both sides the same souls). Haze's share is 0.58-0.62 with no
+  net worth filter (5th of 41) but 0.50-0.52 at equal net worth (net worth interpolated between the 3 min snapshots): most of her real edge is out-farming.
+- **Gun stayed idle after a cut-short channel** (all heroes): `gun_tick` slept until the lock time it saw, so when a
+  channel was interrupted (Bullet Dance stunned, Warden/Dynamo/Kelvin/Bebop/Forge/Shiv channels ended early) the
+  gun stayed silent until the old lock end. It now re-checks every `GUN_POLL` = 0.1 s. Haze vs Venator: she was
+  silent from 1.6 s (stun over) to her death at 4.3 s.
+- **Bullet Dance landing (0.11) cut its damage but kept the full 3.9 s gun lock**, so the ult cost Haze more gun
+  damage than it dealt. The factor now shortens the channel (`gun_volley(..., landed=True)` skips the damage scale).
+- **Fixation's landing 0.36 was a calibration artifact:** in the calibration duels a full Bullet Dance (perfect
+  accuracy) built Fixation stacks, so Fixation looked 2.5x too strong. `landing_rates.py --iterate` fits with the
+  current factors applied (`refit_landing_heroes.py --iterate N`); Haze converges to Fixation 1.0, Bullet Dance
+  0.17, Sleep Dagger 0.64. Iterating every hero moves many factors (some oddly: Strix Salvo 0.67 -> 0.04, Soul
+  Exchange 1.2 -> 2.2) and barely changes the cross-hero fit, so only Haze was refit.
+- **Sleep Dagger** now wakes on any damage the sleeping target takes (DoT ticks included), via the new
+  `on_any_damage_dealt` ability hook.
+- Popular Haze at 27k: 28% -> 35% (18k 39%, 37k 44%).
+
+**Still open, all heroes:** sim duel win rates of the popular builds don't correlate with the real equal-net-worth
+isolated-kill shares (Spearman ~0 at 27k). The sim overrates Lady Geist (0.89 vs 0.38 real), Shiv, Deadman Danny,
+Silver, Venator, Apollo, Infernus, Seven and underrates Vindicta, Mina, Calico, Wraith, Vyper. Giving ultimates
+only their real cast share of fights (15-35%, `fight_patterns.json` replay `cast_share`) did not help (tested,
+not kept). The real shares carry gank noise (spread 0.30-0.66 vs sim 0.10-0.91), so check single heroes first.
+
 ## Known gaps (not yet modeled)
 
 - **Melee movement:** melee is now in fights (see "Melee" above), but distance stays fixed (even with movement on, unless someone runs), so gap-closing
@@ -239,8 +268,8 @@ off. With Mystic Burst + Quicksilver on Scorn at 18k souls, Mo heals 26% more in
 - **Summons can't be shot** (fixed for McGinnis turrets with `mechanics.summons`, see above): McGinnis turrets keep full uptime, so her gun share is 2% vs 26% real. Still the
   worst-matched hero.
 - **Paradox Kinetic Carbine** damage formula is a low-confidence reading of the data (landing 2.95).
-- **Bebop Hyper Beam / Haze Bullet Dance** dominate any 20 s duel that starts with them ready (landing 0.06 /
-  0.15); the models match the data, the gap is the fresh-cooldown bias above.
+- **Bebop Hyper Beam** dominates any 20 s duel that starts with it ready (landing 0.06); the model matches the
+  data, the gap is the fresh-cooldown bias above. (Haze Bullet Dance: fixed 2026-10-21, see "Haze duels" below.)
 - **Multi-target items** (Ricochet, Split Shot) do nothing in a 1v1 without mechanics; see above. Deadman Danny's charged primary fire is
   modeled as a plain gun.
 - **Attribution:** the game books amp bonuses (Escalating Exposure, Express Shot, Siphon Bullets) under the item;

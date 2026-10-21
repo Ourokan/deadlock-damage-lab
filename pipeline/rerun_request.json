@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-21T07:35:00Z",
- "reason": "Overall score now credits movement items with their real chase (kill participation) and escape (deaths) value"
+ "requested_at": "2026-10-21T07:43:53Z",
+ "reason": "Haze duel fixes: gun resumes after a cut-short channel (all heroes), Bullet Dance landing shortens the channel, Haze landing refit; also overall score credits movement items (PR #23)"
 }
