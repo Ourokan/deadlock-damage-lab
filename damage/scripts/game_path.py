@@ -411,8 +411,10 @@ def path_job(args):
         pop = ctx.popular(b)
         d["popular"] = {"items": sorted(pop)} | {k: v for k, v in ctx.ev[b].run(pop, "F", detail=True).items()
                                                   if k != "matchups"}
-        job = overall_job(bracket, hero, b)
-        if job:   # the best build for this net worth alone, rescored on the current sim
+        # the best build for this net worth alone, rescored on the current sim; not on lane stages, where the overall
+        # search's build was picked for the 30 s fight and the comparison would mislead
+        job = overall_job(bracket, hero, b) if not LANE.get(b) else None
+        if job:
             bi = job["builds"][0]["items"]
             d["best_alone"] = {"items": bi} | {k: v for k, v in ctx.ev[b].run(bi, "F", detail=True).items()
                                                 if k != "matchups"}
