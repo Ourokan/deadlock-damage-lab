@@ -35,7 +35,7 @@ class ScrewjabDagger(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= DAGGER_RANGE
+        return c.reach(DAGGER_RANGE)
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay")
@@ -125,7 +125,7 @@ class PetrifyingBola(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= BOLA_RANGE
+        return c.reach(BOLA_RANGE)
 
     def should_cast(self, c):
         return self.in_range(c) and c.foe.hp_frac > 0.15

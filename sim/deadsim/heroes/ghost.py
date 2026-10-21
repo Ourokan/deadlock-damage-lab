@@ -31,7 +31,7 @@ class EssenceBomb(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= 25 + c.me.skill.engage_margin
+        return c.reach(25 + c.me.skill.engage_margin)
 
     def cast(self, c):
         dmg = c.val("Damage")
@@ -66,10 +66,11 @@ class LifeDrain(AbilityImpl):
         me, foe = c.me, c.foe
         if c.state.get("tether") is not token:
             return
-        if n <= 0 or not me.alive or not foe.alive or me.mods.active("stun") or c.dist > c.rng("MaxRange"):
+        p = c.p_in(c.rng("MaxRange"))   # drains the share of the time the target is in range (breaks only at p = 0)
+        if n <= 0 or not me.alive or not foe.alive or me.mods.active("stun") or p <= 0:
             return
         tick = c.raw("TickRate", 0.1)
-        dealt = c.engine.damage(me, foe, c.val("LifeDrainPerSecond") * tick, "spirit", self.s.ab.name,
+        dealt = c.engine.damage(me, foe, c.val("LifeDrainPerSecond") * tick * p, "spirit", self.s.ab.name,
                                 is_ability=True, ability=self.s, is_dot=True)
         if dealt:
             c.heal(dealt * c.raw("LifeDrainHealthMult", 100) / 100)
@@ -81,7 +82,7 @@ class Malice(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= 25 + c.me.skill.engage_margin
+        return c.reach(25 + c.me.skill.engage_margin)
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay")

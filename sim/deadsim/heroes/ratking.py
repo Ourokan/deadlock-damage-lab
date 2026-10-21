@@ -37,7 +37,7 @@ class ScrapGrenade(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= 20.0 + c.me.skill.engage_margin   # thrown, no cast range in data
+        return c.reach(20.0 + c.me.skill.engage_margin)   # thrown, no cast range in data
 
     def cast(self, c):
         acc = c.me.skill.spirit_accuracy

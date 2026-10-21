@@ -22,7 +22,7 @@ class Barrage(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= BARRAGE_RANGE
+        return c.reach(BARRAGE_RANGE)
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay")
@@ -53,7 +53,7 @@ class FlyingCloak(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= CLOAK_RANGE
+        return c.reach(CLOAK_RANGE)
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay")

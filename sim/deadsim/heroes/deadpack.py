@@ -83,7 +83,7 @@ class ChimeraMk1(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= CHIMERA_REACH
+        return c.reach(CHIMERA_REACH)
 
     def cast(self, c):
         f = c.me

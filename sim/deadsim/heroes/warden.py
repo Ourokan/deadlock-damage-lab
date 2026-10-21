@@ -38,7 +38,7 @@ class AlchemicalFlask(_Base):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= THROW_RANGE
+        return c.reach(THROW_RANGE)
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay")

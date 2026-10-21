@@ -45,7 +45,7 @@ class StalkersMark(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= MARK_RANGE
+        return c.reach(MARK_RANGE)
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay")

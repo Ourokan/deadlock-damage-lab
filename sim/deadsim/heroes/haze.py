@@ -129,7 +129,7 @@ class Fixation(AbilityImpl):
             _, crit = c.engine.bullet_damage(f)
             crit_eff = 1.0 + (crit - 1.0) * e.st.crit_received_scale * (1.0 + e.stat("crit_taken"))
             body = hit.hits - hit.headshots
-            amt = bonus * f.st.falloff(c.dist) * (body + hit.headshots * crit_eff)
+            amt = bonus * c.engine.spread_mean(f.st.falloff) * (body + hit.headshots * crit_eff)
             c.engine.damage(f, e, amt, "bullet", self.s.ab.name, is_ability=True, ability=self.s,
                             hits=hit.hits, headshots=hit.headshots, procs=False)
         self.add_stacks(c, hit.hits - hit.headshots + hit.headshots * c.raw("HeadshotStacks", 3))

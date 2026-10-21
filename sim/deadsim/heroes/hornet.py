@@ -17,7 +17,7 @@ class Stake(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= 25 + c.me.skill.engage_margin   # thrown projectile, ~25 m practical range
+        return c.reach(25 + c.me.skill.engage_margin)   # thrown projectile, ~25 m practical range
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay")
@@ -54,7 +54,7 @@ class CrowFamiliar(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= 30 + c.me.skill.engage_margin
+        return c.reach(30 + c.me.skill.engage_margin)
 
     def cast(self, c):
         c.lock_gun(c.raw("AbilityPostCastDuration"))

@@ -116,7 +116,7 @@ class WolfSlot(AbilityImpl):
         st = c.state
         if wolf(c):
             r = alt(c, self.WOLF).rng(self.WOLF_RANGE)
-            return c.now >= st["wolf_ready"] and (r <= 0 or c.dist <= r + c.me.skill.engage_margin)
+            return c.now >= st["wolf_ready"] and (r <= 0 or c.reach(r + c.me.skill.engage_margin))
         return c.now >= st["base_ready"] and self.base_ok(c)
 
     def base_ok(self, c):
@@ -248,7 +248,7 @@ class EntanglingBola(WolfSlot):
     WOLF_RANGE = "SlashRadius"
 
     def base_ok(self, c):
-        return c.dist <= 25.0 + c.me.skill.engage_margin   # thrown projectile, no cast range in data
+        return c.reach(25.0 + c.me.skill.engage_margin)   # thrown projectile, no cast range in data
 
     def base_cast(self, c):
         d = c.raw("AbilityCastDelay")

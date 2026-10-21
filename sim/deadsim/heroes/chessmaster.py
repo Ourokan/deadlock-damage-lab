@@ -104,7 +104,7 @@ class RookBattery(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= 25.0 + c.me.skill.engage_margin   # rooks travel forward; no cast range in data
+        return c.reach(25.0 + c.me.skill.engage_margin)   # rooks travel forward; no cast range in data
 
     def cast(self, c):
         d = c.raw("AbilityCastDelay") + c.raw("DetonationDelay")

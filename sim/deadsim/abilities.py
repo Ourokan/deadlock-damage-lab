@@ -185,6 +185,19 @@ class CastCtx:
         return self.engine.reach_ready(self.state, reach + sk.engage_margin, self.me, walk_in=sk.walk_in,
                                        mean_field=True)
 
+    def reach(self, r):
+        """Cast gate at a hard reach of r m (no engage margin or walk-in added): the target within r now. With range
+        spread the same as within(): cast now, damage scaled by the expected wait for the target to come within r.
+        Self buffs keep the median check: the expected wait only scales damage, so it can't price a buff."""
+        if self.s.impl.kind == "self":
+            return self.p_in(r) >= 0.5
+        return self.engine.reach_ready(self.state, r, self.me, mean_field=True)
+
+    def p_in(self, r):
+        """Share of fight time the target is within r m (1 or 0 at a fixed distance): scales an effect that only
+        lands inside a radius; p_in(r) >= 0.5 is the median-distance check, for all-or-nothing effects."""
+        return self.engine.p_within(r)
+
     # effects --------------------------------------------------------------------------------------
     def spirit_hit(self, amount, *, delay=0.0, name=None, hit_chance=None, ignore_resist=False, nonlethal=False):
         """Instant spirit damage to the enemy (after delay). hit_chance defaults to caster's spirit_accuracy for
@@ -458,9 +471,8 @@ class AbilityState:
             return False
         if self.f.counters.get("fleeing") and self.impl.kind != "self":
             return False
-        if not self.impl.should_cast(self.ctx):
-            return False
-        if self.f.plan is not None and not self.f.plan.allows(self):
+        if not self.impl.should_cast(self.ctx) or (self.f.plan is not None and not self.f.plan.allows(self)):
+            self.scratch.pop("_reach_delay", None)   # a reach gate may have passed inside a condition that failed
             return False
         self.cast()
         return True
@@ -490,7 +502,7 @@ class AbilityState:
             self.next_charge = self.ready_at
         f.e.note(f"{f.name} casts {self.ab.name}")
         wait = self.scratch.pop("_reach_delay", 0.0)   # range spread: damage x cooldown / (cooldown + expected wait)
-        cd = self.charge_delay() if self.max_charges() > 1 else self.cooldown()
+        cd = self.cooldown()   # time per cast: charges recharge one per cooldown, so the gap between charges isn't it
         self.scratch["_avail"] = cd / (cd + wait) if wait > 0 and cd > 0 else 1.0
         for fx in f.items_fx:
             g = getattr(fx, "on_cast", None)

@@ -34,7 +34,7 @@ class PlotArmor(AbilityImpl):
     kind = "self"
 
     def should_cast(self, c):
-        return c.dist <= 40     # in combat
+        return c.reach(40)     # in combat
 
     def cast(self, c):
         d = c.dur("AbilityDuration")

@@ -64,7 +64,7 @@ class JarOfDead(AbilityImpl):
         c.state["jars"] = JARS_AT_START
 
     def should_cast(self, c):
-        return c.state.get("jars", 0) > 0 and c.dist <= JAR_RANGE
+        return c.state.get("jars", 0) > 0 and c.reach(JAR_RANGE)
 
     def cast(self, c):
         c.state["jars"] -= 1
