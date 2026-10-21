@@ -59,6 +59,21 @@ class TestRangeSpread(unittest.TestCase):
         self.assertAlmostEqual(e.p_within(16.3), 0.5, places=6)
         self.assertEqual(Engine(distance=16.3, mech=FIXED).p_within(16.3), 1.0)
 
+    def test_spread_mean_is_lognormal(self):
+        """spread_mean averages over ln(distance / median) ~ N(0, spread^2) (caps lifted for the check)."""
+        import math
+        import deadsim.mechanics as M
+        lo, hi = M.DRIFT_MIN, M.DRIFT_MAX
+        M.DRIFT_MIN, M.DRIFT_MAX = 1e-6, 1e6
+        try:
+            e = Engine(distance=12.0, mech=SPREAD)
+            m = e.spread_mean(lambda x: math.log(x / 12.0))
+            v = e.spread_mean(lambda x: math.log(x / 12.0) ** 2) - m * m
+        finally:
+            M.DRIFT_MIN, M.DRIFT_MAX = lo, hi
+        self.assertAlmostEqual(m, 0.0, delta=0.03)
+        self.assertAlmostEqual(v, e.spread ** 2, delta=0.01 * e.spread ** 2)
+
     def test_rake_smooth_in_distance_and_range(self):
         """Rake damage falls smoothly with distance (no cliff at reach + margin + walk-in) and a range item adds a
         little at every distance instead of switching Rake on."""

@@ -21,11 +21,11 @@ def lo(hero, items=(), **kw):
 # duel results pinned from main before team fights (Engine.on_death and the cast notice must not change them),
 # with hero fight patterns off (they change cast order on purpose; see tests/test_patterns.py):
 # (hero, items, enemy, items, winner, time, damage dealt, damage taken)
-DUELS = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift); Haze vs Infernus ends in an escape
+DUELS = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift); Haze wins Haze vs Infernus
     ("Haze", ["Rapid Rounds", "Toxic Bullets", "Restorative Locket"], "Infernus",
-     ["Extra Spirit", "Mystic Burst", "Healing Nova"], None, 24.9, 2566.6, 2066.5),
-    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 24.1, 1778.7, 3190.0),
-    ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1771.8, 1387.6),
+     ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Haze (A)", 26.786, 2801.7, 2119.8),
+    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 24.4, 1719.0, 3197.3),
+    ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1757.8, 1347.1),
 ]
 
 

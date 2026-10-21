@@ -32,7 +32,8 @@ MELEE_HEAVY_TIME = 1.1
 # Below MELEE_MIN_RATE hits/s a melee event fires every 1/MELEE_MIN_RATE s with a fractional weight (expected
 # damage), so rare meleers still melee within a short fight.
 MELEE_MIN_RATE = 0.2
-# range spread (deadsim.mechanics range_drift): 7-point Gauss-Hermite nodes and weights for a standard normal
+# range spread (deadsim.mechanics range_drift): 7-point Gauss-Hermite nodes (weight e^-x^2) with weights normalized to
+# sum 1; a standard normal value is sqrt(2) x
 _GH = ((-2.6519613568, 0.000548268858), (-1.6735516288, 0.0307571239), (-0.8162878829, 0.240123178),
        (0.0, 0.457142857), (0.8162878829, 0.240123178), (1.6735516288, 0.0307571239), (2.6519613568, 0.000548268858))
 REACH_P_FLOOR = 0.01    # waiting for drift to bring a far target in reach: tau / max(p, floor)
@@ -402,7 +403,8 @@ class Engine:
         if self.spread <= 0:
             return fn(d)
         from .mechanics import DRIFT_MAX, DRIFT_MIN
-        return sum(w * fn(min(DRIFT_MAX, max(DRIFT_MIN, d * math.exp(self.spread * x)))) for x, w in _GH)
+        k = self.spread * math.sqrt(2.0)
+        return sum(w * fn(min(DRIFT_MAX, max(DRIFT_MIN, d * math.exp(k * x)))) for x, w in _GH)
 
     def reach_ready(self, state, reach, f, walk_in=0.0, mean_field=False):
         """Gate for a cast or active that needs the target within `reach` m. Without spread: now if in reach, after
