@@ -186,6 +186,43 @@ class TestHeroRangeChecks(unittest.TestCase):
             self.assertEqual(e.reach_ready(state, 20.0, f, mean_field=True), d <= 20.0, d)
             self.assertNotIn("_reach_delay", state)
 
+    def test_cast_ctx_reach_and_p_in_at_fixed_distance(self):
+        """Through a hero's CastCtx: reach(r) is the old `dist <= r` gate and p_in(r) is 1 or 0 at a fixed distance."""
+        for d in (10.0, 20.0, 20.5, 30.0):
+            e = Engine(distance=d, mech=FIXED)
+            f = make_fighter(e, Loadout("Seven", [], souls=27000), "a")
+            g = make_fighter(e, Loadout("Abrams", [], souls=27000), "d")
+            f.enemy, g.enemy = g, f
+            c = f.abilities[0].ctx
+            self.assertEqual(c.reach(20.0), d <= 20.0, d)
+            self.assertNotIn("_reach_delay", c.state)
+            self.assertEqual(c.p_in(20.0), 1.0 if d <= 20.0 else 0.0)
+
+    def test_stun_and_silence_flip_at_median(self):
+        """Victor's revive blast stuns and Celeste's barrier pop silences only while p_in >= 0.5 (the target inside
+        the radius at the median distance)."""
+        from unittest import mock
+        import deadsim.abilities as AB
+        from deadsim.fight import duel
+        seen = []
+        orig = AB.CastCtx.debuff
+
+        def debuff(c, kind, *a, **k):
+            seen.append((c.s.ab.name, kind))
+            return orig(c, kind, *a, **k)
+
+        def effects(a, b, p):
+            seen.clear()
+            with mock.patch.object(AB.CastCtx, "debuff", debuff), \
+                    mock.patch.object(Engine, "p_within", lambda self, r: p):
+                duel(Loadout(a, [], souls=27000, skill=Skill(accuracy=0.5)),
+                     Loadout(b, [], souls=27000, skill=Skill(accuracy=0.5)), mechanics=FIXED, max_time=60)
+            return set(seen)
+        for a, b, src, kind in (("Victor", "Haze", "Shocking Reanimation", "stun"),
+                                ("Celeste", "Haze", "Dazzling Trick", "silence")):
+            self.assertIn((src, kind), effects(a, b, 0.6))
+            self.assertNotIn((src, kind), effects(a, b, 0.4))
+
     def test_p_in_scales_radius_damage(self):
         """Seven's Storm Cloud deals about p x its damage when the target is inside the storm a share p of the time."""
         full = ability_damage("Seven", FIXED, p=1.0)["Storm Cloud"]
