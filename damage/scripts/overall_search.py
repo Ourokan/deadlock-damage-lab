@@ -20,7 +20,8 @@ popular builds' median time alive is ~14 s, close to the real median time to kil
 Movement (Tyler, 2026-10-21): the duel has no running (an escape would end it), so movement items are credited
 outside it. The score is multiplied by each held item's value in sim/data/movement_value.json: the real Phantom+
 chase (kill participation) x escape (deaths per 10 min) effect of holding it at the same hero, net worth and game
-length (analysis/scripts/kill_participation.py, analysis/out/kill_participation.md).
+length (analysis/scripts/kill_participation.py, analysis/out/kill_participation.md), capped for 2 and 3+ items
+at the measured value of holding that many (they overlap).
 Not counted: team heals and team auras, vision.
 
 Scores are relative to the hero's most popular real build (1.0 = popular). Same search machinery as the duel search
@@ -61,16 +62,22 @@ _move = None
 
 
 def movement_value(items):
-    """Product of the held movement items' chase x escape values (1 = no movement item)."""
+    """Product of the held movement items' chase x escape values (1 = no movement item), capped by the measured
+    value of holding that many (stack_cap: movement items overlap, so two aren't worth the product)."""
     global _move
     if _move is None:
         g = S.G()
         with open(MOVE_PATH) as f:
-            names = json.load(f)["items"]
-        _move = {i: names[it.name] for i, it in g.items.items() if it.name in names}
+            d = json.load(f)
+        _move = ({i: d["items"][it.name] for i, it in g.items.items() if it.name in d["items"]},
+                 {int(k): v for k, v in d.get("stack_cap", {}).items()})
+    vals, caps = _move
+    held = [vals[i] for i in set(items) if i in vals]
     v = 1.0
-    for i in set(items):
-        v *= _move.get(i, 1.0)
+    for x in held:
+        v *= x
+    if len(held) >= 2 and caps:
+        v = min(v, caps[min(len(held), max(caps))])
     return v
 
 

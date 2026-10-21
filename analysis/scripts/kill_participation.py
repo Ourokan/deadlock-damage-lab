@@ -21,6 +21,8 @@ Score weight (sim/data/movement_value.json, read by damage/scripts/overall_searc
   chase  = KP holders / KP non-holders               (used when z >= 2, else 1)
   escape = deaths/10 non-holders / deaths/10 holders (used when z >= 2, else 1)
   value  = min(CAP, max(1, chase x escape))
+  stack_cap[k] = the same for holding k (3 = 3+) movement items vs none: caps a build's combined value, since
+                 movement items overlap (one escape tool covers most of what a second adds)
 The 1v1 overall fight has no movement (an escape would end it, see survival.py), so this factor is how the overall
 score credits what a movement item does outside the duel. A value below 1 is not applied: a holder who dies more is
 mostly an engage player (Majestic Leap), which the item doesn't cause.
@@ -197,8 +199,15 @@ def main():
         e["other_heroes"] = effect([r for r in rows if r["hero"] not in high], lambda r, n=n: n in r["move"])
         items[n] = e
     any_move = effect(rows, lambda r: bool(r["move"]))
+    # several movement items overlap (one escape is enough): measured effect of holding k (3 = 3+) vs none
+    stack = {}
+    for k in (1, 2, 3):
+        e = effect([r for r in rows if not r["move"] or len(r["move"]) == k or (k == 3 and len(r["move"]) > 3)],
+                   lambda r, k=k: len(r["move"]) >= k)
+        stack[k] = e
     res = {"players": len(rows), "bracket": "phantom", "nw_bin": NW_BIN, "dur_bin": DUR_BIN, "high_kp_cut": cut,
-           "heroes": heroes, "correlation": corr, "any_movement_item": any_move, "items": items}
+           "heroes": heroes, "correlation": corr, "any_movement_item": any_move, "items": items,
+           "by_count": {str(k): e for k, e in stack.items()}}
     os.makedirs(OUT, exist_ok=True)
     json.dump(res, open(f"{OUT}/kill_participation.json", "w"), indent=1)
     json.dump({
@@ -206,6 +215,9 @@ def main():
                   "(deaths per 10 min) effect at the same hero, net worth and game length; only effects with z >= 2, "
                   "floor 1, cap %.2f. Built by analysis/scripts/kill_participation.py." % CAP),
         "items": {n: e["value"] for n, e in sorted(items.items()) if e["value"] > 1.0},
+        "_stack_note": ("Cap on the combined value of 2 and of 3+ weighted items: the measured chase x escape of "
+                        "holding that many movement items vs none (the items overlap, so values don't multiply)."),
+        "stack_cap": {str(k): round(min(CAP, max(1.0, stack[k]["chase"] * stack[k]["escape"])), 4) for k in (2, 3)},
     }, open(SIM_OUT, "w"), indent=1)
     write_md(res)
 
@@ -234,7 +246,11 @@ def write_md(res):
         L.append(f"| {n} | {e['holders']:,} | {e['kp']:.1%} | {e['kp_others']:.1%} | {e['kp_z']:+.1f} | "
                  f"{e['deaths10']:.2f} | {e['deaths10_others']:.2f} | {e['deaths_z']:+.1f} | {e['chase']:.3f} | "
                  f"{e['escape']:.3f} | {e['value'] if 'items' not in n else '-'} | {split[0]} | {split[1]} |")
-    L += ["", "Chase = KP ratio holders / others; escape = deaths ratio others / holders (deaths z > 0 = holders die "
+    L += ["", "Holding several movement items (vs none, same matching): " + "; ".join(
+        f"{k}{'+' if k == '3' else ''}: chase {e['chase']:.3f}, escape {e['escape']:.3f}"
+        for k, e in res["by_count"].items()) + ". They overlap, so a build's combined weight is capped at the "
+        "2 and 3+ values.",
+        "", "Chase = KP ratio holders / others; escape = deaths ratio others / holders (deaths z > 0 = holders die "
           "less). Score weight = chase x escape, each part only when its z >= 2, floor 1, cap "
           f"{CAP}; the overall build score multiplies by it (damage/scripts/overall_search.py)."]
     open(f"{OUT}/kill_participation.md", "w").write("\n".join(L) + "\n")

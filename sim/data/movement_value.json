@@ -11,5 +11,10 @@
   "Stamina Mastery": 1.0186,
   "Veil Walker": 1.0246,
   "Warp Stone": 1.038
+ },
+ "_stack_note": "Cap on the combined value of 2 and of 3+ weighted items: the measured chase x escape of holding that many movement items vs none (the items overlap, so values don't multiply).",
+ "stack_cap": {
+  "2": 1.0775,
+  "3": 1.1195
  }
 }

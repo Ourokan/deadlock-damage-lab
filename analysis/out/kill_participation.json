@@ -1639,5 +1639,49 @@
     "value": 1.0
    }
   }
+ },
+ "by_count": {
+  "1": {
+   "holders": 172897,
+   "kp": 0.5239,
+   "kp_others": 0.5199,
+   "kp_diff": 0.004,
+   "kp_z": 5.6,
+   "deaths10": 1.813,
+   "deaths10_others": 1.863,
+   "deaths_z": 10.7,
+   "ka10_diff": 0.153,
+   "chase": 1.0078,
+   "escape": 1.0276,
+   "value": 1.0356
+  },
+  "2": {
+   "holders": 89070,
+   "kp": 0.525,
+   "kp_others": 0.5172,
+   "kp_diff": 0.0078,
+   "kp_z": 6.7,
+   "deaths10": 1.822,
+   "deaths10_others": 1.934,
+   "deaths_z": 13.9,
+   "ka10_diff": 0.301,
+   "chase": 1.0151,
+   "escape": 1.0615,
+   "value": 1.0776
+  },
+  "3": {
+   "holders": 18922,
+   "kp": 0.5315,
+   "kp_others": 0.5204,
+   "kp_diff": 0.011,
+   "kp_z": 5.4,
+   "deaths10": 1.857,
+   "deaths10_others": 2.036,
+   "deaths_z": 11.8,
+   "ka10_diff": 0.439,
+   "chase": 1.0212,
+   "escape": 1.0963,
+   "value": 1.1196
+  }
  }
 }

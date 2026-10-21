@@ -71,4 +71,6 @@ Bold = top third by KP (KP >= 53%). Across heroes, KP vs movement items held: r 
 | Ethereal Shift | 12,227 | 54.2% | 54.3% | -0.8 | 1.51 | 1.51 | -0.0 | 0.998 | 1.000 | 1.0 | 0.997 (z -0.5) | 0.998 (z -0.6) |
 | Any movement items | 281,447 | 52.5% | 51.9% | +6.9 | 1.82 | 1.90 | +14.0 | 1.011 | 1.043 | - | - | - |
 
+Holding several movement items (vs none, same matching): 1: chase 1.008, escape 1.028; 2: chase 1.015, escape 1.062; 3+: chase 1.021, escape 1.096. They overlap, so a build's combined weight is capped at the 2 and 3+ values.
+
 Chase = KP ratio holders / others; escape = deaths ratio others / holders (deaths z > 0 = holders die less). Score weight = chase x escape, each part only when its z >= 2, floor 1, cap 1.25; the overall build score multiplies by it (damage/scripts/overall_search.py).
