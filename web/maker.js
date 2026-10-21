@@ -313,7 +313,8 @@ function mkRenderSummary() {
     if (Math.abs(c.dmg) >= 0.0005) parts.push(`${mkPctS(c.dmg)} damage dealt`);
     if (Math.abs(c.surv) >= 0.0005) parts.push(`${mkPctS(c.surv)} time to die`);
     if (MK.hover.extra) parts.push(`${MK.hover.extra > 0 ? "costs" : "frees"} ${fmt(Math.abs(MK.hover.extra))} souls`);
-    head = `<p class="mk-prev" title="${MK.hover.sell ? "Without" : "With"} ${esc(it?.name || "")}">${MK.hover.sell ? "Without" : "With"} <b>${esc(it?.name || "")}</b>: ${parts.join(", ") || "no change in these fights"}</p>`;
+    const txt = `${MK.hover.sell ? "Without" : "With"} ${it?.name || ""}: ${parts.join(", ") || "no change in these fights"}`;
+    head = `<p class="mk-prev" title="${esc(txt)}">${MK.hover.sell ? "Without" : "With"} <b>${esc(it?.name || "")}</b>: ${parts.join(", ") || "no change in these fights"}</p>`;
   }
   el.innerHTML = head + `<div class="mk-tot">
     <div><span>You deal, all ${cur.length} fights</span><b>${fmt(mkSum(cur, "dealt"))}</b></div>
