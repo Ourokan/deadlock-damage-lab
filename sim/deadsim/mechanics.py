@@ -44,6 +44,9 @@ Settings fitted to real ranked matches (validation/README.md, "New mechanics"):
   Magic Carpet, Enduring Speed, stamina items. Phantom Strike closes the gap on a runner. Hero mobility abilities
   (grapples, teleports, flight) are NOT modeled: only items, base speed, sprint and stamina. Majestic Leap gets no
   escape value: real holders escape less often, not more (it is an engage tool), so it keeps its step 2 barrier only.
+- Range spread (Mechanics.range_drift): the distance is lognormal around the fight distance (log sd and drift time from
+  real Phantom+ 1v1 positions, data/fight_range.json), and the engine takes distance effects as expectations over it
+  (Engine.p_within / spread_mean / reach_ready). See validation/README.md "Range spread".
 """
 from __future__ import annotations
 
@@ -73,8 +76,24 @@ class Mechanics:
     parry: bool = True
     summons: bool = True
     movement: bool = True
+    range_drift: bool = True     # distance spreads around the start distance (Engine.p_within etc., fight_range.json)
     extra_targets: float = 0.0   # expected other enemy heroes near the target (multi-target items)
     escape_dist: float = 40.0    # gap (m) at which a runner is out of the fight
+
+
+DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
+_DRIFT = None
+
+
+def drift_params():
+    """(log_sd, tau_s) of real 1v1 fight distance around its median: data/fight_range.json (Phantom+ match_paths,
+    scripts/range/fit_range.py)."""
+    global _DRIFT
+    if _DRIFT is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "fight_range.json")) as fh:
+            a = json.load(fh)["duel"]["all"]
+        _DRIFT = (a["log_sd"], a["tau_s"])
+    return _DRIFT
 
 
 DEFAULT = Mechanics()   # None turns the new mechanics off for every Engine built without an explicit value

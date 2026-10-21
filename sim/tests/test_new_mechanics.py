@@ -68,7 +68,7 @@ class TestSummons(unittest.TestCase):
         a = Loadout("McGinnis", [], souls=15000, skill=Skill(accuracy=0.0, use_actives=False),
                     unlocked=[True, False, False, False])
         b = Loadout("Haze", [], souls=15000, skill=Skill(accuracy=0.5, summon_focus=1.0, use_abilities=False))
-        on = duel(a, b, max_time=20, mechanics=Mechanics(movement=False, parry=False))
+        on = duel(a, b, max_time=20, mechanics=Mechanics(movement=False, parry=False, range_drift=False))
         off = duel(a, b, max_time=20, mechanics=None)
         self.assertGreater(sum(on.b_summon.values()), 0.0)
         self.assertLess(on.a_dmg.get("Mini Turret", 0.0), off.a_dmg.get("Mini Turret", 0.0))

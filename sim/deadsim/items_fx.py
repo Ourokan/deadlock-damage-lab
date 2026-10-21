@@ -138,6 +138,19 @@ class FX:
     def in_range(self, meters):
         return self.f.e.distance <= meters + 0.5
 
+    def reach_p(self, meters):
+        """Share of fight time the target is within `meters` (1 / 0 without range spread)."""
+        return self.f.e.p_within(meters + 0.5)
+
+    def ready_in(self, meters):
+        """Gate for an active that needs the target within `meters`: now / never without range spread, after the
+        expected wait for the drift to bring the target in with it (Engine.reach_ready)."""
+        st = self.__dict__.setdefault("_reach_state", {})
+        if self.f.e.reach_ready(st, meters + 0.5, self.f):
+            st.pop("_walk_in_at", None)
+            return True
+        return False
+
 
 class BuildUp(FX):
     """Bullets build a % meter; at 100% the effect procs. Meter decays after BuildUpDuration without hits.
@@ -151,7 +164,7 @@ class BuildUp(FX):
 
     def per_hit(self, f):
         base = (f.st.weapon or {}).get("bullet_damage", 0.0) or 1.0
-        return self.item.p(self.per_prop) * self.scale * base * f.st.falloff(f.e.distance)
+        return self.item.p(self.per_prop) * self.scale * base * f.e.spread_mean(f.st.falloff)
 
     def __init__(self, item, f):
         super().__init__(item, f)
@@ -188,17 +201,21 @@ class OpeningRounds(FX):
 @handler("upgrade_close_range", "upgrade_close_quarter_combat")
 class CloseRange(FX):
     def stat(self, f):
-        if f.e.distance <= self.item.p("CloseRangeBonusDamageRange", 15):
-            return {"weapon_pct": self.item.p("CloseRangeBonusWeaponPower") / 100}
-        return {}
+        p = f.e.p_within(self.item.p("CloseRangeBonusDamageRange", 15))
+        return {"weapon_pct": p * self.item.p("CloseRangeBonusWeaponPower") / 100} if p > 0 else {}
+
+    def range_band(self):
+        return self.item.p("CloseRangeBonusDamageRange", 15), self.item.p("CloseRangeBonusWeaponPower") / 100, True
 
 
 @handler("upgrade_long_range", "upgrade_sharpshooter")
 class LongRange(FX):
     def stat(self, f):
-        if f.e.distance >= self.item.p("LongRangeBonusWeaponPowerMinRange", 15):
-            return {"weapon_pct": self.item.p("LongRangeBonusWeaponPower") / 100}
-        return {}
+        p = 1.0 - f.e.p_within(self.item.p("LongRangeBonusWeaponPowerMinRange", 15) - 1e-6)
+        return {"weapon_pct": p * self.item.p("LongRangeBonusWeaponPower") / 100} if p > 0 else {}
+
+    def range_band(self):
+        return self.item.p("LongRangeBonusWeaponPowerMinRange", 15), self.item.p("LongRangeBonusWeaponPower") / 100, False
 
 
 @handler("upgrade_regenerating_bullet_shield")
@@ -408,7 +425,8 @@ class RechargingRush(FX):
 @handler("upgrade_weapon_backstabber")
 class Stalker(FX):
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind == "bullet" and hit.hits and self.ready() and self.in_range(self.item.p("ProcRadius", 8)):
+        if hit.kind == "bullet" and hit.hits and self.ready() and \
+                f.acc("stalker_reach").take(self.reach_p(self.item.p("ProcRadius", 8)), 1):
             self.use()
             d = self.dur("DebuffDuration", 5)
             f.e.dot(f, t, self.v("DPS"), d, self.name, tick=self.item.p("TickRate", 0.5), is_item=True)
@@ -423,9 +441,10 @@ class HuntersAura(FX):
         radius = self.item.p("Radius", 15)
         shred = abs(self.item.p("BulletArmorReduction")) / 100 * mult
         slow = self.item.p("FireRateSlow") / 100 * mult
-        e.stat_hooks.append(lambda x: {"fire_rate_slow": slow} if x.e.distance <= radius else {})
-        if f.e.distance <= radius:
-            e.mods.add("bullet_shred", shred, 1e9, ("hunters", f.name))
+        p = f.e.p_within(radius)   # share of the fight the target stands in the aura
+        e.stat_hooks.append(lambda x: {"fire_rate_slow": slow * p} if p > 0 else {})
+        if p > 0:
+            e.mods.add("bullet_shred", shred * p, 1e9, ("hunters", f.name))
 
 
 @handler("upgrade_proc_silence")
@@ -558,7 +577,7 @@ class ShadowWeave(FX):
 class AlchemicalFire(FX):
     def try_active(self, f):
         r = self.item.p("Radius", 10)
-        if not self.ready() or not self.in_range(r + 5):
+        if not self.ready() or not self.ready_in(r + 5):
             return False
         self.use()
         d = self.dur("AbilityDuration", 5)
@@ -849,7 +868,7 @@ class RescueBeam(FX):
 @handler("upgrade_restorative_locket")
 class RestorativeLocket(FX):
     def on_enemy_cast(self, f, ab):
-        if f.e.distance <= self.item.p("Radius", 32):
+        if f.acc("locket_reach").take(self.reach_p(self.item.p("Radius", 32)), 1):
             f.counters["locket"] = min(self.item.p("MaxStacks", 25), f.counters.get("locket", 0) + 1)
 
     def try_active(self, f):
@@ -1146,8 +1165,9 @@ class TormentPulse(FX):
         f = self.f
         if not f.alive or f.e.over:
             return
-        if self.in_range(self.item.p("DamagePulseRadius", 9)):
-            self.spirit(f.enemy, self.v("DamagePulseAmount"))
+        p = self.reach_p(self.item.p("DamagePulseRadius", 9))
+        if p > 0:
+            self.spirit(f.enemy, self.v("DamagePulseAmount") * p)
         f.e.after(self.item.p("AbilityCooldown", 1.4), self.pulse)
 
 
@@ -1160,7 +1180,7 @@ class DamageActive(FX):
 
     def try_active(self, f):
         r = self.item.p(self.radius_prop) or self.item.p("AbilityCastRange") or 15
-        if not self.ready() or not self.in_range(r):
+        if not self.ready() or not self.ready_in(r):
             return False
         self.use()
         dmg = self.v(self.dmg_prop) if self.dmg_prop else 0
@@ -1298,8 +1318,9 @@ class Scourge(DamageActive):
         pct = self.v("MaxHealthPercentAsDPS") / 100
         tick = self.item.p("TickRate", 0.25)
         for i in range(int(d / tick)):
-            f.e.after(tick * (i + 1), lambda: self.spirit(t, t.max_hp * pct * tick, procs=False, is_dot=True)
-                      if self.in_range(self.item.p("AuraRadius", 10)) else None)
+            p = self.reach_p(self.item.p("AuraRadius", 10))
+            f.e.after(tick * (i + 1), lambda p=p: self.spirit(t, t.max_hp * pct * tick * p, procs=False, is_dot=True)
+                      if p > 0 else None)
 
 
 @handler("upgrade_ultimate_burst")
