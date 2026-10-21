@@ -379,7 +379,7 @@ class Engine:
         # taken as expectations over it (p_within, spread_mean, reach_ready), so results stay deterministic and an
         # item's value doesn't hinge on one random path.
         self.spread, self.spread_tau = 0.0, 2.0
-        self._fall = {}
+        self._fall, self._d0 = {}, distance
         if mech is not None and getattr(mech, "range_drift", False):
             from .mechanics import drift_params
             self.spread, self.spread_tau = drift_params()
@@ -397,9 +397,9 @@ class Engine:
             return 0.0
         return 0.5 * (1.0 + math.erf(math.log(r / d) / (self.spread * math.sqrt(2.0))))
 
-    def spread_mean(self, fn):
-        """fn(distance) averaged over the fight's distance spread."""
-        d = self.distance
+    def spread_mean(self, fn, d=None):
+        """fn(distance) averaged over the fight's distance spread (around d, default the current distance)."""
+        d = self.distance if d is None else d
         if self.spread <= 0:
             return fn(d)
         from .mechanics import DRIFT_MAX, DRIFT_MIN
@@ -602,22 +602,30 @@ class Engine:
         pct = f.weapon_pct() + extra_pct
         if self.spread <= 0:
             return st.bullet_damage * (1.0 + pct) * st.falloff(d), st.crit_mult(d)
+        d = self._dkey()
         key = (id(st), d)
         fc = self._fall.get(key)
         if fc is None:   # E[falloff] and E[falloff x crit] over the spread (headshots get the joint one)
-            fall = self.spread_mean(st.falloff)
-            fc = self._fall[key] = (fall, self.spread_mean(lambda x: st.falloff(x) * st.crit_mult(x)) / max(fall, 1e-9))
+            fall = self.spread_mean(st.falloff, d)
+            fc = self._fall[key] = (fall, self.spread_mean(lambda x: st.falloff(x) * st.crit_mult(x), d) / max(fall, 1e-9))
         for fx in f.items_fx:   # close/long range bonuses pay where falloff is high/low, not at its average
             g = getattr(fx, "range_band", None)
             if g:
                 r, bonus, close = g()
-                pct += bonus * self.band_corr(st, r, close)
+                pct += bonus * self.band_corr(st, r, close, d)
         return st.bullet_damage * (1.0 + pct) * fc[0], fc[1]
 
-    def band_corr(self, st, r, close):
+    def _dkey(self):
+        """Distance for the spread caches: exact at the fight's starting distance (the usual fight), else 0.25 m
+        buckets, so a chase that moves the distance every step keeps the caches small."""
+        d = self.distance
+        return d if d == self._d0 else round(d * 4) / 4
+
+    def band_corr(self, st, r, close, d=None):
         """E[falloff x in band] / E[falloff] - P(in band), band = within r (close) or beyond r: added to the p x bonus a
         close/long range item puts in weapon_pct, it turns E[falloff] x (1 + p x bonus) into the joint expectation."""
-        key = (id(st), self.distance, r, close)
+        d = self._dkey() if d is None else d
+        key = (id(st), d, r, close)
         c = self._fall.get(key)
         if c is None:
             from .mechanics import DRIFT_MAX, DRIFT_MIN
@@ -625,7 +633,7 @@ class Engine:
             for i in range(161):   # fine grid: the band edge is a step, too sharp for the 7 Gauss-Hermite nodes
                 z = -4.0 + i * 0.05
                 w = math.exp(-0.5 * z * z)
-                x = min(DRIFT_MAX, max(DRIFT_MIN, self.distance * math.exp(self.spread * z)))
+                x = min(DRIFT_MAX, max(DRIFT_MIN, d * math.exp(self.spread * z)))
                 inb = (x <= r) if close else (x >= r)
                 fl = st.falloff(x)
                 wsum += w

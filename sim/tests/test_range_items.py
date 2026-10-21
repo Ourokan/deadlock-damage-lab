@@ -123,6 +123,28 @@ class TestRangeSpread(unittest.TestCase):
         ab.cast()
         self.assertEqual(ab.scratch["_avail"], 1.0)
 
+    def test_moving_distance_cache_stays_small(self):
+        """A chase moves the distance every step: the spread caches bucket it instead of growing per step."""
+        e = Engine(distance=16.3, mech=SPREAD)
+        f = make_fighter(e, Loadout("Haze", ["Close Quarters", "Long Range"], souls=27000), "a")
+        g = make_fighter(e, Loadout("Abrams", [], souls=27000), "d")
+        f.enemy, g.enemy = g, f
+        still = e.bullet_damage(f)
+        for i in range(2000):
+            e.distance = 10.0 + i * 0.005
+            e.bullet_damage(f)
+        self.assertLess(len(e._fall), 200)
+        e.distance = 16.3
+        self.assertEqual(e.bullet_damage(f), still)   # the starting distance stays exact
+        for d in (8.0, 12.3, 21.7, 30.1):   # buckets: same value whatever came before, close to exact
+            e.distance = d
+            got = e.bullet_damage(f)[0]
+            exact = Engine(distance=d, mech=SPREAD)
+            h = make_fighter(exact, Loadout("Haze", ["Close Quarters", "Long Range"], souls=27000), "a")
+            k = make_fighter(exact, Loadout("Abrams", [], souls=27000), "d")
+            h.enemy, k.enemy = k, h
+            self.assertAlmostEqual(got, exact.bullet_damage(h)[0], delta=0.01 * got)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -307,7 +307,7 @@ mean +35, sd 200 over 12 paths). Melee keeps its fitted per-second rate; escapes
 
 - **Melee movement:** melee is now in fights (see "Melee" above), but distance stays fixed (even with movement on, unless someone runs), so gap-closing
   (Melee Charge's lunge, Lifestrike's slow) has no value.
-- **Distance:** the fight distance spreads around the hero's median (see "Range spread") as an average, not a path: there is no positioning AI (kiting to stay at range, diving with a gap closer), and ability effects inside a cast still check the median distance. Short-range ultimates use per-hero "approach" constants to be cast.
+- **Distance:** the fight distance spreads around the hero's median (see "Range spread") as an average, not a path: there is no positioning AI (kiting to stay at range, diving with a gap closer), and ability effects inside a cast still check the median distance. Abilities gated through `CastCtx.within` follow the spread; these still use a hard `c.dist` gate at the median (cast or in-effect radius): Astro, Atlas, Bookworm, Chessmaster, Chrono, Deadpack, Doorman, Drifter, Forge, Frank, Ghost, Gigawatt, Haze (Bullet Dance falloff), Hornet, Infernus, Kelvin, Mirage, Necro, Priest, Punkgoat, Rat King, Shiv, Synth, Tengu, Unicorn, Viper, Viscous, Warden, Werewolf, Wraith (internal hero file names). Moving them to the spread needs a landing refit. Short-range ultimates use per-hero "approach" constants to be cast.
 - **Summons can't be shot** (fixed for McGinnis turrets with `mechanics.summons`, see above): McGinnis turrets keep full uptime, so her gun share is 2% vs 26% real. Still the
   worst-matched hero.
 - **Paradox Kinetic Carbine** damage formula is a low-confidence reading of the data (landing 2.95).
