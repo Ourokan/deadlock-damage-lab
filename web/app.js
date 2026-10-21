@@ -192,8 +192,9 @@ function renderTarget() {
   renderShop("d", D.items);
 }
 
-// the standard dummy walks out of Alchemical Fire after this long (damage/scripts/dummy_search.py DUMMY_ZONE_EXIT)
-const ZONE_EXIT_S = 2.0;
+// the standard dummy walks out of Alchemical Fire after this long; boot() reads the published value
+// (damage/scripts/dummy_search.py DUMMY_ZONE_EXIT, in data/damage/index.json)
+let ZONE_EXIT_S = 2.0;
 
 function request() {
   const A = S.A, D = S.D, num = (s) => { const v = parseFloat($(s).value); return isFinite(v) ? v : null; };
@@ -675,6 +676,7 @@ function showTab() {
 
 // ---------- boot ----------
 async function boot() {
+  load("data/damage/index.json").then((d) => { if (d && d.dummy_zone_exit_s != null) ZONE_EXIT_S = d.dummy_zone_exit_s; });
   const [items, heroes] = await Promise.all([getJSON("data/items.json"), getJSON("data/heroes.json")]);
   S.items = items; S.heroes = heroes;
   for (const h of heroes) S.heroById[h.id] = h;
