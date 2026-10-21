@@ -157,8 +157,9 @@ class BulletDance(AbilityImpl):
         f = c.me
         if not f.alive or not c.foe.alive or c.now > c.state["end"] + 1e-9:
             return
-        if f.mods.active("stun"):
+        if f.mods.active("stun"):   # the stun ends the channel and its evasion
             f.gun_locked_until = c.now
+            f.mods.remove("evasion", (self.s.ab.class_name, "evasion"))
             return
         base, _ = c.engine.bullet_damage(f)
         per = base + c.raw("WeaponDamageBonus")    # flat bonus is post-scale; Fixation books its own bonus
