@@ -122,7 +122,7 @@ def main():
     with open(os.path.join(data, "heroes.json"), "w") as fh:
         json.dump(sorted(heroes, key=lambda h: h["name"]), fh)
     counts = {k: copy_out(os.path.join(ROOT, src), os.path.join(data, k))
-              for k, src in [("damage", "damage/out"), ("overall", "damage/out/overall"), ("duel", "search/out"), ("tank", "survival/out")]}
+              for k, src in [("damage", "damage/out"), ("overall", "damage/out/overall"), ("path", "damage/out/path"), ("duel", "search/out"), ("tank", "survival/out")]}
     for name, key in (("order", "buy_order"), ("skill", "ability_order")):
         files = glob.glob(os.path.join(ROOT, "damage/out", name, "*.json"))
         os.makedirs(os.path.join(data, "damage", name), exist_ok=True)

@@ -19,6 +19,7 @@
       <a href="#maker" data-tab="maker">Build maker</a>
       <a href="#match" data-tab="match">Real match</a>
       <a href="#overall" data-tab="overall">Best overall builds</a>
+      <a href="#path" data-tab="path">Full game builds</a>
       <a href="#damage" data-tab="damage">Raw damage builds</a>
       <a href="#duel" data-tab="duel">Duel builds</a>
       <a href="#tank" data-tab="tank">Tank builds</a>
@@ -230,6 +231,19 @@
       <label class="f"><span>Net worth</span><select id="o-budget"></select></label>
     </div>
     <div id="o-out"></div>
+  </section>
+
+  <!-- Full game build paths (damage/scripts/game_path.py) -->
+  <section id="tab-path" class="tab" hidden>
+    <div class="intro">
+      <h1>Full game builds</h1>
+      <p>One build that grows from 10k to 50k net worth. Every stage keeps what you already bought (upgrades credit their components, and an item is only sold when that clearly pays, at half its cost back), and every stage is scored with the overall test: damage dealt before dying against every hero's typical real build at that net worth. The path is chosen for its average stage score with the weakest stage counted twice, so no part of the game is left weak. The buy order shows when each slot crosses an investment threshold; the 4,800-soul spike is the big one.</p>
+    </div>
+    <div class="filters">
+      <label class="f"><span>Hero</span><select id="p-hero"></select></label>
+      <label class="f"><span>Rank</span><select id="p-rank"></select></label>
+    </div>
+    <div id="p-out"></div>
   </section>
 
   <!-- Precomputed damage search -->

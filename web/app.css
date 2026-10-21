@@ -224,6 +224,20 @@ body.sheet-open { overflow: hidden; }
 /* share links */
 .res-h #share { margin-left: auto; white-space: nowrap; }
 
+/* full game builds */
+.stages { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 12px; }
+.stage h3 { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.inv { display: grid; gap: 4px; font-size: .78rem; }
+.inv-row { display: grid; grid-template-columns: 4.6rem minmax(0, 1fr) auto; gap: 6px; align-items: center; }
+.inv-row[data-slot=weapon] { --slot: var(--weapon); } .inv-row[data-slot=vitality] { --slot: var(--vitality); } .inv-row[data-slot=spirit] { --slot: var(--spirit); }
+.inv-bar { position: relative; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+.inv-bar i { position: absolute; inset: 0 auto 0 0; background: var(--slot); border-radius: 4px; }
+.inv-bar b { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--fg); opacity: .45; }
+.inv-row span:last-child { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.spike { display: inline-block; font: 600 .7rem var(--head); letter-spacing: .04em; text-transform: uppercase; color: var(--slot); border: 1px solid currentColor; border-radius: 3px; padding: 0 4px; margin: 2px 4px 0 0; }
+.spike.big { background: var(--slot); color: var(--panel); }
+.spike[data-slot=weapon] { --slot: var(--weapon); } .spike[data-slot=vitality] { --slot: var(--vitality); } .spike[data-slot=spirit] { --slot: var(--spirit); }
+
 /* Build maker: build, suggestions and shop on the left, the enemy team on the right (below the suggestions on phones) */
 .mk-grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
   grid-template-areas: "build side" "sugg side" "shop side"; align-items: start; }

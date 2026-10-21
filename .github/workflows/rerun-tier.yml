@@ -52,6 +52,7 @@ jobs:
             damage/work/jobs_order
             damage/work/jobs_skill
             damage/work/jobs_overall_*
+            damage/work/jobs_path_*
             search/work/jobs*
             survival/work/jobs
             pipeline/work
@@ -101,6 +102,7 @@ jobs:
           fi
           python3 search/scripts/export.py
           python3 damage/scripts/export_overall.py
+          python3 damage/scripts/export_path.py
       - name: Commit to main
         run: |
           git config user.name "github-actions[bot]"
