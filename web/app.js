@@ -192,17 +192,21 @@ function renderTarget() {
   renderShop("d", D.items);
 }
 
+// the standard dummy walks out of Alchemical Fire after this long; boot() reads the published value
+// (damage/scripts/dummy_search.py DUMMY_ZONE_EXIT, in data/damage/index.json)
+let ZONE_EXIT_S = 2.0;
+
 function request() {
   const A = S.A, D = S.D, num = (s) => { const v = parseFloat($(s).value); return isFinite(v) ? v : null; };
   const req = { hero: A.hero, items: A.items, souls: A.souls, aim: A.aim === "custom" ? "p50" : A.aim };
   if (A.order) req.ability_order = A.order;
   if (A.aim === "custom") { const pc = (sel) => { const v = num(sel); return v == null ? null : v / 100; }; req.accuracy = pc("#a-acc"); req.headshot = pc("#a-hs"); req.distance = num("#a-dist"); }
-  const immortal = $("#d-immortal").checked;
+  const immortal = $("#d-immortal").checked, zone_exit_s = $("#d-walk").checked ? ZONE_EXIT_S : null;
   if (D.mode === "plain") {
-    req.dummy = { hero: "Haze", items: [], hp: num("#d-hp"), immortal,
+    req.dummy = { hero: "Haze", items: [], hp: num("#d-hp"), immortal, zone_exit_s,
       bullet_resist: (num("#d-br") || 0) / 100, spirit_resist: (num("#d-sr") || 0) / 100, melee_resist: (num("#d-mr") || 0) / 100 };
   } else {
-    req.dummy = { hero: D.hero, items: D.items, souls: num("#d-souls"), immortal };
+    req.dummy = { hero: D.hero, items: D.items, souls: num("#d-souls"), immortal, zone_exit_s };
   }
   return req;
 }
@@ -280,6 +284,7 @@ function shareURL(hash = location.hash) {
     if (val("es")) p.set("es", val("es"));
   }
   if (!$("#d-immortal").checked) p.set("die", "1");
+  if (!$("#d-walk").checked) p.set("stay", "1");
   if (A.label) p.set("n", A.label);
   const u = new URL(location.href);
   u.search = p.toString(); u.hash = hash;
@@ -311,6 +316,7 @@ function readShare() {
     Object.assign(S.D, { mode: "hero", hero: S.heroById[eh] ? eh : S.D.hero, items: items("ei") });
   }
   $("#d-immortal").checked = p.get("die") !== "1";
+  $("#d-walk").checked = p.get("stay") !== "1";
   if (dropped) S.A.label = null; // "Popular" etc. no longer describes a build missing items
   if (dropped) $("#share-note").textContent += ` ${dropped} item${dropped > 1 ? "s" : ""} from this link no longer exist${dropped > 1 ? "" : "s"} in the current patch, so ${dropped > 1 ? "they were" : "it was"} left out.`;
   return true;
@@ -574,7 +580,7 @@ async function bdRequest(ctx) {
     const d = await damageHero(ctx.hero);
     if (d) hp = d.budgets[nearestBudget(Object.keys(d.budgets), ctx.souls)].dummy_hp;
   }
-  return { hero: ctx.hero, items: ctx.items, souls: ctx.souls, aim: "p75", dummy: { hero: "Haze", items: [], hp, immortal: true } };
+  return { hero: ctx.hero, items: ctx.items, souls: ctx.souls, aim: "p75", dummy: { hero: "Haze", items: [], hp, immortal: true, zone_exit_s: ZONE_EXIT_S } };
 }
 
 async function bdPopular(ctx) {
@@ -670,6 +676,7 @@ function showTab() {
 
 // ---------- boot ----------
 async function boot() {
+  load("data/damage/index.json").then((d) => { if (d && d.dummy_zone_exit_s != null) ZONE_EXIT_S = d.dummy_zone_exit_s; });
   const [items, heroes] = await Promise.all([getJSON("data/items.json"), getJSON("data/heroes.json")]);
   S.items = items; S.heroes = heroes;
   for (const h of heroes) S.heroById[h.id] = h;

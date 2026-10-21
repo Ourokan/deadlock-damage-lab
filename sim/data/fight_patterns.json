@@ -4280,6 +4280,28 @@
     "slot_order": 0.84,
     "replay_order": 0.828
    }
+  },
+  "87": {
+   "name": "Nurse Harrow",
+   "order": [
+    "ability_nurse_leech_therapy",
+    "ability_nurse_adrenaline_rush",
+    "ability_nurse_healing_needles"
+   ],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [],
+   "guide_ult_after": [],
+   "engage": null,
+   "engage_share": 0.0,
+   "start_distance_m": null,
+   "ult": "opener",
+   "holds": [],
+   "range": "mid",
+   "confidence": "none",
+   "notes": "New hero from the October hotfix: no replays or guides yet, so slot order is a placeholder until the patterns are refit.",
+   "sources": [],
+   "imbue": null
   }
  }
 }

@@ -182,8 +182,8 @@ def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_ove
     landing=True also applies each ability's real-data landing factor (clipped to 0.05-1.5); melee=True sets the
     hero's real melee rate. melee_rate_override (landed melees per second) and heavy_share (0-1) replace the
     data defaults with the user's own numbers. badge (match rank, e.g. 111 = Eternus 1) sets rank-dependent
-    habits: how fast Dispel Magic is used on a DoT (dot_cleanse_delay). counterplay=True turns on realistic
-    target behaviour: walking out of ground zones (zone_exit_s) and real-data item damage factors (item_landing)."""
+    habits: how fast Dispel Magic is used on a DoT (dot_cleanse_delay). Targets always walk out of ground
+    zones (zone_exit_s). counterplay=True also applies real-data item damage factors (item_landing)."""
     d = json.load(open(DEFAULTS))
     h = game().hero(hero)
     row = d["heroes"].get(str(h.id)) or d["all"]
@@ -198,8 +198,10 @@ def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_ove
     if heavy_share is not None:
         sk.heavy_share = min(1.0, max(0.0, float(heavy_share)))
     sk.dot_cleanse_delay = dot_cleanse_delay(badge)
-    if counterplay:   # realistic mode: targets walk out of zones, item damage calibrated to real matches
-        sk.zone_exit_s = zone_exit_time(badge)
+    # players walk out of ground zones (Alchemical Fire) unless stunned, rooted or slowed (items_fx.held_share);
+    # on in every mode since 2026-10-21 (Tyler: no Alchemical Fire for heroes that can't hold a target in it)
+    sk.zone_exit_s = zone_exit_time(badge)
+    if counterplay:   # realistic mode: item damage calibrated to real matches
         sk.item_landing = item_landing()
     return sk
 

@@ -58,8 +58,10 @@ def main():
         json.dump({
             "generated": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "patch": patch_state.load()["patch"],
             "objectives": {k: f"damage dealt to the dummy in the first {v:g} s" for k, v in D.WINDOWS.items()},
-            "dummy": "never acts, no resists, refills instead of dying, HP = weighted median of real builds at the budget",
+            "dummy": "never acts, no resists, refills instead of dying, HP = weighted median of real builds at the budget, "
+                     f"walks out of Alchemical Fire after {D.DUMMY_ZONE_EXIT:g} s unless stunned, rooted or slowed",
             "aim": f"Phantom and up ({D.AIM}) hero accuracy and headshot rate, real ability landing and melee rates",
+            "dummy_zone_exit_s": D.DUMMY_ZONE_EXIT,
             "heroes": index,
         }, open(os.path.join(OUT, "index.json"), "w"), indent=1)
     copied = {}

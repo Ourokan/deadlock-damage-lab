@@ -42,6 +42,18 @@ DURATION_SCALED = _duration_scaled()
 CC_KEYS = ("stun", "silence", "disarm", "immobilize")
 
 
+def held_share(t):
+    """How much of a ground zone's tick a target that wants to walk out still takes: all of it while stunned or
+    immobilized, the slowed share while slowed (a 40% slow keeps it in 40% as long), none otherwise. So a hero with
+    no hold (Haze) only gets the first zone_exit_s of Alchemical Fire, and one with stuns or slows gets more."""
+    if t.mods.active("stun") or t.mods.active("immobilize"):
+        return 1.0
+    slow = 1.0
+    for v in t.mods.values("move_slow"):
+        slow *= 1.0 - v
+    return min(0.9, 1.0 - slow)
+
+
 def handler(*class_names):
     def deco(cls):
         for n in class_names:
@@ -552,13 +564,19 @@ class AlchemicalFire(FX):
         d = self.dur("AbilityDuration", 5)
         dps, inc, mx = self.v("DPS"), self.v("DPSIncrease"), self.v("DPSMax")
         t = f.enemy
-        if t.skill.zone_exit_s is not None:   # counterplay: the target walks out of the fire
-            d = min(d, t.skill.zone_exit_s)
+        exit_s = t.skill.zone_exit_s   # counterplay: the target walks out of the fire unless something holds it
         for i in range(int(d / 0.5 + 1e-9)):
             cur = min(mx, dps + inc * (i * 0.5))
-            f.e.after(0.5 * (i + 1), lambda c=cur: self.spirit(t, c * 0.5 * f.skill.spirit_accuracy, is_dot=True))
-        self.debuff(t, "bullet_shred", abs(self.v("BulletArmorReduction")) / 100, d)
+            f.e.after(0.5 * (i + 1), lambda c=cur, k=i: self._tick(f, t, c, exit_s is None or 0.5 * (k + 1) <= exit_s + 1e-9))
+        self.debuff(t, "bullet_shred", abs(self.v("BulletArmorReduction")) / 100, d if exit_s is None else min(d, exit_s))
         return True
+
+    def _tick(self, f, t, cur, inside):
+        share = 1.0 if inside else held_share(t)
+        if share > 0:
+            self.spirit(t, cur * 0.5 * share * f.skill.spirit_accuracy, is_dot=True)
+            if not inside:   # still held in the fire: its bullet shred stays on until the next tick
+                self.debuff(t, "bullet_shred", abs(self.v("BulletArmorReduction")) / 100, 0.5 * share + 0.01)
 
 
 @handler("upgrade_blood_tribute")
