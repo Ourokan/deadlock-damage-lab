@@ -138,7 +138,7 @@ PINNED = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift, all
     ("Mo & Krill", "Haze", None, 30.0, 1551.1, 1478.3),
     ("Paradox", "Abrams", None, 30.0, 2356.7, 1470.8),
     ("Venator", "Lash", "Venator (A)", 18.3, 2109.0, 877.0),
-    ("Warden", "Seven", None, 16.6, 728.0, 2436.5),
+    ("Warden", "Seven", None, 16.6, 728.0, 2437.2),
 ]
 
 

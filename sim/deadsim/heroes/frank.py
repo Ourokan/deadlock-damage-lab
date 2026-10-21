@@ -150,8 +150,7 @@ class _Revive:
             p = c.p_in(c.rng("Radius"))   # share of the time the target is in the blast
             if p > 0:
                 c.spirit_hit(c.val("Damage") * p)
-            if p >= 0.5:
-                c.debuff("stun", 1, c.dur("StunDuration"))
+                c.debuff("stun", 1, c.dur("StunDuration") * p)
         f.e.after(wait, revive)
         return True
 

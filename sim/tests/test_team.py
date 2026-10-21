@@ -24,7 +24,7 @@ def lo(hero, items=(), **kw):
 DUELS = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift, all hero range checks)
     ("Haze", ["Rapid Rounds", "Toxic Bullets", "Restorative Locket"], "Infernus",
      ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Infernus (B)", 26.59, 2378.6, 2233.2),
-    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 25.3, 1709.3, 3221.8),
+    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 25.0, 1709.3, 3194.0),
     ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1689.4, 1347.1),
 ]
 

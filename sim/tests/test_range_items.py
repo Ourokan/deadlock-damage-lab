@@ -148,8 +148,8 @@ class TestRangeSpread(unittest.TestCase):
     def test_hard_reach_gate_smooth(self):
         """CastCtx.reach (heroes without walk-in, here Vindicta's 25 m stake) follows the spread: Stake damage fades
         as the fight distance grows past the reach (30 m with the engage margin) instead of dropping to nothing."""
-        def dmg(distance):
-            e = Engine(distance=distance, max_time=30, mech=SPREAD)
+        def dmg(distance, mech=SPREAD):
+            e = Engine(distance=distance, max_time=30, mech=mech)
             a = make_fighter(e, Loadout("Vindicta", [], souls=27000, skill=Skill(use_actives=False)), "a")
             d = make_fighter(e, Loadout("Abrams", [], souls=27000, skill=Skill(accuracy=0, use_abilities=False)), "d")
             d.abilities = []
@@ -157,10 +157,10 @@ class TestRangeSpread(unittest.TestCase):
             e.run(a, d, one_way=True)
             return a.dmg_out.get("Stake", 0.0)
         near, edge, far = dmg(20.0), dmg(32.0), dmg(36.0)
+        self.assertEqual(dmg(32.0, FIXED), 0.0)   # at a fixed distance past 30 m the gate never opens
         self.assertGreater(edge, 0.0)
         self.assertGreater(far, 0.0)
         self.assertLess(far, near)
-
 
 
 def ability_damage(hero, mech, distance=12.0, p=None):
@@ -198,9 +198,9 @@ class TestHeroRangeChecks(unittest.TestCase):
             self.assertNotIn("_reach_delay", c.state)
             self.assertEqual(c.p_in(20.0), 1.0 if d <= 20.0 else 0.0)
 
-    def test_stun_and_silence_flip_at_median(self):
-        """Victor's revive blast stuns and Celeste's barrier pop silences only while p_in >= 0.5 (the target inside
-        the radius at the median distance)."""
+    def test_stun_and_silence_scale_with_p(self):
+        """Victor's revive blast stun and Celeste's barrier pop silence land whenever the target is ever inside the
+        radius (for p x their duration), and not at p = 0: no cliff at the median."""
         from unittest import mock
         import deadsim.abilities as AB
         from deadsim.fight import duel
@@ -220,8 +220,8 @@ class TestHeroRangeChecks(unittest.TestCase):
             return set(seen)
         for a, b, src, kind in (("Victor", "Haze", "Shocking Reanimation", "stun"),
                                 ("Celeste", "Haze", "Dazzling Trick", "silence")):
-            self.assertIn((src, kind), effects(a, b, 0.6))
-            self.assertNotIn((src, kind), effects(a, b, 0.4))
+            self.assertIn((src, kind), effects(a, b, 0.4))
+            self.assertNotIn((src, kind), effects(a, b, 0.0))
 
     def test_p_in_scales_radius_damage(self):
         """Seven's Storm Cloud deals about p x its damage when the target is inside the storm a share p of the time."""
@@ -230,11 +230,42 @@ class TestHeroRangeChecks(unittest.TestCase):
         self.assertGreater(part, 0.35 * full)
         self.assertLess(part, 0.45 * full)
 
-    def test_tether_scales_then_breaks_at_median(self):
-        """Lady Geist's Life Drain drains p x per tick while p >= 0.5 and breaks below (the median-distance check)."""
+    def test_tether_scales_with_p(self):
+        """Lady Geist's Life Drain drains p x per tick, with no break at the median (that would be a cliff); it only
+        breaks when the target is never in range."""
         full = ability_damage("Lady Geist", FIXED, p=1.0)["Life Drain"]
-        self.assertAlmostEqual(ability_damage("Lady Geist", FIXED, p=0.6)["Life Drain"], 0.6 * full, delta=0.01 * full)
-        self.assertNotIn("Life Drain", ability_damage("Lady Geist", FIXED, p=0.4))
+        for p in (0.6, 0.4):
+            self.assertAlmostEqual(ability_damage("Lady Geist", FIXED, p=p)["Life Drain"], p * full, delta=0.01 * full)
+        self.assertNotIn("Life Drain", ability_damage("Lady Geist", FIXED, p=0.0))
+
+    def test_kelvin_heal_scales_with_p(self):
+        """Kelvin's Frost Grenade heals him p x when he is inside its radius a share p of the time."""
+        def healed(p):
+            e = Engine(distance=12.0, max_time=30, mech=FIXED)
+            e.p_within = lambda r: p
+            a = make_fighter(e, Loadout("Kelvin", [], souls=27000, skill=Skill(use_actives=False)), "a")
+            d = make_fighter(e, Loadout("Abrams", [], souls=27000, skill=Skill(accuracy=0, use_abilities=False)), "d")
+            d.abilities = []
+            d.max_hp_base = d.hp = 1e7
+            a.hp = 0.5 * a.max_hp   # room to heal
+            e.run(a, d, one_way=True)
+            return a.healed
+        base, full = healed(0.0), healed(1.0)   # base: regen only
+        self.assertAlmostEqual(healed(0.4) - base, 0.4 * (full - base), delta=0.02 * (full - base))
+
+    def test_self_buff_keeps_median_gate(self):
+        """Self buffs (Wraith's Full Auto, 30 m) keep the median check under the spread: the expected wait only
+        scales damage, so it can't price a fire-rate buff."""
+        def casts(distance):
+            e = Engine(distance=distance, max_time=30, mech=SPREAD)
+            a = make_fighter(e, Loadout("Wraith", [], souls=27000, skill=Skill(use_actives=False)), "a")
+            d = make_fighter(e, Loadout("Abrams", [], souls=27000, skill=Skill(accuracy=0, use_abilities=False)), "d")
+            d.abilities = []
+            d.max_hp_base = d.hp = 1e7
+            e.run(a, d, one_way=True)
+            return next(s.casts for s in a.abilities if s.ab.name == "Full Auto")
+        self.assertGreater(casts(25.0), 0)
+        self.assertEqual(casts(40.0), 0)
 
     def test_haze_fixation_falloff_matches_gun(self):
         """Haze's Fixation bonus uses the same spread-averaged falloff as her bullets, so its share of gun damage

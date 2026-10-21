@@ -187,7 +187,10 @@ class CastCtx:
 
     def reach(self, r):
         """Cast gate at a hard reach of r m (no engage margin or walk-in added): the target within r now. With range
-        spread the same as within(): cast now, damage scaled by the expected wait for the target to come within r."""
+        spread the same as within(): cast now, damage scaled by the expected wait for the target to come within r.
+        Self buffs keep the median check: the expected wait only scales damage, so it can't price a buff."""
+        if self.s.impl.kind == "self":
+            return self.p_in(r) >= 0.5
         return self.engine.reach_ready(self.state, r, self.me, mean_field=True)
 
     def p_in(self, r):

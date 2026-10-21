@@ -66,8 +66,8 @@ class LifeDrain(AbilityImpl):
         me, foe = c.me, c.foe
         if c.state.get("tether") is not token:
             return
-        p = c.p_in(c.rng("MaxRange"))   # the tether drains while the target is in range, breaks past the median
-        if n <= 0 or not me.alive or not foe.alive or me.mods.active("stun") or p < 0.5:
+        p = c.p_in(c.rng("MaxRange"))   # drains the share of the time the target is in range (breaks only at p = 0)
+        if n <= 0 or not me.alive or not foe.alive or me.mods.active("stun") or p <= 0:
             return
         tick = c.raw("TickRate", 0.1)
         dealt = c.engine.damage(me, foe, c.val("LifeDrainPerSecond") * tick * p, "spirit", self.s.ab.name,
