@@ -91,12 +91,13 @@ function mkReq(variants, enemies) {
   return { hero: MK.hero, aim: MK.aim, souls: Math.max(1, mkMyNW()), T: MK_T, enemies, variants };
 }
 
-// main worker (app.js S.engine): the current build and hover previews, newest request wins
-const MKL = { busy: false, next: null };
+// main worker (app.js S.engine): the current build and hover previews, newest request wins (seq: a result for an
+// older request, even one answered from the cache since, never calls back)
+const MKL = { busy: false, next: null, seq: 0 };
 function mkLive(items, cb) {
-  const enemies = mkEnemyLoadouts(), key = mkKey(items, enemies);
-  if (MK.cache.has(key)) { cb(MK.cache.get(key)); return; }
-  MKL.next = { items, enemies, key, cb };
+  const enemies = mkEnemyLoadouts(), key = mkKey(items, enemies), seq = ++MKL.seq;
+  if (MK.cache.has(key)) { MKL.next = null; cb(MK.cache.get(key)); return; }
+  MKL.next = { items, enemies, key, cb, seq };
   if (!MKL.busy) mkPump();
 }
 async function mkPump() {
@@ -106,7 +107,8 @@ async function mkPump() {
   try {
     const r = await simCall("maker", mkReq([job.items], job.enemies));
     MK.cache.set(job.key, r.variants[0]);
-    if (!MKL.next || MKL.next.key === job.key) job.cb(r.variants[0]);
+    if (job.seq === MKL.seq) job.cb(r.variants[0]);
+    else if (MKL.next?.key === job.key) { MKL.next.cb(r.variants[0]); MKL.next = null; }
   } catch (e) {
     mkMsg("The sim failed on this build: " + e.message);
   } finally { mkPump(); }
