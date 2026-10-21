@@ -82,7 +82,11 @@ def export_usage(G):
         fn = os.path.join(ROOT, "work", f"item_usage{suffix(br)}.json")
         if not os.path.exists(fn):
             continue
-        usage, caps = json.load(open(fn)), tier_caps(br)
+        usage, prev = json.load(open(fn)), out.get(br, {})
+        # without the bracket's own work/tier_caps file, keep the caps it last published (tier_caps() would fall
+        # back to another bracket's or the hard-coded caps)
+        own = os.path.exists(os.path.join(ROOT, "work", f"tier_caps{suffix(br)}.json"))
+        caps = tier_caps(br) if own else {}
         cell = {}
         for b in BUDGETS:
             u = usage.get(str(b))
@@ -95,8 +99,10 @@ def export_usage(G):
                     continue
                 heroes[h] = {"n": n, "items": {i: round(c / n, 3) for i, c in sorted(row.items(), key=lambda x: -x[1] if x[0] != "_n" else 0)
                                                if i != "_n" and int(i) in G.items and c / n >= USAGE_MIN}}
-            cell[str(b)] = {"item_budget": item_budget(b), "caps": {str(t): c for t, c in caps.get(b, {}).items()},
-                            "heroes": heroes}
+            c = {str(t): n for t, n in caps.get(b, {}).items()} if own else prev.get(str(b), {}).get("caps")
+            if c is None:
+                c = {str(t): n for t, n in tier_caps(br).get(b, {}).items()}
+            cell[str(b)] = {"item_budget": item_budget(b), "caps": c, "heroes": heroes}
         out[br] = cell
     if out:
         json.dump(out, open(path, "w"), separators=(",", ":"))

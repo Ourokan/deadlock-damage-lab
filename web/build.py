@@ -10,6 +10,7 @@ import glob
 import json
 import os
 import shutil
+import sys
 import zipfile
 
 ROOT = os.environ.get("DEADSIM_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # project root (the folder holding sim/, data/, damage/ ...)
@@ -83,7 +84,14 @@ def maker_data():
         if out:
             comps[str(x["id"])] = sorted(out)
     with open(os.path.join(WEB, "maker_utility.json")) as fh:
-        util = {str(by_name[k]): v for k, v in json.load(fh).items() if not k.startswith("_")}
+        util = {}
+        for k, v in json.load(fh).items():
+            if k.startswith("_"):
+                continue
+            if k not in by_name:   # a patch renamed or removed it: drop its tags rather than fail the deploy
+                print(f"warning: maker_utility.json lists {k!r}, which is not in the shop", file=sys.stderr)
+                continue
+            util[str(by_name[k])] = v
     with open(os.path.join(ROOT, "data/game/abilities.json")) as fh:
         cc = {}
         for a in json.load(fh):
