@@ -503,7 +503,8 @@ class AbilityState:
             self.next_charge = self.ready_at
         f.e.note(f"{f.name} casts {self.ab.name}")
         wait = self.scratch.pop("_reach_delay", 0.0)   # range spread: damage x cooldown / (cooldown + expected wait)
-        cd = self.charge_delay() if self.max_charges() > 1 else self.cooldown()
+        n = self.max_charges()   # time per cast: a charge ability averages cooldown / charges, not the gap between charges
+        cd = max(self.charge_delay(), self.cooldown() / n) if n > 1 else self.cooldown()
         self.scratch["_avail"] = cd / (cd + wait) if wait > 0 and cd > 0 else 1.0
         for fx in f.items_fx:
             g = getattr(fx, "on_cast", None)

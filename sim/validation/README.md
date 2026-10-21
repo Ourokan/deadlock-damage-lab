@@ -290,7 +290,7 @@ mean +35, sd 200 over 12 paths). Melee keeps its fitted per-second rate; escapes
   share of hits at 0-10 / 10-20 / 20-30 / 30-40 m is real 0.35 / 0.35 / 0.19 / 0.07, fixed distance 0.17 / 0.79 /
   0.04 / 0, spread 0.34 / 0.33 / 0.16 / 0.17 (the 40 m cap piles the far tail into the last bucket).
 - Damage mix (`range/drift_check.py`, each model with its own refit landing factors, `range/refit_landing_drift.py`):
-  mean |ln(real/sim)| of ability and melee vs gun ratios 0.073 fixed, 0.078 spread: the same, landing factors absorb
+  mean |ln(real/sim)| of ability and melee vs gun ratios 0.073 fixed, 0.076 spread: the same, landing factors absorb
   the average.
 - Tradeoff: the spread is not better calibrated than the fixed distance on damage mix (landing factors absorb the
   average either way); what it buys is smooth item values and radius/range items that pay part of the time (item share

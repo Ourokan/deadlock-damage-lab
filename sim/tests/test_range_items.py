@@ -123,6 +123,20 @@ class TestRangeSpread(unittest.TestCase):
         ab.cast()
         self.assertEqual(ab.scratch["_avail"], 1.0)
 
+    def test_avail_uses_time_per_charge(self):
+        """A charge ability's wait factor uses cooldown / charges as its time per cast (Mirage's Fire Scarabs: 3
+        charges, 35 s, 1 s between charges), not the 1 s gap between charges."""
+        e = Engine(distance=16.3, mech=SPREAD)
+        f = make_fighter(e, Loadout("Mirage", [], souls=27000), "a")
+        g = make_fighter(e, Loadout("Abrams", [], souls=27000), "d")
+        f.enemy, g.enemy = g, f
+        ab = next(s for s in f.abilities if s.ab.name == "Fire Scarabs")
+        per_cast = max(ab.charge_delay(), ab.cooldown() / ab.max_charges())
+        self.assertGreater(per_cast, 5.0)
+        ab.scratch["_reach_delay"] = per_cast
+        ab.cast()
+        self.assertAlmostEqual(ab.scratch["_avail"], 0.5)
+
     def test_moving_distance_cache_stays_small(self):
         """A chase moves the distance every step: the spread caches bucket it instead of growing per step."""
         e = Engine(distance=16.3, mech=SPREAD)
