@@ -1,6 +1,6 @@
 """Real-build snapshots at each souls budget, for opponents and for seeding the search.
 
-For every ranked current-patch player row (data/builds/player_builds/*.jsonl.gz) and every budget B, take the
+For every ranked current-patch player row (data/builds/player_builds/*.jsonl.gz) and every budget B (POOL_BUDGETS), take the
 items the player held at the last purchase moment where the held item cost was still <= ITEM_SHARE(B) * B
 (players hold ~80-89% of net worth in items; calibrated on validation/matches_sample.jsonl.gz, which has real
 net worth over time). Rows whose final net worth never reached B are skipped for that budget.
@@ -27,6 +27,10 @@ from deadsim import game  # noqa: E402
 import patch_state  # noqa: E402
 
 BUDGETS = [10000, 18000, 27000, 37000, 50000]
+# early game net worths only the full game build path scores (damage/scripts/game_path.py, Tyler 2026-10-21: the
+# path starts from 0 souls); every other search keeps BUDGETS
+EARLY_BUDGETS = [3000, 6000]
+POOL_BUDGETS = EARLY_BUDGETS + BUDGETS
 CAP = 600
 # rank brackets: name -> (min badge, max badge, aim percentile used in fights, days of games). badge = match
 # average rank, tier*10 + subrank (5 Ritualist, 9 Phantom, 10 Ascendant, 11 Eternus). "all" writes the unsuffixed
@@ -54,7 +58,7 @@ PRIMARY = "phantom"
 TIER_STEPS = (6400, 3200)
 TIER_CAP_Q = 0.9
 # Phantom+ caps (patch 09-29-2026), used when work/tier_caps*.json hasn't been built
-DEFAULT_TIER_CAPS = {10000: {6400: 0, 3200: 1}, 18000: {6400: 0, 3200: 3}, 27000: {6400: 1, 3200: 5},
+DEFAULT_TIER_CAPS = {3000: {6400: 0, 3200: 0}, 6000: {6400: 0, 3200: 1}, 10000: {6400: 0, 3200: 1}, 18000: {6400: 0, 3200: 3}, 27000: {6400: 1, 3200: 5},
                      37000: {6400: 3, 3200: 7}, 50000: {6400: 4, 3200: 9}}
 
 
@@ -163,10 +167,10 @@ def main():
     files = sorted(glob.glob(os.path.join(ROOT, "..", "data", "builds", "player_builds", "*.jsonl.gz")))
     files = [f for f in files if os.path.basename(f) in patch_days][-days:]
     rnd = random.Random(7)
-    res = {b: defaultdict(list) for b in BUDGETS}
-    seen = {b: Counter() for b in BUDGETS}
-    usage = {b: defaultdict(Counter) for b in BUDGETS}
-    held = {b: {t: Counter() for t in TIER_STEPS} for b in BUDGETS}
+    res = {b: defaultdict(list) for b in POOL_BUDGETS}
+    seen = {b: Counter() for b in POOL_BUDGETS}
+    usage = {b: defaultdict(Counter) for b in POOL_BUDGETS}
+    held = {b: {t: Counter() for t in TIER_STEPS} for b in POOL_BUDGETS}
     for fn in files:
         print("reading", os.path.basename(fn), flush=True)
         for line in gzip.open(fn, "rt"):
@@ -175,7 +179,7 @@ def main():
                 continue
             h = r["hero_id"]
             tl = timeline(r["purchases"], cost)
-            for b in BUDGETS:
+            for b in POOL_BUDGETS:
                 if r["net_worth"] < b:
                     break
                 lim = item_budget(b)
@@ -197,14 +201,14 @@ def main():
                     if j < CAP:
                         lst[j] = row
     os.makedirs(os.path.join(ROOT, "work"), exist_ok=True)
-    for b in BUDGETS:
+    for b in POOL_BUDGETS:
         json.dump({str(h): v for h, v in res[b].items()}, open(os.path.join(ROOT, "work", f"snapshots_{b}{sfx}.json"), "w"))
         print(b, "item budget", item_budget(b), "rows", sum(seen[b].values()))
-    json.dump({str(b): {str(h): dict(c) for h, c in usage[b].items()} for b in BUDGETS},
+    json.dump({str(b): {str(h): dict(c) for h, c in usage[b].items()} for b in POOL_BUDGETS},
               open(os.path.join(ROOT, "work", f"item_usage{sfx}.json"), "w"))
-    caps = {str(b): {str(t): quantile_cap(held[b][t]) for t in TIER_STEPS} for b in BUDGETS}
+    caps = {str(b): {str(t): quantile_cap(held[b][t]) for t in TIER_STEPS} for b in POOL_BUDGETS}
     json.dump({"bracket": bracket, "quantile": TIER_CAP_Q, "caps": caps,
-               "held": {str(b): {str(t): dict(sorted(held[b][t].items())) for t in TIER_STEPS} for b in BUDGETS}},
+               "held": {str(b): {str(t): dict(sorted(held[b][t].items())) for t in TIER_STEPS} for b in POOL_BUDGETS}},
               open(os.path.join(ROOT, "work", f"tier_caps{sfx}.json"), "w"), indent=1)
     print("tier caps (items costing >= step a build may hold):", caps)
 

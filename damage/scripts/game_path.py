@@ -1,10 +1,11 @@
-"""Full game build paths: one build that grows from 10k to 50k net worth and stays strong at every stage.
+"""Full game build paths: one build that grows from 0 souls to 50k net worth and stays strong at every stage.
 
-Tyler asked (2026-10-21) for optimal full game builds that flow from low to high souls, get value at every stage,
+Tyler asked (2026-10-21) for optimal full game builds that flow from low (0 souls) to high souls, get value at every stage,
 hit the investment spikes and keep agency through the whole game. The best overall build at each net worth
 (overall_search.py) doesn't line up from one net worth to the next, so this search builds a path instead:
 
-- Stages: the five search budgets (10k/18k/27k/37k/50k net worth). Each stage is scored with the overall test
+- Stages: 3k and 6k net worth (the early game, build_pool.EARLY_BUDGETS) and the five search budgets
+  (10k/18k/27k/37k/50k). Each stage is scored with the overall test
   (overall_search.Evaluator: damage dealt before dying vs the 41 typical real builds of the rank bracket, enemy fights
   back, counterplay on), relative to that net worth's most popular real build (1.0 = popular).
 - Each stage keeps the previous stage's items. Upgrading a held component is free (the game credits it). Selling
@@ -12,7 +13,7 @@ hit the investment spikes and keep agency through the whole game. The best overa
   keep-everything build at that stage by SELL_MARGIN per item sold ("sell only when it clearly pays").
 - Path score = mean of the stage scores with the weakest stage counted twice, so a path can't buy a strong late game
   with a weak stage (agency at every point of the game).
-- Search: two starts at 10k (the best 10k build, and one built from the late game target's items and components),
+- Search: two starts at 3k (the best 3k build, and one built from the late game target's items and components),
   each grown stage by stage with a constrained local search (fill the new souls, then swaps on the
   16-enemy screening pool, best few confirmed on all 41). The best complete path wins.
 - Buy order inside each stage, starting from nothing: the piece (item or component) with the most fight value per
@@ -41,7 +42,7 @@ ROOT = os.path.abspath(os.path.join(HERE, ".."))
 sys.path.insert(0, HERE)
 
 import overall_search as O  # noqa: E402
-from build_pool import BRACKETS, BUDGETS, PRIMARY, item_budget  # noqa: E402
+from build_pool import BRACKETS, BUDGETS, EARLY_BUDGETS, PRIMARY, item_budget  # noqa: E402
 from buy_order import cap_net_worth, net_worth_for  # noqa: E402
 
 S = O.S
@@ -52,6 +53,7 @@ PROPOSALS_S = 12
 PROPOSALS_F = 3
 TOP_SCAN = 30           # candidates rescanned while filling, after one full scan
 SLOTS = ("weapon", "vitality", "spirit")
+STAGES = EARLY_BUDGETS + BUDGETS   # 3k and 6k: the early game, pools from build_pool.EARLY_BUDGETS
 
 
 def jobs_dir(bracket):
@@ -237,9 +239,9 @@ def overall_job(bracket, hero, b):
 
 
 def grow(ctx, start):
-    """Grow a 10k build through the later stages. Returns the stage list."""
+    """Grow a first-stage build through the later stages. Returns the stage list."""
     stages = [start]
-    for b in BUDGETS[1:]:
+    for b in STAGES[1:]:
         prev = stages[-1]
         best = stage_search(ctx, b, prev["items"], prev["waste"], prev["items"])[0]
         stages.append({"budget": b, "items": best[2], "score": best[1], "sold": best[3], "waste": best[4]})
@@ -358,19 +360,19 @@ def path_job(args):
     t0 = time.time()
     g = S.G()
     ctx = Ctx(hero, bracket)
-    b0 = BUDGETS[0]
+    b0 = STAGES[0]
 
     # late game target: the overall search's best 50k build, else a quick search here
     late = overall_job(bracket, hero, BUDGETS[-1])
     target = late["builds"][0]["items"] if late else \
         stage_search(ctx, BUDGETS[-1], [], 0.0, ctx.popular(BUDGETS[-1]))[0][2]
 
-    # starts at 10k
+    # starts at the first stage
     first = stage_search(ctx, b0, [], 0.0, ctx.popular(b0))
-    starts = {"best_10k": first[0]}
+    starts = {"best_start": first[0]}
     tw = toward(ctx, b0, target)
     tw_best = stage_search(ctx, b0, tw, 0.0, tw)
-    # keep the late-game pieces: the best 10k build that still holds every piece of the seed
+    # keep the late-game pieces: the best first-stage build that still holds every piece of the seed
     keep = [x for x in tw_best if not sold_items(tw, x[2])]
     starts["toward_late_game"] = (keep or tw_best)[0]
 
@@ -404,7 +406,7 @@ def path_job(args):
         stages_out.append(d)
     order = buy_order(ctx, best["stages"])
 
-    out = {"hero_id": hero, "hero": g.hero(hero).name, "bracket": bracket, "budgets": BUDGETS,
+    out = {"hero_id": hero, "hero": g.hero(hero).name, "bracket": bracket, "budgets": STAGES,
            "path_score": best["path_score"], "stage_scores": best["stage_scores"], "start": best["start"],
            "late_target": sorted(target), "stages": stages_out, "order": order,
            "lineages": [{k: v for k, v in x.items() if k != "stages"} | {"items": [s["items"] for s in x["stages"]]}
@@ -415,7 +417,7 @@ def path_job(args):
     with open(fn + ".tmp", "w") as f:
         json.dump(out, f)
     os.replace(fn + ".tmp", fn)
-    sc = " ".join(f"{b // 1000}k {s:.2f}" for b, s in zip(BUDGETS, out["stage_scores"]))
+    sc = " ".join(f"{b // 1000}k {s:.2f}" for b, s in zip(STAGES, out["stage_scores"]))
     return fn, f"{out['hero']}: path {out['path_score']:.3f} ({best['start']}) stages vs popular {sc} " \
                f"({out['fights']} fights, {out['seconds']}s)"
 

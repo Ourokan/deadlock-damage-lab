@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-21T08:46:23Z",
- "reason": "New full game build paths (damage/scripts/game_path.py) for the Full game builds tab"
+ "requested_at": "2026-10-21T10:07:00Z",
+ "reason": "Full game build paths start from 0 souls: early game stages at 3k and 6k (new opponent pools)"
 }
