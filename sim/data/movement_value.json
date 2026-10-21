@@ -1,0 +1,15 @@
+{
+ "_note": "Overall-score multiplier per movement item: real Phantom+ chase (kill participation) x escape (deaths per 10 min) effect at the same hero, net worth and game length; only effects with z >= 2, floor 1, cap 1.25. Built by analysis/scripts/kill_participation.py.",
+ "items": {
+  "Arcane Surge": 1.0516,
+  "Enduring Speed": 1.0315,
+  "Extra Stamina": 1.0141,
+  "Fleetfoot": 1.019,
+  "Magic Carpet": 1.0571,
+  "Majestic Leap": 1.0609,
+  "Stalker": 1.0625,
+  "Stamina Mastery": 1.0186,
+  "Veil Walker": 1.0246,
+  "Warp Stone": 1.038
+ }
+}
