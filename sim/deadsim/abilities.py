@@ -471,9 +471,8 @@ class AbilityState:
             return False
         if self.f.counters.get("fleeing") and self.impl.kind != "self":
             return False
-        if not self.impl.should_cast(self.ctx):
-            return False
-        if self.f.plan is not None and not self.f.plan.allows(self):
+        if not self.impl.should_cast(self.ctx) or (self.f.plan is not None and not self.f.plan.allows(self)):
+            self.scratch.pop("_reach_delay", None)   # a reach gate may have passed inside a condition that failed
             return False
         self.cast()
         return True
@@ -503,8 +502,7 @@ class AbilityState:
             self.next_charge = self.ready_at
         f.e.note(f"{f.name} casts {self.ab.name}")
         wait = self.scratch.pop("_reach_delay", 0.0)   # range spread: damage x cooldown / (cooldown + expected wait)
-        n = self.max_charges()   # time per cast: a charge ability averages cooldown / charges, not the gap between charges
-        cd = max(self.charge_delay(), self.cooldown() / n) if n > 1 else self.cooldown()
+        cd = self.cooldown()   # time per cast: charges recharge one per cooldown, so the gap between charges isn't it
         self.scratch["_avail"] = cd / (cd + wait) if wait > 0 and cd > 0 else 1.0
         for fx in f.items_fx:
             g = getattr(fx, "on_cast", None)

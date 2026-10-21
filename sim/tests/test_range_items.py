@@ -124,18 +124,34 @@ class TestRangeSpread(unittest.TestCase):
         self.assertEqual(ab.scratch["_avail"], 1.0)
 
     def test_avail_uses_time_per_charge(self):
-        """A charge ability's wait factor uses cooldown / charges as its time per cast (Mirage's Fire Scarabs: 3
-        charges, 35 s, 1 s between charges), not the 1 s gap between charges."""
+        """A charge ability's wait factor uses its cooldown as the time per cast, since charges recharge one per
+        cooldown (Mirage's Fire Scarabs: 3 charges, 35 s, 1 s between charges), not the 1 s gap between charges."""
         e = Engine(distance=16.3, mech=SPREAD)
         f = make_fighter(e, Loadout("Mirage", [], souls=27000), "a")
         g = make_fighter(e, Loadout("Abrams", [], souls=27000), "d")
         f.enemy, g.enemy = g, f
         ab = next(s for s in f.abilities if s.ab.name == "Fire Scarabs")
-        per_cast = max(ab.charge_delay(), ab.cooldown() / ab.max_charges())
-        self.assertGreater(per_cast, 5.0)
+        self.assertGreater(ab.max_charges(), 1)
+        self.assertLess(ab.charge_delay(), 2.0)
+        per_cast = ab.cooldown()
         ab.scratch["_reach_delay"] = per_cast
         ab.cast()
         self.assertAlmostEqual(ab.scratch["_avail"], 0.5)
+
+    def test_blocked_gate_leaves_no_stale_wait(self):
+        """A reach gate that passes inside a combined condition that then fails (Atlas' Seismic Impact: in reach but
+        target at or below 20% health) must not carry its wait into a later cast that skips the gate."""
+        e = Engine(distance=30.0, mech=SPREAD)
+        f = make_fighter(e, Loadout("Abrams", [], souls=27000), "a")
+        g = make_fighter(e, Loadout("Haze", [], souls=27000), "d")
+        f.enemy, g.enemy = g, f
+        ab = next(s for s in f.abilities if s.ab.name == "Seismic Impact")
+        ab.unlocked, ab.charges = True, 1
+        g.hp = 0.1 * g.max_hp   # the gate's reach part runs (and sets a wait), the health part blocks
+        self.assertFalse(ab.try_cast())
+        self.assertNotIn("_reach_delay", ab.scratch)
+        ab.cast()   # a cast without the gate
+        self.assertEqual(ab.scratch["_avail"], 1.0)
 
     def test_moving_distance_cache_stays_small(self):
         """A chase moves the distance every step: the spread caches bucket it instead of growing per step."""
