@@ -126,6 +126,11 @@ IMBUE_CLASSES = ("upgrade_magic_reach", "upgrade_magic_tempo", "upgrade_arcane_e
                  "upgrade_bulletshredimbue", "upgrade_ability_power_shard", "upgrade_frostbite_charm")
 
 
+# imbue slot by item where players don't follow the hero's usual imbue slot (Tyler, 2026-10-21: Mina puts Mystic
+# Expansion on Sanguine Retreat for a longer dash, not on Rake)
+IMBUE_OVERRIDE = {("hero_vampirebat", "upgrade_magic_reach"): "ability_vampirebat_batblink"}
+
+
 def _default_imbue_target(hero, unlocked):
     """Imbue the unlocked non-ultimate ability with the highest listed base damage."""
     best, best_v = None, -1
@@ -161,6 +166,9 @@ def make_fighter(engine, lo: Loadout, name=None):
     for it in items:
         if it.class_name in IMBUE_CLASSES:
             idx = lo.imbues.get(it.name, lo.imbues.get(it.class_name))
+            over = IMBUE_OVERRIDE.get((hero.class_name, it.class_name))
+            if idx is None and over:
+                idx = next((i for i, ab in enumerate(hero.abilities) if ab.class_name == over), None)
             if idx is None and skill.fight_pattern:
                 idx = patterns.imbue_target(hero, unlocked)
             if idx is None:

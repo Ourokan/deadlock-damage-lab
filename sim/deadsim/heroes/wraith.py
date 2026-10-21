@@ -111,7 +111,7 @@ class Telekinesis(AbilityImpl):
     range_props = ("AbilityCastRange",)
 
     def in_range(self, c):
-        return c.dist <= c.rng("AbilityCastRange") + c.me.skill.engage_margin + LIFT_APPROACH
+        return c.within(c.rng("AbilityCastRange") + LIFT_APPROACH)
 
     def should_cast(self, c):
         return self.in_range(c) and c.foe.hp_frac > 0.15

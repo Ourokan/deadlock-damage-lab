@@ -99,7 +99,7 @@ class Singularity(AbilityImpl):
     range_props = ("VacuumRadius",)
 
     def in_range(self, c):
-        return c.dist <= c.rng("VacuumRadius") + c.me.skill.engage_margin + ULT_APPROACH
+        return c.within(c.rng("VacuumRadius") + ULT_APPROACH)
 
     def should_cast(self, c):
         return self.in_range(c) and c.foe.hp_frac > 0.15

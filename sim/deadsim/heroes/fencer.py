@@ -32,7 +32,7 @@ class DisengagingSigil(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= SIGIL_OFFSET + c.val("SigilRadius") + c.me.skill.engage_margin
+        return c.within(SIGIL_OFFSET + c.val("SigilRadius"))
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay", 0.5)
@@ -95,7 +95,7 @@ class FlawlessAdvance(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= c.val("SlashLength") + c.me.skill.engage_margin
+        return c.within(c.val("SlashLength"))
 
     def cast(self, c):
         n = int(c.raw("MaxStabs", 3))

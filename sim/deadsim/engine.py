@@ -143,6 +143,10 @@ class Skill:
     # players do (Tyler, Eternus). None = cleanse a DoT only below 50% health (what average ranked data shows).
     dot_cleanse_delay: float | None = 1.5
     engage_margin: float = 5.0  # meters a player will close to land an ability that is just out of reach
+    # meters beyond engage_margin a player walks in (shooting on the way) before casting a short-range ability; the
+    # walk costs gap / move speed seconds of delay. Range items only shorten that walk, so they never decide
+    # whether an ability is used at all (Mystic Expansion on Mina's Rake at her 16.3 m median distance).
+    walk_in: float = 5.0
     # Used only with deadsim.mechanics on (see that module for the fits):
     parry_rate: float = 0.15       # share of incoming heavy melees parried
     spell_parry_rate: float = 0.05  # Counterspell: share of enemy aimed casts a spell parry is timed against

@@ -176,6 +176,25 @@ class CastCtx:
     def rng(self, prop, default=0.0):
         return self.raw(prop, default) * (1.0 + self.s.range_pct())
 
+    def within(self, reach):
+        """Cast gate for an ability that reaches `reach` meters (range bonuses already applied). Within reach +
+        skill.engage_margin it is castable now. Up to skill.walk_in meters further the caster first walks in, which
+        takes gap / move speed seconds counted from the first time the ability wanted to cast (the gun keeps firing).
+        Further away it isn't cast."""
+        sk = self.me.skill
+        gap = self.dist - reach - sk.engage_margin
+        if gap <= 0:
+            self.state.pop("_walk_in_at", None)   # in reach: a later walk-in starts fresh
+            return True
+        if gap > sk.walk_in:
+            self.state.pop("_walk_in_at", None)
+            return False
+        st = self.me.st
+        speed = max(1.0, st.hero.base.get("max_move_speed", 7.0)
+                    + st.extra.get("MODIFIER_VALUE_MOVEMENT_SPEED_MAX", 0) + self.me.stat("move_speed"))
+        t0 = self.state.setdefault("_walk_in_at", self.now)
+        return self.now - t0 >= gap / speed
+
     # effects --------------------------------------------------------------------------------------
     def spirit_hit(self, amount, *, delay=0.0, name=None, hit_chance=None, ignore_resist=False, nonlethal=False):
         """Instant spirit damage to the enemy (after delay). hit_chance defaults to caster's spirit_accuracy for
@@ -320,7 +339,7 @@ class AbilityImpl:
             r = c.rng(p)
             if r:
                 break
-        return r <= 0 or c.dist <= r + c.me.skill.engage_margin
+        return r <= 0 or c.within(r)
 
     def should_cast(self, c: CastCtx):
         """Cast as soon as it's ready and the target is in range. Override for conditional casts."""
@@ -501,6 +520,7 @@ class AbilityState:
             after_cast(self)
         self.scratch.pop("_bonus_spirit", None)
         self.scratch.pop("_bonus_duration", None)
+        self.scratch.pop("_walk_in_at", None)
 
     def reset_cooldown(self):
         self.charges = self.max_charges()

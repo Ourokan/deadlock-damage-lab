@@ -24,7 +24,7 @@ def lo(hero, items=(), **kw):
 DUELS = [
     ("Haze", ["Rapid Rounds", "Toxic Bullets", "Restorative Locket"], "Infernus",
      ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Haze (A)", 25.437, 2764.0, 2086.6),   # re-pinned 2026-10-21 (gun re-checks its lock; a stun ends Bullet Dance evasion)
-    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], None, 21.3, 1744.9, 2566.5),   # re-pinned for the Storm Cloud commit margin
+    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 25.1, 2009.9, 3194.2),   # re-pinned: Abrams walks in for Siphon Life
     ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1769.2, 1509.5),   # re-pinned 2026-10-21: Dynamo shoots after a cut-short channel
 ]
 

@@ -114,7 +114,7 @@ class SoulExchange(AbilityImpl):
     range_props = ("AbilityCastRange",)
 
     def in_range(self, c):
-        return c.dist <= c.rng("AbilityCastRange") + c.me.skill.engage_margin + SWAP_APPROACH
+        return c.within(c.rng("AbilityCastRange") + SWAP_APPROACH)
 
     def should_cast(self, c):
         return self.in_range(c) and c.foe.hp_frac - c.me.hp_frac >= max(SWAP_MIN_GAIN, c.raw("MinDiffToCast"))

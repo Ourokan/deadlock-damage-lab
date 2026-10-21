@@ -56,6 +56,11 @@ caps = O._move[1]
 assert O.movement_value(top) <= caps[max(caps)] and O.movement_value(top[:2]) <= caps[2], O.movement_value(top)
 # an unweighted movement item still counts toward the stack: Stalker + Sprint Boots is a 2-item stack
 assert O.movement_value([ids["Stalker"], ids["Warp Stone"], ids["Sprint Boots"]]) <= caps[max(caps)]
+# hero-only movement items count only for that hero (Mina's Mystic Expansion on Sanguine Retreat)
+missing = [n for row in _mv.get("hero_items", {}).values() for n in row if n not in ids]
+assert not missing, f"movement_value.json hero_items names items the game no longer has: {missing}"
+me = ids["Mystic Expansion"]
+assert O.movement_value([me]) == 1.0 and O.movement_value([me], G.hero("Mina").id) > 1.0
 assert O.movement_value([ids["Stalker"], ids["Sprint Boots"]]) <= caps[2]
 pop = [ids["Stalker"], ids["Warp Stone"], ids["Extra Health"]]
 _popular = S.popular_build

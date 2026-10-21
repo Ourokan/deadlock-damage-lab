@@ -64,7 +64,7 @@ class StoneForm(AbilityImpl):
 
     def in_range(self, c):
         reach = c.rng("Radius") + c.raw("MoveSpeedMax") * c.raw("LiftTime", 1.0)
-        return c.dist <= reach + c.me.skill.engage_margin
+        return c.within(reach)
 
     def should_cast(self, c):
         if c.now < c.me.gun_locked_until:     # mid Air Drop / other cast
