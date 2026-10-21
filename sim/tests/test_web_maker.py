@@ -76,7 +76,9 @@ class TestMakerData(unittest.TestCase):
             os.makedirs(os.path.join(tmp, "work")); os.makedirs(export.OUT)
             json.dump({"27000": {str(hero): {"_n": 100, str(item): 40, "1": 90}}},
                       open(os.path.join(tmp, "work", "item_usage_phantom.json"), "w"))
+            json.dump({"phantom": {"50000": {"item_budget": 1, "caps": {}, "heroes": {}}}}, open(os.path.join(export.OUT, "usage.json"), "w"))
             self.assertEqual(export.export_usage(g), ["phantom"])
+            self.assertIn("50000", json.load(open(os.path.join(export.OUT, "usage.json")))["phantom"])   # kept
             cell = json.load(open(os.path.join(export.OUT, "usage.json")))["phantom"]["27000"]
             self.assertEqual(cell["heroes"][str(hero)]["items"], {str(item): 0.4})   # unknown item id dropped
             self.assertTrue(cell["caps"])

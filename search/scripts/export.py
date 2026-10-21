@@ -87,7 +87,7 @@ def export_usage(G):
         # back to another bracket's or the hard-coded caps)
         own = os.path.exists(os.path.join(ROOT, "work", f"tier_caps{suffix(br)}.json"))
         caps = tier_caps(br) if own else {}
-        cell = {}
+        cell = dict(prev)   # a budget missing from this run keeps its last published rates
         for b in BUDGETS:
             u = usage.get(str(b))
             if not u:
