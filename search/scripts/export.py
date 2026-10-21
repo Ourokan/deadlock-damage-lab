@@ -5,6 +5,8 @@ out/items.json          item id -> name, slot, tier, cost, whether its effect is
 out/opponents.json      per budget: the real opponent builds every build was tested against, with weights
 out/heroes/<id>.json    per hero, rank bracket and budget: top builds with stats and the best build's matchups
 out/summary.csv         one row per hero x budget, for spreadsheets
+out/usage.json          per bracket and budget: how often each hero's players hold each item (>= 3%), the tier
+                        caps and the item budget; the site's build maker builds enemy builds at any souls from it
 
 Brackets with no local jobs keep what out/ already has (patch reruns run the brackets one tier at a time and can
 switch tiers off: pipeline/tiers.json); each bracket in index.json says which patch and run it was built for.
@@ -26,7 +28,7 @@ sys.path.insert(0, os.path.join(ROOT, "..", "data"))
 from deadsim import game  # noqa: E402
 import patch_state  # noqa: E402
 from deadsim.items_fx import MODELED  # noqa: E402
-from build_pool import BUDGETS, BRACKETS, item_budget, suffix  # noqa: E402
+from build_pool import BUDGETS, BRACKETS, item_budget, suffix, tier_caps  # noqa: E402
 import search  # noqa: E402
 
 OUT = os.path.join(ROOT, "out")
@@ -66,6 +68,45 @@ def budget_entry(r):
                     "matchups": matchups(pop["F"])},
         "search": {"fights": r["fights"], "seconds": r["seconds"], "candidate_items": r["candidates"]},
     }
+
+
+USAGE_MIN = 0.03
+
+
+def export_usage(G):
+    """out/usage.json: item hold rates per bracket, budget and hero, from work/item_usage*.json (build_pool.py).
+    Brackets without a local usage file keep what out/usage.json already has."""
+    path = os.path.join(OUT, "usage.json")
+    out = json.load(open(path)) if os.path.exists(path) else {}
+    for br in BRACKETS:
+        fn = os.path.join(ROOT, "work", f"item_usage{suffix(br)}.json")
+        if not os.path.exists(fn):
+            continue
+        usage, prev = json.load(open(fn)), out.get(br, {})
+        # without the bracket's own work/tier_caps file, keep the caps it last published (tier_caps() would fall
+        # back to another bracket's or the hard-coded caps)
+        own = os.path.exists(os.path.join(ROOT, "work", f"tier_caps{suffix(br)}.json"))
+        caps = tier_caps(br) if own else {}
+        cell = dict(prev)   # a budget missing from this run keeps its last published rates
+        for b in BUDGETS:
+            u = usage.get(str(b))
+            if not u:
+                continue
+            heroes = {}
+            for h, row in u.items():
+                n = row.get("_n", 0)
+                if int(h) not in G.heroes or n <= 0:
+                    continue
+                heroes[h] = {"n": n, "items": {i: round(c / n, 3) for i, c in sorted(row.items(), key=lambda x: -x[1] if x[0] != "_n" else 0)
+                                               if i != "_n" and int(i) in G.items and c / n >= USAGE_MIN}}
+            c = {str(t): n for t, n in caps.get(b, {}).items()} if own else prev.get(str(b), {}).get("caps")
+            if c is None:
+                c = {str(t): n for t, n in tier_caps(br).get(b, {}).items()}
+            cell[str(b)] = {"item_budget": item_budget(b), "caps": c, "heroes": heroes}
+        out[br] = cell
+    if out:
+        json.dump(out, open(path, "w"), separators=(",", ":"))
+    return list(out)
 
 
 def main():
@@ -168,7 +209,8 @@ def main():
             w = csv.DictWriter(f, fieldnames=list(rows[0]))
             w.writeheader()
             w.writerows(rows)
-    print({b: len(j) for b, j in jobs.items()}, "jobs ->", len(index_heroes), "heroes in", OUT)
+    print({b: len(j) for b, j in jobs.items()}, "jobs ->", len(index_heroes), "heroes in", OUT,
+          "| usage:", export_usage(G))
 
 
 if __name__ == "__main__":
