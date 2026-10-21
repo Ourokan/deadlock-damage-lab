@@ -39,6 +39,7 @@ class Dummy:
     hero: str | int = "Haze"                # base stats and hitbox only; abilities are removed
     souls: float | None = None              # None = the attacker's souls
     immortal: bool = True
+    zone_exit_s: float | None = None        # walks out of ground zones (Alchemical Fire) after this long; None = stays
 
 
 class _Refill:
@@ -62,7 +63,8 @@ def damage_test(hero, items, souls=None, dummy: Dummy | None = None, skill: Skil
                                    ability_order=ability_order),
                      "attacker")
     d = make_fighter(e, Loadout(dummy.hero, list(dummy.items), souls=dummy.souls or a.st.souls,
-                                skill=Skill(accuracy=0, headshot=0, use_abilities=False, use_actives=False)), "dummy")
+                                skill=Skill(accuracy=0, headshot=0, use_abilities=False, use_actives=False,
+                                            zone_exit_s=dummy.zone_exit_s)), "dummy")
     d.abilities = []
     if dummy.immortal:
         d.items_fx.append(_Refill())

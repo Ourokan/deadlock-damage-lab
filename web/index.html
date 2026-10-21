@@ -107,6 +107,7 @@
           <p class="hint">The enemy never shoots or casts. Its items' resists, barriers and damage reduction still apply.</p>
         </div>
         <label class="check"><input id="d-immortal" type="checkbox" checked> Refill HP instead of dying, so damage keeps counting for 30 s</label>
+        <label class="check"><input id="d-walk" type="checkbox" checked> Walk out of Alchemical Fire after 2 s, unless stunned, rooted or slowed (slows keep it in for their share)</label>
         <button class="run" id="run" disabled>Run damage test</button>
         <p class="hint" id="share-note" hidden>Loaded from a shared link. The test runs as soon as the sim is ready.</p>
         <p class="err" id="err" hidden></p>
@@ -175,7 +176,7 @@
   <section id="tab-damage" class="tab" hidden>
     <div class="intro">
       <h1>Most damage per soul</h1>
-      <p>For each hero and net worth, the item builds that deal the most damage to a training dummy, found by searching from the most popular real build of Phantom and up players, at their aim (75th percentile ranked), the site's standard. The dummy never moves, cleanses or shoots back, so these builds skip defense and favour items a real target walks out of; see <a href="#overall">Best overall builds</a> for builds that hold up in a fight.</p>
+      <p>For each hero and net worth, the item builds that deal the most damage to a training dummy, found by searching from the most popular real build of Phantom and up players, at their aim (75th percentile ranked), the site's standard. The dummy never cleanses or shoots back, so these builds skip defense. It does walk out of Alchemical Fire after 2 s unless the hero stuns, roots or slows it, so the fire only pays off on heroes that can hold a target in it; see <a href="#overall">Best overall builds</a> for builds that hold up in a fight.</p>
     </div>
     <div class="filters">
       <label class="f"><span>Hero</span><select id="g-hero"></select></label>

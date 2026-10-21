@@ -86,7 +86,7 @@ class Scorer:
         if k not in self.cache:
             r = damage_test(self.hero, items, souls=budget, aim=D.AIM, marks=tuple(D.WINDOWS.values()), tiers=list(tiers),
                             dummy=Dummy(hp=self.res[budget]["dummy_hp"], bullet_resist=0, spirit_resist=0,
-                                        melee_resist=0, hero=D.DUMMY_HERO))
+                                        melee_resist=0, hero=D.DUMMY_HERO, zone_exit_s=D.DUMMY_ZONE_EXIT))
             self.cache[k] = {o: r["damage"][f"{t:g}s"] for o, t in D.WINDOWS.items()}
             self.fights += 1
         return self.cache[k][obj]

@@ -36,6 +36,7 @@ sys.path.insert(0, os.path.join(ROOT, "..", "sim"))
 sys.path.insert(0, SEARCH)
 
 from deadsim import compute_stats  # noqa: E402
+from deadsim.accuracy import zone_exit_time  # noqa: E402
 from build_pool import BRACKETS, BUDGETS, PRIMARY, item_budget  # noqa: E402
 import search as S  # noqa: E402
 sys.path.insert(0, ROOT)
@@ -49,12 +50,16 @@ TOP_OUT = 10
 S.BRACKET = PRIMARY        # standard rank bracket: its popular builds, dummy HP and aim
 AIM = BRACKETS[PRIMARY][2]
 DUMMY_HERO = "Haze"       # only its base hitbox is used: no abilities, items or resists
+# the dummy walks out of Alchemical Fire after this long unless the attacker stuns, roots or slows it (Tyler,
+# 2026-10-21: no AF on heroes with nothing to keep a target in it)
+DUMMY_ZONE_EXIT = zone_exit_time(BRACKETS[PRIMARY][0])
 
 
 def run_dummy(hero, items, souls, dummy_hp):
     """Damage dealt at each window, and the damage split by source over 30 s (dummy.damage_test)."""
     r = damage_test(hero, items, souls=souls, dummy=Dummy(hp=dummy_hp, bullet_resist=0, spirit_resist=0,
-                                                          melee_resist=0, hero=DUMMY_HERO),
+                                                          melee_resist=0, hero=DUMMY_HERO,
+                                                          zone_exit_s=DUMMY_ZONE_EXIT),
                     aim=AIM, marks=tuple(WINDOWS.values()))
     return {k: r["damage"][f"{t:g}s"] for k, t in WINDOWS.items()}, r["sources"]
 

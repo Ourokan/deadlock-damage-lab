@@ -32,7 +32,8 @@ def _setup(q):
         items=[_item(G, x).name for x in dq.get("items", [])],
         souls=dq.get("souls"), hp=dq.get("hp"),
         bullet_resist=dq.get("bullet_resist"), spirit_resist=dq.get("spirit_resist"),
-        melee_resist=dq.get("melee_resist"), immortal=bool(dq.get("immortal", True)))
+        melee_resist=dq.get("melee_resist"), immortal=bool(dq.get("immortal", True)),
+        zone_exit_s=dq.get("zone_exit_s"))
     kw = dict(souls=q.get("souls"), dummy=dummy, skill=skill, distance=q.get("distance"),
               ability_order=[int(x) for x in q.get("ability_order") or []] or None)
     return hero, items, kw

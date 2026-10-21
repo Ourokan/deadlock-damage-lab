@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-17T03:40:00Z",
- "reason": "Focus Lens expire damage no longer gets damage amps (Escalating Exposure etc.) a second time"
+ "requested_at": "2026-10-21T07:06:24Z",
+ "reason": "Players walk out of Alchemical Fire after 2 s unless stunned, rooted or slowed (dummy, duels and overall)"
 }
