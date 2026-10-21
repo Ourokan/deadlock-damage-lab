@@ -86,6 +86,16 @@ class BuyOrder(unittest.TestCase):
             if s is order[-1] or order[order.index(s) + 1]["stage"] != s["stage"]:
                 self.assertEqual(sorted(held), sorted(stage["items"]))
 
+    def test_full_slots_fall_back_to_buying_items_outright(self):
+        # every piece would need one more slot than allowed: the order still finishes the stage
+        prev = [i for i in G.items if G.items[i].cost == 800 and not P.comps(i)][:11]
+        up = next(i for i in G.items if P.comps(i) and not P.comps(i) & set(prev))
+        st = [{"budget": 10000, "items": prev, "sold": [], "waste": 0.0},
+              {"budget": 50000, "items": prev + [up], "sold": [], "waste": 0.0}]
+        with mock.patch.object(S, "MAX_ITEMS", 11):
+            order = P.buy_order(FakeCtx(), st)
+        self.assertEqual(order[-1]["item"], up)
+
     def test_each_threshold_is_listed_once(self):
         order = P.buy_order(FakeCtx(), self.stages())
         seen = [(x["slot"], x["at"]) for s in order for x in s.get("spikes", [])]

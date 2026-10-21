@@ -316,8 +316,10 @@ def buy_order(ctx, stages):
                 key = (free, v, -paid)
                 if best is None or key > best[0]:
                     best = (key, p, new, paid)
-            if best is None:
-                raise RuntimeError(f"no buyable piece toward {sorted(set(target) - set(owned))}")
+            if best is None:   # components would overflow the 12 slots: buy the cheapest missing item outright
+                p = min(set(target) - set(owned), key=lambda i: g.items[i].cost)
+                new = with_item(owned, p)
+                best = (None, p, new, S.cost(new) - S.cost(owned))
             _, p, new, paid = best
             nw = max(net_worth_for(S.cost(new) + waste), cap_net_worth(new), last_nw)
             # a threshold counts once: crossing it again after a sale is no new spike
