@@ -128,8 +128,55 @@ def fight(h, items, oh, oitems, souls, phase=None):
     return r["damage_dealt"], r["time_alive"], r["survived"]
 
 
+# Laning phase (Tyler, 2026-10-21: "in laning phase regen and other sources of healing can be more valuable than pure
+# hp"). One 30 s fight never lets regen pay off, so the early game_path stages are scored as a lane instead: up to
+# LANE_TRADES 1v1 trades of TRADE_S s (enemy focus 1), health carried from one trade to the next. Between trades
+# (TRADE_GAP s) the hero heals its health regen the whole gap, out-of-combat regen after OOC_DELAY s and Fortitude's
+# % of max health after its RestoreDelay (all amped by regen amp). Below BACK_FRAC health before a trade the hero
+# backs (the rest of the lane is lost), and a death ends it too. Score = damage dealt over the whole lane.
+# The trade length, gap and delay are assumptions, not fitted to replays.
+LANE_TRADES = 5
+TRADE_S = 4.0
+TRADE_GAP = 25.0
+OOC_DELAY = 10.0
+BACK_FRAC = 0.25
+LANE_FOCUS = 1.0
+
+
+def gap_heal(r, items, gap=TRADE_GAP):
+    """Health healed between two trades by the build of survive() result r."""
+    amp = 1.0 + (r.get("regen_amp") or 0.0)
+    h = r["regen"] * gap + r["ooc_regen"] * max(0.0, gap - OOC_DELAY)
+    g = S.G()
+    for i in items:
+        it = g.items[i]
+        if it.class_name == "upgrade_chonky":    # Fortitude
+            h += r["max_hp"] * it.props.get("HealLifePercentOutOfCombat", 0) / 100 \
+                * max(0.0, gap - it.props.get("RestoreDelay", 10))
+    return h * amp
+
+
+def lane_fight(h, items, oh, oitems, souls, phase=None):
+    """Damage dealt over a lane of trades, total time alive, share of the trades played (1 = lasted the lane)."""
+    sk = dataclasses.replace(skill(h), fight_phase=phase)
+    esk = dataclasses.replace(skill(oh), fight_phase=None if phase is None else (phase + 0.5) % 1.0)
+    hp, dmg, t = None, 0.0, 0.0
+    for k in range(LANE_TRADES):
+        r = survive(h, items, souls, oh, oitems, max_time=TRADE_S, focus=LANE_FOCUS, skill=sk, enemy_skill=esk,
+                    start_hp=hp)
+        dmg += r["damage_dealt"]
+        t += r["time_alive"]
+        if not r["survived"]:
+            return dmg, t, k / LANE_TRADES
+        hp = min(r["max_hp"], r["final_hp"] + gap_heal(r, items))
+        if k + 1 < LANE_TRADES and hp < BACK_FRAC * r["max_hp"]:
+            return dmg, t, (k + 1) / LANE_TRADES
+    return dmg, t, 1.0
+
+
 class Evaluator:
     """Drop-in for search.Evaluator: score = weighted mean damage before death / the popular build's."""
+    fight = staticmethod(fight)
 
     def __init__(self, hero, budget, pools):
         self.h, self.souls, self.pools = hero, budget, pools
@@ -145,7 +192,7 @@ class Evaluator:
         if key not in self.cache:
             rows = []
             for k, (oh, oitems, w) in enumerate(self.pools[pool]):
-                d, t, alive = fight(self.h, key[0], oh, oitems, self.souls, phase=PHASES[oh])
+                d, t, alive = self.fight(self.h, key[0], oh, oitems, self.souls, phase=PHASES[oh])
                 rows.append((oh, w, d, t, alive))
                 self.fights += 1
             self.cache[key] = rows
@@ -173,6 +220,43 @@ class Evaluator:
             "movement_value": round(move, 4),
             "matchups": {str(r[0]): [round(r[2]), round(r[3], 2)] for r in rows},
         }
+
+
+class LaneEvaluator(Evaluator):
+    """Evaluator for the laning phase: damage over a lane of trades (lane_fight) / the popular build's."""
+    fight = staticmethod(lane_fight)
+
+    def run(self, items, pool="F", detail=False):
+        d = super().run(items, pool, detail)
+        if detail:
+            d["mode"] = "lane"
+            d["lane_share"] = d.pop("survived_30s")   # share of the lane's trades played before backing or dying
+            d["trades"] = LANE_TRADES
+        return d
+
+
+class MixEvaluator:
+    """End of the laning phase: score = LANE_WEIGHT x lane score + the rest x the overall fight score."""
+
+    def __init__(self, hero, budget, pools, lane_weight=0.5):
+        self.lane, self.fight = LaneEvaluator(hero, budget, pools), Evaluator(hero, budget, pools)
+        self.w = lane_weight
+
+    @property
+    def fights(self):
+        return self.lane.fights + self.fight.fights
+
+    def run(self, items, pool="F", detail=False):
+        if not detail:
+            return self.w * self.lane.run(items, pool) + (1 - self.w) * self.fight.run(items, pool)
+        d = self.fight.run(items, pool, True)
+        lane = self.lane.run(items, pool, True)
+        d["fight_score"] = d["score"]
+        d["score"] = round(self.w * lane["score"] + (1 - self.w) * d["score"], 4)
+        d["mode"] = "mix"
+        d["lane_weight"] = self.w
+        d["lane"] = {k: v for k, v in lane.items() if k != "matchups"}
+        return d
 
 
 def job(args):

@@ -54,7 +54,8 @@ def _d(name):
 
 
 def survive(hero, items, souls, enemy, enemy_items, enemy_souls=None, max_time=60.0, aim="p50", enemy_aim="p50",
-            skill: Skill | None = None, enemy_skill: Skill | None = None, distance=None, focus=1.0):
+            skill: Skill | None = None, enemy_skill: Skill | None = None, distance=None, focus=1.0, start_hp=None):
+    """start_hp: the fight starts with this much health (lane trades carry health over), else full."""
     G = game()
     hn, en = G.hero(hero).name, G.hero(enemy).name
     # movement off: running away would count as surviving, which isn't what this search measures
@@ -63,6 +64,8 @@ def survive(hero, items, souls, enemy, enemy_items, enemy_souls=None, max_time=6
     me = make_fighter(e, Loadout(hero, list(items), souls=souls, skill=skill or _sk(hn, aim)), "me")
     foe = make_fighter(e, Loadout(enemy, list(enemy_items), souls=enemy_souls or souls,
                                   skill=enemy_skill or _sk(en, enemy_aim)), "enemy")
+    if start_hp is not None:
+        me.hp = max(1.0, min(start_hp, me.max_hp))
     foe.items_fx.append(_Refill())
     foe.st.outgoing_mult *= focus
     max_hp = me.max_hp
@@ -78,4 +81,5 @@ def survive(hero, items, souls, enemy, enemy_items, enemy_souls=None, max_time=6
         "damage_taken_by_source": {k: round(v, 1) for k, v in sorted(taken.items(), key=lambda x: -x[1])},
         "healing": round(getattr(me, "healed", 0.0) or 0.0, 1),
         "damage_dealt": round(sum(me.dmg_out.values()), 1),
+        "regen": me.st.health_regen, "ooc_regen": me.st.ooc_regen, "regen_amp": me.st.heal_amp,
     }

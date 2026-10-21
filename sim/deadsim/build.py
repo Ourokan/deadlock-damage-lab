@@ -77,6 +77,7 @@ class Stats:
     # vitality
     max_health: float = 0.0
     health_regen: float = 0.0
+    ooc_regen: float = 0.0        # out-of-combat health regen per s (only between lane trades, game_path)
     bullet_resist: list = field(default_factory=list)   # fractions
     spirit_resist: list = field(default_factory=list)
     melee_resist: list = field(default_factory=list)
@@ -222,6 +223,8 @@ def compute_stats(hero, items=(), souls=None, level=None) -> Stats:
     vit = invest_bonus(hero, "vitality", spent["vitality"]) / 100
     st.max_health = (base_hp * (1 + vit + A("BASE_HEALTH_PERCENT") / 100) + A("HEALTH_MAX")) * (1 + A("HEALTH_MAX_PERCENT") / 100)
     st.health_regen = hero.base.get("base_health_regen", 0) + A("HEALTH_REGEN_PER_SECOND")
+    st.ooc_regen = (hero.base.get("ooc_health_regen", 0) or 0) \
+        + boons * pb.get("MODIFIER_VALUE_OUT_OF_COMBAT_HEALTH_REGEN", 0) + A("OUT_OF_COMBAT_HEALTH_REGEN")
     base_br = pb.get("MODIFIER_VALUE_BULLET_ARMOR_DAMAGE_RESIST", 0) * boons
     base_sr = hero.base.get("tech_armor_damage_reduction", 0) or 0
     base_sr += pb.get("MODIFIER_VALUE_TECH_RESIST", 0) * boons
