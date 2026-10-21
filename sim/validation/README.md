@@ -238,7 +238,7 @@ Tyler: the popular Haze build won only 28% of 27k Phantom+ duels, though Haze is
 - **Real benchmark** (`analysis/scripts/isolated_kills.py`, out: `analysis/out/isolated_kills.json`): Phantom+
   ranked, 7 days, 21.8k matches. An isolated kill has no other hero death within 15 s; only kills where killer and
   victim net worth are within 10% count (the sim gives both sides the same souls). Haze's share is 0.58-0.62 with no
-  net worth filter (5th of 41) but 0.48-0.50 at equal net worth: most of her real edge is out-farming.
+  net worth filter (5th of 41) but 0.50-0.52 at equal net worth (net worth interpolated between the 3 min snapshots): most of her real edge is out-farming.
 - **Gun stayed idle after a cut-short channel** (all heroes): `gun_tick` slept until the lock time it saw, so when a
   channel was interrupted (Bullet Dance stunned, Warden/Dynamo/Kelvin/Bebop/Forge/Shiv channels ended early) the
   gun stayed silent until the old lock end. It now re-checks every `GUN_POLL` = 0.1 s. Haze vs Venator: she was

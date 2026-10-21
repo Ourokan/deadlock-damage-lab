@@ -44,8 +44,14 @@ def fetch(work, day):
 
 
 def nw_at(p, t):
-    i = bisect.bisect_left(p["st"], t)
-    return p["snw"][i] if i < len(p["st"]) else p["net_worth"]
+    """Net worth at time t, interpolated between the ~3 min snapshots (0 souls at 0 s; the final net worth after
+    the last snapshot)."""
+    ts, nw = [0] + list(p["st"] or []), [0] + list(p["snw"] or [])
+    i = bisect.bisect_right(ts, t)
+    if i >= len(ts):
+        return p["net_worth"]
+    t0, t1, n0, n1 = ts[i - 1], ts[i], nw[i - 1], nw[i]
+    return n0 + (n1 - n0) * (t - t0) / max(1, t1 - t0)
 
 
 def main():
