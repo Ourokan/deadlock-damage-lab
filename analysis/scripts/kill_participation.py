@@ -50,7 +50,11 @@ HEROES = {h["id"]: h["name"] for h in json.load(open(f"{ROOT}/data/game/heroes.j
 MOVEMENT = ["Sprint Boots", "Extra Stamina", "Enduring Speed", "Arcane Surge", "Kinetic Dash", "Fleetfoot", "Stalker",
             "Stamina Mastery", "Majestic Leap", "Warp Stone", "Veil Walker", "Shadow Weave", "Phantom Strike",
             "Magic Carpet", "Ethereal Shift"]
+# items that are movement for one hero only (Tyler, 2026-10-21: Mina imbues Mystic Expansion on Sanguine Retreat for a
+# longer dash); measured on that hero's players and written to movement_value.json "hero_items"
+HERO_MOVEMENT = {63: ["Mystic Expansion"]}
 MOVE_ID = {i: x["name"] for i, x in ITEMS.items() if x["name"] in MOVEMENT}
+HERO_MOVE_ID = {i: x["name"] for i, x in ITEMS.items() if any(x["name"] in v for v in HERO_MOVEMENT.values())}
 NW_BIN, DUR_BIN = 2500, 300
 Z_MIN, CAP = 2.0, 1.25
 
@@ -73,7 +77,8 @@ def load_items(keys):
                 r = json.loads(line)
                 k = (r["match_id"], r["account_id"])
                 if k in keys:
-                    held[k] = {MOVE_ID[i] for i in r["final_items"] if i in MOVE_ID}
+                    held[k] = ({MOVE_ID[i] for i in r["final_items"] if i in MOVE_ID},
+                               {HERO_MOVE_ID[i] for i in r["final_items"] if i in HERO_MOVE_ID})
     return held
 
 
@@ -99,7 +104,7 @@ def players():
             "hero": r["hero_id"], "won": r["won"], "nw": r["net_worth"], "dur": r["duration_s"],
             "kp": min(1.0, (r["kills"] + r["assists"]) / team_kills),
             "d10": r["deaths"] / mins * 10, "ka10": (r["kills"] + r["assists"]) / mins * 10,
-            "move": held[k],
+            "move": held[k][0], "hero_move": held[k][1],
         })
     return out
 
@@ -202,6 +207,12 @@ def main():
         e["high_kp_heroes"] = effect([r for r in rows if r["hero"] in high], lambda r, n=n: n in r["move"])
         e["other_heroes"] = effect([r for r in rows if r["hero"] not in high], lambda r, n=n: n in r["move"])
         items[n] = e
+    hero_items = {}
+    for h, names in HERO_MOVEMENT.items():
+        for n in names:
+            e = effect(by_hero.get(h, []), lambda r, n=n: n in r["hero_move"])
+            if e is not None:
+                hero_items.setdefault(str(h), {})[n] = e
     any_move = effect(rows, lambda r: bool(r["move"]))
     # several movement items overlap (one escape is enough): measured effect of holding k (3 = 3+) vs none
     stack = {}
@@ -211,7 +222,8 @@ def main():
         stack[k] = e
     res = {"players": len(rows), "bracket": "phantom", "nw_bin": NW_BIN, "dur_bin": DUR_BIN, "high_kp_cut": cut,
            "heroes": heroes, "correlation": corr, "any_movement_item": any_move, "items": items,
-           "by_count": {str(k): e for k, e in stack.items()}}
+           "by_count": {str(k): e for k, e in stack.items()},
+           "hero_items": hero_items}
     os.makedirs(OUT, exist_ok=True)
     json.dump(res, open(f"{OUT}/kill_participation.json", "w"), indent=1)
     json.dump({
@@ -225,6 +237,9 @@ def main():
                         "not): the measured chase x escape of holding that many vs none (they overlap, so values "
                         "don't multiply)."),
         "movement_items": MOVEMENT,
+        "_hero_note": ("hero_items: items that are movement for one hero only (HERO_MOVEMENT), measured the same way "
+                       "on that hero's players."),
+        "hero_items": {h: {n: e["value"] for n, e in row.items() if e["value"] > 1.0} for h, row in hero_items.items()},
         "stack_cap": {str(k): round(min(CAP, max(1.0, stack[k]["chase"] * stack[k]["escape"])), 4) for k in (2, 3)},
     }, open(SIM_OUT, "w"), indent=1)
     write_md(res)

@@ -66,7 +66,7 @@ class LethalVenom(AbilityImpl):
     def in_range(self, c):
         r = c.raw("AbilityCastRange", 10) + 0.2 * c.me.st.boons
         r *= 1.0 + self.s.range_pct()
-        return c.dist <= r + c.me.skill.engage_margin
+        return c.within(r)
 
     def should_cast(self, c):
         return self.in_range(c) and c.foe.hp_frac <= VENOM_CAST_HP and c.now >= c.state["pending_until"]

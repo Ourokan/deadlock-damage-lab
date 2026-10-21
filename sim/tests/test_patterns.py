@@ -136,8 +136,8 @@ class TestScornHeal(unittest.TestCase):
 # (hero, enemy, winner, time, damage dealt, damage taken) at 20k souls, accuracy 0.3, no items, mechanics default
 PINNED = [
     ("Mo & Krill", "Haze", None, 30.0, 1663.8, 1568.9),
-    ("Paradox", "Abrams", None, 30.0, 2490.7, 1404.7),
-    ("Venator", "Lash", "Venator (A)", 21.548, 2088.4, 971.5),
+    ("Paradox", "Abrams", None, 30.0, 2476.7, 1596.0),   # re-pinned: Abrams walks in for Siphon Life
+    ("Venator", "Lash", "Venator (A)", 15.136, 2076.1, 971.5),   # re-pinned: Venator walks in for a second Gutshot
     ("Warden", "Seven", "Seven (B)", 17.1, 734.1, 2623.5),
 ]
 

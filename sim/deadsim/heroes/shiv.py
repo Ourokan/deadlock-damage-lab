@@ -175,7 +175,7 @@ class KillingBlow(AbilityImpl):
 
     def should_cast(self, c):
         thr = c.raw("EnemyHealthPercent") / 100
-        return c.foe.hp_frac < thr and c.dist <= c.rng("AbilityCastRange") + c.me.skill.engage_margin
+        return c.foe.hp_frac < thr and c.within(c.rng("AbilityCastRange"))
 
     def cast(self, c):
         delay = max(c.raw("AbilityCastDelay"), c.raw("MinTimeToTarget"))

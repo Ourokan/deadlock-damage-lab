@@ -30,7 +30,7 @@ class GroundStrike(AbilityImpl):
     kind = "aoe"
 
     def in_range(self, c):
-        return c.dist <= c.rng("Radius") + DIVE_REACH + c.me.skill.engage_margin
+        return c.within(c.rng("Radius") + DIVE_REACH)
 
     def should_cast(self, c):
         return not busy(c) and self.in_range(c)

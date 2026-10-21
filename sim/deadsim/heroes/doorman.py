@@ -74,7 +74,7 @@ class HotelGuest(AbilityImpl):
     kind = "target"
 
     def in_range(self, c):
-        return c.dist <= c.rng("AbilityCastRange") + c.me.skill.engage_margin + HOTEL_APPROACH
+        return c.within(c.rng("AbilityCastRange") + HOTEL_APPROACH)
 
     def cast(self, c):
         ch = c.raw("AbilityChannelTime", 1.0)

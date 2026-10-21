@@ -103,7 +103,7 @@ class Combo(_Base):
         if c.now <= c.me.counters.get("krill_close_until", -1) and \
                 c.now >= c.me.counters["krill_close_until"] - MELEE_WINDOW:
             return True
-        return c.dist <= c.rng("AbilityCastRange") + c.me.skill.engage_margin
+        return c.within(c.rng("AbilityCastRange"))
 
     def cast(self, c):
         dur = c.dur("AbilityChannelTime")

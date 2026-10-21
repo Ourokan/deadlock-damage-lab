@@ -30,6 +30,12 @@
   "Magic Carpet",
   "Ethereal Shift"
  ],
+ "_hero_note": "hero_items: items that are movement for one hero only (HERO_MOVEMENT), measured the same way on that hero's players.",
+ "hero_items": {
+  "63": {
+   "Mystic Expansion": 1.0441
+  }
+ },
  "stack_cap": {
   "2": 1.0775,
   "3": 1.1195

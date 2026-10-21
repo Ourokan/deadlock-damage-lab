@@ -49,7 +49,7 @@ class ExplodingUppercut(AbilityImpl):
     kind = "target"
 
     def in_range(self, c):
-        return hooked(c) or c.dist <= c.rng("MeleeAttackLength", 6.0) + c.me.skill.engage_margin
+        return hooked(c) or c.within(c.rng("MeleeAttackLength", 6.0))
 
     def should_cast(self, c):
         return self.in_range(c) and not beaming(c)
