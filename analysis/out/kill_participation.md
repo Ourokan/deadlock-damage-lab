@@ -56,10 +56,10 @@ Bold = top third by KP (KP >= 53%). Across heroes, KP vs movement items held: r 
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | Stalker | 56,280 | 55.1% | 52.8% | +13.9 | 2.10 | 2.15 | +3.9 | 1.042 | 1.019 | 1.0625 | 1.045 (z +11.0) | 1.037 (z +9.1) |
 | Majestic Leap | 12,337 | 52.2% | 51.0% | +5.0 | 1.67 | 1.73 | +4.6 | 1.023 | 1.037 | 1.0609 | 1.001 (z +0.2) | 1.034 (z +5.2) |
-| Magic Carpet | 2,988 | 51.8% | 53.3% | -6.4 | 1.50 | 1.59 | +6.2 | 0.971 | 1.057 | 1.0571 | 0.972 (z -3.6) | 0.971 (z -5.4) |
 | Arcane Surge | 41,162 | 51.5% | 51.2% | +3.4 | 1.67 | 1.75 | +15.3 | 1.006 | 1.046 | 1.0516 | 1.002 (z +1.0) | 1.008 (z +3.5) |
 | Warp Stone | 41,568 | 53.2% | 52.8% | +5.6 | 1.77 | 1.82 | +10.7 | 1.008 | 1.030 | 1.038 | 1.010 (z +4.1) | 1.007 (z +3.8) |
 | Enduring Speed | 98,396 | 51.3% | 51.1% | +3.1 | 1.79 | 1.84 | +12.4 | 1.004 | 1.027 | 1.0315 | 0.996 (z -2.6) | 1.008 (z +4.7) |
+| Magic Carpet | 2,988 | 51.8% | 53.3% | -6.4 | 1.50 | 1.59 | +6.2 | 0.971 | 1.057 | 1.0266 | 0.972 (z -3.6) | 0.971 (z -5.4) |
 | Veil Walker | 19,931 | 54.7% | 54.3% | +4.1 | 1.96 | 1.99 | +5.4 | 1.007 | 1.017 | 1.0246 | 1.008 (z +3.7) | 1.006 (z +1.9) |
 | Fleetfoot | 63,885 | 51.5% | 51.3% | +2.3 | 1.78 | 1.81 | +6.8 | 1.003 | 1.016 | 1.019 | 1.007 (z +3.6) | 1.002 (z +0.9) |
 | Stamina Mastery | 64,745 | 53.0% | 53.3% | -1.6 | 1.71 | 1.74 | +3.6 | 0.996 | 1.019 | 1.0186 | 0.992 (z -2.8) | 0.999 (z -0.3) |
@@ -73,4 +73,4 @@ Bold = top third by KP (KP >= 53%). Across heroes, KP vs movement items held: r 
 
 Holding several movement items (vs none, same matching): 1: chase 1.008, escape 1.028; 2: chase 1.015, escape 1.062; 3+: chase 1.021, escape 1.096. They overlap, so a build's combined weight is capped at the 2 and 3+ values.
 
-Chase = KP ratio holders / others; escape = deaths ratio others / holders (deaths z > 0 = holders die less). Score weight = chase x escape, each part only when its z >= 2, floor 1, cap 1.25; the overall build score multiplies by it (damage/scripts/overall_search.py).
+Chase = KP ratio holders / others; escape = deaths ratio others / holders (deaths z > 0 = holders die less). Score weight = chase x escape, each part only when |z| >= 2, floor 1, cap 1.25; the overall build score multiplies by it (damage/scripts/overall_search.py).

@@ -18,8 +18,8 @@ the holder-weighted mean of the differences (SE from the stratum variances). Net
 players fight more and own more items), so every comparison is at the same net worth, same hero, same game length.
 
 Score weight (sim/data/movement_value.json, read by damage/scripts/overall_search.py)
-  chase  = KP holders / KP non-holders               (used when z >= 2, else 1)
-  escape = deaths/10 non-holders / deaths/10 holders (used when z >= 2, else 1)
+  chase  = KP holders / KP non-holders               (used when |z| >= 2, else 1)
+  escape = deaths/10 non-holders / deaths/10 holders (used when |z| >= 2, else 1)
   value  = min(CAP, max(1, chase x escape))
   stack_cap[k] = the same for holding k (3 = 3+) movement items vs none: caps a build's combined value, since
                  movement items overlap (one escape tool covers most of what a second adds)
@@ -138,7 +138,9 @@ def effect(rows, has):
     chase = 1 + kp["diff"] / kp["base"]
     escape = d["base"] / (d["base"] + d["diff"])
     z_kp, z_d = kp["diff"] / kp["se"], -d["diff"] / d["se"]
-    used = (chase if z_kp >= Z_MIN else 1.0) * (escape if z_d >= Z_MIN else 1.0)
+    # a significant effect counts either way: a holder who joins fewer kills but dies less (Magic Carpet) is mostly
+    # a player who hangs back, so the lower KP offsets the escape part instead of being dropped
+    used = (chase if abs(z_kp) >= Z_MIN else 1.0) * (escape if abs(z_d) >= Z_MIN else 1.0)
     return {
         "holders": kp["n"],
         "kp": round(kp["base"] + kp["diff"], 4), "kp_others": round(kp["base"], 4), "kp_diff": round(kp["diff"], 4),
@@ -212,8 +214,10 @@ def main():
     json.dump(res, open(f"{OUT}/kill_participation.json", "w"), indent=1)
     json.dump({
         "_note": ("Overall-score multiplier per movement item: real Phantom+ chase (kill participation) x escape "
-                  "(deaths per 10 min) effect at the same hero, net worth and game length; only effects with z >= 2, "
-                  "floor 1, cap %.2f. Built by analysis/scripts/kill_participation.py." % CAP),
+                  "(deaths per 10 min) effect at the same hero, net worth and game length; only parts with |z| >= 2, "
+                  "item floor 1, cap %.2f. Static snapshot of patch 09-29-2026 Phantom+ games (2026-09-30 to "
+                  "2026-10-13), not refit by patch reruns: rerun analysis/scripts/fetch_kda.py and "
+                  "kill_participation.py from the project files to refresh." % CAP),
         "items": {n: e["value"] for n, e in sorted(items.items()) if e["value"] > 1.0},
         "_stack_note": ("Cap on the combined value of 2 and of 3+ weighted items: the measured chase x escape of "
                         "holding that many movement items vs none (the items overlap, so values don't multiply)."),
@@ -251,7 +255,7 @@ def write_md(res):
         for k, e in res["by_count"].items()) + ". They overlap, so a build's combined weight is capped at the "
         "2 and 3+ values.",
         "", "Chase = KP ratio holders / others; escape = deaths ratio others / holders (deaths z > 0 = holders die "
-          "less). Score weight = chase x escape, each part only when its z >= 2, floor 1, cap "
+          "less). Score weight = chase x escape, each part only when |z| >= 2, floor 1, cap "
           f"{CAP}; the overall build score multiplies by it (damage/scripts/overall_search.py)."]
     open(f"{OUT}/kill_participation.md", "w").write("\n".join(L) + "\n")
 
