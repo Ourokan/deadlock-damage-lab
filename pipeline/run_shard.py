@@ -2,7 +2,7 @@
 python3 pipeline/run_shard.py --tier phantom --shard I --of N [--workers 4]
 
 Heroes are dealt round-robin into N shards, so N machines can run a tier side by side. Every tier runs the duel
-search and the overall search (damage before dying, counterplay on) in its rank bracket. The standard tier
+search, the overall search (damage before dying, counterplay on) and the full game build path in its rank bracket. The standard tier
 (build_pool.PRIMARY, Phantom and up) also runs the dummy damage search, the item buy order, the ability upgrade order and, for the tank heroes,
 the survival search. Tiers and their order: pipeline/tiers.json. Inputs: search/work/snapshots_*.json and item_usage*.json from search/scripts/build_pool.py. Results land
 in each search's work/jobs*/ folder as usual. A step that fails is retried hero by hero, so one broken hero
@@ -30,6 +30,7 @@ def steps(tier, workers):
     if tier == PRIMARY:
         yield "survival", [py, "survival/scripts/survival_search.py", "--only-tanks"] + w
     yield f"overall_{tier}", [py, "damage/scripts/overall_search.py", "--bracket", tier] + w   # needs the damage jobs to export
+    yield f"path_{tier}", [py, "damage/scripts/game_path.py", "--bracket", tier] + w   # reads the overall jobs
 
 
 def run(cmd, heroes, budgets=""):

@@ -15,7 +15,12 @@ gaps). Output: data/landing_rates.json (used by Skill.ability_landing) and valid
 Melee: each fighter melees at its hero's rate from data/melee_rates.json. With --fit-melee the rates are refitted
 (rate x real melee/gun ratio / sim melee/gun ratio) and written back; run it 2-3 times to converge.
 
-usage: python3 scripts/landing_rates.py [max_players] [workers] [--fit-melee] [--hero NAME ...]
+With --iterate the sim runs with the current landing factors applied and each factor is updated as
+old x (real ratio / sim ratio). For abilities whose damage scales linearly with the factor this gives the same
+result in one pass; for the rest (Bullet Dance, whose factor shortens the channel, and Fixation, whose stacks the
+channel's bullets build) it converges over 2-3 runs.
+
+usage: python3 scripts/landing_rates.py [max_players] [workers] [--fit-melee] [--iterate] [--hero NAME ...]
 With --hero it runs only those heroes and prints real vs sim damage shares without writing any files.
 """
 import collections
@@ -31,7 +36,8 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.insert(0, ROOT)
 from deadsim import Loadout, Skill, duel, game  # noqa: E402
 from deadsim.abilities import load_heroes  # noqa: E402
-from deadsim.accuracy import HEADS, HITS, SHOTS, default_distance  # noqa: E402
+from deadsim.accuracy import HEADS, HITS, SHOTS, ability_landing, default_distance  # noqa: E402
+import deadsim.mechanics as MECH  # noqa: E402
 
 CATEGORY = {"Bullet", "Ability", "Melee", "Misc"}   # per-damage-type totals in the matrix, not sources
 MIN_HITS = 150
@@ -70,6 +76,16 @@ try:
 except (OSError, ValueError, KeyError):
     MELEE = {}
 MELEE_START = 0.1   # melee hits/s used for a hero not yet fitted
+ITERATE = False     # --iterate: fight with the current landing factors and update them multiplicatively
+_landing = {}
+
+
+def current_landing(hero_id):
+    """The landing factors fights use now (mechanics on or off, as deadsim.mechanics.DEFAULT says)."""
+    mech = MECH.DEFAULT is not None
+    if (hero_id, mech) not in _landing:
+        _landing[hero_id, mech] = ability_landing(game().hero(hero_id).name, mech=mech)
+    return _landing[hero_id, mech]
 
 
 def skill_of(p):
@@ -77,8 +93,12 @@ def skill_of(p):
     shots, hits = c.get(SHOTS, 0), c.get(HITS, 0)
     rate = MELEE.get(p["hero_id"], MELEE_START)
     if shots < 300:
-        return Skill(melee_rate=rate)
-    return Skill(accuracy=hits / shots, headshot=c.get(HEADS, 0) / max(1, hits), melee_rate=rate)
+        sk = Skill(melee_rate=rate)
+    else:
+        sk = Skill(accuracy=hits / shots, headshot=c.get(HEADS, 0) / max(1, hits), melee_rate=rate)
+    if ITERATE:
+        sk.ability_landing = sk.ability_landing_mech = dict(current_landing(p["hero_id"]))
+    return sk
 
 
 def build_at(p, t):
@@ -120,8 +140,10 @@ def sim_player(job):
 
 def main():
     args = sys.argv[1:]
+    global ITERATE
     fit_melee = "--fit-melee" in args
-    args = [a for a in args if a != "--fit-melee"]
+    ITERATE = "--iterate" in args
+    args = [a for a in args if a not in ("--fit-melee", "--iterate")]
     only = set()
     if "--hero" in args:
         i = args.index("--hero")
@@ -171,6 +193,8 @@ def main():
             if sa <= 0 or r["GUN"] <= 0 or s["GUN"] <= 0:
                 continue
             lr = (ra / r["GUN"]) / (sa / s["GUN"])
+            if ITERATE:
+                lr *= current_landing(hid).get(ab.name, 1.0)
             rows[ab.name] = {"class": ab.class_name, "landing": round(lr, 3),
                              "real_share": round(ra / rt, 4), "sim_share": round(sa / st, 4)}
         landing[h.name] = rows

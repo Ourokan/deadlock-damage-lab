@@ -553,6 +553,71 @@ async function renderOverallTab() {
       <div class="kv">${loss.map(([i, v]) => `<span>${tile(i, { static: true })}</span><span>${fmt(v, 3)}</span>`).join("")}</div></div></div>` : ""}`;
 }
 
+// full game build paths (damage/scripts/game_path.py): one build from 10k to 50k, stage scores, buy order with spikes
+const SLOT_NAME = { weapon: "Weapon", vitality: "Vitality", spirit: "Spirit" };
+const START_LABEL = { best_10k: "the best 10k build", toward_late_game: "pieces of the late game build" };
+const spikeTag = (x) => `<span class="spike${x.at >= 4800 && x.at < 6400 ? " big" : ""}" data-slot="${x.slot}" title="${SLOT_NAME[x.slot]} items cost ${fmt(x.at)} souls or more">${SLOT_NAME[x.slot]} ${fmt(x.at / 1000, 1)}k: +${fmt(x.bonus)}%</span>`;
+function invBars(inv) {
+  return `<div class="inv">${Object.entries(inv).map(([sl, v]) => {
+    const top = Math.max(6400, (v.next_at || v.spent) * 1.05), w = Math.min(100, v.spent / top * 100);
+    const next = v.next_at ? `next +${fmt(v.next_bonus)}% at ${fmt(v.next_at / 1000, 1)}k (${fmt(v.next_at - v.spent)} more)` : "top tier";
+    return `<div class="inv-row" data-slot="${sl}" title="${SLOT_NAME[sl]}: ${fmt(v.spent)} souls in items, ${next}"><span>${SLOT_NAME[sl]}</span>`
+      + `<span class="inv-bar"><i style="width:${w}%"></i><b style="left:${Math.min(99, 4800 / top * 100)}%"></b></span><span>+${fmt(v.bonus)}%</span></div>`;
+  }).join("")}</div>`;
+}
+
+async function renderPathTab() {
+  const out = $("#p-out"), idx = await load("data/path/index.json"), id = $("#p-hero").value;
+  const h = idx?.heroes[id];
+  if (!h || !Object.keys(h.brackets || {}).length) { out.innerHTML = '<p class="empty">No full game build for this hero yet.</p>'; return; }
+  const meta = Object.fromEntries(idx.brackets.map((x) => [x.id, x]));
+  fillBracketSelect($("#p-rank"), Object.keys(h.brackets), Object.fromEntries(idx.brackets.map((x) => [x.id, x.label])));
+  const br = $("#p-rank").value, d = await load(`data/path/heroes/${id}_${br}.json`);
+  if (id !== $("#p-hero").value) return;
+  if (!d) { out.innerHTML = '<p class="empty">No full game build for this hero and rank yet.</p>'; return; }
+  const latest = idx.brackets.map((x) => x.generated).sort().pop();
+  const stale = meta[br] && meta[br].generated < latest ? ` These ${esc(meta[br].label)} results are from an earlier run (${esc(meta[br].generated.slice(0, 10))}); they refresh after the brackets before them.` : "";
+  const name = (i) => S.items[i]?.name || "?";
+  const weakest = Math.min(...d.stage_scores);
+  const cards = d.stages.map((st, k) => {
+    const prev = k ? d.stages[k - 1].items : [], kept = st.items.filter((i) => prev.includes(i));
+    const fresh = st.items.filter((i) => !prev.includes(i));
+    const sc = st.overall.score, alone = st.best_alone;
+    const ctx = { kind: "overall", hero: Number(id), souls: st.budget, items: st.items, popular: st.popular.items };
+    return `<div class="card stage"><h3><span>${fmt(st.budget / 1000)}k</span><span class="${sc >= 1 ? "up" : "down"}">${signed(sc - 1)}</span></h3>
+      ${bdTiles(ctx)}
+      <p class="hint">${k ? `New: ${fresh.map((i) => esc(name(i))).join(", ") || "nothing"}.` : "Opening build."}${st.sold?.length ? ` Sold: ${st.sold.map((i) => esc(name(i))).join(", ")}.` : ""}${sc === weakest ? " Weakest stage of the path." : ""}</p>
+      <div class="kv"><span>Damage before dying</span><span><b>${fmt(st.overall.damage_before_death)}</b> <span class="hint">pop. ${fmt(st.popular.damage_before_death)}</span></span>
+      <span>Time alive</span><span>${fmt(st.overall.time_alive_s, 1)} s <span class="hint">pop. ${fmt(st.popular.time_alive_s, 1)}</span></span>
+      ${alone ? `<span title="The best overall build for this net worth alone, free to use items a path would have to sell">vs best for ${fmt(st.budget / 1000)}k alone</span><span>${pct(alone.score ? sc / alone.score : null)}</span>` : ""}
+      <span>Item souls</span><span>${fmt(st.cost)} / ${fmt(st.item_budget)}</span>
+      ${st.lost_to_sales ? `<span title="Half of each sold item's cost, spent for the rest of the game">Lost to sales</span><span>${fmt(st.lost_to_sales)}</span>` : ""}</div>
+      ${invBars(st.invest)}
+      ${testBtn(Number(id), st.budget, st.items, `Full game build at ${fmt(st.budget / 1000)}k`)}</div>`;
+  }).join("");
+  let stage = null;
+  const rows = d.order.map((s) => {
+    let head = "";
+    if (s.stage !== stage) {
+      stage = s.stage;
+      head = `<tr class="pop"><td colspan="4"><b>Toward ${fmt(stage / 1000)}k</b></td></tr>`;
+    }
+    if (s.sell) return head + `<tr><td class="n">${fmt(s.net_worth)}</td><td>Sell ${s.sell.map((i) => tile(i, { static: true })).join(" ")}</td><td class="n up">+${fmt(s.refund)}</td><td></td></tr>`;
+    const rep = s.replaces.filter((i) => S.items[i]).map(name);
+    return head + `<tr><td class="n">${fmt(s.net_worth)}</td><td>${tile(s.item, { static: true })}${rep.length ? ` <span class="hint">upgrades ${esc(rep.join(", "))}</span>` : ""}</td>`
+      + `<td class="n">${fmt(s.paid)}</td><td>${s.spikes.map(spikeTag).join("")}</td></tr>`;
+  }).join("");
+  const lin = d.lineages.map((x) => `<tr class="${x.start === d.start ? "pop" : ""}"><td>${esc(START_LABEL[x.start] || x.start)}</td>${x.stage_scores.map((v) => `<td class="n ${v >= 1 ? "up" : "down"}">${signed(v - 1)}</td>`).join("")}<td class="n"><b>${fmt(x.path_score, 3)}</b></td></tr>`).join("");
+  out.innerHTML = `<p class="hint">Each stage's score is its damage before dying compared with the most popular real build at that net worth (+0% = popular). Starts from ${esc(START_LABEL[d.start] || d.start)}.${stale} Tap any item to see what it adds.</p>
+    <div class="stages">${cards}</div>
+    <div class="card" style="margin-top:16px"><h3>Buy order and investment spikes</h3>
+    <p class="hint">Each step buys the piece with the most fight value per soul against the next stage's enemies; two pieces that only cross a slot threshold together are valued as a pair, so spikes are hit as early as the souls allow. Net worth is when you can afford it at the share of souls real players hold in items. Spike tags are the slot bonus reached (weapon damage %, max health %, flat spirit).</p>
+    <div class="scroll"><table><thead><tr><th class="n">Net worth</th><th>Buy</th><th class="n">Pays</th><th>Spikes</th></tr></thead><tbody>${rows}</tbody></table></div></div>
+    <div class="card" style="margin-top:16px"><h3>Starts compared</h3>
+    <p class="hint">Two 10k starts, the best 10k build and one made of the late game build's items and components, each grown stage by stage. Path score is the average stage score with the weakest stage counted twice (1.0 = popular everywhere).</p>
+    <div class="scroll"><table><thead><tr><th>Start</th>${d.budgets.map((b) => `<th class="n">${fmt(b / 1000)}k</th>`).join("")}<th class="n">Path</th></tr></thead><tbody>${lin}</tbody></table></div></div>`;
+}
+
 async function renderTankTab() {
   const out = $("#t-out"), id = $("#t-hero").value, d = await load(`data/tank/heroes/${id}.json`);
   if (!d) { out.innerHTML = '<p class="empty">No survival results for this hero.</p>'; return; }
@@ -665,10 +730,11 @@ function renderSheet() {
 // ---------- tabs ----------
 function showTab() {
   const t = (location.hash || "#test").slice(1).split("/")[0];
-  const tab = ["test", "match", "overall", "damage", "duel", "tank", "team"].includes(t) ? t : "test";
+  const tab = ["test", "maker", "match", "overall", "path", "damage", "duel", "tank", "team"].includes(t) ? t : "test";
   $$(".tab").forEach((s) => (s.hidden = s.id !== "tab-" + tab));
   $$("#tabs a").forEach((a) => (a.dataset.tab === tab ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
   if (tab === "overall") renderOverallTab();
+  if (tab === "path") renderPathTab();
   if (tab === "damage") renderDamageTab();
   if (tab === "duel") renderDuelTab();
   if (tab === "tank") renderTankTab();
@@ -683,10 +749,10 @@ async function boot() {
   S.dataNow();
   const opts = heroes.map((h) => `<option value="${h.id}">${esc(h.name)}</option>`).join("");
   $("#a-hero").innerHTML = opts; $("#d-heroname").innerHTML = opts;
-  fillHeroSelect($("#g-hero")); fillHeroSelect($("#u-hero")); fillHeroSelect($("#o-hero"));
+  fillHeroSelect($("#g-hero")); fillHeroSelect($("#u-hero")); fillHeroSelect($("#o-hero")); fillHeroSelect($("#p-hero"));
   const tank = await load("data/tank/index.json");
   fillHeroSelect($("#t-hero"), tank ? Object.keys(tank.heroes) : []);
-  for (const s of ["#g-hero", "#u-hero", "#o-hero"]) $(s).value = 13;
+  for (const s of ["#g-hero", "#u-hero", "#o-hero", "#p-hero"]) $(s).value = 13;
   load("data/patch.json").then((p) => {
     if (!p) return;
     $("#patch").textContent = p.patch;
@@ -736,8 +802,9 @@ async function boot() {
   $("#g-hero").onchange = renderDamageTab; $("#g-budget").onchange = renderDamageTab;
   $("#u-hero").onchange = renderDuelTab; $("#u-budget").onchange = renderDuelTab; $("#u-bracket").onchange = renderDuelTab;
   $("#t-hero").onchange = renderTankTab; $("#t-budget").onchange = renderTankTab;
+  $("#p-hero").onchange = renderPathTab; $("#p-rank").onchange = renderPathTab;
   $("#o-hero").onchange = renderOverallTab; $("#o-budget").onchange = renderOverallTab; $("#o-rank").onchange = renderOverallTab;
-  for (const s of ["#g-out", "#g-skill", "#g-order", "#u-out", "#t-out", "#o-out"]) $(s).addEventListener("click", onTest);
+  for (const s of ["#g-out", "#g-skill", "#g-order", "#u-out", "#t-out", "#o-out", "#p-out"]) $(s).addEventListener("click", onTest);
   document.addEventListener("click", (e) => {
     const t = e.target.closest(".build.tap .it");
     if (t) openBreakdown(JSON.parse(t.closest(".build").dataset.bd), t.dataset.id);

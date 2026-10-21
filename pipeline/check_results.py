@@ -1,7 +1,7 @@
 """Check a rerun tier is complete enough to publish: python3 pipeline/check_results.py --tier phantom [--min-share 0.95]
 
 Counts the tier's finished search jobs per step (pipeline/run_shard.py steps) against heroes x budgets (10 tank heroes for survival, one per hero for
-the buy and ability orders), lists the heroes the shards reported as failed, writes a table to $GITHUB_STEP_SUMMARY under GitHub Actions and exits 1 when any
+the buy and ability orders and the full game paths), lists the heroes the shards reported as failed, writes a table to $GITHUB_STEP_SUMMARY under GitHub Actions and exits 1 when any
 step has less than --min-share of its jobs, so the old results stay up rather than a site with holes.
 """
 import argparse
@@ -24,7 +24,7 @@ def main():
     a = ap.parse_args()
     with open(os.path.join(ROOT, "data", "game", "heroes.json")) as f:
         heroes = {h["id"]: h["name"] for h in json.load(f)}
-    # step -> (jobs dir, expected job files): one per hero x budget, except the buy and ability orders (one per hero)
+    # step -> (jobs dir, expected job files): one per hero x budget, except the buy and ability orders and the full game paths (one per hero)
     n = len(BUDGETS)
     t = a.tier
     dirs = {}
@@ -35,6 +35,7 @@ def main():
     if t == PRIMARY:
         dirs["survival"] = ("survival/work/jobs", N_TANKS * n)
     dirs[f"overall_{t}"] = ("damage/work/jobs_overall_" + t, len(heroes) * n)
+    dirs[f"path_{t}"] = ("damage/work/jobs_path_" + t, len(heroes))
     failed = {}
     for fn in glob.glob(os.path.join(ROOT, "pipeline", "work", f"shard_{t}_*.json")):
         with open(fn) as f:

@@ -104,3 +104,81 @@ def team(req_json):
     r = team_fight(sides[0], sides[1], distance=q.get("distance") or 15.0, max_time=q.get("max_time") or 40.0,
                    focus=q.get("focus") or "focus")
     return json.dumps(r.to_dict())
+
+
+# ---------- build maker (web/maker.js) ----------
+class _Refill:
+    """Both sides refill on lethal damage, so a fight always runs its full length; the first lethal moment is the
+    time to kill, and refills x max HP + HP missing at the end is the HP really lost (after heals and barriers)."""
+    item = None
+    name = "refill"
+
+    def __init__(self):
+        self.first, self.n = None, 0
+
+    def on_lethal(self, f, attacker):
+        if self.first is None:
+            self.first = f.e.t
+        self.n += 1
+        f.hp = f.max_hp
+        return True
+
+
+_maker_skill = {}
+
+
+def _maker_sk(name, aim):
+    """Phantom+ habits (lowest badge 91) with counterplay on, the overall search's setting."""
+    k = (name, aim)
+    if k not in _maker_skill:
+        _maker_skill[k] = hero_default_skill(name, aim, badge=91, counterplay=True)
+    return _maker_skill[k]
+
+
+def _skirmish(G, me, foe, T, aim):
+    import dataclasses
+    from deadsim import Loadout, mechanics
+    from deadsim.engine import Engine
+    from deadsim.fight import make_fighter
+    hn, en = G.hero(me["hero"]).name, G.hero(foe["hero"]).name
+    # movement off, as in the survival and overall searches: running away isn't damage dealt or taken
+    mech = dataclasses.replace(mechanics.DEFAULT, movement=False) if mechanics.DEFAULT else None
+    e = Engine(distance=(default_distance(hn) + default_distance(en)) / 2, max_time=T, mech=mech)
+    a = make_fighter(e, Loadout(hn, [_item(G, x).name for x in me["items"]], souls=me.get("souls") or None,
+                                skill=_maker_sk(hn, aim)), "you")
+    b = make_fighter(e, Loadout(en, [_item(G, x).name for x in foe["items"]], souls=foe.get("souls") or None,
+                                skill=_maker_sk(en, aim)), "enemy")
+    ra, rb = _Refill(), _Refill()
+    a.items_fx.append(ra)
+    b.items_fx.append(rb)
+    hp_a, hp_b = a.max_hp, b.max_hp
+    e.run(a, b)
+
+    def kill_time(r, f, hp0):
+        if r.first is not None:
+            return r.first
+        lost = r.n * f.max_hp + max(0.0, f.max_hp - f.hp)
+        return T * hp0 / lost if lost > 1 else 999.0
+
+    top = lambda d: [[k, round(v)] for k, v in sorted(d.items(), key=lambda x: -x[1])[:3] if v >= 1]
+    return {
+        "dealt": round(sum(a.dmg_out.values()), 1), "taken": round(sum(a.dmg_in.values()), 1),
+        "ttk": round(min(999.0, kill_time(rb, b, hp_b)), 2), "ttd": round(min(999.0, kill_time(ra, a, hp_a)), 2),
+        "hp": round(hp_a), "enemy_hp": round(hp_b),
+        "enemy_heal": round(getattr(b, "healed", 0.0) or 0.0, 1),
+        "top_dealt": top(a.dmg_out), "top_taken": top(a.dmg_in),
+    }
+
+
+def maker(req_json):
+    """Your build against each enemy build, both fighting back for T seconds (default 15) and refilling instead of
+    dying. {"hero", "items", "souls", "aim", "T", "enemies": [{"hero", "items", "souls"}],
+    "variants": [[items], ...]} -> {"variants": [[per-enemy result, ...], ...]} (variants default to [items])."""
+    q = json.loads(req_json)
+    G = game()
+    T, aim = float(q.get("T") or 15.0), q.get("aim") or "p75"
+    out = []
+    for items in q.get("variants") or [q.get("items", [])]:
+        me = {"hero": q["hero"], "items": items, "souls": q.get("souls")}
+        out.append([_skirmish(G, me, foe, T, aim) for foe in q.get("enemies", [])])
+    return json.dumps({"variants": out})

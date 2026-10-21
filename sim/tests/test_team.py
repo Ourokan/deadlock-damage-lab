@@ -23,9 +23,9 @@ def lo(hero, items=(), **kw):
 # (hero, items, enemy, items, winner, time, damage dealt, damage taken)
 DUELS = [
     ("Haze", ["Rapid Rounds", "Toxic Bullets", "Restorative Locket"], "Infernus",
-     ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Haze (A)", 25.432, 2744.0, 1980.5),
+     ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Haze (A)", 25.437, 2764.0, 2086.6),   # re-pinned 2026-10-21 (gun re-checks its lock; a stun ends Bullet Dance evasion)
     ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 25.1, 2009.9, 3194.2),   # re-pinned: Abrams walks in for Siphon Life
-    ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1769.2, 1303.4),
+    ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1769.2, 1509.5),   # re-pinned 2026-10-21: Dynamo shoots after a cut-short channel
 ]
 
 

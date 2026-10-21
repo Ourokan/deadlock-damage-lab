@@ -32,6 +32,7 @@ MELEE_HEAVY_TIME = 1.1
 # Below MELEE_MIN_RATE hits/s a melee event fires every 1/MELEE_MIN_RATE s with a fractional weight (expected
 # damage), so rare meleers still melee within a short fight.
 MELEE_MIN_RATE = 0.2
+GUN_POLL = 0.1          # longest a locked gun sleeps before re-checking the lock
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -383,15 +384,16 @@ class Engine:
     # ---- damage -------------------------------------------------------------------------------------
     def damage(self, src: Fighter, dst: Fighter, raw: float, kind: str, source: str, *,
                ignore_resist=False, is_ability=False, ability=None, is_dot=False, is_item=False,
-               headshots=0, hits=0, procs=True, is_ult=False, nonlethal=False, pure=False):
+               headshots=0, hits=0, procs=True, is_ult=False, nonlethal=False, pure=False, landed=False):
         """pure=True: raw is already final damage (e.g. Focus Lens re-dealing stored damage), so no outgoing or
         target amps, no resists and no target-side reducers (all already counted in raw). The realistic-mode item
         landing factor still applies on purpose: for Focus Lens it is the real/sim ratio of the item's own damage,
-        i.e. how much less real players fit into the silence window."""
+        i.e. how much less real players fit into the silence window. landed=True: the ability already applied its
+        landing factor some other way (Bullet Dance shortens its channel), so it is not applied again here."""
         if self.over or not dst.alive or raw <= 0:
             return 0.0
         amt = raw if pure else raw * src.st.outgoing_mult * (1.0 - src.stat("outgoing_penalty")) * (1.0 + src.stat("damage_amp"))
-        if is_ability and src.skill.ability_landing:
+        if is_ability and src.skill.ability_landing and not landed:
             amt *= src.skill.ability_landing.get(source, 1.0)
         if is_item and src.skill.item_landing:
             amt *= src.skill.item_landing.get(source, 1.0)
@@ -476,6 +478,10 @@ class Engine:
                 f = getattr(ab.impl, "on_damage_dealt", None) if ab.unlocked else None
                 if f:
                     f(ab.ctx, dst, hit)
+        for ab in src.abilities:   # every hit, procs or not (DoT ticks wake a Sleep Dagger target)
+            f = getattr(ab.impl, "on_any_damage_dealt", None) if ab.unlocked else None
+            if f:
+                f(ab.ctx, dst, hit)
         for fx in dst.items_fx:
             f = getattr(fx, "on_damage_taken", None)
             if f:
@@ -529,7 +535,8 @@ class Engine:
         t = self.t
         st = f.st
         if not f.can_shoot():
-            nxt = max(t + 0.05, f.gun_locked_until)
+            # wake at least every GUN_POLL s: a channel cut short (stun, target dead) pulls gun_locked_until back
+            nxt = max(t + 0.05, min(f.gun_locked_until, t + GUN_POLL))
             f.shooting_since = None
             self.at(nxt, self.gun_tick, f)
             return

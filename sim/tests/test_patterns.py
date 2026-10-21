@@ -138,7 +138,7 @@ PINNED = [
     ("Mo & Krill", "Haze", None, 30.0, 1663.8, 1568.9),
     ("Paradox", "Abrams", None, 30.0, 2476.7, 1596.0),   # re-pinned: Abrams walks in for Siphon Life
     ("Venator", "Lash", "Venator (A)", 15.136, 2076.1, 971.5),   # re-pinned: Venator walks in for a second Gutshot
-    ("Warden", "Seven", "Seven (B)", 17.1, 734.1, 2623.5),
+    ("Warden", "Seven", "Seven (B)", 17.104, 772.6, 2623.5),   # re-pinned 2026-10-21: gun resumes after a cut-short Last Stand
 ]
 
 

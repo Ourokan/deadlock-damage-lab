@@ -21,7 +21,7 @@ async function init(base, b64) {
   py.runPython(`
 import sys
 sys.path[:0] = ["/app/sim", "/app/damage"]
-from bridge import run, breakdown, team
+from bridge import run, breakdown, team, maker
 from deadsim.data import game
 game()
 `);
@@ -33,7 +33,7 @@ self.onmessage = async (e) => {
     if (m.type === "init") {
       await init(m.base, m.b64);
       self.postMessage({ type: "ready" });
-    } else if (m.type === "run" || m.type === "breakdown" || m.type === "team") {
+    } else if (m.type === "run" || m.type === "breakdown" || m.type === "team" || m.type === "maker") {
       const t = performance.now();
       const out = py.globals.get(m.type)(JSON.stringify(m.req));
       self.postMessage({ type: "result", id: m.id, result: JSON.parse(out), ms: performance.now() - t });

@@ -10,6 +10,7 @@ import glob
 import json
 import os
 import shutil
+import sys
 import zipfile
 
 ROOT = os.environ.get("DEADSIM_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # project root (the folder holding sim/, data/, damage/ ...)
@@ -60,6 +61,53 @@ def build_zip(path):
         z.write(os.path.join(WEB, "bridge.py"), "damage/bridge.py")
 
 
+CC_KEYS = ("StunDuration", "ImmobilizeDuration", "SleepDuration", "SilenceRadius", "LiftHeight", "LiftDuration",
+           "TetherDuration", "CancelHookDuration")
+
+
+def maker_data():
+    """data/maker.json for the build maker (maker.js): item components, utility tags (web/maker_utility.json), each
+    hero's crowd-control abilities, and the standard bracket's item hold rates (search/out/usage.json) to build enemy
+    builds at any souls."""
+    with open(os.path.join(ROOT, "data/game/shop_items.json")) as fh:
+        items = json.load(fh)
+    by_class = {x["class_name"]: x["id"] for x in items}
+    by_name = {x["name"]: x["id"] for x in items}
+    comps = {}
+    for x in items:
+        out, stack = set(), list(x["components"])
+        while stack:
+            c = by_class.get(stack.pop())
+            if c is not None and c not in out and c != x["id"]:
+                out.add(c)
+                stack += next(y["components"] for y in items if y["id"] == c)
+        if out:
+            comps[str(x["id"])] = sorted(out)
+    with open(os.path.join(WEB, "maker_utility.json")) as fh:
+        util = {}
+        for k, v in json.load(fh).items():
+            if k.startswith("_"):
+                continue
+            if k not in by_name:   # a patch renamed or removed it: drop its tags rather than fail the deploy
+                print(f"warning: maker_utility.json lists {k!r}, which is not in the shop", file=sys.stderr)
+                continue
+            util[str(by_name[k])] = v
+    with open(os.path.join(ROOT, "data/game/abilities.json")) as fh:
+        cc = {}
+        for a in json.load(fh):
+            if any(k in a["properties"] for k in CC_KEYS):
+                cc.setdefault(str(a["hero_id"]), []).append(a["name"])
+    with open(os.path.join(ROOT, "data/patch.json")) as fh:
+        bracket = json.load(fh).get("standard", "phantom")
+    usage, path = None, os.path.join(ROOT, "search/out/usage.json")
+    if os.path.exists(path):
+        with open(path) as fh:
+            usage = json.load(fh).get(bracket)
+    with open(os.path.join(WEB, "data", "maker.json"), "w") as fh:
+        json.dump({"bracket": bracket, "components": comps, "utility": util, "hero_cc": cc, "usage": usage}, fh,
+                  separators=(",", ":"))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--pyodide", help="folder with an extracted pyodide-core release (copied to vendor/pyodide)")
@@ -74,7 +122,7 @@ def main():
     with open(os.path.join(data, "heroes.json"), "w") as fh:
         json.dump(sorted(heroes, key=lambda h: h["name"]), fh)
     counts = {k: copy_out(os.path.join(ROOT, src), os.path.join(data, k))
-              for k, src in [("damage", "damage/out"), ("overall", "damage/out/overall"), ("duel", "search/out"), ("tank", "survival/out")]}
+              for k, src in [("damage", "damage/out"), ("overall", "damage/out/overall"), ("path", "damage/out/path"), ("duel", "search/out"), ("tank", "survival/out")]}
     for name, key in (("order", "buy_order"), ("skill", "ability_order")):
         files = glob.glob(os.path.join(ROOT, "damage/out", name, "*.json"))
         os.makedirs(os.path.join(data, "damage", name), exist_ok=True)
@@ -84,6 +132,7 @@ def main():
             with open(os.path.join(data, "damage", name, os.path.basename(f)), "w") as fh:
                 json.dump(d, fh, separators=(",", ":"))
         counts[key] = len(files)
+    maker_data()
     os.makedirs(os.path.join(WEB, "py"), exist_ok=True)
     build_zip(os.path.join(WEB, "py", "sim.zip"))
     if a.pyodide:

@@ -16,8 +16,10 @@
     <a class="mark" href="#test">Damage Lab</a>
     <nav class="tabs" id="tabs">
       <a href="#test" data-tab="test">Damage test</a>
+      <a href="#maker" data-tab="maker">Build maker</a>
       <a href="#match" data-tab="match">Real match</a>
       <a href="#overall" data-tab="overall">Best overall builds</a>
+      <a href="#path" data-tab="path">Full game builds</a>
       <a href="#damage" data-tab="damage">Raw damage builds</a>
       <a href="#duel" data-tab="duel">Duel builds</a>
       <a href="#tank" data-tab="tank">Tank builds</a>
@@ -134,6 +136,65 @@
     </div>
   </section>
 
+  <!-- Build maker (maker.js) -->
+  <section id="tab-maker" class="tab" hidden>
+    <div class="intro">
+      <h1>Build it against the team you're facing</h1>
+      <p>Start from nothing and add items. On the right, pick up to five enemies: each plays what Phantom+ players of that hero hold most at about your net worth. Every change fights you against each of them in the live sim, both sides shooting and casting for 15 s. Hover an item to preview it; suggestions weigh damage, survival and the utility a 1v1 fight can't show.</p>
+    </div>
+    <div class="mk-grid">
+      <div class="panel mk-buildp">
+        <div class="panel-h"><h2>Your build</h2><button class="ghost" id="mk-copy">Copy link</button></div>
+        <div class="row">
+          <label class="f"><span>Hero</span><select id="mk-hero"></select></label>
+          <label class="f"><span>Aim</span>
+            <select id="mk-aim">
+              <option value="p25">25th pct ranked</option>
+              <option value="p50">Median ranked</option>
+              <option value="p75">75th pct ranked (Phantom+)</option>
+              <option value="p90">90th pct ranked</option>
+            </select></label>
+          <label class="f"><span>Net worth</span><input id="mk-nw" type="number" min="0" step="500" placeholder="auto"></label>
+        </div>
+        <div class="presets" id="mk-pop"></div>
+        <div class="build" id="mk-build"></div>
+        <p class="hint" id="mk-budget"></p>
+        <div id="mk-sum" class="mk-sum"></div>
+        <p class="err" id="mk-msg" hidden></p>
+      </div>
+
+      <div class="panel mk-suggp">
+        <div class="panel-h"><h2>Buy next</h2><div class="seg" id="mk-sort"></div></div>
+        <div class="mk-weights">
+          <label><span>Damage</span><input id="mk-wd" type="range" min="0" max="2" step="0.25" value="1"></label>
+          <label><span>Survival</span><input id="mk-ws" type="range" min="0" max="2" step="0.25" value="1"></label>
+          <label><span>Utility</span><input id="mk-wu" type="range" min="0" max="2" step="0.25" value="1"></label>
+        </div>
+        <p class="hint" id="mk-sug-status"></p>
+        <div id="mk-sugg" class="mk-suggs"></div>
+        <label class="check"><input id="mk-all" type="checkbox"> Check every item, not just the likely ones (slower)</label>
+        <p class="fine">Damage and survival: change in damage you deal and in how long the enemies need to kill you, summed over your enemies, each fighting back. Utility: points for what the sim can't see (moving, teammates, several enemies at once); anti-heal counts more when the enemies heal a lot, cleanses when they carry a lot of crowd control. Per soul ranks by value for each 1,000 souls it costs.</p>
+      </div>
+
+      <aside class="panel mk-side">
+        <div class="panel-h"><h2>Enemy team</h2><div class="seg" id="mk-off"></div></div>
+        <p class="hint" id="mk-enw"></p>
+        <div id="mk-enemies" class="stack"></div>
+      </aside>
+
+      <details class="panel picker mk-shopp" open>
+        <summary>Shop</summary>
+        <div class="pick-tools">
+          <input id="mk-q" type="search" placeholder="Search items">
+          <div class="seg" id="mk-slot">
+            <button data-v="" class="on">All</button><button data-v="weapon">Weapon</button><button data-v="vitality">Vitality</button><button data-v="spirit">Spirit</button>
+          </div>
+        </div>
+        <div class="shop" id="mk-shop"></div>
+      </details>
+    </div>
+  </section>
+
   <!-- Real match import (match.js) -->
   <section id="tab-match" class="tab" hidden>
     <div class="intro">
@@ -170,6 +231,19 @@
       <label class="f"><span>Net worth</span><select id="o-budget"></select></label>
     </div>
     <div id="o-out"></div>
+  </section>
+
+  <!-- Full game build paths (damage/scripts/game_path.py) -->
+  <section id="tab-path" class="tab" hidden>
+    <div class="intro">
+      <h1>Full game builds</h1>
+      <p>One build that grows from 10k to 50k net worth. Every stage keeps what you already bought (upgrades credit their components, and an item is only sold when that clearly pays, at half its cost back), and every stage is scored with the overall test: damage dealt before dying against every hero's typical real build at that net worth. The path is chosen for its average stage score with the weakest stage counted twice, so no part of the game is left weak. The buy order shows when each slot crosses an investment threshold; the 4,800-soul spike is the big one.</p>
+    </div>
+    <div class="filters">
+      <label class="f"><span>Hero</span><select id="p-hero"></select></label>
+      <label class="f"><span>Rank</span><select id="p-rank"></select></label>
+    </div>
+    <div id="p-out"></div>
   </section>
 
   <!-- Precomputed damage search -->
@@ -251,5 +325,6 @@
 <script src="app.js"></script>
 <script src="match.js"></script>
 <script src="team.js"></script>
+<script src="maker.js"></script>
 </body>
 </html>
