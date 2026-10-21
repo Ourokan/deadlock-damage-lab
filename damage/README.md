@@ -94,7 +94,7 @@ every stage, hit the investment spikes, agency through the whole game. Each stag
 with the overall test above, relative to the popular build at that net worth. A stage keeps the previous stage's
 items: upgrading a held component is free, selling refunds half (the other half stays spent) and must beat the best
 keep-everything build by 0.03 per item sold. Path score = mean stage score with the weakest stage counted twice.
-Three 10k starts (best, runner-up, and one built from the late game target's items and components) are each grown
+Two 10k starts (the best 10k build, and one built from the late game target's items and components) are each grown
 with a constrained local search (fill the new souls by value per soul, then swaps on the 16-enemy screening pool,
 confirmed on all 41); the best path wins. The buy order (from nothing) takes the piece with the most fight value per
 soul against the next stage's enemies, counting two pieces as a pair when only together they cross a slot threshold

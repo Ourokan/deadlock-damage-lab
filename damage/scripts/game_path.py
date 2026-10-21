@@ -12,8 +12,8 @@ hit the investment spikes and keep agency through the whole game. The best overa
   keep-everything build at that stage by SELL_MARGIN per item sold ("sell only when it clearly pays").
 - Path score = mean of the stage scores with the weakest stage counted twice, so a path can't buy a strong late game
   with a weak stage (agency at every point of the game).
-- Search: three starts at 10k (the best 10k build, the runner-up, and one built from the late game target's items
-  and components), each grown stage by stage with a constrained local search (fill the new souls, then swaps on the
+- Search: two starts at 10k (the best 10k build, and one built from the late game target's items and components),
+  each grown stage by stage with a constrained local search (fill the new souls, then swaps on the
   16-enemy screening pool, best few confirmed on all 41). The best complete path wins.
 - Buy order inside each stage, starting from nothing: the piece (item or component) with the most fight value per
   soul at the next stage's enemies, where two pieces bought together count as a pair when only the pair crosses a slot
@@ -138,7 +138,7 @@ def stage_search(ctx, b, kept, waste, seed):
             paid = S.cost(new) - S.cost(cur)
             floor = slack / max(1, S.MAX_ITEMS - len(cur))
             vals[j] = (ev.run(new, "S") - base) / max(paid, floor, 1)
-        if first:
+        if first and vals:
             scan, first = sorted(vals, key=lambda j: -vals[j])[:TOP_SCAN], False
         good = [j for j in vals if vals[j] > 0]
         if not good:
@@ -147,7 +147,7 @@ def stage_search(ctx, b, kept, waste, seed):
     cur_f = full(cur)
 
     # swaps, as in search.search: measured add / remove values on S, proposals confirmed on F. The first round
-    # scans every candidate (the fill only saw the ones that still fit), later rounds the best of those.
+    # scans every candidate (the fill only sees the ones that still fit), later rounds the best of those.
     scan = cand
     for rnd in range(ROUNDS):
         base = ev.run(cur, "S")
@@ -269,7 +269,7 @@ def buy_order(ctx, stages):
     g = S.G()
     hero = g.hero(ctx.hero)
     owned, waste, last_nw, steps = [], 0.0, 0, []
-    prev_items = []
+    prev_items, reached = [], set()
     for st in stages:
         b = st["budget"]
         ev = ctx.evaluator(b)
@@ -311,14 +311,18 @@ def buy_order(ctx, stages):
                         if crossed(hero, invest(new), invest(new2)) and \
                                 len(crossed(hero, spend0, invest(new2))) > len(crossed(hero, spend0, invest(new))):
                             v = max(v, (ev.run(new2, "S") - base) / max(1, paid + paid2))
-                key = (v, -paid)
+                # a piece the tier caps hold back waits while anything else can be bought (as in buy_order.plan)
+                free = cap_net_worth(new) <= max(net_worth_for(S.cost(new) + waste), last_nw)
+                key = (free, v, -paid)
                 if best is None or key > best[0]:
                     best = (key, p, new, paid)
             if best is None:
                 raise RuntimeError(f"no buyable piece toward {sorted(set(target) - set(owned))}")
             _, p, new, paid = best
             nw = max(net_worth_for(S.cost(new) + waste), cap_net_worth(new), last_nw)
-            spikes = crossed(hero, invest(owned), invest(new))
+            # a threshold counts once: crossing it again after a sale is no new spike
+            spikes = [x for x in crossed(hero, invest(owned), invest(new)) if (x["slot"], x["at"]) not in reached]
+            reached |= {(x["slot"], x["at"]) for x in spikes}
             steps.append({"item": p, "replaces": [i for i in owned if i not in new], "paid": paid,
                           "net_worth": nw, "stage": b, "invest": invest(new), "spikes": spikes})
             owned, last_nw = new, nw
@@ -362,9 +366,6 @@ def path_job(args):
     # starts at 10k
     first = stage_search(ctx, b0, [], 0.0, ctx.popular(b0))
     starts = {"best_10k": first[0]}
-    runner = next((x for x in first[1:] if x[2] != first[0][2]), None)
-    if runner:
-        starts["runner_up_10k"] = runner
     tw = toward(ctx, b0, target)
     tw_best = stage_search(ctx, b0, tw, 0.0, tw)
     # keep the late-game pieces: the best 10k build that still holds every piece of the seed
