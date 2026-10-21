@@ -63,21 +63,24 @@ _move = None
 
 def movement_value(items):
     """Product of the held movement items' chase x escape values (1 = no movement item), capped by the measured
-    value of holding that many (stack_cap: movement items overlap, so two aren't worth the product)."""
+    value of holding that many movement items (stack_cap: they overlap, so two aren't worth the product)."""
     global _move
     if _move is None:
         g = S.G()
         with open(MOVE_PATH) as f:
             d = json.load(f)
+        moving = set(d.get("movement_items", d["items"]))
         _move = ({i: d["items"][it.name] for i, it in g.items.items() if it.name in d["items"]},
-                 {int(k): v for k, v in d.get("stack_cap", {}).items()})
-    vals, caps = _move
-    held = [vals[i] for i in set(items) if i in vals]
+                 {int(k): v for k, v in d.get("stack_cap", {}).items()},
+                 {i for i, it in g.items.items() if it.name in moving})
+    vals, caps, moving = _move
+    held = set(items)
     v = 1.0
-    for x in held:
-        v *= x
-    if len(held) >= 2 and caps:
-        v = min(v, caps[min(len(held), max(caps))])
+    for i in held:
+        v *= vals.get(i, 1.0)
+    n = len(held & moving)   # the caps were measured on any movement items held, weighted or not
+    if n >= 2 and caps:
+        v = min(v, caps[min(n, max(caps))])
     return v
 
 

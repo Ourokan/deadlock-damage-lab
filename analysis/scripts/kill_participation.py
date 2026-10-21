@@ -219,8 +219,10 @@ def main():
                   "2026-10-13), not refit by patch reruns: rerun analysis/scripts/fetch_kda.py and "
                   "kill_participation.py from the project files to refresh." % CAP),
         "items": {n: e["value"] for n, e in sorted(items.items()) if e["value"] > 1.0},
-        "_stack_note": ("Cap on the combined value of 2 and of 3+ weighted items: the measured chase x escape of "
-                        "holding that many movement items vs none (the items overlap, so values don't multiply)."),
+        "_stack_note": ("Cap on a build's combined value when it holds 2 or 3+ of the movement_items (weighted or "
+                        "not): the measured chase x escape of holding that many vs none (they overlap, so values "
+                        "don't multiply)."),
+        "movement_items": MOVEMENT,
         "stack_cap": {str(k): round(min(CAP, max(1.0, stack[k]["chase"] * stack[k]["escape"])), 4) for k in (2, 3)},
     }, open(SIM_OUT, "w"), indent=1)
     write_md(res)

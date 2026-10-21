@@ -12,7 +12,24 @@
   "Veil Walker": 1.0246,
   "Warp Stone": 1.038
  },
- "_stack_note": "Cap on the combined value of 2 and of 3+ weighted items: the measured chase x escape of holding that many movement items vs none (the items overlap, so values don't multiply).",
+ "_stack_note": "Cap on a build's combined value when it holds 2 or 3+ of the movement_items (weighted or not): the measured chase x escape of holding that many vs none (they overlap, so values don't multiply).",
+ "movement_items": [
+  "Sprint Boots",
+  "Extra Stamina",
+  "Enduring Speed",
+  "Arcane Surge",
+  "Kinetic Dash",
+  "Fleetfoot",
+  "Stalker",
+  "Stamina Mastery",
+  "Majestic Leap",
+  "Warp Stone",
+  "Veil Walker",
+  "Shadow Weave",
+  "Phantom Strike",
+  "Magic Carpet",
+  "Ethereal Shift"
+ ],
  "stack_cap": {
   "2": 1.0775,
   "3": 1.1195

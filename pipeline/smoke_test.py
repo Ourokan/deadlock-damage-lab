@@ -3,6 +3,7 @@
 One duel from the duel search, one dummy damage test and one tank survival fight, plus a check that every hero's fight
 pattern (sim/data/fight_patterns.json) names abilities it still has, and the overall score's movement weights. Fails if any of them raises or returns nothing. Runs in CI on every pull request (.github/workflows/pr-tests.yml).
 """
+import json
 import os
 import sys
 
@@ -42,12 +43,19 @@ print("fight patterns ok:", len(G.heroes), "heroes")
 # and the popular build still scores exactly 1.0 when it holds movement items
 import overall_search as O  # noqa: E402
 ids = {it.name: i for i, it in G.items.items()}
+with open(O.MOVE_PATH) as f:
+    _mv = json.load(f)
+missing = [n for n in list(_mv["items"]) + _mv["movement_items"] if n not in ids]
+assert not missing, f"movement_value.json names items the game no longer has: {missing}"
 assert O.movement_value([]) == 1.0 and O.movement_value([ids["Extra Health"]]) == 1.0
 st = O.movement_value([ids["Stalker"]])
 assert st > 1.0 and O.movement_value([ids["Stalker"], ids["Stalker"]]) == st, st
 top = [ids[n] for n in ("Stalker", "Majestic Leap", "Arcane Surge", "Warp Stone")]
 caps = O._move[1]
 assert O.movement_value(top) <= caps[max(caps)] and O.movement_value(top[:2]) <= caps[2], O.movement_value(top)
+# an unweighted movement item still counts toward the stack: Stalker + Sprint Boots is a 2-item stack
+assert O.movement_value([ids["Stalker"], ids["Warp Stone"], ids["Sprint Boots"]]) <= caps[max(caps)]
+assert O.movement_value([ids["Stalker"], ids["Sprint Boots"]]) <= caps[2]
 pop = [ids["Stalker"], ids["Warp Stone"], ids["Extra Health"]]
 _popular = S.popular_build
 S.popular_build = lambda *a: pop
