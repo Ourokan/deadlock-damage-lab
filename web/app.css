@@ -239,7 +239,9 @@ body.sheet-open { overflow: hidden; }
 .mk-tot > div, .mk-nums > div { background: var(--panel); padding: 8px 10px; display: grid; gap: 1px; min-width: 0; }
 .mk-tot span, .mk-nums span { font: 600 .68rem var(--head); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
 .mk-tot b { font: 600 1.45rem/1.1 var(--head); font-variant-numeric: tabular-nums; }
-.mk-prev { margin: 0; font-size: .9rem; padding: 6px 10px; border-left: 3px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.mk-prev { margin: 0; font-size: .9rem; line-height: 1.5; padding: 6px 10px; border-left: 3px solid var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mk-prev.idle { color: var(--muted); border-left-color: var(--line); background: transparent; }
 .mk-enemy { display: grid; gap: 8px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
 .mk-enemy:last-of-type { border-bottom: 0; }
 .mk-enemy .row .ghost { flex: 0 0 auto; }

@@ -304,14 +304,17 @@ function mkRenderSummary() {
   if (!b) { el.innerHTML = '<p class="hint">Waiting for the sim…</p>'; return; }
   const cur = MK.hover ? MK.hover.rows : b;
   const wins = cur.filter((r) => r.ttk < r.ttd).length;
-  let head = "";
+  // the preview line is always there (a placeholder when not hovering), so hovering never moves the page
+  const idle = matchMedia("(hover: hover)").matches ? "Hover an item to preview it against every enemy." : "Tap an item to buy it; tap an owned item to sell it.";
+  let head = `<p class="mk-prev idle">${idle}</p>`;
   if (MK.hover) {
     const c = mkCompare(b, cur), it = S.items[MK.hover.id];
     const parts = [];
     if (Math.abs(c.dmg) >= 0.0005) parts.push(`${mkPctS(c.dmg)} damage dealt`);
     if (Math.abs(c.surv) >= 0.0005) parts.push(`${mkPctS(c.surv)} time to die`);
     if (MK.hover.extra) parts.push(`${MK.hover.extra > 0 ? "costs" : "frees"} ${fmt(Math.abs(MK.hover.extra))} souls`);
-    head = `<p class="mk-prev">${MK.hover.sell ? "Without" : "With"} <b>${esc(it?.name || "")}</b>: ${parts.join(", ") || "no change in these fights"}</p>`;
+    const txt = `${MK.hover.sell ? "Without" : "With"} ${it?.name || ""}: ${parts.join(", ") || "no change in these fights"}`;
+    head = `<p class="mk-prev" title="${esc(txt)}">${MK.hover.sell ? "Without" : "With"} <b>${esc(it?.name || "")}</b>: ${parts.join(", ") || "no change in these fights"}</p>`;
   }
   el.innerHTML = head + `<div class="mk-tot">
     <div><span>You deal, all ${cur.length} fights</span><b>${fmt(mkSum(cur, "dealt"))}</b></div>
