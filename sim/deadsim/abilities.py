@@ -184,6 +184,7 @@ class CastCtx:
         sk = self.me.skill
         gap = self.dist - reach - sk.engage_margin
         if gap <= 0:
+            self.state.pop("_walk_in_at", None)   # in reach: a later walk-in starts fresh
             return True
         if gap > sk.walk_in:
             self.state.pop("_walk_in_at", None)
