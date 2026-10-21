@@ -51,6 +51,7 @@ class SleepDagger(AbilityImpl):
         c.spirit_hit(c.val("Damage"), delay=delay, hit_chance=1.0)
         c.debuff("stun", 1, c.dur("SleepDuration"), tag=self.TAG, delay=delay)
         c.state["asleep_from"] = c.now + delay
+        c.state["sleeper"] = c.foe
         c.after(delay, self._mark, c)
         fx = fixation(c.me)
         if c.tier >= 2 and fx:
@@ -61,7 +62,7 @@ class SleepDagger(AbilityImpl):
 
     def on_any_damage_dealt(self, c, target, hit):   # any damage wakes, DoT ticks (Alchemical Fire) included
         st = c.state
-        if not st.get("sleeping") or hit.source == self.s.ab.name:
+        if not st.get("sleeping") or hit.source == self.s.ab.name or target is not st.get("sleeper"):
             return
         if c.now - st["asleep_from"] < c.raw("MinimumSleepTime", 0.2):
             return
@@ -69,9 +70,10 @@ class SleepDagger(AbilityImpl):
         c.after(c.val("SleepWakeUpDelay", 0.1), self._wake, c)
 
     def _wake(self, c):
-        if c.foe.mods.get("stun", self.TAG) is None:
+        t = c.state.get("sleeper") or c.foe
+        if t.mods.get("stun", self.TAG) is None:
             return
-        c.foe.mods.remove("stun", self.TAG)
+        t.mods.remove("stun", self.TAG)
         if c.tier >= 1:
             c.debuff("bullet_shred", abs(c.raw("BulletResistReduction")) / 100, c.dur("BulletResistReductionDuration"))
 

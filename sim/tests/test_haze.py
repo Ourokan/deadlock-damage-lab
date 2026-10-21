@@ -54,5 +54,28 @@ class BulletDanceLanding(unittest.TestCase):
         self.assertGreater(part.a_dmg.get("gun", 0), full.a_dmg.get("gun", 0))
 
 
+class SleepWakesOnAnyDamage(unittest.TestCase):
+    def sleep_then_dot(self, at):
+        """Haze sleeps the target at t=0 (no other damage), then a no-proc DoT tick hits it at `at` s."""
+        idle = Skill(accuracy=0.0, use_abilities=False, use_actives=False, melee_rate=0.0)
+        e = Engine(distance=10.0, max_time=4.0, mech=None)
+        a = make_fighter(e, Loadout("Haze", [], souls=20000, skill=idle), "A")
+        b = make_fighter(e, Loadout("Abrams", [], souls=20000, skill=idle), "B")
+        dagger = next(ab for ab in a.abilities if ab.ab.name == "Sleep Dagger")
+        e.at(0.0, lambda: dagger.cast())
+        e.at(at, lambda: e.damage(a, b, 10.0, "spirit", "Alchemical Fire", is_dot=True, is_item=True, procs=False))
+        seen = {}
+        e.at(at + 0.5, lambda: seen.update(asleep=b.mods.active("stun")))
+        e.run(a, b)
+        return seen["asleep"]
+
+    def test_dot_tick_wakes_the_target(self):
+        self.assertFalse(self.sleep_then_dot(1.0))
+
+    def test_minimum_sleep_time_holds(self):
+        # a tick before MinimumSleepTime (0.2 s after the 0.2 s throw) does not wake
+        self.assertTrue(self.sleep_then_dot(0.25))
+
+
 if __name__ == "__main__":
     unittest.main()
