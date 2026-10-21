@@ -12,6 +12,20 @@ from deadsim.engine import Accum, Engine  # noqa: E402
 from deadsim.fight import make_fighter  # noqa: E402
 
 G = game()
+
+
+# hand-calculated at one fixed distance: range spread (mechanics range_drift) off, see tests/test_range_items.py
+def setUpModule():
+    global _DEFAULT
+    import deadsim.mechanics as M
+    _DEFAULT, M.DEFAULT = M.DEFAULT, M.Mechanics(range_drift=False)
+
+
+def tearDownModule():
+    import deadsim.mechanics as M
+    M.DEFAULT = _DEFAULT
+
+
 PERFECT = Skill(accuracy=1.0, headshot=0.0, use_abilities=False, use_actives=False)
 
 

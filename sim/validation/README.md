@@ -260,11 +260,49 @@ Silver, Venator, Apollo, Infernus, Seven and underrates Vindicta, Mina, Calico, 
 only their real cast share of fights (15-35%, `fight_patterns.json` replay `cast_share`) did not help (tested,
 not kept). The real shares carry gank noise (spread 0.30-0.66 vs sim 0.10-0.91), so check single heroes first.
 
+## Range spread (2026-10-21)
+
+Tyler: range changes all the time in a fight while each hero tries to play at its ideal range. `mechanics.range_drift`
+(on by default) models it.
+
+**Real data** (`scripts/range/fetch_paths.py`, `fit_range.py` -> `data/fight_range.json`): 400 Phantom+ matches,
+match_paths (1 s positions). A fight second = player in hero combat with the nearest living enemy within 40 m, also in
+hero combat; 1v1 = no other enemy or teammate within 25 m. Over 133k 1v1 seconds the distance is lognormal-like around
+the hero's median (p25 8.5 m, median 16.2, p75 25.6). A log-distance variogram over 1,766 segments of 10+ s fits an
+Ornstein-Uhlenbeck process with log sd 0.76 and time constant 2.1 s: about half to twice the median, re-drawn every
+few seconds. Per hero the spread is similar (log sd 0.65-0.87), so one global value is used. Heroes' medians differ
+(Billy 10.6 m to Rem 23 m) and both fighters' preferences set a duel's range (fit weights 0.69 own, 0.51 enemy).
+
+**Sim:** the hero's calibrated distance (`skill_defaults.json`, mean of both heroes in duels) is the median, and every
+distance effect is the expectation over the spread (`Engine.p_within`, `spread_mean`, `reach_ready`):
+- gun falloff and headshot crit bonus: averaged over the spread (crit jointly with falloff);
+- Close Quarters / Point Blank and Long Range / Sharpshooter: bonus x share of time inside / outside their range;
+  Torment Pulse, aura ticks, Hunter's Aura: x share of time in radius; Stalker and Restorative Locket procs at that rate;
+- ability reach (`CastCtx.within`): cast at once, damage x cooldown / (cooldown + expected wait), where the wait is
+  walking in when the target is in the 5 m walk-in band and drift time (tau / P(in reach)) beyond it. Range items
+  shorten the wait, smoothly. Item actives with a reach (Alchemical Fire, damage actives) wait the expected time.
+A single random distance path was tried first and dropped: in a 30 s fight with 8-10 s cooldowns a fraction of a
+second decides a whole extra cast, so an item's value on one path swung by +-200 damage (Greater Expansion on Mina:
+mean +35, sd 200 over 12 paths). Melee keeps its fitted per-second rate; escapes still move the distance.
+
+**Checks:**
+- Real bullet-hit distance histogram ("Outgoing Bullet Dist", creeps included) vs the sim (`range/bullet_dist_check.py`):
+  share of hits at 0-10 / 10-20 / 20-30 / 30-40 m is real 0.35 / 0.35 / 0.19 / 0.07, fixed distance 0.17 / 0.79 /
+  0.04 / 0, spread 0.34 / 0.33 / 0.16 / 0.17 (the 40 m cap piles the far tail into the last bucket).
+- Damage mix (`range/drift_check.py`, each model with its own refit landing factors, `range/refit_landing_drift.py`):
+  mean |ln(real/sim)| of ability and melee vs gun ratios 0.073 fixed, 0.077 spread: the same, landing factors absorb
+  the average.
+- Item share of all hero damage (24 items above 0.1%): mean |ln(sim/real)| 0.48 fixed -> 0.42 spread. Torment Pulse
+  0.42% -> 1.01% (real 1.12%), Cold Front 0.25% -> 0.48% (real 0.41%); Stalker overshoots (0.48% -> 1.15%, real 0.64%).
+- Popular 27k builds on the dummy: median 30 s damage -5% (Deadman Danny -23%, Lady Geist -19%; Victor +24%,
+  Calico +16% from Torment Pulse / close-range items). Item value on the dummy (median over heroes): Close Quarters
+  +24 -> +78, Sharpshooter +316 -> +369, Long Range +197 -> +184.
+
 ## Known gaps (not yet modeled)
 
 - **Melee movement:** melee is now in fights (see "Melee" above), but distance stays fixed (even with movement on, unless someone runs), so gap-closing
   (Melee Charge's lunge, Lifestrike's slow) has no value.
-- **Fixed distance:** fighters don't move unless `mechanics.movement` is on (escape and chase only; see above). Short-range ultimates use per-hero "approach" constants to be cast.
+- **Distance:** the fight distance spreads around the hero's median (see "Range spread") as an average, not a path: there is no positioning AI (kiting to stay at range, diving with a gap closer), and ability effects inside a cast still check the median distance. Short-range ultimates use per-hero "approach" constants to be cast.
 - **Summons can't be shot** (fixed for McGinnis turrets with `mechanics.summons`, see above): McGinnis turrets keep full uptime, so her gun share is 2% vs 26% real. Still the
   worst-matched hero.
 - **Paradox Kinetic Carbine** damage formula is a low-confidence reading of the data (landing 2.95).

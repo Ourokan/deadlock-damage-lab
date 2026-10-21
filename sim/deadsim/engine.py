@@ -32,6 +32,10 @@ MELEE_HEAVY_TIME = 1.1
 # Below MELEE_MIN_RATE hits/s a melee event fires every 1/MELEE_MIN_RATE s with a fractional weight (expected
 # damage), so rare meleers still melee within a short fight.
 MELEE_MIN_RATE = 0.2
+# range spread (deadsim.mechanics range_drift): 7-point Gauss-Hermite nodes and weights for a standard normal
+_GH = ((-2.6519613568, 0.000548268858), (-1.6735516288, 0.0307571239), (-0.8162878829, 0.240123178),
+       (0.0, 0.457142857), (0.8162878829, 0.240123178), (1.6735516288, 0.0307571239), (2.6519613568, 0.000548268858))
+REACH_P_FLOOR = 0.01    # waiting for drift to bring a far target in reach: tau / max(p, floor)
 GUN_POLL = 0.1          # longest a locked gun sleeps before re-checking the lock
 
 
@@ -369,6 +373,71 @@ class Engine:
         self.mech = mech               # deadsim.mechanics.Mechanics or None (earlier model)
         self.escaped = None
         self.mover = None
+        # range spread: real fights don't hold one distance. With mechanics range_drift the distance is lognormal
+        # around self.distance (log sd `spread`, drifting with time constant `spread_tau`), and distance effects are
+        # taken as expectations over it (p_within, spread_mean, reach_ready), so results stay deterministic and an
+        # item's value doesn't hinge on one random path.
+        self.spread, self.spread_tau = 0.0, 2.0
+        self._fall = {}
+        if mech is not None and getattr(mech, "range_drift", False):
+            from .mechanics import drift_params
+            self.spread, self.spread_tau = drift_params()
+
+    # ---- range spread -------------------------------------------------------------------------------
+    def p_within(self, r):
+        """Share of fight time the target is within r meters."""
+        d = self.distance
+        if self.spread <= 0:
+            return 1.0 if d <= r else 0.0
+        from .mechanics import DRIFT_MAX, DRIFT_MIN
+        if r >= DRIFT_MAX:
+            return 1.0
+        if r < DRIFT_MIN:
+            return 0.0
+        return 0.5 * (1.0 + math.erf(math.log(r / d) / (self.spread * math.sqrt(2.0))))
+
+    def spread_mean(self, fn):
+        """fn(distance) averaged over the fight's distance spread."""
+        d = self.distance
+        if self.spread <= 0:
+            return fn(d)
+        from .mechanics import DRIFT_MAX, DRIFT_MIN
+        return sum(w * fn(min(DRIFT_MAX, max(DRIFT_MIN, d * math.exp(self.spread * x)))) for x, w in _GH)
+
+    def reach_ready(self, state, reach, f, walk_in=0.0, mean_field=False):
+        """Gate for a cast or active that needs the target within `reach` m. Without spread: now if in reach, after
+        gap / move speed if the gap is up to walk_in (the caster walks in), else never. With spread: after the
+        expected wait (walking in when the target is in the walk band, waiting for the drift to bring it back when it
+        is further), which is smooth in reach, so range items shorten waits instead of switching casts on.
+        The timer (state["_walk_in_at"]) starts the first time the cast is wanted and clears on cast.
+        mean_field (abilities): with spread, cast now and leave the expected wait in state["_reach_delay"]; the
+        cast turns it into a damage factor cooldown / (cooldown + wait) (AbilityState.cast). A real delay would make
+        a 30 s fight gain or lose a whole cast from a fraction of a second, so item values would jump."""
+        d = self.distance
+        st = f.st
+        speed = max(1.0, st.hero.base.get("max_move_speed", 7.0)
+                    + st.extra.get("MODIFIER_VALUE_MOVEMENT_SPEED_MAX", 0) + f.stat("move_speed"))
+        if self.spread <= 0:
+            gap = d - reach
+            if gap <= 0:
+                state.pop("_walk_in_at", None)   # in reach: a later walk-in starts fresh
+                return True
+            if gap > walk_in:
+                state.pop("_walk_in_at", None)
+                return False
+            delay = gap / speed
+        else:
+            p_now, p_walk = self.p_within(reach), self.p_within(reach + walk_in)
+            delay = ((p_walk - p_now) * walk_in / 2 / speed
+                     + (1.0 - p_walk) * (self.spread_tau / max(p_walk, REACH_P_FLOOR) + walk_in / speed))
+            if mean_field:
+                state["_reach_delay"] = delay
+                return True
+            if delay <= 1e-9:
+                state.pop("_walk_in_at", None)
+                return True
+        t0 = state.setdefault("_walk_in_at", self.t)
+        return self.t - t0 >= delay
 
     # ---- scheduling -------------------------------------------------------------------------------
     def at(self, time, fn, *args):
@@ -395,6 +464,8 @@ class Engine:
         amt = raw if pure else raw * src.st.outgoing_mult * (1.0 - src.stat("outgoing_penalty")) * (1.0 + src.stat("damage_amp"))
         if is_ability and src.skill.ability_landing and not landed:
             amt *= src.skill.ability_landing.get(source, 1.0)
+        if is_ability and ability is not None:
+            amt *= ability.scratch.get("_avail", 1.0)   # expected wait for the target to be in reach (spread)
         if is_item and src.skill.item_landing:
             amt *= src.skill.item_landing.get(source, 1.0)
         if pure:
@@ -527,7 +598,14 @@ class Engine:
         st = f.st
         d = self.distance
         pct = f.weapon_pct() + extra_pct
-        return st.bullet_damage * (1.0 + pct) * st.falloff(d), st.crit_mult(d)
+        if self.spread <= 0:
+            return st.bullet_damage * (1.0 + pct) * st.falloff(d), st.crit_mult(d)
+        key = (id(st), d)
+        fc = self._fall.get(key)
+        if fc is None:   # E[falloff] and E[falloff x crit] over the spread (headshots get the joint one)
+            fall = self.spread_mean(st.falloff)
+            fc = self._fall[key] = (fall, self.spread_mean(lambda x: st.falloff(x) * st.crit_mult(x)) / max(fall, 1e-9))
+        return st.bullet_damage * (1.0 + pct) * fc[0], fc[1]
 
     def gun_tick(self, f: Fighter):
         if self.over or not f.alive:

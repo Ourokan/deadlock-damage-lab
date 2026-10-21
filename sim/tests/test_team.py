@@ -21,11 +21,11 @@ def lo(hero, items=(), **kw):
 # duel results pinned from main before team fights (Engine.on_death and the cast notice must not change them),
 # with hero fight patterns off (they change cast order on purpose; see tests/test_patterns.py):
 # (hero, items, enemy, items, winner, time, damage dealt, damage taken)
-DUELS = [
+DUELS = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift); Haze vs Infernus ends in an escape
     ("Haze", ["Rapid Rounds", "Toxic Bullets", "Restorative Locket"], "Infernus",
-     ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Haze (A)", 25.437, 2764.0, 2086.6),   # re-pinned 2026-10-21 (gun re-checks its lock; a stun ends Bullet Dance evasion)
-    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 25.1, 2009.9, 3194.2),   # re-pinned: Abrams walks in for Siphon Life
-    ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1769.2, 1509.5),   # re-pinned 2026-10-21: Dynamo shoots after a cut-short channel
+     ["Extra Spirit", "Mystic Burst", "Healing Nova"], None, 24.9, 2566.6, 2066.5),
+    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 24.1, 1778.7, 3190.0),
+    ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1771.8, 1387.6),
 ]
 
 

@@ -20,18 +20,18 @@
     "citadel_ability_zip_line": 0.0021
    },
    "sim": {
-    "ability_afterburn": 0.2873,
-    "ability_flame_dash": 0.2269,
-    "GUN": 0.1361,
-    "ability_fire_bomb": 0.1229,
-    "ability_incendiary_projectile": 0.1084,
-    "upgrade_toxic_bullets": 0.081,
-    "MELEE": 0.013,
-    "Bloodletting (deferred)": 0.0074,
-    "upgrade_quick_silver": 0.0061,
-    "upgrade_ethereal_bullets": 0.0054,
-    "upgrade_headhunter": 0.0023,
-    "upgrade_chain_lightning": 0.0011
+    "ability_afterburn": 0.2624,
+    "ability_flame_dash": 0.2466,
+    "GUN": 0.2012,
+    "upgrade_toxic_bullets": 0.1626,
+    "ability_incendiary_projectile": 0.0515,
+    "ability_fire_bomb": 0.0328,
+    "MELEE": 0.0201,
+    "Bloodletting (deferred)": 0.0066,
+    "upgrade_quick_silver": 0.006,
+    "upgrade_headhunter": 0.0027,
+    "upgrade_chain_lightning": 0.0022,
+    "upgrade_cold_front": 0.0015
    }
   },
   "Seven": {
@@ -50,18 +50,18 @@
     "citadel_ability_zip_line": 0.0039
    },
    "sim": {
-    "citadel_ability_lightning_ball": 0.3964,
-    "ability_power_surge": 0.205,
-    "citadel_ability_storm_cloud": 0.1933,
-    "GUN": 0.1149,
-    "citadel_ability_static_charge": 0.0437,
-    "upgrade_toxic_bullets": 0.0159,
-    "Bloodletting (deferred)": 0.0103,
-    "MELEE": 0.0091,
-    "upgrade_ethereal_bullets": 0.0046,
-    "upgrade_spirit_burn": 0.0029,
-    "upgrade_ultimate_burst": 0.0016,
-    "upgrade_focus_lens": 0.0014
+    "citadel_ability_storm_cloud": 0.3087,
+    "citadel_ability_lightning_ball": 0.2008,
+    "GUN": 0.1864,
+    "ability_power_surge": 0.169,
+    "citadel_ability_static_charge": 0.0599,
+    "upgrade_toxic_bullets": 0.0377,
+    "MELEE": 0.0149,
+    "Bloodletting (deferred)": 0.011,
+    "upgrade_spirit_burn": 0.0053,
+    "upgrade_ethereal_bullets": 0.0023,
+    "upgrade_ultimate_burst": 0.0021,
+    "upgrade_quick_silver": 0.0009
    }
   },
   "Vindicta": {
@@ -80,18 +80,18 @@
     "citadel_ability_shiv_defer_damage": 0.004
    },
    "sim": {
-    "GUN": 0.2961,
-    "citadel_ability_hornet_snipe": 0.2341,
-    "citadel_ability_hornet_sting": 0.1682,
-    "citadel_ability_hornet_leap": 0.1579,
-    "citadel_ability_hornet_chain": 0.0679,
-    "upgrade_ethereal_bullets": 0.0349,
-    "upgrade_quick_silver": 0.0165,
-    "Bloodletting (deferred)": 0.0073,
-    "MELEE": 0.0039,
-    "upgrade_magic_shock": 0.0036,
-    "upgrade_magic_burst": 0.0026,
-    "upgrade_critshot": 0.0023
+    "GUN": 0.4728,
+    "citadel_ability_hornet_sting": 0.1501,
+    "citadel_ability_hornet_leap": 0.1139,
+    "citadel_ability_hornet_snipe": 0.1129,
+    "citadel_ability_hornet_chain": 0.0643,
+    "upgrade_ethereal_bullets": 0.0236,
+    "upgrade_quick_silver": 0.0224,
+    "upgrade_thermal_detonator": 0.0152,
+    "MELEE": 0.007,
+    "Bloodletting (deferred)": 0.0061,
+    "upgrade_critshot": 0.0038,
+    "upgrade_toxic_bullets": 0.0027
    }
   },
   "Lady Geist": {
@@ -110,18 +110,18 @@
     "upgrade_spirit_burn": 0.0031
    },
    "sim": {
-    "GUN": 0.2372,
-    "ability_life_drain": 0.2368,
-    "ability_blood_shards": 0.201,
-    "ability_blood_bomb": 0.1697,
-    "ability_health_swap": 0.0847,
-    "MELEE": 0.0193,
-    "upgrade_magic_shock": 0.0193,
-    "upgrade_mystic_reverb": 0.0108,
-    "upgrade_toxic_bullets": 0.0063,
-    "upgrade_magic_burst": 0.0058,
-    "upgrade_return_fire": 0.0033,
-    "upgrade_ethereal_bullets": 0.0019
+    "GUN": 0.2986,
+    "ability_blood_bomb": 0.2355,
+    "ability_blood_shards": 0.174,
+    "ability_health_swap": 0.125,
+    "ability_life_drain": 0.08,
+    "MELEE": 0.0281,
+    "upgrade_magic_shock": 0.0213,
+    "upgrade_mystic_reverb": 0.0136,
+    "upgrade_magic_burst": 0.0077,
+    "upgrade_toxic_bullets": 0.0061,
+    "upgrade_spirit_burn": 0.0026,
+    "upgrade_ethereal_bullets": 0.0022
    }
   },
   "Abrams": {
@@ -140,18 +140,18 @@
     "citadel_ability_shiv_defer_damage": 0.0094
    },
    "sim": {
-    "MELEE": 0.4223,
-    "GUN": 0.221,
-    "citadel_ability_bull_heal": 0.0995,
-    "citadel_ability_bull_leap": 0.0788,
-    "citadel_ability_bull_charge": 0.0585,
-    "upgrade_weapon_backstabber": 0.0433,
-    "upgrade_spirit_snatch": 0.0294,
-    "upgrade_phantom_strike": 0.0104,
-    "upgrade_tech_damage_pulse": 0.0101,
-    "Bloodletting (deferred)": 0.0101,
-    "upgrade_crushing_fists": 0.0068,
-    "upgrade_acolytes_glove": 0.0048
+    "MELEE": 0.4324,
+    "GUN": 0.2296,
+    "citadel_ability_bull_heal": 0.1276,
+    "citadel_ability_bull_charge": 0.061,
+    "upgrade_weapon_backstabber": 0.045,
+    "citadel_ability_bull_leap": 0.0308,
+    "upgrade_spirit_snatch": 0.0302,
+    "Bloodletting (deferred)": 0.0105,
+    "upgrade_phantom_strike": 0.0101,
+    "upgrade_tech_damage_pulse": 0.0071,
+    "upgrade_crushing_fists": 0.0063,
+    "upgrade_acolytes_glove": 0.0049
    }
   },
   "Wraith": {
@@ -170,18 +170,18 @@
     "upgrade_split_shot": 0.0077
    },
    "sim": {
-    "citadel_ability_card_toss": 0.4043,
-    "GUN": 0.2003,
-    "upgrade_ethereal_bullets": 0.1731,
-    "citadel_ability_psychic_lift": 0.0764,
-    "citadel_ability_wraith_rapidfire": 0.0679,
-    "upgrade_chain_lightning": 0.0296,
-    "upgrade_quick_silver": 0.0143,
-    "upgrade_toxic_bullets": 0.0091,
-    "Bloodletting (deferred)": 0.009,
-    "upgrade_capacitor": 0.0064,
-    "MELEE": 0.004,
-    "upgrade_split_shot": 0.0026
+    "GUN": 0.3654,
+    "citadel_ability_card_toss": 0.3005,
+    "citadel_ability_wraith_rapidfire": 0.0978,
+    "upgrade_chain_lightning": 0.0623,
+    "upgrade_ethereal_bullets": 0.0558,
+    "citadel_ability_psychic_lift": 0.0387,
+    "upgrade_toxic_bullets": 0.0212,
+    "upgrade_quick_silver": 0.0197,
+    "upgrade_split_shot": 0.0097,
+    "upgrade_capacitor": 0.0083,
+    "MELEE": 0.0083,
+    "Bloodletting (deferred)": 0.0075
    }
   },
   "McGinnis": {
@@ -200,18 +200,18 @@
     "upgrade_toxic_bullets": 0.0036
    },
    "sim": {
-    "citadel_ability_shieldedsentry": 0.4805,
-    "citadel_ability_rocket_barrage": 0.4007,
-    "citadel_ability_fissure_wall": 0.0426,
-    "GUN": 0.0402,
-    "Bloodletting (deferred)": 0.0191,
-    "upgrade_ethereal_bullets": 0.0068,
-    "upgrade_spirit_burn": 0.0033,
-    "upgrade_ultimate_burst": 0.0023,
-    "upgrade_quick_silver": 0.0015,
-    "MELEE": 0.0014,
-    "upgrade_capacitor": 0.0005,
-    "upgrade_critshot": 0.0005
+    "citadel_ability_shieldedsentry": 0.4938,
+    "GUN": 0.2649,
+    "citadel_ability_rocket_barrage": 0.1374,
+    "citadel_ability_fissure_wall": 0.0357,
+    "upgrade_ethereal_bullets": 0.015,
+    "upgrade_spirit_burn": 0.0126,
+    "Bloodletting (deferred)": 0.0092,
+    "upgrade_toxic_bullets": 0.0085,
+    "upgrade_quick_silver": 0.006,
+    "MELEE": 0.0052,
+    "upgrade_ultimate_burst": 0.0046,
+    "upgrade_critshot": 0.0035
    }
   },
   "Paradox": {
@@ -230,18 +230,18 @@
     "upgrade_headshot_booster": 0.0061
    },
    "sim": {
-    "GUN": 0.4077,
-    "citadel_ability_chrono_kinetic_carbine": 0.1954,
-    "citadel_ability_chrono_pulse_grenade": 0.1222,
-    "citadel_ability_chrono_swap": 0.119,
-    "upgrade_magic_shock": 0.0417,
-    "MELEE": 0.0394,
-    "upgrade_headhunter": 0.0368,
-    "upgrade_crackshot": 0.0228,
-    "upgrade_spirit_burn": 0.0036,
-    "upgrade_magic_burst": 0.0033,
-    "upgrade_headshot_booster": 0.0033,
-    "Bloodletting (deferred)": 0.0025
+    "GUN": 0.3379,
+    "citadel_ability_chrono_kinetic_carbine": 0.2824,
+    "citadel_ability_chrono_pulse_grenade": 0.1468,
+    "citadel_ability_chrono_swap": 0.0782,
+    "MELEE": 0.0385,
+    "upgrade_headhunter": 0.0363,
+    "upgrade_magic_shock": 0.0349,
+    "upgrade_mystic_reverb": 0.0166,
+    "upgrade_crackshot": 0.015,
+    "upgrade_headshot_booster": 0.0035,
+    "upgrade_spirit_burn": 0.0031,
+    "upgrade_magic_burst": 0.0031
    }
   },
   "Dynamo": {
@@ -260,18 +260,18 @@
     "citadel_ability_shiv_defer_damage": 0.0033
    },
    "sim": {
-    "citadel_ability_stomp": 0.5452,
-    "citadel_ability_self_vacuum": 0.1804,
-    "GUN": 0.1574,
-    "upgrade_headhunter": 0.0398,
-    "MELEE": 0.0279,
-    "upgrade_magic_shock": 0.0181,
-    "upgrade_mystic_reverb": 0.0097,
-    "upgrade_headshot_booster": 0.0036,
-    "upgrade_rupture": 0.0036,
+    "citadel_ability_stomp": 0.4404,
+    "GUN": 0.2189,
+    "citadel_ability_self_vacuum": 0.1722,
+    "upgrade_headhunter": 0.0632,
+    "MELEE": 0.0387,
+    "upgrade_magic_shock": 0.0251,
+    "upgrade_mystic_reverb": 0.013,
+    "upgrade_headshot_booster": 0.0053,
+    "upgrade_rupture": 0.0049,
     "Bloodletting (deferred)": 0.0035,
-    "upgrade_spirit_burn": 0.0031,
-    "upgrade_magic_burst": 0.0026
+    "upgrade_magic_burst": 0.0033,
+    "upgrade_spirit_burn": 0.0027
    }
   },
   "Kelvin": {
@@ -290,18 +290,18 @@
     "upgrade_magic_burst": 0.0042
    },
    "sim": {
-    "ability_icebeam": 0.5728,
-    "ability_ice_grenade": 0.2152,
-    "GUN": 0.1189,
-    "upgrade_magic_shock": 0.0282,
-    "upgrade_ethereal_bullets": 0.0199,
-    "MELEE": 0.0155,
-    "upgrade_spirit_burn": 0.0132,
-    "upgrade_rupture": 0.0117,
-    "upgrade_critshot": 0.0023,
-    "upgrade_quick_silver": 0.001,
-    "upgrade_toxic_bullets": 0.001,
-    "upgrade_magic_burst": 0.0004
+    "ability_icebeam": 0.3809,
+    "ability_ice_grenade": 0.2969,
+    "GUN": 0.2067,
+    "upgrade_magic_shock": 0.026,
+    "MELEE": 0.0257,
+    "upgrade_spirit_burn": 0.0183,
+    "upgrade_rupture": 0.0141,
+    "upgrade_ethereal_bullets": 0.0141,
+    "upgrade_critshot": 0.0063,
+    "upgrade_tech_damage_pulse": 0.0038,
+    "upgrade_magic_burst": 0.0032,
+    "upgrade_toxic_bullets": 0.0023
    }
   },
   "Haze": {
@@ -320,18 +320,18 @@
     "upgrade_toxic_bullets": 0.0056
    },
    "sim": {
-    "ability_bullet_flurry": 0.497,
-    "ability_stacking_damage": 0.3038,
-    "GUN": 0.1217,
-    "ability_sleep_dagger": 0.0463,
-    "Bloodletting (deferred)": 0.0093,
-    "MELEE": 0.0064,
-    "upgrade_capacitor": 0.0044,
-    "upgrade_critshot": 0.0034,
-    "upgrade_chain_lightning": 0.0021,
-    "upgrade_toxic_bullets": 0.0021,
-    "upgrade_ethereal_bullets": 0.0012,
-    "upgrade_targeted_silence": 0.0009
+    "GUN": 0.3602,
+    "ability_stacking_damage": 0.328,
+    "ability_bullet_flurry": 0.1672,
+    "ability_sleep_dagger": 0.083,
+    "MELEE": 0.0155,
+    "upgrade_critshot": 0.0107,
+    "upgrade_toxic_bullets": 0.0087,
+    "upgrade_chain_lightning": 0.008,
+    "Bloodletting (deferred)": 0.0069,
+    "upgrade_capacitor": 0.0059,
+    "upgrade_targeted_silence": 0.0013,
+    "upgrade_ethereal_bullets": 0.001
    }
   },
   "Holliday": {
@@ -350,18 +350,18 @@
     "upgrade_spirit_burn": 0.0071
    },
    "sim": {
-    "ability_explosive_barrel": 0.4588,
-    "GUN": 0.1903,
-    "ability_bounce_pad": 0.0963,
-    "ability_gravity_lasso": 0.0739,
-    "ability_crackshot": 0.0559,
-    "MELEE": 0.0281,
-    "upgrade_magic_shock": 0.0278,
-    "upgrade_headhunter": 0.02,
-    "upgrade_crackshot": 0.0149,
-    "Bloodletting (deferred)": 0.0099,
-    "upgrade_spirit_burn": 0.0062,
-    "upgrade_spirit_snatch": 0.0048
+    "ability_explosive_barrel": 0.3812,
+    "GUN": 0.2854,
+    "ability_crackshot": 0.0934,
+    "MELEE": 0.0506,
+    "ability_gravity_lasso": 0.0337,
+    "upgrade_headhunter": 0.0328,
+    "upgrade_magic_shock": 0.029,
+    "ability_bounce_pad": 0.023,
+    "upgrade_crackshot": 0.0183,
+    "upgrade_thermal_detonator": 0.0107,
+    "Bloodletting (deferred)": 0.0092,
+    "upgrade_spirit_burn": 0.008
    }
   },
   "Bebop": {
@@ -380,18 +380,18 @@
     "upgrade_acolytes_glove": 0.0141
    },
    "sim": {
-    "citadel_ability_bebop_laser_beam": 0.7061,
-    "citadel_ability_sticky_bomb": 0.1258,
-    "citadel_ability_uppercut": 0.0499,
-    "GUN": 0.0368,
-    "upgrade_headhunter": 0.0182,
-    "upgrade_magic_shock": 0.0147,
-    "MELEE": 0.0123,
-    "Bloodletting (deferred)": 0.0107,
-    "upgrade_magic_burst": 0.0073,
-    "upgrade_mystic_reverb": 0.0035,
-    "upgrade_spirit_burn": 0.0027,
-    "upgrade_capacitor": 0.0024
+    "citadel_ability_sticky_bomb": 0.3435,
+    "citadel_ability_bebop_laser_beam": 0.1785,
+    "GUN": 0.1677,
+    "citadel_ability_uppercut": 0.1158,
+    "upgrade_headhunter": 0.0455,
+    "MELEE": 0.0333,
+    "upgrade_magic_shock": 0.0282,
+    "upgrade_weapon_backstabber": 0.0175,
+    "upgrade_magic_burst": 0.0121,
+    "upgrade_mystic_reverb": 0.0103,
+    "upgrade_tech_damage_pulse": 0.0081,
+    "upgrade_spirit_snatch": 0.0066
    }
   },
   "Calico": {
@@ -410,18 +410,18 @@
     "upgrade_focus_lens": 0.0117
    },
    "sim": {
-    "ability_nano_clustergrenade": 0.301,
-    "ability_nano_shadow_pulse": 0.2172,
-    "ability_nano_dash": 0.0967,
-    "GUN": 0.0838,
-    "MELEE": 0.0765,
-    "upgrade_spirit_snatch": 0.0428,
-    "upgrade_arctic_blast": 0.0421,
-    "upgrade_tech_damage_pulse": 0.0369,
-    "upgrade_discord": 0.0218,
-    "upgrade_cold_front": 0.0192,
-    "upgrade_focus_lens": 0.0172,
-    "upgrade_crackshot": 0.0146
+    "ability_nano_clustergrenade": 0.1802,
+    "GUN": 0.1359,
+    "MELEE": 0.1239,
+    "ability_nano_shadow_pulse": 0.1136,
+    "ability_nano_dash": 0.0886,
+    "upgrade_weapon_backstabber": 0.0821,
+    "upgrade_spirit_snatch": 0.0673,
+    "upgrade_arctic_blast": 0.0591,
+    "upgrade_tech_damage_pulse": 0.0354,
+    "upgrade_cold_front": 0.0237,
+    "upgrade_discord": 0.0197,
+    "upgrade_crackshot": 0.0195
    }
   },
   "Grey Talon": {
@@ -440,18 +440,18 @@
     "citadel_ability_zip_line": 0.0022
    },
    "sim": {
-    "ability_charged_shot": 0.4913,
-    "GUN": 0.2199,
-    "ability_guided_arrow": 0.1482,
-    "upgrade_magic_shock": 0.0587,
-    "upgrade_crackshot": 0.0227,
-    "upgrade_mystic_reverb": 0.0162,
-    "upgrade_spirit_burn": 0.0118,
-    "ability_immobilize_trap": 0.0097,
-    "Bloodletting (deferred)": 0.0075,
-    "upgrade_magic_burst": 0.0075,
-    "MELEE": 0.005,
-    "upgrade_ethereal_bullets": 0.0009
+    "ability_charged_shot": 0.3655,
+    "GUN": 0.3154,
+    "ability_guided_arrow": 0.1454,
+    "upgrade_magic_shock": 0.071,
+    "upgrade_crackshot": 0.0275,
+    "upgrade_mystic_reverb": 0.0232,
+    "upgrade_spirit_burn": 0.0173,
+    "MELEE": 0.0099,
+    "upgrade_magic_burst": 0.0087,
+    "ability_immobilize_trap": 0.0075,
+    "Bloodletting (deferred)": 0.0068,
+    "upgrade_ethereal_bullets": 0.0012
    }
   },
   "Mo & Krill": {
@@ -470,18 +470,18 @@
     "upgrade_discord": 0.0179
    },
    "sim": {
-    "ability_burrow": 0.2754,
-    "ability_intimidate": 0.2206,
-    "ability_ult_combo": 0.1355,
-    "GUN": 0.0853,
-    "ability_throw_sand": 0.0475,
-    "upgrade_cold_front": 0.0471,
-    "MELEE": 0.0398,
-    "upgrade_discord": 0.0342,
-    "upgrade_magic_shock": 0.0307,
-    "upgrade_magic_burst": 0.0245,
-    "upgrade_quick_silver": 0.0232,
-    "upgrade_arctic_blast": 0.0108
+    "ability_intimidate": 0.2565,
+    "ability_burrow": 0.1897,
+    "upgrade_tech_damage_pulse": 0.1152,
+    "GUN": 0.0897,
+    "ability_ult_combo": 0.0748,
+    "ability_throw_sand": 0.052,
+    "upgrade_magic_shock": 0.0475,
+    "upgrade_cold_front": 0.0417,
+    "MELEE": 0.0365,
+    "upgrade_discord": 0.0231,
+    "upgrade_magic_burst": 0.022,
+    "upgrade_quick_silver": 0.0203
    }
   },
   "Shiv": {
@@ -500,18 +500,18 @@
     "upgrade_cold_front": 0.005
    },
    "sim": {
-    "citadel_ability_shiv_dagger": 0.4521,
-    "GUN": 0.249,
-    "citadel_ability_shiv_killing_blow": 0.0988,
-    "citadel_ability_shiv_dash": 0.0951,
-    "MELEE": 0.0631,
-    "upgrade_rupture": 0.0128,
-    "upgrade_critshot": 0.0092,
-    "upgrade_arctic_blast": 0.0047,
-    "upgrade_acolytes_glove": 0.0038,
-    "upgrade_mystic_reverb": 0.0027,
-    "upgrade_spirit_snatch": 0.0025,
-    "upgrade_crackshot": 0.0016
+    "citadel_ability_shiv_dagger": 0.3409,
+    "GUN": 0.2933,
+    "citadel_ability_shiv_dash": 0.1628,
+    "MELEE": 0.0815,
+    "citadel_ability_shiv_killing_blow": 0.0597,
+    "upgrade_rupture": 0.0111,
+    "upgrade_tech_damage_pulse": 0.0107,
+    "upgrade_critshot": 0.0106,
+    "upgrade_cold_front": 0.0055,
+    "upgrade_acolytes_glove": 0.0048,
+    "upgrade_arctic_blast": 0.0046,
+    "upgrade_spirit_snatch": 0.003
    }
   },
   "Ivy": {
@@ -530,18 +530,18 @@
     "upgrade_tech_damage_pulse": 0.009
    },
    "sim": {
-    "citadel_ability_tengu_urn": 0.4181,
-    "GUN": 0.1977,
-    "citadel_ability_tengu_stone_form": 0.1395,
-    "citadel_ability_tengu_airlift": 0.0979,
-    "upgrade_chain_lightning": 0.0284,
-    "MELEE": 0.0222,
-    "upgrade_rupture": 0.0189,
-    "upgrade_thermal_detonator": 0.0169,
-    "upgrade_capacitor": 0.0163,
-    "upgrade_headhunter": 0.013,
-    "upgrade_toxic_bullets": 0.0086,
-    "Bloodletting (deferred)": 0.0048
+    "GUN": 0.3337,
+    "citadel_ability_tengu_urn": 0.2206,
+    "citadel_ability_tengu_airlift": 0.0904,
+    "citadel_ability_tengu_stone_form": 0.0792,
+    "upgrade_chain_lightning": 0.0549,
+    "MELEE": 0.0421,
+    "upgrade_rupture": 0.0395,
+    "upgrade_thermal_detonator": 0.0343,
+    "upgrade_capacitor": 0.0257,
+    "upgrade_headhunter": 0.0219,
+    "upgrade_toxic_bullets": 0.0152,
+    "upgrade_spirit_burn": 0.0081
    }
   },
   "Warden": {
@@ -560,18 +560,18 @@
     "upgrade_headhunter": 0.0042
    },
    "sim": {
-    "ability_warden_riot_protocol": 0.3247,
-    "GUN": 0.2186,
-    "ability_warden_crowd_control": 0.1954,
-    "ability_warden_lock_down": 0.1218,
-    "upgrade_ethereal_bullets": 0.0935,
-    "MELEE": 0.0127,
-    "Bloodletting (deferred)": 0.0121,
-    "upgrade_quick_silver": 0.0076,
-    "upgrade_magic_burst": 0.0038,
-    "upgrade_toxic_bullets": 0.0037,
-    "upgrade_headhunter": 0.0032,
-    "upgrade_ultimate_burst": 0.0013
+    "GUN": 0.4806,
+    "ability_warden_riot_protocol": 0.1728,
+    "ability_warden_crowd_control": 0.1338,
+    "upgrade_ethereal_bullets": 0.0857,
+    "ability_warden_lock_down": 0.0583,
+    "MELEE": 0.0235,
+    "upgrade_quick_silver": 0.0177,
+    "Bloodletting (deferred)": 0.0113,
+    "upgrade_toxic_bullets": 0.0052,
+    "upgrade_headhunter": 0.0047,
+    "upgrade_tech_damage_pulse": 0.0022,
+    "upgrade_ultimate_burst": 0.002
    }
   },
   "Yamato": {
@@ -590,18 +590,18 @@
     "upgrade_mystic_reverb": 0.005
    },
    "sim": {
-    "citadel_ability_power_slash": 0.3033,
-    "citadel_ability_healing_slash": 0.1636,
-    "GUN": 0.1443,
-    "citadel_ability_flying_strike": 0.1331,
-    "MELEE": 0.1036,
-    "upgrade_crackshot": 0.0495,
-    "upgrade_tech_damage_pulse": 0.049,
-    "upgrade_spirit_snatch": 0.0188,
-    "upgrade_acolytes_glove": 0.0096,
-    "Bloodletting (deferred)": 0.0071,
-    "upgrade_discord": 0.0041,
-    "upgrade_cold_front": 0.0039
+    "GUN": 0.2179,
+    "MELEE": 0.1558,
+    "citadel_ability_power_slash": 0.133,
+    "citadel_ability_flying_strike": 0.1292,
+    "citadel_ability_healing_slash": 0.1069,
+    "upgrade_weapon_backstabber": 0.0796,
+    "upgrade_crackshot": 0.0581,
+    "upgrade_tech_damage_pulse": 0.0453,
+    "upgrade_spirit_snatch": 0.0318,
+    "upgrade_acolytes_glove": 0.016,
+    "Bloodletting (deferred)": 0.0078,
+    "upgrade_cold_front": 0.0048
    }
   },
   "Lash": {
@@ -620,18 +620,18 @@
     "upgrade_cold_front": 0.012
    },
    "sim": {
-    "citadel_ability_lash_down_strike": 0.3414,
-    "GUN": 0.1526,
-    "ability_lash_flog": 0.141,
-    "citadel_ability_lash_ultimate": 0.0904,
-    "upgrade_magic_shock": 0.0725,
-    "upgrade_headhunter": 0.0552,
-    "upgrade_crackshot": 0.0492,
-    "MELEE": 0.0278,
-    "upgrade_quick_silver": 0.0172,
-    "upgrade_spirit_burn": 0.0136,
-    "upgrade_magic_burst": 0.0123,
-    "upgrade_headshot_booster": 0.0095
+    "citadel_ability_lash_down_strike": 0.3564,
+    "ability_lash_flog": 0.1851,
+    "GUN": 0.1455,
+    "upgrade_magic_shock": 0.0675,
+    "upgrade_headhunter": 0.056,
+    "citadel_ability_lash_ultimate": 0.0491,
+    "upgrade_crackshot": 0.0328,
+    "MELEE": 0.0303,
+    "upgrade_quick_silver": 0.0154,
+    "upgrade_magic_burst": 0.0126,
+    "upgrade_cold_front": 0.0118,
+    "upgrade_spirit_burn": 0.0112
    }
   },
   "Viscous": {
@@ -650,18 +650,18 @@
     "upgrade_spirit_burn": 0.009
    },
    "sim": {
-    "viscous_goo_grenade": 0.284,
-    "viscous_telepunch": 0.2256,
-    "viscous_goo_bowling_ball": 0.1506,
-    "GUN": 0.1291,
-    "upgrade_crackshot": 0.0717,
-    "upgrade_magic_shock": 0.0504,
-    "MELEE": 0.0419,
-    "upgrade_spirit_snatch": 0.0136,
-    "upgrade_magic_burst": 0.0091,
-    "upgrade_mystic_reverb": 0.0074,
-    "upgrade_headshot_booster": 0.0051,
-    "upgrade_spirit_burn": 0.0049
+    "viscous_goo_grenade": 0.3557,
+    "GUN": 0.1731,
+    "viscous_telepunch": 0.147,
+    "viscous_goo_bowling_ball": 0.0792,
+    "upgrade_crackshot": 0.067,
+    "upgrade_magic_shock": 0.0624,
+    "MELEE": 0.0558,
+    "upgrade_spirit_snatch": 0.0191,
+    "upgrade_magic_burst": 0.0112,
+    "upgrade_mystic_reverb": 0.0093,
+    "upgrade_headshot_booster": 0.0068,
+    "upgrade_spirit_burn": 0.0062
    }
   },
   "Pocket": {
@@ -680,18 +680,18 @@
     "upgrade_arctic_blast": 0.0022
    },
    "sim": {
-    "synth_affliction": 0.2403,
-    "synth_pulse": 0.1779,
-    "synth_plasma_flux": 0.1511,
-    "synth_barrage": 0.1464,
-    "GUN": 0.1364,
-    "upgrade_magic_shock": 0.0681,
-    "upgrade_spirit_burn": 0.0351,
-    "MELEE": 0.0173,
-    "upgrade_magic_burst": 0.0112,
-    "upgrade_crackshot": 0.0069,
-    "upgrade_cold_front": 0.0045,
-    "Bloodletting (deferred)": 0.0032
+    "synth_barrage": 0.2359,
+    "synth_pulse": 0.1591,
+    "GUN": 0.1417,
+    "synth_affliction": 0.1372,
+    "synth_plasma_flux": 0.1209,
+    "upgrade_magic_shock": 0.0815,
+    "upgrade_spirit_burn": 0.0453,
+    "upgrade_cold_front": 0.0335,
+    "MELEE": 0.0211,
+    "upgrade_magic_burst": 0.0125,
+    "upgrade_crackshot": 0.0064,
+    "Bloodletting (deferred)": 0.0024
    }
   },
   "Mirage": {
@@ -710,18 +710,18 @@
     "upgrade_quick_silver": 0.0066
    },
    "sim": {
-    "mirage_sand_phantom": 0.3454,
-    "GUN": 0.192,
-    "mirage_fire_beetles": 0.1829,
-    "upgrade_toxic_bullets": 0.1079,
-    "mirage_tornado": 0.1075,
-    "upgrade_headhunter": 0.0238,
-    "MELEE": 0.0122,
-    "upgrade_crackshot": 0.0102,
-    "upgrade_ethereal_bullets": 0.0056,
-    "upgrade_quick_silver": 0.0047,
-    "upgrade_headshot_booster": 0.0027,
-    "Bloodletting (deferred)": 0.002
+    "GUN": 0.2948,
+    "mirage_sand_phantom": 0.2588,
+    "upgrade_toxic_bullets": 0.1891,
+    "mirage_fire_beetles": 0.1053,
+    "mirage_tornado": 0.0579,
+    "upgrade_headhunter": 0.0393,
+    "MELEE": 0.0211,
+    "upgrade_crackshot": 0.0123,
+    "upgrade_quick_silver": 0.0072,
+    "upgrade_ethereal_bullets": 0.0043,
+    "upgrade_headshot_booster": 0.0042,
+    "upgrade_spirit_burn": 0.0021
    }
   },
   "Vyper": {
@@ -740,18 +740,18 @@
     "upgrade_ricochet": 0.0075
    },
    "sim": {
-    "GUN": 0.2788,
-    "ability_viper_debuffdagger": 0.2348,
-    "ability_viper_petrifybola": 0.2029,
-    "ability_viper_venom": 0.1176,
-    "upgrade_ethereal_bullets": 0.1124,
-    "upgrade_chain_lightning": 0.0147,
-    "upgrade_split_shot": 0.0126,
-    "MELEE": 0.0077,
-    "Bloodletting (deferred)": 0.0061,
-    "upgrade_quick_silver": 0.0051,
-    "upgrade_critshot": 0.0028,
-    "upgrade_capacitor": 0.0021
+    "GUN": 0.5306,
+    "ability_viper_venom": 0.1384,
+    "ability_viper_petrifybola": 0.0835,
+    "ability_viper_debuffdagger": 0.0761,
+    "upgrade_split_shot": 0.0487,
+    "upgrade_ethereal_bullets": 0.044,
+    "upgrade_chain_lightning": 0.0285,
+    "MELEE": 0.0169,
+    "upgrade_toxic_bullets": 0.01,
+    "upgrade_quick_silver": 0.0074,
+    "upgrade_critshot": 0.0063,
+    "Bloodletting (deferred)": 0.0052
    }
   },
   "Sinclair": {
@@ -770,18 +770,17 @@
     "upgrade_spirit_burn": 0.0088
    },
    "sim": {
-    "ability_magician_cloneturret": 0.3085,
-    "ability_magician_magicbolt": 0.2979,
-    "ability_magician_copyult": 0.2277,
-    "GUN": 0.108,
-    "MELEE": 0.0249,
-    "upgrade_magic_shock": 0.009,
-    "upgrade_spirit_burn": 0.0086,
-    "upgrade_ethereal_bullets": 0.0075,
-    "Bloodletting (deferred)": 0.0032,
-    "Checkmate": 0.0027,
-    "upgrade_magic_burst": 0.001,
-    "upgrade_mystic_reverb": 0.0009
+    "ability_magician_copyult": 0.3476,
+    "ability_magician_magicbolt": 0.2697,
+    "ability_magician_cloneturret": 0.1724,
+    "GUN": 0.1261,
+    "MELEE": 0.0316,
+    "upgrade_thermal_detonator": 0.0281,
+    "upgrade_spirit_burn": 0.0118,
+    "upgrade_ethereal_bullets": 0.0055,
+    "upgrade_magic_shock": 0.0036,
+    "Bloodletting (deferred)": 0.0027,
+    "upgrade_magic_burst": 0.0008
    }
   },
   "Mina": {
@@ -800,18 +799,18 @@
     "upgrade_focus_lens": 0.0039
    },
    "sim": {
-    "ability_vampirebat_batswarm": 0.4374,
-    "ability_vampirebat_lovebites": 0.2213,
-    "ability_vampirebat_steallife": 0.1167,
-    "GUN": 0.0693,
-    "upgrade_magic_shock": 0.0622,
-    "upgrade_quick_silver": 0.0199,
-    "upgrade_spirit_burn": 0.019,
-    "Bloodletting (deferred)": 0.0167,
-    "upgrade_toxic_bullets": 0.0117,
-    "upgrade_magic_burst": 0.009,
-    "MELEE": 0.0057,
-    "upgrade_focus_lens": 0.0053
+    "ability_vampirebat_lovebites": 0.2914,
+    "ability_vampirebat_steallife": 0.235,
+    "ability_vampirebat_batswarm": 0.1537,
+    "GUN": 0.1109,
+    "upgrade_magic_shock": 0.079,
+    "upgrade_quick_silver": 0.0335,
+    "upgrade_spirit_burn": 0.025,
+    "upgrade_toxic_bullets": 0.019,
+    "upgrade_magic_burst": 0.0146,
+    "Bloodletting (deferred)": 0.0124,
+    "MELEE": 0.0108,
+    "upgrade_focus_lens": 0.0065
    }
   },
   "Drifter": {
@@ -830,18 +829,18 @@
     "upgrade_melee_charge": 0.0065
    },
    "sim": {
-    "GUN": 0.2604,
-    "drifter_shadow_mark": 0.2529,
-    "drifter_blood_blast": 0.1843,
-    "ability_drifter_hunger": 0.1193,
-    "MELEE": 0.0894,
-    "upgrade_spirit_snatch": 0.0277,
-    "upgrade_magic_shock": 0.0207,
-    "upgrade_toxic_bullets": 0.0098,
-    "Bloodletting (deferred)": 0.007,
-    "upgrade_acolytes_glove": 0.0058,
-    "upgrade_spirit_burn": 0.0055,
-    "upgrade_magic_burst": 0.0036
+    "GUN": 0.2866,
+    "drifter_blood_blast": 0.2335,
+    "drifter_shadow_mark": 0.1374,
+    "MELEE": 0.1077,
+    "ability_drifter_hunger": 0.0837,
+    "upgrade_weapon_backstabber": 0.0402,
+    "upgrade_spirit_snatch": 0.0319,
+    "upgrade_magic_shock": 0.0223,
+    "upgrade_toxic_bullets": 0.0129,
+    "Bloodletting (deferred)": 0.0084,
+    "upgrade_acolytes_glove": 0.0064,
+    "upgrade_cold_front": 0.006
    }
   },
   "Venator": {
@@ -860,18 +859,18 @@
     "citadel_ability_zip_line": 0.0018
    },
    "sim": {
-    "GUN": 0.4813,
-    "ability_priest_weaponswap": 0.1772,
-    "ability_priest_flashbang": 0.0977,
-    "ability_priest_knockback": 0.0929,
-    "ability_priest_beartrap": 0.0767,
-    "MELEE": 0.0696,
-    "Bloodletting (deferred)": 0.0026,
-    "upgrade_arctic_blast": 0.0011,
-    "upgrade_critshot": 0.0006,
-    "upgrade_toxic_bullets": 0.0003,
+    "GUN": 0.4687,
+    "ability_priest_weaponswap": 0.1781,
+    "ability_priest_flashbang": 0.135,
+    "ability_priest_knockback": 0.1141,
+    "MELEE": 0.0754,
+    "ability_priest_beartrap": 0.0239,
+    "Bloodletting (deferred)": 0.0029,
+    "upgrade_arctic_blast": 0.0008,
+    "upgrade_critshot": 0.0005,
+    "upgrade_toxic_bullets": 0.0002,
     "upgrade_crushing_fists": 0.0001,
-    "upgrade_headshot_booster": 0.0001
+    "upgrade_cold_front": 0.0001
    }
   },
   "Victor": {
@@ -890,18 +889,18 @@
     "upgrade_magic_burst": 0.0011
    },
    "sim": {
-    "ability_frank_painaura": 0.4597,
-    "ability_frank_shocktarget2": 0.3369,
-    "GUN": 0.1067,
-    "ability_frank_revive": 0.0466,
-    "MELEE": 0.0204,
-    "upgrade_tech_damage_pulse": 0.0113,
-    "upgrade_ethereal_bullets": 0.0081,
-    "Bloodletting (deferred)": 0.0042,
+    "ability_frank_painaura": 0.3033,
+    "ability_frank_shocktarget2": 0.2906,
+    "GUN": 0.1955,
+    "upgrade_tech_damage_pulse": 0.1119,
+    "ability_frank_revive": 0.047,
+    "MELEE": 0.0348,
+    "Bloodletting (deferred)": 0.0058,
+    "upgrade_ethereal_bullets": 0.0032,
+    "upgrade_mystic_reverb": 0.0015,
     "upgrade_magic_shock": 0.0014,
-    "upgrade_discord": 0.0013,
-    "upgrade_mystic_reverb": 0.001,
-    "upgrade_magic_burst": 0.0007
+    "upgrade_magic_burst": 0.0012,
+    "upgrade_discord": 0.0012
    }
   },
   "Paige": {
@@ -920,18 +919,18 @@
     "upgrade_spirit_burn": 0.0027
    },
    "sim": {
-    "ability_bookworm_dragonfire": 0.4792,
-    "GUN": 0.2876,
-    "ability_bookworm_aoemagic": 0.1052,
-    "ability_bookworm_knightcharge": 0.0881,
-    "MELEE": 0.0167,
-    "Bloodletting (deferred)": 0.0076,
-    "upgrade_split_shot": 0.0049,
-    "upgrade_rupture": 0.0044,
-    "upgrade_toxic_bullets": 0.0018,
-    "upgrade_spirit_burn": 0.0013,
-    "upgrade_magic_shock": 0.0011,
-    "upgrade_ultimate_burst": 0.0007
+    "GUN": 0.3622,
+    "ability_bookworm_dragonfire": 0.3447,
+    "ability_bookworm_aoemagic": 0.1363,
+    "ability_bookworm_knightcharge": 0.0877,
+    "MELEE": 0.0228,
+    "upgrade_split_shot": 0.0161,
+    "upgrade_thermal_detonator": 0.0113,
+    "Bloodletting (deferred)": 0.0062,
+    "upgrade_rupture": 0.0057,
+    "upgrade_toxic_bullets": 0.0021,
+    "upgrade_magic_shock": 0.0015,
+    "upgrade_spirit_burn": 0.0014
    }
   },
   "The Doorman": {
@@ -950,18 +949,18 @@
     "upgrade_headhunter": 0.0052
    },
    "sim": {
-    "ability_doorman_bomb": 0.3909,
-    "GUN": 0.2596,
-    "ability_doorman_luggage_cart": 0.1376,
-    "ability_doorman_hotel": 0.1082,
-    "upgrade_magic_shock": 0.042,
-    "MELEE": 0.0256,
-    "upgrade_magic_burst": 0.0138,
-    "upgrade_headhunter": 0.0081,
-    "upgrade_crackshot": 0.0041,
-    "upgrade_spirit_burn": 0.0035,
-    "upgrade_targeted_silence": 0.0028,
-    "upgrade_phantom_strike": 0.0026
+    "ability_doorman_bomb": 0.3739,
+    "GUN": 0.346,
+    "ability_doorman_luggage_cart": 0.1078,
+    "ability_doorman_hotel": 0.0522,
+    "MELEE": 0.0378,
+    "upgrade_magic_burst": 0.018,
+    "upgrade_magic_shock": 0.0172,
+    "upgrade_thermal_detonator": 0.0136,
+    "upgrade_crackshot": 0.0097,
+    "upgrade_headhunter": 0.0096,
+    "upgrade_spirit_burn": 0.0069,
+    "upgrade_targeted_silence": 0.0033
    }
   },
   "Billy": {
@@ -980,18 +979,18 @@
     "citadel_ability_shiv_defer_damage": 0.0057
    },
    "sim": {
-    "ability_punkgoat_ult": 0.2565,
-    "MELEE": 0.1995,
-    "GUN": 0.1582,
-    "ability_punkgoat_tether": 0.1441,
-    "ability_punkgoat_goatflip": 0.083,
-    "upgrade_weapon_backstabber": 0.0511,
-    "upgrade_spirit_snatch": 0.0479,
-    "ability_punkgoat_blasted": 0.0251,
-    "upgrade_discord": 0.0183,
-    "upgrade_crushing_fists": 0.0065,
-    "Bloodletting (deferred)": 0.0036,
-    "upgrade_tech_damage_pulse": 0.0016
+    "ability_punkgoat_ult": 0.2912,
+    "MELEE": 0.2664,
+    "GUN": 0.189,
+    "upgrade_spirit_snatch": 0.0645,
+    "upgrade_weapon_backstabber": 0.061,
+    "ability_punkgoat_goatflip": 0.046,
+    "ability_punkgoat_tether": 0.035,
+    "upgrade_discord": 0.0144,
+    "ability_punkgoat_blasted": 0.0125,
+    "upgrade_crushing_fists": 0.0091,
+    "Bloodletting (deferred)": 0.0043,
+    "upgrade_acolytes_glove": 0.0021
    }
   },
   "Apollo": {
@@ -1010,18 +1009,18 @@
     "upgrade_weapon_backstabber": 0.0066
    },
    "sim": {
-    "ability_fencer_lunge": 0.2771,
-    "ability_fencer_ultimate": 0.2298,
-    "GUN": 0.1452,
-    "MELEE": 0.1388,
-    "ability_fencer_throwblade": 0.1384,
-    "upgrade_magic_shock": 0.0265,
-    "upgrade_spirit_snatch": 0.0154,
-    "upgrade_cold_front": 0.0142,
-    "upgrade_magic_burst": 0.0067,
-    "upgrade_spirit_burn": 0.005,
-    "upgrade_acolytes_glove": 0.0018,
-    "upgrade_crushing_fists": 0.0011
+    "ability_fencer_lunge": 0.234,
+    "GUN": 0.2079,
+    "MELEE": 0.2078,
+    "ability_fencer_throwblade": 0.1756,
+    "ability_fencer_ultimate": 0.0799,
+    "upgrade_magic_shock": 0.0322,
+    "upgrade_spirit_snatch": 0.0184,
+    "upgrade_cold_front": 0.0115,
+    "upgrade_tech_damage_pulse": 0.0102,
+    "upgrade_magic_burst": 0.0093,
+    "upgrade_weapon_backstabber": 0.0057,
+    "upgrade_spirit_burn": 0.0044
    }
   },
   "Deadman Danny": {
@@ -1036,14 +1035,14 @@
     "MELEE": 0.011
    },
    "sim": {
-    "ability_deadpack_rocketeer": 0.2954,
-    "ability_deadpack_chargeblast": 0.1772,
-    "GUN": 0.1751,
-    "ability_deadpack_ultimate": 0.149,
-    "ability_deadpack_flamethrower": 0.147,
-    "upgrade_ethereal_bullets": 0.0418,
-    "upgrade_quick_silver": 0.0092,
-    "MELEE": 0.0053
+    "ability_deadpack_chargeblast": 0.3174,
+    "GUN": 0.2703,
+    "ability_deadpack_rocketeer": 0.217,
+    "ability_deadpack_flamethrower": 0.1175,
+    "ability_deadpack_ultimate": 0.0329,
+    "upgrade_ethereal_bullets": 0.0265,
+    "upgrade_quick_silver": 0.012,
+    "MELEE": 0.0063
    }
   },
   "Rem": {
@@ -1062,18 +1061,18 @@
     "upgrade_magic_burst": 0.0091
    },
    "sim": {
-    "ability_familiar_ability02": 0.4127,
-    "GUN": 0.2409,
-    "ability_familiar_ability01": 0.1945,
-    "upgrade_magic_shock": 0.0523,
-    "MELEE": 0.0318,
-    "upgrade_rupture": 0.0196,
-    "upgrade_targeted_silence": 0.0082,
-    "upgrade_spirit_burn": 0.0067,
-    "upgrade_arctic_blast": 0.0062,
-    "Bloodletting (deferred)": 0.0055,
-    "upgrade_magic_burst": 0.0052,
-    "upgrade_ethereal_bullets": 0.0051
+    "ability_familiar_ability02": 0.3712,
+    "GUN": 0.3207,
+    "ability_familiar_ability01": 0.095,
+    "MELEE": 0.0448,
+    "upgrade_magic_shock": 0.041,
+    "upgrade_rupture": 0.0264,
+    "upgrade_discord": 0.0232,
+    "upgrade_cold_front": 0.0183,
+    "upgrade_tech_damage_pulse": 0.0107,
+    "upgrade_targeted_silence": 0.0098,
+    "upgrade_arctic_blast": 0.007,
+    "upgrade_magic_burst": 0.0069
    }
   },
   "Silver": {
@@ -1092,18 +1091,18 @@
     "upgrade_spirit_snatch": 0.0049
    },
    "sim": {
-    "GUN": 0.3697,
-    "Go For The Throat": 0.1609,
-    "Mauling Leap": 0.1161,
-    "ability_werewolf_kickflip": 0.0736,
-    "MELEE": 0.0695,
-    "ability_werewolf_unloadgun": 0.0552,
-    "upgrade_weapon_backstabber": 0.0517,
-    "Tail Whack": 0.0326,
-    "ability_werewolf_netshot": 0.0326,
-    "Bloodletting (deferred)": 0.0091,
-    "upgrade_crackshot": 0.0049,
-    "upgrade_toxic_bullets": 0.0048
+    "GUN": 0.3692,
+    "Go For The Throat": 0.1651,
+    "Mauling Leap": 0.1219,
+    "MELEE": 0.0737,
+    "ability_werewolf_kickflip": 0.0715,
+    "upgrade_weapon_backstabber": 0.0493,
+    "ability_werewolf_unloadgun": 0.0413,
+    "ability_werewolf_netshot": 0.0366,
+    "Tail Whack": 0.0346,
+    "Bloodletting (deferred)": 0.0097,
+    "upgrade_toxic_bullets": 0.0055,
+    "upgrade_magic_shock": 0.0046
    }
   },
   "Celeste": {
@@ -1122,18 +1121,18 @@
     "upgrade_cold_front": 0.0043
    },
    "sim": {
-    "ability_unicorn_radiantblast": 0.2924,
-    "ability_unicorn_luminousstrike": 0.2792,
-    "GUN": 0.1594,
-    "ability_unicorn_dazzlingorb": 0.1232,
-    "ability_unicorn_prismaticguard": 0.0533,
-    "MELEE": 0.0353,
-    "Bloodletting (deferred)": 0.0193,
-    "upgrade_magic_shock": 0.0138,
-    "upgrade_magic_burst": 0.0042,
-    "upgrade_tech_damage_pulse": 0.0042,
-    "upgrade_cold_front": 0.0037,
-    "upgrade_spirit_burn": 0.0027
+    "ability_unicorn_radiantblast": 0.2408,
+    "GUN": 0.1975,
+    "ability_unicorn_luminousstrike": 0.1912,
+    "ability_unicorn_dazzlingorb": 0.1596,
+    "upgrade_tech_damage_pulse": 0.074,
+    "ability_unicorn_prismaticguard": 0.0421,
+    "MELEE": 0.0418,
+    "Bloodletting (deferred)": 0.0181,
+    "upgrade_magic_shock": 0.013,
+    "upgrade_cold_front": 0.0048,
+    "upgrade_magic_burst": 0.004,
+    "upgrade_spirit_burn": 0.0035
    }
   },
   "Rat King": {
@@ -1152,18 +1151,18 @@
     "upgrade_melee_rebuttal": 0.0006
    },
    "sim": {
-    "ability_ratking_scrap_grenade": 0.3739,
-    "ability_ratking_standard_bearer": 0.2435,
-    "GUN": 0.2071,
-    "ability_ratking_ratnibble": 0.1086,
-    "MELEE": 0.0303,
-    "ability_ratking_ratarmor": 0.0187,
-    "Bloodletting (deferred)": 0.0121,
-    "upgrade_return_fire": 0.0023,
-    "upgrade_toxic_bullets": 0.0012,
-    "upgrade_headhunter": 0.0008,
-    "upgrade_melee_rebuttal": 0.0005,
-    "upgrade_ethereal_bullets": 0.0005
+    "ability_ratking_scrap_grenade": 0.3592,
+    "GUN": 0.3434,
+    "ability_ratking_standard_bearer": 0.0978,
+    "ability_ratking_ratnibble": 0.0941,
+    "MELEE": 0.0522,
+    "ability_ratking_ratarmor": 0.0331,
+    "Bloodletting (deferred)": 0.012,
+    "upgrade_return_fire": 0.0026,
+    "upgrade_toxic_bullets": 0.0018,
+    "upgrade_headhunter": 0.0011,
+    "upgrade_melee_rebuttal": 0.0008,
+    "upgrade_cold_front": 0.0003
    }
   },
   "Solomon": {
@@ -1182,18 +1181,18 @@
     "upgrade_escalating_exposure": 0.0045
    },
    "sim": {
-    "ability_chessmaster_throwbishop": 0.376,
-    "ability_chessmaster_queen": 0.3109,
-    "GUN": 0.1571,
-    "ability_chessmaster_forkpiece": 0.0827,
-    "upgrade_magic_shock": 0.0317,
-    "MELEE": 0.0075,
-    "Bloodletting (deferred)": 0.0071,
-    "Checkmate": 0.0066,
-    "upgrade_crackshot": 0.0061,
-    "upgrade_spirit_burn": 0.0047,
-    "upgrade_magic_burst": 0.0029,
-    "upgrade_rupture": 0.0019
+    "ability_chessmaster_throwbishop": 0.4468,
+    "GUN": 0.2288,
+    "ability_chessmaster_forkpiece": 0.1339,
+    "ability_chessmaster_queen": 0.1097,
+    "upgrade_magic_shock": 0.0297,
+    "MELEE": 0.0136,
+    "upgrade_crackshot": 0.0076,
+    "upgrade_spirit_burn": 0.0062,
+    "Bloodletting (deferred)": 0.006,
+    "upgrade_magic_burst": 0.0039,
+    "upgrade_rupture": 0.0036,
+    "upgrade_thermal_detonator": 0.0021
    }
   }
  }

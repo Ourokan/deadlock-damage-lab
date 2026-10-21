@@ -177,23 +177,13 @@ class CastCtx:
         return self.raw(prop, default) * (1.0 + self.s.range_pct())
 
     def within(self, reach):
-        """Cast gate for an ability that reaches `reach` meters (range bonuses already applied). Within reach +
-        skill.engage_margin it is castable now. Up to skill.walk_in meters further the caster first walks in, which
-        takes gap / move speed seconds counted from the first time the ability wanted to cast (the gun keeps firing).
-        Further away it isn't cast."""
+        """Cast gate for an ability that reaches `reach` meters (range bonuses already applied): castable within
+        reach + skill.engage_margin; up to skill.walk_in meters further the caster walks in first (gap / move speed
+        s, the gun keeps firing); further away it isn't cast. With range spread (mechanics range_drift) the same
+        as an expected wait: Engine.reach_ready."""
         sk = self.me.skill
-        gap = self.dist - reach - sk.engage_margin
-        if gap <= 0:
-            self.state.pop("_walk_in_at", None)   # in reach: a later walk-in starts fresh
-            return True
-        if gap > sk.walk_in:
-            self.state.pop("_walk_in_at", None)
-            return False
-        st = self.me.st
-        speed = max(1.0, st.hero.base.get("max_move_speed", 7.0)
-                    + st.extra.get("MODIFIER_VALUE_MOVEMENT_SPEED_MAX", 0) + self.me.stat("move_speed"))
-        t0 = self.state.setdefault("_walk_in_at", self.now)
-        return self.now - t0 >= gap / speed
+        return self.engine.reach_ready(self.state, reach + sk.engage_margin, self.me, walk_in=sk.walk_in,
+                                       mean_field=True)
 
     # effects --------------------------------------------------------------------------------------
     def spirit_hit(self, amount, *, delay=0.0, name=None, hit_chance=None, ignore_resist=False, nonlethal=False):
@@ -499,6 +489,9 @@ class AbilityState:
             self.ready_at = t + self.cooldown()
             self.next_charge = self.ready_at
         f.e.note(f"{f.name} casts {self.ab.name}")
+        wait = self.scratch.pop("_reach_delay", 0.0)   # range spread: damage x cooldown / (cooldown + expected wait)
+        cd = self.charge_delay() if self.max_charges() > 1 else self.cooldown()
+        self.scratch["_avail"] = cd / (cd + wait) if wait > 0 and cd > 0 else 1.0
         for fx in f.items_fx:
             g = getattr(fx, "on_cast", None)
             if g:

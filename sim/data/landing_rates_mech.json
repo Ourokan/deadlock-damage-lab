@@ -7,749 +7,749 @@
   "Infernus": {
    "Napalm": {
     "class": "ability_incendiary_projectile",
-    "landing": 0.32,
+    "landing": 0.39,
     "real_share": 0.0548,
-    "sim_share": 0.1084
+    "sim_share": 0.0515
    },
    "Flame Dash": {
     "class": "ability_flame_dash",
-    "landing": 0.73,
+    "landing": 0.802,
     "real_share": 0.2607,
-    "sim_share": 0.2269
+    "sim_share": 0.2466
    },
    "Afterburn": {
     "class": "ability_afterburn",
-    "landing": 0.61,
+    "landing": 0.482,
     "real_share": 0.2763,
-    "sim_share": 0.2873
+    "sim_share": 0.2624
    },
    "Concussive Combustion": {
     "class": "ability_fire_bomb",
-    "landing": 0.19,
+    "landing": 0.229,
     "real_share": 0.035,
-    "sim_share": 0.1229
+    "sim_share": 0.0328
    }
   },
   "Seven": {
    "Lightning Ball": {
     "class": "citadel_ability_lightning_ball",
-    "landing": 0.31,
+    "landing": 0.352,
     "real_share": 0.1887,
-    "sim_share": 0.3964
+    "sim_share": 0.2008
    },
    "Static Charge": {
     "class": "citadel_ability_static_charge",
-    "landing": 0.81,
+    "landing": 1.155,
     "real_share": 0.0568,
-    "sim_share": 0.0437
+    "sim_share": 0.0599
    },
    "Power Surge": {
     "class": "ability_power_surge",
-    "landing": 0.53,
+    "landing": 0.449,
     "real_share": 0.1592,
-    "sim_share": 0.205
+    "sim_share": 0.169
    },
    "Storm Cloud": {
     "class": "citadel_ability_storm_cloud",
-    "landing": 0.81,
+    "landing": 0.692,
     "real_share": 0.2828,
-    "sim_share": 0.1933
+    "sim_share": 0.3087
    }
   },
   "Vindicta": {
    "Stake": {
     "class": "citadel_ability_hornet_chain",
-    "landing": 0.56,
+    "landing": 0.574,
     "real_share": 0.0632,
-    "sim_share": 0.0679
+    "sim_share": 0.0643
    },
    "Flight": {
     "class": "citadel_ability_hornet_leap",
-    "landing": 0.45,
+    "landing": 0.42,
     "real_share": 0.1121,
-    "sim_share": 0.1579
+    "sim_share": 0.1139
    },
    "Crow Familiar": {
     "class": "citadel_ability_hornet_sting",
-    "landing": 0.55,
+    "landing": 0.5,
     "real_share": 0.1443,
-    "sim_share": 0.1682
+    "sim_share": 0.1501
    },
    "Assassinate": {
     "class": "citadel_ability_hornet_snipe",
-    "landing": 0.39,
+    "landing": 1.165,
     "real_share": 0.1476,
-    "sim_share": 0.2341
+    "sim_share": 0.1129
    }
   },
   "Lady Geist": {
    "Essence Bomb": {
     "class": "ability_blood_bomb",
-    "landing": 1.14,
+    "landing": 1.029,
     "real_share": 0.2102,
-    "sim_share": 0.1697
+    "sim_share": 0.2355
    },
    "Life Drain": {
     "class": "ability_life_drain",
-    "landing": 0.5,
+    "landing": 2.694,
     "real_share": 0.1258,
-    "sim_share": 0.2368
+    "sim_share": 0.08
    },
    "Malice": {
     "class": "ability_blood_shards",
-    "landing": 0.73,
+    "landing": 0.64,
     "real_share": 0.156,
-    "sim_share": 0.201
+    "sim_share": 0.174
    },
    "Soul Exchange": {
     "class": "ability_health_swap",
-    "landing": 1.15,
+    "landing": 1.188,
     "real_share": 0.1062,
-    "sim_share": 0.0847
+    "sim_share": 0.125
    }
   },
   "Abrams": {
    "Siphon Life": {
     "class": "citadel_ability_bull_heal",
-    "landing": 1.31,
+    "landing": 1.387,
     "real_share": 0.1296,
-    "sim_share": 0.0995
+    "sim_share": 0.1276
    },
    "Shoulder Charge": {
     "class": "citadel_ability_bull_charge",
-    "landing": 1.01,
+    "landing": 0.955,
     "real_share": 0.0623,
-    "sim_share": 0.0585
+    "sim_share": 0.061
    },
    "Seismic Impact": {
     "class": "citadel_ability_bull_leap",
-    "landing": 0.38,
+    "landing": 0.403,
     "real_share": 0.0314,
-    "sim_share": 0.0788
+    "sim_share": 0.0308
    }
   },
   "Wraith": {
    "Card Trick": {
     "class": "citadel_ability_card_toss",
-    "landing": 0.4,
+    "landing": 0.479,
     "real_share": 0.2881,
-    "sim_share": 0.4043
+    "sim_share": 0.3005
    },
    "Full Auto": {
     "class": "citadel_ability_wraith_rapidfire",
-    "landing": 0.79,
+    "landing": 0.875,
     "real_share": 0.0939,
-    "sim_share": 0.0679
+    "sim_share": 0.0978
    },
    "Telekinesis": {
     "class": "citadel_ability_psychic_lift",
-    "landing": 0.27,
+    "landing": 0.362,
     "real_share": 0.0369,
-    "sim_share": 0.0764
+    "sim_share": 0.0387
    }
   },
   "McGinnis": {
    "Mini Turret": {
     "class": "citadel_ability_shieldedsentry",
-    "landing": 0.14,
+    "landing": 0.098,
     "real_share": 0.4322,
-    "sim_share": 0.4805
+    "sim_share": 0.4938
    },
    "Spectral Wall": {
     "class": "citadel_ability_fissure_wall",
-    "landing": 0.12,
+    "landing": 0.448,
     "real_share": 0.0352,
-    "sim_share": 0.0426
+    "sim_share": 0.0357
    },
    "Heavy Barrage": {
     "class": "citadel_ability_rocket_barrage",
-    "landing": 0.05,
+    "landing": 0.161,
     "real_share": 0.1356,
-    "sim_share": 0.4007
+    "sim_share": 0.1374
    }
   },
   "Paradox": {
    "Pulse Grenade": {
     "class": "citadel_ability_chrono_pulse_grenade",
-    "landing": 1.57,
+    "landing": 1.598,
     "real_share": 0.1137,
-    "sim_share": 0.1222
+    "sim_share": 0.1468
    },
    "Kinetic Carbine": {
     "class": "citadel_ability_chrono_kinetic_carbine",
-    "landing": 2.62,
+    "landing": 2.323,
     "real_share": 0.3179,
-    "sim_share": 0.1954
+    "sim_share": 0.2824
    },
    "Paradoxical Swap": {
     "class": "citadel_ability_chrono_swap",
-    "landing": 0.83,
+    "landing": 0.767,
     "real_share": 0.0571,
-    "sim_share": 0.119
+    "sim_share": 0.0782
    }
   },
   "Dynamo": {
    "Kinetic Pulse": {
     "class": "citadel_ability_stomp",
-    "landing": 0.56,
+    "landing": 0.597,
     "real_share": 0.4409,
-    "sim_share": 0.5452
+    "sim_share": 0.4404
    },
    "Singularity": {
     "class": "citadel_ability_self_vacuum",
-    "landing": 0.63,
+    "landing": 0.755,
     "real_share": 0.1692,
-    "sim_share": 0.1804
+    "sim_share": 0.1722
    }
   },
   "Kelvin": {
    "Frost Grenade": {
     "class": "ability_ice_grenade",
-    "landing": 0.79,
+    "landing": 0.691,
     "real_share": 0.2661,
-    "sim_share": 0.2152
+    "sim_share": 0.2969
    },
    "Arctic Beam": {
     "class": "ability_icebeam",
-    "landing": 0.38,
+    "landing": 0.43,
     "real_share": 0.3468,
-    "sim_share": 0.5728
+    "sim_share": 0.3809
    }
   },
   "Haze": {
    "Sleep Dagger": {
     "class": "ability_sleep_dagger",
-    "landing": 0.64,
+    "landing": 0.607,
     "real_share": 0.0762,
-    "sim_share": 0.0463
+    "sim_share": 0.083
    },
    "Fixation": {
     "class": "ability_stacking_damage",
-    "landing": 1.0,
+    "landing": 0.941,
     "real_share": 0.2984,
-    "sim_share": 0.3038
+    "sim_share": 0.328
    },
    "Bullet Dance": {
     "class": "ability_bullet_flurry",
     "landing": 0.17,
     "real_share": 0.1529,
-    "sim_share": 0.497
+    "sim_share": 0.1672
    }
   },
   "Holliday": {
    "Powder Keg": {
     "class": "ability_explosive_barrel",
-    "landing": 0.55,
+    "landing": 0.53,
     "real_share": 0.3733,
-    "sim_share": 0.4588
+    "sim_share": 0.3812
    },
    "Bounce Pad": {
     "class": "ability_bounce_pad",
-    "landing": 0.16,
+    "landing": 0.18,
     "real_share": 0.0226,
-    "sim_share": 0.0963
+    "sim_share": 0.023
    },
    "Crackshot": {
     "class": "ability_crackshot",
-    "landing": 1.12,
+    "landing": 1.365,
     "real_share": 0.091,
-    "sim_share": 0.0559
+    "sim_share": 0.0934
    },
    "Spirit Lasso": {
     "class": "ability_gravity_lasso",
-    "landing": 0.31,
+    "landing": 0.383,
     "real_share": 0.0329,
-    "sim_share": 0.0739
+    "sim_share": 0.0337
    }
   },
   "Bebop": {
    "Exploding Uppercut": {
     "class": "citadel_ability_uppercut",
-    "landing": 0.55,
+    "landing": 1.049,
     "real_share": 0.1015,
-    "sim_share": 0.0499
+    "sim_share": 0.1158
    },
    "Sticky Bomb": {
     "class": "citadel_ability_sticky_bomb",
-    "landing": 0.62,
+    "landing": 1.241,
     "real_share": 0.3026,
-    "sim_share": 0.1258
+    "sim_share": 0.3435
    },
    "Hyper Beam": {
     "class": "citadel_ability_bebop_laser_beam",
-    "landing": 0.06,
+    "landing": 0.142,
     "real_share": 0.1574,
-    "sim_share": 0.7061
+    "sim_share": 0.1785
    }
   },
   "Calico": {
    "Gloom Bombs": {
     "class": "ability_nano_clustergrenade",
-    "landing": 0.35,
+    "landing": 0.416,
     "real_share": 0.1836,
-    "sim_share": 0.301
+    "sim_share": 0.1802
    },
    "Leaping Slash": {
     "class": "ability_nano_dash",
-    "landing": 0.56,
+    "landing": 0.655,
     "real_share": 0.0909,
-    "sim_share": 0.0967
+    "sim_share": 0.0886
    },
    "Return to Shadows": {
     "class": "ability_nano_shadow_pulse",
-    "landing": 0.31,
+    "landing": 0.456,
     "real_share": 0.1147,
-    "sim_share": 0.2172
+    "sim_share": 0.1136
    }
   },
   "Grey Talon": {
    "Charged Shot": {
     "class": "ability_charged_shot",
-    "landing": 0.53,
+    "landing": 0.479,
     "real_share": 0.35,
-    "sim_share": 0.4913
+    "sim_share": 0.3655
    },
    "Spirit Snare": {
     "class": "ability_immobilize_trap",
-    "landing": 0.56,
+    "landing": 0.673,
     "real_share": 0.0072,
-    "sim_share": 0.0097
+    "sim_share": 0.0075
    },
    "Guided Owl": {
     "class": "ability_guided_arrow",
-    "landing": 0.72,
+    "landing": 0.769,
     "real_share": 0.1407,
-    "sim_share": 0.1482
+    "sim_share": 0.1454
    }
   },
   "Mo & Krill": {
    "Scorn": {
     "class": "ability_intimidate",
-    "landing": 1.37,
+    "landing": 1.407,
     "real_share": 0.2162,
-    "sim_share": 0.2206
+    "sim_share": 0.2565
    },
    "Burrow": {
     "class": "ability_burrow",
-    "landing": 0.68,
+    "landing": 0.716,
     "real_share": 0.1596,
-    "sim_share": 0.2754
+    "sim_share": 0.1897
    },
    "Sand Blast": {
     "class": "ability_throw_sand",
-    "landing": 1.1,
+    "landing": 1.165,
     "real_share": 0.0438,
-    "sim_share": 0.0475
+    "sim_share": 0.052
    },
    "Combo": {
     "class": "ability_ult_combo",
-    "landing": 0.57,
+    "landing": 0.482,
     "real_share": 0.0628,
-    "sim_share": 0.1355
+    "sim_share": 0.0748
    }
   },
   "Shiv": {
    "Serrated Knives": {
     "class": "citadel_ability_shiv_dagger",
-    "landing": 0.61,
+    "landing": 0.496,
     "real_share": 0.2944,
-    "sim_share": 0.4521
+    "sim_share": 0.3409
    },
    "Slice and Dice": {
     "class": "citadel_ability_shiv_dash",
-    "landing": 1.5,
+    "landing": 1.565,
     "real_share": 0.1504,
-    "sim_share": 0.0951
+    "sim_share": 0.1628
    },
    "Killing Blow": {
     "class": "citadel_ability_shiv_killing_blow",
-    "landing": 0.51,
+    "landing": 0.569,
     "real_share": 0.0584,
-    "sim_share": 0.0988
+    "sim_share": 0.0597
    }
   },
   "Ivy": {
    "Entangling Thorns": {
     "class": "citadel_ability_tengu_urn",
-    "landing": 0.31,
+    "landing": 0.301,
     "real_share": 0.2041,
-    "sim_share": 0.4181
+    "sim_share": 0.2206
    },
    "Stone Form": {
     "class": "citadel_ability_tengu_stone_form",
-    "landing": 0.33,
+    "landing": 0.315,
     "real_share": 0.0733,
-    "sim_share": 0.1395
+    "sim_share": 0.0792
    },
    "Air Drop": {
     "class": "citadel_ability_tengu_airlift",
-    "landing": 0.53,
+    "landing": 0.59,
     "real_share": 0.0839,
-    "sim_share": 0.0979
+    "sim_share": 0.0904
    }
   },
   "Warden": {
    "Alchemical Flask": {
     "class": "ability_warden_crowd_control",
-    "landing": 0.31,
+    "landing": 0.389,
     "real_share": 0.1329,
-    "sim_share": 0.1954
+    "sim_share": 0.1338
    },
    "Binding Word": {
     "class": "ability_warden_lock_down",
-    "landing": 0.21,
+    "landing": 0.344,
     "real_share": 0.0578,
-    "sim_share": 0.1218
+    "sim_share": 0.0583
    },
    "Last Stand": {
     "class": "ability_warden_riot_protocol",
-    "landing": 0.24,
+    "landing": 0.391,
     "real_share": 0.1712,
-    "sim_share": 0.3247
+    "sim_share": 0.1728
    }
   },
   "Yamato": {
    "Power Slash": {
     "class": "citadel_ability_power_slash",
-    "landing": 0.292,
+    "landing": 0.325,
     "real_share": 0.1412,
-    "sim_share": 0.3033
+    "sim_share": 0.133
    },
    "Flying Slash": {
     "class": "citadel_ability_flying_strike",
-    "landing": 0.646,
+    "landing": 0.649,
     "real_share": 0.1371,
-    "sim_share": 0.1331
+    "sim_share": 0.1292
    },
    "Crimson Slash": {
     "class": "citadel_ability_healing_slash",
-    "landing": 0.434,
+    "landing": 0.461,
     "real_share": 0.1132,
-    "sim_share": 0.1636
+    "sim_share": 0.1069
    }
   },
   "Lash": {
    "Ground Strike": {
     "class": "citadel_ability_lash_down_strike",
-    "landing": 1.13,
+    "landing": 1.166,
     "real_share": 0.3397,
-    "sim_share": 0.3414
+    "sim_share": 0.3564
    },
    "Flog": {
     "class": "ability_lash_flog",
-    "landing": 1.4,
+    "landing": 1.431,
     "real_share": 0.1757,
-    "sim_share": 0.141
+    "sim_share": 0.1851
    },
    "Death Slam": {
     "class": "citadel_ability_lash_ultimate",
-    "landing": 0.59,
+    "landing": 0.614,
     "real_share": 0.0465,
-    "sim_share": 0.0904
+    "sim_share": 0.0491
    }
   },
   "Viscous": {
    "Splatter": {
     "class": "viscous_goo_grenade",
-    "landing": 0.89,
+    "landing": 0.929,
     "real_share": 0.299,
-    "sim_share": 0.284
+    "sim_share": 0.3557
    },
    "Puddle Punch": {
     "class": "viscous_telepunch",
-    "landing": 0.46,
+    "landing": 0.491,
     "real_share": 0.1221,
-    "sim_share": 0.2256
+    "sim_share": 0.147
    },
    "Goo Ball": {
     "class": "viscous_goo_bowling_ball",
-    "landing": 0.36,
+    "landing": 0.388,
     "real_share": 0.0652,
-    "sim_share": 0.1506
+    "sim_share": 0.0792
    }
   },
   "Pocket": {
    "Barrage": {
     "class": "synth_barrage",
-    "landing": 1.54,
+    "landing": 1.004,
     "real_share": 0.2394,
-    "sim_share": 0.1464
+    "sim_share": 0.2359
    },
    "Flying Cloak": {
     "class": "synth_plasma_flux",
-    "landing": 0.75,
+    "landing": 0.675,
     "real_share": 0.1152,
-    "sim_share": 0.1511
+    "sim_share": 0.1209
    },
    "Enchanter's Satchel": {
     "class": "synth_pulse",
-    "landing": 0.91,
+    "landing": 0.812,
     "real_share": 0.165,
-    "sim_share": 0.1779
+    "sim_share": 0.1591
    },
    "Affliction": {
     "class": "synth_affliction",
-    "landing": 0.5,
+    "landing": 0.612,
     "real_share": 0.1453,
-    "sim_share": 0.2403
+    "sim_share": 0.1372
    }
   },
   "Mirage": {
    "Fire Scarabs": {
     "class": "mirage_fire_beetles",
-    "landing": 0.37,
+    "landing": 0.388,
     "real_share": 0.1134,
-    "sim_share": 0.1829
+    "sim_share": 0.1053
    },
    "Dust Devil": {
     "class": "mirage_tornado",
-    "landing": 0.36,
+    "landing": 0.362,
     "real_share": 0.0623,
-    "sim_share": 0.1075
+    "sim_share": 0.0579
    },
    "Djinn's Mark": {
     "class": "mirage_sand_phantom",
-    "landing": 0.49,
+    "landing": 0.479,
     "real_share": 0.2795,
-    "sim_share": 0.3454
+    "sim_share": 0.2588
    }
   },
   "Vyper": {
    "Screwjab Dagger": {
     "class": "ability_viper_debuffdagger",
-    "landing": 0.17,
+    "landing": 0.18,
     "real_share": 0.0679,
-    "sim_share": 0.2348
+    "sim_share": 0.0761
    },
    "Lethal Venom": {
     "class": "ability_viper_venom",
-    "landing": 0.58,
+    "landing": 0.849,
     "real_share": 0.1205,
-    "sim_share": 0.1176
+    "sim_share": 0.1384
    },
    "Petrifying Bola": {
     "class": "ability_viper_petrifybola",
-    "landing": 0.21,
+    "landing": 0.268,
     "real_share": 0.0745,
-    "sim_share": 0.2029
+    "sim_share": 0.0835
    }
   },
   "Sinclair": {
    "Vexing Bolt": {
     "class": "ability_magician_magicbolt",
-    "landing": 0.762,
+    "landing": 0.694,
     "real_share": 0.3224,
-    "sim_share": 0.2979
+    "sim_share": 0.2697
    },
    "Spectral Assistant": {
     "class": "ability_magician_cloneturret",
-    "landing": 0.484,
+    "landing": 0.498,
     "real_share": 0.2117,
-    "sim_share": 0.3085
+    "sim_share": 0.1724
    },
    "Audience Participation": {
     "class": "ability_magician_copyult",
     "landing": 0.0,
     "real_share": 0.0,
-    "sim_share": 0.2277
+    "sim_share": 0.3476
    }
   },
   "Mina": {
    "Rake": {
     "class": "ability_vampirebat_steallife",
-    "landing": 1.2,
+    "landing": 1.139,
     "real_share": 0.2342,
-    "sim_share": 0.1167
+    "sim_share": 0.235
    },
    "Love Bites": {
     "class": "ability_vampirebat_lovebites",
-    "landing": 0.82,
+    "landing": 0.771,
     "real_share": 0.2939,
-    "sim_share": 0.2213
+    "sim_share": 0.2914
    },
    "Nox Nostra": {
     "class": "ability_vampirebat_batswarm",
-    "landing": 0.22,
+    "landing": 0.276,
     "real_share": 0.1549,
-    "sim_share": 0.4374
+    "sim_share": 0.1537
    }
   },
   "Drifter": {
    "Rend": {
     "class": "drifter_blood_blast",
-    "landing": 1.15,
+    "landing": 1.119,
     "real_share": 0.2285,
-    "sim_share": 0.1843
+    "sim_share": 0.2335
    },
    "Stalker's Mark": {
     "class": "drifter_shadow_mark",
-    "landing": 0.49,
+    "landing": 0.519,
     "real_share": 0.1345,
-    "sim_share": 0.2529
+    "sim_share": 0.1374
    },
    "Bloodscent": {
     "class": "ability_drifter_hunger",
-    "landing": 0.64,
+    "landing": 0.684,
     "real_share": 0.0816,
-    "sim_share": 0.1193
+    "sim_share": 0.0837
    }
   },
   "Venator": {
    "Consecrating Grenade": {
     "class": "ability_priest_flashbang",
-    "landing": 1.57,
+    "landing": 1.622,
     "real_share": 0.1497,
-    "sim_share": 0.0977
+    "sim_share": 0.135
    },
    "Gutshot": {
     "class": "ability_priest_knockback",
-    "landing": 1.21,
+    "landing": 1.299,
     "real_share": 0.1157,
-    "sim_share": 0.0929
+    "sim_share": 0.1141
    },
    "Hex-Lined Snap Trap": {
     "class": "ability_priest_beartrap",
-    "landing": 0.31,
+    "landing": 0.299,
     "real_share": 0.0245,
-    "sim_share": 0.0767
+    "sim_share": 0.0239
    },
    "Ira Domini": {
     "class": "ability_priest_weaponswap",
-    "landing": 0.64,
+    "landing": 0.246,
     "real_share": 0.1124,
-    "sim_share": 0.1772
+    "sim_share": 0.1781
    }
   },
   "Victor": {
    "Pain Battery": {
     "class": "ability_frank_shocktarget2",
-    "landing": 0.46,
+    "landing": 0.674,
     "real_share": 0.2667,
-    "sim_share": 0.3369
+    "sim_share": 0.2906
    },
    "Aura of Suffering": {
     "class": "ability_frank_painaura",
-    "landing": 0.37,
+    "landing": 0.453,
     "real_share": 0.2848,
-    "sim_share": 0.4597
+    "sim_share": 0.3033
    },
    "Shocking Reanimation": {
     "class": "ability_frank_revive",
-    "landing": 0.76,
+    "landing": 2.173,
     "real_share": 0.0629,
-    "sim_share": 0.0466
+    "sim_share": 0.047
    }
   },
   "Paige": {
    "Bookwyrm": {
     "class": "ability_bookworm_dragonfire",
-    "landing": 0.58,
+    "landing": 0.578,
     "real_share": 0.3256,
-    "sim_share": 0.4792
+    "sim_share": 0.3447
    },
    "Captivating Read": {
     "class": "ability_bookworm_aoemagic",
-    "landing": 0.99,
+    "landing": 1.017,
     "real_share": 0.127,
-    "sim_share": 0.1052
+    "sim_share": 0.1363
    },
    "Rallying Charge": {
     "class": "ability_bookworm_knightcharge",
-    "landing": 0.71,
+    "landing": 0.851,
     "real_share": 0.0818,
-    "sim_share": 0.0881
+    "sim_share": 0.0877
    }
   },
   "The Doorman": {
    "Call Bell": {
     "class": "ability_doorman_bomb",
-    "landing": 0.66,
+    "landing": 0.596,
     "real_share": 0.3491,
-    "sim_share": 0.3909
+    "sim_share": 0.3739
    },
    "Luggage Cart": {
     "class": "ability_doorman_luggage_cart",
-    "landing": 0.84,
+    "landing": 0.754,
     "real_share": 0.1004,
-    "sim_share": 0.1376
+    "sim_share": 0.1078
    },
    "Hotel Guest": {
     "class": "ability_doorman_hotel",
-    "landing": 0.38,
+    "landing": 0.414,
     "real_share": 0.0487,
-    "sim_share": 0.1082
+    "sim_share": 0.0522
    }
   },
   "Billy": {
    "Bashdown": {
     "class": "ability_punkgoat_ult",
-    "landing": 0.92,
+    "landing": 1.005,
     "real_share": 0.3082,
-    "sim_share": 0.2565
+    "sim_share": 0.2912
    },
    "Rising Ram": {
     "class": "ability_punkgoat_goatflip",
-    "landing": 0.45,
+    "landing": 0.427,
     "real_share": 0.0485,
-    "sim_share": 0.083
+    "sim_share": 0.046
    },
    "Blasted": {
     "class": "ability_punkgoat_blasted",
-    "landing": 0.41,
+    "landing": 0.426,
     "real_share": 0.0133,
-    "sim_share": 0.0251
+    "sim_share": 0.0125
    },
    "Chain Gang": {
     "class": "ability_punkgoat_tether",
-    "landing": 0.2,
+    "landing": 0.233,
     "real_share": 0.037,
-    "sim_share": 0.1441
+    "sim_share": 0.035
    }
   },
   "Apollo": {
    "Disengaging Sigil": {
     "class": "ability_fencer_throwblade",
-    "landing": 0.85,
+    "landing": 1.001,
     "real_share": 0.1558,
-    "sim_share": 0.1384
+    "sim_share": 0.1756
    },
    "Flawless Advance": {
     "class": "ability_fencer_lunge",
-    "landing": 0.57,
+    "landing": 0.585,
     "real_share": 0.2143,
-    "sim_share": 0.2771
+    "sim_share": 0.234
    },
    "Itani Lo Sahn": {
     "class": "ability_fencer_ultimate",
-    "landing": 0.24,
+    "landing": 0.402,
     "real_share": 0.0747,
-    "sim_share": 0.2298
+    "sim_share": 0.0799
    }
   },
   "Deadman Danny": {
    "Strix Salvo": {
     "class": "ability_deadpack_chargeblast",
-    "landing": 0.59,
+    "landing": 0.107,
     "real_share": 0.1907,
-    "sim_share": 0.1772
+    "sim_share": 0.3174
    },
    "Chimera Mk1": {
     "class": "ability_deadpack_rocketeer",
-    "landing": 0.45,
+    "landing": 0.271,
     "real_share": 0.2441,
-    "sim_share": 0.2954
+    "sim_share": 0.217
    },
    "Jettison Fuel": {
     "class": "ability_deadpack_flamethrower",
-    "landing": 0.62,
+    "landing": 0.895,
     "real_share": 0.1663,
-    "sim_share": 0.147
+    "sim_share": 0.1175
    },
    "Close The Deal": {
     "class": "ability_deadpack_ultimate",
-    "landing": 0.16,
+    "landing": 0.15,
     "real_share": 0.0431,
-    "sim_share": 0.149
+    "sim_share": 0.0329
    }
   },
   "Rem": {
@@ -757,107 +757,106 @@
     "class": "ability_familiar_ability02",
     "landing": 0.66,
     "real_share": 0.3514,
-    "sim_share": 0.4127
+    "sim_share": 0.3712
    },
    "Naptime": {
     "class": "ability_familiar_ability01",
-    "landing": 0.37,
+    "landing": 0.405,
     "real_share": 0.0902,
-    "sim_share": 0.1945
+    "sim_share": 0.095
    }
   },
   "Silver": {
    "Slam Fire": {
     "class": "ability_werewolf_unloadgun",
-    "landing": 0.75,
+    "landing": 0.74,
     "real_share": 0.0518,
-    "sim_share": 0.0552
+    "sim_share": 0.0413
    },
    "Boot Kick": {
     "class": "ability_werewolf_kickflip",
-    "landing": 0.95,
+    "landing": 1.028,
     "real_share": 0.0885,
-    "sim_share": 0.0736
+    "sim_share": 0.0715
    },
    "Entangling Bola": {
     "class": "ability_werewolf_netshot",
-    "landing": 1.09,
+    "landing": 1.145,
     "real_share": 0.0452,
-    "sim_share": 0.0326
+    "sim_share": 0.0366
    }
   },
   "Celeste": {
    "Light Eater": {
     "class": "ability_unicorn_radiantblast",
-    "landing": 0.68,
+    "landing": 0.694,
     "real_share": 0.2206,
-    "sim_share": 0.2924
+    "sim_share": 0.2408
    },
    "Dazzling Trick": {
     "class": "ability_unicorn_prismaticguard",
-    "landing": 0.63,
+    "landing": 0.945,
     "real_share": 0.037,
-    "sim_share": 0.0533
+    "sim_share": 0.0421
    },
    "Radiant Daggers": {
     "class": "ability_unicorn_luminousstrike",
-    "landing": 0.57,
+    "landing": 0.648,
     "real_share": 0.1766,
-    "sim_share": 0.2792
+    "sim_share": 0.1912
    },
    "Shining Wonder": {
     "class": "ability_unicorn_dazzlingorb",
-    "landing": 1.37,
+    "landing": 1.916,
     "real_share": 0.1848,
-    "sim_share": 0.1232
+    "sim_share": 0.1596
    }
   },
   "Rat King": {
    "Scrap Grenade": {
     "class": "ability_ratking_scrap_grenade",
-    "landing": 0.57,
+    "landing": 0.566,
     "real_share": 0.35,
-    "sim_share": 0.3739
+    "sim_share": 0.3592
    },
    "Rat Swarm": {
     "class": "ability_ratking_ratnibble",
-    "landing": 0.52,
+    "landing": 0.566,
     "real_share": 0.0914,
-    "sim_share": 0.1086
+    "sim_share": 0.0941
    },
    "Royal Pestments": {
     "class": "ability_ratking_ratarmor",
-    "landing": 1.04,
+    "landing": 0.799,
     "real_share": 0.0325,
-    "sim_share": 0.0187
+    "sim_share": 0.0331
    },
    "Rule, Ratannia!": {
     "class": "ability_ratking_standard_bearer",
-    "landing": 0.25,
+    "landing": 0.312,
     "real_share": 0.0952,
-    "sim_share": 0.2435
+    "sim_share": 0.0978
    }
   },
   "Solomon": {
    "Setup Bishop": {
     "class": "ability_chessmaster_throwbishop",
-    "landing": 0.36,
+    "landing": 0.061,
     "real_share": 0.2519,
-    "sim_share": 0.376
+    "sim_share": 0.4468
    },
    "Rook Battery": {
     "class": "ability_chessmaster_forkpiece",
-    "landing": 1.08,
+    "landing": 1.03,
     "real_share": 0.1739,
-    "sim_share": 0.0827
+    "sim_share": 0.1339
    },
    "Develop Queen": {
     "class": "ability_chessmaster_queen",
-    "landing": 0.25,
+    "landing": 0.236,
     "real_share": 0.1448,
-    "sim_share": 0.3109
+    "sim_share": 0.1097
    }
-  },
-  "Graves": {}
+  }
  }
 }

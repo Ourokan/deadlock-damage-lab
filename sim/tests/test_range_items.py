@@ -1,5 +1,6 @@
 """Range-only items (Mystic Expansion, Greater Expansion) must not decide whether an ability is used at all: players
-walk a little closer instead. Run from sim/:
+walk a little closer instead, and with range spread (mechanics range_drift) range shortens the expected wait for the
+target to be in reach. Run from sim/:
     python3 -m unittest discover -s tests
 """
 import os
@@ -11,14 +12,19 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from deadsim import Loadout, Skill  # noqa: E402
 from deadsim.engine import Engine  # noqa: E402
 from deadsim.fight import make_fighter  # noqa: E402
+from deadsim.mechanics import Mechanics  # noqa: E402
+
+FIXED = Mechanics(range_drift=False)
+SPREAD = Mechanics(range_drift=True)
 
 
-def rake_damage(items, distance=16.3):
-    """Mina's Rake damage on an idle Abrams in 30 s at her median fight distance (Rake reaches 10 m)."""
-    e = Engine(distance=distance, max_time=30)
+def rake_damage(items, distance=16.3, mech=FIXED):
+    """Mina's Rake damage on an idle, refilled Abrams in 30 s at her median fight distance (Rake reaches 10 m)."""
+    e = Engine(distance=distance, max_time=30, mech=mech)
     a = make_fighter(e, Loadout("Mina", items, souls=27000, skill=Skill(use_actives=False)), "a")
     d = make_fighter(e, Loadout("Abrams", [], souls=27000, skill=Skill(accuracy=0, use_abilities=False)), "d")
     d.abilities = []
+    d.max_hp_base = d.hp = 1e7   # never dies: every run lasts the full 30 s
     e.run(a, d, one_way=True)
     return a.dmg_out.get("Rake", 0.0)
 
@@ -41,6 +47,43 @@ class TestRangeItems(unittest.TestCase):
         f = make_fighter(e, Loadout("Mina", ["Mystic Expansion"], souls=27000))
         held = {s.ab.class_name: [it.name for it in s.imbues] for s in f.abilities}
         self.assertEqual(held["ability_vampirebat_batblink"], ["Mystic Expansion"])
+
+
+class TestRangeSpread(unittest.TestCase):
+    """Range spread: the distance is lognormal around the fight distance (data/fight_range.json)."""
+
+    def test_spread_on_by_default(self):
+        e = Engine(distance=16.3, mech=SPREAD)
+        self.assertTrue(Mechanics().range_drift)
+        self.assertGreater(e.spread, 0.3)
+        self.assertAlmostEqual(e.p_within(16.3), 0.5, places=6)
+        self.assertEqual(Engine(distance=16.3, mech=FIXED).p_within(16.3), 1.0)
+
+    def test_rake_smooth_in_distance_and_range(self):
+        """Rake damage falls smoothly with distance (no cliff at reach + margin + walk-in) and a range item adds a
+        little at every distance instead of switching Rake on."""
+        prev = None
+        for dist in (10.0, 13.0, 16.3, 20.0, 25.0):
+            base, more = rake_damage([], dist, SPREAD), rake_damage(["Greater Expansion"], dist, SPREAD)
+            self.assertGreater(base, 0.0)
+            self.assertGreater(more, base)
+            self.assertLess(more - base, 0.2 * base)
+            if prev is not None:
+                self.assertLessEqual(base, prev * 1.02)   # missing-health damage wiggles a little
+            prev = base
+
+    def test_close_quarters_partial(self):
+        """Close Quarters (bonus within 15 m) pays part of the time at 16.3 m instead of never."""
+        from deadsim.items_fx import CloseRange
+        e = Engine(distance=16.3, mech=SPREAD)
+        f = make_fighter(e, Loadout("Mina", ["Close Quarters"], souls=27000), "a")
+        g = make_fighter(e, Loadout("Abrams", [], souls=27000), "d")
+        f.enemy, g.enemy = g, f
+        fx = next(x for x in f.items_fx if isinstance(x, CloseRange))
+        full = fx.item.p("CloseRangeBonusWeaponPower") / 100
+        got = fx.stat(f)["weapon_pct"]
+        self.assertGreater(got, 0.3 * full)
+        self.assertLess(got, 0.7 * full)
 
 
 if __name__ == "__main__":
