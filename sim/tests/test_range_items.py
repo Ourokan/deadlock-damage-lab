@@ -100,6 +100,29 @@ class TestRangeSpread(unittest.TestCase):
         self.assertGreater(got, 0.3 * full)
         self.assertLess(got, 0.7 * full)
 
+    def test_close_quarters_joint_with_falloff(self):
+        """The bonus pays where the target is close, where falloff is highest: bullet damage gains more than
+        p x bonus x E[falloff] (Engine.band_corr), and Long Range gains less."""
+        e = Engine(distance=16.3, mech=SPREAD)
+        st = make_fighter(e, Loadout("Haze", [], souls=27000), "a").st
+        self.assertGreater(e.band_corr(st, 15, True), 0.0)
+        self.assertLess(e.band_corr(st, 15, False), 0.0)
+
+    def test_avail_per_cast(self):
+        """The expected-wait damage factor is set on every cast: 1 for a cast that skipped the reach gate, so a
+        wait from an earlier, blocked attempt can't carry over."""
+        e = Engine(distance=16.3, mech=SPREAD)
+        f = make_fighter(e, Loadout("Mina", [], souls=27000), "a")
+        g = make_fighter(e, Loadout("Abrams", [], souls=27000), "d")
+        f.enemy, g.enemy = g, f
+        ab = f.abilities[0]
+        cd = ab.charge_delay() if ab.max_charges() > 1 else ab.cooldown()
+        ab.scratch["_reach_delay"] = cd
+        ab.cast()
+        self.assertAlmostEqual(ab.scratch["_avail"], 0.5)
+        ab.cast()
+        self.assertEqual(ab.scratch["_avail"], 1.0)
+
 
 if __name__ == "__main__":
     unittest.main()

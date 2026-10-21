@@ -292,6 +292,10 @@ mean +35, sd 200 over 12 paths). Melee keeps its fitted per-second rate; escapes
 - Damage mix (`range/drift_check.py`, each model with its own refit landing factors, `range/refit_landing_drift.py`):
   mean |ln(real/sim)| of ability and melee vs gun ratios 0.073 fixed, 0.079 spread: the same, landing factors absorb
   the average.
+- Tradeoff: the spread is not better calibrated than the fixed distance on damage mix (landing factors absorb the
+  average either way); what it buys is smooth item values and radius/range items that pay part of the time (item share
+  error down, Torment Pulse right). The ability wait `tau / p` is a heuristic, not the OU first-passage time; at
+  p near 0 it drives an ability's damage factor towards 0 where fixed distance never cast it.
 - Item share of all hero damage (24 items above 0.1%): mean |ln(sim/real)| 0.48 fixed -> 0.42 spread. Torment Pulse
   0.42% -> 1.04% (real 1.12%), Cold Front 0.25% -> 0.49% (real 0.41%); Stalker overshoots (0.48% -> 1.21%, real 0.64%).
 - Popular 27k builds on the dummy: median 30 s damage -8% (Deadman Danny -28%, Lady Geist -24%; Victor +22%,
