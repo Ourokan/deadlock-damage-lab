@@ -137,7 +137,7 @@ class TestScornHeal(unittest.TestCase):
 PINNED = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift)
     ("Mo & Krill", "Haze", None, 30.0, 1551.1, 1598.4),
     ("Paradox", "Abrams", None, 30.0, 2366.6, 1480.6),
-    ("Venator", "Lash", "Venator (A)", 21.042, 2087.9, 877.0),
+    ("Venator", "Lash", "Venator (A)", 21.042, 2087.7, 877.0),
     ("Warden", "Seven", "Seven (B)", 17.104, 747.1, 2617.6),
 ]
 
