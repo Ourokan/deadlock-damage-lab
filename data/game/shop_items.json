@@ -10551,7 +10551,7 @@
    "upgrade_clip_size"
   ],
   "description": {
-   "desc": "Grants Bullet Resist when your bullets hit an enemy hero. Each shot can only grant one stack."
+   "desc": "Grants Bullet Resist when your bullets hit a hero. Each shot can only grant one stack."
   },
   "properties": {
    "AbilityUnitTargetLimit": {
@@ -12476,7 +12476,7 @@
    "upgrade_health_stealing_magic"
   ],
   "description": {
-   "desc": "Gain bonus Fire Rate, Spirit Power and Spirit Lifesteal by charging up when shooting enemy heroes."
+   "desc": "Gain bonus Fire Rate, Spirit Power and Spirit Lifesteal by charging up when shooting heroes."
   },
   "properties": {
    "AbilityDuration": {
