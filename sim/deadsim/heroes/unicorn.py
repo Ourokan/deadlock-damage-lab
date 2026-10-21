@@ -73,8 +73,10 @@ class DazzlingTrick(AbilityImpl):
         if not e or st["popped"] or e[0] > 0 or c.now >= e[1]:
             return
         st["popped"] = True
-        if c.dist <= c.rng("ExplodeRadius"):
-            c.spirit_hit(c.raw("BarrierDamagePercentage") / 100 * st["amount"], hit_chance=1.0)
+        p = c.p_in(c.rng("ExplodeRadius"))
+        if p > 0:
+            c.spirit_hit(c.raw("BarrierDamagePercentage") / 100 * st["amount"] * p, hit_chance=1.0)
+        if p >= 0.5:
             c.debuff("silence", 1, c.dur("DebuffDuration"))
 
 

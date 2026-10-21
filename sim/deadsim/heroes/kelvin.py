@@ -29,8 +29,9 @@ class FrostGrenade(AbilityImpl):
         delay = c.raw("AbilityCastDelay")
         c.lock_gun(delay)
         c.spirit_hit(c.val("Damage"), delay=delay)
-        if c.dist <= c.rng("Radius"):
-            c.heal(c.val("HealAmount"))
+        p = c.p_in(c.rng("Radius"))
+        if p > 0:
+            c.heal(c.val("HealAmount") * p)
 
 
 @register("ability_icepath")

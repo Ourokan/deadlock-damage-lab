@@ -71,7 +71,7 @@ class PowerSurge(AbilityImpl):
     range_props = ()
 
     def in_range(self, c):
-        return c.dist <= 30
+        return c.reach(30)
 
     def cast(self, c):
         c.lock_gun(c.raw("AbilityCastDelay"))
@@ -126,7 +126,8 @@ class StormCloud(AbilityImpl):
         dt = c.raw("DamageInterval", 0.3)
         r0, r1 = c.rng("InitialRadius"), c.rng("Radius")
         grow = min(1.0, (c.now - st["start"]) / max(0.1, c.raw("ExpandTime", 3.5)))
-        if c.dist <= r0 + (r1 - r0) * grow:
-            c.engine.damage(me, foe, c.val("DPS") * dt, "spirit", self.s.ab.name, is_ability=True,
+        p = c.p_in(r0 + (r1 - r0) * grow)   # share of the time the target is inside the storm
+        if p > 0:
+            c.engine.damage(me, foe, c.val("DPS") * dt * p, "spirit", self.s.ab.name, is_ability=True,
                             ability=self.s, is_dot=True, is_ult=True)
         c.after(dt, self.tick, c, start)

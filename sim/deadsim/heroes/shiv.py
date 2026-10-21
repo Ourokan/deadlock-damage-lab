@@ -35,7 +35,7 @@ class SerratedKnives(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= 30.0   # thrown projectile, no range in data
+        return c.reach(30.0)   # thrown projectile, no range in data
 
     def start(self, c):
         c.state.update(stacks=0, until=-1.0)

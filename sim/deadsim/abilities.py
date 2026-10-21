@@ -185,6 +185,16 @@ class CastCtx:
         return self.engine.reach_ready(self.state, reach + sk.engage_margin, self.me, walk_in=sk.walk_in,
                                        mean_field=True)
 
+    def reach(self, r):
+        """Cast gate at a hard reach of r m (no engage margin or walk-in added): the target within r now. With range
+        spread the same as within(): cast now, damage scaled by the expected wait for the target to come within r."""
+        return self.engine.reach_ready(self.state, r, self.me, mean_field=True)
+
+    def p_in(self, r):
+        """Share of fight time the target is within r m (1 or 0 at a fixed distance): scales an effect that only
+        lands inside a radius; p_in(r) >= 0.5 is the median-distance check, for all-or-nothing effects."""
+        return self.engine.p_within(r)
+
     # effects --------------------------------------------------------------------------------------
     def spirit_hit(self, amount, *, delay=0.0, name=None, hit_chance=None, ignore_resist=False, nonlethal=False):
         """Instant spirit damage to the enemy (after delay). hit_chance defaults to caster's spirit_accuracy for

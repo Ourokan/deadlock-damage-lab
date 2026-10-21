@@ -32,7 +32,7 @@ class ConsecratingGrenade(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= GRENADE_RANGE
+        return c.reach(GRENADE_RANGE)
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay") + 0.5   # bounce before exploding
@@ -64,7 +64,7 @@ class SnapTrap(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= 15.0 + c.me.skill.engage_margin   # kick reach ~15 m
+        return c.reach(15.0 + c.me.skill.engage_margin)   # kick reach ~15 m
 
     def cast(self, c):
         c.lock_gun(c.raw("AbilityCastDelay"))

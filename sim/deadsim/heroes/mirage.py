@@ -26,7 +26,7 @@ class FireScarabs(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= SCARAB_RANGE
+        return c.reach(SCARAB_RANGE)
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay")

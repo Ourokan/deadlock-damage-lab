@@ -147,8 +147,10 @@ class _Revive:
             if not f.alive or f.e.over:
                 return
             f.hp = max(f.hp, f.max_hp * min(1.0, c.raw("RespawnHealthPercent") / 100))
-            if c.dist <= c.rng("Radius"):
-                c.spirit_hit(c.val("Damage"))
+            p = c.p_in(c.rng("Radius"))   # share of the time the target is in the blast
+            if p > 0:
+                c.spirit_hit(c.val("Damage") * p)
+            if p >= 0.5:
                 c.debuff("stun", 1, c.dur("StunDuration"))
         f.e.after(wait, revive)
         return True

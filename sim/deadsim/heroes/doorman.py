@@ -32,7 +32,7 @@ class CallBell(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= BELL_RANGE
+        return c.reach(BELL_RANGE)
 
     def cast(self, c):
         c.lock_gun(c.raw("AbilityPostCastDuration"))

@@ -134,11 +134,11 @@ class TestScornHeal(unittest.TestCase):
 
 # default behaviour (patterns on), pinned so a change to deadsim.patterns or data/fight_patterns.json shows up:
 # (hero, enemy, winner, time, damage dealt, damage taken) at 20k souls, accuracy 0.3, no items, mechanics default
-PINNED = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift)
-    ("Mo & Krill", "Haze", None, 30.0, 1551.1, 1598.4),
-    ("Paradox", "Abrams", None, 30.0, 2366.6, 1480.6),
-    ("Venator", "Lash", "Venator (A)", 21.042, 2087.7, 877.0),
-    ("Warden", "Seven", "Seven (B)", 17.104, 747.1, 2617.6),
+PINNED = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift, all hero range checks)
+    ("Mo & Krill", "Haze", None, 30.0, 1551.1, 1478.3),
+    ("Paradox", "Abrams", None, 30.0, 2356.7, 1470.8),
+    ("Venator", "Lash", "Venator (A)", 18.3, 2109.0, 877.0),
+    ("Warden", "Seven", None, 16.6, 728.0, 2436.5),
 ]
 
 

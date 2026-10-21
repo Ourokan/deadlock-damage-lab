@@ -25,7 +25,7 @@ class PulseGrenade(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= 25 + c.me.skill.engage_margin
+        return c.reach(25 + c.me.skill.engage_margin)
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay")
@@ -55,7 +55,7 @@ class TimeWall(AbilityImpl):
     kind = "aoe"
 
     def in_range(self, c):
-        return c.dist <= 30
+        return c.reach(30)
 
     def should_cast(self, c):
         return self.in_range(c) and not c.me.mods.active("weapon_pct_timewall")
@@ -75,7 +75,7 @@ class KineticCarbine(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= 40
+        return c.reach(40)
 
     def cast(self, c):
         c.lock_gun(CARBINE_CHARGE)

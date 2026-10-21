@@ -145,6 +145,22 @@ class TestRangeSpread(unittest.TestCase):
             h.enemy, k.enemy = k, h
             self.assertAlmostEqual(got, exact.bullet_damage(h)[0], delta=0.01 * got)
 
+    def test_hard_reach_gate_smooth(self):
+        """CastCtx.reach (heroes without walk-in, here Vindicta's 25 m stake) follows the spread: Stake damage fades
+        as the fight distance grows past the reach (30 m with the engage margin) instead of dropping to nothing."""
+        def dmg(distance):
+            e = Engine(distance=distance, max_time=30, mech=SPREAD)
+            a = make_fighter(e, Loadout("Vindicta", [], souls=27000, skill=Skill(use_actives=False)), "a")
+            d = make_fighter(e, Loadout("Abrams", [], souls=27000, skill=Skill(accuracy=0, use_abilities=False)), "d")
+            d.abilities = []
+            d.max_hp_base = d.hp = 1e7
+            e.run(a, d, one_way=True)
+            return a.dmg_out.get("Stake", 0.0)
+        near, edge, far = dmg(20.0), dmg(32.0), dmg(36.0)
+        self.assertGreater(edge, 0.0)
+        self.assertGreater(far, 0.0)
+        self.assertLess(far, near)
+
 
 if __name__ == "__main__":
     unittest.main()

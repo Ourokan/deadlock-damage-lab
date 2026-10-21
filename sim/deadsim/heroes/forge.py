@@ -31,9 +31,7 @@ def turret_dps(tc):
     """DPS of one Mini Turret on the target, from the Mini Turret ability's context."""
     dps = tc.val("TurretDPS") * (1 + (tc.raw("AttackSpeedMult", 100) - 100) / 100)
     s, e = tc.rng("TurretAttackFalloffStart"), tc.rng("TurretAttackFalloffEnd")
-    if tc.dist > s:
-        dps *= max(0.0, 1 - (tc.dist - s) / max(0.1, e - s))
-    return dps
+    return dps * tc.engine.spread_mean(lambda x: 1.0 if x <= s else max(0.0, 1 - (x - s) / max(0.1, e - s)))
 
 
 @register("citadel_ability_shieldedsentry")

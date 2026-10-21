@@ -290,7 +290,7 @@ mean +35, sd 200 over 12 paths). Melee keeps its fitted per-second rate; escapes
   share of hits at 0-10 / 10-20 / 20-30 / 30-40 m is real 0.35 / 0.35 / 0.19 / 0.07, fixed distance 0.17 / 0.79 /
   0.04 / 0, spread 0.34 / 0.33 / 0.16 / 0.17 (the 40 m cap piles the far tail into the last bucket).
 - Damage mix (`range/drift_check.py`, each model with its own refit landing factors, `range/refit_landing_drift.py`):
-  mean |ln(real/sim)| of ability and melee vs gun ratios 0.073 fixed, 0.079 spread: the same, landing factors absorb
+  mean |ln(real/sim)| of ability and melee vs gun ratios 0.073 fixed, 0.078 spread: the same, landing factors absorb
   the average.
 - Tradeoff: the spread is not better calibrated than the fixed distance on damage mix (landing factors absorb the
   average either way); what it buys is smooth item values and radius/range items that pay part of the time (item share
@@ -298,7 +298,7 @@ mean +35, sd 200 over 12 paths). Melee keeps its fitted per-second rate; escapes
   p near 0 it drives an ability's damage factor towards 0 where fixed distance never cast it.
 - Item share of all hero damage (24 items above 0.1%): mean |ln(sim/real)| 0.48 fixed -> 0.42 spread. Torment Pulse
   0.42% -> 1.04% (real 1.12%), Cold Front 0.25% -> 0.49% (real 0.41%); Stalker overshoots (0.48% -> 1.21%, real 0.64%).
-- Popular 27k builds on the dummy: median 30 s damage -8% (Deadman Danny -28%, Lady Geist -24%; Victor +22%,
+- Popular 27k builds on the dummy: median 30 s damage -7% (Lady Geist -26%, Deadman Danny -25%; Vindicta +24%, Victor +22%,
   Calico +15% from Torment Pulse / close-range items). Item value on the dummy (median over heroes): Close Quarters
   +24 -> +80, Sharpshooter +316 -> +320, Long Range +197 -> +154, Point Blank +316 -> +296. Close/long range bonuses use
   the joint expectation with falloff (`Engine.band_corr`): paid where the target actually is, not at the average falloff.
@@ -307,7 +307,7 @@ mean +35, sd 200 over 12 paths). Melee keeps its fitted per-second rate; escapes
 
 - **Melee movement:** melee is now in fights (see "Melee" above), but distance stays fixed (even with movement on, unless someone runs), so gap-closing
   (Melee Charge's lunge, Lifestrike's slow) has no value.
-- **Distance:** the fight distance spreads around the hero's median (see "Range spread") as an average, not a path: there is no positioning AI (kiting to stay at range, diving with a gap closer), and ability effects inside a cast still check the median distance. Abilities gated through `CastCtx.within` follow the spread; these still use a hard `c.dist` gate at the median (cast or in-effect radius): Astro, Atlas, Bookworm, Chessmaster, Chrono, Deadpack, Doorman, Drifter, Forge, Frank, Ghost, Gigawatt, Haze (Bullet Dance falloff), Hornet, Infernus, Kelvin, Mirage, Necro, Priest, Punkgoat, Rat King, Shiv, Synth, Tengu, Unicorn, Viper, Viscous, Warden, Werewolf, Wraith (internal hero file names). Moving them to the spread needs a landing refit. Short-range ultimates use per-hero "approach" constants to be cast.
+- **Distance:** the fight distance spreads around the hero's median (see "Range spread") as an average, not a path: there is no positioning AI (kiting to stay at range, diving with a gap closer), and ability effects inside a cast still check the median distance. Every hero's range checks follow the spread: cast gates through `CastCtx.within` (engage margin + walk-in) or `CastCtx.reach` (hard reach), in-effect radii (Frank's revive blast, Kelvin's heal, Unicorn's barrier pop, Gigawatt's storm, Ghost's tether) scale damage by `CastCtx.p_in` and apply all-or-nothing effects (stun, silence, tether break) at the median, Haze's Bullet Dance bonus and McGinnis' turret falloff average over the spread. Melee reach stays at the median. Short-range ultimates use per-hero "approach" constants to be cast.
 - **Summons can't be shot** (fixed for McGinnis turrets with `mechanics.summons`, see above): McGinnis turrets keep full uptime, so her gun share is 2% vs 26% real. Still the
   worst-matched hero.
 - **Paradox Kinetic Carbine** damage formula is a low-confidence reading of the data (landing 2.95).

@@ -35,7 +35,7 @@ class FlameDash(AbilityImpl):
     range_props = ("FlameAuraRadius",)
 
     def in_range(self, c):
-        return c.dist <= 12.0 + c.me.skill.engage_margin   # dash distance ~12 m
+        return c.reach(12.0 + c.me.skill.engage_margin)   # dash distance ~12 m
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay")

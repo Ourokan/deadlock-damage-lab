@@ -25,7 +25,7 @@ class PowderKeg(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= KEG_THROW_RANGE + c.me.skill.engage_margin
+        return c.reach(KEG_THROW_RANGE + c.me.skill.engage_margin)
 
     def cast(self, c):
         cd = c.raw("AbilityCastDelay")
@@ -42,7 +42,7 @@ class BouncePad(AbilityImpl):
     kind = "skillshot"     # landing the stomp on the target is aimed like a skillshot
 
     def in_range(self, c):
-        return c.dist <= BOUNCE_REACH
+        return c.reach(BOUNCE_REACH)
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay") + BOUNCE_AIR_TIME

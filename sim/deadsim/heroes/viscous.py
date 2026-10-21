@@ -36,7 +36,7 @@ class Splatter(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= THROW_RANGE
+        return c.reach(THROW_RANGE)
 
     def should_cast(self, c):
         return not busy(c) and self.in_range(c)

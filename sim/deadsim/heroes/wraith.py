@@ -85,7 +85,7 @@ class FullAuto(AbilityImpl):
     kind = "self"
 
     def in_range(self, c):
-        return c.dist <= 30
+        return c.reach(30)
 
     def cast(self, c):
         d = c.dur("AbilityDuration")

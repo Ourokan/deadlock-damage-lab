@@ -49,7 +49,7 @@ class ShoulderCharge(AbilityImpl):
     kind = "skillshot"
 
     def in_range(self, c):
-        return c.dist <= CHARGE_REACH
+        return c.reach(CHARGE_REACH)
 
     def cast(self, c):
         d = c.dur("AbilityDuration")
@@ -115,7 +115,7 @@ class SeismicImpact(AbilityImpl):
     kind = "aoe"
 
     def should_cast(self, c):
-        return c.dist <= LEAP_REACH and c.foe.hp_frac > 0.2
+        return c.reach(LEAP_REACH) and c.foe.hp_frac > 0.2
 
     def cast(self, c):
         c.lock_gun(LEAP_TIME)

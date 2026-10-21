@@ -50,7 +50,7 @@ class Bashdown(AbilityImpl):
     kind = "aoe"
 
     def in_range(self, c):
-        return c.dist <= c.raw("PlaceDistanceInFrontOfCaster") + c.val("WaveEndRadius") + 0.5
+        return c.reach(c.raw("PlaceDistanceInFrontOfCaster") + c.val("WaveEndRadius") + 0.5)
 
     def cast(self, c):
         ch = c.raw("AbilityChannelTime", 0.3)
@@ -70,7 +70,7 @@ class RisingRam(AbilityImpl):
 
     def in_range(self, c):
         reach = c.raw("ChargeSpeed") * c.dur("AbilityDuration") / UNITS_PER_METER
-        return c.dist <= reach + c.me.skill.engage_margin
+        return c.reach(reach + c.me.skill.engage_margin)
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay")
@@ -97,7 +97,7 @@ class Blasted(AbilityImpl):
         c.state["active_until"] = -1.0
 
     def should_cast(self, c):
-        return c.dist <= 30
+        return c.reach(30)
 
     def cast(self, c):
         d = c.dur("AbilityDuration")
