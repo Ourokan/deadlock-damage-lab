@@ -64,7 +64,8 @@ class Caps(unittest.TestCase):
     def test_caps_follow_the_budget(self):
         self.assertEqual(P.caps_for_limit(P.item_budget(18000)), P.DEFAULT_TIER_CAPS[18000])
         self.assertEqual(P.caps_for_limit(P.item_budget(27000) + 100), P.DEFAULT_TIER_CAPS[27000])
-        self.assertEqual(P.caps_for_limit(500), P.DEFAULT_TIER_CAPS[10000])
+        self.assertEqual(P.caps_for_limit(P.item_budget(6000)), P.DEFAULT_TIER_CAPS[6000])   # early game path stages
+        self.assertEqual(P.caps_for_limit(500), P.DEFAULT_TIER_CAPS[min(P.DEFAULT_TIER_CAPS)])
         self.assertIsNone(P.caps_for_limit(10 ** 9))
 
     def test_no_tier4_item_at_18k(self):

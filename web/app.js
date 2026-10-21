@@ -553,9 +553,9 @@ async function renderOverallTab() {
       <div class="kv">${loss.map(([i, v]) => `<span>${tile(i, { static: true })}</span><span>${fmt(v, 3)}</span>`).join("")}</div></div></div>` : ""}`;
 }
 
-// full game build paths (damage/scripts/game_path.py): one build from 10k to 50k, stage scores, buy order with spikes
+// full game build paths (damage/scripts/game_path.py): one build from 0 souls to 50k, stage scores, buy order with spikes
 const SLOT_NAME = { weapon: "Weapon", vitality: "Vitality", spirit: "Spirit" };
-const START_LABEL = { best_10k: "the best 10k build", toward_late_game: "pieces of the late game build" };
+const START_LABEL = { best_start: "the best 3k build", best_10k: "the best 10k build", toward_late_game: "pieces of the late game build" };
 const spikeTag = (x) => `<span class="spike${x.at >= 4800 && x.at < 6400 ? " big" : ""}" data-slot="${x.slot}" title="${SLOT_NAME[x.slot]} items cost ${fmt(x.at)} souls or more">${SLOT_NAME[x.slot]} ${fmt(x.at / 1000, 1)}k: +${fmt(x.bonus)}%</span>`;
 function invBars(inv) {
   return `<div class="inv">${Object.entries(inv).map(([sl, v]) => {
@@ -614,7 +614,7 @@ async function renderPathTab() {
     <p class="hint">Each step buys the piece with the most fight value per soul against the next stage's enemies; two pieces that only cross a slot threshold together are valued as a pair, so spikes are hit as early as the souls allow. Net worth is when you can afford it at the share of souls real players hold in items. Spike tags are the slot bonus reached (weapon damage %, max health %, flat spirit).</p>
     <div class="scroll"><table><thead><tr><th class="n">Net worth</th><th>Buy</th><th class="n">Pays</th><th>Spikes</th></tr></thead><tbody>${rows}</tbody></table></div></div>
     <div class="card" style="margin-top:16px"><h3>Starts compared</h3>
-    <p class="hint">Two 10k starts, the best 10k build and one made of the late game build's items and components, each grown stage by stage. Path score is the average stage score with the weakest stage counted twice (1.0 = popular everywhere).</p>
+    <p class="hint">Two starts at the first stage, the best build there and one made of the late game build's items and components, each grown stage by stage. Path score is the average stage score with the weakest stage counted twice (1.0 = popular everywhere).</p>
     <div class="scroll"><table><thead><tr><th>Start</th>${d.budgets.map((b) => `<th class="n">${fmt(b / 1000)}k</th>`).join("")}<th class="n">Path</th></tr></thead><tbody>${lin}</tbody></table></div></div>`;
 }
 
