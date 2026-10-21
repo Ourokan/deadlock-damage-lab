@@ -24,8 +24,10 @@ Score weight (sim/data/movement_value.json, read by damage/scripts/overall_searc
   stack_cap[k] = the same for holding k (3 = 3+) movement items vs none: caps a build's combined value, since
                  movement items overlap (one escape tool covers most of what a second adds)
 The 1v1 overall fight has no movement (an escape would end it, see survival.py), so this factor is how the overall
-score credits what a movement item does outside the duel. A value below 1 is not applied: a holder who dies more is
-mostly an engage player (Majestic Leap), which the item doesn't cause.
+score credits what a movement item does outside the duel. Both parts count in either direction once |z| >= 2 (a
+holder who joins fewer kills but dies less, like Magic Carpet's, nets out); only the item's total is floored at 1,
+so no movement item scores below a non-movement item. These are associations at equal hero, net worth and game
+length, not a controlled game effect: players' skill and play style still ride along.
 
     python3 scripts/kill_participation.py
 """

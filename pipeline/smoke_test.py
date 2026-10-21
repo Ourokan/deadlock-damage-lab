@@ -47,6 +47,7 @@ with open(O.MOVE_PATH) as f:
     _mv = json.load(f)
 missing = [n for n in list(_mv["items"]) + _mv["movement_items"] if n not in ids]
 assert not missing, f"movement_value.json names items the game no longer has: {missing}"
+assert {"2", "3"} <= set(_mv["stack_cap"]), _mv.get("stack_cap")
 assert O.movement_value([]) == 1.0 and O.movement_value([ids["Extra Health"]]) == 1.0
 st = O.movement_value([ids["Stalker"]])
 assert st > 1.0 and O.movement_value([ids["Stalker"], ids["Stalker"]]) == st, st
