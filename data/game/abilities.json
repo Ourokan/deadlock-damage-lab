@@ -9573,7 +9573,7 @@
    "desc": "Throw a ball of goo that deals damage and leaves puddles of goo behind that apply movement slow to enemies in the radius.",
    "quip": "Damage enemies and make a mess",
    "t1_desc": "+36.0 Damage and +1.5m Radius",
-   "t3_desc": "+1 Bounces and improved Spirit Scaling"
+   "t3_desc": "+1 Bounce and improved Spirit Scaling"
   },
   "properties": {
    "AbilityCooldown": {
@@ -19845,6 +19845,665 @@
    {
     "TileSteps": 1.0,
     "QueenBonusMoves": 2.0
+   }
+  ],
+  "weapon_info": null
+ },
+ {
+  "hero_id": 87,
+  "hero": "Nurse Harrow",
+  "slot": "signature1",
+  "id": 267712790,
+  "class_name": "ability_nurse_leech_therapy",
+  "name": "Leech Therapy",
+  "ability_type": "signature",
+  "boss_damage_scale": 1.0,
+  "description": {
+   "desc": "Throw a jar of leeches that attach to enemies, dealing spirit damage over time and eating away at the duration of enemy buffs.",
+   "t1_desc": "Leeches drain stamina and restore it to you on pickup",
+   "t2_desc": "-10s Cooldown+4 Spirit Power Per Leech",
+   "t3_desc": "+1m Radius+0.3 Spirit Scaling+8 Max Leech Stacks"
+  },
+  "properties": {
+   "AbilityCooldown": {
+    "value": 30.0,
+    "label": "Cooldown",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "AbilityCooldown_scale_function",
+     "specific_stat_scale_type": "ETechCooldown"
+    }
+   },
+   "AbilityDuration": {
+    "value": 5.0,
+    "label": "Duration",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "AbilityDuration_scale_function",
+     "specific_stat_scale_type": "ETechDuration"
+    }
+   },
+   "AbilityUnitTargetLimit": {
+    "value": 1.0
+   },
+   "AbilityCastDelay": {
+    "value": 0.1,
+    "label": "Cast Delay",
+    "postfix": "s"
+   },
+   "AbilityPostCastDuration": {
+    "value": 0.2
+   },
+   "ChannelMoveSpeed": {
+    "value": 5.0,
+    "raw": "5m",
+    "postfix": "m"
+   },
+   "Radius": {
+    "value": 6.5,
+    "raw": "6.5m",
+    "label": "Radius",
+    "postfix": "m",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "Radius_scale_function",
+     "specific_stat_scale_type": "ETechRadius"
+    }
+   },
+   "DPS": {
+    "value": 23.0,
+    "label": "Damage Per Second",
+    "scale": {
+     "class_name": "scale_function_tech_damage",
+     "subclass_name": "DPS_scale_function",
+     "stat_scale": 0.19
+    }
+   },
+   "TickRate": {
+    "value": 0.38
+   },
+   "LeechEatTickRate": {
+    "value": 0.38
+   },
+   "LeechEatDurationPerSecond": {
+    "value": 0.65,
+    "label": "Buff Duration Drain Per Second",
+    "postfix": "s"
+   },
+   "LeechMoveSpeed": {
+    "value": 2.0,
+    "raw": "2m",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "LeechMoveSpeed_scale_function",
+     "specific_stat_scale_type": "ELevelUpBoons",
+     "stat_scale": 0.05
+    }
+   },
+   "LeechGroundLifetime": {
+    "value": 180.0
+   },
+   "LeechCrawlRadius": {
+    "value": 8.0,
+    "raw": "8m",
+    "label": "Leech Crawl Range",
+    "postfix": "m",
+    "scale": {
+     "class_name": "scale_function_multi_stats",
+     "subclass_name": "LeechCrawlRadius_scale_function",
+     "specific_stat_scale_type": "ELevelUpBoons",
+     "stat_scale": 1.3,
+     "scaling_stats": [
+      "ELevelUpBoons",
+      "ETechRange"
+     ]
+    }
+   },
+   "LeechCrawlRadiusExitGap": {
+    "value": 5.0,
+    "raw": "5m"
+   },
+   "LeechCount": {
+    "value": 4.0
+   },
+   "LeechHuntLifetime": {
+    "value": 9.0,
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "LeechHuntLifetime_scale_function",
+     "specific_stat_scale_type": "ETechDuration"
+    }
+   },
+   "LeechLungeSpeed": {
+    "value": 15.0,
+    "raw": "15m"
+   },
+   "LeechLeapDuration": {
+    "value": 0.4
+   },
+   "LeechLeapArcHeight": {
+    "value": 0.5,
+    "raw": "0.5m"
+   },
+   "LeechHuntCrawlSpeed": {
+    "value": 3.0,
+    "raw": "3m"
+   },
+   "LeechHuntSearchRadiusPercent": {
+    "value": 150.0
+   },
+   "LeechHuntSearchInterval": {
+    "value": 0.2
+   },
+   "LeechHuntLifetimeVariance": {
+    "value": 0.55
+   },
+   "LeechHuntMaxDrop": {
+    "value": 3.0,
+    "raw": "3m"
+   },
+   "LeechSpawnSpreadPercent": {
+    "value": 58.0
+   },
+   "LeechSpawnSpreadMinPercent": {
+    "value": 73.0
+   },
+   "LeechSpawnAngleJitter": {
+    "value": 0.32
+   },
+   "HealPercentOfLeechDamage": {
+    "value": 100.0
+   },
+   "RegenPerLeechPickup": {
+    "value": 0.6,
+    "label": "Health Regen Per Leech",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "RegenPerLeechPickup_scale_function",
+     "specific_stat_scale_type": "ELevelUpBoons",
+     "stat_scale": 0.13
+    }
+   },
+   "FireRatePerLeechPickup": {
+    "value": 5.0,
+    "label": "Fire Rate Per Leech",
+    "postfix": "%"
+   },
+   "LeechStacksKeptOnDeathPercent": {
+    "value": 50.0
+   },
+   "MaxLeechBonusStacks": {
+    "value": 10.0,
+    "label": "Max Leech Stacks"
+   },
+   "StacksLostOnDeathPercent": {
+    "value": 25.0
+   }
+  },
+  "upgrades": [
+   {
+    "LeechStaminaDrain": 0.3
+   },
+   {
+    "AbilityCooldown": -10.0,
+    "SpiritPowerPerLeechStack": 4.0
+   },
+   {
+    "MaxLeechBonusStacks": 8.0,
+    "DPS": 0.3,
+    "Radius": 1.0
+   }
+  ],
+  "weapon_info": null
+ },
+ {
+  "hero_id": 87,
+  "hero": "Nurse Harrow",
+  "slot": "signature2",
+  "id": 3621314027,
+  "class_name": "ability_nurse_adrenaline_rush",
+  "name": "Wretched Vapors",
+  "ability_type": "signature",
+  "boss_damage_scale": 1.0,
+  "description": {
+   "desc": "Crack open a vial to release an ethereal vapor onto yourself or an ally that causes a rush, then a crash.Specter Rush: While it lasts, increases the speed of all actions and temporarily numbs all incoming damage creating looming specters.Specter Crash: When the vapors wear off, all actions are slower and any remaining specters deal their delayed damage plus extra damage.Incoming healing will prioritize removing specters first, preventing them from dealing damage.",
+   "t1_desc": "-15s Cooldown+7m Cast Range",
+   "t2_desc": "+1s Duration+20% Healing Effectiveness",
+   "t3_desc": "+15% Rush SpeedDispels non-ult debuffs"
+  },
+  "properties": {
+   "AbilityCooldown": {
+    "value": 40.0,
+    "label": "Cooldown",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "AbilityCooldown_scale_function",
+     "specific_stat_scale_type": "ETechCooldown"
+    }
+   },
+   "AbilityDuration": {
+    "value": 4.0,
+    "label": "Duration",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "AbilityDuration_scale_function",
+     "specific_stat_scale_type": "ETechDuration"
+    }
+   },
+   "AbilityCastRange": {
+    "value": 13.0,
+    "raw": "13m",
+    "label": "Cast Range",
+    "postfix": "m",
+    "scale": {
+     "class_name": "scale_function_tech_range",
+     "subclass_name": "rangesf",
+     "specific_stat_scale_type": "ETechRange"
+    }
+   },
+   "AbilityUnitTargetLimit": {
+    "value": 1.0
+   },
+   "AbilityCastDelay": {
+    "value": 0.2,
+    "label": "Cast Delay",
+    "postfix": "s"
+   },
+   "DamageSpiritThresholdPercent": {
+    "value": 6.0
+   },
+   "DeferredDamagePercent": {
+    "value": 100.0,
+    "label": "Damage Deferred",
+    "postfix": "%"
+   },
+   "DeferredDamageBonusPercent": {
+    "value": 30.0,
+    "label": "Extra Damage Taken",
+    "postfix": "%"
+   },
+   "RushTimeScaleBonusPercent": {
+    "value": 25.0,
+    "label": "Rush Speed",
+    "postfix": "%",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "RushTimeScaleBonusPercent_scale_function",
+     "specific_stat_scale_type": "ETechPower",
+     "stat_scale": 0.06
+    }
+   },
+   "CrashDuration": {
+    "value": 4.0,
+    "label": "Crash Duration",
+    "postfix": "s"
+   },
+   "CrashTimeScalePenaltyPercent": {
+    "value": 20.0,
+    "label": "Crash Slowdown",
+    "postfix": "%"
+   }
+  },
+  "upgrades": [
+   {
+    "AbilityCooldown": -15.0,
+    "AbilityCastRange": 7.0
+   },
+   {
+    "AbilityDuration": 1.0,
+    "HealingEffectivenessPercent": 20.0,
+    "HealAmpRegenPercent": 20.0
+   },
+   {
+    "RushTimeScaleBonusPercent": 15.0,
+    "DispelDebuffs": 1.0
+   }
+  ],
+  "weapon_info": null
+ },
+ {
+  "hero_id": 87,
+  "hero": "Nurse Harrow",
+  "slot": "signature3",
+  "id": 683490631,
+  "class_name": "ability_nurse_healing_needles",
+  "name": "Healing Needles",
+  "ability_type": "signature",
+  "boss_damage_scale": 1.0,
+  "description": {
+   "desc": "Load your weapon with a full clip of syringes that heal allies. Dealing damage recovers charges, and each leech you have collected slowly restores them.Reloading spends a charge for a fresh clip.Unused syringes are refunded as a partial charge. Recast to put them away.",
+   "t1_desc": "+1 Max Charge",
+   "t2_desc": "+20 Heal Per ShotShots restore 0.6 stamina",
+   "t3_desc": "+0.4 Spirit ScalingShots extend non-ultimate buff durations by 6%, up to their max duration"
+  },
+  "properties": {
+   "AbilityUnitTargetLimit": {
+    "value": 1.0
+   },
+   "AbilityCastDelay": {
+    "value": 0.1,
+    "label": "Cast Delay",
+    "postfix": "s"
+   },
+   "AbilityCharges": {
+    "value": 1.0,
+    "label": "Charges",
+    "scale": {
+     "class_name": "scale_function_ability_charges",
+     "subclass_name": "AbilityCharges_scale_function"
+    }
+   },
+   "AbilityChargesConditionally": {
+    "value": 1.0
+   },
+   "AbilityChargesInitial": {
+    "value": 1.0
+   },
+   "ChargePercentPerBulletHit": {
+    "value": 1.26
+   },
+   "ChargePercentPerHeadshot": {
+    "value": 2.52
+   },
+   "ChargePercentPerLightMelee": {
+    "value": 7.56
+   },
+   "ChargePercentPerHeavyMelee": {
+    "value": 15.12
+   },
+   "ChargePercentPerAbilityHit": {
+    "value": 1.26
+   },
+   "ChargeHitCooldown": {
+    "value": 0.15
+   },
+   "NonHeroChargeScalePercent": {
+    "value": 35.0
+   },
+   "ChargePercentPerSecondPerLeech": {
+    "value": 0.15,
+    "label": "Charge Per Leech",
+    "postfix": "%/s"
+   },
+   "ChargeGenPctScale": {
+    "value": 100.0,
+    "label": "Charge Rate",
+    "postfix": "%",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "ChargeGenPctScale_scale_function",
+     "specific_stat_scale_type": "ETechCooldown",
+     "stat_scale": -1.0
+    }
+   },
+   "SwapInDelay": {
+    "value": 1.3
+   },
+   "SwapEndDelay": {
+    "value": 1.8
+   },
+   "BuffExtendMaxDurationPercent": {
+    "value": 200.0
+   },
+   "HealRegen": {
+    "value": 25.0,
+    "label": "Heal Per Shot",
+    "scale": {
+     "class_name": "scale_function_healing_spirit_scale",
+     "subclass_name": "HealRegen_scale_function",
+     "specific_stat_scale_type": "ETechPower",
+     "stat_scale": 0.2
+    }
+   },
+   "HeadshotHealBonusPercent": {
+    "value": 15.0,
+    "label": "Headshot Heal Bonus",
+    "postfix": "%"
+   },
+   "SecondaryShotHealPercent": {
+    "value": 50.0
+   },
+   "BuildUpDuration": {
+    "value": 5.0,
+    "label": "Buildup Duration",
+    "postfix": "s"
+   }
+  },
+  "upgrades": [
+   {
+    "AbilityCharges": 1.0
+   },
+   {
+    "StaminaRestorePerHit": 0.6,
+    "HealRegen": 20.0
+   },
+   {
+    "HealRegen": 0.4,
+    "BuffExtendPercentPerShot": 6.0
+   }
+  ],
+  "weapon_info": null
+ },
+ {
+  "hero_id": 87,
+  "hero": "Nurse Harrow",
+  "slot": "signature4",
+  "id": 3427093887,
+  "class_name": "ability_nurse_fear",
+  "name": "Lurking Terrors",
+  "ability_type": "ultimate",
+  "boss_damage_scale": 1.0,
+  "description": {
+   "desc": "Open your bag and reveal the horrors you carry inside, dealing spirit damage over time to enemies in front of you. Enemies looking at you build up terror and cannot use stamina or movement abilities. At max terror, they flee in fear away from you.Each leech you have collected adds fear duration.Enemies facing away from you take 50% damage unless feared.",
+   "t2_desc": "-20% Move Speed and Fire Rate+30 DPS",
+   "t3_desc": "+3.0s Channel Time+0.5 Spirit ScalingImmune to damage while channeling"
+  },
+  "properties": {
+   "AbilityCooldown": {
+    "value": 200.0,
+    "label": "Cooldown",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "AbilityCooldown_scale_function",
+     "specific_stat_scale_type": "ETechCooldown"
+    }
+   },
+   "AbilityCastRange": {
+    "value": 35.0,
+    "raw": "35m",
+    "label": "Cast Range",
+    "postfix": "m",
+    "scale": {
+     "class_name": "scale_function_tech_range",
+     "subclass_name": "FearCastRangeSF",
+     "specific_stat_scale_type": "ETechRange"
+    }
+   },
+   "AbilityUnitTargetLimit": {
+    "value": 1.0
+   },
+   "AbilityCastDelay": {
+    "value": 1.3,
+    "label": "Cast Delay",
+    "postfix": "s"
+   },
+   "AbilityChannelTime": {
+    "value": 7.0,
+    "label": "Channel Duration",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_multi_stats",
+     "subclass_name": "scale_duration",
+     "scaling_stats": [
+      "EChannelDuration",
+      "ETechDuration"
+     ]
+    }
+   },
+   "ChannelMoveSpeed": {
+    "value": 3.5,
+    "raw": "3.5m",
+    "postfix": "m"
+   },
+   "ConeAngle": {
+    "value": 180.0,
+    "label": "Cone Angle",
+    "postfix": " deg"
+   },
+   "ExtraSweepConeAngle": {
+    "value": 40.0
+   },
+   "ExtraSweepOffsetBehindCaster": {
+    "value": 40.0
+   },
+   "ExtraSweepRange": {
+    "value": 4.0,
+    "raw": "4m",
+    "scale": {
+     "class_name": "scale_function_tech_range",
+     "subclass_name": "SweepFearCastRangeSF"
+    }
+   },
+   "TickRate": {
+    "value": 0.15
+   },
+   "BuildupTickRate": {
+    "value": 0.075
+   },
+   "DPS": {
+    "value": 60.0,
+    "label": "Damage Per Second",
+    "scale": {
+     "class_name": "scale_function_tech_damage",
+     "subclass_name": "DPS_scale_function",
+     "stat_scale": 0.3
+    }
+   },
+   "FacingAwayDamagePercent": {
+    "value": 50.0
+   },
+   "DebuffDuration": {
+    "value": 2.2,
+    "label": "Fear Duration",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "DebuffDuration_scale_function",
+     "specific_stat_scale_type": "ETechDuration"
+    }
+   },
+   "BuildupTime": {
+    "value": 1.3,
+    "label": "Fear Buildup Time",
+    "postfix": "s"
+   },
+   "BuildupDecayTime": {
+    "value": 10.0,
+    "label": "Fear Buildup Decay Time",
+    "postfix": "s"
+   },
+   "BuildupLookAngle": {
+    "value": 80.0,
+    "label": "Look Angle",
+    "postfix": "\u00b0"
+   },
+   "BuildupLookAngleFull": {
+    "value": 55.0
+   },
+   "LookBuildupScalePercent": {
+    "value": 35.0
+   },
+   "GazeLingerDuration": {
+    "value": 0.3,
+    "label": "Stamina Lock Linger",
+    "postfix": "s"
+   },
+   "FearMoveSpeedBonus": {
+    "value": 0.0,
+    "raw": "0m",
+    "label": "Fleeing Enemy Move Speed",
+    "postfix": " m/s"
+   },
+   "FallSpeedMax": {
+    "value": 1.0
+   },
+   "AirDrag": {
+    "value": 3.0
+   },
+   "AirControlAccelPercent": {
+    "value": -50.0,
+    "label": "Air Acceleration",
+    "postfix": "%"
+   },
+   "LaunchHeight": {
+    "value": 7.8,
+    "raw": "7.8m"
+   },
+   "CameraTurnRateMax": {
+    "value": 15.0
+   },
+   "TargetMantleAttemptInterval": {
+    "value": 0.5
+   },
+   "FearDurationPerLeechStack": {
+    "value": 0.1,
+    "label": "Fear Duration Per Leech",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "FearDurationPerLeechStack_scale_function",
+     "specific_stat_scale_type": "ETechDuration"
+    }
+   },
+   "SlowPercent": {
+    "value": 30.0,
+    "label": "Move Speed",
+    "postfix": "%",
+    "provided_property_type": "MODIFIER_VALUE_MOVEMENT_SPEED_SLOW_PERCENT"
+   },
+   "FireRateSlow": {
+    "value": 30.0,
+    "label": "Fire Rate",
+    "postfix": "%",
+    "provided_property_type": "MODIFIER_VALUE_FIRE_RATE_SLOW",
+    "usage_flags": [
+     "ConditionallyApplied"
+    ]
+   },
+   "SlowLingerDuration": {
+    "value": 0.5
+   },
+   "VolScaleMin": {
+    "value": 0.35
+   },
+   "VolScaleMax": {
+    "value": 1.0
+   },
+   "PitchScaleMin": {
+    "value": 1.0
+   },
+   "PitchScaleMax": {
+    "value": 1.3
+   }
+  },
+  "upgrades": [
+   {
+    "AbilityCooldown": -50.0
+   },
+   {
+    "SlowPercent": 20.0,
+    "FireRateSlow": 20.0,
+    "DPS": 30.0
+   },
+   {
+    "ChannelDamageImmune": 1.0,
+    "AbilityChannelTime": 3.0,
+    "DPS": 0.5
    }
   ],
   "weapon_info": null

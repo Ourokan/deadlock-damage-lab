@@ -3789,5 +3789,92 @@
     "value": 90.0
    }
   }
+ },
+ {
+  "hero_id": 87,
+  "hero": "Nurse Harrow",
+  "id": 4180982524,
+  "class_name": "citadel_weapon_nurse_set",
+  "name": "Code Blue",
+  "weapon_info": {
+   "can_zoom": true,
+   "bullet_damage": 14.858,
+   "bullet_gravity_scale": 0.0,
+   "bullet_inherit_shooter_velocity_scale": 0.0,
+   "bullet_lifetime": 2.0,
+   "bullet_radius": 10.0,
+   "bullet_radius_vs_world": 2.0,
+   "bullet_reflect_amount": 1.0,
+   "bullet_reflect_scale": 0.0,
+   "bullet_whiz_distance": 80.0,
+   "crit_bonus_against_npcs": 0.0,
+   "crit_bonus_end": 1.65,
+   "crit_bonus_end_range": 1500.0,
+   "crit_bonus_start": 1.65,
+   "crit_bonus_start_range": 500.0,
+   "cycle_time": 0.38,
+   "intra_burst_cycle_time": 0.0,
+   "damage_falloff_bias": 0.5,
+   "damage_falloff_end_range": 2264.0,
+   "damage_falloff_end_scale": 0.1,
+   "damage_falloff_start_range": 787.0,
+   "damage_falloff_start_scale": 1.0,
+   "horizontal_punch": 0.0,
+   "range": 7000.0,
+   "recoil_recovery_delay_factor": 0.05,
+   "bullet_speed": 20000.0,
+   "recoil_recovery_speed": 5.0,
+   "recoil_shot_index_recovery_time_factor": 0.25,
+   "recoil_speed": 5.0,
+   "reload_move_speed": 10000.0,
+   "scatter_yaw_scale": 1.0,
+   "aiming_shot_spread_penalty": [
+    0.0,
+    0.5
+   ],
+   "shoot_move_speed_percent": 0.75,
+   "shoot_spread_penalty_decay": 3.0,
+   "shoot_spread_penalty_decay_delay": 0.0,
+   "shoot_spread_penalty_per_shot": 0.5,
+   "shooting_up_spread_penalty": 0.0,
+   "vertical_punch": 0.15,
+   "zoom_fov": 35.0,
+   "zoom_move_speed_percent": 1.0,
+   "bullets": 1,
+   "burst_shot_count": 1,
+   "clip_size": 11,
+   "spread": 0.0,
+   "standing_spread": 1.5,
+   "reload_duration": 1.9,
+   "horizontal_recoil": {
+    "range": [
+     0.0,
+     0.0
+    ],
+    "burst_exponent": 0.0
+   },
+   "vertical_recoil": {
+    "range": [
+     0.0,
+     0.0
+    ],
+    "burst_exponent": 0.0,
+    "burst_constant": 0.0,
+    "burst_slope": 0.0
+   },
+   "shots_per_second": 2.6315789473684212,
+   "shots_per_second_with_reload": 1.7377567140600316,
+   "bullets_per_second": 2.6315789473684212,
+   "bullets_per_second_with_reload": 1.7377567140600316,
+   "damage_per_second": 39.1,
+   "damage_per_second_with_reload": 25.81958925750395,
+   "damage_per_shot": 14.858,
+   "damage_per_magazine": 163.43800000000002
+  },
+  "properties": {
+   "AbilityUnitTargetLimit": {
+    "value": 1.0
+   }
+  }
  }
 ]
