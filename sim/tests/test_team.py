@@ -23,9 +23,9 @@ def lo(hero, items=(), **kw):
 # (hero, items, enemy, items, winner, time, damage dealt, damage taken)
 DUELS = [
     ("Haze", ["Rapid Rounds", "Toxic Bullets", "Restorative Locket"], "Infernus",
-     ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Haze (A)", 25.432, 2744.0, 1980.5),
+     ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Haze (A)", 25.437, 2744.0, 1980.5),   # re-pinned 2026-10-21 (gun re-checks its lock every 0.1 s)
     ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], None, 21.3, 1744.9, 2566.5),   # re-pinned for the Storm Cloud commit margin
-    ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1769.2, 1303.4),
+    ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1769.2, 1509.5),   # re-pinned 2026-10-21: Dynamo shoots after a cut-short channel
 ]
 
 

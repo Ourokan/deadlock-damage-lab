@@ -138,7 +138,7 @@ PINNED = [
     ("Mo & Krill", "Haze", None, 30.0, 1663.8, 1568.9),
     ("Paradox", "Abrams", None, 30.0, 2490.7, 1404.7),
     ("Venator", "Lash", "Venator (A)", 21.548, 2088.4, 971.5),
-    ("Warden", "Seven", "Seven (B)", 17.1, 734.1, 2623.5),
+    ("Warden", "Seven", "Seven (B)", 17.104, 772.6, 2623.5),   # re-pinned 2026-10-21: gun resumes after a cut-short Last Stand
 ]
 
 

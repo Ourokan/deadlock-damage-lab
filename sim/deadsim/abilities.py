@@ -220,9 +220,10 @@ class CastCtx:
             go()
 
     def gun_volley(self, n_bullets, per_bullet=None, *, name=None, accuracy=None, headshots=True, procs=True,
-                   extra_pct=0.0, kind="bullet"):
+                   extra_pct=0.0, kind="bullet", landed=False):
         """Fire n bullets from an ability (e.g. a gun-based ultimate). per_bullet defaults to the hero's
-        current gun bullet (weapon %, falloff included). Accuracy/headshots use the caster's skill."""
+        current gun bullet (weapon %, falloff included). Accuracy/headshots use the caster's skill. landed=True:
+        the landing factor was applied another way, so the engine does not scale the damage by it."""
         f, e = self.me, self.foe
         eng = f.e
         base, crit = eng.bullet_damage(f, extra_pct)
@@ -235,7 +236,7 @@ class CastCtx:
         crit_eff = 1.0 + (crit - 1.0) * e.st.crit_received_scale
         raw = per * (hits - heads) + per * crit_eff * heads
         eng.damage(f, e, raw, kind, name or self.s.ab.name, is_ability=True, ability=self.s,
-                   headshots=heads, hits=hits, procs=procs, is_ult=self.s.ab.ultimate)
+                   headshots=heads, hits=hits, procs=procs, is_ult=self.s.ab.ultimate, landed=landed)
         return hits
 
     def melee_hit(self, amount, *, name=None, delay=0.0):

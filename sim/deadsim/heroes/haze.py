@@ -17,6 +17,8 @@ Assumptions:
 - Bullet Dance: after AbilityCastDelay Haze fires at BonusFireRate extra fire rate for AbilityDuration with
   perfect accuracy, no headshots, without spending ammo, each bullet getting +WeaponDamageBonus flat damage
   (data: FLAT_BULLET_DAMAGE_POST_SCALE, so not multiplied by weapon damage); Fixation books its stack bonus. She gains EvasionPercent evasion for the duration.
+  Its landing factor (data/landing_rates*.json, low because the ult is up in few real fights) shortens the channel
+  rather than scaling its bullets, so the gun lock shrinks with it.
 """
 from deadsim.abilities import AbilityImpl, register
 
@@ -57,7 +59,7 @@ class SleepDagger(AbilityImpl):
     def _mark(self, c):
         c.state["sleeping"] = True
 
-    def on_damage_dealt(self, c, target, hit):
+    def on_any_damage_dealt(self, c, target, hit):   # any damage wakes, DoT ticks (Alchemical Fire) included
         st = c.state
         if not st.get("sleeping") or hit.source == self.s.ab.name:
             return
@@ -140,7 +142,10 @@ class BulletDance(AbilityImpl):
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay")
-        T = c.val("AbilityDuration")
+        # the landing factor shortens the channel instead of scaling its bullets: the factor mostly says how
+        # rarely the ult is up in a real fight, and scaling damage alone kept the full gun lock, so casting it
+        # cost Haze more gun damage than it dealt (0.11 landing = 0.4 s of Bullet Dance, then the gun again)
+        T = c.val("AbilityDuration") * min(1.0, c.me.skill.ability_landing.get(self.s.ab.name, 1.0))
         c.lock_gun(delay + T)
         c.buff("evasion", c.raw("EvasionPercent") / 100, delay + T)
         c.state["end"] = c.now + delay + T
@@ -155,6 +160,6 @@ class BulletDance(AbilityImpl):
             return
         base, _ = c.engine.bullet_damage(f)
         per = base + c.raw("WeaponDamageBonus")    # flat bonus is post-scale; Fixation books its own bonus
-        c.gun_volley(f.st.pellets, per, accuracy=1.0, headshots=False)
+        c.gun_volley(f.st.pellets, per, accuracy=1.0, headshots=False, landed=True)
         rate = 1.0 + f.fire_rate() + c.raw("BonusFireRate") / 100
         c.after(f.st.cycle_time / max(0.05, rate), self.shoot, c)

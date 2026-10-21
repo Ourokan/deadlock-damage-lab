@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-21T07:06:24Z",
- "reason": "Players walk out of Alchemical Fire after 2 s unless stunned, rooted or slowed (dummy, duels and overall)"
+ "requested_at": "2026-10-21T07:39:25Z",
+ "reason": "Haze duel fixes: gun resumes after a cut-short channel (all heroes), Bullet Dance landing shortens the channel, Haze landing refit"
 }

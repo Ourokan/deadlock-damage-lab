@@ -42,16 +42,18 @@ class ZoneExit(unittest.TestCase):
         self.assertAlmostEqual(held_share(_Target(move_slow=[0.99])), 0.9)
 
     def test_no_hold_hero_only_gets_the_walk_out(self):
-        """Haze can't hold a target: the fire deals well under half of its full 5 s once the target walks out."""
-        stay, walk = fire("Haze", None), fire("Haze", 2.0)
+        """Calico doesn't hold the target in this fight: the fire deals well under half of its full 5 s once the
+        target walks out. (Haze was the example until 2026-10-21; with her gun back after a short Bullet Dance her
+        Sleep Dagger now lands while the fire burns, and the T3 wake-up slow keeps the target in it a bit longer.)"""
+        stay, walk = fire("Calico", None), fire("Calico", 2.0)
         self.assertGreater(stay, 0)
         self.assertLess(walk, 0.45 * stay)
 
     def test_holds_keep_more_of_the_fire(self):
-        """A hero with stuns and slows keeps a larger share of the fire than Haze."""
-        haze = fire("Haze", 2.0) / fire("Haze", None)
+        """A hero with stuns and slows keeps a larger share of the fire than one without."""
+        calico = fire("Calico", 2.0) / fire("Calico", None)
         kelvin = fire("Kelvin", 2.0) / fire("Kelvin", None)
-        self.assertGreater(kelvin, haze)
+        self.assertGreater(kelvin, calico)
 
 
 if __name__ == "__main__":
