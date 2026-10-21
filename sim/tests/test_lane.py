@@ -86,6 +86,35 @@ class Lane(unittest.TestCase):
         self.assertEqual((len(calls), share), (O.LANE_TRADES, 1.0))
 
 
+class RealSim(unittest.TestCase):
+    def setUp(self):
+        O.set_bracket(O.PRIMARY)
+
+    def test_lane_on_the_real_sim(self):
+        # survive() result keys used by lane_fight / gap_heal
+        r = survive(HAZE, [ID["Extra Regen"]], 3000, ABRAMS, [], max_time=O.TRADE_S, start_hp=500.0)
+        for k in ("regen", "ooc_regen", "regen_amp", "max_hp", "final_hp", "survived", "damage_dealt"):
+            self.assertIn(k, r)
+        self.assertGreater(O.gap_heal(r, [ID["Extra Regen"]]), O.gap_heal(r | {"ooc_regen": 0.0}, []))
+        dmg, t, share = O.lane_fight(HAZE, [ID["Extra Regen"]], ABRAMS, [], 3000)
+        self.assertGreater(dmg, 0)
+        self.assertTrue(0 <= share <= 1)
+        self.assertLessEqual(t, O.LANE_TRADES * O.TRADE_S + 1e-6)
+
+
+class StageEvaluators(unittest.TestCase):
+    def test_lane_stages_use_the_lane_test(self):
+        import game_path as P
+        with mock.patch.object(O, "LaneEvaluator", lambda *a: "lane"), \
+                mock.patch.object(O, "MixEvaluator", lambda *a: ("mix", a[-1])), \
+                mock.patch.object(O, "Evaluator", lambda *a: "fight"):
+            got = {b: P.make_evaluator(HAZE, b, None) for b in P.STAGES}
+        self.assertEqual(got[3000], "lane")
+        self.assertEqual(got[6000], "lane")
+        self.assertEqual(got[10000], ("mix", 0.5))
+        self.assertTrue(all(got[b] == "fight" for b in P.STAGES if b > 10000))
+
+
 class Mix(unittest.TestCase):
     def test_mix_weights_lane_and_fight(self):
         m = O.MixEvaluator.__new__(O.MixEvaluator)
