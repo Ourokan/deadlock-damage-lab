@@ -1,13 +1,14 @@
 {
- "generated": "2026-10-21T03:27:28Z",
+ "generated": "2026-10-21T08:01:10Z",
  "patch": "09-29-2026",
  "objectives": {
   "burst_5s": "damage dealt to the dummy in the first 5 s",
   "fight_15s": "damage dealt to the dummy in the first 15 s",
   "sustained_30s": "damage dealt to the dummy in the first 30 s"
  },
- "dummy": "never acts, no resists, refills instead of dying, HP = weighted median of real builds at the budget",
+ "dummy": "never acts, no resists, refills instead of dying, HP = weighted median of real builds at the budget, walks out of Alchemical Fire after 2 s unless stunned, rooted or slowed",
  "aim": "Phantom and up (p75) hero accuracy and headshot rate, real ability landing and melee rates",
+ "dummy_zone_exit_s": 2.0,
  "heroes": [
   {
    "id": 1,

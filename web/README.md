@@ -11,6 +11,14 @@ Static site, no server. Open `index.html` through any static host (or `python3 -
   (`aim.js`: Steam link, ID or name -> Deadlock API match metadata, hero-only "Enemy Hero Accuracy" stats, the same
   numbers as `deadsim.accuracy.player_skill`). The page shows where those numbers sit among ranked players of the
   hero and remembers them in the browser.
+- **Build maker** (`maker.js`, `bridge.maker`): build from nothing against up to five enemies. Each enemy holds what
+  Phantom+ players of that hero hold most at about your net worth (`data/maker.json` from `search/out/usage.json`,
+  filled most-held first up to the souls players that rich hold in items, within the tier caps). Every change runs you
+  against each enemy for 15 s, both fighting back and refilling instead of dying (first lethal moment = time to kill;
+  otherwise extrapolated from HP really lost). Hovering an item previews it. Suggestions check the ~36 items players of
+  the hero buy most at that net worth plus utility items (or every item) in separate workers and rank them by damage
+  change + survival change + utility points (`maker_utility.json`: hand-made tags; anti-heal scaled by enemy healing,
+  cleanse by enemy crowd control), per 1,000 souls or overall. State lives in `#maker/...` links.
 - **Real match** (`match.js`): paste a match ID (or open `#match/<id>`). The page calls the Deadlock API from the
   browser (it allows any origin): the bulk `/v1/matches/metadata` endpoint first, then `/v1/matches/{id}/metadata`,
   which can fall back to Steam for matches the API hasn't stored. Pick a player, a target and a moment in the match;

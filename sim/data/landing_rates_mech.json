@@ -219,19 +219,19 @@
   "Haze": {
    "Sleep Dagger": {
     "class": "ability_sleep_dagger",
-    "landing": 0.605,
+    "landing": 0.64,
     "real_share": 0.0762,
     "sim_share": 0.0463
    },
    "Fixation": {
     "class": "ability_stacking_damage",
-    "landing": 0.361,
+    "landing": 1.0,
     "real_share": 0.2984,
     "sim_share": 0.3038
    },
    "Bullet Dance": {
     "class": "ability_bullet_flurry",
-    "landing": 0.113,
+    "landing": 0.17,
     "real_share": 0.1529,
     "sim_share": 0.497
    }
