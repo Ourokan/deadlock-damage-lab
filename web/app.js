@@ -545,7 +545,7 @@ async function renderOverallTab() {
     <span>Dummy damage by 15 s</span><span>${fmt(x.dummy_15s)}</span></div>${testBtn(Number(id), bk, x.items, title)}</div>`;
   const row = (x, label) => `<tr><td>${label}</td><td>${bdTiles(ctx(x))}</td><td class="n">${fmt(x.cost)}</td><td class="n">${fmt(x.F.damage_before_death)}</td><td class="n">${fmt(x.F.time_alive_s, 1)} s</td><td class="n">${pct(x.F.survived_30s)}</td><td>${testBtn(Number(id), bk, x.items, label)}</td></tr>`;
   const loss = d ? Object.entries(d.best_item_removal_loss).filter(([i]) => S.items[i]).sort((a, b) => b[1] - a[1]) : [];
-  out.innerHTML = `<p class="hint">Damage before dying is averaged over all 41 heroes' typical real builds in this rank bracket, at its aim.${stale} Tap any item to see what it adds to the build's damage.</p>
+  out.innerHTML = `<p class="hint">Damage before dying is averaged over all 41 heroes' typical real builds in this rank bracket, at its aim, minus the healing the enemy gets back during the fight. Fights start at the health real players bring into a fight; builds that heal more between fights arrive fuller.${stale} Tap any item to see what it adds to the build's damage.</p>
     <div class="cards">${card("Best overall build", b.best, true)}${card("Popular real build", b.popular, false)}${b.damage_best ? card("Best raw damage build", b.damage_best, true) : ""}</div>
     ${d ? `<div class="scroll"><table><thead><tr><th>Build</th><th>Items</th><th class="n">Cost</th><th class="n">Damage before dying</th><th class="n">Time alive</th><th class="n">Survives 30 s</th><th></th></tr></thead>
     <tbody>${d.builds.map((x, i) => row(x, `#${i + 1}`)).join("")}</tbody></table></div>
@@ -570,9 +570,10 @@ function invBars(inv) {
 function pathStats(st) {
   const o = st.overall, p = st.popular, lane = o.mode === "lane" ? o : o.lane, pl = o.mode === "lane" ? p : p.lane;
   const fight = `<span>Damage before dying</span><span><b>${fmt(o.damage_before_death)}</b> <span class="hint">pop. ${fmt(p.damage_before_death)}</span></span>
-      <span>Time alive</span><span>${fmt(o.time_alive_s, 1)} s <span class="hint">pop. ${fmt(p.time_alive_s, 1)}</span></span>`;
+      <span>Time alive</span><span>${fmt(o.time_alive_s, 1)} s <span class="hint">pop. ${fmt(p.time_alive_s, 1)}</span></span>${o.entry_hp ? `
+      <span title="Health this build brings into a fight: the real average for the popular build, more for builds that heal more between fights (regen, heal pickups with Healing Booster, Radiant Regeneration...)">Health at fight start</span><span>${fmt(o.entry_hp)} <span class="hint">pop. ${fmt(p.entry_hp)}</span></span>` : ""}`;
   if (!lane) return fight;
-  const ls = `<span title="Damage dealt over up to ${lane.trades} short 1v1 trades, health carried between them and healed by regen, out-of-combat regen and Fortitude in the gaps">Lane damage (${lane.trades} trades)</span><span><b>${fmt(lane.damage_before_death)}</b> <span class="hint">pop. ${fmt(pl?.damage_before_death)}</span></span>
+  const ls = `<span title="Damage dealt over up to ${lane.trades} short 1v1 trades minus the enemy's healing in them. Both sides carry health between trades and heal in the gaps (regen, out-of-combat regen, Fortitude, heal pickups, Radiant Regeneration, Restorative Shot on creeps; Healbane cuts the enemy's). An enemy forced to back frees the rest of the lane">Lane damage (${lane.trades} trades)</span><span><b>${fmt(lane.damage_before_death)}</b> <span class="hint">pop. ${fmt(pl?.damage_before_death)}</span></span>
       <span title="Share of the lane's trades played before backing (under 25% health) or dying">Lane played</span><span>${pct(lane.lane_share)} <span class="hint">pop. ${pct(pl?.lane_share)}</span></span>`;
   return o.mode === "lane" ? ls : `${ls}
       <span title="Half of this stage's score is the lane, half the 30 s fight">Fight score</span><span>${signed(o.fight_score - 1)}</span>

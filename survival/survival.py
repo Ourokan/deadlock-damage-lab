@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.join(HERE, "..", "sim"))
 from deadsim import Loadout, Skill  # noqa: E402
 from deadsim.accuracy import default_distance, hero_default_skill  # noqa: E402
 from deadsim.data import game  # noqa: E402
-from deadsim.engine import Engine  # noqa: E402
+from deadsim.engine import Engine, kill_hooks  # noqa: E402
 from deadsim.fight import make_fighter  # noqa: E402
 import dataclasses  # noqa: E402
 from deadsim import mechanics  # noqa: E402
@@ -31,11 +31,17 @@ _skill, _dist = {}, {}
 
 
 class _Refill:
-    """Lethal damage refills the enemy (same trick as the damage tool's immortal dummy)."""
+    """Lethal damage refills the enemy (same trick as the damage tool's immortal dummy). A refill counts as a kill:
+    the attacker's on-kill items fire (Healbane's heal)."""
     item = None
     name = "immortal"
 
+    def __init__(self):
+        self.kills = 0
+
     def on_lethal(self, f, attacker):
+        self.kills += 1
+        kill_hooks(attacker, f)
         f.hp = f.max_hp
         return True
 
@@ -54,8 +60,11 @@ def _d(name):
 
 
 def survive(hero, items, souls, enemy, enemy_items, enemy_souls=None, max_time=60.0, aim="p50", enemy_aim="p50",
-            skill: Skill | None = None, enemy_skill: Skill | None = None, distance=None, focus=1.0, start_hp=None):
-    """start_hp: the fight starts with this much health (lane trades carry health over), else full."""
+            skill: Skill | None = None, enemy_skill: Skill | None = None, distance=None, focus=1.0, start_hp=None,
+            enemy_start_hp=None):
+    """start_hp / enemy_start_hp: the fight starts with this much health (lane trades carry health over), else full.
+    enemy_healed is the healing the enemy got (it undoes damage dealt), enemy_final_hp its health at the end with
+    each refill counted in enemy_kills."""
     G = game()
     hn, en = G.hero(hero).name, G.hero(enemy).name
     # movement off: running away would count as surviving, which isn't what this search measures
@@ -66,7 +75,10 @@ def survive(hero, items, souls, enemy, enemy_items, enemy_souls=None, max_time=6
                                   skill=enemy_skill or _sk(en, enemy_aim)), "enemy")
     if start_hp is not None:
         me.hp = max(1.0, min(start_hp, me.max_hp))
-    foe.items_fx.append(_Refill())
+    if enemy_start_hp is not None:
+        foe.hp = max(1.0, min(enemy_start_hp, foe.max_hp))
+    refill = _Refill()
+    foe.items_fx.append(refill)
     foe.st.outgoing_mult *= focus
     max_hp = me.max_hp
     r = e.run(me, foe)
@@ -82,4 +94,11 @@ def survive(hero, items, souls, enemy, enemy_items, enemy_souls=None, max_time=6
         "healing": round(getattr(me, "healed", 0.0) or 0.0, 1),
         "damage_dealt": round(sum(me.dmg_out.values()), 1),
         "regen": me.st.health_regen, "ooc_regen": me.st.ooc_regen, "regen_amp": me.st.heal_amp,
+        "heal_amp_cast": me.st.heal_amp_cast,
+        "enemy_healed": round(foe.healed, 1),
+        "enemy_final_hp": round(max(0.0, foe.hp), 1),
+        "enemy_max_hp": round(foe.max_hp),
+        "enemy_kills": refill.kills,
+        "enemy": {"regen": foe.st.health_regen, "ooc_regen": foe.st.ooc_regen, "regen_amp": foe.st.heal_amp,
+                  "heal_amp_cast": foe.st.heal_amp_cast, "max_hp": round(foe.max_hp)},
     }

@@ -7,6 +7,7 @@ Each handler is a small class keyed by the item's class_name. Hooks the engine c
     on_damage_taken(f, attacker, hit)   after f takes damage
     reduce_incoming(f, attacker, amount, kind, is_dot) -> amount
     on_lethal(f, attacker) -> bool      return True if death was prevented
+    on_kill(f, target)                  f killed target (or an immortal target refilled, engine.kill_hooks)
     on_cast(f, ability_state)           f cast an ability
     on_enemy_cast(f, ability_state)     the enemy cast an ability
     on_cc(f, key)                       f just received stun / silence / disarm / immobilize
@@ -1132,9 +1133,15 @@ class Suppressor(FX):
 
 @handler("upgrade_healbane")
 class Healbane(FX):
+    """Spirit damage cuts the target's healing; a target that dies under it heals the holder HealOnKill."""
+
     def on_damage_dealt(self, f, t, hit):
         if hit.kind == "spirit":
             self.debuff(t, "heal_received", self.item.p("HealAmpReceivePenaltyPercent") / 100, self.dur("AbilityDuration", 8))
+
+    def on_kill(self, f, t):
+        if t.mods.get("heal_received", (self.item.class_name, "heal_received")) is not None:
+            f.heal(self.item.p("HealOnKill"), self.name, "item")
 
 
 @handler("upgrade_bullet_resist_shredder")

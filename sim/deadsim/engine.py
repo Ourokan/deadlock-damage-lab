@@ -326,6 +326,17 @@ class Fighter:
         return sum(b[0] for b in self.barriers)
 
 
+def kill_hooks(killer, dead):
+    """killer's on-kill item effects (Healbane's heal). Also called when an immortal target refills instead of
+    dying (survival / overall score), which counts as a kill there."""
+    if killer is None or not killer.alive:
+        return
+    for fx in killer.items_fx:
+        f = getattr(fx, "on_kill", None)
+        if f:
+            f(killer, dead)
+
+
 # ---------------------------------------------------------------------------------------------------
 # Engine
 # ---------------------------------------------------------------------------------------------------
@@ -530,6 +541,7 @@ class Engine:
                 dst.alive = False
                 dst.death_time = self.t
                 self.note(f"{dst.name} dies to {source}")
+                kill_hooks(src, dst)
                 self.on_death(dst, src)
         # lifesteal
         if src.alive and amt > 0:
