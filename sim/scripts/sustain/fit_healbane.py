@@ -25,7 +25,7 @@ BUDGETS = (18000, 27000)
 
 def full(h):
     sk = O.skill(h)
-    return dataclasses.replace(sk, item_landing={**sk.item_landing, "Healbane": 1.0})
+    return dataclasses.replace(sk, item_landing={**(sk.item_landing or {}), "Healbane": 1.0})
 
 
 def prevented(args):

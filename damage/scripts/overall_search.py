@@ -244,7 +244,7 @@ def map_time(h, items, souls, pop):
         return 1.0
     trips = sus["heal_trips_per_min"][ph] * fountain_need(items, ph) / max(1.0, fountain_need(pop, ph)) \
         * build_stats(h, pop, souls)["max_hp"] / build_stats(h, items, souls)["max_hp"]
-    return 1.0 - trips * TRIP_S / 60.0
+    return max(0.1, 1.0 - trips * TRIP_S / 60.0)   # floor: a build always spends some time on the map
 
 
 def entry_deficit(h, pop, souls):
