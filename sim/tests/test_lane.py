@@ -193,8 +193,11 @@ class Calibration(unittest.TestCase):
         O.set_bracket(O.PRIMARY)
 
     def test_healbane_runs_at_the_real_rate(self):
-        k = O.sustain()["healbane_landing"]
-        self.assertTrue(0 < k <= 1)
+        # a refit of fit_sustain.py without fit_healbane.py drops the key; this KeyError is the guard
+        su = O.sustain()
+        k = su["healbane_landing"]
+        self.assertEqual(su["healbane_landing_real"], su["healbane_prevented_per_combat_s"])   # fitted on today's real rate
+        self.assertTrue(0 < k < 1)   # the sim overshoots the real rate, so the cut is scaled down
         self.assertEqual(O.skill(HAZE).item_landing["Healbane"], k)
         hb = G.items[ID["Healbane"]]
         want = 1 - abs(hb.props["HealAmpReceivePenaltyPercent"]) / 100 * k * hb.props["AbilityDuration"] / 25.0
