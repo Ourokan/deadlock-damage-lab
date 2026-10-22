@@ -656,5 +656,87 @@
    "success": 2.84,
    "miss": 3.01
   }
+ },
+ "fountain_fit": {
+  "Healing Booster mid": {
+   "field_heal_per_min": 57.0,
+   "fountain_saved_per_min": 21.6,
+   "weight": 2374
+  },
+  "Healing Booster late": {
+   "field_heal_per_min": 8.0,
+   "fountain_saved_per_min": 7.1,
+   "weight": 887
+  },
+  "Radiant Regeneration mid": {
+   "field_heal_per_min": 344.6,
+   "fountain_saved_per_min": 8.2,
+   "weight": 930
+  },
+  "Radiant Regeneration late": {
+   "field_heal_per_min": 100.7,
+   "fountain_saved_per_min": 9.2,
+   "weight": 244
+  },
+  "Restorative Shot mid": {
+   "field_heal_per_min": 48.9,
+   "fountain_saved_per_min": -18.3,
+   "weight": 1980
+  },
+  "Restorative Shot late": {
+   "field_heal_per_min": 40.0,
+   "fountain_saved_per_min": 25.8,
+   "weight": 436
+  },
+  "Extra Regen mid": {
+   "field_heal_per_min": 99.0,
+   "fountain_saved_per_min": -2.6,
+   "weight": 3701
+  },
+  "Extra Regen late": {
+   "field_heal_per_min": 72.1,
+   "fountain_saved_per_min": 14.0,
+   "weight": 347
+  },
+  "Fortitude mid": {
+   "field_heal_per_min": 136.9,
+   "fountain_saved_per_min": 43.4,
+   "weight": 2202
+  },
+  "Fortitude late": {
+   "field_heal_per_min": 16.3,
+   "fountain_saved_per_min": 28.8,
+   "weight": 986
+  },
+  "Spirit Lifesteal mid": {
+   "field_heal_per_min": 69.4,
+   "fountain_saved_per_min": 13.4,
+   "weight": 824
+  },
+  "Spirit Lifesteal late": {
+   "field_heal_per_min": 8.8,
+   "fountain_saved_per_min": -9.5,
+   "weight": 242
+  },
+  "Bullet Lifesteal mid": {
+   "field_heal_per_min": 69.2,
+   "fountain_saved_per_min": -9.3,
+   "weight": 415
+  },
+  "Bullet Lifesteal late": {
+   "field_heal_per_min": 1.7,
+   "fountain_saved_per_min": -21.4,
+   "weight": 142
+  },
+  "Mystic Regeneration mid": {
+   "field_heal_per_min": 45.4,
+   "fountain_saved_per_min": 0.7,
+   "weight": 265
+  },
+  "Healing Rite mid": {
+   "field_heal_per_min": 49.9,
+   "fountain_saved_per_min": 2.2,
+   "weight": 389
+  }
  }
 }

@@ -1133,11 +1133,15 @@ class Suppressor(FX):
 
 @handler("upgrade_healbane")
 class Healbane(FX):
-    """Spirit damage cuts the target's healing; a target that dies under it heals the holder HealOnKill."""
+    """Spirit damage cuts the target's healing; a target that dies under it heals the holder HealOnKill. In
+    realistic mode the cut is scaled by Skill.item_landing["Healbane"] (real heal prevented per fight second / the
+    sim's, sim/scripts/sustain/fit_healbane.py)."""
 
     def on_damage_dealt(self, f, t, hit):
         if hit.kind == "spirit":
-            self.debuff(t, "heal_received", self.item.p("HealAmpReceivePenaltyPercent") / 100, self.dur("AbilityDuration", 8))
+            k = f.skill.item_landing.get(self.name, 1.0) if f.skill.item_landing else 1.0
+            self.debuff(t, "heal_received", k * self.item.p("HealAmpReceivePenaltyPercent") / 100,
+                        self.dur("AbilityDuration", 8))
 
     def on_kill(self, f, t):
         if t.mods.get("heal_received", (self.item.class_name, "heal_received")) is not None:
