@@ -23,7 +23,15 @@ chase (kill participation) x escape (deaths per 10 min) effect of holding it at 
 length (analysis/scripts/kill_participation.py, analysis/out/kill_participation.md), capped for 2 and 3+ items
 at the measured value of holding that many (they overlap). A few items count as movement for one hero only
 (hero_items: Mina imbues Mystic Expansion on Sanguine Retreat for a longer dash, Tyler 2026-10-21).
-Not counted: team heals and team auras, vision.
+Sustain (2026-10-22, pro-play top items were mostly healing): the score is NET damage, damage dealt minus the
+healing the enemy got during the fight (healing undoes damage; this is what makes Healbane's anti-heal count), and a
+refill of the immortal enemy counts as a kill (Healbane's kill heal). Fights after the lane no longer start at full
+health: the hero arrives with the real Phantom+ mean health at a fight start (sim/data/sustain.json entry_hp) for the
+popular build, and a build that heals more in the gap_s seconds out of combat before a fight arrives fuller
+(entry_hp_start). Gap healing counts health regen, out-of-combat regen, Fortitude, heal pickups from medic troopers
+(amped by Healing Booster) and the real out-of-fight rate of farm-heal items (Radiant Regeneration, Restorative Shot
+on creeps, lifesteal on creeps...), all measured in sim/scripts/sustain/fit_sustain.py.
+Not counted: team heals and team auras, vision, souls from farming (Monster Rounds), objective damage.
 
 Scores are relative to the hero's most popular real build (1.0 = popular). Same search machinery as the duel search
 (search/scripts/search.py: screen on 16 enemies, confirm on 41, up to 8 rounds, same budget rules).
@@ -53,6 +61,7 @@ sys.path.insert(0, os.path.join(ROOT, "..", "survival"))
 import search as S  # noqa: E402
 from build_pool import BRACKETS, BUDGETS, PRIMARY  # noqa: E402
 from deadsim.accuracy import hero_default_skill  # noqa: E402
+from deadsim.build import compute_stats  # noqa: E402
 from survival import survive  # noqa: E402
 
 MAX_TIME = 30.0
@@ -121,11 +130,17 @@ def _phases():
         PHASES[h] = ((k + 1) * 0.6180339887) % 1.0
 
 
-def fight(h, items, oh, oitems, souls, phase=None):
+def net_damage(r):
+    """Damage dealt minus the healing the enemy got: healing undoes damage (Healbane, enemy lifesteal...)."""
+    return max(0.0, r["damage_dealt"] - r.get("enemy_healed", 0.0))
+
+
+def fight(h, items, oh, oitems, souls, phase=None, start_hp=None):
     sk = dataclasses.replace(skill(h), fight_phase=phase)
     esk = dataclasses.replace(skill(oh), fight_phase=None if phase is None else (phase + 0.5) % 1.0)
-    r = survive(h, items, souls, oh, oitems, max_time=MAX_TIME, focus=FOCUS, skill=sk, enemy_skill=esk)
-    return r["damage_dealt"], r["time_alive"], r["survived"]
+    r = survive(h, items, souls, oh, oitems, max_time=MAX_TIME, focus=FOCUS, skill=sk, enemy_skill=esk,
+                start_hp=start_hp)
+    return net_damage(r), r["time_alive"], r["survived"]
 
 
 # Laning phase (Tyler, 2026-10-21: "in laning phase regen and other sources of healing can be more valuable than pure
@@ -143,32 +158,113 @@ BACK_FRAC = 0.25
 LANE_FOCUS = 1.0
 
 
-def gap_heal(r, items, gap=TRADE_GAP):
-    """Health healed between two trades by the build of survive() result r."""
+SUSTAIN_PATH = os.path.join(ROOT, "..", "sim", "data", "sustain.json")
+_sustain = None
+
+
+def sustain():
+    """Real Phantom+ sustain inputs (sim/scripts/sustain/fit_sustain.py): heal pickups and farm-heal item rates per
+    minute, fight entry health and the time out of combat before a fight, per phase (lane / mid / late)."""
+    global _sustain
+    if _sustain is None:
+        with open(SUSTAIN_PATH) as f:
+            _sustain = json.load(f)
+    return _sustain
+
+
+def game_phase(souls):
+    """Phase of the real data a net worth falls in: lane ends ~9 min (~10k), late from ~25 min (~30k)."""
+    return "lane" if souls < 10000 else "mid" if souls <= 27000 else "late"
+
+
+def gap_heal(r, items, gap=TRADE_GAP, phase="lane"):
+    """Health healed in `gap` s out of hero combat by the build of survive() result r (or build_stats()): health
+    regen the whole gap, out-of-combat regen after OOC_DELAY, Fortitude after its RestoreDelay, medic trooper heal
+    pickups (all amped by regen amp, so Healing Booster counts) and the real rate of farm-heal items (Radiant
+    Regeneration, Restorative Shot on creeps, lifesteal on creeps..., amped by outgoing healing amp)."""
     amp = 1.0 + (r.get("regen_amp") or 0.0)
     h = r["regen"] * gap + r["ooc_regen"] * max(0.0, gap - OOC_DELAY)
+    sus = sustain()
+    h += sus["pickup_hp_per_min"][phase] / 60 * gap
     g = S.G()
+    farm = 0.0
     for i in items:
         it = g.items[i]
         if it.class_name == "upgrade_chonky":    # Fortitude
             h += r["max_hp"] * it.props.get("HealLifePercentOutOfCombat", 0) / 100 \
                 * max(0.0, gap - it.props.get("RestoreDelay", 10))
-    return h * amp
+        rate = sus["farm_heal_hp_per_min"].get(it.name)
+        if rate:
+            farm += rate[phase] / 60 * gap
+    return h * amp + farm * (1.0 + (r.get("heal_amp_cast") or 0.0))
 
 
-def lane_fight(h, items, oh, oitems, souls, phase=None):
-    """Damage dealt over a lane of trades, total time alive, share of the trades played (1 = lasted the lane)."""
+_stats = {}
+
+
+def build_stats(h, items, souls):
+    """The gap_heal inputs of a build without fighting."""
+    key = (h, tuple(sorted(items)), souls)
+    if key not in _stats:
+        g = S.G()
+        st = compute_stats(g.hero(h), [g.items[i] for i in key[1]], souls=souls)
+        _stats[key] = {"regen": st.health_regen, "ooc_regen": st.ooc_regen, "regen_amp": st.heal_amp,
+                       "heal_amp_cast": st.heal_amp_cast, "max_hp": st.max_health}
+    return _stats[key]
+
+
+def entry_deficit(h, pop, souls):
+    """Chip damage carried into a fight, set so the popular build arrives at the real mean entry health after
+    healing for the real time out of combat before a fight."""
+    ph = game_phase(souls)
+    sus = sustain()
+    r = build_stats(h, pop, souls)
+    return (1.0 - sus["entry_hp"][ph]) * r["max_hp"] + gap_heal(r, pop, sus["gap_s"][ph], ph)
+
+
+def entry_hp_start(h, items, souls, deficit):
+    """Health a build starts a fight with: max health minus the chip damage its gap healing didn't cover."""
+    ph = game_phase(souls)
+    r = build_stats(h, items, souls)
+    return r["max_hp"] - max(0.0, deficit - gap_heal(r, items, sustain()["gap_s"][ph], ph))
+
+
+def healbane_gap_share(items, gap=TRADE_GAP):
+    """Share of the enemy's gap healing left when the build holds Healbane (its debuff from the trade's last spirit
+    hit covers the first AbilityDuration s of the gap)."""
+    g = S.G()
+    for i in items:
+        it = g.items[i]
+        if it.class_name == "upgrade_healbane":
+            cut = abs(it.props.get("HealAmpReceivePenaltyPercent", 0)) / 100
+            return 1.0 - cut * min(gap, it.props.get("AbilityDuration", 8)) / gap
+    return 1.0
+
+
+def lane_fight(h, items, oh, oitems, souls, phase=None, start_hp=None):
+    """Net damage over a lane of trades, total time alive, share of the trades played (1 = lasted the lane).
+    Both sides carry health between trades and heal in the gaps (gap_heal; Healbane cuts the enemy's). Each trade
+    scores the damage dealt minus the enemy's healing in it. An enemy that dies (refills) or starts a trade below
+    BACK_FRAC health has to back: the trades left count at this build's mean trade so far (the lane is free), so
+    lane pressure, enemy sustain and anti-heal all count. start_hp is unused (the lane starts full)."""
     sk = dataclasses.replace(skill(h), fight_phase=phase)
     esk = dataclasses.replace(skill(oh), fight_phase=None if phase is None else (phase + 0.5) % 1.0)
-    hp, dmg, t = None, 0.0, 0.0
+    hp, ehp, dmg, t = None, None, 0.0, 0.0
+    hb = healbane_gap_share(items)
     for k in range(LANE_TRADES):
         r = survive(h, items, souls, oh, oitems, max_time=TRADE_S, focus=LANE_FOCUS, skill=sk, enemy_skill=esk,
-                    start_hp=hp)
-        dmg += r["damage_dealt"]
+                    start_hp=hp, enemy_start_hp=ehp)
+        dmg += net_damage(r)
         t += r["time_alive"]
         if not r["survived"]:
             return dmg, t, k / LANE_TRADES
         hp = min(r["max_hp"], r["final_hp"] + gap_heal(r, items))
+        if "enemy" in r:
+            emax = r["enemy_max_hp"]
+            ehp = min(emax, r["enemy_final_hp"] + gap_heal(r["enemy"], oitems) * hb)
+            if k + 1 < LANE_TRADES and (r["enemy_kills"] or ehp < BACK_FRAC * emax):
+                left = LANE_TRADES - k - 1
+                return dmg * (1 + left / (k + 1)), t + left * TRADE_S, 1.0
         if k + 1 < LANE_TRADES and hp < BACK_FRAC * r["max_hp"]:
             return dmg, t, (k + 1) / LANE_TRADES
     return dmg, t, 1.0
@@ -184,6 +280,7 @@ class Evaluator:
         self.fights = 0
         self.norm = {}
         pop = tuple(sorted(S.popular_build(hero, S.item_budget(budget), pools)))
+        self.deficit = entry_deficit(hero, pop, budget)
         for pool in ("S", "F", "F2"):
             self.norm[pool] = max(1.0, self._mean(self._rows(pop, pool), 2)) * movement_value(pop, hero)
 
@@ -191,8 +288,9 @@ class Evaluator:
         key = (tuple(sorted(items)), pool)
         if key not in self.cache:
             rows = []
+            start = entry_hp_start(self.h, key[0], self.souls, self.deficit)
             for k, (oh, oitems, w) in enumerate(self.pools[pool]):
-                d, t, alive = self.fight(self.h, key[0], oh, oitems, self.souls, phase=PHASES[oh])
+                d, t, alive = self.fight(self.h, key[0], oh, oitems, self.souls, phase=PHASES[oh], start_hp=start)
                 rows.append((oh, w, d, t, alive))
                 self.fights += 1
             self.cache[key] = rows
@@ -213,7 +311,8 @@ class Evaluator:
         t = self._mean(rows, 3)
         return {
             "score": round(score, 4),
-            "damage_before_death": round(dmg, 1),
+            "damage_before_death": round(dmg, 1),   # net of the enemy's healing
+            "entry_hp": round(entry_hp_start(self.h, items, self.souls, self.deficit)),
             "time_alive_s": round(t, 2),
             "survived_30s": round(self._mean(rows, 4), 4),
             "dps_while_alive": round(dmg / max(0.1, t), 1),

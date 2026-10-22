@@ -1,5 +1,6 @@
 """Checks of the laning phase test (damage/scripts/overall_search.py lane_fight, used by game_path's early stages):
-health carries between trades and regen / out-of-combat regen / Fortitude heal in the gaps.
+health carries between trades and regen / out-of-combat regen / Fortitude / heal pickups / farm-heal items heal in
+the gaps; plus the sustain parts of the fight score (net damage, fight entry health, Healbane's kill heal).
 Run from sim/: python3 -m unittest discover -s tests"""
 import os
 import sys
@@ -34,8 +35,17 @@ class StartHealth(unittest.TestCase):
         self.assertLess(hurt["time_alive"], full["time_alive"])
 
 
+NO_PICKUPS = {"pickup_hp_per_min": {"lane": 0.0, "mid": 0.0, "late": 0.0}, "farm_heal_hp_per_min": {},
+              "entry_hp": {"lane": 1.0, "mid": 1.0, "late": 1.0}, "gap_s": {"lane": 20, "mid": 25, "late": 25}}
+
+
 class GapHeal(unittest.TestCase):
     r = {"regen": 2.0, "ooc_regen": 1.5, "regen_amp": 0.0, "max_hp": 1000}
+
+    def setUp(self):
+        p = mock.patch.object(O, "sustain", lambda: NO_PICKUPS)
+        p.start()
+        self.addCleanup(p.stop)
 
     def test_regen_all_gap_ooc_after_delay(self):
         self.assertAlmostEqual(O.gap_heal(self.r, [], gap=25.0), 2.0 * 25 + 1.5 * (25 - O.OOC_DELAY))
@@ -46,6 +56,21 @@ class GapHeal(unittest.TestCase):
         want = (2.0 * 25 + 1.5 * (25 - O.OOC_DELAY)
                 + 1000 * fort.props["HealLifePercentOutOfCombat"] / 100 * (25 - fort.props["RestoreDelay"])) * 1.2
         self.assertAlmostEqual(got, want)
+
+    def test_pickups_amped_by_regen_amp_and_farm_items_by_cast_amp(self):
+        sus = dict(NO_PICKUPS, pickup_hp_per_min={"lane": 120.0, "mid": 60.0, "late": 60.0},
+                   farm_heal_hp_per_min={"Restorative Shot": {"lane": 60.0, "mid": 30.0, "late": 30.0}})
+        r = self.r | {"regen": 0.0, "ooc_regen": 0.0, "regen_amp": 0.5, "heal_amp_cast": 0.2}
+        with mock.patch.object(O, "sustain", lambda: sus):
+            self.assertAlmostEqual(O.gap_heal(r, [], gap=30.0), 60.0 * 1.5)
+            self.assertAlmostEqual(O.gap_heal(r, [ID["Restorative Shot"]], gap=30.0), 60.0 * 1.5 + 30.0 * 1.2)
+            self.assertAlmostEqual(O.gap_heal(r, [ID["Restorative Shot"]], gap=30.0, phase="mid"), 45.0 + 18.0)
+
+    def test_healbane_cuts_enemy_gap_heal(self):
+        hb = G.items[ID["Healbane"]]
+        want = 1 - abs(hb.props["HealAmpReceivePenaltyPercent"]) / 100 * hb.props["AbilityDuration"] / 25.0
+        self.assertAlmostEqual(O.healbane_gap_share([ID["Healbane"]], gap=25.0), want)
+        self.assertEqual(O.healbane_gap_share([]), 1.0)
 
 
 def fake_survive(lost):
@@ -61,9 +86,32 @@ def fake_survive(lost):
     return f, calls
 
 
+def fake_survive_enemy(enemy_left):
+    """Each trade deals 100 damage, the enemy heals 20 of it and ends at enemy_left health (max 1000)."""
+    def f(h, items, souls, oh, oitems, start_hp=None, enemy_start_hp=None, **kw):
+        return {"damage_dealt": 100.0, "enemy_healed": 20.0, "time_alive": kw["max_time"], "survived": True,
+                "max_hp": 1000, "final_hp": 1000.0, "regen": 0.0, "ooc_regen": 0.0, "regen_amp": 0.0,
+                "enemy_final_hp": enemy_left, "enemy_max_hp": 1000, "enemy_kills": 0,
+                "enemy": {"regen": 0.0, "ooc_regen": 0.0, "regen_amp": 0.0, "max_hp": 1000}}
+    return f
+
+
 class Lane(unittest.TestCase):
     def setUp(self):
         O.set_bracket(O.PRIMARY)
+        p = mock.patch.object(O, "sustain", lambda: NO_PICKUPS)
+        p.start()
+        self.addCleanup(p.stop)
+
+    def test_net_damage_and_enemy_backing_frees_the_lane(self):
+        with mock.patch.object(O, "survive", fake_survive_enemy(900.0)):
+            dmg, t, share = O.lane_fight(HAZE, [], ABRAMS, [], 3000)
+        self.assertAlmostEqual(dmg, 80.0 * O.LANE_TRADES)   # enemy healing undoes damage
+        with mock.patch.object(O, "survive", fake_survive_enemy(100.0)):
+            dmg, t, share = O.lane_fight(HAZE, [], ABRAMS, [], 3000)
+        # enemy below BACK_FRAC after the first trade: backs, the rest of the lane counts at the mean trade
+        self.assertAlmostEqual(dmg, 80.0 * O.LANE_TRADES)
+        self.assertEqual(share, 1.0)
 
     def test_health_carries_and_low_health_backs(self):
         f, calls = fake_survive(300.0)
@@ -100,6 +148,44 @@ class RealSim(unittest.TestCase):
         self.assertGreater(dmg, 0)
         self.assertTrue(0 <= share <= 1)
         self.assertLessEqual(t, O.LANE_TRADES * O.TRADE_S + 1e-6)
+
+
+class FightSustain(unittest.TestCase):
+    def setUp(self):
+        O.set_bracket(O.PRIMARY)
+
+    def test_net_damage(self):
+        self.assertEqual(O.net_damage({"damage_dealt": 500.0, "enemy_healed": 120.0}), 380.0)
+        self.assertEqual(O.net_damage({"damage_dealt": 50.0, "enemy_healed": 120.0}), 0.0)
+
+    def test_popular_build_enters_at_real_health_and_healing_builds_enter_fuller(self):
+        pop = [ID["Extra Health"]]
+        d = O.entry_deficit(HAZE, pop, 18000)
+        r = O.build_stats(HAZE, pop, 18000)
+        want = O.sustain()["entry_hp"]["mid"] * r["max_hp"]
+        self.assertAlmostEqual(O.entry_hp_start(HAZE, pop, 18000, d), want, places=6)
+        heal = pop + [ID["Radiant Regeneration"]]
+        rh = O.build_stats(HAZE, heal, 18000)
+        self.assertGreater(O.entry_hp_start(HAZE, heal, 18000, d) / rh["max_hp"], want / r["max_hp"])
+
+    def test_healbane_heals_on_a_refill_kill(self):
+        hb = G.items[ID["Healbane"]]
+        r = survive(HAZE, [ID["Healbane"]], 18000, ABRAMS, [], max_time=30.0, start_hp=600.0)
+        self.assertIn("enemy_kills", r)
+        self.assertIn("enemy_healed", r)
+        from deadsim.engine import kill_hooks
+        healed = []
+        killer = mock.Mock(alive=True)
+        handler = __import__("deadsim.items_fx", fromlist=["HANDLERS"]).HANDLERS["upgrade_healbane"](hb, killer)
+        killer.items_fx = [handler]
+        killer.heal = lambda amt, *a: healed.append(amt)
+        target = mock.Mock()
+        target.mods.get.return_value = -0.35
+        kill_hooks(killer, target)
+        self.assertEqual(healed, [hb.props["HealOnKill"]])
+        target.mods.get.return_value = None
+        kill_hooks(killer, target)
+        self.assertEqual(len(healed), 1)
 
 
 class StageEvaluators(unittest.TestCase):

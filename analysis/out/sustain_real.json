@@ -1,0 +1,660 @@
+{
+ "matches": 400,
+ "phases": {
+  "lane": [
+   0,
+   540
+  ],
+  "mid": [
+   540,
+   1500
+  ],
+  "late": [
+   1500,
+   99999
+  ]
+ },
+ "items": {
+  "Healing Booster": {
+   "mid": {
+    "hp_per_min": 57.0,
+    "holder_minutes": 13075
+   },
+   "late": {
+    "hp_per_min": 8.0,
+    "holder_minutes": 5767
+   },
+   "lane": {
+    "hp_per_min": 135.8,
+    "holder_minutes": 72
+   }
+  },
+  "Radiant Regeneration": {
+   "mid": {
+    "hp_per_min": 344.6,
+    "holder_minutes": 10730
+   },
+   "late": {
+    "hp_per_min": 100.7,
+    "holder_minutes": 4266
+   },
+   "lane": {
+    "hp_per_min": 447.6,
+    "holder_minutes": 51
+   }
+  },
+  "Restorative Shot": {
+   "lane": {
+    "hp_per_min": 81.3,
+    "holder_minutes": 4110
+   },
+   "mid": {
+    "hp_per_min": 48.9,
+    "holder_minutes": 10762
+   },
+   "late": {
+    "hp_per_min": 40.0,
+    "holder_minutes": 1612
+   }
+  },
+  "Counterspell": {
+   "mid": {
+    "hp_per_min": 3.4,
+    "holder_minutes": 1901
+   },
+   "late": {
+    "hp_per_min": 0.0,
+    "holder_minutes": 2543
+   }
+  },
+  "Healbane": {
+   "mid": {
+    "hp_per_min": 37.7,
+    "holder_minutes": 12086
+   },
+   "late": {
+    "hp_per_min": 3.9,
+    "holder_minutes": 6134
+   },
+   "lane": {
+    "hp_per_min": 69.6,
+    "holder_minutes": 78
+   }
+  },
+  "Tankbuster": {
+   "mid": {
+    "hp_per_min": 0.0,
+    "holder_minutes": 6837
+   },
+   "late": {
+    "hp_per_min": 0.0,
+    "holder_minutes": 8507
+   },
+   "lane": {
+    "hp_per_min": null,
+    "holder_minutes": 3
+   }
+  },
+  "Rebuttal": {
+   "lane": {
+    "hp_per_min": 13.5,
+    "holder_minutes": 402
+   },
+   "mid": {
+    "hp_per_min": 9.5,
+    "holder_minutes": 2885
+   },
+   "late": {
+    "hp_per_min": 3.1,
+    "holder_minutes": 971
+   }
+  },
+  "Dispel Magic": {
+   "mid": {
+    "hp_per_min": 21.1,
+    "holder_minutes": 6606
+   },
+   "late": {
+    "hp_per_min": 1.8,
+    "holder_minutes": 6054
+   }
+  },
+  "Opening Rounds": {
+   "lane": {
+    "hp_per_min": 0.0,
+    "holder_minutes": 2598
+   },
+   "mid": {
+    "hp_per_min": 0.0,
+    "holder_minutes": 17432
+   },
+   "late": {
+    "hp_per_min": 0.0,
+    "holder_minutes": 5802
+   }
+  },
+  "Monster Rounds": {
+   "lane": {
+    "hp_per_min": 22.4,
+    "holder_minutes": 4464
+   },
+   "mid": {
+    "hp_per_min": 15.7,
+    "holder_minutes": 9662
+   },
+   "late": {
+    "hp_per_min": 9.8,
+    "holder_minutes": 1580
+   }
+  },
+  "Extra Regen": {
+   "lane": {
+    "hp_per_min": 144.4,
+    "holder_minutes": 6348
+   },
+   "mid": {
+    "hp_per_min": 99.0,
+    "holder_minutes": 11564
+   },
+   "late": {
+    "hp_per_min": 72.1,
+    "holder_minutes": 1481
+   }
+  },
+  "Mystic Regeneration": {
+   "lane": {
+    "hp_per_min": 49.1,
+    "holder_minutes": 876
+   },
+   "mid": {
+    "hp_per_min": 45.4,
+    "holder_minutes": 1255
+   },
+   "late": {
+    "hp_per_min": 48.7,
+    "holder_minutes": 206
+   }
+  },
+  "Spirit Lifesteal": {
+   "mid": {
+    "hp_per_min": 69.4,
+    "holder_minutes": 3023
+   },
+   "late": {
+    "hp_per_min": 8.8,
+    "holder_minutes": 1105
+   },
+   "lane": {
+    "hp_per_min": 26.7,
+    "holder_minutes": 6
+   }
+  },
+  "Bullet Lifesteal": {
+   "mid": {
+    "hp_per_min": 69.2,
+    "holder_minutes": 1409
+   },
+   "late": {
+    "hp_per_min": 1.7,
+    "holder_minutes": 575
+   },
+   "lane": {
+    "hp_per_min": null,
+    "holder_minutes": 3
+   }
+  },
+  "Healing Rite": {
+   "lane": {
+    "hp_per_min": 79.5,
+    "holder_minutes": 417
+   },
+   "mid": {
+    "hp_per_min": 49.9,
+    "holder_minutes": 1455
+   },
+   "late": {
+    "hp_per_min": 15.1,
+    "holder_minutes": 167
+   }
+  },
+  "Fortitude": {
+   "mid": {
+    "hp_per_min": 136.9,
+    "holder_minutes": 10527
+   },
+   "late": {
+    "hp_per_min": 16.3,
+    "holder_minutes": 6056
+   },
+   "lane": {
+    "hp_per_min": null,
+    "holder_minutes": 3
+   }
+  },
+  "Healing Nova": {
+   "mid": {
+    "hp_per_min": 42.0,
+    "holder_minutes": 325
+   },
+   "late": {
+    "hp_per_min": 14.9,
+    "holder_minutes": 218
+   }
+  },
+  "Leech": {
+   "late": {
+    "hp_per_min": 0.0,
+    "holder_minutes": 306
+   },
+   "mid": {
+    "hp_per_min": 0.0,
+    "holder_minutes": 24
+   }
+  },
+  "Siphon Bullets": {
+   "mid": {
+    "hp_per_min": 3.8,
+    "holder_minutes": 391
+   },
+   "late": {
+    "hp_per_min": 0.0,
+    "holder_minutes": 1959
+   }
+  },
+  "Infuser": {
+   "late": {
+    "hp_per_min": 22.3,
+    "holder_minutes": 702
+   },
+   "mid": {
+    "hp_per_min": 164.2,
+    "holder_minutes": 445
+   }
+  },
+  "Rescue Beam": {
+   "mid": {
+    "hp_per_min": 33.2,
+    "holder_minutes": 459
+   },
+   "late": {
+    "hp_per_min": 0.0,
+    "holder_minutes": 334
+   }
+  },
+  "Restorative Locket": {
+   "mid": {
+    "hp_per_min": 49.4,
+    "holder_minutes": 2285
+   },
+   "late": {
+    "hp_per_min": 3.4,
+    "holder_minutes": 1068
+   }
+  },
+  "Divine Barrier": {
+   "mid": {
+    "hp_per_min": 2.2,
+    "holder_minutes": 378
+   },
+   "late": {
+    "hp_per_min": 0.0,
+    "holder_minutes": 1123
+   }
+  },
+  "Return Fire": {
+   "mid": {
+    "hp_per_min": 0.0,
+    "holder_minutes": 920
+   },
+   "late": {
+    "hp_per_min": 0.0,
+    "holder_minutes": 559
+   },
+   "lane": {
+    "hp_per_min": 0.0,
+    "holder_minutes": 6
+   }
+  }
+ },
+ "entry": {
+  "lane": {
+   "n": 57981,
+   "entry_hp_mean": 84.5,
+   "entry_hp_median": 93,
+   "gap_median_s": 20,
+   "gap_mean_s": 25.5,
+   "share_below_80": 0.317,
+   "holders": {
+    "Healing Booster": {
+     "entry_hp_diff": 3.18,
+     "weight": 302
+    },
+    "Radiant Regeneration": {
+     "entry_hp_diff": 2.86,
+     "weight": 624
+    },
+    "Restorative Shot": {
+     "entry_hp_diff": -2.72,
+     "weight": 4248
+    },
+    "Healbane": {
+     "entry_hp_diff": -4.18,
+     "weight": 245
+    },
+    "Rebuttal": {
+     "entry_hp_diff": -3.16,
+     "weight": 750
+    },
+    "Opening Rounds": {
+     "entry_hp_diff": -2.36,
+     "weight": 5093
+    },
+    "Monster Rounds": {
+     "entry_hp_diff": -1.44,
+     "weight": 7032
+    },
+    "Extra Regen": {
+     "entry_hp_diff": -1.16,
+     "weight": 10879
+    },
+    "Mystic Regeneration": {
+     "entry_hp_diff": -4.19,
+     "weight": 2799
+    },
+    "Spirit Lifesteal": {
+     "entry_hp_diff": -9.87,
+     "weight": 41
+    },
+    "Healing Rite": {
+     "entry_hp_diff": -2.76,
+     "weight": 802
+    }
+   }
+  },
+  "mid": {
+   "n": 83605,
+   "entry_hp_mean": 91.4,
+   "entry_hp_median": 100,
+   "gap_median_s": 25,
+   "gap_mean_s": 32.5,
+   "share_below_80": 0.169,
+   "holders": {
+    "Healing Booster": {
+     "entry_hp_diff": 2.67,
+     "weight": 8670
+    },
+    "Radiant Regeneration": {
+     "entry_hp_diff": 2.77,
+     "weight": 2992
+    },
+    "Restorative Shot": {
+     "entry_hp_diff": -0.32,
+     "weight": 5687
+    },
+    "Counterspell": {
+     "entry_hp_diff": -0.11,
+     "weight": 1788
+    },
+    "Healbane": {
+     "entry_hp_diff": 1.35,
+     "weight": 11183
+    },
+    "Tankbuster": {
+     "entry_hp_diff": 1.36,
+     "weight": 6818
+    },
+    "Rebuttal": {
+     "entry_hp_diff": -0.35,
+     "weight": 2892
+    },
+    "Dispel Magic": {
+     "entry_hp_diff": 0.46,
+     "weight": 6222
+    },
+    "Opening Rounds": {
+     "entry_hp_diff": 0.09,
+     "weight": 9573
+    },
+    "Monster Rounds": {
+     "entry_hp_diff": -0.11,
+     "weight": 8616
+    },
+    "Extra Regen": {
+     "entry_hp_diff": 0.58,
+     "weight": 13936
+    },
+    "Mystic Regeneration": {
+     "entry_hp_diff": -2.93,
+     "weight": 1497
+    },
+    "Spirit Lifesteal": {
+     "entry_hp_diff": 1.26,
+     "weight": 3405
+    },
+    "Bullet Lifesteal": {
+     "entry_hp_diff": 0.56,
+     "weight": 1776
+    },
+    "Healing Rite": {
+     "entry_hp_diff": 0.13,
+     "weight": 1687
+    },
+    "Fortitude": {
+     "entry_hp_diff": 5.98,
+     "weight": 9086
+    },
+    "Healing Nova": {
+     "entry_hp_diff": 1.71,
+     "weight": 299
+    },
+    "Siphon Bullets": {
+     "entry_hp_diff": 2.19,
+     "weight": 408
+    },
+    "Infuser": {
+     "entry_hp_diff": -0.67,
+     "weight": 447
+    },
+    "Rescue Beam": {
+     "entry_hp_diff": 1.21,
+     "weight": 445
+    },
+    "Restorative Locket": {
+     "entry_hp_diff": 0.3,
+     "weight": 2421
+    },
+    "Divine Barrier": {
+     "entry_hp_diff": 1.33,
+     "weight": 329
+    },
+    "Return Fire": {
+     "entry_hp_diff": 0.22,
+     "weight": 961
+    }
+   }
+  },
+  "late": {
+   "n": 36433,
+   "entry_hp_mean": 92.9,
+   "entry_hp_median": 100,
+   "gap_median_s": 24,
+   "gap_mean_s": 33.8,
+   "share_below_80": 0.136,
+   "holders": {
+    "Healing Booster": {
+     "entry_hp_diff": 0.43,
+     "weight": 3802
+    },
+    "Radiant Regeneration": {
+     "entry_hp_diff": 1.72,
+     "weight": 1178
+    },
+    "Restorative Shot": {
+     "entry_hp_diff": -0.36,
+     "weight": 2502
+    },
+    "Counterspell": {
+     "entry_hp_diff": -0.68,
+     "weight": 2665
+    },
+    "Healbane": {
+     "entry_hp_diff": 0.18,
+     "weight": 6321
+    },
+    "Tankbuster": {
+     "entry_hp_diff": 0.47,
+     "weight": 4482
+    },
+    "Rebuttal": {
+     "entry_hp_diff": 0.52,
+     "weight": 1315
+    },
+    "Dispel Magic": {
+     "entry_hp_diff": -0.33,
+     "weight": 4875
+    },
+    "Opening Rounds": {
+     "entry_hp_diff": -0.51,
+     "weight": 4381
+    },
+    "Monster Rounds": {
+     "entry_hp_diff": -0.04,
+     "weight": 2612
+    },
+    "Extra Regen": {
+     "entry_hp_diff": -0.49,
+     "weight": 2383
+    },
+    "Mystic Regeneration": {
+     "entry_hp_diff": -0.8,
+     "weight": 223
+    },
+    "Spirit Lifesteal": {
+     "entry_hp_diff": 0.15,
+     "weight": 1801
+    },
+    "Bullet Lifesteal": {
+     "entry_hp_diff": 0.12,
+     "weight": 934
+    },
+    "Healing Rite": {
+     "entry_hp_diff": -1.4,
+     "weight": 269
+    },
+    "Fortitude": {
+     "entry_hp_diff": 3.52,
+     "weight": 4439
+    },
+    "Healing Nova": {
+     "entry_hp_diff": 2.17,
+     "weight": 264
+    },
+    "Leech": {
+     "entry_hp_diff": 1.66,
+     "weight": 373
+    },
+    "Siphon Bullets": {
+     "entry_hp_diff": 0.98,
+     "weight": 2645
+    },
+    "Infuser": {
+     "entry_hp_diff": -0.14,
+     "weight": 509
+    },
+    "Rescue Beam": {
+     "entry_hp_diff": 0.7,
+     "weight": 399
+    },
+    "Restorative Locket": {
+     "entry_hp_diff": -0.66,
+     "weight": 1278
+    },
+    "Divine Barrier": {
+     "entry_hp_diff": -1.7,
+     "weight": 1255
+    },
+    "Return Fire": {
+     "entry_hp_diff": -1.14,
+     "weight": 680
+    }
+   }
+  }
+ },
+ "sources": {
+  "lane": {
+   "modifier_citadel_in_fountain": 121.2,
+   "base_stat_regen": 83.1,
+   "medic_trooper_aoe_health_pickup_sapphire/regen": 74.6,
+   "medic_trooper_aoe_health_pickup_amber/regen": 72.8,
+   "upgrade_chonky": 63.0,
+   "upgrade_resonant_healing": 43.3,
+   "upgrade_endurance": 36.5,
+   "survival_powerup_pickup/survival_powerup_pickup": 26.0,
+   "upgrade_siphon_bullets": 25.2,
+   "upgrade_healing_booster": 21.7,
+   "upgrade_healbane": 20.1,
+   "upgrade_boxing_glove": 19.6,
+   "upgrade_reduce_debuff_duration": 15.5,
+   "upgrade_cooldown_reduction": 12.4,
+   "upgrade_medic_bullets": 11.9
+  },
+  "mid": {
+   "modifier_citadel_in_fountain": 98.3,
+   "base_stat_regen": 60.8,
+   "medic_trooper_aoe_health_pickup_amber/regen": 56.1,
+   "medic_trooper_aoe_health_pickup_sapphire/regen": 55.6,
+   "upgrade_resonant_healing": 50.0,
+   "upgrade_chonky": 35.1,
+   "upgrade_endurance": 14.7,
+   "upgrade_healing_booster": 13.6,
+   "upgrade_boxing_glove": 10.9,
+   "upgrade_healbane": 9.0,
+   "ability_frank_revive": 8.2,
+   "ability_frank_selfzap": 7.8,
+   "ability_intimidate": 7.8,
+   "ability_vampirebat_steallife": 7.3,
+   "citadel_ability_healing_slash": 6.9
+  },
+  "late": {
+   "medic_trooper_aoe_health_pickup_sapphire/regen": 57.2,
+   "medic_trooper_aoe_health_pickup_amber/regen": 57.1,
+   "modifier_citadel_in_fountain": 56.6,
+   "base_stat_regen": 46.5,
+   "ability_frank_selfzap": 15.2,
+   "upgrade_resonant_healing": 14.9,
+   "citadel_ability_nikuman": 11.0,
+   "citadel_ability_passive_beefy": 10.2,
+   "citadel_ability_healing_slash": 9.5,
+   "ability_intimidate": 8.8,
+   "ability_lash_flog": 7.6,
+   "ability_frank_revive": 7.5,
+   "ability_vampirebat_steallife": 6.4,
+   "ability_familiar_attach": 6.3,
+   "citadel_ability_card_toss": 5.9
+  }
+ },
+ "healbane_prevented_per_min": {
+  "mid": 38.2,
+  "late": 4.8,
+  "lane": 37.1
+ },
+ "damage_taken_per_min": {
+  "lane": 485.3,
+  "mid": 897.0,
+  "late": 1560.4
+ },
+ "parry_per_10min": {
+  "everyone": {
+   "success": 1.17,
+   "miss": 1.33
+  },
+  "Counterspell": {
+   "success": 4.78,
+   "miss": 1.66
+  },
+  "Rebuttal": {
+   "success": 2.84,
+   "miss": 3.01
+  }
+ }
+}

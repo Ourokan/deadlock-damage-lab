@@ -1,0 +1,50 @@
+{
+ "source": "400 Phantom+ replays (sim/scripts/sustain/fit_sustain.py)",
+ "pickup_hp_per_min": {
+  "lane": 153.8,
+  "mid": 112.4,
+  "late": 114.3
+ },
+ "farm_heal_hp_per_min": {
+  "Radiant Regeneration": {
+   "lane": 344.6,
+   "mid": 344.6,
+   "late": 100.7
+  },
+  "Mystic Regeneration": {
+   "lane": 49.1,
+   "mid": 45.4,
+   "late": 48.7
+  },
+  "Restorative Shot": {
+   "lane": 81.3,
+   "mid": 48.9,
+   "late": 40.0
+  },
+  "Healing Rite": {
+   "lane": 79.5,
+   "mid": 49.9,
+   "late": 15.1
+  },
+  "Spirit Lifesteal": {
+   "lane": 69.4,
+   "mid": 69.4,
+   "late": 8.8
+  },
+  "Bullet Lifesteal": {
+   "lane": 69.2,
+   "mid": 69.2,
+   "late": 1.7
+  }
+ },
+ "entry_hp": {
+  "lane": 0.845,
+  "mid": 0.914,
+  "late": 0.929
+ },
+ "gap_s": {
+  "lane": 20,
+  "mid": 25,
+  "late": 24
+ }
+}
