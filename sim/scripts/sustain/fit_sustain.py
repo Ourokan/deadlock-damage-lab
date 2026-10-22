@@ -48,6 +48,16 @@ entry = collections.defaultdict(list)          # phase -> [(hero, held set, hp%,
 parry = collections.defaultdict(lambda: [0.0, 0.0, 0.0])   # item/none -> [success, miss, minutes]
 taken = collections.defaultdict(lambda: [0.0, 0.0])        # phase -> [damage taken, minutes]
 n_match = 0
+FIELD_ITEMS = ("Healing Booster", "Radiant Regeneration", "Restorative Shot", "Extra Regen", "Fortitude",
+               "Spirit Lifesteal", "Bullet Lifesteal", "Mystic Regeneration", "Healing Rite")
+fountain = collections.defaultdict(list)       # (hero, phase, net worth bin) -> [(field items held, fountain HP/min)]
+alive_s, combat_s = collections.Counter(), collections.Counter()
+# mean health missing 30 s before a living trip into base (not a respawn), mid game, from the 1 s positions in
+# analysis/work/range_paths (Phantom+): 74% health -> 0.26 of max health healed per trip
+TRIP_DEFICIT = 0.26
+# living trips into base per minute, mid game, same source (1.94 per 10 min); late game trips are mostly shopping and
+# defending, so heal trips there are scaled by fountain healing (late / mid)
+HEAL_TRIPS_MID = 0.194
 for fn in sorted(glob.glob(os.path.join(MATCHES, "*.json.gz"))):
     m = json.load(gzip.open(fn, "rt"))
     times = m["times"]
@@ -106,11 +116,25 @@ for fn in sorted(glob.glob(os.path.join(MATCHES, "*.json.gz"))):
                 parry[key][0] += last.get("Parry Success", 0)
                 parry[key][1] += last.get("Parry Miss", 0)
                 parry[key][2] += dur
+        # fountain healing per 180 s window with the field-heal items held (base trips saved)
+        fsrc = [r for r in rows if r[1] == "modifier_citadel_in_fountain" and str(r[2]) == slot]
+        nw_at = {x[0]: x[keys.index("net_worth")] for x in p["stats"]}
+        for k, t1 in enumerate(times):
+            t0 = times[k - 1] if k else 0
+            if t0 < 540:
+                continue
+            fh = sum(c[k] - (c[k - 1] if k else 0) for _, _, _, c in fsrc if k < len(c))
+            held = frozenset(n for n in FIELD_ITEMS if holds(n, t0, t1))
+            fountain[(p["hero_id"], phase(t0), (nw_at.get(t1) or 0) // 5000)].append((held, fh / ((t1 - t0) / 60)))
         # fight entries
         path = m["paths"].get(slot)
         if not path or not path["hp"]:
             continue
         hp, cb = path["hp"], path["combat"]
+        for t in range(min(len(hp), len(cb))):
+            if hp[t] > 0:
+                alive_s[phase(t)] += 1
+                combat_s[phase(t)] += bool(cb[t] & 1)
         out_since = 0
         prev = False
         for t in range(1, min(len(hp), len(cb))):
@@ -184,5 +208,45 @@ for n in FARM_ITEMS:
             v = nxt or v
         row[ph] = round(v[0] / v[1], 1) if v[1] else 0.0
     sim["farm_heal_hp_per_min"][n] = row
+sim["combat_share"] = {ph: round(combat_s[ph] / alive_s[ph], 3) for ph in order}
+sim["fountain_hp_per_min"] = {ph: round(src_rate[ph].get("modifier_citadel_in_fountain", 0) / src_min[ph], 1)
+                              for ph in order}
+# fountain HP saved per HP/min of an item's field healing: matched holder - non-holder fountain healing per item
+# (same hero, phase, 5k net worth bin), pooled least squares through 0 over the field-heal items
+sh = ss = 0.0
+fit_rows = {}
+for n in FIELD_ITEMS:
+    for ph in ("mid", "late"):
+        diff = w = 0.0
+        for (h, p_, b), L in fountain.items():
+            if p_ != ph:
+                continue
+            a = [x for held, x in L if n in held]
+            c = [x for held, x in L if n not in held]
+            if len(a) >= 4 and len(c) >= 4:
+                k = min(len(a), len(c))
+                diff += (statistics.mean(c) - statistics.mean(a)) * k
+                w += k
+        heal = heal_rate[n][ph][0] / heal_rate[n][ph][1] if heal_rate[n][ph][1] else 0.0
+        if w >= 100 and heal > 0:
+            saved = diff / w
+            fit_rows[f"{n} {ph}"] = {"field_heal_per_min": round(heal, 1), "fountain_saved_per_min": round(saved, 1),
+                                     "weight": int(w)}
+            sh += saved * heal * w
+            ss += heal * heal * w
+sim["fountain_pass"] = round(max(0.0, sh / ss), 4) if ss else 0.0
+sim["field_heal_hp_per_min"] = {n: {ph: round(heal_rate[n][ph][0] / heal_rate[n][ph][1], 1)
+                                    if heal_rate[n][ph][1] >= MIN_HOLDER_MIN else 0.0 for ph in ("mid", "late")}
+                                for n in FIELD_ITEMS}
+sim["trip_deficit"] = TRIP_DEFICIT
+fh = sim["fountain_hp_per_min"]
+sim["heal_trips_per_min"] = {"mid": HEAL_TRIPS_MID, "late": round(HEAL_TRIPS_MID * fh["late"] / fh["mid"], 3)}
+mid = res["healbane_prevented_per_min"].get("mid", 0.0)
+sim["healbane_prevented_per_combat_s"] = round(mid / 60 / sim["combat_share"]["mid"], 2)
+res["fountain_fit"] = fit_rows
+json.dump(res, open(OUT_JSON, "w"), indent=1)
+old_sim = json.load(open(OUT_SIM)) if os.path.exists(OUT_SIM) else {}
+if "healbane_landing" in old_sim:     # written by fit_healbane.py (needs the sim), kept across refits
+    sim["healbane_landing"] = old_sim["healbane_landing"]
 json.dump(sim, open(OUT_SIM, "w"), indent=1)
 print(json.dumps(sim, indent=1))

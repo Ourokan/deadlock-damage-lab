@@ -188,6 +188,26 @@ class FightSustain(unittest.TestCase):
         self.assertEqual(len(healed), 1)
 
 
+class Calibration(unittest.TestCase):
+    def setUp(self):
+        O.set_bracket(O.PRIMARY)
+
+    def test_healbane_runs_at_the_real_rate(self):
+        k = O.sustain()["healbane_landing"]
+        self.assertTrue(0 < k <= 1)
+        self.assertEqual(O.skill(HAZE).item_landing["Healbane"], k)
+        hb = G.items[ID["Healbane"]]
+        want = 1 - abs(hb.props["HealAmpReceivePenaltyPercent"]) / 100 * k * hb.props["AbilityDuration"] / 25.0
+        self.assertAlmostEqual(O.healbane_gap_share([ID["Healbane"]], gap=25.0), want)
+
+    def test_field_heal_items_save_heal_trips(self):
+        pop = [ID["Extra Health"]]
+        base = O.map_time(HAZE, pop, 18000, pop)
+        self.assertAlmostEqual(base, 1 - O.sustain()["heal_trips_per_min"]["mid"] * O.TRIP_S / 60)
+        self.assertGreater(O.map_time(HAZE, pop + [ID["Radiant Regeneration"]], 18000, pop), base)
+        self.assertEqual(O.map_time(HAZE, pop, 6000, pop), 1.0)   # lane: scored by the lane test
+
+
 class StageEvaluators(unittest.TestCase):
     def test_lane_stages_use_the_lane_test(self):
         import game_path as P

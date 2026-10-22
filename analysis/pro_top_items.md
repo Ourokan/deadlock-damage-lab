@@ -78,3 +78,22 @@ Full game paths, same local pools (10-14 data), 4 heroes:
 Souls from farming and objective damage (Monster Rounds, Opening Rounds on creeps), team heals (Healing Booster on
 ally heals), pro-level parry timing. Inputs are a static snapshot (sim/data/sustain.json); refit with
 sim/scripts/sustain/fetch_sustain.py + fit_sustain.py after big patches.
+
+## Calibration (2026-10-22, after the first rerun)
+
+The first rerun put Healbane in 39 of 42 full game paths (vs ~23% of Phantom+ players) while Healing Booster,
+Radiant Regeneration and Restorative Shot stayed rare. Two fixes:
+
+- **Healbane at the real rate.** The sim prevented 6.45 HP of enemy healing per second alive (8 heroes x 18k/27k,
+  sim/scripts/sustain/fit_healbane.py); real holders prevent 2.09 per second in hero combat (38 HP/min, 30% of time
+  in combat). Its cut now runs at 0.324 of full strength in the overall score (Skill.item_landing["Healbane"],
+  sustain.json healbane_landing), including the lane gap.
+- **Heal trips saved.** The popular build makes the real ~2 heal trips per 10 min mid game (range_paths, living
+  trips into base); field-heal items cut fountain healing by fountain_pass = 0.084 HP per HP/min they heal (matched
+  holders vs non-holders, pooled over 9 items: Fortitude 43 HP/min less fountain, Healing Booster 22, Radiant 8...),
+  more max health makes each trip go further, a trip costs 40 s (assumption). Score x time on the map.
+
+Local paths (same pools, 4 heroes), main -> calibrated: Healbane 3/4 -> 0/4; Healing Booster (Abrams 18k-37k ->
+Haze 37k-50k), Extra Regen in Haze 18k-27k, Restorative Shot in Abrams 18k-27k, Fortitude kept. Radiant
+Regeneration still not picked on these four. Path scores ~unchanged (Haze 2.83, Infernus 2.02, Abrams 2.10,
+Seven 1.80).

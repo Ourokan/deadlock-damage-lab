@@ -30,7 +30,9 @@ health: the hero arrives with the real Phantom+ mean health at a fight start (si
 popular build, and a build that heals more in the gap_s seconds out of combat before a fight arrives fuller
 (entry_hp_start). Gap healing counts health regen, out-of-combat regen, Fortitude, heal pickups from medic troopers
 (amped by Healing Booster) and the real out-of-fight rate of farm-heal items (Radiant Regeneration, Restorative Shot
-on creeps, lifesteal on creeps...), all measured in sim/scripts/sustain/fit_sustain.py.
+on creeps, lifesteal on creeps...), all measured in sim/scripts/sustain/fit_sustain.py. Healing in the field also
+saves trips back to the fountain (map_time: real fountain healing, pass-through fitted on item holders, TRIP_S).
+Healbane's cut runs at the real heal-prevented rate (healbane_landing, sim/scripts/sustain/fit_healbane.py).
 Not counted: team heals and team auras, vision, souls from farming (Monster Rounds), objective damage.
 
 Scores are relative to the hero's most popular real build (1.0 = popular). Same search machinery as the duel search
@@ -116,7 +118,10 @@ set_bracket(PRIMARY)
 def skill(h):
     if h not in _sk:
         lo, _, aim, _ = BRACKETS[S.BRACKET]
-        _sk[h] = hero_default_skill(S.G().hero(h).name, aim, badge=lo if lo > 0 else None, counterplay=True)
+        sk = hero_default_skill(S.G().hero(h).name, aim, badge=lo if lo > 0 else None, counterplay=True)
+        # Healbane's anti-heal at the real heal-prevented rate (sim/data/sustain.json healbane_landing)
+        _sk[h] = dataclasses.replace(sk, item_landing={**(sk.item_landing or {}),
+                                                       "Healbane": sustain().get("healbane_landing", 1.0)})
     return _sk[h]
 
 
@@ -213,6 +218,35 @@ def build_stats(h, items, souls):
     return _stats[key]
 
 
+# Trips back to base (2026-10-22): healing in the field saves fountain trips, so more time on the map. Real Phantom+
+# holders of field-heal items heal fountain_pass HP less at the fountain per HP/min the item heals (pooled over
+# Healing Booster, Radiant Regeneration, Restorative Shot, Fortitude, Extra Regen, lifesteal, Mystic Regeneration,
+# Healing Rite; matched hero x phase x net worth, sim/scripts/sustain/fit_sustain.py). The popular build makes the
+# real number of heal trips (heal_trips_per_min, ~2 per 10 min mid game); a build makes fewer when its items save
+# fountain healing and when more max health makes each trip go further. A trip costs TRIP_S s (assumption).
+TRIP_S = 40.0
+
+
+def fountain_need(items, ph):
+    """Fountain healing per minute a build still needs: the real mean minus what its field-heal items save."""
+    sus = sustain()
+    g = S.G()
+    field = sum(sus["field_heal_hp_per_min"].get(g.items[i].name, {}).get(ph, 0.0) for i in items)
+    return max(0.0, sus["fountain_hp_per_min"][ph] - sus["fountain_pass"] * field)
+
+
+def map_time(h, items, souls, pop):
+    """Share of time on the map (not walking back to heal) of a build, the popular build making the real number of
+    heal trips. Lane stages: 1 (the lane test already scores staying in lane)."""
+    ph = game_phase(souls)
+    sus = sustain()
+    if ph == "lane" or not sus.get("heal_trips_per_min"):
+        return 1.0
+    trips = sus["heal_trips_per_min"][ph] * fountain_need(items, ph) / max(1.0, fountain_need(pop, ph)) \
+        * build_stats(h, pop, souls)["max_hp"] / build_stats(h, items, souls)["max_hp"]
+    return 1.0 - trips * TRIP_S / 60.0
+
+
 def entry_deficit(h, pop, souls):
     """Chip damage carried into a fight, set so the popular build arrives at the real mean entry health after
     healing for the real time out of combat before a fight."""
@@ -236,7 +270,7 @@ def healbane_gap_share(items, gap=TRADE_GAP):
     for i in items:
         it = g.items[i]
         if it.class_name == "upgrade_healbane":
-            cut = abs(it.props.get("HealAmpReceivePenaltyPercent", 0)) / 100
+            cut = abs(it.props.get("HealAmpReceivePenaltyPercent", 0)) / 100 * sustain().get("healbane_landing", 1.0)
             return 1.0 - cut * min(gap, it.props.get("AbilityDuration", 8)) / gap
     return 1.0
 
@@ -281,8 +315,11 @@ class Evaluator:
         self.norm = {}
         pop = tuple(sorted(S.popular_build(hero, S.item_budget(budget), pools)))
         self.deficit = entry_deficit(hero, pop, budget)
+        self.pop = pop
+        self.map_pop = map_time(hero, pop, budget, pop)
         for pool in ("S", "F", "F2"):
-            self.norm[pool] = max(1.0, self._mean(self._rows(pop, pool), 2)) * movement_value(pop, hero)
+            self.norm[pool] = max(1.0, self._mean(self._rows(pop, pool), 2)) * movement_value(pop, hero) \
+                * self._map(pop)
 
     def _rows(self, items, pool):
         key = (tuple(sorted(items)), pool)
@@ -296,6 +333,10 @@ class Evaluator:
             self.cache[key] = rows
         return self.cache[key]
 
+    def _map(self, items):
+        """map_time relative to the popular build (lane stages: 1, the lane test already scores staying in lane)."""
+        return map_time(self.h, items, self.souls, self.pop) / self.map_pop
+
     @staticmethod
     def _mean(rows, k):
         tw = sum(r[1] for r in rows)
@@ -305,7 +346,8 @@ class Evaluator:
         rows = self._rows(items, pool)
         dmg = self._mean(rows, 2)
         move = movement_value(items, self.h)
-        score = dmg * move / self.norm[pool]
+        mt = self._map(items)
+        score = dmg * move * mt / self.norm[pool]
         if not detail:
             return score
         t = self._mean(rows, 3)
@@ -317,6 +359,7 @@ class Evaluator:
             "survived_30s": round(self._mean(rows, 4), 4),
             "dps_while_alive": round(dmg / max(0.1, t), 1),
             "movement_value": round(move, 4),
+            "map_time": round(mt, 4),   # time on the map vs the popular build (fewer heal trips)
             "matchups": {str(r[0]): [round(r[2]), round(r[3], 2)] for r in rows},
         }
 
