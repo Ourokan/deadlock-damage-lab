@@ -91,7 +91,9 @@ Radiant Regeneration and Restorative Shot stayed rare. Two fixes:
 - **Heal trips saved.** The popular build makes the real ~2 heal trips per 10 min mid game (range_paths, living
   trips into base); field-heal items cut fountain healing by fountain_pass = 0.084 HP per HP/min they heal (matched
   holders vs non-holders, pooled over 9 items: Fortitude 43 HP/min less fountain, Healing Booster 22, Radiant 8...),
-  more max health makes each trip go further, a trip costs 40 s (assumption). Score x time on the map.
+  more max health makes each trip go further, a trip costs 40 s (assumption). Score x time on the map. The pooled
+  fit is weighted toward Radiant (largest heal); a holder-weighted mean of mid-game per-item ratios gives 0.069, so
+  the pass-through is about 0.07-0.08; per-item ratios are too noisy to use alone (Restorative Shot -0.37).
 
 Local paths (same pools, 4 heroes), main -> calibrated: Healbane 3/4 -> 0/4; Healing Booster (Abrams 18k-37k ->
 Haze 37k-50k), Extra Regen in Haze 18k-27k, Restorative Shot in Abrams 18k-27k, Fortitude kept. Radiant
