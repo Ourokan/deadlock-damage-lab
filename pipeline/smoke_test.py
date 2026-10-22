@@ -73,7 +73,10 @@ class _Ev(O.Evaluator):
 
 
 ev = _Ev(1, 18000, {})
-want = ev._map(pop[2:]) / O.movement_value(pop)   # same damage: only movement and heal trips (map_time) differ
+m = ev._map(pop[2:])   # fewer items, less max health: more heal trips (map_time values: sim/tests/test_lane.py)
+assert ev._map(pop) == 1.0 and 0.7 < m < 1.0, m
+assert ev._map(pop + [ids["Radiant Regeneration"]]) > 1.0
+want = m / O.movement_value(pop)   # same damage: only movement and heal trips differ
 assert abs(ev.run(pop) - 1.0) < 1e-9 and abs(ev.run(pop[2:]) - want) < 1e-9, ev.run(pop)
 S.popular_build = _popular
 print("movement weights ok: Stalker", round(st, 4), "four top items", round(O.movement_value(top), 4))

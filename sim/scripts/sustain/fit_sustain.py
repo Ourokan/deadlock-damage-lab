@@ -246,7 +246,13 @@ sim["healbane_prevented_per_combat_s"] = round(mid / 60 / sim["combat_share"]["m
 res["fountain_fit"] = fit_rows
 json.dump(res, open(OUT_JSON, "w"), indent=1)
 old_sim = json.load(open(OUT_SIM)) if os.path.exists(OUT_SIM) else {}
-if "healbane_landing" in old_sim:     # written by fit_healbane.py (needs the sim), kept across refits
-    sim["healbane_landing"] = old_sim["healbane_landing"]
+# healbane_landing is written by fit_healbane.py (needs the sim; run it after this script). Kept across refits only
+# while the real rate it was fitted against is unchanged, else dropped (Healbane back at full strength) until refit.
+if "healbane_landing" in old_sim:
+    if old_sim.get("healbane_landing_real") == sim["healbane_prevented_per_combat_s"]:
+        sim["healbane_landing"] = old_sim["healbane_landing"]
+        sim["healbane_landing_real"] = old_sim["healbane_landing_real"]
+    else:
+        print("healbane_landing dropped: the real rate changed, rerun fit_healbane.py", file=sys.stderr)
 json.dump(sim, open(OUT_SIM, "w"), indent=1)
 print(json.dumps(sim, indent=1))

@@ -3,6 +3,7 @@ build + Healbane vs popular, typical real enemies, 30 s overall fights, Healbane
 Phantom+ holders' heal prevented per second in hero combat (sustain.json healbane_prevented_per_combat_s, from
 fit_sustain.py). Writes healbane_landing = real / sim into sim/data/sustain.json.
 
+Refit order (not run by CI, sim/data/sustain.json is a static snapshot): fit_sustain.py, then this script.
 usage (repo root, search/work pools built): python3 sim/scripts/sustain/fit_healbane.py [--workers 4]
 """
 import argparse
@@ -55,6 +56,7 @@ def main():
         sus = json.load(f)
     sus["healbane_sim_prevented_per_s"] = round(sim, 2)
     sus["healbane_landing"] = round(min(1.0, sus["healbane_prevented_per_combat_s"] / sim), 3)
+    sus["healbane_landing_real"] = sus["healbane_prevented_per_combat_s"]   # fit_sustain drops a stale landing
     with open(O.SUSTAIN_PATH, "w") as f:
         json.dump(sus, f, indent=1)
     print(f"sim {sim:.2f} HP/s prevented vs real {sus['healbane_prevented_per_combat_s']} -> "
