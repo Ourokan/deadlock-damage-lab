@@ -1,22 +1,25 @@
 {
  "min_badge": 91,
- "pairs": 400,
- "real_ratio": 0.8492524912766649,
+ "real_matches": 1500,
+ "real_paired_windows": 5041,
+ "real_ratio": 0.849,
  "real_ratio_90ci": [
-  0.8059262387067432,
-  0.894338399439997
+  0.806,
+  0.894
  ],
- "sim_ratio_by_delay": {
-  "0.5": 0.621,
-  "1.5": 0.341,
-  "3.0": 0.432,
-  "5.0": 0.556,
-  "7.0": 0.739,
-  "9.0": 0.898,
-  "11.0": 1.066,
-  "None": 1.018,
-  "inf": 1.123
+ "sim_pairs": 400,
+ "sim_seeds": 8,
+ "reaction_s": 3.0,
+ "sim_ratio_by_share": {
+  "0.0": 1.124,
+  "0.25": 0.97,
+  "0.5": 0.799,
+  "0.75": 0.623,
+  "1.0": 0.434
  },
- "fitted_delay_s": 8.4,
- "note": "fitted_delay_s None = real ratio above every finite delay (Dispel ~never used on Decay)"
+ "fitted_share": 0.427,
+ "fitted_share_90ci": [
+  0.361,
+  0.49
+ ]
 }

@@ -916,15 +916,20 @@ class ReactiveBarrier(FX):
 @handler("upgrade_reduce_debuff_duration")
 class DispelMagic(FX):
     """Active: purge enemy debuffs and DoTs and heal HealOnActivate. Used at once against an enemy silence or
-    disarm. Against a DoT with >= 2 s left: after Skill.dot_cleanse_delay seconds of it (8.5 s, fitted to real
-    Decay damage on Dispel holders, accuracy.dot_cleanse_delay), or with dot_cleanse_delay=None only once below
-    DOT_PANIC_HP of max health. The +2 m/s move speed does nothing at fixed
-    distance. Assumption: BuffDuration (3 s) is the move-speed buff, not debuff immunity."""
+    disarm. Against a DoT with >= 2 s left: only on Skill.dot_cleanse_share of the DoTs that land (real players
+    mostly let Decay run: on cooldown, saved for a stun, not noticed; accuracy.dot_cleanse_share), and then after
+    Skill.dot_cleanse_delay seconds of it (reaction time), or with dot_cleanse_delay=None only once below
+    DOT_PANIC_HP of max health. Which DoTs are cleansed is a deterministic Bernoulli (engine.Accum) started at
+    Skill.fight_phase, so over a pool of fights with spread phases the first DoT is cleansed in exactly that share
+    of them. The +2 m/s move speed does nothing at fixed distance. Assumption: BuffDuration (3 s) is the move-speed
+    buff, not debuff immunity."""
     DOT_PANIC_HP = 0.5
 
     def __init__(self, item, f):
         super().__init__(item, f)
         self.dot_seen = None
+        self.dot_go = False
+        self.dot_pick = None
 
     def try_active(self, f):
         if not self.ready() or not f.skill.use_actives:
@@ -935,8 +940,19 @@ class DispelMagic(FX):
             self.dot_seen = None
         elif self.dot_seen is None:
             self.dot_seen = self.now
+            share = f.skill.dot_cleanse_share
+            if share is None:
+                self.dot_go = True
+            else:
+                if self.dot_pick is None:
+                    from .engine import Accum
+                    phase = f.skill.fight_phase
+                    self.dot_pick = Accum(f.e.rng, 0.5 if phase is None else phase)
+                self.dot_go = self.dot_pick.take(share) > 0
         delay = f.skill.dot_cleanse_delay
-        if delay is None:
+        if not self.dot_go:
+            use_on_dot = False
+        elif delay is None:
             use_on_dot = dot and f.hp_frac < self.DOT_PANIC_HP
         else:
             use_on_dot = dot and self.now - self.dot_seen >= delay

@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
  "requested_at": "2026-10-24T14:45:00Z",
- "reason": "Dispel Magic DoT timing refit to real Decay data (8.5 s for every rank, was 3 s Phantom / 1.5 s Eternus)"
+ "reason": "Dispel Magic now cleanses only a fitted share of DoTs (43% Phantom+) from real Decay data, was every DoT"
 }

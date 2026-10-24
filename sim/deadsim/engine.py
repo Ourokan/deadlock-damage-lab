@@ -152,9 +152,12 @@ class Skill:
     # follow an ability that sets up a free hit with a guaranteed heavy melee (Abrams: Shoulder Charge hit). These
     # come on top of melee_rate; the fitted rates already account for them.
     combo_melee: bool = True
-    # seconds an enemy DoT (Decay etc.) runs before Dispel Magic cleanses it: 8.5 s on average, fitted to real Decay
-    # damage on Dispel holders (accuracy.dot_cleanse_delay). None = cleanse a DoT only below 50% health.
-    dot_cleanse_delay: float | None = 8.5
+    # seconds an enemy DoT (Decay etc.) runs before Dispel Magic cleanses it: about two 1 s ticks, as high-rank
+    # players do (Tyler, Eternus). None = cleanse a DoT only below 50% health.
+    dot_cleanse_delay: float | None = 1.5
+    # share of enemy DoTs Dispel Magic is spent on at all (accuracy.dot_cleanse_share, fitted to real Decay damage
+    # on Dispel holders); the rest run out. None = every one.
+    dot_cleanse_share: float | None = None
     engage_margin: float = 5.0  # meters a player will close to land an ability that is just out of reach
     # meters beyond engage_margin a player walks in (shooting on the way) before casting a short-range ability; the
     # walk costs gap / move speed seconds of delay. Range items only shorten that walk, so they never decide

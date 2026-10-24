@@ -143,13 +143,17 @@ Strike stay within ±0.09 of their comparison item. Heavy share (30%) is still a
 ## Cleanses
 
 Dispel Magic (added 2026-10-14 during step 3): its active purges enemy debuffs and DoTs (`Fighter.dispel`) and heals
-250. The AI fires it at once when silenced/disarmed, and against a DoT (>= 2 s left) after `Skill.dot_cleanse_delay`
-= 8.5 s of it. Fit (2026-10-24, `scripts/fit_dispel.py`, `validation/dispel/fit_*.json`): in real matches Dispel
-holders take 85% of their teammates' Decay damage at Phantom+ (1500 matches, 90% CI 0.81-0.89; 0.87 all ranks, 0.91
-Eternus+ on 175 matches), from `damage/scripts/decay_vs_dispel.py` with the right-aligned damage-matrix read (the first
-run read arrays from the start and got 1.00). Real (Decay, Dispel) holder item snapshots from the same matches,
-dueled with and without Dispel, give that ratio at 8.4 s (Phantom+); the old rank timings (3 s Phantom, 1.5 s
-Eternus) gave 0.43 and 0.34, and "only below 50% HP" 1.02. Short delays waste Dispel on the first DoT of the fight. Hero ability DoTs that schedule
+250. The AI fires it at once when silenced/disarmed. Against a DoT (>= 2 s left) it fires on only
+`Skill.dot_cleanse_share` of the DoTs that land, `Skill.dot_cleanse_delay` after it lands (reaction: 1.5 s Eternus,
+3 s below). Fit (2026-10-24, `scripts/fit_dispel.py`, `validation/dispel/`): in real matches Dispel holders take 85%
+of their teammates' Decay damage at Phantom+ (1500 matches, 90% CI 0.81-0.89), 87% at all ranks, 91% at Eternus+
+(175 matches, CI 0.77-1.07), from `damage/scripts/decay_vs_dispel.py` with the right-aligned damage-matrix read (the
+first run read arrays from the start and got 1.00). Real (Decay, Dispel) holder item snapshots from the same matches,
+dueled with and without Dispel, give that ratio at share 0.43 (Phantom+, CI 0.36-0.49) and 0.33 (all ranks); Eternus+
+(0.26, CI 0.04-0.45) is too thin and uses the Phantom+ share. Cleansing every DoT at the old rank timings gave 0.43
+(3 s) and 0.31 (1.5 s). A share, not a longer delay, so short DoTs (burns, Toxic Bullets) can still be cleansed. Which
+DoTs get cleansed is a deterministic Bernoulli started at `Skill.fight_phase`, so the overall score's spread fight
+phases cleanse the first DoT in exactly that share of fights. Hero ability DoTs that schedule
 their own ticks instead of using `Engine.dot`/`CastCtx.dot` are not purged. 13-17% of ranked players hold it from
 27k souls up, so DoT builds (Decay, Toxic Bullets, burn abilities) were overvalued before.
 

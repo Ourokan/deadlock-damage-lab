@@ -1,13 +1,14 @@
-"""Fit Skill.dot_cleanse_delay (how long a Dispel Magic holder lets an enemy DoT run) to real Decay damage.
+"""Fit Skill.dot_cleanse_share (the share of enemy DoTs a Dispel Magic holder spends it on) to real Decay damage.
 
 Real side: damage/scripts/decay_vs_dispel.py -> damage/work/decay_vs_dispel_<badge>.json, ratio = Decay damage a
 Dispel holder takes / what a teammate without it takes (same Decay owner, same 3-minute window). It folds in
 everything that keeps Dispel off a DoT: cooldown, used on a stun or silence first, not noticing.
 
-Sim side: real (Decay holder, Dispel holder) item snapshots from the same Phantom+ matches (data/builds/player_builds,
-items held 120 s after both bought their item), dueled at the bracket's aim with counterplay on. ratio(d) = Decay
-damage to the target holding Dispel with dot_cleanse_delay d / to the same target with Dispel removed. The fitted
-delay is where ratio(d) meets the real ratio (None = only below 50% health, inf = never on a DoT).
+Sim side: real (Decay holder, Dispel holder) item snapshots from the same matches (data/builds/player_builds, items
+held 120 s after both bought their item), dueled at the bracket's aim and reaction time (accuracy.dot_cleanse_delay)
+with counterplay on. ratio(s) = Decay damage to the target holding Dispel with dot_cleanse_share s / to the same
+target with Dispel removed (the Dispel holder's extra spirit resist and heal are in both, as in real data). ratio is
+linear in s, so the fit solves it on a grid; the real 90% CI is mapped the same way.
 
 usage (repo root, player_builds linked): python3 sim/scripts/fit_dispel.py [min_badge] [n_pairs] [days]
 """
@@ -15,7 +16,6 @@ import dataclasses
 import glob
 import gzip
 import json
-import math
 import os
 import random
 import sys
@@ -25,12 +25,12 @@ from multiprocessing import Pool
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "sim"))
 from deadsim import Loadout, duel, game  # noqa: E402
-from deadsim.accuracy import hero_default_skill  # noqa: E402
+from deadsim.accuracy import dot_cleanse_delay, hero_default_skill  # noqa: E402
 
 G = game()
 DECAY, DISPEL = G.item("Decay").id, G.item("Dispel Magic").id
-DELAYS = (0.5, 1.5, 3.0, 5.0, 7.0, 9.0, 11.0, None, math.inf)
-SEEDS = 4
+SHARES = (0.0, 0.25, 0.5, 0.75, 1.0)
+SEEDS = 8
 SETTLE_S = 120   # snapshot this long after the later of the two buys
 
 
@@ -73,37 +73,41 @@ def pairs(min_badge, n, days):
 def run(args):
     (dh, di, xh, xi), badge = args
     dsk = hero_default_skill(G.hero(dh).name, badge=badge, counterplay=True)
-    xsk = hero_default_skill(G.hero(xh).name, badge=badge, counterplay=True)
+    xsk = dataclasses.replace(hero_default_skill(G.hero(xh).name, badge=badge, counterplay=True),
+                              dot_cleanse_delay=dot_cleanse_delay(badge))
     a = Loadout(dh, di, skill=dsk)
     res = {}
-    for name, items, delay in [("none", [i for i in xi if i != DISPEL], None)] + [(d, xi, d) for d in DELAYS]:
-        b = Loadout(xh, items, skill=dataclasses.replace(xsk, dot_cleanse_delay=delay))
+    for name, items, share in [("none", [i for i in xi if i != DISPEL], 0.0)] + [(s, xi, s) for s in SHARES]:
+        b = Loadout(xh, items, skill=dataclasses.replace(xsk, dot_cleanse_share=share))
         res[str(name)] = sum(duel(a, b, rng=random.Random(s)).a_dmg.get("Decay", 0.0) for s in range(SEEDS)) / SEEDS
     return res
 
 
+def solve(grid, r):
+    """Share where the sim ratio meets r (grid: [(share, ratio)], ratio falling with share), clipped to 0-1."""
+    for (s0, r0), (s1, r1) in zip(grid, grid[1:]):
+        if r1 <= r <= r0 and r0 > r1:
+            return s0 + (r0 - r) / (r0 - r1) * (s1 - s0)
+    return 0.0 if r > grid[0][1] else 1.0
+
+
 def main():
     min_badge = int(sys.argv[1]) if len(sys.argv) > 1 else 91
-    n = int(sys.argv[2]) if len(sys.argv) > 2 else 300
+    n = int(sys.argv[2]) if len(sys.argv) > 2 else 400
     days = int(sys.argv[3]) if len(sys.argv) > 3 else 4
     real = json.load(open(os.path.join(ROOT, "damage", "work", f"decay_vs_dispel_{min_badge}.json")))
     ps = pairs(min_badge, n, days)
     with Pool(os.cpu_count()) as p:
         rows = p.map(run, [(x, min_badge) for x in ps])
     base = sum(r["none"] for r in rows)
-    ratio = {k: sum(r[k] for r in rows) / base for k in rows[0] if k != "none"}
-    # ratio rises with the delay; interpolate the real ratio on the finite delays
-    fin = [(d, ratio[str(d)]) for d in DELAYS if d is not None and math.isfinite(d)]
-    fit = None
-    if real["ratio"] <= fin[0][1]:
-        fit = fin[0][0]
-    for (d0, r0), (d1, r1) in zip(fin, fin[1:]):
-        if fit is None and r0 <= real["ratio"] <= r1 and r1 > r0:
-            fit = d0 + (real["ratio"] - r0) / (r1 - r0) * (d1 - d0)
-    out = {"min_badge": min_badge, "pairs": len(rows), "real_ratio": real["ratio"], "real_ratio_90ci": real["ratio_90ci"],
-           "sim_ratio_by_delay": {k: round(v, 3) for k, v in ratio.items()},
-           "fitted_delay_s": None if fit is None else round(fit, 1),
-           "note": "fitted_delay_s None = real ratio above every finite delay (Dispel ~never used on Decay)"}
+    grid = [(s, sum(r[str(s)] for r in rows) / base) for s in SHARES]
+    lo, hi = real["ratio_90ci"]
+    out = {"min_badge": min_badge, "real_matches": real["matches"], "real_paired_windows": real["paired_windows"],
+           "real_ratio": round(real["ratio"], 3), "real_ratio_90ci": [round(lo, 3), round(hi, 3)],
+           "sim_pairs": len(rows), "sim_seeds": SEEDS, "reaction_s": dot_cleanse_delay(min_badge),
+           "sim_ratio_by_share": {str(s): round(r, 3) for s, r in grid},
+           "fitted_share": round(solve(grid, real["ratio"]), 3),
+           "fitted_share_90ci": [round(solve(grid, hi), 3), round(solve(grid, lo), 3)]}
     print(json.dumps(out, indent=1))
     os.makedirs(os.path.join(ROOT, "sim", "validation", "dispel"), exist_ok=True)
     json.dump(out, open(os.path.join(ROOT, "sim", "validation", "dispel", f"fit_{min_badge}.json"), "w"), indent=1)

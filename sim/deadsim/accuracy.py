@@ -177,17 +177,27 @@ def ability_landing(hero, mech=False):
     return {name: min(1.5, max(0.05, r["landing"])) for name, r in rows.items()}
 
 
-DOT_CLEANSE_DELAY = 8.5
-
-
 def dot_cleanse_delay(badge=None):
-    """Effective seconds a DoT (Decay etc.) runs before a Dispel Magic holder cleanses it, fitted to real Decay
-    damage (sim/scripts/fit_dispel.py, sim/validation/dispel/): Dispel holders take 85% of their teammates' Decay
-    damage at Phantom+ (1500 matches, 90% CI 81-89%), 87% at all ranks and 91% at Eternus+ (175 matches, CI 77-107%),
-    which the sim matches at 8.4, 9.4 and 9.6 s. Ranks don't differ beyond noise, so every badge uses the Phantom+ fit.
-    It is an average, not a reaction time: a player who is watching cleanses in a tick or two (Tyler, Eternus), but
-    Dispel is often on cooldown, spent on a stun or another DoT first, or not used. badge is kept for callers."""
-    return DOT_CLEANSE_DELAY
+    """Reaction time: seconds a DoT (Decay etc.) runs before a Dispel Magic holder who means to cleanse it does, by
+    match badge (tier*10+subrank). Eternus (111+): 1.5 s, a tick or two (Tyler, an Eternus player). Below: 3 s.
+    How often they mean to at all is dot_cleanse_share."""
+    return 1.5 if badge is not None and badge >= 111 else 3.0
+
+
+DISPEL_FIT = os.path.join(HERE, "..", "validation", "dispel")
+
+
+def dot_cleanse_share(badge=None):
+    """Share of enemy DoTs a Dispel Magic holder spends it on, fitted to real Decay damage (sim/scripts/fit_dispel.py,
+    validation/dispel/fit_<min badge>.json): Dispel holders still take 85% of their teammates' Decay damage at Phantom+
+    (1500 matches), 87% at all ranks, 91% at Eternus+ (175 matches, noisy): Dispel is often on cooldown, saved for a
+    stun or not noticed. Phantom+ (91+) uses the Phantom+ fit, lower badges and None the all-ranks fit. Eternus+
+    (fit_111.json, 0.26, 90% CI 0.04-0.45) is too thin to differ from Phantom+ (0.43, CI 0.36-0.49), so it uses that."""
+    lo = 91 if badge is not None and badge >= 91 else 0
+    try:
+        return json.load(open(os.path.join(DISPEL_FIT, f"fit_{lo}.json")))["fitted_share"]
+    except (OSError, ValueError, KeyError):
+        return None
 
 
 ITEM_LANDING = os.path.join(HERE, "..", "data", "item_landing.json")
@@ -239,6 +249,7 @@ def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_ove
     if heavy_share is not None:
         sk.heavy_share = min(1.0, max(0.0, float(heavy_share)))
     sk.dot_cleanse_delay = dot_cleanse_delay(badge)
+    sk.dot_cleanse_share = dot_cleanse_share(badge)
     # players walk out of ground zones (Alchemical Fire) unless stunned, rooted or slowed (items_fx.held_share);
     # on in every mode since 2026-10-21 (Tyler: no Alchemical Fire for heroes that can't hold a target in it)
     sk.zone_exit_s = zone_exit_time(badge)
