@@ -166,6 +166,8 @@ def main():
                         sys.exit(f"no popular {x} build at {b} souls in the pools (--require-pools)")
     todo = [i for i in q.items.split(",") if i] or list(ALLY_ITEMS)
     if q.part is not None:
+        if q.of < len(todo):
+            print(f"note: {len(todo)} items over {q.of} parts, so a part fits more than one", flush=True)
         todo = todo[q.part::q.of]
     jobs = [(i, b) for i in todo for b in BUDGETS]
     res = {}

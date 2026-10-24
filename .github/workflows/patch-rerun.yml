@@ -143,7 +143,7 @@ jobs:
             search/work/tier_caps*.json
 
   # the two fits the overall search reads, side by side once the pools are built (they used to run one after the
-  # other in the data job, ~20 min): the real item win edge, and the team value refit split over 8 machines
+  # other in the data job, ~20 min): the real item win edge, and the team value refit split over 7 machines
   win_edge:
     needs: [detect, data]
     if: needs.data.outputs.complete == 'true'
@@ -179,7 +179,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        part: [0, 1, 2, 3, 4, 5, 6, 7]   # one ally item each (team_value.ALLY_ITEMS)
+        part: [0, 1, 2, 3, 4, 5, 6]   # one ally item each (the 7 of team_value.ALLY_ITEMS; --of below matches)
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -193,12 +193,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Ally item team values from 3v3 fights of the patch's popular builds (part ${{ matrix.part }} of 8)
+      - name: Ally item team values from 3v3 fights of the patch's popular builds (part ${{ matrix.part }} of 7)
         continue-on-error: true   # a missing part keeps the last fit (fits job)
         working-directory: sim
         run: |
           mkdir -p work/team_parts
-          python3 scripts/team/team_value.py --workers 4 --require-pools --part ${{ matrix.part }} --of 8 \
+          python3 scripts/team/team_value.py --workers 4 --require-pools --part ${{ matrix.part }} --of 7 \
             --part-out work/team_parts/part_${{ matrix.part }}.json
       - uses: actions/upload-artifact@v4
         with:
