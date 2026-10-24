@@ -2,6 +2,7 @@
 reach from data/team_value.json, area items' hits on the other enemies, ally items' multiplier.
 Run from sim/: python3 -m unittest discover -s tests"""
 import json
+import math
 import os
 import sys
 import types
@@ -12,6 +13,7 @@ sys.path[:0] = [os.path.join(ROOT, p) for p in ("sim", "sim/scripts", "search/sc
                                                  "survival")]
 
 import damage_audit  # noqa: E402
+from team import area_hits  # noqa: E402
 import overall_search as O  # noqa: E402
 from survival import survive  # noqa: E402
 
@@ -43,14 +45,30 @@ class AreaDamage(unittest.TestCase):
     def test_area_item_damage_counts_on_the_other_enemies(self):
         # replay values read straight from data/area_hits.json (not through area_extra), so a refit keeps this passing
         r = {"damage_by_source": {"gun": 1000.0, "Mystic Reverb": 200.0, "Scourge": 100.0}, "splash_dealt": 30.0}
-        x = AREA_HITS["items"]
-        want = 200 * x["Mystic Reverb"]["extra_per_main"] + 100 * x["Scourge"]["extra_per_main"] + 30
+        x, bins = AREA_HITS["items"], AREA_HITS["phase"]["bins"]
+        lo, hi = max((b for b in bins if b["net_worth"] <= 27000), key=lambda b: b["net_worth"]), \
+            min((b for b in bins if b["net_worth"] > 27000), key=lambda b: b["net_worth"])
+        u = math.log(27000 / lo["net_worth"]) / math.log(hi["net_worth"] / lo["net_worth"])
+        k = lo["fit"] + (hi["fit"] - lo["fit"]) * u
+        want = (200 * x["Mystic Reverb"]["extra_per_main"] + 100 * x["Scourge"]["extra_per_main"]) * k + 30
         self.assertAlmostEqual(O.area_damage(r, 27000), want, places=6)
+
+    def test_extra_hits_grow_with_net_worth(self):
+        # lane trades early, team fights late: an early build's area items get less of the pooled value
+        pooled = O.area_extra("Cold Front")
+        early, mid, late = (O.area_extra("Cold Front", s) for s in (6000, 18000, 50000))
+        self.assertLess(early, mid)
+        self.assertLessEqual(mid, late)
+        self.assertLess(early, pooled)
+        self.assertGreater(late, pooled)
+        self.assertEqual(O.area_extra("Cold Front", 1000), O.area_extra("Cold Front", 3000))     # flat outside the fit
+        self.assertEqual(O.area_extra("Cold Front", 80000), O.area_extra("Cold Front", 120000))
+        self.assertIsNone(O.area_extra("Toxic Bullets", 27000))
 
     def test_position_count_is_the_fallback(self):
         r = {"damage_by_source": {"Mystic Reverb": 200.0, "Scourge": 100.0}}
         old = O.area_extra
-        O.area_extra = lambda name: None
+        O.area_extra = lambda name, souls=None: None
         try:
             got = O.area_damage(r, 27000)
         finally:
@@ -76,6 +94,25 @@ class AreaDamage(unittest.TestCase):
         with_ = O.fight(h, [ID["Ricochet"]], e, [], 27000)[0]
         without = O.fight(h, [], e, [], 27000)[0]
         self.assertGreater(with_, without)
+
+
+class AreaHitsFit(unittest.TestCase):
+    def test_mean_net_worth_interpolates_between_snapshots(self):
+        curves = [[(100, 1000), (200, 3000)], [(100, 3000), (200, 5000)]]
+        self.assertAlmostEqual(area_hits.mean_nw(curves, 150), 3000.0)
+        self.assertAlmostEqual(area_hits.mean_nw(curves, 50), 1000.0)     # from 0 before the first snapshot
+        self.assertAlmostEqual(area_hits.mean_nw(curves, 900), 4000.0)    # last value after the end
+
+    def test_phase_fit_is_non_decreasing(self):
+        # one area item, baseline 0 (no other-hero proc damage): bins observe 0.5, 1.5, 0.9, 1.2 x the pooled 1.0
+        rows = [("m", 5000, "Toxic Bullets", 1e6, 0.0)]
+        for nw, ratio in ((12000, 0.5), (17000, 1.5), (22000, 0.9), (45000, 1.2)):
+            rows += [("m", nw, "Toxic Bullets", 1e6, 0.0), ("m", nw, "Cold Front", 1000.0, 1000.0 * ratio)]
+        fit = [b["fit"] for b in area_hits.phase_fit(rows, {"Cold Front": 1.0})]
+        self.assertEqual(fit, sorted(fit))
+        self.assertAlmostEqual(fit[0], 0.5)
+        self.assertAlmostEqual(fit[1], 1.2)    # 1.5 and 0.9 pooled
+        self.assertAlmostEqual(fit[3], 1.2)
 
 
 class AuditSources(unittest.TestCase):

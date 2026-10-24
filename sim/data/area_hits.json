@@ -1,46 +1,128 @@
 {
- "source": "110 Phantom+ replays, hero-vs-hero DamageEvent (scripts/team/area_hits.py)",
- "baseline_other_per_main": 0.436,
+ "source": "260 Phantom+ replays, hero-vs-hero DamageEvent (scripts/team/area_hits.py)",
+ "baseline_other_per_main": 0.438,
  "items": {
   "Mystic Reverb": {
-   "other_per_main": 1.235,
-   "extra_per_main": 0.799,
-   "damage": 134160
+   "other_per_main": 1.427,
+   "extra_per_main": 0.989,
+   "damage": 331585
   },
   "Alchemical Fire": {
-   "other_per_main": 1.195,
-   "extra_per_main": 0.759,
-   "damage": 41267
+   "other_per_main": 1.374,
+   "extra_per_main": 0.936,
+   "damage": 93794
   },
   "Tesla Bullets": {
-   "other_per_main": 0.496,
-   "extra_per_main": 0.059,
-   "damage": 300224
+   "other_per_main": 0.508,
+   "extra_per_main": 0.07,
+   "damage": 667061
   },
   "Capacitor": {
-   "other_per_main": 0.736,
-   "extra_per_main": 0.3,
-   "damage": 333691
+   "other_per_main": 0.698,
+   "extra_per_main": 0.26,
+   "damage": 880465
   },
   "Scourge": {
-   "other_per_main": 0.949,
-   "extra_per_main": 0.513,
-   "damage": 74310
+   "other_per_main": 1.056,
+   "extra_per_main": 0.618,
+   "damage": 180400
   },
   "Torment Pulse": {
-   "other_per_main": 0.886,
-   "extra_per_main": 0.45,
-   "damage": 460942
+   "other_per_main": 0.921,
+   "extra_per_main": 0.483,
+   "damage": 1150142
   },
   "Cold Front": {
-   "other_per_main": 0.674,
-   "extra_per_main": 0.238,
-   "damage": 119085
+   "other_per_main": 0.626,
+   "extra_per_main": 0.189,
+   "damage": 317560
   },
   "Arctic Blast": {
-   "other_per_main": 0.708,
-   "extra_per_main": 0.272,
-   "damage": 67036
+   "other_per_main": 0.617,
+   "extra_per_main": 0.18,
+   "damage": 174440
   }
+ },
+ "phase": {
+  "note": "extra hits at fight net worth nw = items[name].extra_per_main x the bins' fit, linear in ln net worth between bins, flat outside; one curve for every area item",
+  "bins": [
+   {
+    "net_worth": 7489,
+    "baseline": 0.379,
+    "observed": 0.214,
+    "fit": 0.214,
+    "fit_95": [
+     -0.169,
+     0.578
+    ],
+    "predicted_extra_damage": 29033
+   },
+   {
+    "net_worth": 12609,
+    "baseline": 0.312,
+    "observed": 0.724,
+    "fit": 0.724,
+    "fit_95": [
+     0.442,
+     0.965
+    ],
+    "predicted_extra_damage": 61158
+   },
+   {
+    "net_worth": 17441,
+    "baseline": 0.357,
+    "observed": 0.925,
+    "fit": 0.925,
+    "fit_95": [
+     0.681,
+     1.105
+    ],
+    "predicted_extra_damage": 96903
+   },
+   {
+    "net_worth": 22413,
+    "baseline": 0.362,
+    "observed": 1.243,
+    "fit": 1.123,
+    "fit_95": [
+     1.016,
+     1.182
+    ],
+    "predicted_extra_damage": 106276
+   },
+   {
+    "net_worth": 28481,
+    "baseline": 0.475,
+    "observed": 1.067,
+    "fit": 1.123,
+    "fit_95": [
+     1.024,
+     1.196
+    ],
+    "predicted_extra_damage": 184267
+   },
+   {
+    "net_worth": 35628,
+    "baseline": 0.487,
+    "observed": 1.106,
+    "fit": 1.123,
+    "fit_95": [
+     1.044,
+     1.266
+    ],
+    "predicted_extra_damage": 154079
+   },
+   {
+    "net_worth": 47400,
+    "baseline": 0.596,
+    "observed": 1.151,
+    "fit": 1.151,
+    "fit_95": [
+     1.086,
+     1.447
+    ],
+    "predicted_extra_damage": 105921
+   }
+  ]
  }
 }

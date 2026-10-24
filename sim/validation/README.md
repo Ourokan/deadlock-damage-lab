@@ -526,11 +526,37 @@ main target is too strong). Mo & Krill distance 0.100 -> 0.071;
 Victor 0.047 -> 0.065 and Graves 0.091 -> 0.097 (their per-hero Torment Pulse share is now over real, the
 whole-match vs mid-game duel bias); player-weighted 0.0446 -> 0.0445. The patch rerun does not refit area_hits.json
 (it needs replay queries): rerun area_hits.py on fresh replays after a big patch, then item_landing.py, since the item factors were fitted with these extra hits in the sim.
-The extra hits are one pooled value per item, the same at every net worth. Split by fight start time (same replays),
-they grow later in the match but not by much where there is data: Torment Pulse 0.41 (0-15 min) / 0.43 (15-25) /
-0.50 (25+), Cold Front 0.14 / 0.33 / 0.38, Capacitor - / 0.23 / 0.35, Tesla Bullets 0.00 / 0.09 / 0.22. Reverb,
-Alchemical Fire and Scourge are bought late (too little early damage to fit). So early builds with Cold Front or
-Capacitor are somewhat over-valued; a per-phase fit needs more replays.
+The extra hits were first one pooled value per item, the same at every net worth; by fight start time they grew
+later in the match (Cold Front 0.14 at 0-15 min vs 0.38 at 25+), so early Cold Front or Capacitor builds were
+over-valued.
+
+### Extra hits by game phase (2026-10-24)
+
+150 more Phantom+ replays (matches of the validation sample where area items are bought before 20 min; 260 in all,
+kept in analysis/work/replay_damage) and each fight's net worth (the match's mean player net worth at the fight's
+start, from the sample's per-player stats). Too few area items are bought early to fit each item per phase, so one
+phase curve for every area item: per net worth bin (own baseline), every area item's extra damage / what its pooled
+extra_per_main predicts, made non-decreasing (pool adjacent violators), linear in ln net worth between bins, flat
+outside. `mechanics.area_extra(name, souls)` = pooled value x curve; overall_search.area_damage passes the build's
+souls, so the overall search, game paths (3k-50k stages) and lane fights use it. The audit still uses the pooled
+value (it compares whole matches).
+
+| fight net worth | 7.5k | 12.6k | 17.4k | 22.4k | 28.5k | 35.6k | 47.4k |
+|---|---|---|---|---|---|---|---|
+| observed / pooled | 0.21 | 0.72 | 0.93 | 1.24 | 1.07 | 1.11 | 1.15 |
+| fit (95% band) | 0.21 (-0.17-0.58) | 0.72 (0.44-0.96) | 0.93 (0.68-1.10) | 1.12 (1.02-1.18) | 1.12 | 1.12 | 1.15 (1.09-1.45) |
+
+The lowest bin is the weak point: its band includes 0 (no extra hits in lane) and reaches ~0.6, so 3k-7k builds' area value (0.21x pooled) is a soft estimate; everything from 12.6k up is clear of 0. A straight line in ln net worth fit worse (it put 0.57 at 7.5k): extra hits are low in lane, rise to ~1.1x by 22k
+and stay. Pooled values with 260 replays: Mystic Reverb 0.99, Alchemical Fire 0.94, Scourge 0.62, Torment Pulse
+0.48, Capacitor 0.26, Cold Front 0.19, Arctic Blast 0.18, Tesla Bullets 0.07 (110 replays: 0.80 / 0.76 / 0.51 /
+0.45 / 0.30 / 0.24 / 0.27 / 0.06). Item factors refit with them (item_landing.py on phantom_sample): Mystic Reverb
+0.60 -> 0.54, Alchemical Fire 0.92 -> 0.83, Scourge 0.70 -> 0.65, Capacitor 0.69 -> 0.72, Cold Front 0.89 -> 0.92,
+others within 0.02; audit player-weighted distance 0.0445 -> 0.0446. Effect on an item's value in the overall fight
+(vs no items, Abrams target): at 6k Cold Front (Kelvin) +0.30 -> +0.22, Capacitor (Seven) +0.57 -> +0.39, Torment
+Pulse (Mo & Krill) +0.85 -> +0.69, Alchemical Fire (Infernus) +5.6 -> +3.5; at 10k 5-25% less; at 18k about the
+same; at 27k+ slightly more. Rerun with fresh replays after a big patch: `python3 -I scripts/team/area_hits.py
+<replay dirs> --write`, then `python3 scripts/item_landing.py 4 --sample validation/phantom_sample.jsonl.gz`
+(its default sample is the old all-rank one).
 
 ## Guns with no hero accuracy: Graves and Deadman Danny (2026-10-24)
 

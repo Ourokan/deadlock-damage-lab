@@ -39,9 +39,12 @@ sim/scripts/team/fit_team.py: at 27k a fighting hero has 1.5 teammates within 35
 of its target). So
 - area items also hit the other enemies near their centre: their damage in the duel x their real extra hits on other
   heroes per hit on the main target is added to the damage dealt (AREA_ITEMS; deadsim.mechanics.area_extra, measured
-  from Phantom+ replay damage events by sim/scripts/team/area_hits.py: Mystic Reverb 0.80, Alchemical Fire 0.76,
-  Scourge 0.51, Torment Pulse 0.45, Capacitor 0.30, Arctic Blast 0.27, Cold Front 0.24, Tesla Bullets 0.06). The
-  position count (other enemies within the radius of the target or holder at 1 s samples) is the fallback; it gave
+  from 260 Phantom+ replays' damage events by sim/scripts/team/area_hits.py: Mystic Reverb 0.99, Alchemical Fire
+  0.94, Scourge 0.62, Torment Pulse 0.48, Capacitor 0.26, Cold Front 0.19, Arctic Blast 0.18, Tesla Bullets 0.07
+  pooled over whole matches). Those extra hits grow with net worth (lane trades early, team fights late): area_damage
+  uses them at the build's souls, one replay-fitted curve for every area item (0.2x the pooled value at <=7.5k, 0.5x
+  at 10k, 0.95x at 18k, 1.1x from 22k; data/area_hits.json "phase"), so early Cold Front / Capacitor builds no longer
+  get late-game team fight value. The position count (other enemies within the radius of the target or holder at 1 s samples) is the fallback; it gave
   Torment Pulse and Scourge ~0.06, since most position fight seconds are approach and poke at 15-20 m; Ricochet and
   Split Shot hit them through the duel's Mechanics.extra_targets (other enemies within Ricochet's 13 m). Hero
   abilities are left alone: their landing factors were fitted to real damage, which already counts every target;
@@ -144,7 +147,7 @@ def area_damage(r, souls):
     by = r.get("damage_by_source", {})
     extra = 0.0
     for name, (c, rad) in AREA_ITEMS.items():
-        k = area_extra(name)       # replay-measured; the position count is the fallback
+        k = area_extra(name, souls)    # replay-measured at this net worth; the position count is the fallback
         extra += by.get(name, 0.0) * (k if k is not None else near("extra" if c == "target" else "extra_self", rad, souls))
     return extra + r.get("splash_dealt", 0.0)
 
