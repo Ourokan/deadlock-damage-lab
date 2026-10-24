@@ -127,6 +127,13 @@ class AuditSources(unittest.TestCase):
         self.assertEqual(d["Toxic Bullets"], 50.0)    # single-target proc: no area value
         self.assertEqual(d["Ricochet"], 40.0)
 
+    def test_expected_booking_reads_the_exp_totals(self):
+        r = types.SimpleNamespace(a_dmg={"gun": 1000.0}, a_splash={"Ricochet": 40.0},
+                                  a_exp={"gun": 600.0}, a_splash_exp={"Ricochet": 10.0})
+        d = damage_audit.sim_sources(r, lambda k: k)
+        self.assertEqual(d["gun"], 600.0)
+        self.assertEqual(d["Ricochet"], 10.0)
+
 
 class AllyItems(unittest.TestCase):
     def test_every_fitted_item_is_a_real_item(self):
