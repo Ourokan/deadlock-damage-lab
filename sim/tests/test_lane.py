@@ -35,6 +35,16 @@ class StartHealth(unittest.TestCase):
         self.assertLess(hurt["time_alive"], full["time_alive"])
 
 
+class FullHealthEntry(unittest.TestCase):
+    def test_celeste_full_health_keeps_the_prism_ult_combo(self):
+        # Dazzling Trick used to wait for 10% health lost, so a Celeste who arrived at full health (healing items)
+        # cast Shining Wonder without the prism to bounce off and dealt less damage than a hurt one
+        c = G.hero("Celeste").id
+        full = survive(c, [], 37000, HAZE, [], max_time=30.0)
+        hurt = survive(c, [], 37000, HAZE, [], max_time=30.0, start_hp=0.85 * full["max_hp"])
+        self.assertGreaterEqual(full["damage_dealt"], 0.97 * hurt["damage_dealt"])
+
+
 NO_PICKUPS = {"pickup_hp_per_min": {"lane": 0.0, "mid": 0.0, "late": 0.0}, "farm_heal_hp_per_min": {},
               "entry_hp": {"lane": 1.0, "mid": 1.0, "late": 1.0}, "gap_s": {"lane": 20, "mid": 25, "late": 25}}
 

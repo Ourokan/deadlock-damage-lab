@@ -34,6 +34,18 @@ cls_name = {it.class_name: n for n, it in by_name.items()}
 id_name = {it.id: n for n, it in by_name.items()}
 
 
+def at(s, k, n):
+    """Damage-matrix arrays are cumulative per sample time but right-aligned: a source that starts later (an item
+    bought mid game) has a shorter array whose first entry is the sample time len(times) - len(s)."""
+    i = k - (n - len(s))
+    return s[i] if 0 <= i < len(s) else (0 if i < 0 else s[-1])
+
+
+def win(s, k, n):
+    """Amount added to cumulative array s in sample window k (of n)."""
+    return at(s, k, n) - at(s, k - 1, n)
+
+
 def phase(t):
     for n, a, b in PHASES:
         if a <= t < b:
@@ -56,7 +68,8 @@ alive_s, combat_s = collections.Counter(), collections.Counter()
 # analysis/work/range_paths (Phantom+): 74% health -> 0.26 of max health healed per trip
 TRIP_DEFICIT = 0.26
 # living trips into base per minute, mid game, same source (1.94 per 10 min); late game trips are mostly shopping and
-# defending, so heal trips there are scaled by fountain healing (late / mid)
+# defending, so heal trips there are scaled by fountain healing (late / mid), at most the mid game rate (late fountain
+# healing is higher, mostly from fighting next to it while defending the base, which costs no time on the map)
 HEAL_TRIPS_MID = 0.194
 for fn in sorted(glob.glob(os.path.join(MATCHES, "*.json.gz"))):
     m = json.load(gzip.open(fn, "rt"))
@@ -82,22 +95,18 @@ for fn in sorted(glob.glob(os.path.join(MATCHES, "*.json.gz"))):
             ph = phase(t0)
             src_min[ph] += mins
             for st, src, tgt, cum in rows:
-                if k >= len(cum):
-                    continue
-                d = cum[k] - (cum[k - 1] if k else 0)
                 if st in (1, 5) and str(tgt) == slot:
-                    src_rate[ph][src] += d
+                    src_rate[ph][src] += win(cum, k, len(times))
             for n in held_iv:
                 if not holds(n, t0, t1):
                     continue
                 cn = by_name[n].class_name
-                hp = sum(cum[k] - (cum[k - 1] if k else 0) for st, src, tgt, cum in rows
-                         if k < len(cum) and st in (1, 5) and src == cn and str(tgt) == slot)
+                hp = sum(win(cum, k, len(times)) for st, src, tgt, cum in rows
+                         if st in (1, 5) and src == cn and str(tgt) == slot)
                 heal_rate[n][ph][0] += hp
                 heal_rate[n][ph][1] += mins
                 if n == "Healbane":
-                    pv = sum(cum[k] - (cum[k - 1] if k else 0) for st, src, tgt, cum in rows
-                             if k < len(cum) and st == 2 and src == cn)
+                    pv = sum(win(cum, k, len(times)) for st, src, tgt, cum in rows if st == 2 and src == cn)
                     prevent[ph][0] += pv
                     prevent[ph][1] += mins
         st = p["stats"]
@@ -123,7 +132,7 @@ for fn in sorted(glob.glob(os.path.join(MATCHES, "*.json.gz"))):
             t0 = times[k - 1] if k else 0
             if t0 < 540:
                 continue
-            fh = sum(c[k] - (c[k - 1] if k else 0) for _, _, _, c in fsrc if k < len(c))
+            fh = sum(win(c, k, len(times)) for _, _, _, c in fsrc)
             held = frozenset(n for n in FIELD_ITEMS if holds(n, t0, t1))
             fountain[(p["hero_id"], phase(t0), (nw_at.get(t1) or 0) // 5000)].append((held, fh / ((t1 - t0) / 60)))
         # fight entries
@@ -235,12 +244,15 @@ for n in FIELD_ITEMS:
             sh += saved * heal * w
             ss += heal * heal * w
 sim["fountain_pass"] = round(max(0.0, sh / ss), 4) if ss else 0.0
+# Tried 2026-10-24: each item's own matched saving instead of the pooled pass (Fortitude ~60 HP/min, Radiant and
+# lifesteal ~10). Fortitude then took every hero's late build (12 of 12 vs ~7% of Phantom+ players): holders of tank
+# items differ in more than the item (frontliners), so the per-item rows are not used.
 sim["field_heal_hp_per_min"] = {n: {ph: round(heal_rate[n][ph][0] / heal_rate[n][ph][1], 1)
                                     if heal_rate[n][ph][1] >= MIN_HOLDER_MIN else 0.0 for ph in ("mid", "late")}
                                 for n in FIELD_ITEMS}
 sim["trip_deficit"] = TRIP_DEFICIT
 fh = sim["fountain_hp_per_min"]
-sim["heal_trips_per_min"] = {"mid": HEAL_TRIPS_MID, "late": round(HEAL_TRIPS_MID * fh["late"] / fh["mid"], 3)}
+sim["heal_trips_per_min"] = {"mid": HEAL_TRIPS_MID, "late": round(HEAL_TRIPS_MID * min(1.0, fh["late"] / fh["mid"]), 3)}
 mid = res["healbane_prevented_per_min"].get("mid", 0.0)
 sim["healbane_prevented_per_combat_s"] = round(mid / 60 / sim["combat_share"]["mid"], 2)
 res["fountain_fit"] = fit_rows

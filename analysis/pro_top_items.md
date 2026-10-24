@@ -99,3 +99,31 @@ Local paths (same pools, 4 heroes), main -> calibrated: Healbane 3/4 -> 0/4; Hea
 Haze 37k-50k), Extra Regen in Haze 18k-27k, Restorative Shot in Abrams 18k-27k, Fortitude kept. Radiant
 Regeneration still not picked on these four. Path scores ~unchanged (Haze 2.83, Infernus 2.02, Abrams 2.10,
 Seven 1.80).
+
+## Real healing data alignment (2026-10-24)
+
+Healing items still showed up only mid game and Radiant Regeneration / Healing Booster were missing from final
+builds. Cause: the damage matrix arrays are right-aligned (an item bought at 15 min has a shorter array that starts
+at its first sample, sim/validation/README.md), but fit_sustain.py read them from the start. Late-game item healing
+came out near 0 and mid-game rates were shifted. Corrected (Phantom+, 400 replays, HP/min while held):
+
+| | before mid / late | after mid / late |
+|---|---|---|
+| Radiant Regeneration | 345 / 101 | 388 / 475 |
+| Healing Booster (its amp) | 57 / 8 | 108 / 89 |
+| Fortitude | 137 / 16 | 323 / 304 |
+| Spirit Lifesteal | 69 / 9 | 153 / 184 |
+| Healbane heal prevented per combat s | 2.09 | 3.33 (landing 0.324 -> 0.516) |
+
+Late heal trips are now capped at the mid-game rate (late fountain healing is mostly defending next to it).
+Also fixed: Celeste waited for 10% health lost before Dazzling Trick, so arriving at full health (healing items)
+cost her the prism bounce on Shining Wonder; she now also casts it right before the ult (T3) and by 2.5 s.
+
+Local full game paths, 12 heroes (the 8 with the most real Healing Booster / Radiant use + Haze, Infernus,
+Abrams, Seven), heroes holding the item at 27k/37k/50k vs the real Phantom+ expectation for the same heroes:
+Radiant Regeneration 0/0/0 -> 4/5/4 (real 4.5), Healing Booster 0/1/1 -> 1/1/1 (real ~6), Healbane 3/3/1 ->
+1/3/3 (real ~4), Fortitude 4/4/3 -> 8/9/7 (real ~1), Spirit Lifesteal 5/4/6 -> 7/6/6 (real ~2).
+
+Still off: Healing Booster is under-picked (ally heals it amps are not modeled in a 1v1) and Fortitude / lifesteal
+are over-picked. Tried per-item fountain savings instead of the pooled pass-through: Fortitude went to 12/12 and
+Radiant back to 0, so it was dropped.
