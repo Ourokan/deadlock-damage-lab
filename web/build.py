@@ -114,8 +114,8 @@ def maker_data():
 
 
 def win_edge_data(data):
-    """data/win_edge.json: real per-hero item win edge (analysis/scripts/build_win_check.py, a static snapshot of
-    Ritualist+ matches), hero id -> item id -> [edge, se] in win-rate points, for the overall tab."""
+    """data/win_edge.json: real per-hero item win edge (refreshed from Ritualist+ matches by each patch rerun,
+    pipeline/refresh_win_edge.py), hero id -> item id -> [edge, se] in win-rate points, for the overall tab."""
     path = os.path.join(ROOT, "analysis/out/hero_item_edge.json")
     if not os.path.exists(path):
         return

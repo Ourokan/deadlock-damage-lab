@@ -38,7 +38,8 @@ Not counted: team heals and team auras, vision, souls from farming (Monster Roun
 Real win edge (Tyler 2026-10-24, "blend win edge into score"): the score is also multiplied by
 exp(WIN_K x the sum of the held items' real win edges on this hero) / the popular build's (win_value). Edge = win-rate
 points vs other same-slot same-tier items, Ritualist+, matched and shrunk toward the item's all-hero edge
-(analysis/out/hero_item_edge.json from analysis/scripts/build_win_check.py; a static snapshot). The 1v1 score alone
+(analysis/out/hero_item_edge.json; each patch rerun refreshes it from the new patch's builds with
+pipeline/refresh_win_edge.py, keeping the last one when there are too few matches yet). The 1v1 score alone
 ranked items almost unrelated to real wins (r 0.05 over 16 heroes): Decay was in 119 of ~200 best builds while
 losing 2-5 points on every hero, and team auras / AoE / death saves (Heroic Aura, Mystic Reverb, Cheat Death) were
 never picked. Movement items already carry a real-data value (movement_value) and are left out of the blend.
@@ -93,8 +94,8 @@ _win = None
 def win_value(items, hero):
     """exp(WIN_K x sum of the held items' real per-hero win edges, in points). Only edges clear of their 95% band
     count, each capped at +-WIN_CAP (the search maximises, so it would chase noisy edges of rare items); movement
-    items are left out (their real value is already in movement_value). The edges are a static snapshot: a warning
-    is printed when its patch differs from data/patch.json."""
+    items are left out (their real value is already in movement_value). A warning is printed when the edges' patch
+    differs from data/patch.json (the rerun kept the last snapshot)."""
     global _win
     if _win is None:
         with open(WIN_EDGE) as f:
@@ -103,7 +104,7 @@ def win_value(items, hero):
             patch = json.load(f)["patch"]
         if d["meta"].get("patch") != patch:
             print(f"warning: {WIN_EDGE} is from patch {d['meta'].get('patch')}, the sim is on {patch}; "
-                  "rerun analysis/scripts/build_win_check.py", file=sys.stderr)
+                  "too few new matches yet (pipeline/refresh_win_edge.py)", file=sys.stderr)
         movement_value((), None)   # loads _move
         moving = _move[2] | {i for row in _move[3].values() for i in row}
         _win = {int(h): {int(i): max(-WIN_CAP, min(WIN_CAP, v[0])) for i, v in row.items()

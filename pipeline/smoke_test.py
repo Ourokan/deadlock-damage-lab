@@ -100,3 +100,35 @@ assert got[(18000, "overall")]["in"] == [6] and got[(18000, "overall")]["out"] =
 assert got[(27000, "damage")]["in"] == [] and got[(27000, "damage")]["new"] == 2400
 assert C.build_rows(_old, _new, "ascendant") == ([], 0)
 print("changes ok")
+
+# real win edge refresh after a patch (pipeline/refresh_win_edge.py): counts the patch window's day files, rebuilds the
+# edges with enough Ritualist+ matches and keeps the last snapshot otherwise
+import gzip  # noqa: E402
+import shutil  # noqa: E402
+import tempfile  # noqa: E402
+import refresh_win_edge as RW  # noqa: E402
+
+_tmp = tempfile.mkdtemp()
+_items = sorted(i for i in RW.W.TARGET if RW.W.TIER[i] == 1 and RW.W.SLOT[i] == "weapon")[:2]
+_day = RW.P.build_days()[0]
+with gzip.open(os.path.join(_tmp, f"{_day}.jsonl.gz"), "wt") as _f:
+    for m, badge in ((1, 85), (2, 85), (3, 40)):   # two Ritualist+ matches, one below
+        for p in range(12):
+            _f.write(json.dumps({"match_id": m, "account_id": p, "hero_id": 1 + p % 6, "won": p < 6, "badge": badge,
+                                 "purchases": [[_items[p % 2], 300, 0]]}) + "\n")
+_paths = RW.partials(_tmp, os.path.join(_tmp, "work"), RW.P.build_days(), 1)
+assert len(_paths) == 1 and RW.ritualist_matches(_paths) == 2, RW.ritualist_matches(_paths)
+RW.B.EDGE_PATH = os.path.join(_tmp, "edge.json")
+with open(RW.B.EDGE_PATH, "w") as _f:
+    json.dump({"meta": {"patch": "old"}, "heroes": {}}, _f)
+_argv = sys.argv
+sys.argv = ["refresh_win_edge.py", _tmp, "--work", os.path.join(_tmp, "work"), "--min-matches", "3"]
+RW.main()
+assert json.load(open(RW.B.EDGE_PATH))["meta"]["patch"] == "old"   # too few matches: snapshot kept
+sys.argv[-1] = "2"
+RW.main()
+_m = json.load(open(RW.B.EDGE_PATH))
+assert _m["meta"]["patch"] == RW.P.load()["patch"] and _m["meta"]["matches"] == 2, _m["meta"]
+sys.argv = _argv
+shutil.rmtree(_tmp)
+print("win edge refresh ok")

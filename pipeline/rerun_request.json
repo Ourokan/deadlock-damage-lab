@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-24T16:10:00Z",
- "reason": "Overall score blends each item's real per-hero win edge (Tyler's choice): Decay out of most builds"
+ "requested_at": "2026-10-24T16:40:00Z",
+ "reason": "Win edge now refreshed from the rerun's own builds (matches to 10-23 instead of 10-14)"
 }
