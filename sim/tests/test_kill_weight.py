@@ -31,6 +31,11 @@ class KillWeight(unittest.TestCase):
             # shrinkage pulls toward 1, never past the raw estimate
             self.assertLessEqual(abs(r["weight"] - 1), abs(r["raw"] - 1) + 1e-9, n)
 
+    def test_names_match_the_item_data(self):
+        # damage_by_source is keyed by item name: a renamed item would silently fall back to weight 1
+        names = {it.name for it in O.S.G().items.values()}
+        self.assertEqual(set(KW) - names, set())
+
     def test_decay_counts_less_than_its_damage(self):
         self.assertLess(KW["Decay"]["weight"], 0.7)
 
