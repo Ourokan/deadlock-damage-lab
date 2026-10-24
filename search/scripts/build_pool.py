@@ -156,6 +156,20 @@ def snapshot(purchases, tl, limit):
     return [i for i, bt, st in purchases if bt <= t_snap and (st == 0 or st > t_snap)], c_snap
 
 
+def player_rows(files):
+    """Each (match, player) row of the build files once. fetch_builds.py already drops the repeats match_player holds,
+    but older pulls kept them (up to 99% of a fresh day's rows twice), which overweights recent days and new heroes."""
+    for fn in files:
+        print("reading", os.path.basename(fn), flush=True)
+        seen = set()
+        for line in gzip.open(fn, "rt"):
+            r = json.loads(line)
+            k = (r["match_id"], r["account_id"])
+            if k not in seen:
+                seen.add(k)
+                yield r
+
+
 def main():
     bracket = sys.argv[1] if len(sys.argv) > 1 else "all"
     lo_b, hi_b, _, days = BRACKETS[bracket]
@@ -171,35 +185,32 @@ def main():
     seen = {b: Counter() for b in POOL_BUDGETS}
     usage = {b: defaultdict(Counter) for b in POOL_BUDGETS}
     held = {b: {t: Counter() for t in TIER_STEPS} for b in POOL_BUDGETS}
-    for fn in files:
-        print("reading", os.path.basename(fn), flush=True)
-        for line in gzip.open(fn, "rt"):
-            r = json.loads(line)
-            if not lo_b <= r["badge"] <= hi_b:
+    for r in player_rows(files):
+        if not lo_b <= r["badge"] <= hi_b:
+            continue
+        h = r["hero_id"]
+        tl = timeline(r["purchases"], cost)
+        for b in POOL_BUDGETS:
+            if r["net_worth"] < b:
+                break
+            lim = item_budget(b)
+            s = snapshot(r["purchases"], tl, lim)
+            if not s or s[1] < 0.85 * lim:
                 continue
-            h = r["hero_id"]
-            tl = timeline(r["purchases"], cost)
-            for b in POOL_BUDGETS:
-                if r["net_worth"] < b:
-                    break
-                lim = item_budget(b)
-                s = snapshot(r["purchases"], tl, lim)
-                if not s or s[1] < 0.85 * lim:
-                    continue
-                items = [i for i in s[0] if i in cost]
-                usage[b][h].update(set(items))
-                for t, c in tier_counts(items, cost).items():
-                    held[b][t][c] += 1
-                usage[b][h]["_n"] += 1
-                seen[b][h] += 1
-                row = [items, int(r["won"]), r["badge"]]
-                lst = res[b][h]
-                if len(lst) < CAP:
-                    lst.append(row)
-                else:
-                    j = rnd.randrange(seen[b][h])
-                    if j < CAP:
-                        lst[j] = row
+            items = [i for i in s[0] if i in cost]
+            usage[b][h].update(set(items))
+            for t, c in tier_counts(items, cost).items():
+                held[b][t][c] += 1
+            usage[b][h]["_n"] += 1
+            seen[b][h] += 1
+            row = [items, int(r["won"]), r["badge"]]
+            lst = res[b][h]
+            if len(lst) < CAP:
+                lst.append(row)
+            else:
+                j = rnd.randrange(seen[b][h])
+                if j < CAP:
+                    lst[j] = row
     os.makedirs(os.path.join(ROOT, "work"), exist_ok=True)
     for b in POOL_BUDGETS:
         json.dump({str(h): v for h, v in res[b].items()}, open(os.path.join(ROOT, "work", f"snapshots_{b}{sfx}.json"), "w"))
