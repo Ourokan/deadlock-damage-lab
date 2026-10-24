@@ -119,20 +119,35 @@ _NEAR = None
 
 
 _AREA = None
+_AREA_PHASE = None
 
 
-def area_extra(name):
+def area_extra(name, souls=None):
     """Extra hits on other heroes per hit on the main target for an area item, from Phantom+ replay damage events
     (data/area_hits.json, scripts/team/area_hits.py), or None when the item has no fit. A duel's damage of the item
-    x this is what it also deals to the other enemies in a real fight."""
-    global _AREA
+    x this is what it also deals to the other enemies in a real fight. With souls: at that net worth (early fights
+    are lane trades, late ones team fights; one replay-fitted curve for every area item, linear in ln net worth
+    between its bins, flat outside); without: pooled over whole matches."""
+    global _AREA, _AREA_PHASE
     if _AREA is None:
         fn = os.path.join(os.path.dirname(__file__), "..", "data", "area_hits.json")
         _AREA = {}
         if os.path.exists(fn):
             with open(fn) as fh:
-                _AREA = {k: v["extra_per_main"] for k, v in json.load(fh)["items"].items()}
-    return _AREA.get(name)
+                a = json.load(fh)
+            _AREA = {k: v["extra_per_main"] for k, v in a["items"].items()}
+            _AREA_PHASE = a.get("phase")
+    x = _AREA.get(name)
+    if x is None or souls is None or not _AREA_PHASE:
+        return x
+    pts = [(math.log(b["net_worth"]), b["fit"]) for b in _AREA_PHASE["bins"]]
+    v = math.log(max(souls, 1.0))
+    if v <= pts[0][0]:
+        return x * max(0.0, pts[0][1])
+    for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+        if v <= x1:
+            return x * max(0.0, y0 + (y1 - y0) * (v - x0) / (x1 - x0))
+    return x * pts[-1][1]
 
 
 def real_nearby(kind, radius, souls):
