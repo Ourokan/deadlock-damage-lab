@@ -802,10 +802,12 @@ function stackTables() {
     if (!rows.length || !t.tHead || !t.querySelector("tbody td:not(.n)")) continue;
     const heads = [...(t.tHead.rows[0]?.cells || [])].map((c) => c.textContent.trim());
     for (const r of rows) {
-      [...r.cells].forEach((c, k) => {
+      let col = 0;   // header column of each cell, counting colspans
+      for (const c of r.cells) {
         if (c.colSpan > 1 || !c.classList.contains("n")) c.classList.add("wide");
-        else if (heads[k]) c.dataset.label = heads[k];
-      });
+        else if (heads[col]) c.dataset.label = heads[col];
+        col += c.colSpan;
+      }
       r.dataset.stk = "1";
     }
     t.classList.add("cards-sm");
