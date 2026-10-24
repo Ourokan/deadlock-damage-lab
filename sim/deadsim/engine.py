@@ -43,6 +43,7 @@ _GH = ((-2.6519613568, 0.000548268858), (-1.6735516288, 0.0307571239), (-0.81628
        (0.0, 0.457142857), (0.8162878829, 0.240123178), (1.6735516288, 0.0307571239), (2.6519613568, 0.000548268858))
 REACH_P_FLOOR = 0.01    # waiting for drift to bring a far target in reach: tau / max(p, floor)
 GUN_POLL = 0.1          # longest a locked gun sleeps before re-checking the lock
+GUN_REACH_FLOOR = 0.05  # bullet_damage: smallest in-range share an in-range hit is scaled up by
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -675,7 +676,8 @@ class Engine:
             if g:
                 r, bonus, close = g()
                 pct += bonus * self.band_corr(st, r, close, d)
-        return st.bullet_damage * (1.0 + pct) * fc[0] / self.gun_reach(st), fc[1]
+        # per in-range hit; floored so a nearly-out-of-range fight doesn't land rare 1000x hits (it then loses a little)
+        return st.bullet_damage * (1.0 + pct) * fc[0] / max(self.gun_reach(st), GUN_REACH_FLOOR), fc[1]
 
     def gun_reach(self, st):
         """Share of the fight's distance spread inside the gun's range (Graves' tether: gun_range_m), else 1. Out of

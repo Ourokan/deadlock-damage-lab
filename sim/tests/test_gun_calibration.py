@@ -58,6 +58,23 @@ class GunCalibration(unittest.TestCase):
         f = mock.Mock(st=st, items_fx=[], weapon_pct=lambda: 0.0)
         self.assertAlmostEqual(far.bullet_damage(f)[0], st.bullet_damage, places=6)
 
+    def test_far_reach_does_not_make_huge_hits(self):
+        from deadsim.engine import GUN_REACH_FLOOR, Engine
+        st = compute_stats("Graves", souls=0)
+        e = Engine(distance=200.0)
+        self.assertLess(e.gun_reach(st), GUN_REACH_FLOOR)
+        f = mock.Mock(st=st, items_fx=[], weapon_pct=lambda: 0.0)
+        self.assertLessEqual(e.bullet_damage(f)[0], st.bullet_damage)
+
+    def test_graves_on_hit_items_dont_proc_beyond_tether(self):
+        """No spread (range_drift off): at 30 m Graves' gun lands no hits, so Tesla Bullets never procs."""
+        aim = Skill(accuracy=0.5, headshot=0.0, use_abilities=False, use_actives=False)
+        fixed = Mechanics(range_drift=False)
+        for dist, expect in ((10.0, True), (30.0, False)):
+            r = duel(Loadout("Graves", ["Tesla Bullets"], souls=8000, skill=aim),
+                     Loadout("Haze", [], souls=8000, skill=aim), distance=dist, max_time=15.0, mechanics=fixed)
+            self.assertEqual(r.a_dmg.get("Tesla Bullets", 0) > 0, expect, (dist, dict(r.a_dmg)))
+
     def test_calibrated_aim_is_the_default(self):
         for name in ("Graves", "Deadman Danny"):
             h = G.hero(name)
