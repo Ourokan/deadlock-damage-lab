@@ -145,7 +145,15 @@ def main():
     ap.add_argument("--items", default="", help="comma list: refit only these, keep the others' values")
     ap.add_argument("--require-pools", action="store_true",
                     help="fail instead of falling back to damage/out's builds (patch rerun: those are the old patch's)")
+    ap.add_argument("--part", type=int, default=None, help="with --of N: fit only every N-th item from this one and "
+                    "write the fits to --part-out (the patch rerun splits the refit over N machines)")
+    ap.add_argument("--of", type=int, default=1)
+    ap.add_argument("--part-out", default="")
+    ap.add_argument("--merge", default="", help="folder of --part-out files: write data/team_value.json from them")
     q = ap.parse_args()
+    if q.merge:
+        merge(q.merge)
+        return
     global REQUIRE_POOLS
     REQUIRE_POOLS = q.require_pools
     for b in BUDGETS:   # fail here, not inside a worker; loaded pools are shared with the forked workers
@@ -157,6 +165,8 @@ def main():
                     if not popular(x, b):
                         sys.exit(f"no popular {x} build at {b} souls in the pools (--require-pools)")
     todo = [i for i in q.items.split(",") if i] or list(ALLY_ITEMS)
+    if q.part is not None:
+        todo = todo[q.part::q.of]
     jobs = [(i, b) for i in todo for b in BUDGETS]
     res = {}
     with Pool(q.workers) as p:
@@ -166,6 +176,28 @@ def main():
                                                     "holder_damage": round(v["share"], 1), "fights": n}
             print(f"{item:<20} {souls:>6}: team-only {v['team_only']:+.3f} of the holder's damage (se {v['se']:.3f}) "
                   f"(swing +{v['on']:.0f} with allies, +{v['off']:.0f} without)", flush=True)
+    if q.part is not None:
+        with open(q.part_out, "w") as f:
+            json.dump(res, f)
+        return
+    write(res)
+
+
+def merge(folder):
+    """Write data/team_value.json from the part files of a split refit, the same file one full run writes. Exits 1,
+    leaving the file as it is, when an item is missing (a part failed): the overall search then uses the last fit."""
+    res = {}
+    for fn in sorted(os.listdir(folder)):
+        with open(os.path.join(folder, fn)) as f:
+            res.update(json.load(f))
+    missing = [i for i in ALLY_ITEMS if i not in res]
+    if missing:
+        sys.exit(f"team value parts are missing {', '.join(missing)}; kept the last fit")
+    write(res)
+    print(f"team values merged from {len(os.listdir(folder))} parts")
+
+
+def write(res):
     d = json.load(open(OUT)) if os.path.exists(OUT) else {}
     old = d.get("items", {}).get("values", {})
     with open(os.path.join(SIM, "..", "data", "patch.json")) as f:

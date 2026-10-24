@@ -139,3 +139,24 @@ import sim_counters  # noqa: E402
 missing = [n for n in sim_counters.OPTIONS if n not in {it.name for it in G.items.values()}]
 assert not missing, f"counter items no longer in the shop: {missing}"
 print("counter items ok:", len(sim_counters.OPTIONS))
+
+# the rerun's job split (pipeline/run_shard.py): every job on exactly one machine, a job and the jobs it reads on the
+# same one, and every step's per-job command takes the hero and budget it was planned for
+sys.path.insert(0, os.path.join(ROOT, "pipeline"))
+import run_shard as RS  # noqa: E402
+import unit_costs as UC  # noqa: E402
+_ids = sorted(G.heroes)
+_tanks = set(_ids[:10])
+_groups = RS.plan(RS.PRIMARY, _ids, RS.BUDGETS, UC.Costs(RS.PRIMARY), _tanks)
+_shards, _est = RS.split(_groups, 16, 4)
+_where = {id(u): i for i, s in enumerate(_shards) for u in s}
+_all = [u for g in _groups for u in g]
+assert len(_where) == len(_all) == sum(len(s) for s in _shards), (len(_where), len(_all))
+assert all(_where[id(d)] == _where[id(u)] for u in _all for d in u.deps)
+_n = {s: sum(u.step == s for u in _all) for s in UC.STEPS}
+_nb = len(RS.BUDGETS)
+assert _n == {"damage": len(_ids) * _nb, "buy_order": len(_ids), "skill_order": len(_ids), "duel": len(_ids) * _nb,
+              "survival": 10 * _nb, "overall": len(_ids) * _nb, "counters": len(_ids) * len(RS.COUNTER_BUDGETS),
+              "path": len(_ids)}, _n
+assert all(str(u.hero) in u.cmd and (u.budget is None or str(u.budget) in u.cmd) for u in _all)
+print(f"rerun split ok: {len(_all)} jobs on 16 machines, slowest about {max(_est) / 60:.0f} min")

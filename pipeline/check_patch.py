@@ -9,6 +9,8 @@ Pulls the current game data and changelog from the Deadlock API and compares the
                used fewer (the duel brackets read 7 or 14 days). Reruns once at each mark.
   standard     the standard rank bracket (search/scripts/build_pool.PRIMARY) differs from the one the results were
                built for (patch.json "standard"). Reruns right away on the same patch's builds.
+  requested    pipeline/rerun_request.json is newer than the results (patch.json results_built) and under 2 days
+               old: a forced rerun whose waiting run a scheduled check replaced. Reruns on the same patch's builds.
 Prints the decision and, under GitHub Actions, writes action (none|wait|rerun) and reason to $GITHUB_OUTPUT.
 --apply (only acted on when the decision is rerun) writes the new game data to data/game and the new window to
 data/patch.json. --force reruns even when nothing changed.
@@ -28,6 +30,7 @@ import patch_state as P  # noqa: E402
 sys.path.insert(0, os.path.join(ROOT, "search", "scripts"))
 from build_pool import PRIMARY  # noqa: E402
 
+REQUEST = os.path.join(ROOT, "pipeline", "rerun_request.json")
 MIN_DAYS = 3
 MILESTONES = (7, 14)
 
@@ -38,8 +41,23 @@ def latest_patch(patches):
     return max(dated) if dated else (None, None)
 
 
-def decide(state, game_hash, patches, today, force=False):
-    """Returns (action, reason, new_state)."""
+def pending_request(state, now):
+    """The reason of a rerun requested (pipeline/rerun_request.json) after the results were built, or None. Under 2
+    days old only, so a request whose rerun keeps failing doesn't rerun every 6 hours for good."""
+    try:
+        with open(REQUEST) as f:
+            req = json.load(f)
+        at = datetime.datetime.fromisoformat(req["requested_at"].replace("Z", "+00:00"))
+        built = datetime.datetime.fromisoformat(state["results_built"].replace("Z", "+00:00"))
+    except (OSError, ValueError, KeyError):
+        return None
+    if built < at and now - at < datetime.timedelta(days=2):
+        return req.get("reason") or "requested"
+    return None
+
+
+def decide(state, game_hash, patches, today, force=False, request=None):
+    """Returns (action, reason, new_state). request: the reason of a rerun requested since the results were built."""
     yesterday = today - datetime.timedelta(days=1)
     cur_date = P.patch_date(state["patch"])
     new_date, new_title = latest_patch(patches)
@@ -62,6 +80,8 @@ def decide(state, game_hash, patches, today, force=False):
             return "rerun", f"patch {state['patch']} now has {have} full days of games (results used {used})", new
     if force:
         return "rerun", "forced", new
+    if request:   # a forced rerun whose waiting run a scheduled check replaced (patch-rerun.yml concurrency)
+        return "rerun", f"rerun requested: {request}", new
     return "none", f"patch {state['patch']} unchanged, results use {used} days of games", state
 
 
@@ -80,7 +100,8 @@ def main():
                    stdout=subprocess.DEVNULL)
     with open(os.path.join(raw, "patches.json")) as f:
         patches = json.load(f)
-    action, reason, new = decide(state, P.game_hash(game), patches, today, a.force)
+    request = pending_request(state, datetime.datetime.now(datetime.timezone.utc))
+    action, reason, new = decide(state, P.game_hash(game), patches, today, a.force, request)
     print(f"{action}: {reason}")
     if a.apply and action == "rerun":
         dst = os.path.join(ROOT, "data", "game")

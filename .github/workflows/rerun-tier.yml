@@ -1,7 +1,7 @@
 name: Rerun one rank tier
 
 # Called by patch-rerun.yml once per rank tier (pipeline/tiers.json), in order. Runs the tier's searches across 16
-# machines (pipeline/run_shard.py --tier), commits the new results to main and redeploys the site, so each tier
+# machines (pipeline/run_shard.py --tier: jobs split by hero x budget on the last run's job times), commits the new results to main and redeploys the site, so each tier
 # shows up on the site as soon as it is done. The publish step reads only this tier's work (so a tier that failed
 # its check never reaches the site through a later one); the exports keep every other tier's published results.
 
@@ -38,6 +38,10 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: inputs
+          path: .
+      - uses: actions/download-artifact@v4
+        with:
+          name: fits
           path: .
       - uses: actions/setup-python@v5
         with:
@@ -81,6 +85,10 @@ jobs:
           path: .
       - uses: actions/download-artifact@v4
         with:
+          name: fits
+          path: .
+      - uses: actions/download-artifact@v4
+        with:
           pattern: work-${{ inputs.tier }}-*
           path: .
           merge-multiple: true
@@ -110,6 +118,9 @@ jobs:
         if: inputs.tier == 'phantom'
         continue-on-error: true   # a report only; never holds back the results
         run: python3 analysis/scripts/build_win_check.py --report-only
+      - name: Job times for the next run's split (pipeline/unit_costs.py)
+        continue-on-error: true   # only decides which machine runs which job
+        run: python3 pipeline/unit_costs.py update --tier ${{ inputs.tier }}
       - name: What changed since the last run
         continue-on-error: true   # the changelog never holds back the results
         env:
@@ -119,7 +130,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/game data/patch.json data/changes.json data/builds/aggregates damage/out search/out survival/out analysis/out/hero_item_edge.json analysis/out/build_win_check.md sim/data/team_value.json counters/out
+          git add data/game data/patch.json data/changes.json data/builds/aggregates damage/out search/out survival/out analysis/out/hero_item_edge.json analysis/out/build_win_check.md sim/data/team_value.json counters/out pipeline/unit_costs.json
           git diff --cached --quiet && { echo "No changes to commit"; exit 0; }
           git commit -m "Rerun searches (${{ inputs.tier }}): ${{ inputs.reason }}"
           git pull --no-rebase --no-edit origin main
