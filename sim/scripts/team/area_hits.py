@@ -218,8 +218,8 @@ def main():
             draws[min(range(len(bins)), key=lambda k: abs(math.log(bins[k]["net_worth"] / x["net_worth"])))].append(x["fit"])
     print("phase by fight net worth (all area items, observed extra / pooled prediction, non-decreasing fit, 95% band)")
     for k, x in enumerate(bins):
-        d = sorted(draws[k])
-        x["band"] = [d[int(0.025 * len(d))], d[int(0.975 * len(d)) - 1]]
+        d = sorted(draws[k]) or [x["fit"]]     # a bin no draw reached (small replay sets) gets no band
+        x["band"] = [d[int(0.025 * len(d))], d[max(0, int(0.975 * len(d)) - 1)]]
         print(f"  nw {x['net_worth']:6.0f}  baseline {x['baseline']:.2f}  observed {x['phase']:.2f}  "
               f"fit {x['fit']:.2f} [{x['band'][0]:.2f}, {x['band'][1]:.2f}]")
     out["phase"] = {
