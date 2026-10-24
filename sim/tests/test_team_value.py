@@ -9,6 +9,7 @@ ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 sys.path[:0] = [os.path.join(ROOT, p) for p in ("sim", "search/scripts", "damage/scripts", "damage", "survival")]
 
 import overall_search as O  # noqa: E402
+from survival import survive  # noqa: E402
 
 G = O.S.G()
 ID = {it.name: it.id for it in G.items.values()}
@@ -31,6 +32,13 @@ class AreaDamage(unittest.TestCase):
         r = {"damage_by_source": {"gun": 1000.0, "Mystic Reverb": 200.0, "Scourge": 100.0}, "splash_dealt": 30.0}
         want = 200 * O.near("extra", 16, 27000) + 100 * O.near("extra_self", 10, 27000) + 30
         self.assertAlmostEqual(O.area_damage(r, 27000), want, places=6)
+
+    def test_area_items_book_damage_under_their_names(self):
+        # area_damage reads damage_by_source by item name: a different label would silently count 0
+        h = G.hero("Paradox").id
+        for name in O.AREA_ITEMS:
+            r = survive(h, [ID[name]], 27000, G.hero("Abrams").id, [], max_time=30.0, focus=2.0, skill=O.skill(h))
+            self.assertGreater(r["damage_by_source"].get(name, 0.0), 0.0, name)
 
     def test_ricochet_bounces_in_the_overall_fight(self):
         h, e = G.hero("Haze").id, G.hero("Abrams").id
