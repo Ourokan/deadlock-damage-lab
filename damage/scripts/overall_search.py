@@ -33,7 +33,20 @@ a fight arrives fuller in the fights that start short (entry_hp_start, scaled to
 on creeps, lifesteal on creeps...), all measured in sim/scripts/sustain/fit_sustain.py. Healing in the field also
 saves trips back to the fountain (map_time: each item's real fountain saving on holders, TRIP_S).
 Healbane's cut runs at the real heal-prevented rate (healbane_landing, sim/scripts/sustain/fit_healbane.py).
-Not counted: team heals and team auras, vision, souls from farming (Monster Rounds), objective damage.
+Team value (2026-10-24, the real win check found Heroic Aura, Mystic Reverb... never picked while winning): real
+Phantom+ fights are rarely 1v1 (sim/data/team_value.json "positions", fit from 1 s match positions by
+sim/scripts/team/fit_team.py: at 27k a fighting hero has 1.5 teammates within 35 m and 0.4 other enemies within 16 m
+of its target). So
+- area items also hit the other enemies near their centre: their damage in the duel x the real mean number of other
+  enemies within their radius of the target (Mystic Reverb, Alchemical Fire, Tesla Bullets, Capacitor) or of the
+  holder (Scourge, Torment Pulse, Cold Front, Arctic Blast) is added to the damage dealt (AREA_ITEMS); Ricochet and
+  Split Shot hit them through the duel's Mechanics.extra_targets (other enemies within Ricochet's 13 m). Hero
+  abilities are left alone: their landing factors were fitted to real damage, which already counts every target;
+- ally items (auras, ally heals and barriers) multiply the score by 1 + their team-only value per teammate in reach
+  (sim/scripts/team/team_value.py: 3v3 fights with and without what reaches teammates, as a share of the holder's
+  own damage) x the real number of teammates in reach (team_value).
+Not counted: vision, souls from farming (Monster Rounds), objective damage, debuffs from area items on the other
+enemies.
 
 Real win edge (Tyler 2026-10-24, "blend win edge into score"): the score is also multiplied by
 exp(WIN_K x the sum of the held items' real win edges on this hero) / the popular build's (win_value). Edge = win-rate
@@ -89,6 +102,77 @@ WIN_EDGE = os.path.join(ROOT, "..", "analysis", "out", "hero_item_edge.json")
 WIN_K = 0.05
 WIN_CAP = 4.0   # points
 _win = None
+
+
+TEAM_PATH = os.path.join(ROOT, "..", "sim", "data", "team_value.json")
+_team = None
+# area items: item -> (centre, radius m). "target": the hit lands around the holder's target (other enemies within
+# the radius of it); "self": around the holder. Ricochet's bounce radius sets the duel's extra_targets.
+AREA_ITEMS = {
+    "Mystic Reverb": ("target", 16), "Alchemical Fire": ("target", 10), "Tesla Bullets": ("target", 8),
+    "Capacitor": ("target", 10), "Scourge": ("self", 10), "Torment Pulse": ("self", 9), "Cold Front": ("self", 10),
+    "Arctic Blast": ("self", 16),
+}
+RICOCHET_RADIUS = 13
+
+
+def team_data():
+    global _team
+    if _team is None:
+        with open(TEAM_PATH) as f:
+            _team = json.load(f)
+    return _team
+
+
+def near(kind, radius, souls):
+    """Real mean count in a Phantom+ fight second (team_value.json positions): kind "extra" = other enemies within
+    radius m of the target, "extra_self" = of the holder, "allies" = teammates within radius m, "any_ally" = share of
+    seconds with a teammate within radius m. Linear in the radius, log-linear in net worth between budget bins."""
+    pos = team_data()["positions"]
+    radii = pos["radii_m"]
+
+    def at(row):
+        tab = row[kind]
+        r = max(radii[0], min(radii[-1], radius))
+        hi = next(x for x in radii if x >= r)
+        lo = max(x for x in radii if x <= r)
+        if hi == lo:
+            return tab[str(lo)]
+        return tab[str(lo)] + (tab[str(hi)] - tab[str(lo)]) * (r - lo) / (hi - lo)
+
+    bins = sorted(int(b) for b in pos["budgets"] if b != "all")
+    s = max(bins[0], min(bins[-1], souls))
+    hi = next(b for b in bins if b >= s)
+    lo = max(b for b in bins if b <= s)
+    if hi == lo:
+        return at(pos["budgets"][str(lo)])
+    w = math.log(s / lo) / math.log(hi / lo)
+    return at(pos["budgets"][str(lo)]) * (1 - w) + at(pos["budgets"][str(hi)]) * w
+
+
+def area_damage(r, souls):
+    """Damage the duel's area items (AREA_ITEMS) and splash (Ricochet, Split Shot) deal to the other enemies."""
+    by = r.get("damage_by_source", {})
+    extra = sum(by.get(name, 0.0) * near("extra" if c == "target" else "extra_self", rad, souls)
+                for name, (c, rad) in AREA_ITEMS.items())
+    return extra + r.get("splash_dealt", 0.0)
+
+
+def team_value(items, souls):
+    """1 + the held ally items' team-only value (share of the holder's damage it gives teammates, per teammate in the
+    3v3) x real teammates in reach / the 3v3's (team_value.json items). Negative fits (noise) count 0."""
+    vals = team_data().get("items", {}).get("values", {})
+    g = S.G()
+    v = 1.0
+    for i in set(items):
+        spec = vals.get(g.item(i).name)
+        if not spec:
+            continue
+        bud = spec["budgets"]
+        b = min(bud, key=lambda k: abs(math.log(int(k) / souls)))
+        kind = {"allies": "allies", "any": "any_ally", "enemies": "extra_self"}[spec["reach"]]
+        v += max(0.0, bud[b]["value"]) * near(kind, spec["radius_m"], souls) / spec["reach_sim"]
+    return v
 
 
 def win_value(items, hero):
@@ -185,8 +269,8 @@ def fight(h, items, oh, oitems, souls, phase=None, start_hp=None):
     sk = dataclasses.replace(skill(h), fight_phase=phase)
     esk = dataclasses.replace(skill(oh), fight_phase=None if phase is None else (phase + 0.5) % 1.0)
     r = survive(h, items, souls, oh, oitems, max_time=MAX_TIME, focus=FOCUS, skill=sk, enemy_skill=esk,
-                start_hp=start_hp)
-    return net_damage(r), r["time_alive"], r["survived"]
+                start_hp=start_hp, extra_targets=near("extra", RICOCHET_RADIUS, souls))
+    return net_damage(r) + area_damage(r, souls), r["time_alive"], r["survived"]
 
 
 # Laning phase (Tyler, 2026-10-21: "in laning phase regen and other sources of healing can be more valuable than pure
@@ -339,8 +423,8 @@ def lane_fight(h, items, oh, oitems, souls, phase=None, start_hp=None):
     hb = healbane_gap_share(items)
     for k in range(LANE_TRADES):
         r = survive(h, items, souls, oh, oitems, max_time=TRADE_S, focus=LANE_FOCUS, skill=sk, enemy_skill=esk,
-                    start_hp=hp, enemy_start_hp=ehp)
-        dmg += net_damage(r)
+                    start_hp=hp, enemy_start_hp=ehp, extra_targets=near("extra", RICOCHET_RADIUS, souls))
+        dmg += net_damage(r) + area_damage(r, souls)
         t += r["time_alive"]
         if not r["survived"]:
             return dmg, t, k / LANE_TRADES
@@ -371,7 +455,7 @@ class Evaluator:
         self.map_pop = map_time(hero, pop, budget, pop)
         for pool in ("S", "F", "F2"):
             self.norm[pool] = max(1.0, self._mean(self._rows(pop, pool), 2)) * movement_value(pop, hero) \
-                * self._map(pop) * win_value(pop, hero)
+                * self._map(pop) * win_value(pop, hero) * team_value(pop, budget)
 
     def _rows(self, items, pool):
         key = (tuple(sorted(items)), pool)
@@ -400,7 +484,8 @@ class Evaluator:
         move = movement_value(items, self.h)
         mt = self._map(items)
         win = win_value(items, self.h)
-        score = dmg * move * mt * win / self.norm[pool]
+        team = team_value(items, self.souls)
+        score = dmg * move * mt * win * team / self.norm[pool]
         if not detail:
             return score
         t = self._mean(rows, 3)
@@ -414,6 +499,7 @@ class Evaluator:
             "movement_value": round(move, 4),
             "map_time": round(mt, 4),   # time on the map vs the popular build (fewer heal trips)
             "win_value": round(win, 4),  # real win-edge factor (win_value), before dividing by the popular build's
+            "team_value": round(team, 4),  # ally items' value to teammates (team_value), same
             "matchups": {str(r[0]): [round(r[2]), round(r[3], 2)] for r in rows},
         }
 
