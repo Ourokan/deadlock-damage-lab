@@ -8,7 +8,8 @@ movement items (their real value is in movement_value already) are skipped.
 
 Prints Pearson / Spearman over every (hero, item) pair, over items that deal damage (kill_weight.json rows) and
 per-item mean sim gain vs mean edge, with the overall score's KILL_WEIGHT as set (--no-kill to turn it off).
-Before the kill weight (2026-10-24): Pearson 0.05 over 16 heroes x 27k/37k (build_win_check.md).
+Earlier ad hoc check: Pearson 0.05 over 16 heroes x 27k/37k (build_win_check.md). This script, all heroes at 27k
+(2026-10-24): all pairs 0.10 without the kill weight, 0.14 with it.
 
 usage: python3 analysis/scripts/sim_vs_win.py [--budgets 27000] [--heroes all] [--workers 4] [--no-kill] [--out FILE]
 """
