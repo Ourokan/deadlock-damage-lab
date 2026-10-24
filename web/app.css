@@ -150,6 +150,7 @@ input[type=number] { font-family: var(--mono); font-variant-numeric: tabular-num
 .resbar .go { color: var(--accent); font: 600 .78rem var(--head); text-transform: uppercase; letter-spacing: .06em; }
 #tab-test { padding-bottom: 56px; }
 .full-note { color: var(--bad); }
+.results.stale .marks, .results.stale .charts, .results.stale #res-build { opacity: .4; }
 
 .charts { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 16px; }
 @media (max-width: 860px) { .charts { grid-template-columns: minmax(0, 1fr); } }

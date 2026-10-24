@@ -91,8 +91,9 @@ function wireShop(prefix, getBuild, onChange) {
 
 function fullNote(prefix) {
   const el = $(prefix === "a" ? "#a-budget" : "#d-build");
+  $$(".full-note").forEach((x) => x.remove());
   el.insertAdjacentHTML("afterend", '<p class="hint full-note">12 items is the most a hero can hold. Remove one first.</p>');
-  const n = el.nextElementSibling; setTimeout(() => n.remove(), 2500);
+  const n = el.nextElementSibling; setTimeout(() => n.remove(), 2500); // a no-op when a newer note already replaced it
 }
 
 // ---------- attacker ----------
@@ -283,6 +284,8 @@ function runTest() {
   if (S.running) { S.again = true; return; }
   const err = checkInputs();
   showErr(err);
+  // the result on screen no longer matches the form: dim it until a run succeeds
+  $("#results").classList.toggle("stale", !!err);
   if (err) { renderResbar(); return; }
   const req = request(), url = shareURL(), id = ++S.runId;
   S.running = true;
@@ -325,8 +328,9 @@ function renderResbar(busy = false) {
   bar.hidden = resultInView || !L || $("#tab-test").hidden;
   if (bar.hidden) return;
   const d = L.res.damage["15s"], dl = delta("15s", true);
-  $("#resbar-v").textContent = busy || S.running ? "Running…" : fmt(d);
-  $("#resbar-d").innerHTML = busy || S.running ? "" : dl;
+  const stale = $("#results").classList.contains("stale");
+  $("#resbar-v").textContent = busy || S.running ? "Running…" : stale ? "–" : fmt(d);
+  $("#resbar-d").innerHTML = busy || S.running ? "" : stale ? '<span class="dl down">fix the input above</span>' : dl;
 }
 
 // change against the previous live run, when the setup differs

@@ -154,10 +154,12 @@ async function testTab(page, where) {
     // a bad number shows a plain message instead of running, and clears once fixed
     await page.fill("#d-hp", "");
     await page.waitForFunction(() => !$("#err").hidden && /max HP/.test($("#err").textContent), null, { timeout: 5000 });
+    if (!(await page.$("#results.stale"))) throw new Error("old result not dimmed while the input is bad");
     n = await runId(page);
     await page.fill("#d-hp", "2700");
     await liveResult(page, n);
     if (!(await page.$eval("#err", (e) => e.hidden))) throw new Error("input error still shown after fixing it");
+    if (await page.$("#results.stale")) throw new Error("result still dimmed after fixing the input");
   });
   await step(page, where, "preset build + enemy hero target", async () => {
     const n = await runId(page);
