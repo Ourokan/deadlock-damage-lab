@@ -187,11 +187,24 @@ class FightSustain(unittest.TestCase):
         pop = [ID["Extra Health"]]
         d = O.entry_deficit(HAZE, pop, 18000)
         r = O.build_stats(HAZE, pop, 18000)
-        want = O.sustain()["entry_hp"]["mid"] * r["max_hp"]
+        q = O.sustain()["entry_deficit_q"]["mid"]
+        want = (1 - sum(q) / len(q)) * r["max_hp"]
         self.assertAlmostEqual(O.entry_hp_start(HAZE, pop, 18000, d), want, places=6)
+        self.assertAlmostEqual(want / r["max_hp"], O.sustain()["entry_hp"]["mid"], delta=0.01)   # the real mean
         heal = pop + [ID["Radiant Regeneration"]]
         rh = O.build_stats(HAZE, heal, 18000)
         self.assertGreater(O.entry_hp_start(HAZE, heal, 18000, d) / rh["max_hp"], want / r["max_hp"])
+
+    def test_extra_gap_healing_only_fills_fights_that_start_short(self):
+        pop = [ID["Extra Health"]]
+        d = O.entry_deficit(HAZE, pop, 18000)
+        r = O.build_stats(HAZE, pop, 18000)
+        missing = r["max_hp"] - O.entry_hp_start(HAZE, pop, 18000, (d[0], d[1] - 1e6))   # endless extra healing
+        self.assertAlmostEqual(missing, 0.0)
+        small = 50.0 / O.sustain()["entry_heal_scale"]["mid"]
+        gain = O.entry_hp_start(HAZE, pop, 18000, (d[0], d[1] - small)) - O.entry_hp_start(HAZE, pop, 18000, d)
+        full = sum(1 for x in d[0] if x <= 0) / len(d[0])
+        self.assertAlmostEqual(gain, 50.0 * (1 - full), delta=50.0 / len(d[0]))   # not in the fights entered full
 
     def test_healbane_heals_on_a_refill_kill(self):
         hb = G.items[ID["Healbane"]]
@@ -233,6 +246,12 @@ class Calibration(unittest.TestCase):
         base = O.map_time(HAZE, pop, 18000, pop)
         self.assertAlmostEqual(base, 1 - O.sustain()["heal_trips_per_min"]["mid"] * O.TRIP_S / 60)
         self.assertGreater(O.map_time(HAZE, pop + [ID["Radiant Regeneration"]], 18000, pop), base)
+        # an item saves the same trips whatever the popular build already heals (no blow-up off a small need)
+        fort, hb = ID["Fortitude"], ID["Healing Booster"]
+        gain_alone = O.map_time(HAZE, pop + [fort], 18000, pop) / base
+        healer = pop + [hb]
+        gain_on_healer = O.map_time(HAZE, healer + [fort], 18000, healer) / O.map_time(HAZE, healer, 18000, healer)
+        self.assertAlmostEqual(gain_alone, gain_on_healer, delta=0.005)   # vitality investment moves max health a bit
         self.assertEqual(O.map_time(HAZE, pop, 6000, pop), 1.0)   # lane: scored by the lane test
 
 
