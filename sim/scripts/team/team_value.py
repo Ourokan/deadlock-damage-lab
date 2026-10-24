@@ -189,14 +189,15 @@ def merge(folder):
     """Write data/team_value.json from the part files of a split refit, the same file one full run writes. Exits 1,
     leaving the file as it is, when an item is missing (a part failed): the overall search then uses the last fit."""
     res = {}
-    for fn in sorted(os.listdir(folder)):
+    parts = sorted(f for f in os.listdir(folder) if f.endswith(".json")) if os.path.isdir(folder) else []
+    for fn in parts:
         with open(os.path.join(folder, fn)) as f:
             res.update(json.load(f))
     missing = [i for i in ALLY_ITEMS if i not in res]
     if missing:
         sys.exit(f"team value parts are missing {', '.join(missing)}; kept the last fit")
     write(res)
-    print(f"team values merged from {len(os.listdir(folder))} parts")
+    print(f"team values merged from {len(parts)} parts")
 
 
 def write(res):

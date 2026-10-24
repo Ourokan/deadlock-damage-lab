@@ -207,3 +207,40 @@ assert CP.decide(_state, "h", [{"title": "10-23-2026 Update"}], _today, request=
 CP.REQUEST = _req
 shutil.rmtree(_tmp)
 print("rerun request ok")
+
+# the patch rerun's team value refit: one machine per ally item, and the merged parts write the file one full run writes
+sys.path.insert(0, os.path.join(ROOT, "sim", "scripts", "team"))
+import team_value as TV  # noqa: E402
+import re  # noqa: E402
+with open(os.path.join(ROOT, ".github", "workflows", "patch-rerun.yml")) as _f:
+    _wf = _f.read()
+_parts = json.loads(re.search(r"^\s+part: (\[[\d, ]*\])", _wf, re.M).group(1))   # the team job's matrix
+assert _parts == list(range(len(TV.ALLY_ITEMS))), (_parts, len(TV.ALLY_ITEMS))
+assert re.findall(r"--part \S+ --of (\d+)", _wf) == [str(len(TV.ALLY_ITEMS))], "team job --of != ALLY_ITEMS"
+_tmp = tempfile.mkdtemp()
+_out, TV.OUT = TV.OUT, os.path.join(_tmp, "team_value.json")
+_res = {i: {"10000": {"value": k / 10, "se": 0.01, "swing_on": 1.0, "swing_off": 0.5, "holder_damage": 9.0,
+                      "fights": 8}} for k, i in enumerate(TV.ALLY_ITEMS)}
+shutil.copy(_out, TV.OUT)
+TV.write(_res)
+_full = open(TV.OUT).read()
+shutil.copy(_out, TV.OUT)
+os.makedirs(os.path.join(_tmp, "parts"))
+_items = list(TV.ALLY_ITEMS)
+for _k in range(3):
+    json.dump({i: _res[i] for i in _items[_k::3]}, open(os.path.join(_tmp, "parts", f"part_{_k}.json"), "w"))
+open(os.path.join(_tmp, "parts", "notes.txt"), "w").write("not a part")
+TV.merge(os.path.join(_tmp, "parts"))
+assert open(TV.OUT).read() == _full, "merged team values differ from one full run's"
+os.remove(os.path.join(_tmp, "parts", "part_0.json"))
+shutil.copy(_out, TV.OUT)
+for _missing in (os.path.join(_tmp, "parts"), os.path.join(_tmp, "none")):
+    try:
+        TV.merge(_missing)
+        raise AssertionError("merge with a missing part wrote the file")
+    except SystemExit:
+        pass
+assert open(TV.OUT).read() == open(_out).read()   # a missing part keeps the last fit
+TV.OUT = _out
+shutil.rmtree(_tmp)
+print("team value parts ok:", len(_parts))
