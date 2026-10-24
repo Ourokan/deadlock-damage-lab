@@ -86,21 +86,29 @@ WIN_EDGE = os.path.join(ROOT, "..", "analysis", "out", "hero_item_edge.json")
 # score factor per win-rate point of real edge: a +3 point item = x1.16, Decay on most heroes (-3.5) = x0.84, about
 # the sim value Decay adds over a typical spirit item (~0.3-0.5 of the popular build's score at 27k)
 WIN_K = 0.05
+WIN_CAP = 4.0   # points
 _win = None
 
 
 def win_value(items, hero):
-    """exp(WIN_K x sum of the held items' real per-hero win edges, in points); movement items left out (their real
-    value is already in movement_value). 1.0 without data."""
+    """exp(WIN_K x sum of the held items' real per-hero win edges, in points). Only edges clear of their 95% band
+    count, each capped at +-WIN_CAP (the search maximises, so it would chase noisy edges of rare items); movement
+    items are left out (their real value is already in movement_value). The edges are a static snapshot: a warning
+    is printed when its patch differs from data/patch.json."""
     global _win
     if _win is None:
-        try:
-            d = json.load(open(WIN_EDGE))["heroes"]
-        except (OSError, ValueError, KeyError):
-            d = {}
+        with open(WIN_EDGE) as f:
+            d = json.load(f)
+        with open(os.path.join(ROOT, "..", "data", "patch.json")) as f:
+            patch = json.load(f)["patch"]
+        if d["meta"].get("patch") != patch:
+            print(f"warning: {WIN_EDGE} is from patch {d['meta'].get('patch')}, the sim is on {patch}; "
+                  "rerun analysis/scripts/build_win_check.py", file=sys.stderr)
         movement_value((), None)   # loads _move
         moving = _move[2] | {i for row in _move[3].values() for i in row}
-        _win = {int(h): {int(i): v[0] for i, v in row.items() if int(i) not in moving} for h, row in d.items()}
+        _win = {int(h): {int(i): max(-WIN_CAP, min(WIN_CAP, v[0])) for i, v in row.items()
+                         if int(i) not in moving and abs(v[0]) > 1.96 * v[1]}
+                for h, row in d["heroes"].items()}
     row = _win.get(int(hero), {})
     return math.exp(WIN_K * sum(row.get(i, 0.0) for i in set(items)))
 

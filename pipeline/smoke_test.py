@@ -79,6 +79,11 @@ assert ev._map(pop + [ids["Radiant Regeneration"]]) > 1.0
 want = m / O.movement_value(pop)   # same damage: only movement and heal trips differ
 assert abs(ev.run(pop) - 1.0) < 1e-9 and abs(ev.run(pop[2:]) - want) < 1e-9, ev.run(pop)
 S.popular_build = _popular
+# real win-edge blend (overall_search.win_value): neutral without items, movement items left out, capped per item
+haze = G.hero("Haze").id
+assert O.win_value([], haze) == 1.0 and O.win_value([ids["Stalker"]], haze) == 1.0
+assert O.win_value([ids["Decay"]], haze) < 1.0, O.win_value([ids["Decay"]], haze)
+assert all(abs(v) <= O.WIN_CAP for row in O._win.values() for v in row.values())
 print("movement weights ok: Stalker", round(st, 4), "four top items", round(O.movement_value(top), 4))
 
 # what changed between reruns (pipeline/changes.py): items in/out per hero and net worth, small moves dropped
