@@ -2,8 +2,9 @@
 item holders arrive as much fuller as real Phantom+ holders do: model entry health gain of popular build + item vs
 the popular build (HEROES, one budget per phase) against the matched holder vs non-holder entry health difference
 (analysis/out/sustain_real.json entry.<phase>.holders, from fit_sustain.py). One scale per phase, weighted least
-squares over the field-heal items but Fortitude; then Fortitude's own restore scale (its RestoreDelay needs time
-without any damage: creeps and troopers reset it), so the biggest item doesn't set everyone's scale. Writes
+squares over the field-heal items but Fortitude; then Fortitude's own restore scale, so the biggest item doesn't set
+everyone's scale. Fortitude's scale multiplies its restore on top of the phase scale: late 1.95 x 0.15 = 0.29 of its
+ideal restore (its RestoreDelay needs time without any damage: creeps and troopers reset it), mid 0.6 x 0.75 = 0.45. Writes
 entry_heal_scale and fortitude_heal_scale into sim/data/sustain.json.
 
 Before this fit (2026-10-24) Fortitude came out +8.1 points of health at mid game fight entry vs +6.0 real and +6.3
@@ -55,7 +56,7 @@ def gains(ph, scale, fort=1.0):
 
 def grid(ph, rows, scale=None):
     best = None
-    for k in range(5, 201, 5):
+    for k in range(5, 401, 5):
         if scale is None and k > 100:
             break
         g = gains(ph, k / 100) if scale is None else gains(ph, scale, k / 100)
