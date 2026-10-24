@@ -37,7 +37,7 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.insert(0, ROOT)
 from deadsim import Loadout, Skill, duel, game  # noqa: E402
 from deadsim.abilities import load_heroes  # noqa: E402
-from deadsim.accuracy import HEADS, HITS, SHOTS, ability_landing, default_distance, gun_calibration  # noqa: E402
+from deadsim.accuracy import HEADS, HITS, SHOTS, ability_landing, default_distance, gun_calibrated, gun_calibration  # noqa: E402
 import deadsim.mechanics as MECH  # noqa: E402
 
 CATEGORY = {"Bullet", "Ability", "Melee", "Misc"}   # per-damage-type totals in the matrix, not sources
@@ -108,14 +108,14 @@ def current_landing(hero_id):
 def gun_known(p):
     """Enough real gun data to fit against: API hero hits, or a hero whose gun records none but has a replay-fitted
     accuracy (Graves, Deadman Danny: data/gun_calibration.json)."""
-    return p["custom"].get(HITS, 0) >= MIN_HITS or str(p["hero_id"]) in gun_calibration()
+    return p["custom"].get(HITS, 0) >= MIN_HITS or gun_calibrated(p["hero_id"])
 
 
 def skill_of(p):
     c = p["custom"]
     shots, hits = c.get(SHOTS, 0), c.get(HITS, 0)
     rate = MELEE.get(p["hero_id"], MELEE_START)
-    cal = gun_calibration().get(str(p["hero_id"]))
+    cal = gun_calibration().get(str(p["hero_id"])) if gun_calibrated(p["hero_id"]) else None
     if cal:   # the match stats' shots/hits for this gun are missing or partial
         sk = Skill(accuracy=cal["accuracy"]["p50"], headshot=cal["headshot"]["p50"], melee_rate=rate)
     elif shots < 300:

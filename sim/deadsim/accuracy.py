@@ -266,8 +266,20 @@ def zone_exit_time(badge=None):
 
 
 def gun_calibrated(hero_id):
-    """True if this hero's aim comes from the replay calibration (its match stats have no usable gun accuracy)."""
-    return str(hero_id) in gun_calibration()
+    """True if this hero's aim comes from the replay calibration: its match stats have no usable gun accuracy, so
+    data/skill_defaults.json has no row for it (a row there, once the API records the gun, takes precedence
+    everywhere: hero_default_skill, default_distance, player_skill and the fits)."""
+    return str(hero_id) in gun_calibration() and str(hero_id) not in _defaults()["heroes"]
+
+
+_defaults_cache = None
+
+
+def _defaults():
+    global _defaults_cache
+    if _defaults_cache is None:
+        _defaults_cache = json.load(open(DEFAULTS))
+    return _defaults_cache
 
 
 def _aim_row(d, h):

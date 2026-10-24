@@ -522,6 +522,10 @@ replays instead (Deadlock API demo queries, 70 matches of Oct 20-24 with one of 
   reloads), so reload downtime stays the data gun's. Any headshot bonus is inside the factor.
 - **Graves' tether** only attaches within MaxRange 20 m (the gun's own data): beyond it the sim's gun deals nothing
   (`Stats.gun_range_m` in `falloff`). The fit's accuracy includes his untethered shots inside fights.
+- **Patches:** the file records the gun it was fitted on (`fit_weapon`). If a patch changes either gun, the old fit
+  keeps running and `build.gun_quirks` warns once per hero. Patch reruns can't refit, because that needs live
+  replay queries: rerun `fetch_guns.py`, `gun_stats.py` and `fit_guns.py --write` by hand, then
+  `refit_landing_heroes.py` for both heroes.
 - **Cross-check:** a second, independent estimate (gun base damage per second of fighting over the gun's damage per
   second, scaled on the references) gives 0.51 for Graves and 0.27 for Danny, close to the shot-based 0.46 / 0.28.
   It is not used for the fit: its scale runs 0.5-2.3 between reference heroes (how much of a fight each spends

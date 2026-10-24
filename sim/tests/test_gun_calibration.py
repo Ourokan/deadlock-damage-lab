@@ -56,16 +56,19 @@ class GunCalibration(unittest.TestCase):
             gun = sum(v for k, v in r.a_dmg.items() if k in ("gun", "Gun", "GUN") or "weapon" in k.lower())
             self.assertEqual(gun > 0, expect_gun, (dist, dict(r.a_dmg)))
 
-    def test_fit_weapon_matches_current_game_data(self):
-        """The charge factor and accuracy were fitted on these gun numbers: a patch that moves them needs a refit
-        (python3 scripts/gun_calib/fit_guns.py ... --write after fetch_guns.py / gun_stats.py)."""
-        for hid, row in gun_calibration().items():
-            w = G.heroes[int(hid)].weapon
-            fit = row["fit_weapon"]
-            for k in ("bullet_damage", "cycle_time", "clip_size"):
-                self.assertEqual(w[k], fit[k], (row["name"], k))
-            if row.get("tether_range_m") is not None:
-                self.assertEqual(row["tether_range_m"], fit["max_range_m"], row["name"])
+    def test_gun_drift_warns_instead_of_failing(self):
+        """A patch that moves either gun keeps the old fit running (patch reruns can't refit: that needs live replay
+        queries) but warns once per hero, naming the refit (scripts/gun_calib)."""
+        import warnings
+        import deadsim.build as B
+        h = G.hero("Deadman Danny")
+        with mock.patch.dict(h.weapon, {"bullet_damage": h.weapon["bullet_damage"] + 1}), \
+                mock.patch.object(B, "_warned", set()), warnings.catch_warnings(record=True) as got:
+            warnings.simplefilter("always")
+            cf, _ = B.gun_quirks(h.id)
+            B.gun_quirks(h.id)
+        self.assertEqual(cf, gun_calibration()[str(h.id)]["charge_factor"])
+        self.assertEqual(len([x for x in got if "gun_calib" in str(x.message)]), 1)
 
     def test_calibrated_players_are_fitted(self):
         """landing_rates.gun_known keeps Graves/Danny players (no API hero hits) in the ability, item and audit fits."""
