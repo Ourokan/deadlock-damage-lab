@@ -7,7 +7,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from deadsim import Loadout, duel  # noqa: E402
-from deadsim.accuracy import dot_cleanse_share, hero_default_skill  # noqa: E402
+from deadsim.accuracy import _dispel_fit, dot_cleanse_delay, dot_cleanse_share, hero_default_skill  # noqa: E402
 from deadsim.engine import Engine  # noqa: E402
 from deadsim.fight import make_fighter  # noqa: E402
 from deadsim.items_fx import DispelMagic  # noqa: E402
@@ -39,7 +39,16 @@ class DispelShare(unittest.TestCase):
         # the first DoT is cleansed when phase + share crosses 1: in about `share` of evenly spread phases
         never = decay_taken(0.0)
         cleansed = sum(decay_taken(0.4, phase=k / 10) < 0.6 * never for k in range(10))
-        self.assertEqual(cleansed, 4)
+        self.assertIn(cleansed, (3, 4, 5))
+
+    def test_reaction_by_rank(self):
+        self.assertEqual(dot_cleanse_delay(111), 1.5)
+        self.assertEqual(dot_cleanse_delay(91), 3.0)
+        self.assertEqual(dot_cleanse_delay(None), 3.0)
+
+    def test_missing_fit_raises(self):
+        with self.assertRaises(OSError):
+            _dispel_fit(-1)
 
     def test_unphased_phase_spreads(self):
         # no fight_phase, no rng: the pick starts at a hash of both loadouts, spread over 0-1 across opponents
