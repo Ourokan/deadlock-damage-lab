@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-24T09:50:00Z",
- "reason": "Gravestone break scales zombie damage instead of rounding spawns (summons follow-up to #38/#39)"
+ "requested_at": "2026-10-24T13:05:00Z",
+ "reason": "Real healing data read right-aligned (late-game item healing was ~0), Healbane refit, Celeste prism before ult"
 }

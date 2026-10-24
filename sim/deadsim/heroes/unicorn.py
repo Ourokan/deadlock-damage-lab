@@ -4,7 +4,10 @@ Assumptions:
 - Light Eater: the cone always hits (10 m cone, fight at 12-15 m). For AbilityDuration, Celeste's gun hits on the
   target deal the listed Damage as spirit damage, at most once per TickRate. The hero spirit lifesteal is a buff
   for the same window. AbilityDuration scales with spirit power (data) and ability duration items.
-- Dazzling Trick: cast when Celeste has lost over 10% health. If the prism barrier breaks before MaxLifetime, the
+- Dazzling Trick: cast when Celeste has lost over 10% health, by DAZZLE_BY_S into the fight anyway (Phantom+
+  replays: median first cast 2.56 s), and with T3 right before Shining Wonder so the orb can bounce off the prism.
+  A health trigger alone made a Celeste who arrives at full health cast her ult without the prism (a quarter of
+  the ult damage), so healing items cost her damage. If the prism barrier breaks before MaxLifetime, the
   foe is silenced and takes BarrierDamagePercentage of the barrier as spirit damage, if within ExplodeRadius.
 - Radiant Daggers: ground-targeted, so it is a skillshot that lands after cast delay + PreExplosionDuration.
   Each expected hit adds a stack (spirit_accuracy of a stack) after BuffDelay. +MagicIncreasePerStack% spirit
@@ -17,6 +20,7 @@ from deadsim.abilities import AbilityImpl, register
 
 ORB_ROUNDTRIP = 1.0   # s for the ult orb to bounce prism -> enemy (not in data)
 DAZZLE_HP_TRIGGER = 0.9
+DAZZLE_BY_S = 2.5
 
 
 # ---- Celeste ---------------------------------------------------------------------------------------------
@@ -53,7 +57,14 @@ class DazzlingTrick(AbilityImpl):
         c.state.update(entry=None, popped=True)
 
     def should_cast(self, c):
-        return c.foe.alive and c.me.hp_frac < DAZZLE_HP_TRIGGER
+        return c.foe.alive and (c.me.hp_frac < DAZZLE_HP_TRIGGER or c.now >= DAZZLE_BY_S or self.ult_next(c))
+
+    def ult_next(self, c):
+        """T3 lets Shining Wonder bounce off the prism: put the prism up when the ult is ready to go."""
+        if c.tier < 3:
+            return False
+        return any(ab.ab.class_name == "ability_unicorn_dazzlingorb" and ab.unlocked and ab.ready_at <= c.now
+                   for ab in c.me.abilities)
 
     def cast(self, c):
         amt = c.val("CombatBarrier")

@@ -1,40 +1,40 @@
 {
  "source": "400 Phantom+ replays (sim/scripts/sustain/fit_sustain.py)",
  "pickup_hp_per_min": {
-  "lane": 153.8,
-  "mid": 112.4,
-  "late": 114.3
+  "lane": 150.6,
+  "mid": 113.7,
+  "late": 115.0
  },
  "farm_heal_hp_per_min": {
   "Radiant Regeneration": {
-   "lane": 344.6,
-   "mid": 344.6,
-   "late": 100.7
+   "lane": 388.0,
+   "mid": 388.0,
+   "late": 475.3
   },
   "Mystic Regeneration": {
-   "lane": 49.1,
-   "mid": 45.4,
-   "late": 48.7
+   "lane": 83.8,
+   "mid": 57.0,
+   "late": 69.8
   },
   "Restorative Shot": {
-   "lane": 81.3,
-   "mid": 48.9,
-   "late": 40.0
+   "lane": 82.5,
+   "mid": 49.5,
+   "late": 42.3
   },
   "Healing Rite": {
-   "lane": 79.5,
-   "mid": 49.9,
-   "late": 15.1
+   "lane": 81.2,
+   "mid": 67.0,
+   "late": 34.5
   },
   "Spirit Lifesteal": {
-   "lane": 69.4,
-   "mid": 69.4,
-   "late": 8.8
+   "lane": 153.3,
+   "mid": 153.3,
+   "late": 184.4
   },
   "Bullet Lifesteal": {
-   "lane": 69.2,
-   "mid": 69.2,
-   "late": 1.7
+   "lane": 166.9,
+   "mid": 166.9,
+   "late": 189.2
   }
  },
  "entry_hp": {
@@ -53,55 +53,55 @@
   "late": 0.331
  },
  "fountain_hp_per_min": {
-  "lane": 121.2,
-  "mid": 98.3,
-  "late": 56.6
+  "lane": 37.5,
+  "mid": 102.5,
+  "late": 169.2
  },
- "fountain_pass": 0.0843,
+ "fountain_pass": 0.1287,
  "field_heal_hp_per_min": {
   "Healing Booster": {
-   "mid": 57.0,
-   "late": 8.0
+   "mid": 107.5,
+   "late": 88.8
   },
   "Radiant Regeneration": {
-   "mid": 344.6,
-   "late": 100.7
+   "mid": 388.0,
+   "late": 475.3
   },
   "Restorative Shot": {
-   "mid": 48.9,
-   "late": 40.0
+   "mid": 49.5,
+   "late": 42.3
   },
   "Extra Regen": {
-   "mid": 99.0,
-   "late": 72.1
+   "mid": 108.2,
+   "late": 85.2
   },
   "Fortitude": {
-   "mid": 136.9,
-   "late": 16.3
+   "mid": 323.3,
+   "late": 304.2
   },
   "Spirit Lifesteal": {
-   "mid": 69.4,
-   "late": 8.8
+   "mid": 153.3,
+   "late": 184.4
   },
   "Bullet Lifesteal": {
-   "mid": 69.2,
-   "late": 1.7
+   "mid": 166.9,
+   "late": 189.2
   },
   "Mystic Regeneration": {
-   "mid": 45.4,
+   "mid": 57.0,
    "late": 0.0
   },
   "Healing Rite": {
-   "mid": 49.9,
+   "mid": 67.0,
    "late": 0.0
   }
  },
  "trip_deficit": 0.26,
  "heal_trips_per_min": {
   "mid": 0.194,
-  "late": 0.112
+  "late": 0.194
  },
- "healbane_prevented_per_combat_s": 2.09,
- "healbane_landing": 0.324,
- "healbane_landing_real": 2.09
+ "healbane_prevented_per_combat_s": 3.33,
+ "healbane_landing": 0.516,
+ "healbane_landing_real": 3.33
 }

@@ -35,6 +35,31 @@ class StartHealth(unittest.TestCase):
         self.assertLess(hurt["time_alive"], full["time_alive"])
 
 
+class FullHealthEntry(unittest.TestCase):
+    def test_celeste_full_health_keeps_the_prism_ult_combo(self):
+        # Dazzling Trick used to wait for 10% health lost, so a Celeste who arrived at full health (healing items)
+        # cast Shining Wonder without the prism to bounce off and dealt less damage than a hurt one
+        c = G.hero("Celeste").id
+        full = survive(c, [], 37000, HAZE, [], max_time=30.0)
+        hurt = survive(c, [], 37000, HAZE, [], max_time=30.0, start_hp=0.85 * full["max_hp"])
+        self.assertGreaterEqual(full["damage_dealt"], 0.99 * hurt["damage_dealt"])
+
+    def _trick(self, now=0.0, hp=1.0, tier=3, ult_ready=True):
+        from types import SimpleNamespace as NS
+        from deadsim.heroes import unicorn
+        ult = NS(ab=NS(class_name="ability_unicorn_dazzlingorb"), unlocked=True, ready_at=0.0 if ult_ready else 99.0)
+        c = NS(now=now, tier=tier, foe=NS(alive=True), me=NS(hp_frac=hp, abilities=[ult]))
+        return unicorn.DazzlingTrick.should_cast(unicorn.DazzlingTrick.__new__(unicorn.DazzlingTrick), c)
+
+    def test_celeste_trick_triggers(self):
+        self.assertTrue(self._trick(hp=0.85, tier=1, ult_ready=False))          # hurt
+        self.assertTrue(self._trick(now=2.5, tier=1, ult_ready=False))          # by DAZZLE_BY_S
+        self.assertFalse(self._trick(now=2.4, tier=1, ult_ready=False))         # full health, early, no T3
+        self.assertTrue(self._trick(tier=3))                                    # T3: prism before a ready ult
+        self.assertFalse(self._trick(tier=2))                                   # below T3 the ult doesn't pull it
+        self.assertFalse(self._trick(tier=3, ult_ready=False))
+
+
 NO_PICKUPS = {"pickup_hp_per_min": {"lane": 0.0, "mid": 0.0, "late": 0.0}, "farm_heal_hp_per_min": {},
               "entry_hp": {"lane": 1.0, "mid": 1.0, "late": 1.0}, "gap_s": {"lane": 20, "mid": 25, "late": 25}}
 
@@ -232,5 +257,14 @@ class Mix(unittest.TestCase):
         self.assertAlmostEqual(m.run([]), 0.25 * 2.0 + 0.75 * 1.0)
 
 
+class DamageMatrixAlignment(unittest.TestCase):
+    def test_arrays_are_right_aligned(self):
+        from deadsim.dmatrix import win
+        s = [5, 8]          # a source that starts in sample window 2 of 4 (an item bought mid game)
+        self.assertEqual([win(s, k, 4) for k in range(4)], [0, 0, 5, 3])
+        self.assertEqual(win([1, 2, 4, 7], 3, 4), 3)    # full-length array
+
+
 if __name__ == "__main__":
     unittest.main()
+
