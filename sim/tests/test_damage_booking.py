@@ -99,6 +99,49 @@ class KineticCarbine(unittest.TestCase):
                  distance=10.0, max_time=4.0, mechanics=Mechanics(range_drift=False))
         return r.a_dmg.get("Kinetic Carbine", 0)
 
+    def test_charge_time_and_hit_size(self):
+        """Hit after MaxChargeDuration (2.5 s); the early hit is near the replays' 96 (0-5 min, after resists)."""
+        from deadsim import engine
+        seen = []
+        orig = engine.Engine.damage
+
+        def rec(self, src, dst, raw, kind, source, *a, **k):
+            r = orig(self, src, dst, raw, kind, source, *a, **k)
+            if source == "Kinetic Carbine" and r:
+                seen.append((self.t, raw))
+            return r
+        engine.Engine.damage = rec
+        try:
+            self.carbine_hit(1000)
+        finally:
+            engine.Engine.damage = orig
+        self.assertTrue(seen)
+        cast = [t for t, _ in seen][0]
+        self.assertGreaterEqual(cast, 2.5 - 1e-6)
+        self.assertLess(cast, 3.0)
+        self.assertGreater(seen[0][1], 100)    # 5 + 125 x growth x (1 + weapon bonus), before resists
+        self.assertLess(seen[0][1], 170)
+
+    def test_time_wall_bonus_is_shoot_through_share(self):
+        import deadsim.heroes.chrono as C
+        aim = Skill(accuracy=0.0, headshot=0.0, spirit_accuracy=1.0, use_abilities=True, use_actives=False)
+        from deadsim import engine
+        best = [0.0]
+        orig = engine.Engine.fire
+
+        def fire(self, f):
+            if f.name.endswith("(A)"):
+                best[0] = max(best[0], f.mods.sum("weapon_pct"))
+            return orig(self, f)
+        engine.Engine.fire = fire
+        try:
+            duel(Loadout("Paradox", [], souls=3000, skill=aim, unlocked=[False, True, False, False]),
+                 Loadout("Abrams", [], souls=3000, skill=Skill(accuracy=0.0, use_abilities=False)),
+                 distance=10.0, max_time=6.0, mechanics=Mechanics(range_drift=False))
+        finally:
+            engine.Engine.fire = orig
+        self.assertAlmostEqual(best[0], 0.30 * C.TIMEWALL_SHOOT_THROUGH, places=6)
+
     def test_hit_grows_with_level_bullet_damage(self):
         """Replays: a Carbine hit stays 10-17x a gun hit all match (96 at 0-5 min, ~470 at 20-30 min)."""
         early, late = self.carbine_hit(1000), self.carbine_hit(30000)
