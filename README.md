@@ -48,7 +48,8 @@ the opponent pools, then reruns the searches one rank tier at a time (`.github/w
 order of `pipeline/tiers.json`: Phantom and up first, then Ascendant and up, Eternus and up, and all ranks. Phantom
 and up is the standard (`build_pool.PRIMARY`): its tier runs the damage, item buy order, ability order, survival, duel, overall and full game path
 searches and the counter-item values (`counters/scripts/sim_counters.py`); the later tiers run the duel, overall and full game path searches in their bracket. Each tier runs on 16 machines
-(`pipeline/run_shard.py --tier`), checks it finished (`pipeline/check_results.py --tier`), commits the new `out/`
+(`pipeline/run_shard.py --tier`; jobs are split by hero and budget using each job's time in the last rerun,
+`pipeline/unit_costs.json`, so the machines finish together), checks it finished (`pipeline/check_results.py --tier`), commits the new `out/`
 folders, game data and `data/patch.json` to `main` and redeploys the site before the next tier starts, so the
 standard results show up first. Only tiers listed in `enabled` run (for now just Phantom and up); the others keep
 their last published results, and the site says which run they come from. If a tier fails, nothing is committed for
