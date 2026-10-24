@@ -160,3 +160,50 @@ assert _n == {"damage": len(_ids) * _nb, "buy_order": len(_ids), "skill_order": 
               "path": len(_ids)}, _n
 assert all(str(u.hero) in u.cmd and (u.budget is None or str(u.budget) in u.cmd) for u in _all)
 print(f"rerun split ok: {len(_all)} jobs on 16 machines, slowest about {max(_est) / 60:.0f} min")
+
+# the shard scheduler: a job starts only after the jobs it reads, a failing job gets one retry, and a job that still
+# fails is reported without holding back the jobs waiting on it
+_tmp = tempfile.mkdtemp()
+_log = os.path.join(_tmp, "log")
+
+
+def _u(name, code):
+    u = RS.Unit(name, name, 1, None, [sys.executable, "-c", f"open({_log!r}, 'a').write({name!r} + '\\n'); {code}"], 1)
+    return u
+
+
+_a, _b, _c = _u("a", "pass"), _u("b", "raise SystemExit(1)"), _u("c", "pass")
+_c.deps = [_a, _b]
+for _x in (_a, _b, _c):
+    _x.after = [_c] if _x is not _c else []
+    RS.chain(_x)
+_secs, _failed = RS.run([_c, _b, _a], 2)
+_order = open(_log).read().split()
+assert _failed == [_b] and _order.count("b") == 2 and _order[-1] == "c" and set(_secs) == {_a, _b, _c}, (_order, _failed)
+shutil.rmtree(_tmp)
+print("rerun scheduler ok")
+
+# check_patch.pending_request: a rerun request newer than the results reruns once, for 2 days, and never crashes
+import datetime  # noqa: E402
+import check_patch as CP  # noqa: E402
+_tmp = tempfile.mkdtemp()
+CP.REQUEST, _req = os.path.join(_tmp, "rerun_request.json"), CP.REQUEST
+_now = datetime.datetime(2026, 10, 24, 19, 0, tzinfo=datetime.timezone.utc)
+_st = {"results_built": "2026-10-24T15:00:00Z"}
+assert CP.pending_request(_st, _now) is None   # no file
+open(CP.REQUEST, "w").write("{not json")
+assert CP.pending_request(_st, _now) is None   # malformed
+json.dump({"requested_at": "2026-10-24T18:30:00Z", "reason": "fix"}, open(CP.REQUEST, "w"))
+assert CP.pending_request(_st, _now) == "fix"   # newer than the results
+assert CP.pending_request({"results_built": "2026-10-24T18:45:00Z"}, _now) is None   # already rerun
+assert CP.pending_request({}, _now) is None   # results never built
+assert CP.pending_request(_st, _now + datetime.timedelta(days=2, hours=1)) is None   # over 2 days old
+_state = {"patch": "09-29-2026", "patch_start": "2026-09-30", "builds_through": "2026-10-23", "game_hash": "h",
+          "standard": RS.PRIMARY}
+_today = datetime.date(2026, 10, 24)
+assert CP.decide(_state, "h", [], _today, request="fix")[:2] == ("rerun", "rerun requested: fix")
+assert CP.decide(_state, "h", [], _today)[0] == "none"
+assert CP.decide(_state, "h", [{"title": "10-23-2026 Update"}], _today, request="fix")[0] == "wait"   # new patch waits
+CP.REQUEST = _req
+shutil.rmtree(_tmp)
+print("rerun request ok")

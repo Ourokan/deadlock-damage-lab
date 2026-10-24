@@ -179,7 +179,7 @@ def main():
               "units": {}, "planned_s": round(est[a.shard]), "wall_s": round(time.time() - t0)}
     for u in mine:
         report["steps"][u.name] = report["steps"].get(u.name, 0) + round(seconds.get(u, 0))
-        if not a.budgets and not a.heroes:   # a quick test's times aren't a full rerun's
+        if not a.budgets and not a.heroes and u not in failed:   # a quick test's or a crash's time isn't a job's
             report["units"].setdefault(u.step, {})[u.key] = round(seconds.get(u, 0), 1)
     for u in failed:
         if u.hero not in report["failed"].setdefault(u.name, []):
