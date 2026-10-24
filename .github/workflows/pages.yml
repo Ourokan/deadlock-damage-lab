@@ -22,6 +22,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,7 +46,7 @@ jobs:
           for i in 1 2; do npm install --prefix web/tests --no-package-lock && break; [ $i = 2 ] && exit 1; sleep 20; done
           for i in 1 2; do (cd web/tests && npx playwright install --with-deps chromium) && break; [ $i = 2 ] && exit 1; sleep 20; done
           # a second try only here: a real break fails twice, a runner hiccup shouldn't hold back rerun results
-          node web/tests/browser_test.cjs || node web/tests/browser_test.cjs
+          node web/tests/browser_test.cjs || { echo "::warning::Browser test failed once, retrying"; node web/tests/browser_test.cjs; }
           rm -rf web/tests
       - name: Drop preview-only files
         run: rm -f web/artifact.html web/py/*.b64.txt web/vendor/pyodide/*.b64.txt
