@@ -104,6 +104,17 @@ class TestSummons(unittest.TestCase):
         self.assertEqual(broken.a_summons_out["graves_stone"][1], 1)
         self.assertLess(broken.a_dmg.get("Borrowed Decree (zombie)", 0.0), standing.a_dmg.get("Borrowed Decree (zombie)", 0.0))
 
+    def test_gravestone_break_is_expected_value(self):
+        rows = {k: dict(v) for k, v in M.summon_targeting().items()}
+        for v in rows.values():
+            v.update(focus=0.0, splash=0.0)
+        dmg = []
+        for p in (0.0, 0.5, 1.0):
+            rows["graves_stone"].update(break_p=p, break_s=1.0)
+            dmg.append(self.graves(None, rows).a_dmg.get("Borrowed Decree (zombie)", 0.0))
+        self.assertGreater(dmg[0], dmg[1])   # p = 0.5 is half way, not an always-break
+        self.assertGreater(dmg[1], dmg[2])
+
     def test_splash_hits_summons(self):
         a = Loadout("McGinnis", [], souls=15000, skill=Skill(accuracy=0.0, use_actives=False),
                     unlocked=[True, False, False, False])
