@@ -61,14 +61,16 @@ def _d(name):
 
 def survive(hero, items, souls, enemy, enemy_items, enemy_souls=None, max_time=60.0, aim="p50", enemy_aim="p50",
             skill: Skill | None = None, enemy_skill: Skill | None = None, distance=None, focus=1.0, start_hp=None,
-            enemy_start_hp=None):
+            enemy_start_hp=None, extra_targets=0.0):
     """start_hp / enemy_start_hp: the fight starts with this much health (lane trades carry health over), else full.
     enemy_healed is the healing the enemy got (it undoes damage dealt), enemy_final_hp its health at the end with
-    each refill counted in enemy_kills."""
+    each refill counted in enemy_kills. extra_targets: other enemy heroes next to the target (Mechanics.extra_targets:
+    Ricochet bounces and Split Shot pellets on them are booked in splash_dealt, not in damage_dealt)."""
     G = game()
     hn, en = G.hero(hero).name, G.hero(enemy).name
     # movement off: running away would count as surviving, which isn't what this search measures
-    mech = dataclasses.replace(mechanics.DEFAULT, movement=False) if mechanics.DEFAULT else None
+    mech = dataclasses.replace(mechanics.DEFAULT, movement=False, extra_targets=extra_targets) \
+        if mechanics.DEFAULT else None
     e = Engine(distance=distance if distance is not None else (_d(hn) + _d(en)) / 2, max_time=max_time, mech=mech)
     me = make_fighter(e, Loadout(hero, list(items), souls=souls, skill=skill or _sk(hn, aim)), "me")
     foe = make_fighter(e, Loadout(enemy, list(enemy_items), souls=enemy_souls or souls,
@@ -93,6 +95,8 @@ def survive(hero, items, souls, enemy, enemy_items, enemy_souls=None, max_time=6
         "damage_taken_by_source": {k: round(v, 1) for k, v in sorted(taken.items(), key=lambda x: -x[1])},
         "healing": round(getattr(me, "healed", 0.0) or 0.0, 1),
         "damage_dealt": round(sum(me.dmg_out.values()), 1),
+        "damage_by_source": {k: round(v, 1) for k, v in me.dmg_out.items() if v},
+        "splash_dealt": round(sum(me.counters.get("splash", {}).values()), 1),
         "regen": me.st.health_regen, "ooc_regen": me.st.ooc_regen, "regen_amp": me.st.heal_amp,
         "heal_amp_cast": me.st.heal_amp_cast,
         "enemy_healed": round(foe.healed, 1),

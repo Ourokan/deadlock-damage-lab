@@ -95,6 +95,13 @@ class TestSupport(unittest.TestCase):
         r = team_fight(a, b)
         self.assertGreater(r.team("A")[1]["barrier_given"], 0)
 
+    def test_allies_off_turns_off_support(self):
+        # team_fight(allies=False) is the baseline team_value.py measures ally items against
+        a = [lo("Haze"), lo("Dynamo", ["Healing Nova"])]
+        b = [lo("Haze", ["Rapid Rounds"]), lo("Wraith", ["Rapid Rounds"])]
+        r = team_fight(a, b, allies=False)
+        self.assertEqual(r.team("A")[1]["healing_given"], 0)
+
     def test_item_value(self):
         a = [lo("Haze"), lo("Dynamo", ["Healing Nova"])]
         b = [lo("Haze", ["Rapid Rounds"]), lo("Wraith", ["Rapid Rounds"])]
@@ -158,6 +165,14 @@ class TestSupportMore(unittest.TestCase):
         with_ = team_fight(a, self.b, max_time=8, huddle=1.0)
         without = team_fight([a[0], lo("Abrams")], self.b, max_time=8, huddle=1.0)
         self.assertGreater(with_.team("A")[0]["damage"], without.team("A")[0]["damage"])
+
+    def test_heroic_aura_passive_resist_on_teammate(self):
+        b = [lo("Haze", ["Rapid Rounds"]), lo("Wraith", ["Rapid Rounds"])]
+        took = []
+        for items in ([], ["Heroic Aura"]):
+            r = team_fight([lo("Abrams"), lo("Dynamo", items)], b, max_time=3.0, focus="spread")
+            took.append(r.team("A")[0]["damage_taken"])   # Abrams: the aura's resist, not the item's own
+        self.assertLess(took[1], took[0])
 
     def test_hunters_aura_shreds_every_enemy(self):
         guns = dict(use_abilities=False, use_actives=False)

@@ -172,7 +172,19 @@ class TeamRestorativeLocket(items_fx.FX):
 
 @team_item("upgrade_dps_aura")
 class TeamHeroicAura(items_fx.FX):
-    """Active: BonusFireRate for AbilityDuration to the user and teammates in Radius (huddle each)."""
+    """Passive aura: BulletResist to teammates in Radius (huddle each; the user's own comes with the item's stats)
+    while the user lives. Active: BonusFireRate for AbilityDuration to the user and teammates in Radius."""
+
+    def on_start(self, f):
+        br = self.item.p("BulletResist") / 100
+        for x in f.allies:
+            if x is not f:
+                x.mods.add("bullet_resist", br * f.e.huddle, 1e9, ("heroic_aura_passive", f.name))
+
+    def on_death_any(self, f):
+        if not f.alive:
+            for x in f.allies:
+                x.mods.remove("bullet_resist", ("heroic_aura_passive", f.name))
 
     def try_active(self, f):
         if not self.ready():
@@ -450,8 +462,12 @@ class TeamResult:
 # API
 # ---------------------------------------------------------------------------------------------------------------
 def team_fight(team_a, team_b, distance=15.0, max_time=40.0, focus="focus", huddle=HUDDLE, aoe_share=AOE_SHARE,
-               rng=None, log=False, mechanics=_UNSET):
-    """team_a, team_b: lists of Loadout (1-6 each). Returns TeamResult."""
+               rng=None, log=False, mechanics=_UNSET, allies=True):
+    """team_a, team_b: lists of Loadout (1-6 each). Returns TeamResult.
+    allies=False turns everything that reaches teammates off (duel item handlers, no ally abilities, huddle 0), so
+    a fight with and without it isolates what items give teammates (scripts/team/team_value.py)."""
+    if not allies:
+        huddle = 0.0
     from .fight import make_fighter
     from .abilities import load_heroes
     load_heroes()
@@ -464,10 +480,11 @@ def team_fight(team_a, team_b, distance=15.0, max_time=40.0, focus="focus", hudd
         fs = []
         for lo in team:
             f = make_fighter(e, lo, f"{lo.name or game().hero(lo.hero).name} ({tag}{len(fs) + 1})")
-            _team_items(f, lo)
+            if allies:
+                _team_items(f, lo)
             fs.append(f)
         sides.append(fs)
-    for f in sides[0] + sides[1]:
+    for f in sides[0] + sides[1] if allies else ():
         for st in f.abilities:
             _share_ability(st)
     return e.run_team(*sides)
