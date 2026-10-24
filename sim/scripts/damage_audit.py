@@ -38,6 +38,7 @@ from deadsim.accuracy import HEADS, HITS, SHOTS, default_distance, gun_calibrate
 import landing_rates as L  # noqa: E402
 
 BADGE = 91
+HERO_ITEM_MIN = 20   # holders for a per-hero item row
 COUNTERPLAY = True   # item_landing.py fits with this off (items uncut) and everything else as the searches fight
 _sk = {}
 
@@ -123,6 +124,7 @@ def main():
     load_heroes()
     real = collections.defaultdict(collections.Counter)
     real_item = collections.defaultdict(lambda: [0.0, 0.0, 0])   # item -> [item dmg, gun dmg, holders]
+    real_hero_item = collections.defaultdict(lambda: [0.0, 0.0, 0])   # (hero, item) -> the same, per hero
     jobs, real_of, held_of = [], {}, {}
     n_matches = 0
     for line in gzip.open(sample):
@@ -145,6 +147,7 @@ def main():
     jobs = jobs[:max_players]
     sim = collections.defaultdict(collections.Counter)
     sim_item = collections.defaultdict(lambda: [0.0, 0.0, 0])
+    sim_hero_item = collections.defaultdict(lambda: [0.0, 0.0, 0])
     errs = collections.Counter()
     t0 = time.time()
     with ProcessPoolExecutor(workers) as ex:
@@ -159,8 +162,10 @@ def main():
             for it, (si, sg) in held.items():
                 if hg is None or hg.get(it, 0) <= 0:
                     continue
-                for acc, a, b in ((real_item, rd.get(it, 0.0), hg[it]), (sim_item, si, sg)):
-                    row = acc[it]
+                for acc, key, a, b in ((real_item, it, rd.get(it, 0.0), hg[it]), (sim_item, it, si, sg),
+                                       (real_hero_item, (hid, it), rd.get(it, 0.0), hg[it]),
+                                       (sim_hero_item, (hid, it), si, sg)):
+                    row = acc[key]
                     row[0] += a
                     row[1] += b
                     row[2] += 1
@@ -208,12 +213,26 @@ def main():
         items[it] = {"name": G.items_by_class[it].name, "holders": n, "real_per_gun": round(rp, 4),
                      "sim_per_gun": round(sp, 4), "real_over_sim": round(rp / sp, 3) if sp > 0 else None}
 
+    # the same per hero: the hero table's shares compare the whole real match (early game without the item
+    # included) with duels at 30/60/90% of it, which overweights items bought mid-game; this one doesn't
+    hero_items = []
+    for (hid, it), (ri, rg, n) in real_hero_item.items():
+        si, sg, _ = sim_hero_item[hid, it]
+        # sim 0: bookkeeping (amps booked under the hit's source) or multi-target items, see validation/README.md
+        if n < HERO_ITEM_MIN or it not in G.items_by_class or rg <= 0 or sg <= 0 or si <= 0 or max(ri / rg, si / sg) < 0.02:
+            continue
+        rp, sp = ri / rg, si / sg
+        hero_items.append({"hero": G.hero(hid).name, "item": G.items_by_class[it].name, "holders": n,
+                           "real_per_gun": round(rp, 4), "sim_per_gun": round(sp, 4),
+                           "real_over_sim": round(rp / sp, 3) if sp > 0 else None})
+    hero_items.sort(key=lambda x: -abs(math.log(x["real_over_sim"])) if x["real_over_sim"] else -9.0)
+
     meta = {"sample": os.path.basename(sample), "matches": n_matches, "player_matches": len(jobs),
             "duels": f"{len(L.FRACS)} per player-match, {L.FIGHT_TIME:.0f} s max, real builds both sides",
             "model": f"hero_default_skill(badge={BADGE}, counterplay=True) with each player's real aim",
             "errors": sum(errs.values())}
     out = {"meta": meta, "heroes": dict(sorted(heroes.items(), key=lambda x: -x[1]["mix_distance"])),
-           "items": dict(sorted(items.items(), key=lambda x: -x[1]["holders"]))}
+           "items": dict(sorted(items.items(), key=lambda x: -x[1]["holders"])), "hero_items": hero_items}
     json.dump(out, open(os.path.join(ROOT, "validation", "damage_audit.json"), "w"), indent=1)
     write_md(out)
 
@@ -254,6 +273,13 @@ def write_md(out):
            "| Item | holders | real per gun | sim per gun | real/sim |", "|---|---|---|---|---|"]
     for k, v in out["items"].items():
         L_.append(f"| {v['name']} | {v['holders']} | {v['real_per_gun']:.3f} | {v['sim_per_gun']:.3f} | "
+                  f"{fmt_ratio(v['real_over_sim'])} |")
+    L_ += ["", f"## Items by hero (holders only, at least {HERO_ITEM_MIN} holders), furthest off first", "",
+           "As above, per hero. The source table above compares the whole real match with duels at 30/60/90% of it, "
+           "so an item bought mid-game looks overrated there; this table doesn't have that bias.", "",
+           "| Hero | Item | holders | real per gun | sim per gun | real/sim |", "|---|---|---|---|---|---|"]
+    for v in out.get("hero_items", [])[:40]:
+        L_.append(f"| {v['hero']} | {v['item']} | {v['holders']} | {v['real_per_gun']:.3f} | {v['sim_per_gun']:.3f} | "
                   f"{fmt_ratio(v['real_over_sim'])} |")
     open(os.path.join(ROOT, "validation", "damage_audit.md"), "w").write("\n".join(L_) + "\n")
 
