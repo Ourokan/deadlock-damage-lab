@@ -213,7 +213,7 @@ Spirit Resilience (-8% for 30% spirit resist), so before/after effects of defens
 | Rebuttal | on parry: heal + return the parried damage, +30% damage 6 s; holders parry 1.9x | parries per 3 min, holders 0.88 vs 0.47 | 0.06% of hero damage, 45 dmg per 3 min held | 0.02% (underrated ~3x) |
 | Counterspell | spell parry timed vs `spell_parry_rate` of enemy aimed casts, blocks that cast for 0.8 s | same-player before/after buying, vs teammates | ability damage taken -4.6% (CI -6.4..-2.6); +50 HP alone explains ~4% (Extra Health -8%) | -2% (rate 0.05) |
 | Turrets | McGinnis turrets have HP (100 + 9/boon, 35% spirit resist); the enemy shoots them (see "Targetable summons" for the fit, 2026-10-24) | replays | | turret damage -15%, landing 0.06 -> 0.14 |
-| Split Shot | during the active each landed shot adds 2.8 copies on the main target (+ nearby enemies) | Split Shot dmg / gun dmg of holders | 0.271 | 0.266 |
+| Split Shot | during the active each landed gun bullet adds 0.73 copies on the main target and 0.73 x nearby enemies (at most 1) on others (replays; 2.8 x accuracy before 2026-10-24, see "Vyper") | Split Shot dmg / gun dmg of holders | 0.271 | 0.266 |
 | Ricochet | bounces 65% of each gun hit to `Mechanics.extra_targets` nearby enemies (booked as splash) | Ricochet dmg / gun dmg of holders | 0.150 = 0.23 bounces per hit | `extra_targets=0.23` gives 0.145 |
 | Escape | below `flee_hp` (0.15) and losing, a fighter stops shooting and runs (sprint after 2 s, dashes); the other chases 85% of the time; escape at 40 m | isolated 1v1s where one side drops below 25% HP (11,720 episodes) | 20% escape, 80% die (of decided) | 21% / 79% |
 
@@ -626,10 +626,45 @@ distance 0.14 -> 0.06; Shiv gun 0.33 -> 0.29 (0.27), distance 0.12 -> 0.04; Paig
 mix distance 0.053 -> 0.045. Over a whole match
 Paradox's hit is still 1.5x real in `hit_damage.json` because the duels sample later points of the match.
 
-Still off: **Vyper** (gun 0.55 vs 0.46) is Split Shot (team fights, 2.8x under) and Mercurial Magnum (2.1x under):
-in the replays 86% of a holder's gun hits after the first proc carry the Mercurial bonus (Warden 91%), the sim
-24%. **Nurse Harrow** (0.35 vs 0.29) is Lurking Terrors 1.5x under. **Warden** is the other way (0.46 vs 0.52):
-Last Stand is overrated (0.66).
+Still off then: **Vyper** (gun 0.55 vs 0.46), fixed below. **Nurse Harrow** (0.35 vs 0.29) is Lurking Terrors 1.5x
+under. **Warden** is the other way (0.46 vs 0.52): Last Stand is overrated (0.66).
+
+### Vyper: Mercurial Magnum, Split Shot, Petrifying Bola (2026-10-24)
+
+Vyper's gun share was 0.55 (real 0.46) with Split Shot 2.8x and Mercurial Magnum 2.1x under real. Every hero-vs-hero
+damage event of 84 Phantom+ replays (45 with a Vyper, the rest Mercurial or Split Shot holders;
+`scripts/mechanics/split_shot_replays.py`, numbers in `mechanics/split_shot_replays.json`) showed three causes:
+
+- **Mercurial Magnum's bullet bonus lasts its 12 s buff**, not until the next reload. 82% of a Vyper holder's gun
+  hits after his first proc carry it (Wraith 79%, Warden 93%, McGinnis 93%), and Vyper empties a clip in 1.7 s, so the
+  sim's "until reload" gave him 24%. With the 14 s charge and 12 s buff, ~86% is what the item allows.
+  Mercurial procs also ride on Split Shot pellets (17% of Vyper's Mercurial damage) and Ricochet bounces.
+- **Split Shot per landed bullet:** in the 5 s after an activation (614 activations: Vyper, Wraith, Yamato, Paige)
+  the main target takes 0.73 Split Shot hits per gun bullet landed on it (Vyper 0.76, Wraith 0.59), other heroes
+  0.29 of that. The sim gave 2.8 x accuracy copies per landed shot on the main target, a fudge for real players spending
+  more of their gun damage inside the window, and its side hits needed accuracy x 0.5 x nearby per trigger pull.
+  Now: SPLIT_PRIMARY_HIT 0.73 copies per landed bullet (they proc on-hit items, as real pellets do) and
+  SPLIT_SECONDARY_COVER 0.73 x nearby enemies on others (at most one per bullet, for team fights), with ~0.29 other enemies within 13 m of the target
+  (`mechanics.real_nearby`, the PR #57 position counts, now shared with the overall search). The active waits until
+  the holder can shoot a target that can be hurt. Pooled over all 170 holders Split Shot is now 1.00x real (was 1.25).
+- **Petrifying Bola went out at 0.7 s in every duel**, petrifying the target (and stopping Vyper's gun) for 2-3 s
+  right inside Split Shot's window: the sim's Vyper landed 18% of his gun damage in Split Shot windows, real 41%.
+  Real bolas land a median 4.1 s into a fight (quartiles 0.7 / 9.9 s); with a target health gate (BOLA_CAST_HP 0.9)
+  the sim's median is 4.4 s (1.3 / 9.6 s). It is thrown anyway BOLA_MAX_WAIT (10 s) in, for a target healed back up.
+
+The audit now fights with the real nearby-enemy count (`Mechanics.extra_targets = real_nearby("extra", 13 m)`, as
+the overall search does) and counts Ricochet / Split Shot hits on those enemies, since the real damage matrix has
+every enemy hero: pooled Ricochet goes from 0 (nothing to bounce to) to 0.88x real. Item factors refit
+(`item_landing.py --sample phantom_sample.jsonl.gz`): Mercurial Magnum 0.90 -> 0.83, Ricochet now 0.88, Split Shot
+0.92 (was 1.24, unused). Vyper's landing factors stay: a Phantom+ refit (`refit_landing_heroes.py`) cut Lethal Venom to
+0.57 and made his audit mix worse (0.070 -> 0.087).
+
+Result: Vyper distance 0.092 -> 0.067 (gun 0.52, Split Shot holders 1.64x real, was 2.84; Mercurial 1.21x, was
+2.15), Haze 0.062 -> 0.044, Warden 0.084 -> 0.076; player-weighted 0.0450 -> 0.0446. Counting
+Ricochet raises Wraith (0.012 -> 0.025), Mirage and Nurse Harrow a little: their per-hero Ricochet share is now above
+real, the whole-match vs 30/60/90% duel bias for a mid-game item (holders-only Ricochet is 0.88). Vyper's remaining
+Split Shot gap is the window share: real fights put 41% of his gun damage in its 5 s, the sim's 20 s duels 27%
+(all holders 33%; Vyper 18% before the Bola fix).
 
 ## Known gaps (not yet modeled)
 

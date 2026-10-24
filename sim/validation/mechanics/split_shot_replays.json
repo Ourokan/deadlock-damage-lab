@@ -1,0 +1,86 @@
+{
+ "mercurial": {
+  "Vyper": {
+   "hits": 12209,
+   "share": 0.816
+  },
+  "Wraith": {
+   "hits": 11082,
+   "share": 0.786
+  },
+  "Warden": {
+   "hits": 883,
+   "share": 0.928
+  },
+  "Haze": {
+   "hits": 759,
+   "share": 0.585
+  },
+  "McGinnis": {
+   "hits": 590,
+   "share": 0.925
+  },
+  "Victor": {
+   "hits": 500,
+   "share": 0.884
+  },
+  "Vindicta": {
+   "hits": 368,
+   "share": 0.712
+  },
+  "Seven": {
+   "hits": 218,
+   "share": 0.743
+  },
+  "Infernus": {
+   "hits": 100,
+   "share": 0.77
+  },
+  "Rem": {
+   "hits": 20,
+   "share": 0.8
+  },
+  "Mina": {
+   "hits": 17,
+   "share": 0.647
+  }
+ },
+ "split_shot": {
+  "Vyper": {
+   "activations": 462,
+   "ss_per_gun_after_first_use": 0.325,
+   "gun_share_in_windows": 0.408,
+   "main_hits_per_gun_hit": 0.755,
+   "main_dmg_per_gun_main": 0.698,
+   "side_per_main": 0.236
+  },
+  "Wraith": {
+   "activations": 129,
+   "ss_per_gun_after_first_use": 0.258,
+   "gun_share_in_windows": 0.353,
+   "main_hits_per_gun_hit": 0.59,
+   "main_dmg_per_gun_main": 0.562,
+   "side_per_main": 0.502
+  },
+  "Yamato": {
+   "activations": 17,
+   "ss_per_gun_after_first_use": 0.541,
+   "gun_share_in_windows": 0.472,
+   "main_hits_per_gun_hit": 1.1,
+   "main_dmg_per_gun_main": 0.944,
+   "side_per_main": 0.246
+  },
+  "Paige": {
+   "activations": 6,
+   "ss_per_gun_after_first_use": 0.391,
+   "gun_share_in_windows": 0.347,
+   "main_hits_per_gun_hit": 0.727,
+   "main_dmg_per_gun_main": 0.676,
+   "side_per_main": 0.46
+  }
+ },
+ "split_shot_pooled": {
+  "main_hits_per_gun_hit": 0.73,
+  "side_per_main": 0.294
+ }
+}

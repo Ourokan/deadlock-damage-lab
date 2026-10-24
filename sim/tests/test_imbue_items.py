@@ -40,6 +40,25 @@ class TestMercurialMagnum(unittest.TestCase):
         self.assertLessEqual(got, f.st.bullet_damage * pct * 3 * 1.5)
         self.assertLess(got / 3, 10)        # per bullet, Wraith: real median 4 (was ~40 with the flat value)
 
+    def test_bullet_bonus_outlasts_the_clip(self):
+        """Replays: 82% of a Vyper holder's gun hits after the first proc carry the bonus; it lasts the 12 s buff,
+        not one clip (his clip lasts 1.7 s)."""
+        e, f, g = pair(["Mercurial Magnum"], hero="Vyper")
+        fx = next(x for x in f.items_fx if x.name == "Mercurial Magnum")
+        ab = next(s for s in f.abilities if any(i.name == "Mercurial Magnum" for i in s.imbues))
+        fx.on_cast(f, ab)
+        for x in f.items_fx:
+            if hasattr(x, "on_reload"):
+                x.on_reload(f)
+        self.assertTrue(f.mods.active("mercurial"))
+        e.t = 11.0
+        self.assertTrue(f.mods.active("mercurial"))
+        n0 = f.dmg_out.get("Mercurial Magnum", 0.0)
+        e.damage(f, g, f.st.bullet_damage, "bullet", "gun", hits=1)
+        self.assertGreater(f.dmg_out.get("Mercurial Magnum", 0.0), n0)     # a bullet after the reload still gets it
+        e.t = 12.5
+        self.assertFalse(f.mods.active("mercurial"))
+
 
 class TestMysticReverb(unittest.TestCase):
     def test_imbued_lifesteal_heals_on_the_hit(self):
