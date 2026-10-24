@@ -27,3 +27,35 @@ jobs:
         run: python3 -m unittest discover -s tests -v
       - name: Search smoke test
         run: python3 pipeline/smoke_test.py
+
+  # the built site in headless Chromium (web/tests/browser_test.cjs): every tab at desktop and phone size, the live
+  # Pyodide sim included; fails on JS or Python errors and on files the page asks for that the build didn't make
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Fetch Pyodide core
+        run: |
+          curl -sSL -o pyodide-core.tar.bz2 https://github.com/pyodide/pyodide/releases/download/0.26.4/pyodide-core-0.26.4.tar.bz2
+          mkdir -p /tmp/pyodide && tar xjf pyodide-core.tar.bz2 -C /tmp/pyodide
+      - name: Build site
+        run: python3 web/build.py --pyodide /tmp/pyodide/pyodide
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.49.1
+          npx playwright install --with-deps chromium
+      - name: Test the site in the browser
+        run: node web/tests/browser_test.cjs --shots browser-shots
+      - name: Keep screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-shots
+          path: browser-shots

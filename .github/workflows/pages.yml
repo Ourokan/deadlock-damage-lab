@@ -35,6 +35,16 @@ jobs:
           mkdir -p /tmp/pyodide && tar xjf pyodide-core.tar.bz2 -C /tmp/pyodide
       - name: Build site data
         run: python3 web/build.py --pyodide /tmp/pyodide/pyodide
+      # don't deploy a site whose browser sim or tabs break (rerun commits land on main without a PR)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Test the site in the browser
+        run: |
+          npm install --no-save --no-package-lock playwright@1.49.1
+          npx playwright install --with-deps chromium
+          node web/tests/browser_test.cjs
+          rm -rf node_modules
       - name: Drop preview-only files
         run: rm -f web/artifact.html web/py/*.b64.txt web/vendor/pyodide/*.b64.txt
       - uses: actions/configure-pages@v5
