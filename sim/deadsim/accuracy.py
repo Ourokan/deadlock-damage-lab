@@ -19,7 +19,7 @@ import os
 import time
 import urllib.request
 
-from .data import game
+from .data import game, gun_calibration
 from .engine import Skill
 
 API = "https://api.deadlock-api.com"
@@ -27,7 +27,6 @@ UA = {"User-Agent": "deadlock-build-sim/0.1 (research)"}
 HERE = os.path.dirname(__file__)
 CACHE = os.path.join(HERE, "..", "cache")
 DEFAULTS = os.path.join(HERE, "..", "data", "skill_defaults.json")
-GUN_CAL = os.path.join(HERE, "..", "data", "gun_calibration.json")
 
 SHOTS, HITS, HEADS = "Enemy Hero Accuracy##Shots", "Enemy Hero Accuracy##Hits", "Enemy Hero Accuracy##Headshots"
 DIST_PREFIX = "Outgoing Bullet Dist##"
@@ -264,22 +263,6 @@ def zone_exit_time(badge=None):
     reaction time plus the walk to the edge. Assumption, like dot_cleanse_delay: 2.0 s for ranked overall,
     1.5 s from Ascendant up. Not measurable from the API (no zone positions)."""
     return 1.5 if badge is not None and badge >= 101 else 2.0
-
-
-_gun_cal = None
-
-
-def gun_calibration():
-    """{hero id (str): row} for heroes whose gun records no hero accuracy in the match stats (Graves' tether,
-    Deadman Danny's charged shot): accuracy/headshot percentiles fitted from replays (scripts/gun_calib), on the
-    same scale as the API's hero accuracy, plus the gun's charge_factor / tether_range_m (used by build.py)."""
-    global _gun_cal
-    if _gun_cal is None:
-        try:
-            _gun_cal = json.load(open(GUN_CAL))["heroes"]
-        except (OSError, KeyError, ValueError):
-            _gun_cal = {}
-    return _gun_cal
 
 
 def gun_calibrated(hero_id):

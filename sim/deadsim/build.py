@@ -11,26 +11,15 @@ Only "innate" item stats (always on) are summed here; conditional, proc and acti
 """
 from __future__ import annotations
 
-import json
-import os
 from dataclasses import dataclass, field
-from .data import game, Hero, Item, UNITS_PER_METER
-
-GUN_CAL = os.path.join(os.path.dirname(__file__), "..", "data", "gun_calibration.json")
-_gun_cal = None
+from .data import game, gun_calibration, Hero, Item, UNITS_PER_METER
 
 
 def gun_quirks(hero_id):
     """(charge_factor, tether_range_m) from data/gun_calibration.json (replay fit, scripts/gun_calib), or (1, None).
     Deadman Danny's charged shot lands charge_factor x the base bullet damage of an ordinary hit and fires about
     that much less often; Graves' tether gun only fires within tether_range_m."""
-    global _gun_cal
-    if _gun_cal is None:
-        try:
-            _gun_cal = json.load(open(GUN_CAL))["heroes"]
-        except (OSError, KeyError, ValueError):
-            _gun_cal = {}
-    row = _gun_cal.get(str(hero_id)) or {}
+    row = gun_calibration().get(str(hero_id)) or {}
     return row.get("charge_factor") or 1.0, row.get("tether_range_m")
 
 # passive-section stats that are unconditional in practice (the tooltip lists them under "passive")

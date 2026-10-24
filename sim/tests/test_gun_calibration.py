@@ -7,6 +7,9 @@ import unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from deadsim import compute_stats, game  # noqa: E402
+from unittest import mock  # noqa: E402
+
+import deadsim.accuracy as acc  # noqa: E402
 from deadsim.accuracy import default_distance, gun_calibrated, gun_calibration, hero_default_skill  # noqa: E402
 from deadsim.build import gun_quirks  # noqa: E402
 
@@ -41,6 +44,16 @@ class GunCalibration(unittest.TestCase):
             self.assertEqual(sk.headshot, 0.0)
             self.assertEqual(default_distance(name), row["median_distance_m"])
         self.assertFalse(gun_calibrated(G.hero("Haze").id))
+
+    def test_player_skill_uses_the_replay_fit_without_a_lookup(self):
+        """No per-player gun stats exist for these heroes: player_skill returns the replay median, never calls the
+        API, and reports zero matches (callers must not divide by it)."""
+        with mock.patch.object(acc, "_get", side_effect=AssertionError("no API call expected")):
+            sk, info = acc.player_skill(1, hero="Graves")
+        row = gun_calibration()[str(G.hero("Graves").id)]
+        self.assertEqual((sk.accuracy, sk.headshot), (row["accuracy"]["p50"], 0.0))
+        self.assertEqual(info["matches"], 0)
+        self.assertEqual(info["median_distance_m"], row["median_distance_m"])
 
 
 if __name__ == "__main__":
