@@ -17,6 +17,7 @@ usage: python3 -I fit_sustain.py <sim dir> <matches dir> <report json> <sim data
 import collections, glob, gzip, json, os, statistics, sys
 sys.path.insert(0, sys.argv[1])
 from deadsim.data import game  # noqa: E402
+from deadsim.dmatrix import win  # noqa: E402
 
 G = game()
 MATCHES, OUT_JSON, OUT_SIM = sys.argv[2], sys.argv[3], sys.argv[4]
@@ -32,18 +33,6 @@ for i, it in G.items.items():
         by_name[it.name] = it
 cls_name = {it.class_name: n for n, it in by_name.items()}
 id_name = {it.id: n for n, it in by_name.items()}
-
-
-def at(s, k, n):
-    """Damage-matrix arrays are cumulative per sample time but right-aligned: a source that starts later (an item
-    bought mid game) has a shorter array whose first entry is the sample time len(times) - len(s)."""
-    i = k - (n - len(s))
-    return s[i] if 0 <= i < len(s) else (0 if i < 0 else s[-1])
-
-
-def win(s, k, n):
-    """Amount added to cumulative array s in sample window k (of n)."""
-    return at(s, k, n) - at(s, k - 1, n)
 
 
 def phase(t):

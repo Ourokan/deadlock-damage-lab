@@ -259,3 +259,11 @@ class Mix(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DamageMatrixAlignment(unittest.TestCase):
+    def test_arrays_are_right_aligned(self):
+        from deadsim.dmatrix import win
+        s = [5, 8]          # a source that starts in sample window 2 of 4 (an item bought mid game)
+        self.assertEqual([win(s, k, 4) for k in range(4)], [0, 0, 5, 3])
+        self.assertEqual(win([1, 2, 4, 7], 3, 4), 3)    # full-length array
