@@ -55,7 +55,7 @@ writes `artifact.html`). Add `--pyodide <dir>` with an extracted `pyodide-core-0
 GitHub release to refresh `vendor/pyodide`.
 
 ## Browser test
-`node web/tests/browser_test.cjs` (after `build.py --pyodide`, needs `npm install playwright`) serves this folder and
+`node web/tests/browser_test.cjs` (after `build.py --pyodide`, needs `npm install --prefix web/tests`) serves this folder and
 goes through every tab in headless Chromium at desktop and phone size: the live sim loads, the damage test, item
 breakdown, build maker, real match (a made-up match stands in for the Deadlock API), team fight and each precomputed
 tab's Test button. It fails on page or worker errors (JS or Python), console errors, files that 404, requests to

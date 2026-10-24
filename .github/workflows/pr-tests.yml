@@ -49,8 +49,9 @@ jobs:
         run: python3 web/build.py --pyodide /tmp/pyodide/pyodide
       - name: Install Playwright Chromium
         run: |
-          npm install --no-save --no-package-lock playwright@1.49.1
-          npx playwright install --with-deps chromium
+          # network installs get a second try, so an npm or apt hiccup doesn't block the run
+          for i in 1 2; do npm install --prefix web/tests --no-package-lock && break; [ $i = 2 ] && exit 1; sleep 20; done
+          for i in 1 2; do (cd web/tests && npx playwright install --with-deps chromium) && break; [ $i = 2 ] && exit 1; sleep 20; done
       - name: Test the site in the browser
         run: node web/tests/browser_test.cjs --shots browser-shots
       - name: Keep screenshots

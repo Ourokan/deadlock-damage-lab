@@ -30,7 +30,7 @@ function serve(missing) {
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, "http://x");
     let p = path.normalize(path.join(WEB, decodeURIComponent(url.pathname)));
-    if (!p.startsWith(WEB)) { res.writeHead(403).end(); return; }
+    if (p !== WEB && !p.startsWith(WEB + path.sep)) { res.writeHead(403).end(); return; }
     if (fs.existsSync(p) && fs.statSync(p).isDirectory()) p = path.join(p, "index.html");
     if (!fs.existsSync(p)) { missing.push(url.pathname); res.writeHead(404).end("not found"); return; }
     res.writeHead(200, { "Content-Type": TYPES[path.extname(p)] || "application/octet-stream", "Cache-Control": "no-store" });
