@@ -2,16 +2,16 @@
  "note": "focus = share of the enemy's trigger pulls spent on a living summon of this kind, fitted so the sim's share of enemy gun damage on summons (vs the owner) matches Phantom+ replays (scripts/summons/fit_targeting.py); splash = share of the owner's non-gun damage taken that also hits it (fitted the same way); acc_mult = accuracy on it vs on a hero (assumption); life_other_s = real median life of summons no enemy hero killed (caps the sim life)",
  "kinds": {
   "mcginnis_turret": {
-   "focus": 0.464,
+   "focus": 0.479,
    "acc_mult": 2.5,
    "life_other_s": 12.75,
    "sim": {
-    "gun_focus_share": 0.583,
-    "splash_ratio": 0.609,
-    "killed": 0.634,
-    "n": 454
+    "gun_focus_share": 0.569,
+    "splash_ratio": 0.605,
+    "killed": 0.61,
+    "n": 456
    },
-   "splash": 0.668,
+   "splash": 0.285,
    "real": {
     "gun_focus_share": 0.571,
     "splash_ratio": 0.603,
@@ -29,16 +29,16 @@
    }
   },
   "graves_zombie": {
-   "focus": 0.6,
+   "focus": 0.53,
    "acc_mult": 2.0,
    "life_other_s": 10.53,
    "sim": {
-    "gun_focus_share": 0.683,
-    "splash_ratio": 1.143,
-    "killed": 0.578,
-    "n": 1209
+    "gun_focus_share": 0.669,
+    "splash_ratio": 1.15,
+    "killed": 0.397,
+    "n": 1116
    },
-   "splash": 1.367,
+   "splash": 0.48,
    "real": {
     "gun_focus_share": 0.668,
     "splash_ratio": 1.145,
@@ -56,16 +56,16 @@
    }
   },
   "graves_skull": {
-   "focus": 0.593,
+   "focus": 0.685,
    "acc_mult": 1.0,
    "life_other_s": 11.08,
    "sim": {
-    "gun_focus_share": 0.498,
-    "splash_ratio": 0.138,
-    "killed": 0.505,
-    "n": 1616
+    "gun_focus_share": 0.467,
+    "splash_ratio": 0.14,
+    "killed": 0.316,
+    "n": 1508
    },
-   "splash": 0.161,
+   "splash": 0.031,
    "real": {
     "gun_focus_share": 0.495,
     "splash_ratio": 0.138,
@@ -89,10 +89,10 @@
    "sim": {
     "gun_focus_share": 0.0,
     "splash_ratio": 0.049,
-    "killed": 0.515,
+    "killed": 0.42,
     "n": 262
    },
-   "splash": 0.049,
+   "splash": 0.047,
    "real": {
     "gun_focus_share": 0.0,
     "splash_ratio": 0.049,

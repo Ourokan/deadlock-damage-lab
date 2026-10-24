@@ -231,12 +231,13 @@ Non-gun ratio = enemy non-gun damage (abilities, items, melee) on them / non-gun
 windows: 63% of what turrets take and 72% of what zombies take is area damage, not aimed shots.
 
 Model (`deadsim/mechanics.py`, `data/summon_targeting.json`, refit with `scripts/summons/fit_targeting.py`):
-- Each summon has its data health (+ boons). The enemy spends `focus` of its trigger pulls on the first living
+- Each summon has its data health (+ boons). The enemy spends `focus` of its trigger pulls on the oldest living
   summon of each kind, at `acc_mult` x its hero accuracy (assumption: stationary turret 2.5x, walking zombies 2x,
   small flying Deadheads 1x). `focus` is fitted so the sim's gun share matches the real one, over duels of every
-  sample McGinnis and Graves player against a real enemy build: turret 0.46, zombie 0.60, Deadhead 0.60.
-- Non-gun damage the owner takes also lands on each living kind x `splash`, fitted the same way (turret 0.67, zombie
-  1.37, Deadhead 0.16, gravestone 0.05). This is what kills most zombies, as in the replays.
+  sample McGinnis and Graves player against a real enemy build: turret 0.48, zombie 0.53, Deadhead 0.69.
+- Non-gun damage the owner takes also lands on every living summon x its kind's `splash`, fitted the same way
+  against the damage all summons of a kind take (turret 0.29, zombie 0.48, Deadhead 0.03, gravestone 0.05). Area
+  damage is most of what zombies take in the replays.
 - The gravestone can't be shot. Besides splash the enemy breaks it 11 s after it lands, 83% of the time (the real
   rate among gravestones a hero hit). Once it is gone no more zombies spawn and the aura stops: in the replays zombie
   spawns drop from 0.46/s to 0.14/s after a gravestone breaks.
@@ -246,16 +247,18 @@ Model (`deadsim/mechanics.py`, `data/summon_targeting.json`, refit with `scripts
 - `Skill.summon_focus` (default None) overrides every kind's share; `FightResult.*_summon_kind`,
   `*_hit_while_summon` and `*_summons_out` report what the fit compares.
 
-Fit result (sim vs real): gun share turret 0.58 / 0.57, zombie 0.69 / 0.67, Deadhead 0.51 / 0.50; non-gun ratio within
-0.01 for all four. Kill shares in the sim (of all summons spawned in a duel) are turret 64%, zombie 58%, Deadhead 50%,
-gravestone 52% against 71% / 58% / 90% / 83% of real ones a hero hit: Deadheads die less in the sim because a real
-one that gets hit at all almost always dies (50 HP), and many sim fights end before the gravestone's 11 s.
+Fit result (sim vs real): gun share turret 0.57 / 0.57, zombie 0.67 / 0.67, Deadhead 0.47 / 0.50; non-gun ratio within
+0.01 for all four. Kill shares in the sim (of all summons spawned in a duel) are turret 61%, zombie 40%, Deadhead 32%,
+gravestone 42% against 71% / 58% / 90% / 83% of real ones a hero hit. The sim spreads area damage evenly over every
+summon, while real damage piles onto a few (a real Deadhead that gets hit at all almost always dies at 50 HP), and
+many sim fights end before the gravestone's 11 s.
 
-Effect on the 252 Graves and 90 McGinnis sample duels (real builds, 30 s): Graves' damage per second -15% (275 -> 233),
-win share 69% -> 69%; McGinnis -16% (65 -> 54), 7% -> 4%. McGinnis' landing factors were not refit: her sim damage mix
-with mechanics on already matches (turret 43% of her damage vs 44% real). Graves has no landing factors (his gun
-records no accuracy in the data), and his ability mix moved: Borrowed Decree 30% -> 42% (real 29%), Jar of Dead 29%
--> 23% (real 23%), Grasping Hands 28% -> 20% (real 11%); his gun stays at 4% vs 18% real.
+Effect on the 252 Graves and 90 McGinnis sample duels (real builds, 30 s): Graves' damage per second -1% (275 -> 271),
+win share 69% -> 75% (zombies now live up to 10.5 s instead of 4.5 s and soak shots); McGinnis -18% (65 -> 53), 7% ->
+6%. McGinnis' landing factors were not refit: her sim damage mix with mechanics on already matches (turret 45% of her
+damage vs 44% real). Graves has no landing factors (his gun
+records no accuracy in the data), and his ability mix moved: Borrowed Decree 30% -> 39% (real 29%), Jar of Dead 29%
+-> 24% (real 23%), Grasping Hands 28% -> 24% (real 11%); his gun stays at 4% vs 18% real.
 
 ## Hero fight patterns (2026-10-16)
 

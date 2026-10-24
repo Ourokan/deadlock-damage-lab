@@ -28,7 +28,7 @@ Settings fitted to real ranked matches (validation/README.md, "New mechanics"):
   hero accuracy. Shares and accuracy multipliers per kind are in data/summon_targeting.json: the shares are fitted
   so the sim's share of enemy gun damage that hits summons instead of the owner matches Phantom+ replays
   (scripts/summons/). Skill.summon_focus overrides every kind's share. Non-gun damage the owner takes (area
-  abilities, items, melee) also hits his summons: x the kind's splash share, fitted the same way (in the replays
+  abilities, items, melee) also hits every living summon: x its kind's splash share, fitted the same way (in the replays
   60-70% of what enemies deal to zombies and turrets is not gun damage). A kind with break_p (the gravestone) is
   broken outright by the enemy break_s after it lands with that probability (real share of gravestones that took
   hero damage and were destroyed by a hero; real median time to break). A dead summon stops attacking. Damage to
@@ -282,7 +282,7 @@ def alive(s):
 
 
 def live_summons(f):
-    """The first living summon of each kind f has out, in spawn order."""
+    """The first (oldest) living summon of each kind f has out, in spawn order: the one the enemy shoots."""
     t = f.e.t
     out, seen = [], set()
     for s in f.counters.get("summons", ()):
@@ -310,14 +310,19 @@ def pick_summon(f, e):
 
 def note_hit_while_summoned(src, dst, amount, source):
     """dst took amount of hero damage while it has summons out. Books it per kind as [gun, other] (the fit compares
-    it with damage to the summons) and splashes non-gun damage (area abilities, items, melee) onto each living
-    kind's first summon: amount x that kind's splash share (fitted to replays, see data/summon_targeting.json)."""
+    it with damage to the summons) and splashes non-gun damage (area abilities, items, melee) onto every living
+    summon: amount x its kind's splash share (fitted to replays against the damage all of a kind's summons take,
+    see data/summon_targeting.json). Gun pulls go to one summon at a time (pick_summon: the oldest of each kind)."""
     d = dst.counters.setdefault("hit_while_summon", {})
     gun = source == "gun"
     for s in live_summons(dst):
         row = d.setdefault(s.kind, [0.0, 0.0])
         row[0 if gun else 1] += amount
-        if not gun and s.splash > 0:
+    if gun:
+        return
+    t = dst.e.t
+    for s in list(dst.counters.get("summons", ())):
+        if s.alive and s.until > t and s.splash > 0:
             _book(src, s, s.hurt(amount * s.splash, "pure"), 1)
 
 
