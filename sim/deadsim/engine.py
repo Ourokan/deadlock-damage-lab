@@ -244,7 +244,7 @@ class Fighter:
         self.dmg_exp = {}
         self.healed_exp = 0.0
         self.dmg_by_2s = {}         # 2 s slice of the fight -> damage dealt in full (damage profile checks)
-        self.dmg_first = {}         # source -> time of its first hit (opener timing checks)
+        self.dmg_first = {}         # source -> time of its first hit, when PROFILE_SOURCES (opener timing checks)
         self.dmg_src_2s = {}        # (source, 2 s slice) -> damage in full, when PROFILE_SOURCES
         self.opener_hold = {}       # source name -> real hold values (s) before its first use (Mechanics.opener_timing)
         self._hold_cache = {}
@@ -664,11 +664,10 @@ class Engine:
             src.dmg_exp[name] = src.dmg_exp.get(name, 0.0) + part * w
         k = int(self.t // 2)
         src.dmg_by_2s[k] = src.dmg_by_2s.get(k, 0.0) + amt
-        if amt > 0:
+        if amt > 0 and PROFILE_SOURCES:
             src.dmg_first.setdefault(source, self.t)
-            if PROFILE_SOURCES:
-                for name, part in booked:
-                    src.dmg_src_2s[name, k] = src.dmg_src_2s.get((name, k), 0.0) + part
+            for name, part in booked:
+                src.dmg_src_2s[name, k] = src.dmg_src_2s.get((name, k), 0.0) + part
         if "summons" in dst.counters and amt > 0:
             from .mechanics import note_hit_while_summoned
             note_hit_while_summoned(src, dst, amt, source)
