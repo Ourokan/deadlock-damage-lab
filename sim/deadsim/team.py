@@ -55,6 +55,7 @@ def heal_ally(src: Fighter, dst: Fighter, amount, source):
     amt = min(dst.max_hp - dst.hp, amount * max(0.0, mult))
     dst.hp += amt
     dst.healed += amt
+    dst.healed_exp += amt * dst.e.length_w()
     sup = src.counters.setdefault("support", {})
     sup[source] = sup.get(source, 0.0) + amt
     return amt

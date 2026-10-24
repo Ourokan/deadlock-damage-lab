@@ -95,6 +95,9 @@ class Mechanics:
     range_drift: bool = True     # distance spreads around the start distance (Engine.p_within etc., fight_range.json)
     extra_targets: float = 0.0   # expected other enemy heroes near the target (multi-target items)
     escape_dist: float = 40.0    # gap (m) at which a runner is out of the fight
+    # survival curve of real fight length (real_length(souls)): P(still trading at k x LENGTH_STEP s | nobody
+    # died). None = the fight's damage counts in full until a death or max_time (dmg_exp = dmg_out)
+    fight_length: tuple | None = None
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
@@ -110,6 +113,28 @@ def drift_params():
             a = json.load(fh)["duel"]["all"]
         _DRIFT = (a["log_sd"], a["tau_s"])
     return _DRIFT
+
+
+LENGTH_STEP = 0.5   # s between fight_length points (data/fight_length.json step_s)
+LENGTH_PHASES = ((10000, "lane"), (27000, "mid"))   # net worth bounds as overall_search.game_phase; above: "late"
+_LENGTH = None
+
+
+def real_length(souls=None):
+    """Real Phantom+ fight length as a Mechanics.fight_length curve (data/fight_length.json,
+    scripts/fight_length/fit_length.py): P(two enemy heroes are still trading t s after their first hit | neither
+    died), at t = 0, LENGTH_STEP, ...; for the game phase of net worth souls (lane < 10k, late > 27k), all fights
+    when souls is None. Median ~7.5 s, mean ~9 s to 30 s; only ~16% of real fights end in a death."""
+    global _LENGTH
+    if _LENGTH is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "fight_length.json")) as fh:
+            a = json.load(fh)
+        assert abs(a["step_s"] - LENGTH_STEP) < 1e-9
+        _LENGTH = {k: tuple(v["survival"]) for k, v in a["phases"].items()}
+    if souls is None:
+        return _LENGTH["all"]
+    ph = next((n for hi, n in LENGTH_PHASES if souls < hi), "late")
+    return _LENGTH.get(ph, _LENGTH["all"])
 
 
 DEFAULT = Mechanics()   # None turns the new mechanics off for every Engine built without an explicit value
@@ -236,6 +261,8 @@ def _splash(f, amount, kind, source):
         amt *= 1.0 - combine_resist(e.st.spirit_resist, f.st.spirit_shred)
     d = f.counters.setdefault("splash", {})
     d[source] = d.get(source, 0.0) + amt
+    d = f.counters.setdefault("splash_exp", {})
+    d[source] = d.get(source, 0.0) + amt * f.e.length_w()
     return amt
 
 

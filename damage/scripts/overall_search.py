@@ -5,12 +5,20 @@ Tyler asked (2026-10-16) for best overall builds, not pure dummy damage: surviva
 vitality investment spike), utility that changes a fight (stuns, silences, disarms, slows, cleanses, heals) and
 how easily an item is countered must all count. One number captures them inside the sim:
 
-    overall = damage this build deals to the enemy before it dies (30 s cap)
+    overall = damage this build deals to the enemy before it dies (30 s cap), each hit x P(a real fight is still
+              going at its time)
 
 averaged over the 41 typical real enemy builds at the same net worth (search/ "F" pool, weighted by how often each
 hero reaches that worth). The enemy never dies (it refills, like the dummy) and its damage is x FOCUS: at 2 the
 popular builds' median time alive is ~14 s, close to the real median time to kill (~13 s). So:
 - more health / resist / lifesteal = longer alive = more damage dealt (vitality spikes count);
+- fight length (2026-10-24): real Phantom+ fights between two heroes mostly end in a disengage, not a death (84% of
+  66.7k fights in 260 replays; disengage median 7.5 s, mean 9 s to 30 s; sim/scripts/fight_length/fit_length.py), so
+  a hit at t s counts x P(the two are still trading at t | nobody died) (deadsim.mechanics.real_length for the
+  build's game phase, survive(fight_length=)). The ability and item landing factors carry a matching length_corr
+  (sim/scripts/fight_length/length_factors.py). An opener counts in full, the 25th second of a fight ~1/50, so
+  living past ~15 s or ramping for 20 s is worth less than in a 30 s fight to the death. Lane trades (lane_fight)
+  keep their own 4 s model;
 - CC and debuffs on the enemy (stun, silence, disarm, slow, Healbane...) count when they cut its damage;
 - the enemy plays its real build: its resists, its Dispel Magic (cleanses Decay/Toxic Bullets), its Metal Skin;
 - counterplay (deadsim accuracy.hero_default_skill(counterplay=True)): targets walk out of Alchemical Fire after
@@ -93,11 +101,14 @@ import search as S  # noqa: E402
 from build_pool import BRACKETS, BUDGETS, PRIMARY  # noqa: E402
 from deadsim.accuracy import hero_default_skill  # noqa: E402
 from deadsim.build import compute_stats  # noqa: E402
-from deadsim.mechanics import area_extra, real_nearby  # noqa: E402
+from deadsim.mechanics import area_extra, real_length, real_nearby  # noqa: E402
 from survival import survive  # noqa: E402
 
 MAX_TIME = 30.0
 FOCUS = 2.0
+# real fights mostly end in a disengage, not a death (sim/data/fight_length.json): each hit counts x P(a real fight
+# is still going then), deadsim.mechanics.real_length at the build's net worth. False: every hit to the death or 30 s
+FIGHT_LENGTH = True
 _sk = {}
 MOVE_PATH = os.path.join(ROOT, "..", "sim", "data", "movement_value.json")
 _move = None
@@ -264,7 +275,8 @@ def fight(h, items, oh, oitems, souls, phase=None, start_hp=None):
     sk = dataclasses.replace(skill(h), fight_phase=phase)
     esk = dataclasses.replace(skill(oh), fight_phase=None if phase is None else (phase + 0.5) % 1.0)
     r = survive(h, items, souls, oh, oitems, max_time=MAX_TIME, focus=FOCUS, skill=sk, enemy_skill=esk,
-                start_hp=start_hp, extra_targets=near("extra", RICOCHET_RADIUS, souls))
+                start_hp=start_hp, extra_targets=near("extra", RICOCHET_RADIUS, souls),
+                fight_length=real_length(souls) if FIGHT_LENGTH else None)
     return net_damage(r) + area_damage(r, souls), r["time_alive"], r["survived"]
 
 

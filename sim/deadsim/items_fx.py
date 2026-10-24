@@ -1039,7 +1039,7 @@ class MysticBurst(FX):
     def on_damage_dealt(self, f, t, hit):
         if hit.kind != "spirit" or not hit.is_ability or hit.is_dot:
             return
-        if hit.amount < self.item.p("MinimumDamage", 80):
+        if hit.amount / max(1e-6, hit.landing) < self.item.p("MinimumDamage", 80):
             return
         charge = min(1.0, (self.now - self.charged_at) / max(1e-6, self.cd("AbilityChargeUpTime")))
         self.charged_at = self.now
@@ -1285,6 +1285,18 @@ class DamageActive(FX):
     def extra(self, f, t):
         pass
 
+    def cc(self, d):
+        """CC duration d x the item's real-data factor in realistic mode (Skill.item_landing; under fight_length
+        without its length_corr, a booking correction that says nothing about how often the cast lands): the
+        factor stands for casts that miss or come late, and a miss misses its stun / silence / disarm too."""
+        sk = self.f.skill
+        fac = (sk.item_landing or {}).get(self.name)
+        if fac is None:
+            return d
+        if self.f.e.length:
+            fac /= (sk.item_length_corr or {}).get(self.name, 1.0)
+        return d * min(1.0, fac)
+
     def try_active(self, f):
         r = self.item.p(self.radius_prop) or self.item.p("AbilityCastRange") or 15
         if not self.ready() or not self.ready_in(r):
@@ -1305,7 +1317,7 @@ class ColdFront(DamageActive):
 @handler("upgrade_arctic_blast")
 class ArcticBlast(DamageActive):
     def extra(self, f, t):
-        self.debuff(t, "stun", 1, self.dur("FreezeDuration", 1))
+        self.debuff(t, "stun", 1, self.cc(self.dur("FreezeDuration", 1)))
 
 
 @handler("upgrade_targeted_silence")
@@ -1313,7 +1325,7 @@ class SilenceWave(DamageActive):
     radius_prop = "AbilityCastRange"
 
     def extra(self, f, t):
-        self.debuff(t, "silence", 1, self.dur("AbilityDuration", 3))
+        self.debuff(t, "silence", 1, self.cc(self.dur("AbilityDuration", 3)))
 
 
 @handler("upgrade_phantom_strike")
@@ -1322,7 +1334,7 @@ class PhantomStrike(DamageActive):
     dmg_prop = "ImpactDamage"
 
     def extra(self, f, t):
-        self.debuff(t, "disarm", 1, self.dur("SlowDuration", 3))
+        self.debuff(t, "disarm", 1, self.cc(self.dur("SlowDuration", 3)))
 
 
 @handler("upgrade_target_stun")

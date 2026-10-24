@@ -734,6 +734,68 @@ real, the whole-match vs 30/60/90% duel bias for a mid-game item (holders-only R
 Split Shot gap is the window share: real fights put 41% of his gun damage in its 5 s, the sim's 20 s duels 27%
 (all holders 33%; Vyper 18% before the Bola fix).
 
+## Fight length (2026-10-24)
+
+Real fights are shorter than the sim's duels, and they mostly end without a death. `Mechanics.fight_length` (off by
+default; on in the damage audit, the landing corrections and the overall search) books every hit also x P(a real
+fight is still going at its time).
+
+**Real data** (`scripts/fight_length/fetch_fights.py` -> project folder `analysis/work/fight_length/raw`,
+`fit_length.py` -> `data/fight_length.json`): every hero-vs-hero DamageEvent with the victim's health after the hit,
+from the 260 Phantom+ replays of the validation sample. A fight = damage between two enemy heroes, either way, with
+no gap over 5 s, at least 4 hits and damage both ways (what a duel stands for; 67% of all hero damage). Of 66.7k
+fights 16% end in a death (a hit to 0 health); median length 6.6 s. The sim already ends a duel at a death, so the
+curve is the Kaplan-Meier survival of the disengage time with deaths censored: S(5 s) 0.69, S(10) 0.33, S(20) 0.06,
+median 7.5 s, mean 9.0 s to 30 s. By game phase (fight net worth = the two heroes' mean; lane < 10k, late > 27k)
+it barely moves: mean 8.5 / 9.4 / 9.4 s. Per hero (the hero's fights, either side) means run 0.78-1.38x the pool; not
+used (a pair's length is both heroes'). The gap sets the scale: 3 s gives mean 6.9 s, 8 s 11.6 s; counting
+one-way runs too (91% of hero damage) 7.0 s. 5 s is about a reload plus a reposition.
+
+**Sim:** `Engine.length_w(t)` interpolates the phase curve (`mechanics.real_length(souls)`); `Fighter.dmg_exp`,
+`healed_exp`, the splash and `FightResult.a_exp` carry the expected values, `dmg_out` stays the fight's own (items
+and abilities that read it are unchanged), and the booking alone leaves the fight as it was (to a death or max_time). The landing corrections below do move
+the fight: abilities and items land at the corrected rate, so kill times, `time_alive` and `survived` shift with them.
+A single
+random cut was not used for the same reason as the range spread (whole casts would swing results). The disengage is
+taken as independent of the fight's path (real players back off more when losing: not modeled).
+
+**Landing factors:** the ability (`landing_rates_mech.json`) and item (`item_landing.json`) factors were fitted with
+every hit of a 20 s duel in full, so they had absorbed the average effect of shorter fights. `length_factors.py`
+gives each row a `length_corr` = (sim source / gun in full) / (the same expected), from the audit's duels, iterated
+3 rounds (fighting with the corrections moves kill times and procs). `accuracy.ability_length_corr` /
+`item_length_corr` apply them only to fights with `fight_length` (`make_fighter`), so the dummy page and the other
+full-booking fights keep the fit as it is. Median ability correction ~0.7: under real lengths an opener counts for
+more of a fight, so the same real share needs a lower factor (Vyper Lethal Venom, a ramping DoT, x1.97; Silver's
+Boot Kick x0.48). Items: Toxic Bullets x1.5, Escalating Exposure x1.3 (stacks build late), Split Shot x0.58, Cold
+Front x0.50 (fight openers). Rerun it after any landing refit (`item_landing.py` keeps the old corrections).
+
+**Also fixed:** Mystic Burst / Tankbuster's MinimumDamage and Witchmail's DamageThreshold checked the hit after the
+ability landing factor and reach availability, which stand for hits landing less often, not smaller hits; low-factor
+abilities (The Doorman, Rem) never procced them. They now check `amount / Hit.landing`. Alone (full booking):
+Tankbuster holders' real/sim 1.44 -> 1.10, Mystic Burst 1.22 -> 1.09, per-hero item median |ln| 0.268 -> 0.242, The
+Doorman 0.167 -> 0.102.
+
+**Checks** (600-match Phantom+ audit, `scripts/damage_audit.py`; `--no-length` books in full):
+- Damage over time into a fight (`scripts/fight_length/profile_check.py`), share of fight damage per 2 s:
+  real 0.32 / 0.20 / 0.15 / 0.11 / 0.07 / 0.05; sim expected 0.31 / 0.24 / 0.13 / 0.11 / 0.08 / 0.05; sim in full
+  0.16 / 0.14 / 0.09 / 0.10 / 0.10 / 0.09. Not fitted: the rate per fight still going (opener = 1) is real 1.00 /
+  0.70 / 0.64 / 0.60 / 0.59, sim 1.00 / 0.88 / 0.58 / 0.64 / 0.66 (the sim's opener lasts a little longer).
+- Damage mix, player-weighted distance 0.0446 (main) -> 0.0448 (min-damage fix) -> 0.0403 (fight length), hero mean
+  0.0527 -> 0.0511 -> 0.0501; holders-only items pooled median |ln real/sim| 0.08 throughout (the corrections keep
+  them); per-hero items 0.268 -> 0.242 -> 0.260 (the corrections are pooled over heroes, a hero who opens with an
+  item more than most moves away: Rem's Tankbuster). Most improved: Nurse Harrow 0.088 -> 0.013, Mo & Krill 0.085
+  -> 0.047, Graves 0.098 -> 0.060, Lash 0.034 -> 0.016; most worse: Rem 0.039 -> 0.100 (Tankbuster, Decay), Calico
+  0.030 -> 0.059, Yamato 0.059 -> 0.081.
+- Vyper's gun share inside Split Shot windows (after the first use): real 0.41, sim in full 0.27, expected 0.53 (the
+  sim opens every fight with it; real players don't always).
+- Overall search (`damage/scripts/overall_search.py`, `FIGHT_LENGTH`), 8 heroes at 27k, with vs without: builds drop
+  late sustain (Healing Nova, Restorative Locket, Escalating Resilience on 3-4 of 8) for fight openers and team items
+  (Heroic Aura, Alchemical Fire, Toxic Bullets); the best builds' time alive falls ~2-8 s. Mean real win edge of the
+  picked items (analysis/out/hero_item_edge.json) 1.14 -> 1.34 points. The first run picked Silence Wave on 5 of 8
+  (real edge about -1.6 on every hero): it had no real-data cut (26 holders, threshold 30) and its silence landed in
+  full at the opening. The threshold is now 25 and an item active's stun / silence / disarm is x its fitted factor
+  (`DamageActive.cc`, realistic mode): 2 of 8 after. Decay still shows up on 2.
+
 ## Known gaps (not yet modeled)
 
 - **Melee movement:** melee is in fights and its rate follows the build (see "Melee" above). Melee Charge's lunge
@@ -753,7 +815,8 @@ Split Shot gap is the window share: real fights put 41% of his gun damage in its
   same way now; Siphon Bullets, Rabbit Hex's amp and Pulse Grenade's stacking amp (~2.5% of Paradox's gun damage
   in replays) are still booked under the hit's source. This affects only the item-share comparison.
 - **TTK:** sim 1v1 duels between real builds take a median 19 s (28 s with landing factors) vs 13 s for real
-  deaths, which are mostly team fights with several attackers.
+  deaths, which are mostly team fights with several attackers. Real fights between two heroes mostly end in a
+  disengage (see "Fight length"); the searches that use `fight_length` weigh late damage down instead of cutting.
 
 ## Speed
 

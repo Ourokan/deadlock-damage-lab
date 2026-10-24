@@ -37,24 +37,27 @@ sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from deadsim import Loadout, duel, game  # noqa: E402
 from deadsim.abilities import load_heroes  # noqa: E402
-from deadsim.mechanics import DEFAULT as MECH, RICOCHET_RADIUS, area_extra, real_nearby  # noqa: E402
+from deadsim.mechanics import DEFAULT as MECH, RICOCHET_RADIUS, area_extra, real_length, real_nearby  # noqa: E402
 from deadsim.accuracy import HEADS, HITS, SHOTS, default_distance, gun_calibrated, hero_default_skill  # noqa: E402
 import landing_rates as L  # noqa: E402
 
 BADGE = 91
 HERO_ITEM_MIN = 20   # holders for a per-hero item row
 COUNTERPLAY = True   # item_landing.py fits with this off (items uncut) and everything else as the searches fight
+PROFILE = False      # scripts/fight_length/profile_check.py: also "_by2s:k" / "_alive:k" (damage, duels going)
+LENGTH = True        # damage expected over real fight lengths (mechanics.real_length); --no-length: in full to 20 s
 _sk = {}
 
 
-def sim_sources(r, key):
+def sim_sources(r, key, exp=True):
     """The duel's damage to enemy heroes by source (key maps a sim source to the audit's name): the main target's,
     Ricochet / Split Shot hits on the other enemies near it, and area items' real extra hits on other heroes
-    (x mechanics.area_extra, area_hits.json)."""
+    (x mechanics.area_extra, area_hits.json). exp: expected over real fight lengths (= in full when the duel's
+    mechanics have no fight_length), else every hit in full."""
     d = collections.Counter()
-    for k, v in r.a_dmg.items():
+    for k, v in (r.a_exp if exp else r.a_dmg).items():
         d[key(k)] += v * (1.0 + (area_extra(k) or 0.0))
-    for k, v in r.a_splash.items():
+    for k, v in (r.a_splash_exp if exp else r.a_splash).items():
         d[key(k)] += v
     return d
 
@@ -84,7 +87,9 @@ def kind(key, G, classes):
     return "other"
 
 
-def sim_player(job):
+def sim_player(job, both=False):
+    """(hero id, sim damage by source, {item: [item dmg, gun dmg] of the duels holding it}); both=True: each of the
+    two as a pair (expected over real fight lengths, in full) from the same duels (scripts/fight_length)."""
     m, slot = job
     G = game()
     load_heroes()
@@ -93,8 +98,9 @@ def sim_player(job):
     h = G.hero(me["hero_id"])
     names = {ab.name: ab.class_name for ab in h.abilities}
     rnd = random.Random(m["match_id"] * 31 + slot)
-    out = collections.Counter()
+    out, out_u = collections.Counter(), collections.Counter()
     held = collections.defaultdict(lambda: [0.0, 0.0])   # item class -> [sim item dmg, sim gun dmg] in duels holding it
+    held_u = collections.defaultdict(lambda: [0.0, 0.0])
     for frac in L.FRACS:
         t = m["duration_s"] * frac
         items, souls = L.build_at(me, t)
@@ -103,18 +109,27 @@ def sim_player(job):
         a = Loadout(h.name, items, souls=souls, skill=skill_of(me))
         b = Loadout(foe["hero_id"], fitems, souls=fsouls, skill=skill_of(foe))
         try:
-            mech = dataclasses.replace(MECH, extra_targets=real_nearby("extra", RICOCHET_RADIUS, souls))
+            mech = dataclasses.replace(MECH, extra_targets=real_nearby("extra", RICOCHET_RADIUS, souls),
+                                       fight_length=real_length(souls) if LENGTH else None)
             r = duel(a, b, distance=default_distance(h.name), max_time=L.FIGHT_TIME, rng=random.Random(rnd.random()),
                      mechanics=mech)
         except Exception as e:  # noqa: BLE001
             out["_err:" + type(e).__name__ + ":" + str(e)[:80]] += 1
             continue
-        d = sim_sources(r, lambda k: L.sim_key(k, names, G))
-        out.update(d)
-        for i in items:
-            c = G.items[i].class_name
-            held[c][0] += d.get(c, 0.0)
-            held[c][1] += d.get("GUN", 0.0)
+        if PROFILE:
+            for k, v in r.a_by_2s.items():
+                out[f"_by2s:{k}"] += v
+            for k in range(int(math.ceil(r.time / 2))):
+                out[f"_alive:{k}"] += 1
+        for o, hd, exp in ((out, held, True), (out_u, held_u, False)) if both else ((out, held, True),):
+            d = sim_sources(r, lambda k: L.sim_key(k, names, G), exp)
+            o.update(d)
+            for i in items:
+                c = G.items[i].class_name
+                hd[c][0] += d.get(c, 0.0)
+                hd[c][1] += d.get("GUN", 0.0)
+    if both:
+        return me["hero_id"], (dict(out), dict(out_u)), (dict(held), dict(held_u))
     return me["hero_id"], dict(out), dict(held)
 
 
@@ -128,7 +143,10 @@ def mix(c, G, classes):
 
 def main():
     args = sys.argv[1:]
-    global BADGE
+    global BADGE, LENGTH
+    if "--no-length" in args:
+        LENGTH = False
+        args.remove("--no-length")
     if "--badge" in args:
         i = args.index("--badge")
         BADGE = int(args[i + 1])

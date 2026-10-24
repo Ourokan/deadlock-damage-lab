@@ -140,6 +140,11 @@ class Skill:
     ability_landing: dict = field(default_factory=dict)
     # the same fitted with deadsim.mechanics on (data/landing_rates_mech.json); used instead when mechanics are on
     ability_landing_mech: dict = field(default_factory=dict)
+    # for fights that book damage over real fight lengths (Mechanics.fight_length) the factors are x these (the fits
+    # counted every hit of a 20 s duel in full; scripts/fight_length/length_factors.py): abilities, and items in
+    # realistic mode (item_landing set; an item without a factor gets the correction alone)
+    ability_length_corr: dict = field(default_factory=dict)
+    item_length_corr: dict = field(default_factory=dict)
     use_abilities: bool = True
     use_actives: bool = True
     melee: bool = False         # deprecated, use melee_rate
@@ -209,6 +214,9 @@ class Hit:
     is_item: bool = False
     is_ult: bool = False
     weapon_proc: bool = False   # an ability hit that counts as a gun hit for Mystic Shot (Kinetic Carbine)
+    # the ability landing factor x reach availability in amount: they stand for hits that land less often, so a
+    # per-hit threshold (Mystic Burst's MinimumDamage) checks amount / landing, the size of a hit when it lands
+    landing: float = 1.0
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -231,6 +239,10 @@ class Fighter:
         self.dmg_out = {}           # source -> damage dealt
         self.dmg_in = {}
         self.healed = 0.0
+        # expected over real fight lengths (Engine.length_w; = dmg_out / healed when Mechanics.fight_length is off)
+        self.dmg_exp = {}
+        self.healed_exp = 0.0
+        self.dmg_by_2s = {}         # 2 s slice of the fight -> damage dealt in full (damage profile checks)
         self.items_fx = []
         self.abilities = []         # AbilityState
         self.plan = None            # deadsim.patterns.Plan (hero fight pattern), None = slot order
@@ -345,6 +357,7 @@ class Fighter:
         amt = min(self.max_hp - self.hp, amount * max(0.0, mult))
         self.hp += amt
         self.healed += amt
+        self.healed_exp += amt * self.e.length_w()
         return amt
 
     def add_barrier(self, amount, duration):
@@ -393,6 +406,13 @@ class FightResult:
     b_hit_while_summon: dict = field(default_factory=dict)
     a_summons_out: dict = field(default_factory=dict)   # kind -> [summons spawned, killed by the enemy]
     b_summons_out: dict = field(default_factory=dict)
+    # damage expected over real fight lengths (Mechanics.fight_length): each hit x P(the fight still goes on then);
+    # the same as a_dmg / a_splash when it is off
+    a_exp: dict = field(default_factory=dict)
+    b_exp: dict = field(default_factory=dict)
+    a_splash_exp: dict = field(default_factory=dict)
+    b_splash_exp: dict = field(default_factory=dict)
+    a_by_2s: dict = field(default_factory=dict)    # 2 s slice -> damage dealt in full (Fighter.dmg_by_2s)
 
     def summary(self):
         def top(d):
@@ -431,6 +451,23 @@ class Engine:
         if mech is not None and getattr(mech, "range_drift", False):
             from .mechanics import drift_params
             self.spread, self.spread_tau = drift_params()
+        # fight length: real fights mostly end in a disengage, not a death (data/fight_length.json). With
+        # Mechanics.fight_length (a survival curve) the fight still runs to a death or max_time, and every hit is
+        # also booked x P(the two are still trading at its time | nobody died) in Fighter.dmg_exp: the damage
+        # expected over real fight lengths, without a random cut that would swing results by whole casts.
+        self.length = getattr(mech, "fight_length", None) if mech is not None else None
+
+    def length_w(self, t=None):
+        """P(a real fight is still going at t s, default now | nobody died): 1 without Mechanics.fight_length."""
+        c = self.length
+        if not c:
+            return 1.0
+        from .mechanics import LENGTH_STEP
+        x = (self.t if t is None else t) / LENGTH_STEP
+        k = int(x)
+        if k >= len(c) - 1:
+            return c[-1]
+        return c[k] + (c[k + 1] - c[k]) * (x - k)
 
     # ---- range spread -------------------------------------------------------------------------------
     def p_within(self, r):
@@ -527,6 +564,7 @@ class Engine:
         if self.over or not dst.alive or raw <= 0:
             return 0.0
         amt = raw if pure else raw * src.st.outgoing_mult * (1.0 - src.stat("outgoing_penalty")) * (1.0 + src.stat("damage_amp"))
+        land = 1.0
         if is_ability and src.skill.ability_landing and not landed:
             # a sub-source of an ability ("Setup Bishop squares", "Ira Domini (blessed)") uses its ability's factor,
             # as landing_rates.py fits one factor per ability over all of its sources; an ability can also name the
@@ -536,8 +574,11 @@ class Engine:
                 fac = src.skill.ability_landing.get(getattr(ability.ab, "landing_key", None) or ability.ab.name)
             if fac is not None:
                 amt *= fac
+                land *= fac
         if is_ability and ability is not None:
-            amt *= ability.scratch.get("_avail", 1.0)   # expected wait for the target to be in reach (spread)
+            av = ability.scratch.get("_avail", 1.0)   # expected wait for the target to be in reach (spread)
+            amt *= av
+            land *= av
         if is_item and src.skill.item_landing:
             amt *= src.skill.item_landing.get(source, 1.0)
         if pure:
@@ -572,7 +613,8 @@ class Engine:
                 amt = f(dst, src, amt, kind, is_dot)
                 if amt <= 0:
                     return 0.0
-        hit = Hit(kind, source, 0.0, raw, is_ability, ability, headshots, hits, is_dot, is_item, is_ult, weapon_proc)
+        hit = Hit(kind, source, 0.0, raw, is_ability, ability, headshots, hits, is_dot, is_item, is_ult, weapon_proc,
+                  landing=land)
         booked = self.booking(src, dst, amt, kind, book or source, pure)
         if src.skill.item_landing and (book or len(booked) > 1):
             # damage booked under an item (Express Shot's proc shot, Escalating Exposure's amp) gets that item's
@@ -590,9 +632,13 @@ class Engine:
             left = min(left, max(0.0, dst.hp - 1.0))
         dst.hp -= left
         hit.amount = amt
+        w = self.length_w()
         for name, part in booked:
             src.dmg_out[name] = src.dmg_out.get(name, 0.0) + part
             dst.dmg_in[name] = dst.dmg_in.get(name, 0.0) + part
+            src.dmg_exp[name] = src.dmg_exp.get(name, 0.0) + part * w
+        k = int(self.t // 2)
+        src.dmg_by_2s[k] = src.dmg_by_2s.get(k, 0.0) + amt
         if "summons" in dst.counters and amt > 0:
             from .mechanics import note_hit_while_summoned
             note_hit_while_summoned(src, dst, amt, source)
@@ -917,10 +963,12 @@ class Engine:
             winner = b.name
         elif not b.alive and a.alive:
             winner = a.name
-        r = FightResult(winner, self.t, a.hp, b.hp, a.dmg_out, b.dmg_out, a.name, b.name, self.log)
+        r = FightResult(winner, self.t, a.hp, b.hp, a.dmg_out, b.dmg_out, a.name, b.name, self.log,
+                        a_exp=a.dmg_exp, b_exp=b.dmg_exp, a_by_2s=a.dmg_by_2s)
         if self.mech is not None:
             r.escaped = self.escaped
             r.a_splash, r.b_splash = a.counters.get("splash", {}), b.counters.get("splash", {})
+            r.a_splash_exp, r.b_splash_exp = a.counters.get("splash_exp", {}), b.counters.get("splash_exp", {})
             r.a_summon, r.b_summon = a.counters.get("summon_dmg", {}), b.counters.get("summon_dmg", {})
             r.a_summon_kind, r.b_summon_kind = a.counters.get("summon_dmg_kind", {}), b.counters.get("summon_dmg_kind", {})
             r.a_hit_while_summon = a.counters.get("hit_while_summon", {})
