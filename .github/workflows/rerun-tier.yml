@@ -104,6 +104,10 @@ jobs:
           python3 search/scripts/export.py
           python3 damage/scripts/export_overall.py
           python3 damage/scripts/export_path.py
+      - name: Check the new builds against real win edge
+        if: inputs.tier == 'phantom'
+        continue-on-error: true   # a report only; never holds back the results
+        run: python3 analysis/scripts/build_win_check.py --report-only
       - name: What changed since the last run
         continue-on-error: true   # the changelog never holds back the results
         env:
@@ -113,7 +117,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/game data/patch.json data/changes.json data/builds/aggregates damage/out search/out survival/out
+          git add data/game data/patch.json data/changes.json data/builds/aggregates damage/out search/out survival/out analysis/out/hero_item_edge.json analysis/out/build_win_check.md
           git diff --cached --quiet && { echo "No changes to commit"; exit 0; }
           git commit -m "Rerun searches (${{ inputs.tier }}): ${{ inputs.reason }}"
           git pull --no-rebase --no-edit origin main

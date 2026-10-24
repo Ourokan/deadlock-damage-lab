@@ -7,10 +7,14 @@ Phantom+ overall builds (damage/out/overall), lists recommended items whose real
 and strong-edge items the sim never picks.
 
     python3 analysis/scripts/build_win_check.py   # ~1 min
-Writes analysis/out/hero_item_edge.json (per hero, used by the site) and analysis/out/build_win_check.md.
+Writes analysis/out/hero_item_edge.json (per hero, used by the overall search and the site) and
+analysis/out/build_win_check.md. --report-only rewrites just the .md from the existing hero_item_edge.json (the
+patch rerun does this after the overall search; pipeline/refresh_win_edge.py refreshes the edges from the
+rerun's own player builds).
 """
 from __future__ import annotations
 
+import argparse
 import glob
 import gzip
 import json
@@ -22,6 +26,7 @@ ROOT = "/mnt/project-files"
 WORK = f"{ROOT}/analysis/work/item_win_edge"
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = f"{REPO}/analysis/out"
+EDGE_PATH = f"{OUT}/hero_item_edge.json"
 ITEMS = {x["id"]: x for x in json.load(open(f"{REPO}/data/game/shop_items.json"))}
 MIN_BR = 1          # item_win_edge.bracket(): 0 = badge//10 <= 6, 1 = 7-9 (Ritualist-Phantom), 2 = >= 10; so >= 1 is Ritualist+
 Z = 1.96
@@ -32,9 +37,10 @@ TAU = 0.015
 STRONG = 0.015
 
 
-def load():
+def load(files=None):
+    """Ritualist+ event counts from item_win_edge.py partials (default: every file in the shared-folder cache)."""
     ev = defaultdict(lambda: [0, 0])   # (item, hero, tb, lead, rel) -> [n, w]
-    for f in sorted(glob.glob(f"{WORK}/*.json.gz")):
+    for f in files if files is not None else sorted(glob.glob(f"{WORK}/*.json.gz")):
         with gzip.open(f, "rt") as fh:
             d = json.load(fh)
         for it, hero, tb, lead, rel, br, n, w in d["events"]:
@@ -46,9 +52,9 @@ def load():
     return ev
 
 
-def last_day():
+def last_day(files=None):
     """Last match day in the cache (file names are <day>.jsonl.gz.json.gz)."""
-    days = sorted(os.path.basename(f).split(".")[0] for f in glob.glob(f"{WORK}/*.json.gz"))
+    days = sorted(os.path.basename(f).split(".")[0] for f in (files if files is not None else glob.glob(f"{WORK}/*.json.gz")))
     return days[-1] if days else None
 
 
@@ -95,18 +101,46 @@ def sig(e, sign):
     return e and (e["edge"] - Z * e["se"] > 0 if sign > 0 else e["edge"] + Z * e["se"] < 0)
 
 
-def main():
-    heroes = hero_edges(load())
-    idx = json.load(open(f"{REPO}/damage/out/overall/index.json"))
+def write_edges(heroes, path=EDGE_PATH, **meta):
+    """hero_item_edge.json: hero id -> item id -> [edge, se, matched buyers, raw edge], in win-rate points."""
     hero_out = {str(h): {str(i): [round(100 * e["edge"], 2), round(100 * e["se"], 2), e["n"],
                                     round(100 * e["raw"], 2)]
                          for i, e in sorted(v.items())} for h, v in sorted(heroes.items())}
-    patch = json.load(open(f"{REPO}/data/patch.json"))
-    json.dump({"meta": {"brackets": "Ritualist+", "patch": patch["patch"], "matches_through": last_day(),
-                        "note": "static snapshot: rerun this script (needs the shared-folder cache) after a patch", "unit": "win-rate points vs same-slot same-tier items",
-                        "fields": ["edge (shrunk)", "se", "matched buyers", "raw edge"],
-                        "tau": TAU}, "heroes": hero_out},
-              open(f"{OUT}/hero_item_edge.json", "w"), separators=(",", ":"))
+    m = {"brackets": "Ritualist+", "unit": "win-rate points vs same-slot same-tier items",
+         "fields": ["edge (shrunk)", "se", "matched buyers", "raw edge"], "tau": TAU}
+    m.update(meta)
+    with open(path + ".tmp", "w") as f:
+        json.dump({"meta": m, "heroes": hero_out}, f, separators=(",", ":"))
+    os.replace(path + ".tmp", path)
+
+
+def read_edges(path=EDGE_PATH):
+    """hero_item_edge.json back into hero_edges() form (fractions; only edge and se are kept)."""
+    with open(path) as f:
+        d = json.load(f)
+    return {int(h): {int(i): {"edge": v[0] / 100, "se": v[1] / 100} for i, v in row.items()}
+            for h, row in d["heroes"].items()}
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--report-only", action="store_true",
+                    help="rewrite build_win_check.md from the existing hero_item_edge.json")
+    a = ap.parse_args()
+    if a.report_only:
+        heroes = read_edges()
+    else:
+        heroes = hero_edges(load())
+        patch = json.load(open(f"{REPO}/data/patch.json"))
+        write_edges(heroes, patch=patch["patch"], matches_through=last_day(),
+                    note="from the shared-folder cache; patch reruns refresh it from their own builds")
+    report(heroes)
+
+
+def report(heroes):
+    idx = json.load(open(f"{REPO}/damage/out/overall/index.json"))
+    with open(EDGE_PATH) as f:
+        em = json.load(f)["meta"]
     bad_tot = defaultdict(list)      # item -> [(hero, budget, edge)]
     miss_tot = defaultdict(list)     # item -> [(hero, edge)]
     rows = []
@@ -150,6 +184,9 @@ def main():
          "Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, "
          "vs other same-slot same-tier items, shrunk toward the item's all-hero edge) for every item in the Phantom+ \"Best overall\" builds. "
          f"Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.", "",
+         f"Edges: patch {em.get('patch')}, matches {em.get('matches_from', '?')} to {em.get('matches_through')}"
+         + (f", {em['matches']:,} Ritualist+ matches" if em.get("matches") else "")
+         + (f" (refreshed {em['refreshed']})" if em.get("refreshed") else "") + ".", "",
          f"- Recommended item slots with data: {n_rec}; mean edge {pp(sum_edge / max(n_rec, 1))} "
          f"(popular builds {pp(sum_pop / max(n_pop, 1))}); clearly positive {n_good}, clearly negative {n_bad}.", "",
          "Findings 2026-10-24 (one-off checks, not rerun by this script):",
