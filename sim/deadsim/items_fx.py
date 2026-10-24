@@ -165,7 +165,7 @@ class BuildUp(FX):
 
     def per_hit(self, f):
         base = (f.st.weapon or {}).get("bullet_damage", 0.0) or 1.0
-        return self.item.p(self.per_prop) * self.scale * base * f.e.spread_mean(f.st.falloff)
+        return self.item.p(self.per_prop) * self.scale * base * f.e.hit_falloff(f.st)
 
     def __init__(self, item, f):
         super().__init__(item, f)

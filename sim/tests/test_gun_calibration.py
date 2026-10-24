@@ -58,6 +58,14 @@ class GunCalibration(unittest.TestCase):
         f = mock.Mock(st=st, items_fx=[], weapon_pct=lambda: 0.0)
         self.assertAlmostEqual(far.bullet_damage(f)[0], st.bullet_damage, places=6)
 
+    def test_hit_falloff_is_the_landed_hits(self):
+        """Build-up per hit (Toxic Bullets) follows the hit's falloff: 1 for Graves' tether, the spread mean else."""
+        from deadsim.engine import Engine
+        e = Engine(distance=11.2)
+        self.assertAlmostEqual(e.hit_falloff(compute_stats("Graves", souls=0)), 1.0, places=6)
+        haze = compute_stats("Haze", souls=0)
+        self.assertEqual(e.hit_falloff(haze), e.spread_mean(haze.falloff))
+
     def test_far_reach_does_not_make_huge_hits(self):
         from deadsim.engine import GUN_REACH_FLOOR, Engine
         st = compute_stats("Graves", souls=0)

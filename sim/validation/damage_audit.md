@@ -12,13 +12,13 @@ Shares of damage to enemy heroes. Distance = half the summed absolute share gaps
 | Paradox | 168 | 0.24 / 0.34 | 0.48 / 0.52 | 0.23 / 0.10 | 0.03 / 0.04 | 0.14 |
 | The Doorman | 2 | 0.20 / 0.15 | 0.57 / 0.69 | 0.22 / 0.13 | 0.01 / 0.04 | 0.14 |
 | Viscous | 29 | 0.13 / 0.18 | 0.51 / 0.57 | 0.28 / 0.16 | 0.05 / 0.07 | 0.13 |
-| Mo & Krill | 176 | 0.07 / 0.09 | 0.47 / 0.58 | 0.39 / 0.29 | 0.05 / 0.04 | 0.12 |
 | Shiv | 209 | 0.27 / 0.33 | 0.48 / 0.53 | 0.16 / 0.05 | 0.08 / 0.08 | 0.12 |
 | Kelvin | 12 | 0.09 / 0.16 | 0.65 / 0.68 | 0.22 / 0.13 | 0.02 / 0.02 | 0.12 |
+| Mo & Krill | 176 | 0.07 / 0.09 | 0.47 / 0.58 | 0.39 / 0.29 | 0.05 / 0.04 | 0.12 |
 | Deadman Danny | 357 | 0.16 / 0.20 | 0.63 / 0.71 | 0.18 / 0.08 | 0.01 / 0.01 | 0.12 |
+| Graves | 151 | 0.20 / 0.20 | 0.50 / 0.43 | 0.27 / 0.37 | 0.02 / 0.00 | 0.10 |
 | Paige | 58 | 0.35 / 0.40 | 0.50 / 0.55 | 0.11 / 0.03 | 0.03 / 0.02 | 0.09 |
 | Vyper | 78 | 0.46 / 0.55 | 0.26 / 0.26 | 0.25 / 0.17 | 0.02 / 0.02 | 0.09 |
-| Graves | 151 | 0.20 / 0.20 | 0.50 / 0.44 | 0.27 / 0.36 | 0.02 / 0.00 | 0.09 |
 | Warden | 33 | 0.52 / 0.45 | 0.31 / 0.38 | 0.11 / 0.13 | 0.03 / 0.02 | 0.09 |
 | Nurse Harrow | 347 | 0.29 / 0.35 | 0.61 / 0.54 | 0.06 / 0.06 | 0.03 / 0.04 | 0.08 |
 | McGinnis | 49 | 0.20 / 0.19 | 0.64 / 0.72 | 0.12 / 0.08 | 0.02 / 0.01 | 0.07 |
@@ -95,7 +95,7 @@ real/sim = (real source dmg / real gun dmg) / (sim source dmg / sim gun dmg). Be
 | Mirage | Djinn's Mark | ability | 0.291 | 0.264 | 1.26 |
 | Apollo | MELEE | melee | 0.287 | 0.216 | 1.24 |
 | Holliday | Tankbuster | item | 0.060 | 0.024 | 2.76 |
-| Deadman Danny | Tankbuster | item | 0.079 | 0.046 | 2.14 |
+| Deadman Danny | Tankbuster | item | 0.079 | 0.046 | 2.13 |
 | Sinclair | Vexing Bolt | ability | 0.317 | 0.300 | 1.20 |
 
 ## Items (holders only, all heroes)
@@ -107,13 +107,13 @@ Item damage per gun damage while the item was owned (players who had it at a sam
 | Tankbuster | 1519 | 1.039 | 0.497 | 2.09 |
 | Mystic Burst | 1461 | 0.284 | 0.177 | 1.61 |
 | Quicksilver Reload | 1105 | 0.171 | 0.155 | 1.11 |
-| Toxic Bullets | 861 | 0.533 | 0.402 | 1.32 |
+| Toxic Bullets | 861 | 0.533 | 0.423 | 1.26 |
 | Stalker | 790 | 0.219 | 0.218 | 1.00 |
 | Spirit Snatch | 709 | 0.367 | 0.306 | 1.20 |
 | Ricochet | 695 | 0.156 | 0.000 | - |
 | Spirit Burn | 574 | 0.770 | 0.612 | 1.26 |
 | Torment Pulse | 569 | 1.358 | 1.135 | 1.20 |
-| Spirit Strike | 561 | 0.233 | 0.219 | 1.07 |
+| Spirit Strike | 561 | 0.233 | 0.219 | 1.06 |
 | Express Shot | 552 | 0.677 | 0.000 | - |
 | Siphon Bullets | 521 | 0.248 | 0.253 | 0.98 |
 | Escalating Exposure | 520 | 0.875 | 0.000 | - |
@@ -122,18 +122,18 @@ Item damage per gun damage while the item was owned (players who had it at a sam
 | Mystic Shot | 495 | 0.385 | 0.410 | 0.94 |
 | Headhunter | 407 | 0.440 | 0.440 | 1.00 |
 | Melee Charge | 379 | 0.240 | 0.104 | 2.30 |
-| Capacitor | 375 | 0.696 | 0.737 | 0.94 |
+| Capacitor | 375 | 0.696 | 0.736 | 0.95 |
 | Headshot Booster | 370 | 0.215 | 0.181 | 1.19 |
-| Mercurial Magnum | 339 | 0.295 | 0.294 | 1.01 |
+| Mercurial Magnum | 339 | 0.295 | 0.294 | 1.00 |
 | Rebuttal | 210 | 0.063 | 0.039 | 1.60 |
 | Mystic Reverb | 204 | 1.313 | 0.345 | 3.80 |
 | Lucky Shot | 200 | 0.397 | 0.197 | 2.02 |
-| Arctic Blast | 171 | 1.325 | 0.713 | 1.86 |
+| Arctic Blast | 171 | 1.325 | 0.712 | 1.86 |
 | Split Shot | 170 | 0.257 | 0.195 | 1.32 |
 | Crushing Fists | 143 | 0.303 | 0.091 | 3.32 |
 | Phantom Strike | 123 | 0.311 | 0.208 | 1.49 |
 | Decay | 107 | 1.538 | 1.274 | 1.21 |
-| Scourge | 105 | 2.027 | 1.943 | 1.04 |
+| Scourge | 105 | 2.027 | 1.942 | 1.04 |
 | Return Fire | 92 | 0.439 | 0.115 | 3.83 |
 | Alchemical Fire | 68 | 0.874 | 0.542 | 1.61 |
 | Focus Lens | 36 | 0.957 | 0.828 | 1.16 |

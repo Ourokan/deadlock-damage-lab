@@ -679,6 +679,15 @@ class Engine:
         # per in-range hit; floored so a nearly-out-of-range fight doesn't land rare 1000x hits (it then loses a little)
         return st.bullet_damage * (1.0 + pct) * fc[0] / max(self.gun_reach(st), GUN_REACH_FLOOR), fc[1]
 
+    def hit_falloff(self, st):
+        """E[falloff] of a hit that lands: over the distance spread, and for a range-cut gun only inside its range
+        (the shots outside miss, see gun_reach). Per-hit effects scaled by falloff (build-up) use this."""
+        if st.gun_range_m is None:
+            return self.spread_mean(st.falloff)
+        if self.spread <= 0:
+            return st.falloff(self.distance)
+        return self.fine_mean(st.falloff) / max(self.gun_reach(st), GUN_REACH_FLOOR)
+
     def gun_reach(self, st):
         """Share of the fight's distance spread inside the gun's range (Graves' tether: gun_range_m), else 1. Out of
         range the gun neither hits nor procs (replays: 2% of Graves' bullet damage lands beyond 20 m), so fire() takes

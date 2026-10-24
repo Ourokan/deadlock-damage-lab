@@ -561,9 +561,10 @@ extra hit could proc. Two causes, both in the tether:
 
 Result: Graves' hit 0.60x -> 0.92x real. After refitting his landing factors (Jar of Dead 0.28 / 0.30 with mechanics,
 Grasping Hands 0.11 / 0.12, Borrowed Decree 0.29 / 0.18), the Phantom+ audit gives: gun share 0.18 -> 0.20 (real 0.20),
-items 0.43 -> 0.36 (real 0.27), mix distance 0.16 -> 0.09. Real/sim went from 0.51 to 0.73 for Capacitor, 0.46 to 0.70
+items 0.43 -> 0.37 (real 0.27), mix distance 0.16 -> 0.10. Real/sim went from 0.51 to 0.73 for Capacitor, 0.46 to 0.70
 for Tesla Bullets, 0.42 to 0.52 for Mystic Shot and 0.45 to 0.59 for Siphon Bullets. Pooled over all holders, Tesla
-Bullets is now 0.98 and Capacitor 0.94. Still high: Mystic Shot and Torment Pulse (about 0.55).
+Bullets is now 0.98 and Capacitor 0.94. Build-up items (Toxic Bullets) scale their build-up by the landed hit's falloff
+(`Engine.hit_falloff`, 1 on the tether): Toxic Bullets 0.95. Still high: Mystic Shot and Torment Pulse (about 0.55).
 
 ## Known gaps (not yet modeled)
 
