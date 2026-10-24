@@ -11,8 +11,27 @@ Only "innate" item stats (always on) are summed here; conditional, proc and acti
 """
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass, field
-from .data import game, Hero, Item, UNITS_PER_METER
+from .data import game, gun_calibration, Hero, Item, UNITS_PER_METER
+
+_warned = set()
+
+
+def gun_quirks(hero_id):
+    """(charge_factor, tether_range_m) from data/gun_calibration.json (replay fit, scripts/gun_calib), or (1, None).
+    Deadman Danny's charged shot lands charge_factor x the base bullet damage of an ordinary hit and fires about
+    that much less often; Graves' tether gun only fires within tether_range_m."""
+    row = gun_calibration().get(str(hero_id)) or {}
+    fit = row.get("fit_weapon")
+    if fit and hero_id not in _warned:
+        w = game().heroes[hero_id].weapon
+        now = {k: w.get(k) for k in ("bullet_damage", "cycle_time", "clip_size")}
+        if any(now[k] != fit[k] for k in now):
+            _warned.add(hero_id)
+            warnings.warn(f"{game().heroes[hero_id].name}'s gun changed since data/gun_calibration.json was fitted "
+                          f"({fit} -> {now}): refit with scripts/gun_calib (charge factor and accuracy may be stale)")
+    return row.get("charge_factor") or 1.0, row.get("tether_range_m")
 
 # passive-section stats that are unconditional in practice (the tooltip lists them under "passive")
 ALWAYS_ON_PASSIVE = {
@@ -110,6 +129,7 @@ class Stats:
     spin_up_rate: float = 0.5         # spin fraction gained per second of firing
     spin_decay_rate: float = 0.25     # spin fraction lost per second not firing
     clip: int = 1
+    gun_range_m: float | None = None   # beyond it the gun deals nothing (Graves' tether)
     reload_time: float = 1.0
     reload_mult: float = 1.0
     bullet_lifesteal: float = 0.0
@@ -123,6 +143,8 @@ class Stats:
         return self.hero.weapon
 
     def falloff(self, meters: float) -> float:
+        if self.gun_range_m is not None and meters > self.gun_range_m:
+            return 0.0
         w = self.hero.weapon
         d = meters * UNITS_PER_METER
         s, e = w.get("damage_falloff_start_range", 0), w.get("damage_falloff_end_range", 0)
@@ -258,6 +280,9 @@ def compute_stats(hero, items=(), souls=None, level=None) -> Stats:
     st.bullet_damage = w.get("bullet_damage", 0) + boons * pb.get("MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL", 0)
     st.pellets = int(w.get("bullets", 1) or 1)
     st.cycle_time = w.get("cycle_time", 1.0)
+    charge, st.gun_range_m = gun_quirks(hero.id)
+    st.bullet_damage *= charge   # same damage per second as the data's gun, in fewer, bigger (charged) shots
+    st.cycle_time *= charge
     st.burst_count = int(w.get("burst_shot_count", 1) or 1)
     st.burst_interval = w.get("intra_burst_cycle_time", 0.0) or 0.0
     # spin-up guns (McGinnis, Victor): cycle time falls toward max_spin_cycle_time while firing
@@ -265,6 +290,9 @@ def compute_stats(hero, items=(), souls=None, level=None) -> Stats:
     st.spin_up_rate = w.get("spin_increase_rate", 0.5) or 0.5
     st.spin_decay_rate = w.get("spin_decay_rate", 0.25) or 0.25
     st.clip = max(1, int(round(w.get("clip_size", 1) * (1 + A("AMMO_CLIP_SIZE_PERCENT") / 100) + A("AMMO_CLIP_SIZE"))))
+    # a charged shot spends charge_factor rounds (Danny's replays: about 6 shots between reloads of a 14 clip), so
+    # reload downtime per second of fire stays the data gun's
+    st.clip = max(1, int(round(st.clip / charge)))
     st.reload_mult = 1.0 + A("RELOAD_SPEED") / 100
     st.reload_time = w.get("reload_duration", 1.0) * st.reload_mult
     st.bullet_lifesteal = A("BULLET_LIFESTEAL") / 100

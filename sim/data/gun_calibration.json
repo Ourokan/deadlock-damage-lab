@@ -1,0 +1,78 @@
+{
+ "source": "70 Phantom+ replays (sim/scripts/gun_calib), 395 reference players",
+ "shots_method": {
+  "count": "shots_fight4",
+  "api_shots_per_replay_shot": 0.9745,
+  "log_sd": 0.131
+ },
+ "time_method": {
+  "window_s": 1,
+  "c": 1.0059,
+  "log_sd": 0.403
+ },
+ "ref_hit_base_ratio": 1.2482,
+ "heroes": {
+  "76": {
+   "name": "Graves",
+   "n": 52,
+   "accuracy": {
+    "p25": 0.4213,
+    "p50": 0.4612,
+    "p75": 0.5062,
+    "p90": 0.5567
+   },
+   "headshot": {
+    "p25": 0.0,
+    "p50": 0.0,
+    "p75": 0.0,
+    "p90": 0.0
+   },
+   "accuracy_pooled": 0.4674,
+   "time_method_accuracy_p50": 0.5101,
+   "replay_hit_rate_p50": 0.247,
+   "base_damage_per_hit": 4.6,
+   "sim_base_damage_per_shot": 3.6,
+   "tether_shot_share": 0.674,
+   "tether_range_m": 20.0,
+   "median_distance_m": 11.2,
+   "n_distance": 151,
+   "fit_weapon": {
+    "bullet_damage": 3.6,
+    "cycle_time": 0.102,
+    "clip_size": 40,
+    "max_range_m": 20.0
+   }
+  },
+  "78": {
+   "name": "Deadman Danny",
+   "n": 47,
+   "accuracy": {
+    "p25": 0.2399,
+    "p50": 0.277,
+    "p75": 0.337,
+    "p90": 0.3848
+   },
+   "headshot": {
+    "p25": 0.0,
+    "p50": 0.0,
+    "p75": 0.0,
+    "p90": 0.0
+   },
+   "accuracy_pooled": 0.2878,
+   "time_method_accuracy_p50": 0.2698,
+   "replay_hit_rate_p50": 0.1588,
+   "base_damage_per_hit": 49.4,
+   "sim_base_damage_per_shot": 15.0,
+   "tether_shot_share": 0.0,
+   "charge_factor": 2.64,
+   "median_distance_m": 14.3,
+   "n_distance": 357,
+   "fit_weapon": {
+    "bullet_damage": 15.0,
+    "cycle_time": 0.25,
+    "clip_size": 14,
+    "max_range_m": null
+   }
+  }
+ }
+}

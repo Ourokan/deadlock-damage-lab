@@ -219,3 +219,16 @@ class Game:
             if souls >= g:
                 lvl = i + 1
         return max(lvl, 1)
+
+
+GUN_CAL = os.path.join(os.path.dirname(__file__), "..", "data", "gun_calibration.json")
+
+
+@lru_cache(maxsize=1)
+def gun_calibration() -> dict:
+    """{hero id (str): row} for heroes whose gun records no hero accuracy in the match stats (Graves' tether,
+    Deadman Danny's charged shot): accuracy/headshot percentiles fitted from replays (scripts/gun_calib) on the
+    API's hero-accuracy scale, plus the gun's charge_factor / tether_range_m. The file is committed: a missing or
+    broken one raises rather than quietly running both heroes on the all-hero default."""
+    with open(GUN_CAL) as fh:
+        return json.load(fh)["heroes"]

@@ -34,7 +34,7 @@ sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from deadsim import Loadout, duel, game  # noqa: E402
 from deadsim.abilities import load_heroes  # noqa: E402
-from deadsim.accuracy import HEADS, HITS, SHOTS, default_distance, hero_default_skill  # noqa: E402
+from deadsim.accuracy import HEADS, HITS, SHOTS, default_distance, gun_calibrated, hero_default_skill  # noqa: E402
 import landing_rates as L  # noqa: E402
 
 BADGE = 91
@@ -50,7 +50,7 @@ def skill_of(p):
     sk = _sk[hid]
     c = p["custom"]
     shots, hits = c.get(SHOTS, 0), c.get(HITS, 0)
-    if shots >= 300:
+    if shots >= 300 and not gun_calibrated(hid):   # Danny's API shots are a partial count: keep the replay fit
         sk = dataclasses.replace(sk, accuracy=hits / shots, headshot=c.get(HEADS, 0) / max(1, hits))
     return sk
 
@@ -129,7 +129,7 @@ def main():
         m = json.loads(line)
         n_matches += 1
         for p in m["players"]:
-            if p["hero_id"] not in G.heroes or p["custom"].get(HITS, 0) < L.MIN_HITS:
+            if p["hero_id"] not in G.heroes or not L.gun_known(p):
                 continue
             classes = [ab.class_name for ab in G.hero(p["hero_id"]).abilities]
             d = collections.Counter()

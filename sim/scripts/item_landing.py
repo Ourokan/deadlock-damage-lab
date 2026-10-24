@@ -32,7 +32,6 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from deadsim import game  # noqa: E402
-from deadsim.accuracy import HITS  # noqa: E402
 import damage_audit as A  # noqa: E402
 import landing_rates as L  # noqa: E402
 
@@ -63,7 +62,7 @@ def main():
     for line in gzip.open(sample):
         m = json.loads(line)
         for p in m["players"]:
-            if p["hero_id"] not in G.heroes or p["custom"].get(HITS, 0) < L.MIN_HITS:
+            if p["hero_id"] not in G.heroes or not L.gun_known(p):
                 continue
             classes = [ab.class_name for ab in G.hero(p["hero_id"]).abilities]
             r = collections.Counter()

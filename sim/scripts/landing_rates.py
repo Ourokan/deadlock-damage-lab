@@ -37,7 +37,7 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.insert(0, ROOT)
 from deadsim import Loadout, Skill, duel, game  # noqa: E402
 from deadsim.abilities import load_heroes  # noqa: E402
-from deadsim.accuracy import HEADS, HITS, SHOTS, ability_landing, default_distance  # noqa: E402
+from deadsim.accuracy import HEADS, HITS, SHOTS, ability_landing, default_distance, gun_calibrated, gun_calibration  # noqa: E402
 import deadsim.mechanics as MECH  # noqa: E402
 
 CATEGORY = {"Bullet", "Ability", "Melee", "Misc"}   # per-damage-type totals in the matrix, not sources
@@ -105,11 +105,20 @@ def current_landing(hero_id):
     return _landing[hero_id, mech]
 
 
+def gun_known(p):
+    """Enough real gun data to fit against: API hero hits, or a hero whose gun records none but has a replay-fitted
+    accuracy (Graves, Deadman Danny: data/gun_calibration.json)."""
+    return p["custom"].get(HITS, 0) >= MIN_HITS or gun_calibrated(p["hero_id"])
+
+
 def skill_of(p):
     c = p["custom"]
     shots, hits = c.get(SHOTS, 0), c.get(HITS, 0)
     rate = MELEE.get(p["hero_id"], MELEE_START)
-    if shots < 300:
+    cal = gun_calibration().get(str(p["hero_id"])) if gun_calibrated(p["hero_id"]) else None
+    if cal:   # the match stats' shots/hits for this gun are missing or partial
+        sk = Skill(accuracy=cal["accuracy"]["p50"], headshot=cal["headshot"]["p50"], melee_rate=rate)
+    elif shots < 300:
         sk = Skill(melee_rate=rate)
     else:
         sk = Skill(accuracy=hits / shots, headshot=c.get(HEADS, 0) / max(1, hits), melee_rate=rate)
@@ -225,7 +234,7 @@ def main():
     for line in gzip.open(SAMPLE):
         m = json.loads(line)
         for p in m["players"]:
-            if p["hero_id"] not in G.heroes or p["custom"].get(HITS, 0) < MIN_HITS or (only and p["hero_id"] not in only):
+            if p["hero_id"] not in G.heroes or not gun_known(p) or (only and p["hero_id"] not in only):
                 continue
             classes = [ab.class_name for ab in G.hero(p["hero_id"]).abilities]
             for k, v in p["damage_sources"].items():
