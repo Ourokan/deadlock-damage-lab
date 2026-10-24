@@ -537,19 +537,19 @@
   "Sinclair": {
    "Vexing Bolt": {
     "class": "ability_magician_magicbolt",
-    "landing": 0.669,
+    "landing": 0.63,
     "real_share": 0.3224,
     "sim_share": 0.2603
    },
    "Spectral Assistant": {
     "class": "ability_magician_cloneturret",
-    "landing": 0.492,
+    "landing": 0.41,
     "real_share": 0.2117,
     "sim_share": 0.1711
    },
    "Audience Participation": {
     "class": "ability_magician_copyult",
-    "landing": 0.0,
+    "landing": 0.76,
     "real_share": 0.0,
     "sim_share": 0.3541
    }
@@ -597,25 +597,25 @@
   "Venator": {
    "Consecrating Grenade": {
     "class": "ability_priest_flashbang",
-    "landing": 1.639,
+    "landing": 1.55,
     "real_share": 0.1497,
     "sim_share": 0.1334
    },
    "Gutshot": {
     "class": "ability_priest_knockback",
-    "landing": 1.278,
+    "landing": 1.29,
     "real_share": 0.1157,
     "sim_share": 0.1129
    },
    "Hex-Lined Snap Trap": {
     "class": "ability_priest_beartrap",
-    "landing": 0.306,
+    "landing": 0.29,
     "real_share": 0.0245,
     "sim_share": 0.0238
    },
    "Ira Domini": {
     "class": "ability_priest_weaponswap",
-    "landing": 0.031,
+    "landing": 0.63,
     "real_share": 0.1124,
     "sim_share": 0.1784
    }
@@ -769,45 +769,54 @@
   "Silver": {
    "Slam Fire": {
     "class": "ability_werewolf_unloadgun",
-    "landing": 0.718,
+    "landing": 0.7,
     "real_share": 0.0518,
     "sim_share": 0.0419
    },
    "Boot Kick": {
     "class": "ability_werewolf_kickflip",
-    "landing": 1.011,
+    "landing": 0.92,
     "real_share": 0.0885,
     "sim_share": 0.0715
    },
    "Entangling Bola": {
     "class": "ability_werewolf_netshot",
-    "landing": 1.133,
+    "landing": 1.13,
     "real_share": 0.0452,
     "sim_share": 0.0365
+   },
+   "Go For The Throat": {
+    "landing": 0.51
+   },
+   "Mauling Leap": {
+    "landing": 0.45
+   },
+   "Tail Whack": {
+    "landing": 0.79
    }
   },
   "Celeste": {
    "Light Eater": {
     "class": "ability_unicorn_radiantblast",
-    "landing": 0.677,
+    "landing": 0.7,
     "real_share": 0.2206,
     "sim_share": 0.2404
    },
    "Dazzling Trick": {
     "class": "ability_unicorn_prismaticguard",
-    "landing": 1.408,
+    "landing": 0.71,
     "real_share": 0.037,
     "sim_share": 0.04
    },
    "Radiant Daggers": {
     "class": "ability_unicorn_luminousstrike",
-    "landing": 0.627,
+    "landing": 0.54,
     "real_share": 0.1766,
     "sim_share": 0.1928
    },
    "Shining Wonder": {
     "class": "ability_unicorn_dazzlingorb",
-    "landing": 1.875,
+    "landing": 0.47,
     "real_share": 0.1848,
     "sim_share": 0.1613
    }
@@ -841,21 +850,29 @@
   "Solomon": {
    "Setup Bishop": {
     "class": "ability_chessmaster_throwbishop",
-    "landing": 0.022,
+    "landing": 0.28,
     "real_share": 0.2519,
     "sim_share": 0.4439
    },
    "Rook Battery": {
     "class": "ability_chessmaster_forkpiece",
-    "landing": 1.021,
+    "landing": 0.86,
     "real_share": 0.1739,
     "sim_share": 0.1337
    },
    "Develop Queen": {
     "class": "ability_chessmaster_queen",
-    "landing": 0.227,
+    "landing": 0.19,
     "real_share": 0.1448,
     "sim_share": 0.1112
+   }
+  },
+  "Nurse Harrow": {
+   "Leech Therapy": {
+    "landing": 1.37
+   },
+   "Lurking Terrors": {
+    "landing": 1.18
    }
   }
  }

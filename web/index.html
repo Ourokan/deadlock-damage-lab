@@ -24,6 +24,7 @@
       <a href="#duel" data-tab="duel">Duel builds</a>
       <a href="#tank" data-tab="tank">Tank builds</a>
       <a href="#team" data-tab="team">Team fight</a>
+      <a href="#changes" data-tab="changes">What changed</a>
     </nav>
     <span class="engine" id="engine" data-state="loading">Loading sim</span>
   </div>
@@ -141,7 +142,7 @@
   <section id="tab-maker" class="tab" hidden>
     <div class="intro">
       <h1>Build it against the team you're facing</h1>
-      <p>Start from nothing and add items. On the right, pick up to five enemies: each plays what Phantom+ players of that hero hold most at about your net worth. Every change fights you against each of them in the live sim, both sides shooting and casting for 15 s. Hover an item to preview it; suggestions weigh damage, survival and the utility a 1v1 fight can't show.</p>
+      <p>Start from nothing and add items, then pick up to five enemies: each plays what Phantom+ players of that hero hold most at about your net worth. Every change fights you against each of them in the live sim, both sides shooting and casting for 15 s. Hover an item to preview it (on a phone, tap to buy); suggestions weigh damage, survival and the utility a 1v1 fight can't show.</p>
     </div>
     <div class="mk-grid">
       <div class="panel mk-buildp">
@@ -305,6 +306,19 @@
     <button class="run" id="tf-run" disabled>Run team fight</button>
     <p class="err" id="tf-err" hidden></p>
     <div id="tf-out"></div>
+  </section>
+
+  <!-- What each rerun changed in the recommended builds, and why (pipeline/changes.py -> data/changes.json) -->
+  <section id="tab-changes" class="tab" hidden>
+    <div class="intro">
+      <h1>What changed</h1>
+      <p>Every time the searches rerun (after a game patch or hotfix, newer real player builds, or a change to the combat model), the recommended builds can move. Each run below lists why it ran and, for every hero and net worth, the items that left and joined the best build and how its number moved: damage before dying for the best overall build, dummy damage by 15 s for the best raw damage build. Builds whose items stayed the same are listed only when their number moved 5% or more.</p>
+    </div>
+    <div class="filters">
+      <label class="f"><span>Hero</span><select id="c-hero"></select></label>
+      <label class="f"><span>Build</span><select id="c-kind"><option value="overall">Best overall</option><option value="damage">Best raw damage</option></select></label>
+    </div>
+    <div id="c-out"></div>
   </section>
 
   <datalist id="souls-list"><option value="10000"><option value="18000"><option value="27000"><option value="37000"><option value="50000"></datalist>

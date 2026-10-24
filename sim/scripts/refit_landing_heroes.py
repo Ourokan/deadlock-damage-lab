@@ -7,7 +7,10 @@ every other hero as it is. Use it after changing how a few heroes fight (hero fi
 With --iterate N (default 1) each fit runs landing_rates.py --iterate N times, starting from the factors in the
 files: needed for heroes whose factors don't scale damage linearly (Haze: Bullet Dance shortens its channel).
 
-usage: python3 scripts/refit_landing_heroes.py [--iterate N] "Mo & Krill" Lash ...
+With --sample PATH the fits use that sample (e.g. a Phantom+ one from fetch_validation.py --api) instead of
+validation/matches_sample.jsonl.gz. Abilities the files don't list yet (a new hero) are added.
+
+usage: python3 scripts/refit_landing_heroes.py [--iterate N] [--sample PATH] "Mo & Krill" Lash ...
 """
 import contextlib
 import io
@@ -25,10 +28,14 @@ import landing_rates as L  # noqa: E402
 LINE = re.compile(r"^\s+landing (.+?)\s+([\d.]+)$", re.M)
 
 
+SAMPLE = []   # --sample PATH: fit on that sample instead of validation/matches_sample.jsonl.gz
+
+
 def fit(hero, mech, iterate=False):
     M.DEFAULT = M.Mechanics() if mech else None
     L._landing.clear()
-    sys.argv = ["landing_rates.py", "1000000000", str(os.cpu_count())] + (["--iterate"] if iterate else []) + ["--hero", hero]
+    sys.argv = (["landing_rates.py", "1000000000", str(os.cpu_count())] + (["--iterate"] if iterate else []) + SAMPLE
+                + ["--hero", hero])
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
         L.main()
@@ -44,15 +51,19 @@ def main(heroes, rounds=0):
                 new = fit(h, mech, iterate=rounds > 0)
                 rows = d["heroes"].setdefault(L.game().hero(h).name, {})
                 for ab, v in new.items():
-                    if ab in rows:
-                        print(f"{fn} {h} {ab}: {rows[ab]['landing']} -> {v}", flush=True)
-                        rows[ab]["landing"] = v
+                    old = rows.setdefault(ab, {"landing": None})
+                    print(f"{fn} {h} {ab}: {old['landing']} -> {v}", flush=True)
+                    old["landing"] = v
             json.dump(d, open(path, "w"), indent=1)   # the next round's fights read these factors
 
 
 if __name__ == "__main__":
     args = sys.argv[1:]
     n = 0
+    if "--sample" in args:
+        i = args.index("--sample")
+        SAMPLE[:] = ["--sample", args[i + 1]]
+        args = args[:i] + args[i + 2:]
     if "--iterate" in args:
         i = args.index("--iterate")
         n = int(args[i + 1])

@@ -153,7 +153,3 @@ Still off: Healing Booster is under-picked although the 1v1 already credits it w
 get (its amp adds ~900 HP/min in sim fights vs at most ~350 real), so the missing value is outside the duel (ally
 heals and team play). Radiant Regeneration was picked mostly for trip savings real holders don't show; its in-fight
 healing matches real (~1060 vs ~1280 HP/min of combat).
-
-Dispel Magic vs Decay re-measured with the right-aligned read (damage/scripts/decay_vs_dispel.py): Phantom+ Dispel
-holders take 80% of their teammates' Decay damage (1000 matches, 90% CI 75-85%), Eternus 90% (138 matches), all
-ranks 87%. The sim had Phantom+ cleansing after 3 s (25% landing) and Eternus after 1.5 s; both now 9.5 s.
