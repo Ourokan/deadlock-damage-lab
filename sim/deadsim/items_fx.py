@@ -346,6 +346,7 @@ class ExpressShot(FX):
             self.use()
             ctx["extra_pct"] += self.v("ProcBaseAttackDamagePercent") / 100
             ctx["pellet_mult"] *= 2
+            ctx["book"] = self.name   # the game books the whole proc shot under the item (replays: ~2x a gun hit)
             f.clip = max(0, f.clip - int(self.item.p("ProcAmmoConsumed", 2)) + 1)
 
 
@@ -1021,21 +1022,34 @@ class HealingTempo(FX):
 # ---------------------------------------------------------------------------------------------------
 @handler("upgrade_magic_burst", "upgrade_magic_shock")
 class MysticBurst(FX):
+    """Charges up over AbilityChargeUpTime and each qualifying ability hit releases what has charged, not a full proc
+    on a cooldown: in replays (70 Phantom+ matches, hero victims) a release's damage grows linearly with the time
+    since the last one, up to the full amount at 14 s (Mystic Burst median 2 after <1 s, 20 after 7 s, 39 after 14+;
+    Tankbuster 7 / 75 / 188), and releases on the same victim come 0.2-2 s apart, so ReProcLockoutTime is not a
+    lockout between releases. Full charge at the fight's start."""
+
+    def __init__(self, item, f):
+        super().__init__(item, f)
+        self.charged_at = -1e9
+
     def on_start(self, f):
-        self.ready_at = 0.0  # charged before the fight
+        self.charged_at = -1e9
 
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind != "spirit" or not hit.is_ability or hit.is_dot or not self.ready():
+        if hit.kind != "spirit" or not hit.is_ability or hit.is_dot:
             return
         if hit.amount < self.item.p("MinimumDamage", 80):
             return
-        self.use("AbilityChargeUpTime")
+        charge = min(1.0, (self.now - self.charged_at) / max(1e-6, self.cd("AbilityChargeUpTime")))
+        self.charged_at = self.now
+        if charge <= 0:
+            return
         dmg = self.v("Damage")
         if self.item.class_name == "upgrade_magic_shock":   # Tankbuster: + % current health, ignores resist
             dmg += t.hp * self.item.p("CurrentHealthDamage") / 100
-            f.e.damage(f, t, dmg, "spirit", self.name, ignore_resist=True, is_item=True, procs=False)
+            f.e.damage(f, t, dmg * charge, "spirit", self.name, ignore_resist=True, is_item=True, procs=False)
         else:
-            f.e.damage(f, t, dmg, "spirit", self.name, is_item=True, procs=False)
+            f.e.damage(f, t, dmg * charge, "spirit", self.name, is_item=True, procs=False)
 
 
 @handler("upgrade_magic_vulnerability")
