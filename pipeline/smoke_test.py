@@ -216,7 +216,7 @@ with open(os.path.join(ROOT, ".github", "workflows", "patch-rerun.yml")) as _f:
     _wf = _f.read()
 _parts = json.loads(re.search(r"^\s+part: (\[[\d, ]*\])", _wf, re.M).group(1))   # the team job's matrix
 assert _parts == list(range(len(TV.ALLY_ITEMS))), (_parts, len(TV.ALLY_ITEMS))
-assert re.findall(r"--part \S+ --of (\d+)", _wf) == [str(len(TV.ALLY_ITEMS))], "team job --of != ALLY_ITEMS"
+assert re.findall(r"--part [^\n]*? --of (\d+)", _wf) == [str(len(TV.ALLY_ITEMS))], "team job --of != ALLY_ITEMS"
 _tmp = tempfile.mkdtemp()
 _out, TV.OUT = TV.OUT, os.path.join(_tmp, "team_value.json")
 _res = {i: {"10000": {"value": k / 10, "se": 0.01, "swing_on": 1.0, "swing_off": 0.5, "holder_damage": 9.0,
