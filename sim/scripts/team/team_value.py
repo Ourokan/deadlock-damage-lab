@@ -128,7 +128,10 @@ def main():
                   f"(swing +{v['on']:.0f} with allies, +{v['off']:.0f} without)", flush=True)
     d = json.load(open(OUT)) if os.path.exists(OUT) else {}
     old = d.get("items", {}).get("values", {})
+    with open(os.path.join(SIM, "..", "data", "patch.json")) as f:
+        patch = json.load(f)["patch"]
     d["items"] = {
+        "patch": patch,
         "source": f"team_value.py: {LINEUPS} random 3v3 lineups x 3 holders x focus/spread x 12/20 m, "
                   f"{MAX_TIME:.0f} s, popular builds, Phantom+ skills",
         "values": {i: {"reach": ALLY_ITEMS[i][0], "radius_m": ALLY_ITEMS[i][1], "reach_sim": ALLY_ITEMS[i][2],

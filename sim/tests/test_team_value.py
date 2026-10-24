@@ -53,6 +53,10 @@ class AllyItems(unittest.TestCase):
         for name in ("Healing Nova", "Heroic Aura", "Divine Barrier"):
             self.assertGreater(O.team_value([ID[name]], 27000), 1.0, name)
 
+    def test_noisy_fits_count_zero(self):
+        # Hunter's Aura at 50k: 0.013 +- 0.039, inside its 95% band
+        self.assertEqual(O.team_value([ID["Hunter's Aura"]], 50000), 1.0)
+
     def test_values_add(self):
         a, b = ID["Healing Nova"], ID["Heroic Aura"]
         both = O.team_value([a, b], 27000) - 1

@@ -35,7 +35,8 @@ to real damage, which already counts every target hit.
 `sim/scripts/team/team_value.py` puts each ally item on one hero of 40 random 3v3 lineups (popular builds, Phantom+
 skills, both targeting modes, 12 and 20 m) and compares the item's swing with and without everything that reaches
 teammates (`team_fight(allies=False)`). The team-only part, as a share of the holder's own damage, is scaled by the
-real teammates in reach above, and the overall score is multiplied by 1 + the sum. Score factor per item:
+real teammates in reach above, and the overall score is multiplied by 1 + the sum. Fits inside their 95% band count 0
+(the search would chase lucky noise). Score factor per item:
 
 | item | 10k | 18k | 27k | 37k | 50k |
 |---|---|---|---|---|---|
@@ -44,8 +45,8 @@ real teammates in reach above, and the overall score is multiplied by 1 + the su
 | Heroic Aura | 1.07 | 1.08 | 1.09 | 1.15 | 1.10 |
 | Restorative Locket | 1.11 | 1.09 | 1.08 | 1.05 | 1.04 |
 | Guardian Ward | 1.09 | 1.08 | 1.07 | 1.09 | 1.04 |
-| Rescue Beam | 1.10 | 1.05 | 1.05 | 1.02 | 1.03 |
-| Hunter's Aura | 1.01 | 1.01 | 1.01 | 1.01 | 1.00 |
+| Rescue Beam | 1.10 | 1.05 | 1.05 | 1.00 | 1.00 |
+| Hunter's Aura | 1.01 | 1.01 | 1.00 | 1.01 | 1.00 |
 
 Heroic Aura's passive (17% bullet resist to nearby teammates) was missing from the team fight sim and is added; it is
 most of the item's team value (team-only 0.02 of the holder's damage without it, 0.12 with it at 27k).

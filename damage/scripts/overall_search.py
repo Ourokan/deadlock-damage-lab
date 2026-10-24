@@ -121,6 +121,12 @@ def team_data():
     if _team is None:
         with open(TEAM_PATH) as f:
             _team = json.load(f)
+        with open(os.path.join(ROOT, "..", "data", "patch.json")) as f:
+            patch = json.load(f)["patch"]
+        fit = _team.get("items", {}).get("patch")
+        if fit != patch:
+            print(f"warning: {TEAM_PATH} ally item values are from patch {fit}, the sim is on {patch}; "
+                  "rerun sim/scripts/team/team_value.py", file=sys.stderr)
     return _team
 
 
@@ -160,7 +166,7 @@ def area_damage(r, souls):
 
 def team_value(items, souls):
     """1 + the held ally items' team-only value (share of the holder's damage it gives teammates, per teammate in the
-    3v3) x real teammates in reach / the 3v3's (team_value.json items). Negative fits (noise) count 0."""
+    3v3) x real teammates in reach / the 3v3's (team_value.json items). Only fits clear of their 95% band count."""
     vals = team_data().get("items", {}).get("values", {})
     g = S.G()
     v = 1.0
@@ -171,7 +177,8 @@ def team_value(items, souls):
         bud = spec["budgets"]
         b = min(bud, key=lambda k: abs(math.log(int(k) / souls)))
         kind = {"allies": "allies", "any": "any_ally", "enemies": "extra_self"}[spec["reach"]]
-        v += max(0.0, bud[b]["value"]) * near(kind, spec["radius_m"], souls) / spec["reach_sim"]
+        if bud[b]["value"] > 1.96 * bud[b].get("se", 0.0):   # the search would chase lucky noisy fits
+            v += bud[b]["value"] * near(kind, spec["radius_m"], souls) / spec["reach_sim"]
     return v
 
 
