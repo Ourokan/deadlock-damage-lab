@@ -19,9 +19,10 @@ _warned = set()
 
 
 def gun_quirks(hero_id):
-    """(charge_factor, tether_range_m) from data/gun_calibration.json (replay fit, scripts/gun_calib), or (1, None).
-    Deadman Danny's charged shot lands charge_factor x the base bullet damage of an ordinary hit and fires about
-    that much less often; Graves' tether gun only fires within tether_range_m."""
+    """(charge_factor, tether_range_m, falloff) from data/gun_calibration.json (replay fit, scripts/gun_calib), or
+    (1, None, True). Deadman Danny's charged shot lands charge_factor x the base bullet damage of an ordinary hit and
+    fires about that much less often; Graves' tether gun only fires within tether_range_m and loses nothing to the
+    data's distance falloff (falloff false: scripts/gun_calib/hit_damage.py)."""
     row = gun_calibration().get(str(hero_id)) or {}
     fit = row.get("fit_weapon")
     if fit and hero_id not in _warned:
@@ -31,7 +32,7 @@ def gun_quirks(hero_id):
             _warned.add(hero_id)
             warnings.warn(f"{game().heroes[hero_id].name}'s gun changed since data/gun_calibration.json was fitted "
                           f"({fit} -> {now}): refit with scripts/gun_calib (charge factor and accuracy may be stale)")
-    return row.get("charge_factor") or 1.0, row.get("tether_range_m")
+    return row.get("charge_factor") or 1.0, row.get("tether_range_m"), row.get("falloff", True)
 
 # passive-section stats that are unconditional in practice (the tooltip lists them under "passive")
 ALWAYS_ON_PASSIVE = {
@@ -130,6 +131,7 @@ class Stats:
     spin_decay_rate: float = 0.25     # spin fraction lost per second not firing
     clip: int = 1
     gun_range_m: float | None = None   # beyond it the gun deals nothing (Graves' tether)
+    gun_falloff: bool = True           # False: no distance falloff inside gun_range_m (Graves' tether)
     reload_time: float = 1.0
     reload_mult: float = 1.0
     bullet_lifesteal: float = 0.0
@@ -145,6 +147,8 @@ class Stats:
     def falloff(self, meters: float) -> float:
         if self.gun_range_m is not None and meters > self.gun_range_m:
             return 0.0
+        if not self.gun_falloff:
+            return 1.0
         w = self.hero.weapon
         d = meters * UNITS_PER_METER
         s, e = w.get("damage_falloff_start_range", 0), w.get("damage_falloff_end_range", 0)
@@ -280,7 +284,7 @@ def compute_stats(hero, items=(), souls=None, level=None) -> Stats:
     st.bullet_damage = w.get("bullet_damage", 0) + boons * pb.get("MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL", 0)
     st.pellets = int(w.get("bullets", 1) or 1)
     st.cycle_time = w.get("cycle_time", 1.0)
-    charge, st.gun_range_m = gun_quirks(hero.id)
+    charge, st.gun_range_m, st.gun_falloff = gun_quirks(hero.id)
     st.bullet_damage *= charge   # same damage per second as the data's gun, in fewer, bigger (charged) shots
     st.cycle_time *= charge
     st.burst_count = int(w.get("burst_shot_count", 1) or 1)

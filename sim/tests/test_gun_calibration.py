@@ -20,7 +20,7 @@ G = game()
 class GunCalibration(unittest.TestCase):
     def test_danny_charged_shot_keeps_damage_per_second(self):
         h = G.hero("Deadman Danny")
-        cf, _ = gun_quirks(h.id)
+        cf, _, _ = gun_quirks(h.id)
         self.assertGreater(cf, 1.5)
         st = compute_stats(h.name, souls=0)
         self.assertAlmostEqual(st.bullet_damage, h.weapon["bullet_damage"] * cf)
@@ -35,6 +35,28 @@ class GunCalibration(unittest.TestCase):
         self.assertGreater(st.falloff(r - 0.1), 0.0)
         self.assertEqual(st.falloff(r + 0.1), 0.0)
         self.assertIsNone(compute_stats("Haze", souls=0).gun_range_m)
+
+    def test_graves_tether_has_no_falloff(self):
+        """Replays: with the data's falloff (50% by 17 m) the sim's Graves hit dealt 0.6x the real one, other heroes
+        0.8-1.6x (scripts/gun_calib/hit_damage.py), so the tether keeps full damage inside its range."""
+        st = compute_stats("Graves", souls=0)
+        self.assertFalse(st.gun_falloff)
+        self.assertEqual(st.falloff(15.0), 1.0)
+        haze = compute_stats("Haze", souls=0)
+        self.assertTrue(haze.gun_falloff)
+        self.assertLess(haze.falloff(60.0), 1.0)
+
+    def test_out_of_range_tether_shots_miss(self):
+        """Beyond the tether the shot misses (no hit, no on-hit procs); in range a hit keeps its full damage."""
+        from deadsim.engine import Engine
+        st = compute_stats("Graves", souls=0)
+        near, far = Engine(distance=5.0), Engine(distance=40.0)
+        self.assertGreater(near.gun_reach(st), 0.9)
+        self.assertLess(far.gun_reach(st), 0.25)   # the spread still brings some of a 40 m fight inside 20 m
+        haze = compute_stats("Haze", souls=0)
+        self.assertEqual(far.gun_reach(haze), 1.0)
+        f = mock.Mock(st=st, items_fx=[], weapon_pct=lambda: 0.0)
+        self.assertAlmostEqual(far.bullet_damage(f)[0], st.bullet_damage, places=6)
 
     def test_calibrated_aim_is_the_default(self):
         for name in ("Graves", "Deadman Danny"):
@@ -65,7 +87,7 @@ class GunCalibration(unittest.TestCase):
         with mock.patch.dict(h.weapon, {"bullet_damage": h.weapon["bullet_damage"] + 1}), \
                 mock.patch.object(B, "_warned", set()), warnings.catch_warnings(record=True) as got:
             warnings.simplefilter("always")
-            cf, _ = B.gun_quirks(h.id)
+            cf, _, _ = B.gun_quirks(h.id)
             B.gun_quirks(h.id)
         self.assertEqual(cf, gun_calibration()[str(h.id)]["charge_factor"])
         self.assertEqual(len([x for x in got if "gun_calib" in str(x.message)]), 1)

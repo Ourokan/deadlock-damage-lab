@@ -667,14 +667,41 @@ class Engine:
         key = (id(st), d)
         fc = self._fall.get(key)
         if fc is None:   # E[falloff] and E[falloff x crit] over the spread (headshots get the joint one)
-            fall = self.spread_mean(st.falloff, d)
+            fall = (self.fine_mean if st.gun_range_m is not None else self.spread_mean)(st.falloff, d)
             fc = self._fall[key] = (fall, self.spread_mean(lambda x: st.falloff(x) * st.crit_mult(x), d) / max(fall, 1e-9))
         for fx in f.items_fx:   # close/long range bonuses pay where falloff is high/low, not at its average
             g = getattr(fx, "range_band", None)
             if g:
                 r, bonus, close = g()
                 pct += bonus * self.band_corr(st, r, close, d)
-        return st.bullet_damage * (1.0 + pct) * fc[0], fc[1]
+        return st.bullet_damage * (1.0 + pct) * fc[0] / self.gun_reach(st), fc[1]
+
+    def gun_reach(self, st):
+        """Share of the fight's distance spread inside the gun's range (Graves' tether: gun_range_m), else 1. Out of
+        range the gun neither hits nor procs (replays: 2% of Graves' bullet damage lands beyond 20 m), so fire() takes
+        it off the hit chance and bullet_damage() is the in-range hit's damage."""
+        r = st.gun_range_m
+        if r is None:
+            return 1.0
+        if self.spread <= 0:
+            return 1.0 if self.distance <= r else 0.0
+        key = (id(st), self._dkey(), "reach")
+        p = self._fall.get(key)
+        if p is None:
+            p = self._fall[key] = max(self.fine_mean(lambda x: float(x <= r)), 1e-9)
+        return p
+
+    def fine_mean(self, fn, d=None):
+        """spread_mean on a fine grid, for functions with a step (a range edge) that 7 Gauss-Hermite nodes miss."""
+        from .mechanics import DRIFT_MAX, DRIFT_MIN
+        d = self._dkey() if d is None else d
+        num = den = 0.0
+        for i in range(161):
+            z = -4.0 + i * 0.05
+            w = math.exp(-0.5 * z * z)
+            num += w * fn(min(DRIFT_MAX, max(DRIFT_MIN, d * math.exp(self.spread * z))))
+            den += w
+        return num / den
 
     def _dkey(self):
         """Distance for the spread caches: exact at the fight's starting distance (the usual fight), else 0.25 m
@@ -776,7 +803,7 @@ class Engine:
             if s is not None:
                 shoot_summon(self, f, s, n_bullets)
                 return
-        p_hit = f.skill.accuracy * (1.0 - e.stat("evasion"))
+        p_hit = f.skill.accuracy * (1.0 - e.stat("evasion")) * self.gun_reach(st)
         hits = f.hit_acc.take(p_hit, n_bullets)
         if hits <= 0:
             return

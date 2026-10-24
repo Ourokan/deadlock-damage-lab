@@ -15,7 +15,8 @@ Charged gun (Danny): a replay hit deals charge_factor x the base bullet damage o
 headshots and resists taken out), and Danny fires about 1 shot a second instead of the data's 4. The sim keeps the
 gun's damage per second and fires charge_factor x bigger shots charge_factor x less often (build.py).
 Tethered gun (Graves): The Teacher only fires through a tether that attaches within MaxRange (20 m); beyond it the
-sim's gun deals nothing (tether_range_m, build.Stats.falloff).
+sim's gun deals nothing (tether_range_m, build.Stats.falloff), and inside it no distance falloff ("falloff": false),
+because with it the sim's Graves hit dealt 0.6x the real one (hit_damage.py).
 
 usage: python3 fit_guns.py <gun_stats.json> [sample.jsonl.gz for the distance] [--write]
 --write stores the result in data/gun_calibration.json (read by deadsim.accuracy.hero_default_skill).
@@ -168,6 +169,7 @@ def main():
             row["charge_factor"] = round(dph / bd / q_ref, 3)
         if hid in TETHERED:
             row["tether_range_m"] = tether_range(hid)
+            row["falloff"] = False   # hit_damage.py: with the data's falloff the sim's hit is 0.6x real (others 0.8-1.6x)
         d = distance(sample, hid)
         if d:
             row["median_distance_m"], row["n_distance"] = d
