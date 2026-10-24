@@ -282,3 +282,14 @@ body.sheet-open { overflow: hidden; }
 .mk-score i { display: block; height: 100%; background: var(--accent); }
 .mk-sug-b { font-size: .84rem; color: var(--muted); }
 .mk-sug-b b { color: var(--fg); font-weight: 600; }
+
+/* What changed tab: one collapsible block per rerun */
+.chg { border: 1px solid var(--line); border-radius: 6px; background: var(--panel); margin-top: 12px; }
+.chg > summary { cursor: pointer; padding: 10px 14px; font: 500 .95rem var(--head); }
+.chg-b { padding: 0 14px 14px; }
+.chg-b h3 { font-size: .82rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 4px 0 6px; }
+.causes { margin: 0 0 12px; padding-left: 18px; font-size: .88rem; }
+.causes li { margin: 2px 0; }
+.causes .tag { margin: 0 4px 0 0; }
+.it.gone { text-decoration: line-through; opacity: .6; }
+.it.new { border-color: var(--good); }
