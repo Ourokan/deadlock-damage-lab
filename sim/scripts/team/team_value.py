@@ -148,7 +148,14 @@ def main():
     q = ap.parse_args()
     global REQUIRE_POOLS
     REQUIRE_POOLS = q.require_pools
-    popular("Haze", BUDGETS[0])   # fail here, not inside a worker
+    for b in BUDGETS:   # fail here, not inside a worker; loaded pools are shared with the forked workers
+        popular("Haze", b)
+    if REQUIRE_POOLS:
+        for h in lineups():
+            for b in BUDGETS:
+                for x in h:
+                    if not popular(x, b):
+                        sys.exit(f"no popular {x} build at {b} souls in the pools (--require-pools)")
     todo = [i for i in q.items.split(",") if i] or list(ALLY_ITEMS)
     jobs = [(i, b) for i in todo for b in BUDGETS]
     res = {}
