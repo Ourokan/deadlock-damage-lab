@@ -523,8 +523,10 @@ replays instead (Deadlock API demo queries, 70 matches of Oct 20-24 with one of 
 - **Graves' tether** only attaches within MaxRange 20 m (the gun's own data). Beyond it a shot misses: no hit and no
   on-hit procs (`Engine.gun_reach` takes the out-of-range share of the distance spread off the hit chance; real
   Phantom+ Graves deal 2% of their bullet damage beyond 20 m). Inside it the tether has no distance falloff
-  (`"falloff": false`, `Stats.gun_falloff`), see "Graves' hit damage" below. The fit's accuracy includes his
-  untethered shots inside fights.
+  (`"falloff": false`, `Stats.gun_falloff`), see "Graves' hit damage" below. The fit's accuracy counts all his shots
+  inside fights, so it partly overlaps the out-of-range cut (beyond 20 m the gun dealt nothing before this cut too).
+  The overlap is small in practice: with both, his gun share matches real (0.20 vs 0.20), while taking the cut back
+  out of the accuracy (accuracy / reach, about 1.28x the hits) would push it to roughly 0.24.
 - **Patches:** the file records the gun it was fitted on (`fit_weapon`). If a patch changes either gun, the old fit
   keeps running and `build.gun_quirks` warns once per hero. Patch reruns can't refit, because that needs live
   replay queries: rerun `fetch_guns.py`, `gun_stats.py` and `fit_guns.py --write` by hand, then

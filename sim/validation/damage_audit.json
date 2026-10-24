@@ -856,8 +856,8 @@
    },
    "sim_mix": {
     "gun": 0.1997,
-    "ability": 0.4393,
-    "item": 0.356,
+    "ability": 0.4392,
+    "item": 0.3561,
     "melee": 0.0,
     "other": 0.0049
    },
@@ -874,7 +874,7 @@
      "name": "Borrowed Decree",
      "kind": "ability",
      "real_share": 0.1948,
-     "sim_share": 0.1681,
+     "sim_share": 0.168,
      "real_over_sim": 1.179
     },
     "ability_necro_zombiewall": {
@@ -882,7 +882,7 @@
      "kind": "ability",
      "real_share": 0.0881,
      "sim_share": 0.0571,
-     "real_over_sim": 1.569
+     "real_over_sim": 1.57
     },
     "upgrade_toxic_bullets": {
      "name": "Toxic Bullets",
@@ -896,7 +896,7 @@
      "kind": "item",
      "real_share": 0.0552,
      "sim_share": 0.0765,
-     "real_over_sim": 0.734
+     "real_over_sim": 0.733
     },
     "upgrade_chain_lightning": {
      "name": "Tesla Bullets",
@@ -916,7 +916,7 @@
      "name": "Mystic Shot",
      "kind": "item",
      "real_share": 0.0333,
-     "sim_share": 0.065,
+     "sim_share": 0.0649,
      "real_over_sim": 0.522
     },
     "MELEE": {
@@ -926,19 +926,19 @@
      "sim_share": 0.0,
      "real_over_sim": null
     },
-    "upgrade_escalating_exposure": {
-     "name": "Escalating Exposure",
-     "kind": "item",
-     "real_share": 0.0111,
-     "sim_share": 0.0,
-     "real_over_sim": null
-    },
     "upgrade_siphon_bullets": {
      "name": "Siphon Bullets",
      "kind": "item",
      "real_share": 0.0111,
      "sim_share": 0.0191,
      "real_over_sim": 0.589
+    },
+    "upgrade_escalating_exposure": {
+     "name": "Escalating Exposure",
+     "kind": "item",
+     "real_share": 0.0111,
+     "sim_share": 0.0,
+     "real_over_sim": null
     }
    }
   },
@@ -1083,11 +1083,11 @@
     "other": 0.022
    },
    "sim_mix": {
-    "gun": 0.1919,
-    "ability": 0.715,
-    "item": 0.0775,
+    "gun": 0.1917,
+    "ability": 0.7154,
+    "item": 0.0774,
     "melee": 0.0051,
-    "other": 0.0105
+    "other": 0.0104
    },
    "mix_distance": 0.073,
    "sources": {
@@ -1095,14 +1095,14 @@
      "name": "Mini Turret",
      "kind": "ability",
      "real_share": 0.4667,
-     "sim_share": 0.415,
-     "real_over_sim": 1.093
+     "sim_share": 0.4158,
+     "real_over_sim": 1.089
     },
     "citadel_ability_rocket_barrage": {
      "name": "Heavy Barrage",
      "kind": "ability",
      "real_share": 0.1361,
-     "sim_share": 0.2581,
+     "sim_share": 0.2577,
      "real_over_sim": 0.512
     },
     "upgrade_escalating_exposure": {
@@ -1124,14 +1124,14 @@
      "kind": "item",
      "real_share": 0.0208,
      "sim_share": 0.0149,
-     "real_over_sim": 1.357
+     "real_over_sim": 1.358
     },
     "MELEE": {
      "name": "MELEE",
      "kind": "melee",
      "real_share": 0.0178,
      "sim_share": 0.0051,
-     "real_over_sim": 3.395
+     "real_over_sim": 3.403
     },
     "upgrade_spirit_burn": {
      "name": "Spirit Burn",
@@ -1144,7 +1144,7 @@
      "name": "citadel_ability_shiv_defer_damage",
      "kind": "other",
      "real_share": 0.012,
-     "sim_share": 0.0105,
+     "sim_share": 0.0104,
      "real_over_sim": 1.118
     },
     "upgrade_ethereal_bullets": {
@@ -1152,7 +1152,7 @@
      "kind": "item",
      "real_share": 0.01,
      "sim_share": 0.0142,
-     "real_over_sim": 0.68
+     "real_over_sim": 0.681
     }
    }
   },
@@ -3535,7 +3535,7 @@
    "name": "Capacitor",
    "holders": 375,
    "real_per_gun": 0.6962,
-   "sim_per_gun": 0.7372,
+   "sim_per_gun": 0.7373,
    "real_over_sim": 0.944
   },
   "upgrade_headshot_booster": {

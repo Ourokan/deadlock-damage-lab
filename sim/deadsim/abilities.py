@@ -244,14 +244,15 @@ class CastCtx:
     def gun_volley(self, n_bullets, per_bullet=None, *, name=None, accuracy=None, headshots=True, procs=True,
                    extra_pct=0.0, kind="bullet", landed=False):
         """Fire n bullets from an ability (e.g. a gun-based ultimate). per_bullet defaults to the hero's
-        current gun bullet (weapon %, falloff included). Accuracy/headshots use the caster's skill. landed=True:
-        the landing factor was applied another way, so the engine does not scale the damage by it."""
+        current gun bullet (weapon %, falloff included; out of the gun's range the bullets miss). Accuracy/headshots use
+        the caster's skill. landed=True: the landing factor was applied another way, so the engine does not scale the
+        damage by it."""
         f, e = self.me, self.foe
         eng = f.e
         base, crit = eng.bullet_damage(f, extra_pct)
         per = base if per_bullet is None else per_bullet
         acc = f.skill.accuracy if accuracy is None else accuracy
-        hits = f.hit_acc.take(acc * (1.0 - e.stat("evasion")), int(n_bullets))
+        hits = f.hit_acc.take(acc * (1.0 - e.stat("evasion")) * eng.gun_reach(f.st), int(n_bullets))
         if hits <= 0:
             return 0
         heads = f.head_acc.take(f.skill.headshot, hits) if headshots else 0

@@ -343,7 +343,8 @@ def _book(f, s, amt, i):
 
 def shoot_summon(eng, f, s, n_bullets):
     """f spends this trigger pull on enemy summon s. Returns True (the pull is used)."""
-    hits = f.acc("summon_hit").take(min(SUMMON_ACC_MAX, f.skill.accuracy * s.acc_mult), n_bullets)
+    # out of the gun's range (Graves' tether) the pull misses, as in Engine.fire: bullet_damage is the in-range hit
+    hits = f.acc("summon_hit").take(min(SUMMON_ACC_MAX, f.skill.accuracy * s.acc_mult) * eng.gun_reach(f.st), n_bullets)
     if hits:
         per, _ = eng.bullet_damage(f)
         _book(f, s, s.hurt(per * hits, "bullet"), 0)
