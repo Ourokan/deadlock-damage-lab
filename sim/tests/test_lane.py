@@ -241,6 +241,12 @@ class Calibration(unittest.TestCase):
         want = 1 - abs(hb.props["HealAmpReceivePenaltyPercent"]) / 100 * k * hb.props["AbilityDuration"] / 25.0
         self.assertAlmostEqual(O.healbane_gap_share([ID["Healbane"]], gap=25.0), want)
 
+    def test_entry_scales_are_fitted(self):
+        # fit_entry.py writes them; overall_search falls back to 1.0 (pre-calibration gains) without them
+        su = O.sustain()
+        for k in ("entry_heal_scale", "fortitude_heal_scale"):
+            self.assertEqual(set(su[k]), {"lane", "mid", "late"})
+
     def test_field_heal_items_save_heal_trips(self):
         pop = [ID["Extra Health"]]
         base = O.map_time(HAZE, pop, 18000, pop)

@@ -273,5 +273,10 @@ if "healbane_landing" in old_sim:
         sim["healbane_landing_real"] = old_sim["healbane_landing_real"]
     else:
         print("healbane_landing dropped: the real rate changed, rerun fit_healbane.py", file=sys.stderr)
+# entry_heal_scale / fortitude_heal_scale are written by fit_entry.py (needs the sim; run it last): kept across refits
+# so a refit of this script alone doesn't silently put the entry gains back at full strength
+for k in ("entry_heal_scale", "fortitude_heal_scale"):
+    if k in old_sim:
+        sim[k] = old_sim[k]
 json.dump(sim, open(OUT_SIM, "w"), indent=1)
 print(json.dumps(sim, indent=1))
