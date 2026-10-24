@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-24T18:30:00Z",
- "reason": "Mystic Reverb echo fix and team values refit each rerun (#59); Graves' hit chance, Danny's charged Toxic, Carbine procs Mystic Shot (#58)"
+ "requested_at": "2026-10-24T19:05:00Z",
+ "reason": "faster rerun pipeline (#61): jobs split by hero x budget, fits side by side; carries #58 and #59"
 }
