@@ -398,8 +398,9 @@ class Mover:
 
 
 def melee_reach(f, heavy):
-    """Gap beyond the start distance a rotation melee still lands from. Melee Charge / Crushing Fists make heavy
-    melees lunge MeleeDistanceScale% farther, so a chaser lands them on a runner a little sooner."""
+    """Gap beyond the start distance a rotation melee still lands from. Items with MeleeDistanceScale make heavy
+    melees lunge that % farther (game data: Melee Charge 50, Crushing Fists 60, Runed Gauntlets 150; the largest
+    held counts), so a chaser lands them on a runner sooner."""
     if not heavy:
         return MELEE_REACH
     return MELEE_REACH * (1.0 + max((fx.item.p("MeleeDistanceScale", 0.0) for fx in f.items_fx

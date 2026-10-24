@@ -236,6 +236,8 @@ class Items(unittest.TestCase):
         self.assertAlmostEqual(melee_reach(a, True), MELEE_REACH * 1.5)   # MeleeDistanceScale 50%
         self.assertAlmostEqual(melee_reach(a, False), MELEE_REACH)
         self.assertAlmostEqual(melee_reach(b, True), MELEE_REACH)
+        c = make_fighter(e, Loadout("Abrams", ["Melee Charge", "Runed Gauntlets"], souls=20000))
+        self.assertAlmostEqual(melee_reach(c, True), MELEE_REACH * 2.5)   # Runed Gauntlets 150%, the largest held
 
     def test_melee_charge_heavy_lands_from_farther_in_fight(self):
         # chase gap of 8 m beyond the start distance: past light reach (6 m), inside Melee Charge heavy reach (9 m)

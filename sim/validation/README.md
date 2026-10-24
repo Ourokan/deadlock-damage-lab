@@ -116,7 +116,8 @@ never replaced; heroes missing from the fit keep the flat rate), so adding Lifes
 then 0.93-1.15 (the conservative bound leaves gun heroes with 2+ items 15% under real); with the average rate it
 was up to 1.9x off.
 
-Melee Charge and Crushing Fists also lunge heavy melees MeleeDistanceScale% (50% / 60%) farther: with movement on,
+Items with MeleeDistanceScale lunge heavy melees that much farther (game data: Melee Charge 50%, Crushing Fists 60%,
+Runed Gauntlets 150%; the largest held counts): with movement on,
 a chaser lands heavies on a runner from that much farther (`mechanics.melee_reach`). Lifestrike's slow was
 already in the movement model.
 
