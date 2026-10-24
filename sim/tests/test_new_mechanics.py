@@ -108,12 +108,18 @@ class TestSummons(unittest.TestCase):
         rows = {k: dict(v) for k, v in M.summon_targeting().items()}
         for v in rows.values():
             v.update(focus=0.0, splash=0.0)
-        dmg = []
+        out = []
         for p in (0.0, 0.5, 1.0):
-            rows["graves_stone"].update(break_p=p, break_s=1.0)
-            dmg.append(self.graves(None, rows).a_dmg.get("Borrowed Decree (zombie)", 0.0))
-        self.assertGreater(dmg[0], dmg[1])   # p = 0.5 is half way, not an always-break
-        self.assertGreater(dmg[1], dmg[2])
+            rows["graves_stone"].update(break_p=p, break_s=3.0)
+            r = self.graves(None, rows)
+            out.append((r.a_dmg.get("Borrowed Decree (zombie)", 0.0), r.a_dmg.get("Jar of Dead", 0.0)))
+        (z0, _), (z5, _), (z1, _) = out
+        self.assertGreater(z1, 0.0)                              # zombies from before the break still bite
+        self.assertAlmostEqual(z5, (z0 + z1) / 2, delta=0.02 * z0)   # p = 0.5 is half way, no rounding
+        # the aura's spirit shred is scaled the same way: Deadheads biting after the break hit softer
+        j0, j5, j1 = (x[1] for x in out)
+        self.assertGreater(j0, j1)
+        self.assertAlmostEqual(j5, (j0 + j1) / 2, delta=0.1 * (j0 - j1))
 
     def test_splash_hits_summons(self):
         a = Loadout("McGinnis", [], souls=15000, skill=Skill(accuracy=0.0, use_actives=False),

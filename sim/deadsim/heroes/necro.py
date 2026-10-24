@@ -19,8 +19,8 @@ Assumptions:
   once. Without summons a zombie lives ZOMBIE_LIFE s (a stand-in for being killed). With summons on it has
   SummonHealth (+ boons) and lives until the enemy kills it, SummonLifetime ends or the zombie row's life_other_s
   in data/summon_targeting.json (median life of real zombies no hero killed: troopers, other heroes), and the gravestone has GravestoneHealth: once it is
-  destroyed (by splash, or by the enemy's break: an expected value that scales later spawns and the aura) no
-  more zombies spawn and the aura ends (bullets don't damage it in the replays: only area damage
+  destroyed (by splash, or by the enemy's break: an expected value that scales the damage of zombies spawned
+  after it and the aura) no more zombies spawn and the aura ends (bullets don't damage it in the replays: only area damage
   splashing off Graves breaks it) (replays: zombie spawns drop from 0.46/s to 0.14/s once a
   gravestone is gone). The aura stacks TechArmorDamageReductionPerStack every StackingDebuffTickRate up to
   MaxStacks while the ult lasts (target assumed inside). T3: each zombie death deals CurrentHealthDamagePercentage %
@@ -192,8 +192,9 @@ class BorrowedDecree(AbilityImpl):
         stone = c.state.get("stone")
         if not c.me.alive or not c.foe.alive or not alive(stone):
             return
-        if stone is not None and stone.weight < 1 and not c.me.acc("decree_spawn").take(stone.weight):
-            return   # the gravestone is broken in this share of fights (mechanics._break)
+        w = 1.0 if stone is None else stone.weight   # < 1 once the enemy may have broken it (mechanics._break)
+        if w <= 0:
+            return
         now = c.now
         live = [x for x in c.state["alive"] if x[0] > now and alive(x[1])]
         c.state["alive"] = live
@@ -207,13 +208,13 @@ class BorrowedDecree(AbilityImpl):
             if pct and not state["done"]:
                 state["done"] = True
                 if c.me.alive and c.foe.alive:
-                    c.spirit_hit(c.foe.hp * pct, name=name, hit_chance=1.0)
+                    c.spirit_hit(c.foe.hp * pct * w, name=name, hit_chance=1.0)
         spawn_t = c.raw("SpawnDuration", 1.5)
         s = add_summon(c.me, "Zombie", c.val("SummonHealth"), life=c.dur("SummonLifetime"), kind="graves_zombie",
                        on_death=death)
         life = ZOMBIE_LIFE if s is None else s.until - now
         live.append((now + life, s))
-        dmg = c.val("SummonMeleeDamage")
+        dmg = c.val("SummonMeleeDamage") * w   # expected value: this zombie exists in a w share of fights
         t = spawn_t
         while t < life:
             c.after(t, summon_hit, c, dmg, name, "ZombieMeleeBuildUp", s)

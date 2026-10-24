@@ -272,7 +272,8 @@ def add_summon(owner, name, hp, spirit_resist=0.0, bullet_resist=0.0, life=math.
 def _break(s, p):
     """The enemy walks up and breaks summon s (melee) with probability p: Graves' gravestone, which bullets can't hurt.
     One break per fight can't be drawn as a deterministic Bernoulli (Accum would always fire for p >= 0.5), so it is
-    an expected value: s.weight drops to 1 - p, and whatever the summon still does is scaled by it (necro.py)."""
+    an expected value: s.weight drops to 1 - p, and whatever the summon still does is scaled by it (necro.py: the
+    aura and the damage of zombies spawned after it). FightResult.*_summons_out counts only real deaths, not breaks."""
     f = s.owner.enemy
     if f is not None and f.alive and alive(s) and s.alive:
         d = f.counters.setdefault("summon_dmg", {})   # not in summon_dmg_kind: that is the gun / splash fit
