@@ -118,6 +118,23 @@ RICOCHET_RADIUS = 13.0   # m: Ricochet's bounce radius, the reach used for a due
 _NEAR = None
 
 
+_AREA = None
+
+
+def area_extra(name):
+    """Extra hits on other heroes per hit on the main target for an area item, from Phantom+ replay damage events
+    (data/area_hits.json, scripts/team/area_hits.py), or None when the item has no fit. A duel's damage of the item
+    x this is what it also deals to the other enemies in a real fight."""
+    global _AREA
+    if _AREA is None:
+        fn = os.path.join(os.path.dirname(__file__), "..", "data", "area_hits.json")
+        _AREA = {}
+        if os.path.exists(fn):
+            with open(fn) as fh:
+                _AREA = {k: v["extra_per_main"] for k, v in json.load(fh)["items"].items()}
+    return _AREA.get(name)
+
+
 def real_nearby(kind, radius, souls):
     """Real mean count in a Phantom+ fight second (data/team_value.json positions, scripts/team/fit_team.py): kind
     "extra" = other enemies within radius m of the target, "extra_self" = of the holder, "allies" = teammates within
