@@ -518,7 +518,8 @@ replays instead (Deadlock API demo queries, 70 matches of Oct 20-24 with one of 
 - **Danny's charged shot:** every hit lands 2.64x the base damage of an ordinary hit (weapon power, headshots and
   resists out), and he fires about one shot a second while the data's gun fires four. The sim keeps the gun's base
   damage per second and fires 2.64x bigger shots 2.64x less often (`build.gun_quirks`, `charge_factor`), so on-hit
-  procs fire as often as real hits. Any headshot bonus is inside the factor.
+  procs fire as often as real hits. Each shot spends 2.64 rounds (clip 14 -> 5; replays show about 6 shots between
+  reloads), so reload downtime stays the data gun's. Any headshot bonus is inside the factor.
 - **Graves' tether** only attaches within MaxRange 20 m (the gun's own data): beyond it the sim's gun deals nothing
   (`Stats.gun_range_m` in `falloff`). The fit's accuracy includes his untethered shots inside fights.
 - **Cross-check:** a second, independent estimate (gun base damage per second of fighting over the gun's damage per
@@ -527,11 +528,11 @@ replays instead (Deadlock API demo queries, 70 matches of Oct 20-24 with one of 
   shooting), against 0.9-1.25 for the shot count.
 - **Landing factors** for both were refit on the Phantom+ sample with the calibrated gun as the anchor (Graves had
   none, so his abilities landed 100%): Graves Jar of Dead 0.23 / 0.25 with mechanics, Grasping Hands 0.09 / 0.10,
-  Borrowed Decree 0.24 / 0.15; Danny Strix Salvo 0.56 / 0.51 (was 0.67 / 0.02), Chimera Mk1 0.41 / 0.36, Jettison Fuel
-  0.58 / 0.50, Close The Deal 0.17 / 0.15.
+  Borrowed Decree 0.24 / 0.15; Danny Strix Salvo 0.44 / 0.40 (was 0.67 / 0.02), Chimera Mk1 0.33 / 0.29, Jettison Fuel
+  0.47 / 0.40, Close The Deal 0.14 / 0.13.
 
 Result on the Phantom+ audit: Graves' gun share 4% -> 18% (real 20%), mix distance 0.37 -> 0.18; Danny's gun share
-25% -> 20% (real 16%), mix distance 0.37 -> 0.20. Left: Graves' damage items (Capacitor, Tesla Bullets, Mystic Shot)
+25% -> 20% (real 16%), mix distance 0.37 -> 0.12 (audit table; Graves 0.16 there). Left: Graves' damage items (Capacitor, Tesla Bullets, Mystic Shot)
 come out about 2x real, since item factors are pooled over all heroes and were fit without him; Danny's Express Shot
 and Tankbuster are the bookkeeping and team-fight cases above. The damage audit, ability fit and item fit now
 include both heroes (`landing_rates.gun_known`).

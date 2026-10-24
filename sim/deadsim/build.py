@@ -290,6 +290,9 @@ def compute_stats(hero, items=(), souls=None, level=None) -> Stats:
     st.spin_up_rate = w.get("spin_increase_rate", 0.5) or 0.5
     st.spin_decay_rate = w.get("spin_decay_rate", 0.25) or 0.25
     st.clip = max(1, int(round(w.get("clip_size", 1) * (1 + A("AMMO_CLIP_SIZE_PERCENT") / 100) + A("AMMO_CLIP_SIZE"))))
+    # a charged shot spends charge_factor rounds (Danny's replays: about 6 shots between reloads of a 14 clip), so
+    # reload downtime per second of fire stays the data gun's
+    st.clip = max(1, int(round(st.clip / charge)))
     st.reload_mult = 1.0 + A("RELOAD_SPEED") / 100
     st.reload_time = w.get("reload_duration", 1.0) * st.reload_mult
     st.bullet_lifesteal = A("BULLET_LIFESTEAL") / 100

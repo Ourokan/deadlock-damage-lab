@@ -22,6 +22,7 @@ class GunCalibration(unittest.TestCase):
         self.assertAlmostEqual(st.bullet_damage, h.weapon["bullet_damage"] * cf)
         self.assertAlmostEqual(st.cycle_time, h.weapon["cycle_time"] * cf)
         self.assertAlmostEqual(st.bullet_damage / st.cycle_time, h.weapon["bullet_damage"] / h.weapon["cycle_time"])
+        self.assertEqual(st.clip, max(1, round(h.weapon["clip_size"] / cf)))   # a clip lasts as long as the data's
 
     def test_graves_tether_range(self):
         st = compute_stats("Graves", souls=0)
