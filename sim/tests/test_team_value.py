@@ -1,6 +1,7 @@
 """Checks of the overall score's team value (damage/scripts/overall_search.py): real teammates / other enemies in
 reach from data/team_value.json, area items' hits on the other enemies, ally items' multiplier.
 Run from sim/: python3 -m unittest discover -s tests"""
+import json
 import os
 import sys
 import types
@@ -15,6 +16,8 @@ import overall_search as O  # noqa: E402
 from survival import survive  # noqa: E402
 
 G = O.S.G()
+with open(os.path.join(ROOT, "sim", "data", "area_hits.json")) as _fh:
+    AREA_HITS = json.load(_fh)
 ID = {it.name: it.id for it in G.items.values()}
 
 
@@ -38,9 +41,11 @@ class Near(unittest.TestCase):
 
 class AreaDamage(unittest.TestCase):
     def test_area_item_damage_counts_on_the_other_enemies(self):
-        # replay values from data/area_hits.json: Mystic Reverb 0.799, Scourge 0.513 extra hits per main hit
+        # replay values read straight from data/area_hits.json (not through area_extra), so a refit keeps this passing
         r = {"damage_by_source": {"gun": 1000.0, "Mystic Reverb": 200.0, "Scourge": 100.0}, "splash_dealt": 30.0}
-        self.assertAlmostEqual(O.area_damage(r, 27000), 200 * 0.799 + 100 * 0.513 + 30, places=6)
+        x = AREA_HITS["items"]
+        want = 200 * x["Mystic Reverb"]["extra_per_main"] + 100 * x["Scourge"]["extra_per_main"] + 30
+        self.assertAlmostEqual(O.area_damage(r, 27000), want, places=6)
 
     def test_position_count_is_the_fallback(self):
         r = {"damage_by_source": {"Mystic Reverb": 200.0, "Scourge": 100.0}}
@@ -79,7 +84,8 @@ class AuditSources(unittest.TestCase):
         r = types.SimpleNamespace(a_dmg={"gun": 1000.0, "Mystic Reverb": 200.0, "Toxic Bullets": 50.0},
                                   a_splash={"Ricochet": 40.0})
         d = damage_audit.sim_sources(r, lambda k: k)
-        self.assertAlmostEqual(d["Mystic Reverb"], 200 * 1.799, places=6)
+        self.assertAlmostEqual(d["Mystic Reverb"], 200 * (1 + AREA_HITS["items"]["Mystic Reverb"]["extra_per_main"]),
+                               places=6)
         self.assertEqual(d["gun"], 1000.0)
         self.assertEqual(d["Toxic Bullets"], 50.0)    # single-target proc: no area value
         self.assertEqual(d["Ricochet"], 40.0)
