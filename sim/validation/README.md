@@ -171,7 +171,13 @@ spend Dispel on the DoTs an enemy's gun keeps re-applying, and much less on Deca
   by `scripts/fit_dispel_buildup.py` to Afterburn / Napalm (`validation/dispel/buildup_fit_91.json`): the fit sits
   at its ceiling, 1.0. Even cleansing every one, the 30 s fixed-window duel removes only 25% of Afterburn (real 37%):
   Infernus re-ignites within seconds and Dispel has a 45 s cooldown, while a real 3-minute window holds several
-  short fights (a 13 s duel removes 30%). Other DoTs keep `dot_cleanse_share` (Decay fit).
+  short fights (a 13 s duel removes 30%). So 1.0 is a lower bound, not a measured share, and Dispel's value
+  against Infernus (+0.24 extra in the counter sim) is the most this model can give, still short of real. Other
+  DoTs keep `dot_cleanse_share` (Decay fit). Only Phantom+ is measured, so every badge uses it.
+- Toxic Bullets check (same duel design, 300 real (Toxic holder, Dispel holder) snapshot pairs, Toxic damage per
+  gun damage, Dispel holder vs the same build without Dispel): 0.98 at the Decay share it had before, 0.92 at the
+  build-up share of 1.0; real 0.68. So moving it to the build-up share goes toward real and still falls short. A
+  Toxic Bullets build loses about 6% of its Toxic damage against Dispel holders (13-17% of players from 27k up).
 - Dispel purges Afterburn's build-up meter too.
 
 Counterspell, same pairing (`cleanse_real.py Counterspell`, 2200 matches, 62k windows): ability damage taken 0.965
