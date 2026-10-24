@@ -416,7 +416,8 @@ def lane_fight(h, items, oh, oitems, souls, phase=None, start_hp=None):
     Both sides carry health between trades and heal in the gaps (gap_heal; Healbane cuts the enemy's). Each trade
     scores the damage dealt minus the enemy's healing in it. An enemy that dies (refills) or starts a trade below
     BACK_FRAC health has to back: the trades left count at this build's mean trade so far (the lane is free), so
-    lane pressure, enemy sustain and anti-heal all count. start_hp is unused (the lane starts full)."""
+    lane pressure, enemy sustain and anti-heal all count. start_hp is unused (the lane starts full). Area items and
+    Ricochet also hit other enemies here: real lane fights aren't pure 1v1s either (team_value.json 10k bin)."""
     sk = dataclasses.replace(skill(h), fight_phase=phase)
     esk = dataclasses.replace(skill(oh), fight_phase=None if phase is None else (phase + 0.5) % 1.0)
     hp, ehp, dmg, t = None, None, 0.0, 0.0
