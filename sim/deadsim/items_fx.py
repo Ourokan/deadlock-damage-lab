@@ -290,7 +290,8 @@ class ToxicBullets(BuildUp):
     def proc(self, f, t):
         d = self.dur("DotDuration", 4)
         pct = self.v("DotHealthPercent") / 100
-        f.e.dot(f, t, pct * t.max_hp, d, self.name, kind="spirit", tick=self.item.p("TickRate", 0.5), is_item=True)
+        f.e.dot(f, t, pct * t.max_hp, d, self.name, kind="spirit", tick=self.item.p("TickRate", 0.5), is_item=True,
+                buildup=True)
         self.debuff(t, "heal_received", self.item.p("HealAmpReceivePenaltyPercent") / 100, d)
 
 
@@ -938,12 +939,28 @@ class DispelMagic(FX):
     +2 m/s move speed does nothing at fixed distance. Assumption: BuffDuration (3 s) is the move-speed buff, not
     debuff immunity."""
     DOT_PANIC_HP = 0.5
+    DOT_MIN_LEFT = 2.0   # s: a DoT about to run out is not worth the cooldown
 
     def __init__(self, item, f):
         super().__init__(item, f)
         self.dot_seen = None
         self.dot_go = False
-        self.dot_pick = None
+        self.dot_pick = {}
+        self.dot_buildup_drawn = False
+
+    def _draw(self, f, kind):
+        """Spend Dispel on this DoT episode? kind "buildup": Skill.dot_cleanse_share_buildup, else dot_cleanse_share
+        (None = always). One Accum per kind, both started at the same phase."""
+        sk = f.skill
+        share = sk.dot_cleanse_share_buildup if kind == "buildup" else sk.dot_cleanse_share
+        if share is None:
+            return True
+        pick = self.dot_pick.get(kind)
+        if pick is None:
+            from .engine import Accum
+            phase = sk.fight_phase
+            pick = self.dot_pick[kind] = Accum(f.e.rng, self.loadout_phase(f) if phase is None else phase)
+        return pick.take(share) > 0
 
     @staticmethod
     def loadout_phase(f):
@@ -953,7 +970,8 @@ class DispelMagic(FX):
         for g in (f, f.enemy):
             if g is None:
                 continue
-            for i in sorted(fx.item.id for fx in g.items_fx) + [int(round(g.max_hp_base * 10))]:
+            for i in sorted(fx.item.id for fx in g.items_fx if getattr(fx, "item", None) is not None) + [
+                    int(round(g.max_hp_base * 10))]:
                 x = (x * 1000003 + i) % (1 << 61)
         return (((x * 11400714819323198485) % (1 << 64)) >> 11) / (1 << 53)   # Fibonacci hash, high bits
 
@@ -961,20 +979,19 @@ class DispelMagic(FX):
         if not self.ready() or not f.skill.use_actives:
             return False
         cc = f.afflicted(min_left=1e9, keys=("silence", "disarm"))
-        dot = f.afflicted(min_left=2.0, keys=())
+        dot = f.afflicted(min_left=self.DOT_MIN_LEFT, keys=())
         if not dot:
             self.dot_seen = None
-        elif self.dot_seen is None:
-            self.dot_seen = self.now
-            share = f.skill.dot_cleanse_share
-            if share is None:
-                self.dot_go = True
-            else:
-                if self.dot_pick is None:
-                    from .engine import Accum
-                    phase = f.skill.fight_phase
-                    self.dot_pick = Accum(f.e.rng, self.loadout_phase(f) if phase is None else phase)
-                self.dot_go = self.dot_pick.take(share) > 0
+        else:
+            buildup = f.buildup_dot(self.DOT_MIN_LEFT)
+            if self.dot_seen is None:
+                self.dot_seen = self.now
+                self.dot_go = self._draw(f, "buildup" if buildup else "other")
+                self.dot_buildup_drawn = buildup
+            elif buildup and not self.dot_go and not self.dot_buildup_drawn:
+                # a build-up DoT (Afterburn, Toxic Bullets) joined a running episode: its own draw
+                self.dot_buildup_drawn = True
+                self.dot_go = self._draw(f, "buildup")
         delay = f.skill.dot_cleanse_delay
         if not self.dot_go:
             use_on_dot = False

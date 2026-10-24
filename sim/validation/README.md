@@ -155,9 +155,45 @@ dueled with and without Dispel (the holder can't die, like a fixed real window),
 Cleansing every DoT at the old rank timings gave 0.35
 (3 s) and 0.26 (1.5 s). A share, not a longer delay, so short DoTs (burns, Toxic Bullets) can still be cleansed. Which
 DoTs get cleansed is a deterministic Bernoulli started at `Skill.fight_phase`, so the overall score's spread fight
-phases cleanse the first DoT in exactly that share of fights. Hero ability DoTs that schedule
-their own ticks instead of using `Engine.dot`/`CastCtx.dot` are not purged. 13-17% of ranked players hold it from
+phases cleanse the first DoT in exactly that share of fights. 13-17% of ranked players hold it from
 27k souls up, so DoT builds (Decay, Toxic Bullets, burn abilities) were overvalued before.
+
+Per enemy source (2026-10-24, `counters/scripts/cleanse_real.py`, Phantom+, 2200 matches with a Dispel holder, 5400
+Infernus windows): the same pairing for every enemy damage source, ratio = holders / teammates without Dispel.
+Holders get shot more by Infernus (gun 1.16, Napalm 1.17), so read each source against those: **Afterburn 0.73
+(0.63 of Napalm)**, **Toxic Bullets 0.70 (0.61 of Infernus' gun; 0.68 of gun from every dealer)**, Escalating
+Exposure 0.72, Decay 0.80 of gun, Crow Familiar 0.86 and Fire Scarabs 0.87 of their owners' gun, Flame Dash's ground
+trail 1.03 (not purged). Holders die 21% less to Infernus (kills per window 0.79) and 11% less to anyone. So players
+spend Dispel on the DoTs an enemy's gun keeps re-applying, and much less on Decay. Model since then:
+- Hero DoTs that tick on their own (Afterburn, Crow Familiar's bleed, Fire Scarabs) register with
+  `CastCtx.dot_track` and stop on a purge (`dot_live`); before, Dispel could not touch them, so it had no value
+  against Infernus (counter sim: -0.03 extra vs Infernus at 27k, +0.24 after).
+- Build-up DoTs (Afterburn and Toxic Bullets, `buildup=True`) draw with `Skill.dot_cleanse_share_buildup`, fitted
+  by `scripts/fit_dispel_buildup.py` to Afterburn / Napalm (`validation/dispel/buildup_fit_91.json`): the fit sits
+  at its ceiling, 1.0. Even cleansing every one, the 30 s fixed-window duel removes only 25% of Afterburn (real 37%):
+  Infernus re-ignites within seconds and Dispel has a 45 s cooldown, while a real 3-minute window holds several
+  short fights (a 13 s duel removes 30%). So 1.0 is a lower bound, not a measured share, and Dispel's value
+  against Infernus (+0.24 extra in the counter sim) is the most this model can give, still short of real. Other
+  DoTs keep `dot_cleanse_share` (Decay fit). Only Phantom+ is measured, so every badge uses it.
+- Toxic Bullets check (same duel design, 300 real (Toxic holder, Dispel holder) snapshot pairs, Toxic damage per
+  gun damage, Dispel holder vs the same build without Dispel): 0.98 at the Decay share it had before, 0.92 at the
+  build-up share of 1.0; real 0.68. So moving it to the build-up share goes toward real and still falls short. A
+  Toxic Bullets build loses about 6% of its Toxic damage against Dispel holders (13-17% of players from 27k up).
+- Dispel purges Afterburn's build-up meter too.
+
+Counterspell, same pairing (`cleanse_real.py Counterspell`, 2200 matches, 62k windows): ability damage taken 0.965
+for non-ultimates and 0.98 for ultimates vs gun damage 0.96 (Counterspell can't block guns): no measurable block.
+Against Lash, the hero that triggers it most (x2.1): Death Slam 1.00 (CI 0.95-1.06), Ground Strike 1.00, Flog 1.00,
+and holders die to Lash as often (1.03). A few slow-detonation abilities do drop (Sticky Bomb 0.82, Gloom Bombs 0.73,
+Affliction 0.79 of gun), too few casts to move the total. `Skill.spell_parry_rate_ult` (new, ultimates) and
+`spell_parry_rate` are fitted by `scripts/fit_counterspell.py` (`validation/counterspell/fit_91.json`, set by
+`accuracy.spell_parry_rates` in `hero_default_skill`): both are 0 (was a hand-set 0.05), the grid floor: the real
+targets (1.004 non-ult, 1.025 ult, against gun) sit above what a zero rate gives, so the fit clips there and its
+"CI" is that clip, not a tight bound. The data says no measurable block, and Counterspell is worth its +50 HP and
+spirit power. A parried cast stays blocked for
+`mechanics.PARRIED_CAST_SPAN` (3.5 s), so a rate set by hand can block Death Slam, whose slam lands 2.6 s after the
+grab (it never could before). So the sim's
+verdict that Counterspell is the weakest defensive item per soul matches real Phantom+ play (win edge -0.8 points).
 
 ## New mechanics: parry, summons, nearby enemies, movement (2026-10-15)
 

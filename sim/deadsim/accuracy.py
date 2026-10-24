@@ -198,10 +198,38 @@ def dot_cleanse_share(badge=None):
 
 
 @functools.lru_cache(maxsize=None)
+def dot_cleanse_share_buildup(badge=None):
+    """Share of build-up DoT episodes (Afterburn, Toxic Bullets: re-applied by the enemy's gun) a Dispel Magic holder
+    spends it on, fitted to real Afterburn damage (sim/scripts/fit_dispel_buildup.py, validation/dispel/
+    buildup_fit_91.json): at Phantom+ Dispel holders take 0.63 of their teammates' Afterburn (relative to Napalm, same
+    Infernus, 2200 matches), Toxic Bullets similar (0.68 of it relative to gun damage), and die 21% less to Infernus,
+    while Decay is barely cleansed (dot_cleanse_share). The fit sits at its ceiling, 1.0: even then the sim removes
+    only 25% of Afterburn (45 s cooldown in one 30 s fight; real windows hold several short fights). Only the
+    Phantom+ fit exists, so every badge uses it."""
+    with open(os.path.join(DISPEL_FIT, "buildup_fit_91.json")) as f:
+        return float(json.load(f)["fitted_share"])
+
+
+@functools.lru_cache(maxsize=None)
 def _dispel_fit(lo):
     # no fallback: a missing fit would silently turn every DoT cleanse back on
     with open(os.path.join(DISPEL_FIT, f"fit_{lo}.json")) as f:
         return float(json.load(f)["fitted_share"])
+
+
+COUNTERSPELL_FIT = os.path.join(HERE, "..", "validation", "counterspell", "fit_91.json")
+
+
+@functools.lru_cache(maxsize=None)
+def spell_parry_rates(badge=None):
+    """(non-ultimate, ultimate) share of enemy aimed casts a Counterspell holder times a spell parry against, fitted
+    by sim/scripts/fit_counterspell.py to real Phantom+ ability damage on holders vs teammates
+    (validation/counterspell/fit_91.json): their ability damage moves no more than their gun damage (0.965 / 0.98
+    vs 0.96), Lash's Death Slam included (1.00), so both rates are about 0. Only the Phantom+ fit exists, so every
+    badge uses it."""
+    with open(COUNTERSPELL_FIT) as f:
+        d = json.load(f)
+    return float(d["fitted_rate"]), float(d["fitted_rate_ult"])
 
 
 ITEM_LANDING = os.path.join(HERE, "..", "data", "item_landing.json")
@@ -257,6 +285,8 @@ def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_ove
         sk.heavy_share = min(1.0, max(0.0, float(heavy_share)))
     sk.dot_cleanse_delay = dot_cleanse_delay(badge)
     sk.dot_cleanse_share = dot_cleanse_share(badge)
+    sk.dot_cleanse_share_buildup = dot_cleanse_share_buildup(badge)
+    sk.spell_parry_rate, sk.spell_parry_rate_ult = spell_parry_rates(badge)
     # players walk out of ground zones (Alchemical Fire) unless stunned, rooted or slowed (items_fx.held_share);
     # on in every mode since 2026-10-21 (Tyler: no Alchemical Fire for heroes that can't hold a target in it)
     sk.zone_exit_s = zone_exit_time(badge)

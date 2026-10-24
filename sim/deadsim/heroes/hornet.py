@@ -71,14 +71,15 @@ class CrowFamiliar(AbilityImpl):
         c.state["bleed"] = token
         tick = c.raw("TickRate", 1.0)
         n = max(1, int(round(d / tick)))
-        c.after(tick, self.bleed, c, token, n)
+        epoch = c.dot_track("crow_bleed", c.now + n * tick)
+        c.after(tick, self.bleed, c, token, n, epoch)
 
-    def bleed(self, c, token, n):
-        if c.state.get("bleed") is not token or not c.foe.alive or not c.me.alive or n <= 0:
+    def bleed(self, c, token, n, epoch):
+        if c.state.get("bleed") is not token or not c.foe.alive or not c.me.alive or n <= 0 or not c.dot_live(epoch):
             return
         amt = c.foe.hp * c.raw("DotHealthPercent") / 100
         c.engine.damage(c.me, c.foe, amt, "spirit", self.s.ab.name, is_ability=True, ability=self.s, is_dot=True)
-        c.after(c.raw("TickRate", 1.0), self.bleed, c, token, n - 1)
+        c.after(c.raw("TickRate", 1.0), self.bleed, c, token, n - 1, epoch)
 
 
 @register("citadel_ability_hornet_snipe")

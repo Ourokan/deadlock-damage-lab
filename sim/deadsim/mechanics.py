@@ -21,8 +21,10 @@ Settings fitted to real ranked matches (validation/README.md, "New mechanics"):
   damage stays at the fitted rate. Missed parries (as common as successes in real games) cost nothing here.
 - Counterspell: when the enemy casts an aimed ability (skillshot / target / aoe) and Counterspell is ready, the
   holder times a spell parry with Skill.spell_parry_rate; for SpellParryDuration it blocks the damage, DoTs and
-  debuffs of that cast (and of any other enemy ability or item hit). Real holders' ability damage taken drops ~0-3%
-  after buying it (same-player before/after vs teammates), so the default is low.
+  debuffs of that cast (and of any other enemy ability or item hit). Ultimates use Skill.spell_parry_rate_ult when
+  set. Real holders' ability damage taken drops ~0-3% after buying it (same-player before/after vs teammates), and
+  in-match vs teammates it moves no more than their gun damage, Lash's Death Slam included (validation/README.md
+  "Cleanses"), so the rates are low (scripts/fit_counterspell.py).
 - Summons (Mechanics.summons): McGinnis turrets and Graves' zombies, ghouls, Deadheads and gravestone have health
   (from the data, + boons) and the enemy spends a share of its trigger pulls on each living kind, at acc_mult x its
   hero accuracy. Shares and accuracy multipliers per kind are in data/summon_targeting.json: the shares are fitted
@@ -76,6 +78,7 @@ WARP_AWAY = 0.3             # share of Warp Stone's teleport range that ends up 
 MELEE_REACH = 6.0           # beyond this gap (+ start distance) rotation melees don't land
 FLEE_RECOVER = 0.25         # stop running once health is this much above flee_hp (heals)
 SPRINT_DELAY = 2.0          # a runner sprints (hero sprint_speed + Sprint Boots) after this long (assumption)
+PARRIED_CAST_SPAN = 3.5     # s after its cast delay that a spell-parried cast's own effects stay blocked
 CHASE_PROB = 0.85           # share of runs the other side chases (full speed, dashing); else he stands and shoots (fit)
 
 
@@ -554,14 +557,24 @@ class Counterspell(FX):
     """Spell parry timed against an enemy aimed cast (Skill.spell_parry_rate) when off cooldown; see module doc."""
 
     def on_enemy_cast(self, f, ab):
+        sp = f.counters.get("spell_parry")
+        if sp and sp[1] is ab:   # a recast of the parried ability is a new cast: only the parry window covers it
+            sp[2] = min(sp[2], sp[0])
         if not self.ready() or not f.alive or f.mods.active("stun") or ab.impl.kind not in ("skillshot", "target", "aoe"):
             return
-        if not f.acc("spell_parry").take(f.skill.spell_parry_rate):
+        sk = f.skill
+        if ab.ab.ultimate and sk.spell_parry_rate_ult is not None:
+            if not f.acc("spell_parry_ult").take(sk.spell_parry_rate_ult):
+                return
+        elif not f.acc("spell_parry").take(sk.spell_parry_rate):
             return
         self.use()
         win = self.item.p("SpellParryDuration", 0.8)
         lead = ab.ctx.raw("AbilityCastDelay")
-        f.counters["spell_parry"] = [self.now + win, ab, self.now + lead + win, self]
+        # a parried cast is negated whole: its own later effects (Death Slam's slam 2.6 s after the grab, delayed
+        # detonations, DoT ticks) stay blocked for PARRIED_CAST_SPAN after its cast delay; other casts only inside
+        # the SpellParryDuration window
+        f.counters["spell_parry"] = [self.now + win, ab, self.now + lead + PARRIED_CAST_SPAN, self]
         self.done = False
 
     def success(self, f):
