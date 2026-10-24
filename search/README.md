@@ -18,9 +18,9 @@ rank the builds that win 1v1 duels most often and fastest. Patch 09-29-2026, ran
 Rank is the match's average badge (the data has no per-player rank). Aim percentiles are across all ranked
 players of the hero, not measured per rank, so they stand in for rank-specific aim; 90th is the top available.
 `eternus5` is thin (some heroes have ~11 player rows in 15 days), so its opponent builds are noisy.
-Dispel Magic timing against DoTs follows the bracket's lowest badge (`accuracy.dot_cleanse_delay`: Eternus 1.5 s,
-Phantom/Ascendant 3 s, lower only below 50% HP), as Tyler set it; real data shows a smaller effect
-(`damage/work/decay_vs_dispel_*.json`). Each bracket is a separate search (`search.py --bracket eternus`), so builds can differ by rank.
+Dispel Magic against DoTs: reaction time follows the bracket's lowest badge (`accuracy.dot_cleanse_delay`: Eternus
+1.5 s, else 3 s, as Tyler set it), and holders spend it on only a share of DoTs fitted to real Decay damage
+(`accuracy.dot_cleanse_share`: 26% Phantom+, 16% all ranks; `sim/validation/dispel/`). Each bracket is a separate search (`search.py --bracket eternus`), so builds can differ by rank.
 
 ## Files for the web page (`out/`)
 

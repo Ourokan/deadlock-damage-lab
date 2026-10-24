@@ -143,9 +143,18 @@ Strike stay within ±0.09 of their comparison item. Heavy share (30%) is still a
 ## Cleanses
 
 Dispel Magic (added 2026-10-14 during step 3): its active purges enemy debuffs and DoTs (`Fighter.dispel`) and heals
-250. The AI fires it at once when silenced/disarmed, and against a DoT (>= 2 s left) only below 50% HP: in real matches
-Decay deals the same damage to Dispel holders as to their teammates (ratio 1.00, 90% CI 0.75-1.30, 600 matches,
-`damage/scripts/decay_vs_dispel.py`). Hero ability DoTs that schedule
+250. The AI fires it at once when silenced/disarmed. Against a DoT (>= 2 s left) it fires on only
+`Skill.dot_cleanse_share` of DoT episodes (drawn once while some enemy DoT runs and Dispel is ready), `Skill.dot_cleanse_delay` after it lands (reaction: 1.5 s Eternus,
+3 s below). Fit (2026-10-24, `scripts/fit_dispel.py`, `validation/dispel/`): in real matches Dispel holders take 85%
+of their teammates' Decay damage at Phantom+ (1500 matches, 90% CI 0.81-0.89), 87% at all ranks, 91% at Eternus+
+(175 matches, CI 0.77-1.07), from `damage/scripts/decay_vs_dispel.py` with the right-aligned damage-matrix read (the
+first run read arrays from the start and got 1.00). Real (Decay, Dispel) holder item snapshots from the same matches,
+dueled with and without Dispel (the holder can't die, like a fixed real window), give that ratio at share 0.26
+(Phantom+, CI 0.19-0.33) and 0.16 (all ranks); Eternus+ (0.13, CI 0.00-0.34) is too thin and uses the Phantom+ share.
+Cleansing every DoT at the old rank timings gave 0.35
+(3 s) and 0.26 (1.5 s). A share, not a longer delay, so short DoTs (burns, Toxic Bullets) can still be cleansed. Which
+DoTs get cleansed is a deterministic Bernoulli started at `Skill.fight_phase`, so the overall score's spread fight
+phases cleanse the first DoT in exactly that share of fights. Hero ability DoTs that schedule
 their own ticks instead of using `Engine.dot`/`CastCtx.dot` are not purged. 13-17% of ranked players hold it from
 27k souls up, so DoT builds (Decay, Toxic Bullets, burn abilities) were overvalued before.
 

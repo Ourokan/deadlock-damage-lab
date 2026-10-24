@@ -19,9 +19,9 @@ from the `won` flag; the enemy team's items at any moment are rebuilt from purch
   hook/bleed kits. Lady Geist, Victor and Dynamo make it less likely.
 - Win edge: +0.7 points over players of the same hero buying a different 3,200-soul vitality item at the same
   time, team lead and own souls position. Small and the same whether the enemy holds many debuffs or few.
-- But in real fights Dispel holders take the same Decay damage as their teammates (Search thread's
-  `damage/scripts/decay_vs_dispel.py`, 600 matches, ratio 1.00): players buy it because of Decay but don't spend
-  it on Decay. Its value comes from cleansing silences and stuns, the heal and the spirit resist.
+- But in real fights Dispel holders still take 85% of their teammates' Decay damage at Phantom+
+  (`damage/scripts/decay_vs_dispel.py`, 1500 matches, 2026-10-24 rerun with the right-aligned damage read; the
+  first run said 100%): players buy it because of Decay but mostly don't spend it on Decay. Its value comes from cleansing silences and stuns, the heal and the spirit resist.
 - Sim: one of the best defensive items per soul (+0.12 duel score at 27k, 3rd of 10), best against Pocket,
   McGinnis, Drifter and Infernus.
 

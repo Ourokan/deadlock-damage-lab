@@ -915,17 +915,37 @@ class ReactiveBarrier(FX):
 
 @handler("upgrade_reduce_debuff_duration")
 class DispelMagic(FX):
-    """Active: purge enemy debuffs and DoTs and heal HealOnActivate. Used at once against an enemy silence or
-    disarm. Against a DoT with >= 2 s left: after Skill.dot_cleanse_delay seconds of it (default 1.5 s, a tick or
-    two, how high-rank players use it), or with dot_cleanse_delay=None only once below DOT_PANIC_HP of max health
-    (average ranked play: Decay deals the same damage to Dispel holders as to their teammates,
-    damage/work/decay_vs_dispel.json ratio 1.00, 90% CI 0.75-1.30). The +2 m/s move speed does nothing at fixed
-    distance. Assumption: BuffDuration (3 s) is the move-speed buff, not debuff immunity."""
+    """Active: purge enemy debuffs and DoTs and heal HealOnActivate. Used at once against an enemy silence or disarm.
+    Against a DoT with >= 2 s left: only on Skill.dot_cleanse_share of DoT episodes (real players mostly let Decay
+    run: on cooldown, saved for a stun, not noticed; accuracy.dot_cleanse_share), and then after
+    Skill.dot_cleanse_delay seconds of it (reaction time), or with dot_cleanse_delay=None only once below
+    DOT_PANIC_HP of max health. An episode is a stretch with some enemy DoT running, drawn once when it starts while
+    Dispel is ready (overlapping DoTs share the draw; the cooldown is simulated too, and the fit uses this same
+    code). The draw is an engine.Accum: random when the engine has an rng (fit_dispel.py), else deterministic,
+    started at Skill.fight_phase, so over the overall score's spread phases the first DoT is cleansed in exactly
+    that share of fights. Without a phase (single duels, the duel-score search) it starts at a hash of both
+    fighters' items, so across an opponent pool the first DoT is still cleansed in about that share of fights. The
+    +2 m/s move speed does nothing at fixed distance. Assumption: BuffDuration (3 s) is the move-speed buff, not
+    debuff immunity."""
     DOT_PANIC_HP = 0.5
 
     def __init__(self, item, f):
         super().__init__(item, f)
         self.dot_seen = None
+        self.dot_go = False
+        self.dot_pick = None
+
+    @staticmethod
+    def loadout_phase(f):
+        """Stable 0-1 phase from both fighters' item ids and max health (stat-only items have no handler but change
+        health), integers only, so it is the same in every process."""
+        x = 0
+        for g in (f, f.enemy):
+            if g is None:
+                continue
+            for i in sorted(fx.item.id for fx in g.items_fx) + [int(round(g.max_hp_base * 10))]:
+                x = (x * 1000003 + i) % (1 << 61)
+        return (((x * 11400714819323198485) % (1 << 64)) >> 11) / (1 << 53)   # Fibonacci hash, high bits
 
     def try_active(self, f):
         if not self.ready() or not f.skill.use_actives:
@@ -936,8 +956,19 @@ class DispelMagic(FX):
             self.dot_seen = None
         elif self.dot_seen is None:
             self.dot_seen = self.now
+            share = f.skill.dot_cleanse_share
+            if share is None:
+                self.dot_go = True
+            else:
+                if self.dot_pick is None:
+                    from .engine import Accum
+                    phase = f.skill.fight_phase
+                    self.dot_pick = Accum(f.e.rng, self.loadout_phase(f) if phase is None else phase)
+                self.dot_go = self.dot_pick.take(share) > 0
         delay = f.skill.dot_cleanse_delay
-        if delay is None:
+        if not self.dot_go:
+            use_on_dot = False
+        elif delay is None:
             use_on_dot = dot and f.hp_frac < self.DOT_PANIC_HP
         else:
             use_on_dot = dot and self.now - self.dot_seen >= delay
