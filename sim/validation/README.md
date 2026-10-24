@@ -525,7 +525,7 @@ of its duel damage, Alchemical Fire 1.20 -> 1.61, Arctic Blast 1.21 -> 1.27, Col
 main target is too strong). Mo & Krill distance 0.100 -> 0.071;
 Victor 0.047 -> 0.065 and Graves 0.091 -> 0.097 (their per-hero Torment Pulse share is now over real, the
 whole-match vs mid-game duel bias); player-weighted 0.0446 -> 0.0445. The patch rerun does not refit area_hits.json
-(it needs replay queries): rerun area_hits.py on fresh replays after a big patch.
+(it needs replay queries): rerun area_hits.py on fresh replays after a big patch, then item_landing.py, since the item factors were fitted with these extra hits in the sim.
 
 ## Guns with no hero accuracy: Graves and Deadman Danny (2026-10-24)
 

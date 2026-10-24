@@ -89,6 +89,7 @@ def main():
     if "--write" in sys.argv:
         with open(os.path.join(ROOT, "data", "area_hits.json"), "w") as fh:
             json.dump(out, fh, indent=1)
+            fh.write("\n")
 
 
 if __name__ == "__main__":
