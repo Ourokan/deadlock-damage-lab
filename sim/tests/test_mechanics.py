@@ -171,6 +171,48 @@ class Items(unittest.TestCase):
         self.assertEqual(rates, [r0, r1, r2, r2])
         self.assertEqual(sk.melee_rate, melee_rate("Haze"))   # the Skill itself keeps the average
 
+    def test_melee_build_rates_keep_hero_average(self):
+        # the hero's real mix of builds (data/melee_items.json "mix") still averages to its fitted rate
+        import json
+        from deadsim.accuracy import MELEE_ITEMS_FILE, melee_rate, melee_rates_by_items
+        rows = json.load(open(MELEE_ITEMS_FILE))["heroes"]
+        for hero in ("Abrams", "Haze", "Drifter", "Bebop"):
+            mix = rows[str(G.hero(hero).id)]["mix"]
+            by = melee_rates_by_items(hero)
+            avg = sum(mix[g] * r for g, r in zip(("0", "1", "2+"), by))
+            self.assertAlmostEqual(avg, melee_rate(hero), delta=0.002 + 0.01 * melee_rate(hero))
+
+    def test_melee_build_rates_missing_data(self):
+        import deadsim.accuracy as A
+        old = A.MELEE_ITEMS_FILE
+        A.MELEE_ITEMS_FILE = os.path.join(os.path.dirname(old), "no_such_file.json")
+        try:
+            self.assertIsNone(A.melee_rates_by_items("Haze"))
+            self.assertIsNone(A.hero_default_skill("Haze").melee_by_items)
+        finally:
+            A.MELEE_ITEMS_FILE = old
+
+    def test_team_fight_uses_build_melee_rate(self):
+        from deadsim.accuracy import hero_default_skill
+        from deadsim.team import TeamEngine
+        sk = hero_default_skill("Haze")
+        f = make_fighter(TeamEngine(distance=10), Loadout("Haze", ["Melee Charge", "Lifestrike"], souls=20000, skill=sk))
+        self.assertEqual(f.skill.melee_rate, sk.melee_by_items[2])
+
+    def test_web_melee_rate_override(self):
+        import json
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "web"))
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "damage"))
+        import bridge
+        from deadsim.accuracy import melee_rates_by_items
+        q = {"hero": "Haze", "items": ["Melee Charge"], "souls": 15000}
+        hero, items, kw = bridge._setup(dict(q, melee_rate=0))
+        self.assertEqual((kw["skill"].melee_rate, kw["skill"].melee_by_items), (0.0, None))
+        self.assertEqual(bridge._melee_rate(kw["skill"], items), 0.0)
+        hero, items, kw = bridge._setup(q)
+        self.assertEqual(bridge._melee_rate(kw["skill"], items), melee_rates_by_items("Haze")[1])
+        self.assertIn("melee_rate", json.loads(bridge.run(json.dumps(dict(q, melee_rate=0.25))))["used"])
+
     def test_melee_charge_heavy_lunge_reach(self):
         from deadsim.mechanics import MELEE_REACH, melee_reach
         e = Engine(distance=3)

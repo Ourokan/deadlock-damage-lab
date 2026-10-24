@@ -14,7 +14,11 @@ items they held, averaged over the three sample points; the multiplier for each 
 
 normalized by the same ratio over all of the hero's players, then pooled over heroes (weighted by sim melee).
 
-Output: data/melee_items.json (used by accuracy.hero_default_skill / melee_rate(hero, items)).
+Fights use each multiplier's 90% lower bound ("used", never below 1): this is a comparison between players who chose
+melee items and players who didn't, so part of the gap is selection (players who like to melee buy them), and the
+thinnest group (gun heroes with 2+ melee items, ~40 players) is the least certain.
+
+Output: data/melee_items.json (used by accuracy.melee_rates_by_items / hero_default_skill).
 
 With --check the duels use the fitted build rates (melee_rates_by_items) instead and nothing is written: every
 group's real/sim ratio should then come out near 1.
@@ -152,6 +156,9 @@ def main():
         for g in GROUPS:
             xs = sorted(b[cls][g]["mult"] for b in boots)
             out[cls][g]["ci90"] = [xs[10], xs[189]]
+            # Fights use the low end of the interval (never below 1): the fit compares players who chose melee
+            # items with players who didn't, so part of the gap is who buys them, not what the items make you do.
+            out[cls][g]["used"] = round(max(1.0, xs[10]), 3)
     print(json.dumps(out, indent=1))
     json.dump({"meta": {"what": "melee rate multiplier by melee items held (vs players with none), fitted "
                                 "from real melee/gun damage vs sim on real builds (scripts/melee_items_fit.py)",

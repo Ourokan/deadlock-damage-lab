@@ -99,15 +99,21 @@ player-matches, `data/melee_items.json`:
 | Melee items held | Gun heroes (rate < 0.08) | Melee heroes (Abrams, Billy, Drifter, Shiv, Calico, Yamato, Venator, Silver, Apollo) |
 |---|---|---|
 | 0 | 1 | 1 |
-| 1 | 1.86x (90% CI 1.49-2.12) | 1.07x (0.86-1.41) |
-| 2+ | 3.80x (2.53-4.80, 40 players) | 1.51x (1.19-2.02) |
+| 1 | 1.86x (90% CI 1.49-2.12), **used 1.49x** | 1.07x (0.86-1.41), **used 1x** |
+| 2+ | 3.80x (2.53-4.80, 40 players), **used 2.53x** | 1.51x (1.19-2.02), **used 1.19x** |
+
+This compares players who chose melee items with players who didn't, so part of the gap is selection: players who
+like to melee buy the items. Fights therefore use each multiplier's 90% lower bound, never below 1 ("used" in the
+JSON). That is a conservative middle between "the item changes nothing about how you play" and "you play like
+today's holders", and it keeps the thinnest group (gun heroes with 2+ items) from driving build search.
 
 `accuracy.melee_rates_by_items(hero)` turns this into three rates per hero, scaled so the hero's real mix of builds
-still averages to its fitted rate (Haze 0.013 / 0.023 / 0.048 hits/s, Abrams 0.21 / 0.22 / 0.31).
-`hero_default_skill` stores them in `Skill.melee_by_items` and `fight.make_fighter` picks the one that matches the
-build, so adding Lifestrike to a build also makes its holder melee like players who buy it. A user-set
-`melee_rate_override` turns this off. `melee_items_fit.py --check` reruns with the build rates: real/sim per group
-is then 0.96-1.02 (it was up to 1.9x off for gun heroes holding melee items).
+still averages to its fitted rate (Haze 0.013 / 0.019 / 0.032 hits/s, Abrams 0.256 / 0.256 / 0.304).
+`hero_default_skill` stores them in `Skill.melee_by_items` and `fight.make_fighter` (duels and team fights) picks
+the one that matches the build, so adding Lifestrike to a build also makes its holder melee more. A user-set
+`melee_rate_override` turns this off. `melee_items_fit.py --check` reruns with the used rates: real/sim per group is
+then 0.93-1.15 (the conservative bound leaves gun heroes with 2+ items 15% under real); with the average rate it
+was up to 1.9x off.
 
 Melee Charge and Crushing Fists also lunge heavy melees MeleeDistanceScale% (50% / 60%) farther: with movement on,
 a chaser lands heavies on a runner from that much farther (`mechanics.melee_reach`). Lifestrike's slow was
@@ -120,18 +126,17 @@ and each melee item vs a same-cost non-melee item on the same cases (`melee_valu
 
 | Hero | Win rate from melee | Lifestrike vs Bullet Resilience | Spirit Snatch vs Bullet Resilience | Crushing Fists vs Leech | Melee Charge vs Swift Striker |
 |---|---|---|---|---|---|
-| Abrams | +19 pts | +0.23 | +0.20 | −0.02 | +0.07 |
-| Billy | +16 pts | +0.20 | +0.22 | 0.00 | +0.09 |
-| Drifter | +22 pts | +0.12 | +0.06 | −0.18 | 0.00 |
-| Calico | +19 pts | +0.08 | +0.07 | −0.14 | +0.05 |
-| Shiv | +7 pts | +0.12 | +0.05 | −0.14 | +0.03 |
-| Yamato / Apollo / Silver | +9 / +16 / +9 pts | +0.07 / +0.04 / +0.09 | +0.16 / +0.05 / +0.08 | ≈0 | +0.01 to +0.04 |
-| Gun heroes (Infernus, Haze, Venator) | 0-3 pts | −0.02 to +0.10 | −0.08 to +0.04 | −0.09 to −0.25 | −0.07 to −0.01 |
+| Abrams | +19 pts | +0.23 | +0.22 | −0.03 | +0.03 |
+| Billy | +13 pts | +0.21 | +0.21 | −0.01 | +0.08 |
+| Drifter | +24 pts | +0.12 | +0.07 | −0.20 | +0.01 |
+| Calico | +19 pts | +0.07 | +0.07 | −0.14 | +0.04 |
+| Shiv | +8 pts | +0.08 | +0.04 | −0.15 | 0.00 |
+| Yamato / Apollo / Silver | +9 / +12 / +6 pts | +0.06 / +0.04 / +0.06 | +0.14 / +0.08 / +0.03 | ≈0 | +0.01 to +0.04 |
+| Gun heroes (Infernus, Haze, Venator) | 0-5 pts | −0.03 to +0.10 | −0.09 to +0.05 | −0.09 to −0.27 | −0.08 to +0.04 |
 
-Compared with the average-rate version, melee items gained 0.02-0.09 of HP margin on most heroes (Shiv's Lifestrike
-+0.04 → +0.12, Silver's Melee Lifesteal +0.05 → +0.12), and "win rate from melee" fell for melee heroes because
-their players without melee items now melee less. Melee Lifesteal and Spirit Strike stay within ±0.12 of their
-comparison item. Heavy share (30%) is still an assumption: the API counts parries but not light vs heavy melees.
+Compared with the average-rate version, melee items gained up to ~0.07 of HP margin on most melee heroes (Billy's
+Melee Charge +0.03 → +0.08, Spirit Snatch +0.13 → +0.21) and stay behind for gun heroes. Melee Lifesteal and Spirit
+Strike stay within ±0.09 of their comparison item. Heavy share (30%) is still an assumption: the API counts parries but not light vs heavy melees.
 
 ## Cleanses
 

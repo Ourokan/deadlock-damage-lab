@@ -134,7 +134,8 @@ def melee_rate(hero):
 
 def melee_rates_by_items(hero):
     """(rate with 0, 1, 2+ melee items) for this hero: the average rate (melee_rates.json) times the fitted multiplier
-    for the build (data/melee_items.json, scripts/melee_items_fit.py), scaled so the hero's real mix of builds still
+    for the build (data/melee_items.json, scripts/melee_items_fit.py; its 90% lower bound, since holders partly melee
+    more because melee players buy these items), scaled so the hero's real mix of builds still
     averages to the average rate. None when the data is missing."""
     avg = melee_rate(hero)
     try:
@@ -144,7 +145,7 @@ def melee_rates_by_items(hero):
     hid = str(game().hero(hero).id)
     row = d["heroes"].get(hid, {})
     cls = row.get("class") or ("melee" if avg >= d["meta"]["melee_hero_rate"] else "gun")
-    mult = [d["classes"][cls][g]["mult"] for g in ("0", "1", "2+")]
+    mult = [d["classes"][cls][g].get("used", d["classes"][cls][g]["mult"]) for g in ("0", "1", "2+")]
     mix = row.get("mix") or {"0": 1.0}
     norm = sum(mix.get(g, 0.0) * m for g, m in zip(("0", "1", "2+"), mult)) or 1.0
     return tuple(round(avg * m / norm, 4) for m in mult)
