@@ -1,0 +1,736 @@
+{
+ "meta": {
+  "what": "melee rate multiplier by melee items held (vs players with none), fitted from real melee/gun damage vs sim on real builds (scripts/melee_items_fit.py)",
+  "melee_items": [
+   "upgrade_acolytes_glove",
+   "upgrade_boxing_glove",
+   "upgrade_crushing_fists",
+   "upgrade_lifestrike_gauntlets",
+   "upgrade_melee_charge",
+   "upgrade_melee_rebuttal",
+   "upgrade_spirit_snatch"
+  ],
+  "melee_hero_rate": 0.08,
+  "source": "3628 player-matches x 3 duels"
+ },
+ "classes": {
+  "melee": {
+   "0": {
+    "mult": 1.0,
+    "players": 276,
+    "ci90": [
+     1.0,
+     1.0
+    ]
+   },
+   "1": {
+    "mult": 1.067,
+    "players": 171,
+    "ci90": [
+     0.862,
+     1.413
+    ]
+   },
+   "2+": {
+    "mult": 1.511,
+    "players": 425,
+    "ci90": [
+     1.189,
+     2.022
+    ]
+   }
+  },
+  "gun": {
+   "0": {
+    "mult": 1.0,
+    "players": 2518,
+    "ci90": [
+     1.0,
+     1.0
+    ]
+   },
+   "1": {
+    "mult": 1.856,
+    "players": 171,
+    "ci90": [
+     1.486,
+     2.119
+    ]
+   },
+   "2+": {
+    "mult": 3.804,
+    "players": 40,
+    "ci90": [
+     2.532,
+     4.797
+    ]
+   }
+  }
+ },
+ "heroes": {
+  "14": {
+   "name": "Holliday",
+   "class": "gun",
+   "players": 60,
+   "mix": {
+    "0": 0.8,
+    "1": 0.183,
+    "2+": 0.017
+   },
+   "0": {
+    "players": 48,
+    "mult_vs_hero_avg": 0.694
+   },
+   "1": {
+    "players": 11,
+    "mult_vs_hero_avg": 2.511
+   }
+  },
+  "19": {
+   "name": "Shiv",
+   "class": "melee",
+   "players": 121,
+   "mix": {
+    "0": 0.736,
+    "1": 0.248,
+    "2+": 0.017
+   },
+   "0": {
+    "players": 89,
+    "mult_vs_hero_avg": 0.994
+   },
+   "1": {
+    "players": 30,
+    "mult_vs_hero_avg": 0.692
+   }
+  },
+  "79": {
+   "name": "Rem",
+   "class": "gun",
+   "players": 27,
+   "mix": {
+    "0": 0.963,
+    "1": 0.037,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 26,
+    "mult_vs_hero_avg": 0.971
+   }
+  },
+  "84": {
+   "name": "Rat King",
+   "class": "gun",
+   "players": 355,
+   "mix": {
+    "0": 0.952,
+    "1": 0.048,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 338,
+    "mult_vs_hero_avg": 0.958
+   },
+   "1": {
+    "players": 17,
+    "mult_vs_hero_avg": 1.874
+   }
+  },
+  "65": {
+   "name": "Venator",
+   "class": "melee",
+   "players": 171,
+   "mix": {
+    "0": 0.942,
+    "1": 0.053,
+    "2+": 0.006
+   },
+   "0": {
+    "players": 161,
+    "mult_vs_hero_avg": 0.97
+   },
+   "1": {
+    "players": 9,
+    "mult_vs_hero_avg": 1.202
+   }
+  },
+  "27": {
+   "name": "Yamato",
+   "class": "melee",
+   "players": 76,
+   "mix": {
+    "0": 0.0,
+    "1": 0.368,
+    "2+": 0.632
+   },
+   "1": {
+    "players": 28,
+    "mult_vs_hero_avg": 1.0
+   },
+   "2+": {
+    "players": 48,
+    "mult_vs_hero_avg": 0.997
+   }
+  },
+  "11": {
+   "name": "Dynamo",
+   "class": "gun",
+   "players": 49,
+   "mix": {
+    "0": 0.939,
+    "1": 0.061,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 46,
+    "mult_vs_hero_avg": 0.993
+   },
+   "1": {
+    "players": 3,
+    "mult_vs_hero_avg": 1.137
+   }
+  },
+  "6": {
+   "name": "Abrams",
+   "class": "melee",
+   "players": 112,
+   "mix": {
+    "0": 0.009,
+    "1": 0.179,
+    "2+": 0.812
+   },
+   "1": {
+    "players": 20,
+    "mult_vs_hero_avg": 0.681
+   },
+   "2+": {
+    "players": 91,
+    "mult_vs_hero_avg": 1.076
+   }
+  },
+  "20": {
+   "name": "Ivy",
+   "class": "gun",
+   "players": 106,
+   "mix": {
+    "0": 0.962,
+    "1": 0.019,
+    "2+": 0.019
+   },
+   "0": {
+    "players": 102,
+    "mult_vs_hero_avg": 0.938
+   }
+  },
+  "10": {
+   "name": "Paradox",
+   "class": "gun",
+   "players": 121,
+   "mix": {
+    "0": 0.975,
+    "1": 0.025,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 118,
+    "mult_vs_hero_avg": 0.978
+   },
+   "1": {
+    "players": 3,
+    "mult_vs_hero_avg": 1.818
+   }
+  },
+  "15": {
+   "name": "Bebop",
+   "class": "gun",
+   "players": 170,
+   "mix": {
+    "0": 0.182,
+    "1": 0.6,
+    "2+": 0.218
+   },
+   "0": {
+    "players": 31,
+    "mult_vs_hero_avg": 0.67
+   },
+   "1": {
+    "players": 102,
+    "mult_vs_hero_avg": 0.84
+   },
+   "2+": {
+    "players": 37,
+    "mult_vs_hero_avg": 1.611
+   }
+  },
+  "7": {
+   "name": "Wraith",
+   "class": "gun",
+   "players": 172,
+   "mix": {
+    "0": 1.0,
+    "1": 0.0,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 172,
+    "mult_vs_hero_avg": 1.0
+   }
+  },
+  "13": {
+   "name": "Haze",
+   "class": "gun",
+   "players": 231,
+   "mix": {
+    "0": 0.987,
+    "1": 0.013,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 228,
+    "mult_vs_hero_avg": 1.0
+   },
+   "1": {
+    "players": 3,
+    "mult_vs_hero_avg": 1.111
+   }
+  },
+  "52": {
+   "name": "Mirage",
+   "class": "gun",
+   "players": 36,
+   "mix": {
+    "0": 0.972,
+    "1": 0.028,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 35,
+    "mult_vs_hero_avg": 0.937
+   }
+  },
+  "31": {
+   "name": "Lash",
+   "class": "gun",
+   "players": 185,
+   "mix": {
+    "0": 0.973,
+    "1": 0.027,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 180,
+    "mult_vs_hero_avg": 0.973
+   },
+   "1": {
+    "players": 5,
+    "mult_vs_hero_avg": 1.966
+   }
+  },
+  "85": {
+   "name": "Solomon",
+   "class": "gun",
+   "players": 64,
+   "mix": {
+    "0": 0.922,
+    "1": 0.078,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 59,
+    "mult_vs_hero_avg": 0.971
+   },
+   "1": {
+    "players": 5,
+    "mult_vs_hero_avg": 1.371
+   }
+  },
+  "1": {
+   "name": "Infernus",
+   "class": "gun",
+   "players": 163,
+   "mix": {
+    "0": 0.975,
+    "1": 0.018,
+    "2+": 0.006
+   },
+   "0": {
+    "players": 159,
+    "mult_vs_hero_avg": 0.907
+   },
+   "1": {
+    "players": 3,
+    "mult_vs_hero_avg": 3.08
+   }
+  },
+  "66": {
+   "name": "Victor",
+   "class": "gun",
+   "players": 84,
+   "mix": {
+    "0": 0.952,
+    "1": 0.048,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 80,
+    "mult_vs_hero_avg": 0.931
+   },
+   "1": {
+    "players": 4,
+    "mult_vs_hero_avg": 2.649
+   }
+  },
+  "3": {
+   "name": "Vindicta",
+   "class": "gun",
+   "players": 136,
+   "mix": {
+    "0": 0.985,
+    "1": 0.015,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 134,
+    "mult_vs_hero_avg": 1.009
+   }
+  },
+  "58": {
+   "name": "Vyper",
+   "class": "gun",
+   "players": 46,
+   "mix": {
+    "0": 1.0,
+    "1": 0.0,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 46,
+    "mult_vs_hero_avg": 1.0
+   }
+  },
+  "72": {
+   "name": "Billy",
+   "class": "melee",
+   "players": 80,
+   "mix": {
+    "0": 0.0,
+    "1": 0.125,
+    "2+": 0.875
+   },
+   "1": {
+    "players": 10,
+    "mult_vs_hero_avg": 0.736
+   },
+   "2+": {
+    "players": 70,
+    "mult_vs_hero_avg": 1.042
+   }
+  },
+  "8": {
+   "name": "McGinnis",
+   "class": "gun",
+   "players": 28,
+   "mix": {
+    "0": 0.964,
+    "1": 0.036,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 27,
+    "mult_vs_hero_avg": 0.936
+   }
+  },
+  "64": {
+   "name": "Drifter",
+   "class": "melee",
+   "players": 151,
+   "mix": {
+    "0": 0.113,
+    "1": 0.146,
+    "2+": 0.742
+   },
+   "0": {
+    "players": 17,
+    "mult_vs_hero_avg": 0.532
+   },
+   "1": {
+    "players": 22,
+    "mult_vs_hero_avg": 0.874
+   },
+   "2+": {
+    "players": 112,
+    "mult_vs_hero_avg": 1.161
+   }
+  },
+  "80": {
+   "name": "Silver",
+   "class": "melee",
+   "players": 64,
+   "mix": {
+    "0": 0.047,
+    "1": 0.719,
+    "2+": 0.234
+   },
+   "0": {
+    "players": 3,
+    "mult_vs_hero_avg": 0.734
+   },
+   "1": {
+    "players": 46,
+    "mult_vs_hero_avg": 1.041
+   },
+   "2+": {
+    "players": 15,
+    "mult_vs_hero_avg": 0.928
+   }
+  },
+  "4": {
+   "name": "Lady Geist",
+   "class": "gun",
+   "players": 24,
+   "mix": {
+    "0": 1.0,
+    "1": 0.0,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 24,
+    "mult_vs_hero_avg": 1.0
+   }
+  },
+  "18": {
+   "name": "Mo & Krill",
+   "class": "gun",
+   "players": 114,
+   "mix": {
+    "0": 0.956,
+    "1": 0.044,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 109,
+    "mult_vs_hero_avg": 0.989
+   },
+   "1": {
+    "players": 5,
+    "mult_vs_hero_avg": 1.253
+   }
+  },
+  "63": {
+   "name": "Mina",
+   "class": "gun",
+   "players": 140,
+   "mix": {
+    "0": 0.993,
+    "1": 0.007,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 139,
+    "mult_vs_hero_avg": 1.0
+   }
+  },
+  "67": {
+   "name": "Paige",
+   "class": "gun",
+   "players": 51,
+   "mix": {
+    "0": 0.98,
+    "1": 0.02,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 50,
+    "mult_vs_hero_avg": 0.99
+   }
+  },
+  "17": {
+   "name": "Grey Talon",
+   "class": "gun",
+   "players": 54,
+   "mix": {
+    "0": 1.0,
+    "1": 0.0,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 54,
+    "mult_vs_hero_avg": 1.0
+   }
+  },
+  "25": {
+   "name": "Warden",
+   "class": "gun",
+   "players": 26,
+   "mix": {
+    "0": 1.0,
+    "1": 0.0,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 26,
+    "mult_vs_hero_avg": 1.0
+   }
+  },
+  "60": {
+   "name": "Sinclair",
+   "class": "gun",
+   "players": 13,
+   "mix": {
+    "0": 1.0,
+    "1": 0.0,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 13,
+    "mult_vs_hero_avg": 1.0
+   }
+  },
+  "2": {
+   "name": "Seven",
+   "class": "gun",
+   "players": 96,
+   "mix": {
+    "0": 0.979,
+    "1": 0.021,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 94,
+    "mult_vs_hero_avg": 1.0
+   }
+  },
+  "50": {
+   "name": "Pocket",
+   "class": "gun",
+   "players": 101,
+   "mix": {
+    "0": 0.98,
+    "1": 0.02,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 99,
+    "mult_vs_hero_avg": 0.99
+   }
+  },
+  "69": {
+   "name": "The Doorman",
+   "class": "gun",
+   "players": 11,
+   "mix": {
+    "0": 0.909,
+    "1": 0.091,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 10,
+    "mult_vs_hero_avg": 0.974
+   }
+  },
+  "12": {
+   "name": "Kelvin",
+   "class": "gun",
+   "players": 17,
+   "mix": {
+    "0": 0.941,
+    "1": 0.059,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 16,
+    "mult_vs_hero_avg": 0.925
+   }
+  },
+  "16": {
+   "name": "Calico",
+   "class": "melee",
+   "players": 94,
+   "mix": {
+    "0": 0.032,
+    "1": 0.064,
+    "2+": 0.904
+   },
+   "0": {
+    "players": 3,
+    "mult_vs_hero_avg": 0.795
+   },
+   "1": {
+    "players": 6,
+    "mult_vs_hero_avg": 0.91
+   },
+   "2+": {
+    "players": 85,
+    "mult_vs_hero_avg": 1.036
+   }
+  },
+  "35": {
+   "name": "Viscous",
+   "class": "gun",
+   "players": 24,
+   "mix": {
+    "0": 0.583,
+    "1": 0.292,
+    "2+": 0.125
+   },
+   "0": {
+    "players": 14,
+    "mult_vs_hero_avg": 0.576
+   },
+   "1": {
+    "players": 7,
+    "mult_vs_hero_avg": 0.517
+   },
+   "2+": {
+    "players": 3,
+    "mult_vs_hero_avg": 3.435
+   }
+  },
+  "81": {
+   "name": "Celeste",
+   "class": "gun",
+   "players": 44,
+   "mix": {
+    "0": 0.932,
+    "1": 0.068,
+    "2+": 0.0
+   },
+   "0": {
+    "players": 41,
+    "mult_vs_hero_avg": 0.945
+   },
+   "1": {
+    "players": 3,
+    "mult_vs_hero_avg": 1.797
+   }
+  },
+  "77": {
+   "name": "Apollo",
+   "class": "melee",
+   "players": 7,
+   "mix": {
+    "0": 0.429,
+    "1": 0.0,
+    "2+": 0.571
+   },
+   "0": {
+    "players": 3,
+    "mult_vs_hero_avg": 0.2
+   },
+   "2+": {
+    "players": 4,
+    "mult_vs_hero_avg": 1.45
+   }
+  },
+  "78": {
+   "name": "Deadman Danny",
+   "class": "gun",
+   "players": 1,
+   "mix": {
+    "0": 1.0,
+    "1": 0.0,
+    "2+": 0.0
+   }
+  }
+ }
+}

@@ -2,13 +2,14 @@
 
 run(json_str) takes the page's form as JSON and returns damage_test()'s result plus the settings actually used:
     {"hero": "Haze", "items": [ids or names], "souls": 27000, "aim": "p50", "accuracy": null, "headshot": null,
-     "distance": null, "ability_order": null, "dummy": {"hero": "Abrams", "items": [...], "souls": null, "hp": null,
+     "distance": null, "melee_rate": null, "ability_order": null, "dummy": {"hero": "Abrams", "items": [...], "souls": null, "hp": null,
      "bullet_resist": null, "spirit_resist": null, "melee_resist": null, "immortal": true}}
 """
 import json
 
 from deadsim.accuracy import default_distance, hero_default_skill
 from deadsim.data import game
+from deadsim.engine import MELEE_ITEMS
 from dummy import Dummy, damage_test
 
 
@@ -26,6 +27,9 @@ def _setup(q):
         skill.accuracy = float(q["accuracy"])
     if q.get("headshot") is not None:
         skill.headshot = float(q["headshot"])
+    if q.get("melee_rate") is not None:   # own landed melees per second; else the rate follows the build
+        skill.melee_rate = max(0.0, float(q["melee_rate"]))
+        skill.melee_by_items = None
     dq = q.get("dummy") or {}
     dummy = Dummy(
         hero=G.hero(dq.get("hero") or "Haze").name,
@@ -39,6 +43,14 @@ def _setup(q):
     return hero, items, kw
 
 
+def _melee_rate(skill, items):
+    """Landed melees per second the fight used (Skill.melee_by_items picks it from the build's melee items)."""
+    by = skill.melee_by_items
+    if not by:
+        return round(skill.melee_rate, 4)
+    return by[min(len(by) - 1, sum(1 for i in items if i.class_name in MELEE_ITEMS))]
+
+
 def run(req_json):
     q = json.loads(req_json)
     hero, items, kw = _setup(q)
@@ -47,6 +59,7 @@ def run(req_json):
         "hero": hero.name, "items": [i.name for i in items], "item_cost": sum(i.cost for i in items),
         "accuracy": round(kw["skill"].accuracy, 4), "headshot": round(kw["skill"].headshot, 4),
         "distance": kw["distance"] if kw["distance"] is not None else default_distance(hero.name),
+        "melee_rate": _melee_rate(kw["skill"], items),
     }
     return json.dumps(r)
 

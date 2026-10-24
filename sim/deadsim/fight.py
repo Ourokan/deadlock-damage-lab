@@ -17,7 +17,7 @@ from functools import lru_cache
 from .abilities import AbilityState, load_heroes
 from .build import NET_WORTH_OFFSET, compute_stats
 from .data import game, DATA_DIR
-from .engine import Engine, Fighter, Skill, _UNSET
+from .engine import MELEE_ITEMS, Engine, Fighter, Skill, _UNSET
 from . import items_fx, patterns
 
 # median number of ability events (unlock or upgrade) by net worth, from 200k current-patch ranked rows
@@ -153,6 +153,9 @@ def make_fighter(engine, lo: Loadout, name=None):
     skill = lo.skill
     if engine.mech is not None and skill.ability_landing_mech:
         skill = dataclasses.replace(skill, ability_landing=skill.ability_landing_mech)
+    if skill.melee_by_items:
+        n = sum(1 for it in items if it.class_name in MELEE_ITEMS)
+        skill = dataclasses.replace(skill, melee_rate=skill.melee_by_items[min(n, len(skill.melee_by_items) - 1)])
     f = Fighter(engine, name or lo.name or hero.name, st, skill)
     if lo.ability_order:
         tiers, unlocked = abilities_for_order(hero, lo.ability_order, st.souls)

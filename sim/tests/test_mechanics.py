@@ -155,6 +155,30 @@ class Items(unittest.TestCase):
         sk = hero_default_skill("Abrams", melee_rate_override=0.8, heavy_share=0.5)
         self.assertEqual((sk.melee_rate, sk.heavy_share), (0.8, 0.5))
         self.assertGreater(hero_default_skill("Abrams").melee_rate, 0.1)
+        self.assertIsNone(sk.melee_by_items)   # the user's own rate is not scaled by the build
+
+    def test_melee_rate_follows_melee_items(self):
+        from deadsim.accuracy import hero_default_skill, melee_rate
+        sk = hero_default_skill("Haze")
+        r0, r1, r2 = sk.melee_by_items
+        self.assertLess(r0, r1)
+        self.assertLess(r1, r2)
+        self.assertAlmostEqual(r0, melee_rate("Haze"), delta=0.3 * melee_rate("Haze"))  # most Haze players: none
+        e = Engine(distance=10)
+        rates = [make_fighter(e, Loadout("Haze", its, souls=20000, skill=sk)).skill.melee_rate
+                 for its in ([], ["Melee Charge"], ["Melee Charge", "Lifestrike"], ["Melee Charge", "Lifestrike",
+                                                                                    "Spirit Snatch"])]
+        self.assertEqual(rates, [r0, r1, r2, r2])
+        self.assertEqual(sk.melee_rate, melee_rate("Haze"))   # the Skill itself keeps the average
+
+    def test_melee_charge_heavy_lunge_reach(self):
+        from deadsim.mechanics import MELEE_REACH, melee_reach
+        e = Engine(distance=3)
+        a = make_fighter(e, Loadout("Abrams", ["Melee Charge"], souls=9000))
+        b = make_fighter(e, Loadout("Abrams", [], souls=9000))
+        self.assertAlmostEqual(melee_reach(a, True), MELEE_REACH * 1.5)   # MeleeDistanceScale 50%
+        self.assertAlmostEqual(melee_reach(a, False), MELEE_REACH)
+        self.assertAlmostEqual(melee_reach(b, True), MELEE_REACH)
 
     def test_runed_gauntlets_heavy_melee_cuts_cooldowns(self):
         e = Engine(distance=3)

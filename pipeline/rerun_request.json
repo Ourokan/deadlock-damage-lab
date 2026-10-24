@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-22T20:20:00Z",
- "reason": "Sustain calibration: Healbane anti-heal at the real heal-prevented rate, field healing saves heal trips to base"
+ "requested_at": "2026-10-24T09:30:00Z",
+ "reason": "Melee rate follows the build: players with melee items melee more (sim/data/melee_items.json)"
 }

@@ -394,9 +394,18 @@ class Mover:
         e.after(self.DT, self.tick)
 
 
-def melee_reachable(eng):
+def melee_reach(f, heavy):
+    """Gap beyond the start distance a rotation melee still lands from. Melee Charge / Crushing Fists make heavy
+    melees lunge MeleeDistanceScale% farther, so a chaser lands them on a runner a little sooner."""
+    if not heavy:
+        return MELEE_REACH
+    return MELEE_REACH * (1.0 + max((fx.item.p("MeleeDistanceScale", 0.0) for fx in f.items_fx
+                                      if getattr(fx, "item", None) is not None), default=0.0) / 100)
+
+
+def melee_reachable(eng, f=None, heavy=False):
     mv = getattr(eng, "mover", None)
-    return mv is None or eng.distance <= mv.start + MELEE_REACH
+    return mv is None or eng.distance <= mv.start + (melee_reach(f, heavy) if f is not None else MELEE_REACH)
 
 
 # ---------------------------------------------------------------------------------------------------------------

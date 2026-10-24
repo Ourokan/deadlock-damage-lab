@@ -47,7 +47,7 @@ def run(job):
     load_heroes()
     out = {}
     sk = hero_default_skill(hero)
-    variants = {"no melee": (replace(sk, melee_rate=0.0, combo_melee=False), None, None), "real melee": (sk, None, None)}
+    variants = {"no melee": (replace(sk, melee_rate=0.0, melee_by_items=None, combo_melee=False), None, None), "real melee": (sk, None, None)}
     for it, alt in ITEMS.items():   # paired: only cases owning neither item
         variants["+" + it] = (sk, it, alt)
         variants["+" + alt + " (vs " + it + ")"] = (sk, alt, it)

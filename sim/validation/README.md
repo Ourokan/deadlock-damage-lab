@@ -87,23 +87,51 @@ Spirit Strike, Lifestrike, Melee Lifesteal. `accuracy.hero_default_skill` loads 
 with `hero_default_skill(hero, melee_rate_override=0.5, heavy_share=0.4)` (or `Skill(melee_rate=..., heavy_share=...)`).
 `Skill.combo_melee` (on by default) adds Abrams' charge into heavy melee combo on top of the rate.
 
+### Melee follows the build
+
+The fitted rate is the hero's average player, but players who buy melee items melee more. `scripts/melee_items_fit.py`
+replays every player's real build (30/60/90% of the match) at the hero's average rate and compares real melee/gun
+damage with the sim's, grouped by how many melee items the player held (Melee Charge, Crushing Fists, Lifestrike,
+Melee Lifesteal, Spirit Snatch, Spirit Strike, Rebuttal). The sim already gives those items their per-hit damage, so
+what is left is how often the player lands melees. Fit with hero fixed effects (within-hero comparison), 3,600
+player-matches, `data/melee_items.json`:
+
+| Melee items held | Gun heroes (rate < 0.08) | Melee heroes (Abrams, Billy, Drifter, Shiv, Calico, Yamato, Venator, Silver, Apollo) |
+|---|---|---|
+| 0 | 1 | 1 |
+| 1 | 1.86x (90% CI 1.49-2.12) | 1.07x (0.86-1.41) |
+| 2+ | 3.80x (2.53-4.80, 40 players) | 1.51x (1.19-2.02) |
+
+`accuracy.melee_rates_by_items(hero)` turns this into three rates per hero, scaled so the hero's real mix of builds
+still averages to its fitted rate (Haze 0.013 / 0.023 / 0.048 hits/s, Abrams 0.21 / 0.22 / 0.31).
+`hero_default_skill` stores them in `Skill.melee_by_items` and `fight.make_fighter` picks the one that matches the
+build, so adding Lifestrike to a build also makes its holder melee like players who buy it. A user-set
+`melee_rate_override` turns this off. `melee_items_fit.py --check` reruns with the build rates: real/sim per group
+is then 0.96-1.02 (it was up to 1.9x off for gun heroes holding melee items).
+
+Melee Charge and Crushing Fists also lunge heavy melees MeleeDistanceScale% (50% / 60%) farther: with movement on,
+a chaser lands heavies on a runner from that much farther (`mechanics.melee_reach`). Lifestrike's slow was
+already in the movement model.
+
 `scripts/melee_value.py` measures what melee is worth on real builds: real mid/late-game snapshots of each
 hero against real enemies from the same match, 30 s duels. It compares the hero's real melee rate vs none,
 and each melee item vs a same-cost non-melee item on the same cases (`melee_value.json`). The HP margin is
-(my HP left − enemy HP left) as a fraction of max HP.
+(my HP left − enemy HP left) as a fraction of max HP. Rerun 2026-10-24 with build-based melee rates:
 
-| Hero | Win rate from melee | Lifestrike vs Bullet Resilience | Spirit Snatch vs Bullet Resilience | Crushing Fists vs Leech |
-|---|---|---|---|---|
-| Abrams | +27 pts | +0.20 | +0.21 | −0.03 |
-| Billy | +30 pts | +0.20 | +0.13 | −0.03 |
-| Drifter | +22 pts | +0.11 | +0.05 | −0.13 |
-| Calico | +16 pts | +0.09 | +0.06 | −0.11 |
-| Yamato / Apollo | +12 pts | +0.05 / +0.03 | +0.13 / +0.08 | ≈0 |
-| Gun heroes (Infernus, Haze, Shiv, Venator, Silver) | 0-3 pts | −0.05 to +0.07 | −0.08 to +0.02 | −0.04 to −0.25 |
+| Hero | Win rate from melee | Lifestrike vs Bullet Resilience | Spirit Snatch vs Bullet Resilience | Crushing Fists vs Leech | Melee Charge vs Swift Striker |
+|---|---|---|---|---|---|
+| Abrams | +19 pts | +0.23 | +0.20 | −0.02 | +0.07 |
+| Billy | +16 pts | +0.20 | +0.22 | 0.00 | +0.09 |
+| Drifter | +22 pts | +0.12 | +0.06 | −0.18 | 0.00 |
+| Calico | +19 pts | +0.08 | +0.07 | −0.14 | +0.05 |
+| Shiv | +7 pts | +0.12 | +0.05 | −0.14 | +0.03 |
+| Yamato / Apollo / Silver | +9 / +16 / +9 pts | +0.07 / +0.04 / +0.09 | +0.16 / +0.05 / +0.08 | ≈0 | +0.01 to +0.04 |
+| Gun heroes (Infernus, Haze, Venator) | 0-3 pts | −0.02 to +0.10 | −0.08 to +0.04 | −0.09 to −0.25 | −0.07 to −0.01 |
 
-Melee Charge, Melee Lifesteal and Spirit Strike come out within ±0.07 of their comparison item for every hero.
-These rates are what today's average player does on each hero; a player who builds for melee probably melees
-more, which these numbers don't capture.
+Compared with the average-rate version, melee items gained 0.02-0.09 of HP margin on most heroes (Shiv's Lifestrike
++0.04 → +0.12, Silver's Melee Lifesteal +0.05 → +0.12), and "win rate from melee" fell for melee heroes because
+their players without melee items now melee less. Melee Lifesteal and Spirit Strike stay within ±0.12 of their
+comparison item. Heavy share (30%) is still an assumption: the API counts parries but not light vs heavy melees.
 
 ## Cleanses
 
@@ -305,8 +333,9 @@ mean +35, sd 200 over 12 paths). Melee keeps its fitted per-second rate; escapes
 
 ## Known gaps (not yet modeled)
 
-- **Melee movement:** melee is now in fights (see "Melee" above), but distance stays fixed (even with movement on, unless someone runs), so gap-closing
-  (Melee Charge's lunge, Lifestrike's slow) has no value.
+- **Melee movement:** melee is in fights and its rate follows the build (see "Melee" above). Melee Charge's lunge
+  and Lifestrike's slow only count in chases (movement on); there is no positioning AI that dives in to melee, and
+  the light/heavy split (30% heavy) is an assumption.
 - **Distance:** the fight distance spreads around the hero's median (see "Range spread") as an average, not a path: there is no positioning AI (kiting to stay at range, diving with a gap closer), and ability effects inside a cast still check the median distance. Hero range checks follow the spread: cast gates through `CastCtx.within` (engage margin + walk-in) or `CastCtx.reach` (hard reach; self buffs keep the median check, since the expected wait only scales damage), in-effect radii (Frank's revive blast, Kelvin's heal, Unicorn's barrier pop, Gigawatt's storm, Ghost's tether) scale damage, heals and stun/silence durations by `CastCtx.p_in` with no cutoff at the median (the tether breaks only at p = 0), Haze's Fixation bonus and McGinnis' turret falloff average over the spread. Still at the median: melee reach (Drifter's bonus melee, Billy's Bashdown melee), Drifter's vision check (a self buff) and Paige's distance amp (scales with distance travelled). Short-range ultimates use per-hero "approach" constants to be cast.
 - **Summons can't be shot** (fixed for McGinnis turrets with `mechanics.summons`, see above): McGinnis turrets keep full uptime, so her gun share is 2% vs 26% real. Still the
   worst-matched hero.
