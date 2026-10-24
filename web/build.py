@@ -53,8 +53,10 @@ def build_zip(path):
             z.write(f, os.path.relpath(f, ROOT))
         for f in glob.glob(os.path.join(ROOT, "sim/data/*.json")):
             z.write(f, os.path.relpath(f, ROOT))
-        # fitted Dispel Magic shares, read by accuracy.hero_default_skill (no fallback, so they must ship)
-        for f in glob.glob(os.path.join(ROOT, "sim/validation/dispel/*fit_*.json")):
+        # fitted Dispel Magic shares and Counterspell rates, read by accuracy.hero_default_skill (no fallback, so
+        # they must ship)
+        for f in glob.glob(os.path.join(ROOT, "sim/validation/dispel/*fit_*.json")) + \
+                glob.glob(os.path.join(ROOT, "sim/validation/counterspell/fit_*.json")):
             z.write(f, os.path.relpath(f, ROOT))
         for name in ["abilities.json", "heroes.json", "shop_items.json", "weapons.json", "raw/items.json"]:
             z.write(os.path.join(ROOT, "data/game", name), "data/game/" + name)

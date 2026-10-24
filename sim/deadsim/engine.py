@@ -168,7 +168,9 @@ class Skill:
     walk_in: float = 5.0
     # Used only with deadsim.mechanics on (see that module for the fits):
     parry_rate: float = 0.15       # share of incoming heavy melees parried
-    spell_parry_rate: float = 0.05  # Counterspell: share of enemy aimed non-ultimate casts a spell parry is timed against
+    # Counterspell: share of enemy aimed non-ultimate casts a spell parry is timed against (hero_default_skill sets
+    # the real-data fit, accuracy.spell_parry_rates: 0)
+    spell_parry_rate: float = 0.05
     # the same for enemy ultimates (telegraphed, the cast players buy Counterspell for); None = spell_parry_rate
     spell_parry_rate_ult: float | None = None
     # share of trigger pulls spent on a living enemy summon; None = the per-kind share fitted to Phantom+ replays

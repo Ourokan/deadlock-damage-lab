@@ -217,6 +217,21 @@ def _dispel_fit(lo):
         return float(json.load(f)["fitted_share"])
 
 
+COUNTERSPELL_FIT = os.path.join(HERE, "..", "validation", "counterspell", "fit_91.json")
+
+
+@functools.lru_cache(maxsize=None)
+def spell_parry_rates(badge=None):
+    """(non-ultimate, ultimate) share of enemy aimed casts a Counterspell holder times a spell parry against, fitted
+    by sim/scripts/fit_counterspell.py to real Phantom+ ability damage on holders vs teammates
+    (validation/counterspell/fit_91.json): their ability damage moves no more than their gun damage (0.965 / 0.98
+    vs 0.96), Lash's Death Slam included (1.00), so both rates are about 0. Only the Phantom+ fit exists, so every
+    badge uses it."""
+    with open(COUNTERSPELL_FIT) as f:
+        d = json.load(f)
+    return float(d["fitted_rate"]), float(d["fitted_rate_ult"])
+
+
 ITEM_LANDING = os.path.join(HERE, "..", "data", "item_landing.json")
 ITEM_LANDING_MIN_HOLDERS = 40
 
@@ -268,6 +283,7 @@ def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_ove
     sk.dot_cleanse_delay = dot_cleanse_delay(badge)
     sk.dot_cleanse_share = dot_cleanse_share(badge)
     sk.dot_cleanse_share_buildup = dot_cleanse_share_buildup(badge)
+    sk.spell_parry_rate, sk.spell_parry_rate_ult = spell_parry_rates(badge)
     # players walk out of ground zones (Alchemical Fire) unless stunned, rooted or slowed (items_fx.held_share);
     # on in every mode since 2026-10-21 (Tyler: no Alchemical Fire for heroes that can't hold a target in it)
     sk.zone_exit_s = zone_exit_time(badge)

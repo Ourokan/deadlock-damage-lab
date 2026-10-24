@@ -20,7 +20,7 @@ class WebZip(unittest.TestCase):
             zipfile.ZipFile(path).extractall(d)
             code = ("import sys; sys.path.insert(0, 'sim'); from deadsim.accuracy import hero_default_skill; "
                     "s = hero_default_skill('Infernus', badge=91, counterplay=True); "
-                    "print(s.dot_cleanse_share, s.dot_cleanse_share_buildup)")
+                    "print(s.dot_cleanse_share, s.dot_cleanse_share_buildup, s.spell_parry_rate_ult)")
             r = subprocess.run([sys.executable, "-I", "-c", code], cwd=d, capture_output=True, text=True)
             self.assertEqual(r.returncode, 0, r.stderr[-800:])
 

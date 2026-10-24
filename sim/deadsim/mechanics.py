@@ -568,9 +568,10 @@ class Counterspell(FX):
         self.use()
         win = self.item.p("SpellParryDuration", 0.8)
         lead = ab.ctx.raw("AbilityCastDelay")
-        # a parried cast is negated whole: its later effects (Death Slam's slam 2.6 s after the grab, delayed
-        # detonations, DoT ticks) are blocked too, up to PARRIED_CAST_SPAN after its cast delay
-        f.counters["spell_parry"] = [self.now + win, ab, self.now + lead + max(win, PARRIED_CAST_SPAN), self]
+        # a parried cast is negated whole: its own later effects (Death Slam's slam 2.6 s after the grab, delayed
+        # detonations, DoT ticks) stay blocked for PARRIED_CAST_SPAN after its cast delay; other casts only inside
+        # the SpellParryDuration window
+        f.counters["spell_parry"] = [self.now + win, ab, self.now + lead + PARRIED_CAST_SPAN, self]
         self.done = False
 
     def success(self, f):

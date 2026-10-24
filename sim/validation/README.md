@@ -179,7 +179,11 @@ for non-ultimates and 0.98 for ultimates vs gun damage 0.96 (Counterspell can't 
 Against Lash, the hero that triggers it most (x2.1): Death Slam 1.00 (CI 0.95-1.06), Ground Strike 1.00, Flog 1.00,
 and holders die to Lash as often (1.03). A few slow-detonation abilities do drop (Sticky Bomb 0.82, Gloom Bombs 0.73,
 Affliction 0.79 of gun), too few casts to move the total. `Skill.spell_parry_rate_ult` (new, ultimates) and
-`spell_parry_rate` are fitted by `scripts/fit_counterspell.py` (`validation/counterspell/fit_91.json`). So the sim's
+`spell_parry_rate` are fitted by `scripts/fit_counterspell.py` (`validation/counterspell/fit_91.json`, set by
+`accuracy.spell_parry_rates` in `hero_default_skill`): both fit 0 (90% CI 0-0.005 non-ult, 0 ult; was a hand-set
+0.05), so Counterspell is worth its +50 HP and spirit power. A parried cast stays blocked for
+`mechanics.PARRIED_CAST_SPAN` (3.5 s), so a rate set by hand can block Death Slam, whose slam lands 2.6 s after the
+grab (it never could before). So the sim's
 verdict that Counterspell is the weakest defensive item per soul matches real Phantom+ play (win edge -0.8 points).
 
 ## New mechanics: parry, summons, nearby enemies, movement (2026-10-15)

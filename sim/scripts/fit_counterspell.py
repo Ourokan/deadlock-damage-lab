@@ -10,7 +10,7 @@ differently): target = ability ratio / gun ratio.
 Sim side, as fit_dispel.py: real (enemy, Counterspell holder) item snapshots from the same matches (holder's items
 SETTLE_S after buying it), dueled 30 s at the bracket's aim with counterplay on; the holder has HP_MULT x health so
 the window is fixed, as in the real comparison. ratio(r, r_ult) = enemy ability damage to the holder at those rates /
-to the same holder with Counterspell removed, each per the holder's max HP like the real side (without that,
+to the same holder with Counterspell but no parry, each per the holder's max HP like the real side (without that,
 %-health abilities such as Soul Exchange dominate at HP_MULT x health, and Counterspell's +50 HP x HP_MULT with them). Then the 2-d grid is interpolated to
 meet both real targets.
 
@@ -135,7 +135,11 @@ def main():
     ps = pairs(min_badge, n, days)
     with Pool(os.cpu_count()) as p:
         rows = p.map(run, [(x, min_badge) for x in ps])
-    base = [sum(r["none"][0] for r in rows), sum(r["none"][1] for r in rows)]
+    # against the item held with no parry at all: holding it already changes the fixed-window duel (the holder's
+    # spirit power and HP shorten or lengthen the fight; 0.90 / 1.07 of no item in the first fit), which the real
+    # side's gun control removes too. "none" is kept for reference.
+    none = [sum(r["none"][0] for r in rows), sum(r["none"][1] for r in rows)]
+    base = [sum(r["0.0|0.0"][0] for r in rows), sum(r["0.0|0.0"][1] for r in rows)]
     grid = {(r, u): (sum(x[f"{r}|{u}"][0] for x in rows) / base[0], sum(x[f"{r}|{u}"][1] for x in rows) / base[1])
             for r in RATES for u in RATES_ULT}
     # alternate: non-ult rate given the ult rate, ult rate given the non-ult rate (bilinear on the grid)
@@ -173,6 +177,7 @@ def main():
            "real_ratio_90ci": {"gun": g["gun"]["ci90"], "non_ult": g["abilities:non-ult"]["ci90"], "ult": g["abilities:ult"]["ci90"]},
            "target_vs_gun": {k: round(v, 3) for k, v in tgt.items()},
            "sim_pairs": len(rows), "sim_seeds": SEEDS,
+           "sim_item_no_parry_vs_none": [round(base[0] / none[0], 3), round(base[1] / none[1], 3)],
            "sim_ratio": {f"{r_}|{u_}": [round(a, 3), round(b, 3)] for (r_, u_), (a, b) in grid.items()},
            "fitted_rate": r, "fitted_rate_ult": u,
            "fitted_rate_90ci": [lo[0], hi[0]], "fitted_rate_ult_90ci": [lo[1], hi[1]],
