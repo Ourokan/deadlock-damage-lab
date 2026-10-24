@@ -127,3 +127,29 @@ Radiant Regeneration 0/0/0 -> 4/5/4 (real 4.5), Healing Booster 0/1/1 -> 1/1/1 (
 Still off: Healing Booster is under-picked (ally heals it amps are not modeled in a 1v1) and Fortitude / lifesteal
 are over-picked. Tried per-item fountain savings instead of the pooled pass-through: Fortitude went to 12/12 and
 Radiant back to 0, so it was dropped.
+
+## Balancing Fortitude, lifesteal and Healing Booster (2026-10-24)
+
+Three causes of Fortitude / lifesteal / Radiant over-picks, all in the out-of-fight parts of the overall score:
+- Heal trips scaled off the popular build's own fountain need. When the popular build already held field-heal
+  items (Healing Booster + Radiant on Victor), its need was small, so the next item removed most of its trips
+  (Fortitude x1.15 score from map time alone). Each HP/min saved now cuts the same share of the real fountain
+  healing's trips, whatever the popular build holds.
+- One pooled fountain pass-through credited lifesteal and Radiant with 4-5x the trip savings their real holders show.
+  Each item now uses its own matched saving (holders vs non-holders, shrunk toward the pool): Fortitude ~59 HP/min,
+  Healing Booster ~16, Spirit / Bullet Lifesteal 10-20, Radiant 24 mid / 42 late (was 50 / 61).
+- Fight entry used the mean deficit (8.6% of max health) as if every fight started short. Real entries: half start
+  full (sim/data/sustain.json entry_deficit_q). Extra gap healing now only fills the fights that start short, and
+  is scaled so item holders gain what real holders gain (sim/scripts/sustain/fit_entry.py: mid 0.75, late 0.15,
+  Fortitude's restore 0.6 / 1.95 of that; Fortitude +6.0 points at mid entry vs +6.0 real, was +8.1).
+
+Overall search, 12 heroes (Victor, Celeste, Apollo, Rem, Kelvin, Yamato, Rat King, Venator, Haze, Drifter,
+Infernus, Seven), heroes whose best build holds the item at 27k / 37k, before -> after, vs the real Phantom+
+expectation for the same heroes (sum of each hero's holder share): Spirit Lifesteal 7/5 -> 5/3 (real 1.7/1.3),
+Bullet Lifesteal 4/0 -> 1/0 (0.6/0.5), Fortitude 5/4 -> 6/3 (2.7/2.8), Healing Booster 4/3 -> 3/2 (5.0/4.8),
+Radiant Regeneration 6/5 -> 0/0 (2.5/2.6), Healbane 3/3 -> 5/5 (3.6/3.6).
+
+Still off: Healing Booster is under-picked although the 1v1 already credits it with more healing than real holders
+get (its amp adds ~900 HP/min in sim fights vs at most ~350 real), so the missing value is outside the duel (ally
+heals and team play). Radiant Regeneration was picked mostly for trip savings real holders don't show; its in-fight
+healing matches real (~1060 vs ~1280 HP/min of combat).

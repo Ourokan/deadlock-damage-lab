@@ -26,12 +26,12 @@ at the measured value of holding that many (they overlap). A few items count as 
 Sustain (2026-10-22, pro-play top items were mostly healing): the score is NET damage, damage dealt minus the
 healing the enemy got during the fight (healing undoes damage; this is what makes Healbane's anti-heal count), and a
 refill of the immortal enemy counts as a kill (Healbane's kill heal). Fights after the lane no longer start at full
-health: the hero arrives with the real Phantom+ mean health at a fight start (sim/data/sustain.json entry_hp) for the
-popular build, and a build that heals more in the gap_s seconds out of combat before a fight arrives fuller
-(entry_hp_start). Gap healing counts health regen, out-of-combat regen, Fortitude, heal pickups from medic troopers
+health: the popular build arrives with the real Phantom+ spread of health at a fight start (sim/data/sustain.json
+entry_deficit_q; half the fights start full), and a build that heals more in the gap_s seconds out of combat before
+a fight arrives fuller in the fights that start short (entry_hp_start, scaled to real holders by fit_entry.py). Gap healing counts health regen, out-of-combat regen, Fortitude, heal pickups from medic troopers
 (amped by Healing Booster) and the real out-of-fight rate of farm-heal items (Radiant Regeneration, Restorative Shot
 on creeps, lifesteal on creeps...), all measured in sim/scripts/sustain/fit_sustain.py. Healing in the field also
-saves trips back to the fountain (map_time: real fountain healing, pass-through fitted on item holders, TRIP_S).
+saves trips back to the fountain (map_time: each item's real fountain saving on holders, TRIP_S).
 Healbane's cut runs at the real heal-prevented rate (healbane_landing, sim/scripts/sustain/fit_healbane.py).
 Not counted: team heals and team auras, vision, souls from farming (Monster Rounds), objective damage.
 
@@ -184,7 +184,8 @@ def game_phase(souls):
 
 def gap_heal(r, items, gap=TRADE_GAP, phase="lane"):
     """Health healed in `gap` s out of hero combat by the build of survive() result r (or build_stats()): health
-    regen the whole gap, out-of-combat regen after OOC_DELAY, Fortitude after its RestoreDelay, medic trooper heal
+    regen the whole gap, out-of-combat regen after OOC_DELAY, Fortitude after its RestoreDelay (scaled to real
+    holders, fortitude_heal_scale: creeps and troopers reset it), medic trooper heal
     pickups (all amped by regen amp, so Healing Booster counts) and the real rate of farm-heal items (Radiant
     Regeneration, Restorative Shot on creeps, lifesteal on creeps..., amped by outgoing healing amp)."""
     amp = 1.0 + (r.get("regen_amp") or 0.0)
@@ -197,7 +198,7 @@ def gap_heal(r, items, gap=TRADE_GAP, phase="lane"):
         it = g.items[i]
         if it.class_name == "upgrade_chonky":    # Fortitude
             h += r["max_hp"] * it.props.get("HealLifePercentOutOfCombat", 0) / 100 \
-                * max(0.0, gap - it.props.get("RestoreDelay", 10))
+                * max(0.0, gap - it.props.get("RestoreDelay", 10)) * sus.get("fortitude_heal_scale", {}).get(phase, 1.0)
         rate = sus["farm_heal_hp_per_min"].get(it.name)
         if rate:
             farm += rate[phase] / 60 * gap
@@ -219,48 +220,58 @@ def build_stats(h, items, souls):
 
 
 # Trips back to base (2026-10-22): healing in the field saves fountain trips, so more time on the map. Real Phantom+
-# holders of field-heal items heal fountain_pass HP less at the fountain per HP/min the item heals (pooled over
-# Healing Booster, Radiant Regeneration, Restorative Shot, Fortitude, Extra Regen, lifesteal, Mystic Regeneration,
-# Healing Rite; matched hero x phase x net worth, sim/scripts/sustain/fit_sustain.py). The popular build makes the
-# real number of heal trips (heal_trips_per_min, ~2 per 10 min mid game); a build makes fewer when its items save
-# fountain healing and when more max health makes each trip go further. A trip costs TRIP_S s (assumption).
+# holders of field-heal items heal less at the fountain than non-holders (matched hero x phase x net worth, each item
+# shrunk toward the pooled pass-through, sim/scripts/sustain/fit_sustain.py fountain_saved_hp_per_min: Fortitude ~59
+# HP/min, Healing Booster ~16, lifesteal 10-20). The popular build makes the real number of heal trips
+# (heal_trips_per_min, ~2 per 10 min mid game); a build makes fewer when its items save fountain healing and when
+# more max health makes each trip go further. A trip costs TRIP_S s (assumption).
 TRIP_S = 40.0
 
 
-def fountain_need(items, ph):
-    """Fountain healing per minute a build still needs: the real mean minus what its field-heal items save."""
-    sus = sustain()
+def field_saving(items, ph):
+    """Fountain healing per minute a build's field-heal items save (real holders vs non-holders)."""
+    saved = sustain()["fountain_saved_hp_per_min"]
     g = S.G()
-    field = sum(sus["field_heal_hp_per_min"].get(g.items[i].name, {}).get(ph, 0.0) for i in items)
-    return max(0.0, sus["fountain_hp_per_min"][ph] - sus["fountain_pass"] * field)
+    return sum(saved.get(g.items[i].name, {}).get(ph, 0.0) for i in items)
 
 
 def map_time(h, items, souls, pop):
     """Share of time on the map (not walking back to heal) of a build, the popular build making the real number of
-    heal trips. Lane stages: 1 (the lane test already scores staying in lane)."""
+    heal trips. Each HP/min of fountain healing a build saves over the popular build cuts the same share of the real
+    fountain healing's trips (not of the popular build's: a popular build that already heals in the field must not
+    make every further heal item worth more). Lane stages: 1 (the lane test already scores staying in lane)."""
     ph = game_phase(souls)
     sus = sustain()
     if ph == "lane" or not sus.get("heal_trips_per_min"):
         return 1.0
-    trips = sus["heal_trips_per_min"][ph] * fountain_need(items, ph) / max(1.0, fountain_need(pop, ph)) \
+    f = sus["fountain_hp_per_min"][ph]
+    need = max(0.0, f - (field_saving(items, ph) - field_saving(pop, ph)))
+    trips = sus["heal_trips_per_min"][ph] * need / max(1.0, f) \
         * build_stats(h, pop, souls)["max_hp"] / build_stats(h, items, souls)["max_hp"]
     return max(0.1, 1.0 - trips * TRIP_S / 60.0)   # floor: a build always spends some time on the map
 
 
 def entry_deficit(h, pop, souls):
-    """Chip damage carried into a fight, set so the popular build arrives at the real mean entry health after
-    healing for the real time out of combat before a fight."""
+    """Chip damage carried into a fight by the popular build, per quantile of the real entry health spread (half the
+    fights start at full health), and the popular build's gap healing: the popular build arrives with the real entry
+    health spread after healing for the real time out of combat before a fight."""
     ph = game_phase(souls)
     sus = sustain()
     r = build_stats(h, pop, souls)
-    return (1.0 - sus["entry_hp"][ph]) * r["max_hp"] + gap_heal(r, pop, sus["gap_s"][ph], ph)
+    return [d * r["max_hp"] for d in sus["entry_deficit_q"][ph]], gap_heal(r, pop, sus["gap_s"][ph], ph)
 
 
 def entry_hp_start(h, items, souls, deficit):
-    """Health a build starts a fight with: max health minus the chip damage its gap healing didn't cover."""
+    """Mean health a build starts a fight with: max health minus the chip damage its gap healing didn't cover. More
+    gap healing than the popular build's only helps in the fights that start short of full health; less costs in
+    all of them. The difference is scaled to real item holders' entry health (entry_heal_scale,
+    sim/scripts/sustain/fit_entry.py)."""
     ph = game_phase(souls)
     r = build_stats(h, items, souls)
-    return r["max_hp"] - max(0.0, deficit - gap_heal(r, items, sustain()["gap_s"][ph], ph))
+    qs, pop_heal = deficit
+    sus = sustain()
+    extra = (gap_heal(r, items, sus["gap_s"][ph], ph) - pop_heal) * sus.get("entry_heal_scale", {}).get(ph, 1.0)
+    return r["max_hp"] - sum(max(0.0, d - extra) for d in qs) / len(qs)
 
 
 def healbane_gap_share(items, gap=TRADE_GAP):
