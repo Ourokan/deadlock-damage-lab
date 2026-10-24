@@ -40,6 +40,14 @@ class AreaDamage(unittest.TestCase):
 
 
 class AllyItems(unittest.TestCase):
+    def test_every_fitted_item_is_a_real_item(self):
+        # team_value looks items up by name: a renamed item would silently drop to 1.0
+        names = {it.name for it in G.items.values()}
+        for name in O.team_data()["items"]["values"]:
+            self.assertIn(name, names)
+        for name in O.AREA_ITEMS:
+            self.assertIn(name, names)
+
     def test_ally_items_raise_the_score(self):
         self.assertEqual(O.team_value([ID["Extra Health"]], 27000), 1.0)
         for name in ("Healing Nova", "Heroic Aura", "Divine Barrier"):
