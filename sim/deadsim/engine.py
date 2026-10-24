@@ -667,8 +667,9 @@ class Engine:
         key = (id(st), d)
         fc = self._fall.get(key)
         if fc is None:   # E[falloff] and E[falloff x crit] over the spread (headshots get the joint one)
-            fall = (self.fine_mean if st.gun_range_m is not None else self.spread_mean)(st.falloff, d)
-            fc = self._fall[key] = (fall, self.spread_mean(lambda x: st.falloff(x) * st.crit_mult(x), d) / max(fall, 1e-9))
+            mean = self.fine_mean if st.gun_range_m is not None else self.spread_mean   # range edge: a step
+            fall = mean(st.falloff, d)
+            fc = self._fall[key] = (fall, mean(lambda x: st.falloff(x) * st.crit_mult(x), d) / max(fall, 1e-9))
         for fx in f.items_fx:   # close/long range bonuses pay where falloff is high/low, not at its average
             g = getattr(fx, "range_band", None)
             if g:
