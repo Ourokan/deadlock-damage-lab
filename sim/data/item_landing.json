@@ -20,6 +20,13 @@
    "sim_per_gun": 1.6014,
    "landing": 0.541
   },
+  "upgrade_mystic_reverb": {
+   "name": "Mystic Reverb",
+   "holders": 196,
+   "real_per_gun": 1.3033,
+   "sim_per_gun": 2.1731,
+   "landing": 0.6
+  },
   "upgrade_toxic_bullets": {
    "name": "Toxic Bullets",
    "holders": 845,
@@ -40,6 +47,20 @@
    "real_per_gun": 0.2088,
    "sim_per_gun": 0.3027,
    "landing": 0.69
+  },
+  "upgrade_capacitor": {
+   "name": "Capacitor",
+   "holders": 374,
+   "real_per_gun": 0.6964,
+   "sim_per_gun": 1.0055,
+   "landing": 0.693
+  },
+  "upgrade_discord": {
+   "name": "Scourge",
+   "holders": 104,
+   "real_per_gun": 2.0362,
+   "sim_per_gun": 2.9106,
+   "landing": 0.7
   },
   "upgrade_crackshot": {
    "name": "Mystic Shot",
@@ -76,12 +97,19 @@
    "sim_per_gun": 0.178,
    "landing": 0.878
   },
-  "upgrade_capacitor": {
-   "name": "Capacitor",
-   "holders": 374,
-   "real_per_gun": 0.6964,
-   "sim_per_gun": 0.7734,
-   "landing": 0.9
+  "upgrade_cold_front": {
+   "name": "Cold Front",
+   "holders": 505,
+   "real_per_gun": 0.447,
+   "sim_per_gun": 0.5049,
+   "landing": 0.885
+  },
+  "upgrade_chain_lightning": {
+   "name": "Tesla Bullets",
+   "holders": 509,
+   "real_per_gun": 0.4798,
+   "sim_per_gun": 0.5323,
+   "landing": 0.901
   },
   "upgrade_split_shot": {
    "name": "Split Shot",
@@ -90,12 +118,19 @@
    "sim_per_gun": 0.2805,
    "landing": 0.916
   },
-  "upgrade_chain_lightning": {
-   "name": "Tesla Bullets",
-   "holders": 509,
-   "real_per_gun": 0.4798,
-   "sim_per_gun": 0.5026,
-   "landing": 0.955
+  "upgrade_tech_damage_pulse": {
+   "name": "Torment Pulse",
+   "holders": 569,
+   "real_per_gun": 1.3578,
+   "sim_per_gun": 1.4785,
+   "landing": 0.918
+  },
+  "upgrade_thermal_detonator": {
+   "name": "Alchemical Fire",
+   "holders": 68,
+   "real_per_gun": 0.8742,
+   "sim_per_gun": 0.9525,
+   "landing": 0.918
   },
   "upgrade_express_shot": {
    "name": "Express Shot",
@@ -104,13 +139,6 @@
    "sim_per_gun": 0.6639,
    "landing": 1.013
   },
-  "upgrade_discord": {
-   "name": "Scourge",
-   "holders": 104,
-   "real_per_gun": 2.0362,
-   "sim_per_gun": 1.9238,
-   "landing": 1.058
-  },
   "upgrade_acolytes_glove": {
    "name": "Spirit Strike",
    "holders": 557,
@@ -118,26 +146,12 @@
    "sim_per_gun": 0.218,
    "landing": 1.073
   },
-  "upgrade_mystic_reverb": {
-   "name": "Mystic Reverb",
-   "holders": 196,
-   "real_per_gun": 1.3033,
-   "sim_per_gun": 1.2079,
-   "landing": 1.079
-  },
   "upgrade_headshot_booster": {
    "name": "Headshot Booster",
    "holders": 367,
    "real_per_gun": 0.2149,
    "sim_per_gun": 0.1973,
    "landing": 1.09
-  },
-  "upgrade_cold_front": {
-   "name": "Cold Front",
-   "holders": 505,
-   "real_per_gun": 0.447,
-   "sim_per_gun": 0.4079,
-   "landing": 1.096
   },
   "upgrade_quick_silver": {
    "name": "Quicksilver Reload",
@@ -181,12 +195,12 @@
    "sim_per_gun": 0.2325,
    "landing": 1.22
   },
-  "upgrade_tech_damage_pulse": {
-   "name": "Torment Pulse",
-   "holders": 569,
-   "real_per_gun": 1.3578,
-   "sim_per_gun": 1.0196,
-   "landing": 1.332
+  "upgrade_arctic_blast": {
+   "name": "Arctic Blast",
+   "holders": 170,
+   "real_per_gun": 1.3273,
+   "sim_per_gun": 0.9613,
+   "landing": 1.381
   },
   "upgrade_magic_shock": {
    "name": "Tankbuster",
@@ -209,26 +223,12 @@
    "sim_per_gun": 0.042,
    "landing": 1.497
   },
-  "upgrade_thermal_detonator": {
-   "name": "Alchemical Fire",
-   "holders": 68,
-   "real_per_gun": 0.8742,
-   "sim_per_gun": 0.5415,
-   "landing": 1.614
-  },
   "upgrade_critshot": {
    "name": "Lucky Shot",
    "holders": 200,
    "real_per_gun": 0.3966,
    "sim_per_gun": 0.228,
    "landing": 1.739
-  },
-  "upgrade_arctic_blast": {
-   "name": "Arctic Blast",
-   "holders": 170,
-   "real_per_gun": 1.3273,
-   "sim_per_gun": 0.7557,
-   "landing": 1.756
   },
   "upgrade_melee_charge": {
    "name": "Melee Charge",

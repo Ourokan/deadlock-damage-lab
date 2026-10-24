@@ -490,6 +490,43 @@ than 2% except Silence Wave (25 holders, 0.71). What is left in the table is mos
   are mostly this.
 - Graves and Deadman Danny joined the audit on 2026-10-24 once their guns were calibrated from replays (next section).
 
+### Area items' hits on other heroes (2026-10-24)
+
+Mo & Krill's items were all 1.5-2.6x under real (holders only: Torment Pulse 1.87, Tankbuster 2.07, Cold Front 1.65).
+Torment Pulse's uptime on the main target is right (real 45% of its pulses land on the fight's main target, sim
+47% at his 10 m duel distance), so the gap is the other heroes. In 110 Phantom+ replays (every hero-vs-hero
+DamageEvent, kept in the project folder analysis/work/replay_damage; `scripts/team/area_hits.py`) a fight's main
+target is the hero who took most of the attacker's gun damage, and per item other / main = damage on every other hero
+/ damage on the main target. Single-target gun procs (Toxic Bullets, Mystic Shot) give 0.44 from target switching
+alone; an area item's extra hits per main hit is its other / main minus that:
+
+| Item | other / main | extra hits per main hit | position count used before |
+|---|---|---|---|
+| Mystic Reverb | 1.24 | 0.80 | 0.41 |
+| Alchemical Fire | 1.20 | 0.76 | 0.20 |
+| Scourge | 0.95 | 0.51 | 0.07 |
+| Torment Pulse | 0.89 | 0.45 | 0.06 |
+| Capacitor | 0.74 | 0.30 | 0.20 |
+| Arctic Blast | 0.71 | 0.27 | 0.21 |
+| Cold Front | 0.67 | 0.24 | 0.07 |
+| Tesla Bullets | 0.50 | 0.06 | 0.14 |
+
+The position count (team_value.json "positions": other enemies within the radius at 1 s samples, at 27k) misses most
+of it for items around the holder: most position fight seconds are approach and poke at 15-20 m, while these items
+fire in the brawl. Torment Pulse's other / main is about the same for every holder (Mo & Krill 0.85, Celeste 1.05,
+Graves 0.90, Victor 0.77), so one pooled value per item. `data/area_hits.json` (`mechanics.area_extra`) now gives
+the overall search's area items their extra damage (position count as fallback) and the audit adds the same to the
+sim's item damage. Item factors refit: Mystic Reverb 1.08 -> 0.60, Scourge 1.06 -> 0.70, Capacitor 0.90 -> 0.69,
+Torment Pulse 1.33 -> 0.92, Alchemical Fire 1.61 -> 0.92, Cold Front 1.10 -> 0.89, Tesla Bullets 0.96 -> 0.90,
+Arctic Blast 1.76 -> 1.38 (unused); every area item's holders-only real / sim is now 1.00-1.03 except Arctic Blast
+1.41. In the search (at 27k), an item's value is its duel damage x factor x (1 + extra): Torment Pulse 1.06 -> 1.33
+of its duel damage, Alchemical Fire 1.20 -> 1.61, Arctic Blast 1.21 -> 1.27, Cold Front 1.07 -> 1.10, Scourge
+1.07 -> 1.06, Tesla Bullets 1.09 -> 0.95, Capacitor 1.08 -> 0.90, Mystic Reverb 1.41 -> 1.08 (the sim's echo on the
+main target is too strong). Mo & Krill distance 0.100 -> 0.071;
+Victor 0.047 -> 0.065 and Graves 0.091 -> 0.097 (their per-hero Torment Pulse share is now over real, the
+whole-match vs mid-game duel bias); player-weighted 0.0446 -> 0.0445. The patch rerun does not refit area_hits.json
+(it needs replay queries): rerun area_hits.py on fresh replays after a big patch.
+
 ## Guns with no hero accuracy: Graves and Deadman Danny (2026-10-24)
 
 The match stats record no hero accuracy for Graves (The Teacher is a tether: Shots and Hits are always 0) and only

@@ -4,7 +4,8 @@ build searches use it (ability landing factors, real-data item factors, counterp
 For each player-match in the sample, duel the player's real build (items and net worth at 30/60/90% of the match,
 the player's real hero accuracy and headshot rate) against a real enemy from the same match at the same moment,
 with the real mean count of other enemies near the target (Mechanics.extra_targets = mechanics.real_nearby, as the
-searches fight; Ricochet and Split Shot hits on them count, since the real damage matrix has every enemy hero),
+searches fight; Ricochet and Split Shot hits on them count, and area items' replay-measured extra hits on other
+heroes (mechanics.area_extra), since the real damage matrix has every enemy hero),
 then compare where the damage comes from with the match's real damage matrix (damage to enemy heroes):
 
 - per hero: share of gun / abilities / items / melee, real vs sim, and the total distance between the two mixes
@@ -36,7 +37,7 @@ sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from deadsim import Loadout, duel, game  # noqa: E402
 from deadsim.abilities import load_heroes  # noqa: E402
-from deadsim.mechanics import DEFAULT as MECH, RICOCHET_RADIUS, real_nearby  # noqa: E402
+from deadsim.mechanics import DEFAULT as MECH, RICOCHET_RADIUS, area_extra, real_nearby  # noqa: E402
 from deadsim.accuracy import HEADS, HITS, SHOTS, default_distance, gun_calibrated, hero_default_skill  # noqa: E402
 import landing_rates as L  # noqa: E402
 
@@ -101,6 +102,10 @@ def sim_player(job):
             d[L.sim_key(k, names, G)] += v
         for k, v in r.a_splash.items():     # Ricochet / Split Shot hits on the other enemies near the target
             d[L.sim_key(k, names, G)] += v
+        for k, v in r.a_dmg.items():        # area items: their real extra hits on other heroes (area_hits.json)
+            x = area_extra(k)
+            if x:
+                d[L.sim_key(k, names, G)] += v * x
         out.update(d)
         for i in items:
             c = G.items[i].class_name

@@ -37,9 +37,12 @@ Team value (2026-10-24, the real win check found Heroic Aura, Mystic Reverb... n
 Phantom+ fights are rarely 1v1 (sim/data/team_value.json "positions", fit from 1 s match positions by
 sim/scripts/team/fit_team.py: at 27k a fighting hero has 1.5 teammates within 35 m and 0.4 other enemies within 16 m
 of its target). So
-- area items also hit the other enemies near their centre: their damage in the duel x the real mean number of other
-  enemies within their radius of the target (Mystic Reverb, Alchemical Fire, Tesla Bullets, Capacitor) or of the
-  holder (Scourge, Torment Pulse, Cold Front, Arctic Blast) is added to the damage dealt (AREA_ITEMS); Ricochet and
+- area items also hit the other enemies near their centre: their damage in the duel x their real extra hits on other
+  heroes per hit on the main target is added to the damage dealt (AREA_ITEMS; deadsim.mechanics.area_extra, measured
+  from Phantom+ replay damage events by sim/scripts/team/area_hits.py: Mystic Reverb 0.80, Alchemical Fire 0.76,
+  Scourge 0.51, Torment Pulse 0.45, Capacitor 0.30, Arctic Blast 0.27, Cold Front 0.24, Tesla Bullets 0.06). The
+  position count (other enemies within the radius of the target or holder at 1 s samples) is the fallback; it gave
+  Torment Pulse and Scourge ~0.06, since most position fight seconds are approach and poke at 15-20 m; Ricochet and
   Split Shot hit them through the duel's Mechanics.extra_targets (other enemies within Ricochet's 13 m). Hero
   abilities are left alone: their landing factors were fitted to real damage, which already counts every target;
 - ally items (auras, ally heals and barriers) multiply the score by 1 + their team-only value per teammate in reach
@@ -87,7 +90,7 @@ import search as S  # noqa: E402
 from build_pool import BRACKETS, BUDGETS, PRIMARY  # noqa: E402
 from deadsim.accuracy import hero_default_skill  # noqa: E402
 from deadsim.build import compute_stats  # noqa: E402
-from deadsim.mechanics import real_nearby  # noqa: E402
+from deadsim.mechanics import area_extra, real_nearby  # noqa: E402
 from survival import survive  # noqa: E402
 
 MAX_TIME = 30.0
@@ -139,8 +142,10 @@ def near(kind, radius, souls):
 def area_damage(r, souls):
     """Damage the duel's area items (AREA_ITEMS) and splash (Ricochet, Split Shot) deal to the other enemies."""
     by = r.get("damage_by_source", {})
-    extra = sum(by.get(name, 0.0) * near("extra" if c == "target" else "extra_self", rad, souls)
-                for name, (c, rad) in AREA_ITEMS.items())
+    extra = 0.0
+    for name, (c, rad) in AREA_ITEMS.items():
+        k = area_extra(name)       # replay-measured; the position count is the fallback
+        extra += by.get(name, 0.0) * (k if k is not None else near("extra" if c == "target" else "extra_self", rad, souls))
     return extra + r.get("splash_dealt", 0.0)
 
 

@@ -36,8 +36,17 @@ class Near(unittest.TestCase):
 class AreaDamage(unittest.TestCase):
     def test_area_item_damage_counts_on_the_other_enemies(self):
         r = {"damage_by_source": {"gun": 1000.0, "Mystic Reverb": 200.0, "Scourge": 100.0}, "splash_dealt": 30.0}
-        want = 200 * O.near("extra", 16, 27000) + 100 * O.near("extra_self", 10, 27000) + 30
+        x = {n: O.area_extra(n) for n in ("Mystic Reverb", "Scourge")}
+        want = (200 * (x["Mystic Reverb"] if x["Mystic Reverb"] is not None else O.near("extra", 16, 27000))
+                + 100 * (x["Scourge"] if x["Scourge"] is not None else O.near("extra_self", 10, 27000)) + 30)
         self.assertAlmostEqual(O.area_damage(r, 27000), want, places=6)
+
+    def test_replay_area_hits_cover_the_area_items(self):
+        # data/area_hits.json is looked up by item name: a renamed item would silently fall back to positions
+        for name in O.AREA_ITEMS:
+            x = O.area_extra(name)
+            self.assertIsNotNone(x, name)
+            self.assertTrue(0.0 <= x < 2.0, name)
 
     def test_area_items_book_damage_under_their_names(self):
         # area_damage reads damage_by_source by item name: a different label would silently count 0
