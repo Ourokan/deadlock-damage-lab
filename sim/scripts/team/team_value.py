@@ -85,6 +85,9 @@ def popular(hero, souls):
             ids = S.popular_build(g.hero(hero).id, S.item_budget(souls), _pop[("pools", souls)])
             _pop[key] = [g.item(i).name for i in ids]
         else:
+            if ("warned",) not in _pop:
+                _pop[("warned",)] = True
+                print(f"warning: no {snaps}; using damage/out's popular builds (the last run's)", file=sys.stderr)
             _pop[key] = popular_items(hero, souls)
     return _pop[key]
 

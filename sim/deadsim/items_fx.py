@@ -1144,11 +1144,13 @@ class MysticReverb(FX):
         f.heal(hit.amount * self.item.p("ImbueAbilityLifesteal") / 100, "spirit_lifesteal", "lifesteal")
         if not self.ready():
             return
+        # the threshold counts damage dealt (after resist); the echo repeats the raw damage (it is mitigated again)
+        dealt = f.counters.get("reverb_dealt", 0.0) + hit.amount
         acc = f.counters.get("reverb_acc", 0.0) + hit.raw
-        if hit.amount < self.item.p("MinimumDamage", 0) and acc < self.item.p("MinimumDamage", 0):
-            f.counters["reverb_acc"] = acc
+        if dealt < self.item.p("MinimumDamage", 0):
+            f.counters["reverb_dealt"], f.counters["reverb_acc"] = dealt, acc
             return
-        f.counters["reverb_acc"] = 0.0
+        f.counters["reverb_dealt"] = f.counters["reverb_acc"] = 0.0
         self.use()
         base = acc * self.item.p("TechDamagePercent") / 100
         pct = self.item.p("MaxHealthDamage", 0) / 100
