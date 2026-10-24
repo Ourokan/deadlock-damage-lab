@@ -591,6 +591,46 @@ item is overrated (Mystic Shot 0.96, Torment Pulse 1.24). Per hero:
   Build-up now scales with the shot (`Stats.gun_charge`): 88x -> 3.7x under. The rest is probably his ability
   bullets building it up in the game.
 
+### Paradox's gun share, charge-up items and item bookkeeping (2026-10-24)
+
+Paradox had the worst mix in the audit (distance 0.14): gun 0.34 of his damage vs 0.24 real, items 0.10 vs 0.23.
+His gun hit itself is about right after the early game (sim 27 vs real 25 per hit after 20% of the match, replays);
+the gap came from five places, all checked in the 70 Phantom+ replays (`gun_calib`):
+
+- **Time Wall** gave +30-65% weapon damage for its whole duration. Only ~3% more of his gun hits land well above his
+  local median than for heroes without such a buff, so the bonus now reaches 10% of its uptime
+  (`TIMEWALL_SHOOT_THROUGH`).
+- **Kinetic Carbine** was ~0.55x its real hit late in the match and made up for it with a landing factor of 2.4,
+  clipped to 1.5 in fights. A real Carbine hit is 10-17x his gun hit at every stage (96 at 0-5 min, ~470 at
+  20-30 min), so its weapon scaling also follows the per-level bullet damage. It also charges for MaxChargeDuration
+  (2.5 s, was 1 s): the gap from his previous gun shot to a mid-fight Carbine hit is mostly 2.5-6 s. Landing factor
+  now 0.93 (mechanics 0.80).
+- **Mystic Burst and Tankbuster** "charge up over time": each ability hit over the threshold releases what has
+  charged since the last release, up to the full amount at 14 s (Mystic Burst median 2 after <1 s, 20 after 7 s,
+  39 after 14 s+; Tankbuster 7 / 75 / 188), with releases 0.2-2 s apart on the same victim. The sim fired a full
+  proc on a 14 s cooldown, so multi-hit abilities (Pulse Grenade's 5 pulses) got one proc where the game gives one
+  plus a trickle. Item factors: Tankbuster 1.89 -> 1.44, Mystic Burst 1.52 -> 1.22.
+- **Express Shot and Escalating Exposure** are booked under the item in the game's records (an Express Shot proc
+  shot, 1-2 hits for one-bullet guns, the whole doubled burst for Paradox) and were booked under the gun / the
+  ability in the sim, which inflated the sim's gun share for every holder and hid the items. `Engine.damage(book=)`
+  and `Engine.booking` now book them the game's way. In the default mode only the label changes; in realistic mode
+  (counterplay, the searches) the booked part gets the item's factor like an item's own damage, which cuts
+  Escalating Exposure's amp to 0.54x (the sim's amp is ~2x what the game books). Express Shot fits 1.02 (pooled,
+  Paradox 0.40), and factors above 1 are not applied, so it is unchanged.
+  Landing factors refit for the holders (Paradox, Shiv, Paige, Viscous, Yamato, Kelvin, Victor, Seven, McGinnis,
+  Infernus). Deadman Danny keeps his previous factors: the refit halved them and made his audit mix worse
+  (distance 0.06 -> 0.09).
+
+Result (on top of the Mystic Reverb fix, #59): Paradox gun 0.33 -> 0.27 (real 0.24), items 0.11 -> 0.24 (0.23),
+distance 0.14 -> 0.06; Shiv gun 0.33 -> 0.29 (0.27), distance 0.12 -> 0.04; Paige 0.09 -> 0.04; player-weighted
+mix distance 0.053 -> 0.045. Over a whole match
+Paradox's hit is still 1.5x real in `hit_damage.json` because the duels sample later points of the match.
+
+Still off: **Vyper** (gun 0.55 vs 0.46) is Split Shot (team fights, 2.8x under) and Mercurial Magnum (2.1x under):
+in the replays 86% of a holder's gun hits after the first proc carry the Mercurial bonus (Warden 91%), the sim
+24%. **Nurse Harrow** (0.35 vs 0.29) is Lurking Terrors 1.5x under. **Warden** is the other way (0.46 vs 0.52):
+Last Stand is overrated (0.66).
+
 ## Known gaps (not yet modeled)
 
 - **Melee movement:** melee is in fights and its rate follows the build (see "Melee" above). Melee Charge's lunge
@@ -600,14 +640,15 @@ item is overrated (Mystic Shot 0.96, Torment Pulse 1.24). Per hero:
 - **Summons:** Graves' and McGinnis' summons can be shot and splashed (see "Targetable summons"); real enemies also
   hit them with area abilities aimed elsewhere, which the sim folds into the splash share. Accuracy on summons is an
   assumption. McGinnis is still the worst-matched hero (gun share 2% vs 26% real), for reasons other than turret uptime.
-- **Paradox Kinetic Carbine** damage formula is a low-confidence reading of the data (landing 2.95).
+- **Paradox Kinetic Carbine** damage follows real hits (see "Paradox's gun share"); the charge is always full.
 - **Bebop Hyper Beam** dominates any 20 s duel that starts with it ready (landing 0.06); the model matches the
   data, the gap is the fresh-cooldown bias above. (Haze Bullet Dance: fixed 2026-10-21, see "Haze duels" below.)
 - **Multi-target items** (Ricochet, Split Shot) do nothing in a 1v1 without mechanics; see above. Deadman Danny's charged primary fire is
   modeled as a plain gun with fewer, bigger shots (see "Guns with no hero accuracy"); charge timing and its
   explosion radius are not.
-- **Attribution:** the game books amp bonuses (Escalating Exposure, Express Shot, Siphon Bullets) under the item;
-  the sim books them under the hit's source. This affects only the item-share comparison.
+- **Attribution:** the game books amp bonuses under the item. Express Shot and Escalating Exposure are booked the
+  same way now; Siphon Bullets, Rabbit Hex's amp and Pulse Grenade's stacking amp (~2.5% of Paradox's gun damage
+  in replays) are still booked under the hit's source. This affects only the item-share comparison.
 - **TTK:** sim 1v1 duels between real builds take a median 19 s (28 s with landing factors) vs 13 s for real
   deaths, which are mostly team fights with several attackers.
 

@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-24T19:05:00Z",
- "reason": "faster rerun pipeline (#61): jobs split by hero x budget, fits side by side; carries #58 and #59"
+ "requested_at": "2026-10-24T19:20:00Z",
+ "reason": "faster rerun pipeline (#61); Paradox's gun share (#60); carries #58 and #59"
 }
