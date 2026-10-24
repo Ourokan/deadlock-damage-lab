@@ -526,6 +526,11 @@ main target is too strong). Mo & Krill distance 0.100 -> 0.071;
 Victor 0.047 -> 0.065 and Graves 0.091 -> 0.097 (their per-hero Torment Pulse share is now over real, the
 whole-match vs mid-game duel bias); player-weighted 0.0446 -> 0.0445. The patch rerun does not refit area_hits.json
 (it needs replay queries): rerun area_hits.py on fresh replays after a big patch, then item_landing.py, since the item factors were fitted with these extra hits in the sim.
+The extra hits are one pooled value per item, the same at every net worth. Split by fight start time (same replays),
+they grow later in the match but not by much where there is data: Torment Pulse 0.41 (0-15 min) / 0.43 (15-25) /
+0.50 (25+), Cold Front 0.14 / 0.33 / 0.38, Capacitor - / 0.23 / 0.35, Tesla Bullets 0.00 / 0.09 / 0.22. Reverb,
+Alchemical Fire and Scourge are bought late (too little early damage to fit). So early builds with Cold Front or
+Capacitor are somewhat over-valued; a per-phase fit needs more replays.
 
 ## Guns with no hero accuracy: Graves and Deadman Danny (2026-10-24)
 
