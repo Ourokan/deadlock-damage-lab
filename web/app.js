@@ -545,7 +545,8 @@ async function renderOverallTab() {
     <span>Dummy damage by 15 s</span><span>${fmt(x.dummy_15s)}</span></div>${testBtn(Number(id), bk, x.items, title)}</div>`;
   const row = (x, label) => `<tr><td>${label}</td><td>${bdTiles(ctx(x))}</td><td class="n">${fmt(x.cost)}</td><td class="n">${fmt(x.F.damage_before_death)}</td><td class="n">${fmt(x.F.time_alive_s, 1)} s</td><td class="n">${pct(x.F.survived_30s)}</td><td>${testBtn(Number(id), bk, x.items, label)}</td></tr>`;
   const loss = d ? Object.entries(d.best_item_removal_loss).filter(([i]) => S.items[i]).sort((a, b) => b[1] - a[1]) : [];
-  const we = (await load("data/win_edge.json"))?.heroes?.[id] || {};
+  const weAll = await load("data/win_edge.json"), we = weAll?.heroes?.[id] || {}, weMeta = weAll?.meta || {};
+  const weStale = weMeta.patch && meta[br]?.patch && weMeta.patch !== meta[br].patch ? ` These win edges are from patch ${esc(weMeta.patch)}, older than these builds (patch ${esc(meta[br].patch)}).` : "";
   const edgeTxt = (i) => { const e = we[i]; if (!e) return "–"; const cls = e[0] - 1.96 * e[1] > 0 ? "good" : e[0] + 1.96 * e[1] < 0 ? "bad" : ""; return `<span class="${cls}" title="±${fmt(1.96 * e[1], 1)} (95%)">${e[0] > 0 ? "+" : ""}${fmt(e[0], 1)}</span>`; };
   const inBest = new Set(b.best.items.map(String));
   const strong = Object.entries(we).filter(([i, e]) => !inBest.has(i) && S.items[i] && e[0] >= 1.5 && e[0] - 1.96 * e[1] > 0 && S.items[i].cost <= Number(bk) / 2)
@@ -557,7 +558,7 @@ async function renderOverallTab() {
     <tbody>${d.builds.map((x, i) => row(x, `#${i + 1}`)).join("")}</tbody></table></div>
     <div class="cards"><div class="card"><h3>What each best-build item adds</h3><p class="hint">Share of the build's damage before dying lost if that item is removed (1.0 = the popular build's total), and the item's real win edge on this hero.</p>
       <div class="kv kv3"><span></span><span>Sim</span><span title="Win-rate points vs other items of the same slot and tier">Real win</span>${loss.map(([i, v]) => `<span>${tile(i, { static: true })}</span><span>${fmt(v, 3)}</span><span>${edgeTxt(i)}</span>`).join("")}</div></div>
-    ${Object.keys(we).length ? `<div class="card"><h3>Checked against real games</h3><p class="hint">Real win edge: how much more often players on this hero win when they buy the item instead of another item of the same slot and tier, matched on game time, team lead and own souls (Ritualist and up, points of win rate, shrunk toward the item's edge on all heroes). Green and red are clear of the 95% noise band. Damage in a 1v1 can't see team auras, vision or objectives, so a red sim pick is worth a second look.</p>
+    ${Object.keys(we).length ? `<div class="card"><h3>Checked against real games</h3><p class="hint">Real win edge: how much more often players on this hero win when they buy the item instead of another item of the same slot and tier, matched on game time, team lead and own souls (Ritualist and up, points of win rate, shrunk toward the item's edge on all heroes). Green and red are clear of the 95% noise band. Damage in a 1v1 can't see team auras, vision or objectives, so a red sim pick is worth a second look. Matches through ${esc(weMeta.builds_through || "?")}.${weStale}</p>
       ${losing.length ? `<p><b>Picked here but losing real games:</b></p>${tiles(losing, { static: true })}` : `<p class="hint">No item in the best build loses real games on this hero.</p>`}
       ${strong.length ? `<p style="margin-top:8px"><b>Winning real games but not in this build:</b></p><div class="kv">${strong.map(([i, e]) => `<span>${tile(i, { static: true })}</span><span class="good">+${fmt(e[0], 1)}</span>`).join("")}</div>` : ""}</div>` : ""}</div>` : ""}`;
 }

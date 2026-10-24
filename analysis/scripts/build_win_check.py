@@ -23,7 +23,7 @@ WORK = f"{ROOT}/analysis/work/item_win_edge"
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT = f"{REPO}/analysis/out"
 ITEMS = {x["id"]: x for x in json.load(open(f"{REPO}/data/game/shop_items.json"))}
-MIN_BR = 1          # 0 low, 1 Ritualist-Phantom, 2 Ascendant+
+MIN_BR = 1          # item_win_edge.bracket(): 0 = badge//10 <= 6, 1 = 7-9 (Ritualist-Phantom), 2 = >= 10; so >= 1 is Ritualist+
 Z = 1.96
 # Hero-specific edges are shrunk toward the item's all-hero edge (empirical Bayes). TAU = spread of true
 # per-hero edges around it: method of moments over (hero, item) cells with >= 300 matched buyers gave
@@ -44,6 +44,12 @@ def load():
             e[0] += n
             e[1] += w
     return ev
+
+
+def last_day():
+    """Last match day in the cache (file names are <day>.jsonl.gz.json.gz)."""
+    days = sorted(os.path.basename(f).split(".")[0] for f in glob.glob(f"{WORK}/*.json.gz"))
+    return days[-1] if days else None
 
 
 def hero_edges(ev):
@@ -93,7 +99,9 @@ def main():
     hero_out = {str(h): {str(i): [round(100 * e["edge"], 2), round(100 * e["se"], 2), e["n"],
                                     round(100 * e["raw"], 2)]
                          for i, e in sorted(v.items())} for h, v in sorted(heroes.items())}
-    json.dump({"meta": {"brackets": "Ritualist+", "unit": "win-rate points vs same-slot same-tier items",
+    patch = json.load(open(f"{REPO}/data/patch.json"))
+    json.dump({"meta": {"brackets": "Ritualist+", "patch": patch["patch"], "builds_through": last_day(),
+                        "note": "static snapshot: rerun this script (needs the shared-folder cache) after a patch", "unit": "win-rate points vs same-slot same-tier items",
                         "fields": ["edge (shrunk)", "se", "matched buyers", "raw edge"],
                         "tau": TAU}, "heroes": hero_out},
               open(f"{OUT}/hero_item_edge.json", "w"), separators=(",", ":"))

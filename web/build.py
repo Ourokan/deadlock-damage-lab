@@ -116,7 +116,7 @@ def win_edge_data(data):
         return
     with open(path) as fh:
         d = json.load(fh)
-    heroes = {h: {i: [round(v[0], 1), round(v[1], 1)] for i, v in items.items()} for h, items in d["heroes"].items()}
+    heroes = {h: {i: [round(v[0], 2), round(v[1], 2)] for i, v in items.items()} for h, items in d["heroes"].items()}
     with open(os.path.join(data, "win_edge.json"), "w") as fh:
         json.dump({"meta": d["meta"], "heroes": heroes}, fh, separators=(",", ":"))
 
