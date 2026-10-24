@@ -3,11 +3,14 @@ reach from data/team_value.json, area items' hits on the other enemies, ally ite
 Run from sim/: python3 -m unittest discover -s tests"""
 import os
 import sys
+import types
 import unittest
 
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
-sys.path[:0] = [os.path.join(ROOT, p) for p in ("sim", "search/scripts", "damage/scripts", "damage", "survival")]
+sys.path[:0] = [os.path.join(ROOT, p) for p in ("sim", "sim/scripts", "search/scripts", "damage/scripts", "damage",
+                                                 "survival")]
 
+import damage_audit  # noqa: E402
 import overall_search as O  # noqa: E402
 from survival import survive  # noqa: E402
 
@@ -35,11 +38,19 @@ class Near(unittest.TestCase):
 
 class AreaDamage(unittest.TestCase):
     def test_area_item_damage_counts_on_the_other_enemies(self):
+        # replay values from data/area_hits.json: Mystic Reverb 0.799, Scourge 0.513 extra hits per main hit
         r = {"damage_by_source": {"gun": 1000.0, "Mystic Reverb": 200.0, "Scourge": 100.0}, "splash_dealt": 30.0}
-        x = {n: O.area_extra(n) for n in ("Mystic Reverb", "Scourge")}
-        want = (200 * (x["Mystic Reverb"] if x["Mystic Reverb"] is not None else O.near("extra", 16, 27000))
-                + 100 * (x["Scourge"] if x["Scourge"] is not None else O.near("extra_self", 10, 27000)) + 30)
-        self.assertAlmostEqual(O.area_damage(r, 27000), want, places=6)
+        self.assertAlmostEqual(O.area_damage(r, 27000), 200 * 0.799 + 100 * 0.513 + 30, places=6)
+
+    def test_position_count_is_the_fallback(self):
+        r = {"damage_by_source": {"Mystic Reverb": 200.0, "Scourge": 100.0}}
+        old = O.area_extra
+        O.area_extra = lambda name: None
+        try:
+            got = O.area_damage(r, 27000)
+        finally:
+            O.area_extra = old
+        self.assertAlmostEqual(got, 200 * O.near("extra", 16, 27000) + 100 * O.near("extra_self", 10, 27000), places=6)
 
     def test_replay_area_hits_cover_the_area_items(self):
         # data/area_hits.json is looked up by item name: a renamed item would silently fall back to positions
@@ -60,6 +71,18 @@ class AreaDamage(unittest.TestCase):
         with_ = O.fight(h, [ID["Ricochet"]], e, [], 27000)[0]
         without = O.fight(h, [], e, [], 27000)[0]
         self.assertGreater(with_, without)
+
+
+class AuditSources(unittest.TestCase):
+    def test_area_items_and_splash_count_on_other_heroes(self):
+        # the damage audit compares with every enemy hero's damage: area items x (1 + replay extra hits), splash as is
+        r = types.SimpleNamespace(a_dmg={"gun": 1000.0, "Mystic Reverb": 200.0, "Toxic Bullets": 50.0},
+                                  a_splash={"Ricochet": 40.0})
+        d = damage_audit.sim_sources(r, lambda k: k)
+        self.assertAlmostEqual(d["Mystic Reverb"], 200 * 1.799, places=6)
+        self.assertEqual(d["gun"], 1000.0)
+        self.assertEqual(d["Toxic Bullets"], 50.0)    # single-target proc: no area value
+        self.assertEqual(d["Ricochet"], 40.0)
 
 
 class AllyItems(unittest.TestCase):

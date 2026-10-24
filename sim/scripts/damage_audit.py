@@ -47,6 +47,18 @@ COUNTERPLAY = True   # item_landing.py fits with this off (items uncut) and ever
 _sk = {}
 
 
+def sim_sources(r, key):
+    """The duel's damage to enemy heroes by source (key maps a sim source to the audit's name): the main target's,
+    Ricochet / Split Shot hits on the other enemies near it, and area items' real extra hits on other heroes
+    (x mechanics.area_extra, area_hits.json)."""
+    d = collections.Counter()
+    for k, v in r.a_dmg.items():
+        d[key(k)] += v * (1.0 + (area_extra(k) or 0.0))
+    for k, v in r.a_splash.items():
+        d[key(k)] += v
+    return d
+
+
 def skill_of(p):
     """The search's skill for the hero (landing factors, counterplay, melee by build), with the player's real aim."""
     hid = p["hero_id"]
@@ -97,15 +109,7 @@ def sim_player(job):
         except Exception as e:  # noqa: BLE001
             out["_err:" + type(e).__name__ + ":" + str(e)[:80]] += 1
             continue
-        d = collections.Counter()
-        for k, v in r.a_dmg.items():
-            d[L.sim_key(k, names, G)] += v
-        for k, v in r.a_splash.items():     # Ricochet / Split Shot hits on the other enemies near the target
-            d[L.sim_key(k, names, G)] += v
-        for k, v in r.a_dmg.items():        # area items: their real extra hits on other heroes (area_hits.json)
-            x = area_extra(k)
-            if x:
-                d[L.sim_key(k, names, G)] += v * x
+        d = sim_sources(r, lambda k: L.sim_key(k, names, G))
         out.update(d)
         for i in items:
             c = G.items[i].class_name
