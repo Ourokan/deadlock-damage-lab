@@ -546,7 +546,7 @@ value (it compares whole matches).
 | observed / pooled | 0.21 | 0.72 | 0.93 | 1.24 | 1.07 | 1.11 | 1.15 |
 | fit (95% band) | 0.21 (-0.17-0.58) | 0.72 (0.44-0.96) | 0.93 (0.68-1.10) | 1.12 (1.02-1.18) | 1.12 | 1.12 | 1.15 (1.09-1.45) |
 
-A straight line in ln net worth fit worse (it put 0.57 at 7.5k): extra hits are low in lane, rise to ~1.1x by 22k
+The lowest bin is the weak point: its band includes 0 (no extra hits in lane) and reaches ~0.6, so 3k-7k builds' area value (0.21x pooled) is a soft estimate; everything from 12.6k up is clear of 0. A straight line in ln net worth fit worse (it put 0.57 at 7.5k): extra hits are low in lane, rise to ~1.1x by 22k
 and stay. Pooled values with 260 replays: Mystic Reverb 0.99, Alchemical Fire 0.94, Scourge 0.62, Torment Pulse
 0.48, Capacitor 0.26, Cold Front 0.19, Arctic Blast 0.18, Tesla Bullets 0.07 (110 replays: 0.80 / 0.76 / 0.51 /
 0.45 / 0.30 / 0.24 / 0.27 / 0.06). Item factors refit with them (item_landing.py on phantom_sample): Mystic Reverb
