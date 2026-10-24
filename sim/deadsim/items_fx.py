@@ -922,8 +922,8 @@ class DispelMagic(FX):
     DOT_PANIC_HP of max health. Which DoTs are cleansed is an engine.Accum: a random draw per DoT when the
     engine has an rng (fit_dispel.py), else deterministic, started at Skill.fight_phase, so over the overall score's
     spread phases the first DoT is cleansed in exactly that share of fights. Without a phase (single duels, the
-    duel-score search) it starts at 0.5, i.e. the first DoT is cleansed only if the share is 0.5 or more: the
-    nearest all-or-nothing value to the fitted 0.16-0.26. The +2 m/s move speed does nothing at fixed distance. Assumption: BuffDuration (3 s) is the move-speed
+    duel-score search) it starts at a hash of both fighters' items, so across an opponent pool the first DoT is
+    still cleansed in about that share of fights. The +2 m/s move speed does nothing at fixed distance. Assumption: BuffDuration (3 s) is the move-speed
     buff, not debuff immunity."""
     DOT_PANIC_HP = 0.5
 
@@ -932,6 +932,18 @@ class DispelMagic(FX):
         self.dot_seen = None
         self.dot_go = False
         self.dot_pick = None
+
+    @staticmethod
+    def loadout_phase(f):
+        """Stable 0-1 phase from both fighters' item ids and max health (stat-only items have no handler but change
+        health), integers only, so it is the same in every process."""
+        x = 0
+        for g in (f, f.enemy):
+            if g is None:
+                continue
+            for i in sorted(fx.item.id for fx in g.items_fx) + [int(round(g.max_hp_base * 10))]:
+                x = (x * 1000003 + i) % (1 << 61)
+        return (((x * 11400714819323198485) % (1 << 64)) >> 11) / (1 << 53)   # Fibonacci hash, high bits
 
     def try_active(self, f):
         if not self.ready() or not f.skill.use_actives:
@@ -949,7 +961,7 @@ class DispelMagic(FX):
                 if self.dot_pick is None:
                     from .engine import Accum
                     phase = f.skill.fight_phase
-                    self.dot_pick = Accum(f.e.rng, 0.5 if phase is None else phase)
+                    self.dot_pick = Accum(f.e.rng, self.loadout_phase(f) if phase is None else phase)
                 self.dot_go = self.dot_pick.take(share) > 0
         delay = f.skill.dot_cleanse_delay
         if not self.dot_go:

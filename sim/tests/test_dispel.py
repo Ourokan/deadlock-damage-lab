@@ -8,6 +8,9 @@ import unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from deadsim import Loadout, duel  # noqa: E402
 from deadsim.accuracy import dot_cleanse_share, hero_default_skill  # noqa: E402
+from deadsim.engine import Engine  # noqa: E402
+from deadsim.fight import make_fighter  # noqa: E402
+from deadsim.items_fx import DispelMagic  # noqa: E402
 
 
 def decay_taken(share, phase=None):
@@ -38,12 +41,22 @@ class DispelShare(unittest.TestCase):
         cleansed = sum(decay_taken(0.4, phase=k / 10) < 0.6 * never for k in range(10))
         self.assertEqual(cleansed, 4)
 
-    def test_unphased_fight_rounds_share(self):
-        # no fight_phase, no rng: all or nothing, the first DoT is cleansed only from share 0.5 up
-        never = decay_taken(0.0)
-        self.assertAlmostEqual(decay_taken(0.26), never)
-        self.assertLess(decay_taken(0.5), 0.6 * never)
-
+    def test_unphased_phase_spreads(self):
+        # no fight_phase, no rng: the pick starts at a hash of both loadouts, spread over 0-1 across opponents
+        names = ["Extra Health", "Extra Regen", "Extra Stamina", "Healing Rite", "Close Quarters", "Headshot Booster",
+                 "Rapid Rounds", "Spirit Strike", "Monster Rounds", "Sprint Boots", "Spirit Lifesteal",
+                 "Bullet Lifesteal", "Extra Charge", "Hollow Point", "Mystic Burst", "Toxic Bullets"]
+        phases = []
+        for a in names:
+            for b in names[:8]:
+                e = Engine()
+                fa = make_fighter(e, Loadout("Seven", [a, "Decay"], souls=10000))
+                fb = make_fighter(e, Loadout("Haze", [b, "Dispel Magic"], souls=10000))
+                fa.enemy, fb.enemy = fb, fa
+                phases.append(DispelMagic.loadout_phase(fb))
+        below = sum(p < 0.5 for p in phases) / len(phases)
+        self.assertTrue(0.35 < below < 0.65, below)
+        self.assertGreater(len(set(round(p, 6) for p in phases)), len(phases) // 4)
 
 if __name__ == "__main__":
     unittest.main()
