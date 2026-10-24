@@ -151,7 +151,7 @@ class TestNearby(unittest.TestCase):
         self.assertGreater(r.a_dmg.get("Split Shot", 0.0), 0.0)
 
     def test_split_shot_main_copies_follow_landed_bullets(self):
-        """Replays: 0.66 Split Shot hits on the main target per landed gun bullet during the active."""
+        """Replays: 0.73 Split Shot hits on the main target per landed gun bullet during the active."""
         a = Loadout("Haze", ["Split Shot"], souls=15000, skill=Skill(accuracy=0.5, use_abilities=False))
         b = Loadout("Abrams", [], souls=15000, skill=Skill(accuracy=0.0, **OFF))
         r = duel(a, b, max_time=4, mechanics=Mechanics(movement=False, parry=False))
@@ -171,9 +171,23 @@ class TestNearby(unittest.TestCase):
         g.mods.remove("invulnerable", "test")
         self.assertTrue(fx.try_active(f))
 
-    def test_real_nearby_enemies(self):
-        x = M.real_nearby("extra", M.RICOCHET_RADIUS, 20000)
-        self.assertTrue(0.2 < x < 0.4)
+    def test_split_shot_side_hits_capped_in_team_fights(self):
+        """The fit covers ~0.3 nearby enemies; with a team fight's 5 at most one side copy lands per bullet."""
+        a = Loadout("Haze", ["Split Shot"], souls=15000, skill=Skill(accuracy=0.5, use_abilities=False))
+        b = Loadout("Abrams", [], souls=15000, skill=Skill(accuracy=0.0, **OFF))
+        r = duel(a, b, max_time=4, mechanics=Mechanics(movement=False, parry=False, extra_targets=5.0))
+        main = r.a_dmg["Split Shot"] / M.SPLIT_PRIMARY_HIT
+        self.assertLessEqual(r.a_splash["Split Shot"], main * 1.6)
+
+    def test_real_nearby_interpolates_the_position_table(self):
+        import json
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "team_value.json")) as fh:
+            pos = json.load(fh)["positions"]
+        b = sorted(int(k) for k in pos["budgets"] if k != "all")
+        tab = pos["budgets"][str(b[0])]["extra"]
+        self.assertAlmostEqual(M.real_nearby("extra", 12, b[0]), tab["12"])
+        self.assertAlmostEqual(M.real_nearby("extra", 13, b[0]), tab["12"] + (tab["15"] - tab["12"]) / 3)
+        self.assertAlmostEqual(M.real_nearby("extra", 12, 1), tab["12"])     # clamped to the lowest budget
 
 
 class TestMovement(unittest.TestCase):

@@ -12,7 +12,7 @@ report, per hero:
   clip lasts 1.7 s, so a bonus that ended at reload would cover far less than it does.
 - Split Shot: activations = runs of its hits with gaps under 6 s. In the 5 s after each activation's first hit:
   share of the holder's gun damage (after his first use) inside windows, Split Shot hits on the main target (most
-  gun damage) per landed gun bullet, damage on other heroes / on the main target.
+  gun damage) per landed gun bullet on it, damage on other heroes / on the main target.
 """
 import bisect
 import collections
@@ -121,7 +121,7 @@ def report(work, out=None):
                 c["acts"] += 1
                 c["gun_window"] += sum(g.values())
                 c["gun_main"] += g[main]
-                c["gun_hits"] += sum(gh.values())
+                c["gun_hits"] += gh[main]
                 c["ss_main"] += sd[main]
                 c["ss_hits_main"] += sh[main]
                 c["ss_side"] += sum(sd.values()) - sd[main]

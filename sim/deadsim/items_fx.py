@@ -1118,7 +1118,7 @@ class ImbueCharge(FX):
         f.clip = f.st.clip
         if self.item.class_name == "upgrade_ethereal_bullets":
             # the bullet bonus lasts the buff, not one clip: in Phantom+ replays 82% of a Vyper holder's gun hits after
-            # the first proc carry it (Wraith 78%, Warden 97%) while his clip lasts 1.7 s
+            # the first proc carry it (Wraith 79%, Warden 93%) while his clip lasts 1.7 s
             self.buff("mercurial", 1, d)
 
     def on_damage_dealt(self, f, t, hit):

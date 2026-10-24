@@ -53,6 +53,9 @@ class TestMercurialMagnum(unittest.TestCase):
         self.assertTrue(f.mods.active("mercurial"))
         e.t = 11.0
         self.assertTrue(f.mods.active("mercurial"))
+        n0 = f.dmg_out.get("Mercurial Magnum", 0.0)
+        e.damage(f, g, f.st.bullet_damage, "bullet", "gun", hits=1)
+        self.assertGreater(f.dmg_out.get("Mercurial Magnum", 0.0), n0)     # a bullet after the reload still gets it
         e.t = 12.5
         self.assertFalse(f.mods.active("mercurial"))
 

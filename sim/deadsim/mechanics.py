@@ -45,8 +45,9 @@ Settings fitted to real ranked matches (validation/README.md, "New mechanics"):
   copies, which proc on-hit items like bullets (Mercurial Magnum's bonus rides on them in replays). Other nearby
   enemies take SPLIT_SECONDARY_COVER x Mechanics.extra_targets copies per landed bullet. Both from Phantom+ replays
   (scripts/mechanics/split_shot_replays.py, 614 activations of Vyper, Wraith, Yamato, Paige): in the 5 s after an
-  activation the main target takes 0.66 Split Shot hits per landed gun bullet (Vyper 0.69, Wraith 0.50), the others
-  0.29 of that, with ~0.29 other enemies within 13 m (real_nearby).
+  activation the main target takes 0.73 Split Shot hits per gun bullet landed on it (Vyper 0.76, Wraith 0.59), the
+  others 0.29 of that, with ~0.29 other enemies within 13 m (real_nearby). Side copies are capped at one per landed
+  bullet (each target is hit once per fan), so a team fight's 4-5 living enemies don't run past the fit.
   The active waits until the holder can shoot a target that can be hurt (not into Vyper's own petrify).
 - Movement (Mechanics.movement): fighters hold their distance (the step 2 calibration) until one is losing and below
   Skill.flee_hp; he stops shooting and runs, the other chases and keeps shooting. Speed = hero max_move_speed +
@@ -76,8 +77,8 @@ from .items_fx import BuildUp, FX, CC_KEYS, _basic_melee
 
 
 SUMMON_ACC_MAX = 0.9        # cap on accuracy against a summon (acc_mult x hero accuracy)
-SPLIT_PRIMARY_HIT = 0.66    # Split Shot copies landing on the main target per landed gun bullet (replays)
-SPLIT_SECONDARY_COVER = 0.66  # copies on other enemies per landed gun bullet per nearby enemy (replays)
+SPLIT_PRIMARY_HIT = 0.73    # Split Shot copies landing on the main target per landed gun bullet (replays)
+SPLIT_SECONDARY_COVER = 0.73  # copies on other enemies per landed gun bullet per nearby enemy (replays)
 WARP_AWAY = 0.3             # share of Warp Stone's teleport range that ends up as extra gap when running (fit)
 MELEE_REACH = 6.0           # beyond this gap (+ start distance) rotation melees don't land
 FLEE_RECOVER = 0.25         # stop running once health is this much above flee_hp (heals)
@@ -676,7 +677,7 @@ class SplitShot(FX):
             f.e.damage(f, t, per * k, "bullet", self.name, is_item=True, hits=k)
         x = nearby_enemies(f)
         if x > 0:
-            k2 = _take(f.acc("split_side"), SPLIT_SECONDARY_COVER * x, hit.hits)
+            k2 = f.acc("split_side").take(min(1.0, SPLIT_SECONDARY_COVER * x), hit.hits)
             if k2:
                 _splash(f, per * k2, "bullet", self.name)
                 for _ in range(k2):
