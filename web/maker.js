@@ -114,12 +114,13 @@ async function mkPump() {
   } finally { mkPump(); }
 }
 
-// suggestion workers: their own Pyodide instances, so suggestions don't hold up the live view
+// suggestion workers: their own Pyodide instances, so suggestions don't hold up the live view (except on touch
+// screens, below, where they share the page's worker one variant at a time so live updates slot in between)
 function mkStartWorkers() {
   if (MK.workers.length) return;
   // phones share the page's sim worker: a second Pyodide instance costs ~15 MB to load and enough memory for
   // mobile browsers to reload the tab
-  if (matchMedia("(pointer: coarse)").matches) { MK.workers.push({ call: (req) => simCall("maker", req) }); return; }
+  if (matchMedia("(pointer: coarse)").matches) { MK.workers.push({ call: (req) => simCall("maker", req), shared: true }); return; }
   const n = (navigator.hardwareConcurrency || 2) >= 6 ? 2 : 1;
   const base = new URL(".", location.href).href;
   for (let k = 0; k < n; k++) {
@@ -232,7 +233,7 @@ async function mkSuggest() {
   let next = 0;
   const run = async (w) => {
     while (next < cands.length && gen === MK.gen) {
-      const chunk = cands.slice(next, next + 2); next += 2;
+      const k = w.shared ? 1 : 2, chunk = cands.slice(next, next + k); next += k;
       try {
         const r = await w.call(mkReq(chunk.map((c) => c.items), enemies));
         if (gen !== MK.gen) return;
