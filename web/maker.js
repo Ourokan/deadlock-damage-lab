@@ -117,7 +117,10 @@ async function mkPump() {
 // suggestion workers: their own Pyodide instances, so suggestions don't hold up the live view
 function mkStartWorkers() {
   if (MK.workers.length) return;
-  const n = (navigator.hardwareConcurrency || 2) >= 6 && !matchMedia("(pointer: coarse)").matches ? 2 : 1;
+  // phones share the page's sim worker: a second Pyodide instance costs ~15 MB to load and enough memory for
+  // mobile browsers to reload the tab
+  if (matchMedia("(pointer: coarse)").matches) { MK.workers.push({ call: (req) => simCall("maker", req) }); return; }
+  const n = (navigator.hardwareConcurrency || 2) >= 6 ? 2 : 1;
   const base = new URL(".", location.href).href;
   for (let k = 0; k < n; k++) {
     const w = { worker: new Worker(new URL("worker.js", location.href)), ready: null, pending: {}, id: 0 };
