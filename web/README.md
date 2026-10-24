@@ -53,3 +53,11 @@ precomputed numbers exactly (Haze popular 27k: 1,126 / 2,445 / 3,934 both ways).
 `python3 build.py` after the sim or any search output changes (copies JSON into `data/`, rebuilds `py/sim.zip`,
 writes `artifact.html`). Add `--pyodide <dir>` with an extracted `pyodide-core-0.26.4.tar.bz2` from the Pyodide
 GitHub release to refresh `vendor/pyodide`.
+
+## Browser test
+`node web/tests/browser_test.cjs` (after `build.py --pyodide`, needs `npm install --prefix web/tests`) serves this folder and
+goes through every tab in headless Chromium at desktop and phone size: the live sim loads, the damage test, item
+breakdown, build maker, real match (a made-up match stands in for the Deadlock API), team fight and each precomputed
+tab's Test button. It fails on page or worker errors (JS or Python), console errors, files that 404, requests to
+other hosts, error boxes left showing and pages wider than the phone screen. Runs as the `browser` job of the PR
+tests and before every Pages deploy. `--shots DIR` saves a screenshot after each step.
