@@ -520,8 +520,13 @@ replays instead (Deadlock API demo queries, 70 matches of Oct 20-24 with one of 
   damage per second and fires 2.64x bigger shots 2.64x less often (`build.gun_quirks`, `charge_factor`), so on-hit
   procs fire as often as real hits. Each shot spends 2.64 rounds (clip 14 -> 5; replays show about 6 shots between
   reloads), so reload downtime stays the data gun's. Any headshot bonus is inside the factor.
-- **Graves' tether** only attaches within MaxRange 20 m (the gun's own data): beyond it the sim's gun deals nothing
-  (`Stats.gun_range_m` in `falloff`). The fit's accuracy includes his untethered shots inside fights.
+- **Graves' tether** only attaches within MaxRange 20 m (the gun's own data). Beyond it a shot misses: no hit and no
+  on-hit procs (`Engine.gun_reach` takes the out-of-range share of the distance spread off the hit chance; real
+  Phantom+ Graves deal 2% of their bullet damage beyond 20 m). Inside it the tether has no distance falloff
+  (`"falloff": false`, `Stats.gun_falloff`), see "Graves' hit damage" below. The fit's accuracy counts all his shots
+  inside fights, so it partly overlaps the out-of-range cut (beyond 20 m the gun dealt nothing before this cut too).
+  The overlap is small in practice: with both, his gun share matches real (0.20 vs 0.20), while taking the cut back
+  out of the accuracy (accuracy / reach, about 1.28x the hits) would push it to roughly 0.24.
 - **Patches:** the file records the gun it was fitted on (`fit_weapon`). If a patch changes either gun, the old fit
   keeps running and `build.gun_quirks` warns once per hero. Patch reruns can't refit, because that needs live
   replay queries: rerun `fetch_guns.py`, `gun_stats.py` and `fit_guns.py --write` by hand, then
@@ -536,10 +541,30 @@ replays instead (Deadlock API demo queries, 70 matches of Oct 20-24 with one of 
   0.47 / 0.40, Close The Deal 0.14 / 0.13.
 
 Result on the Phantom+ audit: Graves' gun share 4% -> 18% (real 20%), mix distance 0.37 -> 0.18; Danny's gun share
-25% -> 20% (real 16%), mix distance 0.37 -> 0.12 (audit table; Graves 0.16 there). Left: Graves' damage items (Capacitor, Tesla Bullets, Mystic Shot)
-come out about 2x real, since item factors are pooled over all heroes and were fit without him; Danny's Express Shot
-and Tankbuster are the bookkeeping and team-fight cases above. The damage audit, ability fit and item fit now
+25% -> 20% (real 16%), mix distance 0.37 -> 0.12 (audit table; Graves 0.16 there). Graves' damage items came out
+about 2x real (fixed below); Danny's Express Shot and Tankbuster are the bookkeeping and team-fight cases above. The damage audit, ability fit and item fit now
 include both heroes (`landing_rates.gun_known`).
+
+### Graves' hit damage (2026-10-24)
+
+Graves' on-hit items (Capacitor, Tesla Bullets, Mystic Shot, Siphon Bullets) dealt 0.42-0.51x real in the audit, as
+a share of his gun damage. In the replays their proc rate per gun hit matches the sim's (Tesla 0.13 vs 0.14 per hit,
+Capacitor about 0.2 like other heroes), so the hits themselves were off: the sim's Graves hit dealt 0.60x the real
+one, while the other one-bullet guns sat at 0.8-1.6x (median 1.07; `scripts/gun_calib/hit_damage.py`,
+`validation/gun_calib/hit_damage.json`). So he needed about 1.7x the real number of hits for his gun damage, and every
+extra hit could proc. Two causes, both in the tether:
+
+- the data's distance falloff (from 7.6 m, 50% by 17 m) cut the average hit to 0.64x at his 11.2 m spread. Real
+  Graves hits show no such loss: their base damage per hit is 1.28x the data's, about the same as other heroes
+  (1.25x), and 54% of his bullet damage lands at 10-20 m. The tether now has no falloff;
+- shots beyond 20 m were 0-damage hits that still procced. They now miss.
+
+Result: Graves' hit 0.60x -> 0.92x real. After refitting his landing factors (Jar of Dead 0.28 / 0.30 with mechanics,
+Grasping Hands 0.11 / 0.12, Borrowed Decree 0.29 / 0.18), the Phantom+ audit gives: gun share 0.18 -> 0.20 (real 0.20),
+items 0.43 -> 0.37 (real 0.27), mix distance 0.16 -> 0.10. Real/sim went from 0.51 to 0.73 for Capacitor, 0.46 to 0.70
+for Tesla Bullets, 0.42 to 0.52 for Mystic Shot and 0.45 to 0.59 for Siphon Bullets. Pooled over all holders, Tesla
+Bullets is now 0.98 and Capacitor 0.94. Build-up items (Toxic Bullets) scale their build-up by the landed hit's falloff
+(`Engine.hit_falloff`, 1 on the tether): Toxic Bullets 0.95. Still high: Mystic Shot and Torment Pulse (about 0.55).
 
 ## Known gaps (not yet modeled)
 

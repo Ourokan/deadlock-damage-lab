@@ -43,6 +43,7 @@ _GH = ((-2.6519613568, 0.000548268858), (-1.6735516288, 0.0307571239), (-0.81628
        (0.0, 0.457142857), (0.8162878829, 0.240123178), (1.6735516288, 0.0307571239), (2.6519613568, 0.000548268858))
 REACH_P_FLOOR = 0.01    # waiting for drift to bring a far target in reach: tau / max(p, floor)
 GUN_POLL = 0.1          # longest a locked gun sleeps before re-checking the lock
+GUN_REACH_FLOOR = 0.05  # bullet_damage: smallest in-range share an in-range hit is scaled up by
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -667,14 +668,52 @@ class Engine:
         key = (id(st), d)
         fc = self._fall.get(key)
         if fc is None:   # E[falloff] and E[falloff x crit] over the spread (headshots get the joint one)
-            fall = self.spread_mean(st.falloff, d)
-            fc = self._fall[key] = (fall, self.spread_mean(lambda x: st.falloff(x) * st.crit_mult(x), d) / max(fall, 1e-9))
+            mean = self.fine_mean if st.gun_range_m is not None else self.spread_mean   # range edge: a step
+            fall = mean(st.falloff, d)
+            fc = self._fall[key] = (fall, mean(lambda x: st.falloff(x) * st.crit_mult(x), d) / max(fall, 1e-9))
         for fx in f.items_fx:   # close/long range bonuses pay where falloff is high/low, not at its average
             g = getattr(fx, "range_band", None)
             if g:
                 r, bonus, close = g()
                 pct += bonus * self.band_corr(st, r, close, d)
-        return st.bullet_damage * (1.0 + pct) * fc[0], fc[1]
+        # per in-range hit; floored so a nearly-out-of-range fight doesn't land rare 1000x hits (it then loses a little)
+        return st.bullet_damage * (1.0 + pct) * fc[0] / max(self.gun_reach(st), GUN_REACH_FLOOR), fc[1]
+
+    def hit_falloff(self, st):
+        """E[falloff] of a hit that lands: over the distance spread, and for a range-cut gun only inside its range
+        (the shots outside miss, see gun_reach). Per-hit effects scaled by falloff (build-up) use this."""
+        if st.gun_range_m is None:
+            return self.spread_mean(st.falloff)
+        if self.spread <= 0:
+            return st.falloff(self.distance)
+        return self.fine_mean(st.falloff) / max(self.gun_reach(st), GUN_REACH_FLOOR)
+
+    def gun_reach(self, st):
+        """Share of the fight's distance spread inside the gun's range (Graves' tether: gun_range_m), else 1. Out of
+        range the gun neither hits nor procs (replays: 2% of Graves' bullet damage lands beyond 20 m), so fire() takes
+        it off the hit chance and bullet_damage() is the in-range hit's damage."""
+        r = st.gun_range_m
+        if r is None:
+            return 1.0
+        if self.spread <= 0:
+            return 1.0 if self.distance <= r else 0.0
+        key = (id(st), self._dkey(), "reach")
+        p = self._fall.get(key)
+        if p is None:
+            p = self._fall[key] = max(self.fine_mean(lambda x: float(x <= r)), 1e-9)
+        return p
+
+    def fine_mean(self, fn, d=None):
+        """spread_mean on a fine grid, for functions with a step (a range edge) that 7 Gauss-Hermite nodes miss."""
+        from .mechanics import DRIFT_MAX, DRIFT_MIN
+        d = self._dkey() if d is None else d
+        num = den = 0.0
+        for i in range(161):
+            z = -4.0 + i * 0.05
+            w = math.exp(-0.5 * z * z)
+            num += w * fn(min(DRIFT_MAX, max(DRIFT_MIN, d * math.exp(self.spread * z))))
+            den += w
+        return num / den
 
     def _dkey(self):
         """Distance for the spread caches: exact at the fight's starting distance (the usual fight), else 0.25 m
@@ -776,7 +815,7 @@ class Engine:
             if s is not None:
                 shoot_summon(self, f, s, n_bullets)
                 return
-        p_hit = f.skill.accuracy * (1.0 - e.stat("evasion"))
+        p_hit = f.skill.accuracy * (1.0 - e.stat("evasion")) * self.gun_reach(st)
         hits = f.hit_acc.take(p_hit, n_bullets)
         if hits <= 0:
             return
