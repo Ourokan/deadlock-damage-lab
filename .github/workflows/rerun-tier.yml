@@ -105,6 +105,7 @@ jobs:
           python3 damage/scripts/export_overall.py
           python3 damage/scripts/export_path.py
       - name: What changed since the last run
+        continue-on-error: true   # the changelog never holds back the results
         env:
           REASON: ${{ inputs.reason }}
         run: python3 pipeline/changes.py update --tier ${{ inputs.tier }} --reason "$REASON"
