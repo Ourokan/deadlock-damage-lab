@@ -42,7 +42,22 @@ class FullHealthEntry(unittest.TestCase):
         c = G.hero("Celeste").id
         full = survive(c, [], 37000, HAZE, [], max_time=30.0)
         hurt = survive(c, [], 37000, HAZE, [], max_time=30.0, start_hp=0.85 * full["max_hp"])
-        self.assertGreaterEqual(full["damage_dealt"], 0.97 * hurt["damage_dealt"])
+        self.assertGreaterEqual(full["damage_dealt"], 0.99 * hurt["damage_dealt"])
+
+    def _trick(self, now=0.0, hp=1.0, tier=3, ult_ready=True):
+        from types import SimpleNamespace as NS
+        from deadsim.heroes import unicorn
+        ult = NS(ab=NS(class_name="ability_unicorn_dazzlingorb"), unlocked=True, ready_at=0.0 if ult_ready else 99.0)
+        c = NS(now=now, tier=tier, foe=NS(alive=True), me=NS(hp_frac=hp, abilities=[ult]))
+        return unicorn.DazzlingTrick.should_cast(unicorn.DazzlingTrick.__new__(unicorn.DazzlingTrick), c)
+
+    def test_celeste_trick_triggers(self):
+        self.assertTrue(self._trick(hp=0.85, tier=1, ult_ready=False))          # hurt
+        self.assertTrue(self._trick(now=2.5, tier=1, ult_ready=False))          # by DAZZLE_BY_S
+        self.assertFalse(self._trick(now=2.4, tier=1, ult_ready=False))         # full health, early, no T3
+        self.assertTrue(self._trick(tier=3))                                    # T3: prism before a ready ult
+        self.assertFalse(self._trick(tier=2))                                   # below T3 the ult doesn't pull it
+        self.assertFalse(self._trick(tier=3, ult_ready=False))
 
 
 NO_PICKUPS = {"pickup_hp_per_min": {"lane": 0.0, "mid": 0.0, "late": 0.0}, "farm_heal_hp_per_min": {},
