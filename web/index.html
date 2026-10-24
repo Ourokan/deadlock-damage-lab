@@ -23,6 +23,7 @@
       <a href="#damage" data-tab="damage">Raw damage builds</a>
       <a href="#duel" data-tab="duel">Duel builds</a>
       <a href="#tank" data-tab="tank">Tank builds</a>
+      <a href="#counter" data-tab="counter">Counter items</a>
       <a href="#team" data-tab="team">Team fight</a>
     </nav>
     <span class="engine" id="engine" data-state="loading">Loading sim</span>
@@ -286,6 +287,20 @@
       <label class="f"><span>Net worth</span><select id="t-budget"></select></label>
     </div>
     <div id="t-out"></div>
+  </section>
+
+  <!-- Counter items (counters/scripts/sim_counters.py + the real-match analysis in counters/) -->
+  <section id="tab-counter" class="tab" hidden>
+    <div class="intro">
+      <h1>Counter items</h1>
+      <p>Which defensive item helps most against a given enemy hero. Each hero's most popular real build gets the item added on top and is scored with the overall test: damage dealt before dying against the enemy's typical real build at the same net worth, with sustain, movement, parries and counterplay on. Next to the sim value: how much more often real players buy the item when that hero is on the enemy team, and whether buyers win more than players who bought another defensive item of the same price at the same time.</p>
+    </div>
+    <div class="filters">
+      <label class="f"><span>Enemy hero</span><select id="c-enemy"></select></label>
+      <label class="f"><span>Your hero</span><select id="c-hero"></select></label>
+      <label class="f"><span>Net worth</span><select id="c-budget"></select></label>
+    </div>
+    <div id="c-out"></div>
   </section>
 
   <section id="tab-team" class="tab" hidden>

@@ -14,6 +14,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "search", "scripts"))
 from build_pool import BRACKETS, BUDGETS, PRIMARY, suffix  # noqa: E402
 
+COUNTER_BUDGETS = [18000, 27000, 37000, 50000]   # counters/scripts/sim_counters.py BUDGETS (it imports the sim)
+
 N_TANKS = 10
 
 
@@ -35,6 +37,8 @@ def main():
     if t == PRIMARY:
         dirs["survival"] = ("survival/work/jobs", N_TANKS * n)
     dirs[f"overall_{t}"] = ("damage/work/jobs_overall_" + t, len(heroes) * n)
+    if t == PRIMARY:
+        dirs["counters"] = ("counters/work/jobs", len(heroes) * len(COUNTER_BUDGETS))
     dirs[f"path_{t}"] = ("damage/work/jobs_path_" + t, len(heroes))
     failed = {}
     for fn in glob.glob(os.path.join(ROOT, "pipeline", "work", f"shard_{t}_*.json")):

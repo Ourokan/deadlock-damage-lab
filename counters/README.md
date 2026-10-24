@@ -2,7 +2,8 @@
 
 How ranked players buy Dispel Magic, Counterspell, Metal Skin, Return Fire and Plated Armor (plus nine other
 defensive items for comparison): who buys them, what on the enemy team sets them off, whether buying them wins
-more than the alternatives, and what they are worth in the step 2 sim.
+more than the alternatives, and what they are worth in the current sim (rerun after every patch with the Phantom+
+searches; site tab **Counter items**).
 
 Data: 227,561 ranked matches, 2,730,732 player rows, patch 09-29-2026 (2026-09-30 to 2026-10-14). Teams come
 from the `won` flag; the enemy team's items at any moment are rebuilt from purchase and sell times.
@@ -22,16 +23,18 @@ from the `won` flag; the enemy team's items at any moment are rebuilt from purch
 - But in real fights Dispel holders take the same Decay damage as their teammates (Search thread's
   `damage/scripts/decay_vs_dispel.py`, 600 matches, ratio 1.00): players buy it because of Decay but don't spend
   it on Decay. Its value comes from cleansing silences and stuns, the heal and the spirit resist.
-- Sim: one of the best defensive items per soul (+0.12 duel score at 27k, 3rd of 10), best against Pocket,
-  McGinnis, Drifter and Infernus.
+- Sim (2026-10-24): middle of the pack, +0.16 at 27k (+4.9% per 1k souls, 10th of 15); most extra value against
+  McGinnis, Pocket, Mina and Mo & Krill. Its extra value against Infernus is nil (−0.01), so the sim agrees with the
+  replay check: Decay is why players buy it, not where it pays.
 
 ### Counterspell: a Vindicta item, set off by Lash
 - 8.4% buy it, at a median 22 minutes, and two thirds of Vindicta players do.
 - Strongest hero trigger of any counter: **Lash ×2.14** (Death Slam), then Pocket, Grey Talon and Apollo
   (×1.1-1.2). It does not respond to how spirit-heavy the enemy team is (×0.89 high vs low) or to big spirit
   items (Tankbuster ×1.15, Mystic Reverb ×1.07).
-- Win edge −0.8 points. The sim does not model the spell parry, so its sim numbers count only +50 HP and
-  spirit power and should be ignored.
+- Win edge −0.8 points. The sim now models the parry (calibrated to Phantom+ parry rates) and still rates it the
+  weakest of the 15 (+0.07 at 27k, +2.2% per 1k souls), with no extra value against Lash (−0.01): the 30 s fight
+  sees Death Slam at most once. Its value is in blocking one big ult, which a damage-before-dying average dilutes.
 
 ### Metal Skin: the most threat-driven buy, and the worst result
 - 3.8% buy it, at a median 27 minutes. Hero 88, Silver, Shiv and Billy buy it most.
@@ -40,18 +43,20 @@ from the `won` flag; the enemy team's items at any moment are rebuilt from purch
   enemy teams than the least.
 - Win edge **−5.7 points**, and negative for almost every buyer hero (Rat King −7.5, Seven −7.0, Drifter −6.2,
   Bebop −5.9), at every purchase time and threat level.
-- The sim rates it about the same as Bullet Resilience and Fortitude (+0.10 at 27k), best against Wraith,
-  Venator and Infernus. So either players use it badly in real fights (it slows you and lasts 5 s), or buyers
-  are being focused in ways a team-souls control can't see. The data can't tell these apart.
+- The sim (2026-10-24) rates it well (+0.25 at 27k, 4th per soul) and, like players, most against Wraith (+0.62
+  extra), Haze (+0.42) and Vyper (+0.35). So players buy it against the right heroes and the sim says it should
+  pay; either they use it badly in real fights (it slows you and lasts 5 s), or buyers are being focused in ways a
+  team-souls control can't see. The data can't tell these apart.
 
 ### Return Fire: rare, and worse the later it's bought
 - 1.7% buy it, at a median 17 minutes; Rat King (15%) and Mo & Krill (6%) are most of the buyers.
 - Set off by Vyper ×1.7 and Haze ×1.6, and by crit and burst gun items (Lucky Shot, Armor Piercer, Burst Fire,
   each ×1.6-1.7).
 - Win edge −3.2 points overall: −2.0 bought at 10-20 min, −7.1 at 30-40, −13.5 at 40-50.
-- Weakest item in the sim (+0.05 at 27k). The sim scales reflected damage by the holder's own gun accuracy
-  (`items_fx.py` ReturnFire), so it fires back at ~26% efficiency. If the reflect actually homes in game, the
-  sim undervalues it; worth checking before trusting the sim number.
+- Now one of the sim's best per soul (+0.16 at 27k, +10.2% per 1k souls, 2nd of 15), most against Wraith, Venator
+  and Rat King. The reflect is still scaled by the holder's own gun accuracy (`items_fx.py` ReturnFire), so this
+  isn't from treating the reflect as homing. Cheap (1,600) and free here, so the per-soul number is
+  flattering; real buyers still lose.
 
 ### Plated Armor: good in the sim, slightly behind in real games
 - 6.4% buy it, at a median 32 minutes; Shiv, Abrams, Rat King and Billy (14-18%).
@@ -59,8 +64,8 @@ from the `won` flag; the enemy team's items at any moment are rebuilt from purch
   Silencer ×1.6, Armor Piercer ×1.6, Siphon Bullets ×1.5.
 - Win edge −2.1 points against other 6,400-soul vitality items (that pool includes Witchmail at +1.9 and
   Unstoppable). Smallest gap (−1.1) when the enemy holds the most bullet procs, which is when it should matter.
-- Sim: 2nd best overall at 27k (+0.13) and best against Wraith (+0.48), Infernus and Venator; per soul it ranks
-  lower because it costs 6,400.
+- Sim (2026-10-24): +0.31 at 27k, the single biggest counter in the table: +0.76 extra against Haze and +0.71
+  against Holliday; per soul it ranks lower because it costs 6,400.
 
 ### Across all counters
 - Players answer gun threats much more than spirit threats: Metal Skin, Bullet Resilience and Spellbreaker
@@ -69,7 +74,11 @@ from the `won` flag; the enemy team's items at any moment are rebuilt from purch
   Spellbreaker, Witchmail and Indomitable go the other way.
 - The defensive items with a positive real win edge are Witchmail (+1.9), Spirit Resilience (+1.5), Debuff
   Reducer (+1.1), Dispel Magic (+0.7) and Divine Barrier (+0.7). Spirit Resilience is also the sim's best per
-  soul at every budget.
+  soul from 27k on (2nd at 18k behind Return Fire), and its best counter to Mina and Grey Talon.
+- Sim and players agree on the gun counters: across enemy heroes, the sim's extra value and the real buy trigger
+  correlate +0.66 for Plated Armor, +0.60 Bullet Resilience, +0.47 Metal Skin (27k). They don't for the cleanses
+  and spell blocks: Dispel Magic −0.07, Counterspell −0.01, Witchmail −0.02. Players buy those against the
+  scariest-feeling kits (Infernus, Lash, Victor); the sim finds their value elsewhere or not at all.
 
 ## Read these with care
 - Win edges are observational. They compare players of the same hero who bought a same-tier vitality item in the
@@ -78,16 +87,20 @@ from the `won` flag; the enemy team's items at any moment are rebuilt from purch
 - Trigger ratios are pooled over the buyer's hero and the time in the match, so late-game items don't look like
   triggers just because everyone buys more late. Enemy items still travel with enemy heroes (Swift Striker mostly
   on gun heroes), so an item trigger can partly be its owner's kit.
-- Sim duels add the counter for free on top of each hero's typical real build at that budget (18k, 27k, 37k),
-  against every other hero's typical build, with the sim as of 21:30 UTC 2026-10-14 (after the pellet fix and the
-  Dispel-at-50%-HP change). Counterspell's parry and Unstoppable's active aren't modeled.
+- Sim values (`scripts/sim_counters.py`, since 2026-10-24) add the counter for free on top of each hero's most
+  popular Phantom+ build at 18k, 27k, 37k and 50k, scored with the overall test (`damage/scripts/overall_search.py`:
+  net damage before dying against every hero's typical build, sustain, movement, parries, range spread,
+  targetable summons). Free means every item looks good on a fragile hero: compare items with each other and use
+  the *extra vs this enemy* number for counters. The real-match half (triggers, win edges) is from patch 09-29-2026
+  and all ranks, and is not rerun automatically (it needs a ~30 min scan of raw player builds).
 - About 15% of the rows in `data/builds/player_builds` are exact duplicates (3.22M rows, 2.73M unique); these
   scripts drop them. Win rates elsewhere are unaffected, but row counts are inflated.
 
 ## Files
 - `out/tables.md`: every table (buy rates, timing, rank, buyer heroes, enemy hero lift, threat response, win
-  edges by threat, time and buyer hero, sim values). `out/report.json` has the same as data.
+  edges by threat, time and buyer hero). `out/report.json` has the same as data.
 - `out/triggers.md` / `triggers.json`: enemy items and heroes that set off each counter, with rate ratios.
-- `out/sim_<budget>.json`: every duel (defender, attacker, item) from the sim.
+- `out/sim.md` / `sim.json`: sim values per item, per enemy hero and per buyer hero at each net worth
+  (`scripts/sim_counters.py` → `scripts/export_sim.py`; run by the Phantom+ rerun in `pipeline/run_shard.py`).
 - `scripts/analyze.py` → `scripts/report.py`; `scripts/triggers.py` (then `--report`);
-  `scripts/sim_counters.py --budget 27000`. Python stdlib only.
+  `scripts/sim_counters.py [--heroes Haze --budgets 27000]` then `scripts/export_sim.py`.

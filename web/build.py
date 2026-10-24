@@ -108,6 +108,44 @@ def maker_data():
                   separators=(",", ":"))
 
 
+def counters_data():
+    """data/counters/index.json and heroes/<id>.json for the Counter items tab: the sim values from
+    counters/out/sim.json (counters/scripts/export_sim.py) and the real-match buy triggers and win edges from
+    counters/out/report.json + triggers.json (counters/scripts/report.py, triggers.py). Returns heroes written."""
+    src = os.path.join(ROOT, "counters/out/sim.json")
+    if not os.path.exists(src):
+        return 0
+    with open(src) as fh:
+        sim = json.load(fh)
+    real = {}
+    rep_p, trig_p = os.path.join(ROOT, "counters/out/report.json"), os.path.join(ROOT, "counters/out/triggers.json")
+    if os.path.exists(rep_p) and os.path.exists(trig_p):
+        with open(rep_p) as fh:
+            rep = json.load(fh)
+        with open(trig_p) as fh:
+            trig = json.load(fh)
+        ids = {v: k for k, v in sim["heroes"].items()}
+        for n, r in rep["items"].items():
+            we = r.get("win_edge", {}).get("all_own_position") or [None]
+            real[n] = {"buy_rate": r.get("buy_rate"), "buy_minute": r.get("buy_minute", {}).get("median"),
+                       "win_edge": we[0],
+                       "hero_lift": {ids[t["name"]]: round(t["rate_ratio"], 3) for t in trig.get(n, [])
+                                     if t["kind"] == "hero" and t["name"] in ids}}
+        real = {"matches": rep.get("matches"), "items": real}
+    out = os.path.join(WEB, "data", "counters")
+    os.makedirs(os.path.join(out, "heroes"), exist_ok=True)
+    idx = {k: sim[k] for k in ("bracket", "built", "items", "heroes")}
+    idx["real"] = real
+    idx["budgets"] = {b: {k: d[k] for k in ("enemies", "weights", "items", "enemy")} for b, d in sim["budgets"].items()}
+    with open(os.path.join(out, "index.json"), "w") as fh:
+        json.dump(idx, fh, separators=(",", ":"))
+    heroes = sorted({h for d in sim["budgets"].values() for h in d["hero"]})
+    for h in heroes:
+        with open(os.path.join(out, "heroes", f"{h}.json"), "w") as fh:
+            json.dump({b: d["hero"][h] for b, d in sim["budgets"].items() if h in d["hero"]}, fh, separators=(",", ":"))
+    return len(heroes)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--pyodide", help="folder with an extracted pyodide-core release (copied to vendor/pyodide)")
@@ -133,6 +171,7 @@ def main():
                 json.dump(d, fh, separators=(",", ":"))
         counts[key] = len(files)
     maker_data()
+    counts["counters"] = counters_data()
     os.makedirs(os.path.join(WEB, "py"), exist_ok=True)
     build_zip(os.path.join(WEB, "py", "sim.zip"))
     if a.pyodide:

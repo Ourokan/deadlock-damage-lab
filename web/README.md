@@ -29,6 +29,9 @@ Static site, no server. Open `index.html` through any static host (or `python3 -
   (`bridge.team`, `team.js`). Shows damage, damage taken, heals and shields given to teammates, kills.
 - **Best damage builds** (`damage/out`, with the item buy order and the ability upgrade order for the best builds), **Duel builds** (`search/out`, shows whichever rank brackets exist) and
   **Tank builds** (`survival/out`). Every build has a Test button that loads it into the damage test.
+- **Counter items** (`counters/out/sim.json` + the real-match tables in `counters/out`): per enemy hero, what each
+  defensive item adds to a hero's popular build in the overall test, next to how much more real players buy it
+  against that hero and its real win edge.
 
 ## How the damage test runs in the browser
 The real Python sim runs live in the browser with Pyodide (CPython compiled to WebAssembly), inside a Web Worker.
