@@ -915,16 +915,18 @@ class ReactiveBarrier(FX):
 
 @handler("upgrade_reduce_debuff_duration")
 class DispelMagic(FX):
-    """Active: purge enemy debuffs and DoTs and heal HealOnActivate. Used at once against an enemy silence or
-    disarm. Against a DoT with >= 2 s left: only on Skill.dot_cleanse_share of the DoTs that land (real players
-    mostly let Decay run: on cooldown, saved for a stun, not noticed; accuracy.dot_cleanse_share), and then after
+    """Active: purge enemy debuffs and DoTs and heal HealOnActivate. Used at once against an enemy silence or disarm.
+    Against a DoT with >= 2 s left: only on Skill.dot_cleanse_share of DoT episodes (real players mostly let Decay
+    run: on cooldown, saved for a stun, not noticed; accuracy.dot_cleanse_share), and then after
     Skill.dot_cleanse_delay seconds of it (reaction time), or with dot_cleanse_delay=None only once below
-    DOT_PANIC_HP of max health. Which DoTs are cleansed is an engine.Accum: a random draw per DoT when the
-    engine has an rng (fit_dispel.py), else deterministic, started at Skill.fight_phase, so over the overall score's
-    spread phases the first DoT is cleansed in exactly that share of fights. Without a phase (single duels, the
-    duel-score search) it starts at a hash of both fighters' items, so across an opponent pool the first DoT is
-    still cleansed in about that share of fights. The +2 m/s move speed does nothing at fixed distance. Assumption: BuffDuration (3 s) is the move-speed
-    buff, not debuff immunity."""
+    DOT_PANIC_HP of max health. An episode is a stretch with some enemy DoT running, drawn once when it starts while
+    Dispel is ready (overlapping DoTs share the draw; the cooldown is simulated too, and the fit uses this same
+    code). The draw is an engine.Accum: random when the engine has an rng (fit_dispel.py), else deterministic,
+    started at Skill.fight_phase, so over the overall score's spread phases the first DoT is cleansed in exactly
+    that share of fights. Without a phase (single duels, the duel-score search) it starts at a hash of both
+    fighters' items, so across an opponent pool the first DoT is still cleansed in about that share of fights. The
+    +2 m/s move speed does nothing at fixed distance. Assumption: BuffDuration (3 s) is the move-speed buff, not
+    debuff immunity."""
     DOT_PANIC_HP = 0.5
 
     def __init__(self, item, f):

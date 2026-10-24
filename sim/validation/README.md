@@ -144,7 +144,7 @@ Strike stay within ±0.09 of their comparison item. Heavy share (30%) is still a
 
 Dispel Magic (added 2026-10-14 during step 3): its active purges enemy debuffs and DoTs (`Fighter.dispel`) and heals
 250. The AI fires it at once when silenced/disarmed. Against a DoT (>= 2 s left) it fires on only
-`Skill.dot_cleanse_share` of the DoTs that land, `Skill.dot_cleanse_delay` after it lands (reaction: 1.5 s Eternus,
+`Skill.dot_cleanse_share` of DoT episodes (drawn once while some enemy DoT runs and Dispel is ready), `Skill.dot_cleanse_delay` after it lands (reaction: 1.5 s Eternus,
 3 s below). Fit (2026-10-24, `scripts/fit_dispel.py`, `validation/dispel/`): in real matches Dispel holders take 85%
 of their teammates' Decay damage at Phantom+ (1500 matches, 90% CI 0.81-0.89), 87% at all ranks, 91% at Eternus+
 (175 matches, CI 0.77-1.07), from `damage/scripts/decay_vs_dispel.py` with the right-aligned damage-matrix read (the
