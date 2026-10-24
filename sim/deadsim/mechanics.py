@@ -557,6 +557,9 @@ class Counterspell(FX):
     """Spell parry timed against an enemy aimed cast (Skill.spell_parry_rate) when off cooldown; see module doc."""
 
     def on_enemy_cast(self, f, ab):
+        sp = f.counters.get("spell_parry")
+        if sp and sp[1] is ab:   # a recast of the parried ability is a new cast: only the parry window covers it
+            sp[2] = min(sp[2], sp[0])
         if not self.ready() or not f.alive or f.mods.active("stun") or ab.impl.kind not in ("skillshot", "target", "aoe"):
             return
         sk = f.skill
