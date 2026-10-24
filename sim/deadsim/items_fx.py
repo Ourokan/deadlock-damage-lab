@@ -1286,16 +1286,16 @@ class DamageActive(FX):
         pass
 
     def cc(self, d):
-        """CC duration d x the item's real-data factor in realistic mode (accuracy.item_landing, the fitted factor
-        without the fight-length correction): the factor stands for casts that miss or come late, and a miss
-        misses its stun / silence / disarm too."""
-        if not self.f.skill.item_landing:
+        """CC duration d x the item's real-data factor in realistic mode (Skill.item_landing; under fight_length
+        without its length_corr, a booking correction that says nothing about how often the cast lands): the
+        factor stands for casts that miss or come late, and a miss misses its stun / silence / disarm too."""
+        sk = self.f.skill
+        fac = (sk.item_landing or {}).get(self.name)
+        if fac is None:
             return d
-        from .accuracy import item_landing
-        global _CC_LANDING
-        if _CC_LANDING is None:
-            _CC_LANDING = item_landing()
-        return d * _CC_LANDING.get(self.name, 1.0)
+        if self.f.e.length:
+            fac /= (sk.item_length_corr or {}).get(self.name, 1.0)
+        return d * min(1.0, fac)
 
     def try_active(self, f):
         r = self.item.p(self.radius_prop) or self.item.p("AbilityCastRange") or 15
@@ -1307,9 +1307,6 @@ class DamageActive(FX):
             self.spirit(f.enemy, dmg * f.skill.spirit_accuracy)
         self.extra(f, f.enemy)
         return True
-
-
-_CC_LANDING = None
 
 
 @handler("upgrade_cold_front")

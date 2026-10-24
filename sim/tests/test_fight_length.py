@@ -69,6 +69,23 @@ class LengthCorrections(unittest.TestCase):
         self.assertEqual(f.skill.item_landing, {})
 
 
+class ItemActiveCC(unittest.TestCase):
+    def silence(self, skill, mech=None):
+        e = Engine(mech=mech)
+        a = make_fighter(e, Loadout("Haze", ["Silence Wave"], souls=8000, skill=skill))
+        b = make_fighter(e, Loadout("Abrams", [], souls=8000))
+        a.enemy, b.enemy = b, a
+        fx = next(x for x in a.items_fx if x.name == "Silence Wave")
+        return fx.cc(3.0)
+
+    def test_silence_follows_the_fitted_factor_without_the_length_correction(self):
+        self.assertAlmostEqual(self.silence(Skill()), 3.0)
+        self.assertAlmostEqual(self.silence(Skill(item_landing={"Silence Wave": 0.5})), 1.5)
+        sk = Skill(item_landing={"Silence Wave": 0.5}, item_length_corr={"Silence Wave": 0.4})
+        self.assertAlmostEqual(self.silence(sk, dataclasses.replace(M.Mechanics(), fight_length=(1.0, 0.5))), 1.5)
+        self.assertAlmostEqual(self.silence(Skill(item_landing={"Silence Wave": 1.3})), 3.0)
+
+
 class MinimumDamage(unittest.TestCase):
     def test_threshold_checks_the_landed_hit_size(self):
         e = Engine(mech=None)
