@@ -208,6 +208,7 @@ class Hit:
     is_dot: bool = False
     is_item: bool = False
     is_ult: bool = False
+    weapon_proc: bool = False   # an ability hit that counts as a gun hit for Mystic Shot (Kinetic Carbine)
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -502,7 +503,8 @@ class Engine:
     # ---- damage -------------------------------------------------------------------------------------
     def damage(self, src: Fighter, dst: Fighter, raw: float, kind: str, source: str, *,
                ignore_resist=False, is_ability=False, ability=None, is_dot=False, is_item=False,
-               headshots=0, hits=0, procs=True, is_ult=False, nonlethal=False, pure=False, landed=False):
+               headshots=0, hits=0, procs=True, is_ult=False, nonlethal=False, pure=False, landed=False,
+               weapon_proc=False):
         """pure=True: raw is already final damage (e.g. Focus Lens re-dealing stored damage), so no outgoing or
         target amps, no resists and no target-side reducers (all already counted in raw). The realistic-mode item
         landing factor still applies on purpose: for Focus Lens it is the real/sim ratio of the item's own damage,
@@ -556,7 +558,7 @@ class Engine:
                 amt = f(dst, src, amt, kind, is_dot)
                 if amt <= 0:
                     return 0.0
-        hit = Hit(kind, source, 0.0, raw, is_ability, ability, headshots, hits, is_dot, is_item, is_ult)
+        hit = Hit(kind, source, 0.0, raw, is_ability, ability, headshots, hits, is_dot, is_item, is_ult, weapon_proc)
         # barrier then health
         left = amt
         for b in dst.barriers:
@@ -688,6 +690,19 @@ class Engine:
             return st.falloff(self.distance)
         return self.fine_mean(st.falloff) / max(self.gun_reach(st), GUN_REACH_FLOOR)
 
+    def hit_reach(self, st):
+        """Hit-chance factor for a range-cut gun: gun_reach now over gun_reach at the distance its accuracy was fitted
+        at (gun_fit_m). The fitted accuracy already counts the real out-of-range shots as misses, so a fight at that
+        distance keeps it; a closer one lands more of its shots, a further one fewer."""
+        r = self.gun_reach(st)
+        if st.gun_range_m is None or st.gun_fit_m is None or self.spread <= 0:
+            return r
+        key = (id(st), "reach_fit")
+        ref = self._fall.get(key)
+        if ref is None:
+            ref = self._fall[key] = max(self.fine_mean(lambda x: float(x <= st.gun_range_m), st.gun_fit_m), 1e-9)
+        return r / ref
+
     def gun_reach(self, st):
         """Share of the fight's distance spread inside the gun's range (Graves' tether: gun_range_m), else 1. Out of
         range the gun neither hits nor procs (replays: 2% of Graves' bullet damage lands beyond 20 m), so fire() takes
@@ -815,7 +830,7 @@ class Engine:
             if s is not None:
                 shoot_summon(self, f, s, n_bullets)
                 return
-        p_hit = f.skill.accuracy * (1.0 - e.stat("evasion")) * self.gun_reach(st)
+        p_hit = min(1.0, f.skill.accuracy * (1.0 - e.stat("evasion")) * self.hit_reach(st))
         hits = f.hit_acc.take(p_hit, n_bullets)
         if hits <= 0:
             return

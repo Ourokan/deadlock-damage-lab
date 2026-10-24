@@ -566,6 +566,32 @@ for Tesla Bullets, 0.42 to 0.52 for Mystic Shot and 0.45 to 0.59 for Siphon Bull
 Bullets is now 0.98 and Capacitor 0.94. Build-up items (Toxic Bullets) scale their build-up by the landed hit's falloff
 (`Engine.hit_falloff`, 1 on the tether): Toxic Bullets 0.95. Still high: Mystic Shot and Torment Pulse (about 0.55).
 
+### Mystic Shot and Torment Pulse by hero (2026-10-24)
+
+The audit's per-hero source table compares the whole real match (the early game without the item included) with
+duels at 30/60/90% of it, so an item bought mid-game looks overrated there: Mystic Shot and Torment Pulse read about
+0.5x on Graves. `damage_audit.py` now also writes **items by hero, holders only** (real gun damage between buy and
+sell, at least 20 holders; `hero_items` in the json), which doesn't have that bias. Pooled over every hero neither
+item is overrated (Mystic Shot 0.96, Torment Pulse 1.24). Per hero:
+
+- **Graves** (0.61 / 0.63 holders only) came from a double cut. His fitted accuracy already counts the real shots
+  he fires beyond the tether as misses, and the sim also took the out-of-range share off his hit chance. Now the hit
+  chance is scaled by reach / reach at the fit distance (`Engine.hit_reach`, `Stats.gun_fit_m` = the calibration's
+  median distance), so a fight at the fitted distance keeps the fitted accuracy. Landing factors refit (with
+  mechanics: Jar of Dead 0.38, Grasping Hands 0.15, Borrowed Decree 0.23). Result: Torment Pulse 0.77, Mystic Shot 0.80,
+  Tesla Bullets 0.83, Capacitor 0.73, mix distance 0.10 -> 0.08, gun share still 0.20 (real 0.20).
+- **Paradox's Mystic Shot** is 2.6x under. In the replays, 73% of his Mystic Shot procs on heroes land together with
+  a Kinetic Carbine hit, so the Carbine now procs it (`Hit.weapon_proc`). That barely moves the ratio, because his
+  gun share is too high to begin with (0.34 vs 0.24 real), which deflates every item per gun damage. That is the
+  Paradox mix gap, not Mystic Shot.
+- **Calico and Yamato's Mystic Shot** (0.41 / 0.57, 30-35 holders) remain high. Their mixes match closely (distance
+  0.03 / 0.02), and Mystic Shot is under 3% of their damage. Not fixed.
+- **Torment Pulse** is under on melee-range heroes: Shiv 2.0, Mo & Krill 1.8, Celeste 1.45. That is team fights,
+  since the 9 m pulse hits every enemy nearby and a duel has one.
+- Found on the way: **Deadman Danny's Toxic Bullets** built up from his charged shot as if it were an uncharged one.
+  Build-up now scales with the shot (`Stats.gun_charge`): 88x -> 3.7x under. The rest is probably his ability
+  bullets building it up in the game.
+
 ## Known gaps (not yet modeled)
 
 - **Melee movement:** melee is in fights and its rate follows the build (see "Melee" above). Melee Charge's lunge

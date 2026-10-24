@@ -199,9 +199,10 @@ class CastCtx:
         return self.engine.p_within(r)
 
     # effects --------------------------------------------------------------------------------------
-    def spirit_hit(self, amount, *, delay=0.0, name=None, hit_chance=None, ignore_resist=False, nonlethal=False):
+    def spirit_hit(self, amount, *, delay=0.0, name=None, hit_chance=None, ignore_resist=False, nonlethal=False,
+                   weapon_proc=False):
         """Instant spirit damage to the enemy (after delay). hit_chance defaults to caster's spirit_accuracy for
-        skillshots and 1.0 otherwise."""
+        skillshots and 1.0 otherwise. weapon_proc: the hit also procs Mystic Shot like a gun hit."""
         f, e = self.me, self.foe
         name = name or self.s.ab.name
         if hit_chance is None:
@@ -211,7 +212,8 @@ class CastCtx:
         def go():
             if f.alive or self.s.impl.post_mortem:
                 f.e.damage(f, e, amount, "spirit", name, is_ability=True, ability=self.s,
-                           is_ult=self.s.ab.ultimate, ignore_resist=ignore_resist, nonlethal=nonlethal)
+                           is_ult=self.s.ab.ultimate, ignore_resist=ignore_resist, nonlethal=nonlethal,
+                           weapon_proc=weapon_proc)
         if delay > 0:
             f.e.after(delay, go)
         else:
@@ -252,7 +254,7 @@ class CastCtx:
         base, crit = eng.bullet_damage(f, extra_pct)
         per = base if per_bullet is None else per_bullet
         acc = f.skill.accuracy if accuracy is None else accuracy
-        hits = f.hit_acc.take(acc * (1.0 - e.stat("evasion")) * eng.gun_reach(f.st), int(n_bullets))
+        hits = f.hit_acc.take(acc * (1.0 - e.stat("evasion")) * eng.hit_reach(f.st), int(n_bullets))
         if hits <= 0:
             return 0
         heads = f.head_acc.take(f.skill.headshot, hits) if headshots else 0
