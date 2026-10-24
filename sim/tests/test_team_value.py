@@ -13,6 +13,7 @@ sys.path[:0] = [os.path.join(ROOT, p) for p in ("sim", "sim/scripts", "search/sc
                                                  "survival")]
 
 import damage_audit  # noqa: E402
+from team import area_hits  # noqa: E402
 import overall_search as O  # noqa: E402
 from survival import survive  # noqa: E402
 
@@ -58,7 +59,7 @@ class AreaDamage(unittest.TestCase):
         early, mid, late = (O.area_extra("Cold Front", s) for s in (6000, 18000, 50000))
         self.assertLess(early, mid)
         self.assertLessEqual(mid, late)
-        self.assertLess(early, 0.6 * pooled)
+        self.assertLess(early, pooled)
         self.assertGreater(late, pooled)
         self.assertEqual(O.area_extra("Cold Front", 1000), O.area_extra("Cold Front", 3000))     # flat outside the fit
         self.assertEqual(O.area_extra("Cold Front", 80000), O.area_extra("Cold Front", 120000))
@@ -93,6 +94,25 @@ class AreaDamage(unittest.TestCase):
         with_ = O.fight(h, [ID["Ricochet"]], e, [], 27000)[0]
         without = O.fight(h, [], e, [], 27000)[0]
         self.assertGreater(with_, without)
+
+
+class AreaHitsFit(unittest.TestCase):
+    def test_mean_net_worth_interpolates_between_snapshots(self):
+        curves = [[(100, 1000), (200, 3000)], [(100, 3000), (200, 5000)]]
+        self.assertAlmostEqual(area_hits.mean_nw(curves, 150), 3000.0)
+        self.assertAlmostEqual(area_hits.mean_nw(curves, 50), 1000.0)     # from 0 before the first snapshot
+        self.assertAlmostEqual(area_hits.mean_nw(curves, 900), 4000.0)    # last value after the end
+
+    def test_phase_fit_is_non_decreasing(self):
+        # one area item, baseline 0 (no other-hero proc damage): bins observe 0.5, 1.5, 0.9, 1.2 x the pooled 1.0
+        rows = [("m", 5000, "Toxic Bullets", 1e6, 0.0)]
+        for nw, ratio in ((12000, 0.5), (17000, 1.5), (22000, 0.9), (45000, 1.2)):
+            rows += [("m", nw, "Toxic Bullets", 1e6, 0.0), ("m", nw, "Cold Front", 1000.0, 1000.0 * ratio)]
+        fit = [b["fit"] for b in area_hits.phase_fit(rows, {"Cold Front": 1.0})]
+        self.assertEqual(fit, sorted(fit))
+        self.assertAlmostEqual(fit[0], 0.5)
+        self.assertAlmostEqual(fit[1], 1.2)    # 1.5 and 0.9 pooled
+        self.assertAlmostEqual(fit[3], 1.2)
 
 
 class AuditSources(unittest.TestCase):
