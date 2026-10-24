@@ -119,7 +119,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/game data/patch.json data/changes.json data/builds/aggregates damage/out search/out survival/out analysis/out/hero_item_edge.json analysis/out/build_win_check.md counters/out
+          git add data/game data/patch.json data/changes.json data/builds/aggregates damage/out search/out survival/out analysis/out/hero_item_edge.json analysis/out/build_win_check.md sim/data/team_value.json counters/out
           git diff --cached --quiet && { echo "No changes to commit"; exit 0; }
           git commit -m "Rerun searches (${{ inputs.tier }}): ${{ inputs.reason }}"
           git pull --no-rebase --no-edit origin main

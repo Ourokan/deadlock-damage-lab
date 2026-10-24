@@ -20,6 +20,12 @@ class Near(unittest.TestCase):
         for kind in ("allies", "any_ally", "extra", "extra_self"):
             self.assertLess(O.near(kind, 8, 27000), O.near(kind, 30, 27000))
 
+    def test_clamps_at_the_table_edges(self):
+        self.assertEqual(O.near("allies", 100, 27000), O.near("allies", 40, 27000))
+        self.assertEqual(O.near("allies", 1, 27000), O.near("allies", 5, 27000))
+        self.assertEqual(O.near("allies", 35, 80000), O.near("allies", 35, 50000))
+        self.assertEqual(O.near("allies", 35, 3000), O.near("allies", 35, 10000))
+
     def test_interpolates_between_bins(self):
         lo, hi = O.near("allies", 35, 18000), O.near("allies", 35, 27000)
         self.assertTrue(min(lo, hi) <= O.near("allies", 35, 22000) <= max(lo, hi))

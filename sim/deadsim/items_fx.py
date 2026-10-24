@@ -1131,20 +1131,39 @@ class SurgeOfPower(FX):
 
 @handler("upgrade_mystic_reverb")
 class MysticReverb(FX):
+    """Imbued ability damage builds up while the item is ready; once it reaches MinimumDamage the item goes on cooldown
+    and DelayDuration later the echo deals TechDamagePercent% of that damage plus MaxHealthDamage% of the target's
+    current health (the tooltip's "Current Health Bonus Damage", not a cap). Build-up is per target and lasts
+    DelayDuration; DoT ticks of the imbued ability count, so a damage-over-time imbue (Flame Dash) triggers it too."""
+
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind != "spirit" or hit.ability is None or self.item not in hit.ability.imbues or hit.is_dot:
+        if hit.kind != "spirit" or hit.ability is None or self.item not in hit.ability.imbues:
             return
         # imbued lifesteal on this hit (engine.damage applies lifesteal before these hooks, so a short spirit_lifesteal
         # mod here would only reach the next hit)
-        f.heal(hit.amount * self.item.p("ImbueAbilityLifesteal") / 100, "spirit_lifesteal", "lifesteal")
-        if not self.ready() or hit.amount < self.item.p("MinimumDamage", 0):
+        if not hit.is_dot:   # DoT ticks build up the echo (below) but keep the old no-lifesteal rule
+            f.heal(hit.amount * self.item.p("ImbueAbilityLifesteal") / 100, "spirit_lifesteal", "lifesteal")
+        if not self.ready():
             return
+        # the threshold counts damage dealt (after resist) on this target within DelayDuration; the echo repeats the raw
+        # damage (it is mitigated again)
+        builds = f.counters.setdefault("reverb_build", {})
+        t0, dealt, acc = builds.get(id(t), (f.e.t, 0.0, 0.0))
+        if f.e.t - t0 > self.dur("DelayDuration", 3):
+            t0, dealt, acc = f.e.t, 0.0, 0.0
+        dealt, acc = dealt + hit.amount, acc + hit.raw
+        if dealt < self.item.p("MinimumDamage", 0):
+            builds[id(t)] = (t0, dealt, acc)
+            return
+        builds.clear()
         self.use()
-        amt = hit.raw * self.item.p("TechDamagePercent") / 100
-        cap = self.item.p("MaxHealthDamage")
-        if cap:
-            amt = min(amt, t.max_hp * cap / 100) if amt > t.max_hp * cap / 100 else amt
-        f.e.after(self.dur("DelayDuration", 3), lambda: self.spirit(t, amt, procs=False))
+        base = acc * self.item.p("TechDamagePercent") / 100
+        pct = self.item.p("MaxHealthDamage", 0) / 100
+
+        def echo():
+            if t.alive:
+                self.spirit(t, base + pct * max(0.0, t.hp), procs=False)
+        f.e.after(self.dur("DelayDuration", 3), echo)
 
 
 @handler("upgrade_bulletshredimbue")

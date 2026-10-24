@@ -6,7 +6,8 @@ name: Rerun searches after a patch
 # across 16 machines, commits its results to main and redeploys the site before the next starts
 # (rerun-tier.yml). Tiers not in "enabled" are skipped and keep their last results. Nothing is committed for a
 # tier unless its searches finish (pipeline/check_results.py). The real item win edge the overall search blends in
-# is rebuilt from the same builds (pipeline/refresh_win_edge.py), or kept from the last run when there are too few.
+# is rebuilt from the same builds (pipeline/refresh_win_edge.py), or kept from the last run when there are too few,
+# and the ally item team values are refit on the patch's popular builds (sim/scripts/team/team_value.py, no API).
 
 # A merged change to pipeline/rerun_request.json also forces a rerun, so Claude (which can't press Run workflow)
 # can start one when asked.
@@ -130,12 +131,22 @@ jobs:
         if: steps.fetch.outputs.complete == 'true'
         continue-on-error: true   # the overall search then blends the last snapshot, as when there are too few
         run: python3 pipeline/refresh_win_edge.py data/builds/player_builds --workers 3
+      - name: Ally item team values from 3v3 fights of the patch's popular builds (keeps the last fit on failure)
+        if: steps.fetch.outputs.complete == 'true'
+        continue-on-error: true   # team_value.json is only written at the end, so a failure keeps the last fit
+        timeout-minutes: 40
+        working-directory: sim
+        run: |
+          python3 scripts/team/team_value.py --workers 4 --require-pools || {
+            echo "Ally item team values: refit failed, the overall search uses the last fit (sim/data/team_value.json)." >> "$GITHUB_STEP_SUMMARY"
+            exit 1; }
       - if: steps.fetch.outputs.complete == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: inputs
           path: |
             analysis/out/hero_item_edge.json
+            sim/data/team_value.json
             data/builds/aggregates
             search/work/snapshots_*.json
             search/work/item_usage*.json

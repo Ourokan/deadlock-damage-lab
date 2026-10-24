@@ -32,7 +32,7 @@ to real damage, which already counts every target hit.
 
 ## Ally items (3v3 team fights)
 
-`sim/scripts/team/team_value.py` puts each ally item on one hero of 40 random 3v3 lineups (popular builds, Phantom+
+`sim/scripts/team/team_value.py` puts each ally item on one hero of 40 random 3v3 lineups (the overall search's popular Phantom+ builds, Phantom+
 skills, both targeting modes, 12 and 20 m) and compares the item's swing with and without everything that reaches
 teammates (`team_fight(allies=False)`). The team-only part, as a share of the holder's own damage, is scaled by the
 real teammates in reach above, and the overall score is multiplied by 1 + the sum. Fits inside their 95% band count 0
@@ -40,13 +40,13 @@ real teammates in reach above, and the overall score is multiplied by 1 + the su
 
 | item | 10k | 18k | 27k | 37k | 50k |
 |---|---|---|---|---|---|
-| Divine Barrier | 1.32 | 1.18 | 1.19 | 1.17 | 1.11 |
-| Healing Nova | 1.14 | 1.12 | 1.09 | 1.10 | 1.07 |
-| Heroic Aura | 1.07 | 1.08 | 1.09 | 1.15 | 1.10 |
-| Restorative Locket | 1.11 | 1.09 | 1.08 | 1.05 | 1.04 |
-| Guardian Ward | 1.09 | 1.08 | 1.07 | 1.09 | 1.04 |
-| Rescue Beam | 1.10 | 1.05 | 1.05 | 1.00 | 1.00 |
-| Hunter's Aura | 1.01 | 1.01 | 1.00 | 1.01 | 1.00 |
+| Divine Barrier | 1.40 | 1.20 | 1.17 | 1.12 | 1.00 |
+| Healing Nova | 1.14 | 1.15 | 1.11 | 1.08 | 1.06 |
+| Heroic Aura | 1.08 | 1.13 | 1.12 | 1.13 | 1.07 |
+| Restorative Locket | 1.13 | 1.11 | 1.08 | 1.06 | 1.00 |
+| Guardian Ward | 1.11 | 1.09 | 1.06 | 1.04 | 1.00 |
+| Rescue Beam | 1.07 | 1.07 | 1.07 | 1.04 | 1.00 |
+| Hunter's Aura | 1.00 | 1.02 | 1.01 | 1.00 | 1.00 |
 
 Heroic Aura's passive (17% bullet resist to nearby teammates) was missing from the team fight sim and is added; it is
 most of the item's team value (team-only 0.02 of the holder's damage without it, 0.12 with it at 27k).
@@ -80,5 +80,15 @@ direction check, not the fit. Cheat Death and Mystic Reverb show no teammate eff
   explain 1.4x of that; the rest is the sim's trigger (one echo per hit of 100+ damage) under-firing, a follow-up.
 - **Magic Carpet** is a movement item (already in movement_value) and has no team part.
 
-Static snapshot like movement_value: rerun fit_team.py (positions, from the project's range_paths) and
-team_value.py (~15 min on 4 cores) after big patches.
+Refresh: each patch rerun refits the ally item values (the tables above are the 2026-10-24 fit; the json is current) (team_value.py on the new patch's popular Phantom+ builds,
+~15 min on 4 cores, no API queries) in its data job and commits team_value.json with the results. The positions are a
+static snapshot (the match paths live in the project files): rerun fit_team.py after a map change.
+
+## Mystic Reverb fix (follow-up)
+
+The sim read MaxHealthDamage (10%) as a cap on the echo; the game's label is "Current Health Bonus Damage", so the
+echo is 50% of the triggering damage plus 10% of the target's current health. Imbued hits under MinimumDamage (100)
+now add up until they reach it, so DoT and multi-hit imbues trigger it. Damage audit (600 Phantom+ matches): real /
+sim Mystic Reverb damage per gun damage 3.80 -> 1.82; the 16 m area (x1.41 at 27k, in the overall score, not in
+the 1v1 audit) leaves about 1.3. Infernus still imbues it on Napalm (highest listed damage), which rarely deals
+100.
