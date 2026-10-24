@@ -112,89 +112,6 @@
     }
    }
   },
-  "Paradox": {
-   "players": 168,
-   "real_mix": {
-    "gun": 0.2428,
-    "ability": 0.483,
-    "item": 0.2301,
-    "melee": 0.0252,
-    "other": 0.019
-   },
-   "sim_mix": {
-    "gun": 0.3369,
-    "ability": 0.5194,
-    "item": 0.0996,
-    "melee": 0.0395,
-    "other": 0.0046
-   },
-   "mix_distance": 0.145,
-   "sources": {
-    "citadel_ability_chrono_kinetic_carbine": {
-     "name": "Kinetic Carbine",
-     "kind": "ability",
-     "real_share": 0.3184,
-     "sim_share": 0.2969,
-     "real_over_sim": 1.488
-    },
-    "citadel_ability_chrono_pulse_grenade": {
-     "name": "Pulse Grenade",
-     "kind": "ability",
-     "real_share": 0.1115,
-     "sim_share": 0.1422,
-     "real_over_sim": 1.088
-    },
-    "upgrade_magic_shock": {
-     "name": "Tankbuster",
-     "kind": "item",
-     "real_share": 0.0741,
-     "sim_share": 0.0377,
-     "real_over_sim": 2.729
-    },
-    "upgrade_mystic_reverb": {
-     "name": "Mystic Reverb",
-     "kind": "item",
-     "real_share": 0.0626,
-     "sim_share": 0.0185,
-     "real_over_sim": 4.704
-    },
-    "citadel_ability_chrono_swap": {
-     "name": "Paradoxical Swap",
-     "kind": "ability",
-     "real_share": 0.0531,
-     "sim_share": 0.0803,
-     "real_over_sim": 0.918
-    },
-    "upgrade_express_shot": {
-     "name": "Express Shot",
-     "kind": "item",
-     "real_share": 0.0271,
-     "sim_share": 0.0,
-     "real_over_sim": null
-    },
-    "MELEE": {
-     "name": "MELEE",
-     "kind": "melee",
-     "real_share": 0.0252,
-     "sim_share": 0.0395,
-     "real_over_sim": 0.885
-    },
-    "upgrade_crackshot": {
-     "name": "Mystic Shot",
-     "kind": "item",
-     "real_share": 0.0226,
-     "sim_share": 0.0132,
-     "real_over_sim": 2.379
-    },
-    "upgrade_headhunter": {
-     "name": "Headhunter",
-     "kind": "item",
-     "real_share": 0.018,
-     "sim_share": 0.0174,
-     "real_over_sim": 1.431
-    }
-   }
-  },
   "The Doorman": {
    "players": 2,
    "real_mix": {
@@ -264,6 +181,89 @@
     }
    }
   },
+  "Paradox": {
+   "players": 168,
+   "real_mix": {
+    "gun": 0.2428,
+    "ability": 0.483,
+    "item": 0.2301,
+    "melee": 0.0252,
+    "other": 0.019
+   },
+   "sim_mix": {
+    "gun": 0.333,
+    "ability": 0.5145,
+    "item": 0.1087,
+    "melee": 0.0393,
+    "other": 0.0046
+   },
+   "mix_distance": 0.136,
+   "sources": {
+    "citadel_ability_chrono_kinetic_carbine": {
+     "name": "Kinetic Carbine",
+     "kind": "ability",
+     "real_share": 0.3184,
+     "sim_share": 0.2937,
+     "real_over_sim": 1.487
+    },
+    "citadel_ability_chrono_pulse_grenade": {
+     "name": "Pulse Grenade",
+     "kind": "ability",
+     "real_share": 0.1115,
+     "sim_share": 0.1415,
+     "real_over_sim": 1.081
+    },
+    "upgrade_magic_shock": {
+     "name": "Tankbuster",
+     "kind": "item",
+     "real_share": 0.0741,
+     "sim_share": 0.0373,
+     "real_over_sim": 2.723
+    },
+    "upgrade_mystic_reverb": {
+     "name": "Mystic Reverb",
+     "kind": "item",
+     "real_share": 0.0626,
+     "sim_share": 0.0285,
+     "real_over_sim": 3.009
+    },
+    "citadel_ability_chrono_swap": {
+     "name": "Paradoxical Swap",
+     "kind": "ability",
+     "real_share": 0.0531,
+     "sim_share": 0.0794,
+     "real_over_sim": 0.918
+    },
+    "upgrade_express_shot": {
+     "name": "Express Shot",
+     "kind": "item",
+     "real_share": 0.0271,
+     "sim_share": 0.0,
+     "real_over_sim": null
+    },
+    "MELEE": {
+     "name": "MELEE",
+     "kind": "melee",
+     "real_share": 0.0252,
+     "sim_share": 0.0393,
+     "real_over_sim": 0.879
+    },
+    "upgrade_crackshot": {
+     "name": "Mystic Shot",
+     "kind": "item",
+     "real_share": 0.0226,
+     "sim_share": 0.0128,
+     "real_over_sim": 2.431
+    },
+    "upgrade_headhunter": {
+     "name": "Headhunter",
+     "kind": "item",
+     "real_share": 0.018,
+     "sim_share": 0.0174,
+     "real_over_sim": 1.421
+    }
+   }
+  },
   "Viscous": {
    "players": 29,
    "real_mix": {
@@ -274,41 +274,41 @@
     "other": 0.0252
    },
    "sim_mix": {
-    "gun": 0.1796,
-    "ability": 0.566,
-    "item": 0.1581,
-    "melee": 0.0741,
-    "other": 0.0223
+    "gun": 0.1781,
+    "ability": 0.5598,
+    "item": 0.164,
+    "melee": 0.0733,
+    "other": 0.0247
    },
-   "mix_distance": 0.127,
+   "mix_distance": 0.118,
    "sources": {
     "viscous_goo_grenade": {
      "name": "Splatter",
      "kind": "ability",
      "real_share": 0.2846,
-     "sim_share": 0.3459,
-     "real_over_sim": 1.122
+     "sim_share": 0.3421,
+     "real_over_sim": 1.125
     },
     "viscous_telepunch": {
      "name": "Puddle Punch",
      "kind": "ability",
      "real_share": 0.1229,
-     "sim_share": 0.1445,
-     "real_over_sim": 1.16
+     "sim_share": 0.1429,
+     "real_over_sim": 1.163
     },
     "viscous_goo_bowling_ball": {
      "name": "Goo Ball",
      "kind": "ability",
      "real_share": 0.1072,
-     "sim_share": 0.0755,
-     "real_over_sim": 1.935
+     "sim_share": 0.0747,
+     "real_over_sim": 1.941
     },
     "upgrade_magic_shock": {
      "name": "Tankbuster",
      "kind": "item",
      "real_share": 0.0688,
-     "sim_share": 0.0412,
-     "real_over_sim": 2.28
+     "sim_share": 0.0407,
+     "real_over_sim": 2.287
     },
     "upgrade_express_shot": {
      "name": "Express Shot",
@@ -321,202 +321,50 @@
      "name": "MELEE",
      "kind": "melee",
      "real_share": 0.0467,
-     "sim_share": 0.0741,
-     "real_over_sim": 0.86
+     "sim_share": 0.0733,
+     "real_over_sim": 0.863
     },
     "upgrade_spirit_snatch": {
      "name": "Spirit Snatch",
      "kind": "item",
      "real_share": 0.0415,
-     "sim_share": 0.0214,
-     "real_over_sim": 2.648
+     "sim_share": 0.0211,
+     "real_over_sim": 2.656
     },
     "upgrade_crackshot": {
      "name": "Mystic Shot",
      "kind": "item",
      "real_share": 0.0277,
-     "sim_share": 0.0419,
-     "real_over_sim": 0.902
+     "sim_share": 0.0414,
+     "real_over_sim": 0.905
     },
     "upgrade_magic_burst": {
      "name": "Mystic Burst",
      "kind": "item",
      "real_share": 0.0192,
-     "sim_share": 0.0092,
-     "real_over_sim": 2.84
+     "sim_share": 0.0091,
+     "real_over_sim": 2.849
     },
     "citadel_ability_shiv_defer_damage": {
      "name": "citadel_ability_shiv_defer_damage",
      "kind": "other",
      "real_share": 0.014,
-     "sim_share": 0.0223,
-     "real_over_sim": 0.856
+     "sim_share": 0.0247,
+     "real_over_sim": 0.765
     },
     "upgrade_tech_damage_pulse": {
      "name": "Torment Pulse",
      "kind": "item",
      "real_share": 0.0114,
      "sim_share": 0.0063,
-     "real_over_sim": 2.463
-    }
-   }
-  },
-  "Shiv": {
-   "players": 209,
-   "real_mix": {
-    "gun": 0.2694,
-    "ability": 0.4836,
-    "item": 0.1619,
-    "melee": 0.0765,
-    "other": 0.0087
-   },
-   "sim_mix": {
-    "gun": 0.3313,
-    "ability": 0.5314,
-    "item": 0.0544,
-    "melee": 0.0829,
-    "other": 0.0
-   },
-   "mix_distance": 0.116,
-   "sources": {
-    "citadel_ability_shiv_dagger": {
-     "name": "Serrated Knives",
-     "kind": "ability",
-     "real_share": 0.2831,
-     "sim_share": 0.2946,
-     "real_over_sim": 1.182
-    },
-    "citadel_ability_shiv_dash": {
-     "name": "Slice and Dice",
-     "kind": "ability",
-     "real_share": 0.1448,
-     "sim_share": 0.1697,
-     "real_over_sim": 1.049
-    },
-    "upgrade_express_shot": {
-     "name": "Express Shot",
-     "kind": "item",
-     "real_share": 0.0859,
-     "sim_share": 0.0,
-     "real_over_sim": null
-    },
-    "MELEE": {
-     "name": "MELEE",
-     "kind": "melee",
-     "real_share": 0.0765,
-     "sim_share": 0.0829,
-     "real_over_sim": 1.135
-    },
-    "citadel_ability_shiv_killing_blow": {
-     "name": "Killing Blow",
-     "kind": "ability",
-     "real_share": 0.0557,
-     "sim_share": 0.0671,
-     "real_over_sim": 1.022
-    },
-    "upgrade_tech_damage_pulse": {
-     "name": "Torment Pulse",
-     "kind": "item",
-     "real_share": 0.0206,
-     "sim_share": 0.0104,
-     "real_over_sim": 2.443
-    },
-    "upgrade_rupture": {
-     "name": "Decay",
-     "kind": "item",
-     "real_share": 0.0197,
-     "sim_share": 0.0154,
-     "real_over_sim": 1.578
-    },
-    "upgrade_critshot": {
-     "name": "Lucky Shot",
-     "kind": "item",
-     "real_share": 0.0138,
-     "sim_share": 0.0112,
-     "real_over_sim": 1.524
-    }
-   }
-  },
-  "Kelvin": {
-   "players": 12,
-   "real_mix": {
-    "gun": 0.0884,
-    "ability": 0.6454,
-    "item": 0.22,
-    "melee": 0.0223,
-    "other": 0.0238
-   },
-   "sim_mix": {
-    "gun": 0.1636,
-    "ability": 0.6844,
-    "item": 0.1291,
-    "melee": 0.0229,
-    "other": 0.0
-   },
-   "mix_distance": 0.115,
-   "sources": {
-    "ability_icebeam": {
-     "name": "Arctic Beam",
-     "kind": "ability",
-     "real_share": 0.3971,
-     "sim_share": 0.3923,
-     "real_over_sim": 1.873
-    },
-    "ability_ice_grenade": {
-     "name": "Frost Grenade",
-     "kind": "ability",
-     "real_share": 0.2484,
-     "sim_share": 0.2921,
-     "real_over_sim": 1.573
-    },
-    "upgrade_escalating_exposure": {
-     "name": "Escalating Exposure",
-     "kind": "item",
-     "real_share": 0.0678,
-     "sim_share": 0.0,
-     "real_over_sim": null
-    },
-    "upgrade_tech_damage_pulse": {
-     "name": "Torment Pulse",
-     "kind": "item",
-     "real_share": 0.0569,
-     "sim_share": 0.057,
-     "real_over_sim": 1.847
-    },
-    "upgrade_magic_shock": {
-     "name": "Tankbuster",
-     "kind": "item",
-     "real_share": 0.0441,
-     "sim_share": 0.0374,
-     "real_over_sim": 2.185
-    },
-    "upgrade_spirit_burn": {
-     "name": "Spirit Burn",
-     "kind": "item",
-     "real_share": 0.0323,
-     "sim_share": 0.0291,
-     "real_over_sim": 2.055
-    },
-    "MELEE": {
-     "name": "MELEE",
-     "kind": "melee",
-     "real_share": 0.0223,
-     "sim_share": 0.0229,
-     "real_over_sim": 1.804
+     "real_over_sim": 2.47
     },
     "upgrade_mystic_reverb": {
      "name": "Mystic Reverb",
      "kind": "item",
-     "real_share": 0.0115,
-     "sim_share": 0.0,
-     "real_over_sim": null
-    },
-    "citadel_ability_shiv_defer_damage": {
-     "name": "citadel_ability_shiv_defer_damage",
-     "kind": "other",
-     "real_share": 0.0106,
-     "sim_share": 0.0,
-     "real_over_sim": null
+     "real_share": 0.0092,
+     "sim_share": 0.012,
+     "real_over_sim": 1.044
     }
    }
   },
@@ -530,11 +378,11 @@
     "other": 0.0155
    },
    "sim_mix": {
-    "gun": 0.0852,
+    "gun": 0.0851,
     "ability": 0.5758,
-    "item": 0.2944,
+    "item": 0.2946,
     "melee": 0.0371,
-    "other": 0.0076
+    "other": 0.0074
    },
    "mix_distance": 0.115,
    "sources": {
@@ -542,85 +390,161 @@
      "name": "Scorn",
      "kind": "ability",
      "real_share": 0.2145,
-     "sim_share": 0.2604,
-     "real_over_sim": 0.951
+     "sim_share": 0.2603,
+     "real_over_sim": 0.95
     },
     "ability_burrow": {
      "name": "Burrow",
      "kind": "ability",
      "real_share": 0.1498,
-     "sim_share": 0.1866,
-     "real_over_sim": 0.926
+     "sim_share": 0.1867,
+     "real_over_sim": 0.925
     },
     "upgrade_tech_damage_pulse": {
      "name": "Torment Pulse",
      "kind": "item",
      "real_share": 0.1384,
      "sim_share": 0.1141,
-     "real_over_sim": 1.399
+     "real_over_sim": 1.398
     },
     "ability_ult_combo": {
      "name": "Combo",
      "kind": "ability",
      "real_share": 0.0635,
      "sim_share": 0.0747,
-     "real_over_sim": 0.981
+     "real_over_sim": 0.98
     },
     "upgrade_magic_shock": {
      "name": "Tankbuster",
      "kind": "item",
      "real_share": 0.0609,
      "sim_share": 0.037,
-     "real_over_sim": 1.899
+     "real_over_sim": 1.896
     },
     "MELEE": {
      "name": "MELEE",
      "kind": "melee",
      "real_share": 0.0458,
      "sim_share": 0.0371,
-     "real_over_sim": 1.426
+     "real_over_sim": 1.424
     },
     "upgrade_quick_silver": {
      "name": "Quicksilver Reload",
      "kind": "item",
      "real_share": 0.0441,
      "sim_share": 0.0235,
-     "real_over_sim": 2.163
+     "real_over_sim": 2.16
     },
     "ability_throw_sand": {
      "name": "Sand Blast",
      "kind": "ability",
      "real_share": 0.0437,
      "sim_share": 0.0541,
-     "real_over_sim": 0.932
+     "real_over_sim": 0.931
     },
     "upgrade_cold_front": {
      "name": "Cold Front",
      "kind": "item",
      "real_share": 0.0409,
      "sim_share": 0.0367,
-     "real_over_sim": 1.286
+     "real_over_sim": 1.284
     },
     "upgrade_magic_burst": {
      "name": "Mystic Burst",
      "kind": "item",
      "real_share": 0.0398,
      "sim_share": 0.023,
-     "real_over_sim": 1.997
+     "real_over_sim": 1.994
     },
     "upgrade_discord": {
      "name": "Scourge",
      "kind": "item",
      "real_share": 0.0292,
      "sim_share": 0.0353,
-     "real_over_sim": 0.956
+     "real_over_sim": 0.954
     },
     "upgrade_arctic_blast": {
      "name": "Arctic Blast",
      "kind": "item",
      "real_share": 0.0102,
      "sim_share": 0.0079,
-     "real_over_sim": 1.479
+     "real_over_sim": 1.477
+    }
+   }
+  },
+  "Shiv": {
+   "players": 209,
+   "real_mix": {
+    "gun": 0.2694,
+    "ability": 0.4836,
+    "item": 0.1619,
+    "melee": 0.0765,
+    "other": 0.0087
+   },
+   "sim_mix": {
+    "gun": 0.3307,
+    "ability": 0.5301,
+    "item": 0.0566,
+    "melee": 0.0826,
+    "other": 0.0
+   },
+   "mix_distance": 0.114,
+   "sources": {
+    "citadel_ability_shiv_dagger": {
+     "name": "Serrated Knives",
+     "kind": "ability",
+     "real_share": 0.2831,
+     "sim_share": 0.2931,
+     "real_over_sim": 1.186
+    },
+    "citadel_ability_shiv_dash": {
+     "name": "Slice and Dice",
+     "kind": "ability",
+     "real_share": 0.1448,
+     "sim_share": 0.1692,
+     "real_over_sim": 1.05
+    },
+    "upgrade_express_shot": {
+     "name": "Express Shot",
+     "kind": "item",
+     "real_share": 0.0859,
+     "sim_share": 0.0,
+     "real_over_sim": null
+    },
+    "MELEE": {
+     "name": "MELEE",
+     "kind": "melee",
+     "real_share": 0.0765,
+     "sim_share": 0.0826,
+     "real_over_sim": 1.137
+    },
+    "citadel_ability_shiv_killing_blow": {
+     "name": "Killing Blow",
+     "kind": "ability",
+     "real_share": 0.0557,
+     "sim_share": 0.0678,
+     "real_over_sim": 1.009
+    },
+    "upgrade_tech_damage_pulse": {
+     "name": "Torment Pulse",
+     "kind": "item",
+     "real_share": 0.0206,
+     "sim_share": 0.0102,
+     "real_over_sim": 2.486
+    },
+    "upgrade_rupture": {
+     "name": "Decay",
+     "kind": "item",
+     "real_share": 0.0197,
+     "sim_share": 0.0152,
+     "real_over_sim": 1.592
+    },
+    "upgrade_critshot": {
+     "name": "Lucky Shot",
+     "kind": "item",
+     "real_share": 0.0138,
+     "sim_share": 0.0112,
+     "real_over_sim": 1.523
     }
    }
   },
@@ -634,48 +558,48 @@
     "other": 0.0192
    },
    "sim_mix": {
-    "gun": 0.1985,
-    "ability": 0.7085,
-    "item": 0.0776,
+    "gun": 0.1976,
+    "ability": 0.7047,
+    "item": 0.0822,
     "melee": 0.0082,
-    "other": 0.0072
+    "other": 0.0073
    },
-   "mix_distance": 0.115,
+   "mix_distance": 0.111,
    "sources": {
     "ability_deadpack_chargeblast": {
      "name": "Strix Salvo",
      "kind": "ability",
      "real_share": 0.2496,
-     "sim_share": 0.3235,
-     "real_over_sim": 0.962
+     "sim_share": 0.3216,
+     "real_over_sim": 0.963
     },
     "ability_deadpack_rocketeer": {
      "name": "Chimera Mk1",
      "kind": "ability",
      "real_share": 0.2018,
-     "sim_share": 0.2822,
-     "real_over_sim": 0.891
+     "sim_share": 0.2805,
+     "real_over_sim": 0.892
     },
     "ability_deadpack_ultimate": {
      "name": "Close The Deal",
      "kind": "ability",
      "real_share": 0.0976,
-     "sim_share": 0.0411,
-     "real_over_sim": 2.955
+     "sim_share": 0.0412,
+     "real_over_sim": 2.937
     },
     "ability_deadpack_flamethrower": {
      "name": "Jettison Fuel",
      "kind": "ability",
      "real_share": 0.0843,
-     "sim_share": 0.0617,
-     "real_over_sim": 1.704
+     "sim_share": 0.0613,
+     "real_over_sim": 1.705
     },
     "upgrade_magic_shock": {
      "name": "Tankbuster",
      "kind": "item",
      "real_share": 0.0793,
-     "sim_share": 0.0463,
-     "real_over_sim": 2.135
+     "sim_share": 0.0461,
+     "real_over_sim": 2.134
     },
     "upgrade_express_shot": {
      "name": "Express Shot",
@@ -689,21 +613,104 @@
      "kind": "item",
      "real_share": 0.0251,
      "sim_share": 0.0005,
-     "real_over_sim": 61.292
+     "real_over_sim": 61.309
     },
     "citadel_ability_shiv_defer_damage": {
      "name": "citadel_ability_shiv_defer_damage",
      "kind": "other",
      "real_share": 0.0109,
-     "sim_share": 0.0072,
-     "real_over_sim": 1.899
+     "sim_share": 0.0073,
+     "real_over_sim": 1.868
     },
     "upgrade_magic_burst": {
      "name": "Mystic Burst",
      "kind": "item",
      "real_share": 0.0107,
      "sim_share": 0.0064,
-     "real_over_sim": 2.07
+     "real_over_sim": 2.082
+    }
+   }
+  },
+  "Kelvin": {
+   "players": 12,
+   "real_mix": {
+    "gun": 0.0884,
+    "ability": 0.6454,
+    "item": 0.22,
+    "melee": 0.0223,
+    "other": 0.0238
+   },
+   "sim_mix": {
+    "gun": 0.1626,
+    "ability": 0.6801,
+    "item": 0.1346,
+    "melee": 0.0227,
+    "other": 0.0
+   },
+   "mix_distance": 0.109,
+   "sources": {
+    "ability_icebeam": {
+     "name": "Arctic Beam",
+     "kind": "ability",
+     "real_share": 0.3971,
+     "sim_share": 0.3898,
+     "real_over_sim": 1.873
+    },
+    "ability_ice_grenade": {
+     "name": "Frost Grenade",
+     "kind": "ability",
+     "real_share": 0.2484,
+     "sim_share": 0.2903,
+     "real_over_sim": 1.573
+    },
+    "upgrade_escalating_exposure": {
+     "name": "Escalating Exposure",
+     "kind": "item",
+     "real_share": 0.0678,
+     "sim_share": 0.0,
+     "real_over_sim": null
+    },
+    "upgrade_tech_damage_pulse": {
+     "name": "Torment Pulse",
+     "kind": "item",
+     "real_share": 0.0569,
+     "sim_share": 0.0567,
+     "real_over_sim": 1.847
+    },
+    "upgrade_magic_shock": {
+     "name": "Tankbuster",
+     "kind": "item",
+     "real_share": 0.0441,
+     "sim_share": 0.0371,
+     "real_over_sim": 2.185
+    },
+    "upgrade_spirit_burn": {
+     "name": "Spirit Burn",
+     "kind": "item",
+     "real_share": 0.0323,
+     "sim_share": 0.0289,
+     "real_over_sim": 2.055
+    },
+    "MELEE": {
+     "name": "MELEE",
+     "kind": "melee",
+     "real_share": 0.0223,
+     "sim_share": 0.0227,
+     "real_over_sim": 1.804
+    },
+    "upgrade_mystic_reverb": {
+     "name": "Mystic Reverb",
+     "kind": "item",
+     "real_share": 0.0115,
+     "sim_share": 0.0063,
+     "real_over_sim": 3.378
+    },
+    "citadel_ability_shiv_defer_damage": {
+     "name": "citadel_ability_shiv_defer_damage",
+     "kind": "other",
+     "real_share": 0.0106,
+     "sim_share": 0.0,
+     "real_over_sim": null
     }
    }
   },
@@ -717,9 +724,9 @@
     "other": 0.0146
    },
    "sim_mix": {
-    "gun": 0.1959,
+    "gun": 0.1957,
     "ability": 0.4302,
-    "item": 0.3692,
+    "item": 0.3693,
     "melee": 0.0,
     "other": 0.0047
    },
@@ -729,43 +736,43 @@
      "name": "Jar of Dead",
      "kind": "ability",
      "real_share": 0.2123,
-     "sim_share": 0.2095,
-     "real_over_sim": 1.011
+     "sim_share": 0.2097,
+     "real_over_sim": 1.009
     },
     "ability_necro_gravestone": {
      "name": "Borrowed Decree",
      "kind": "ability",
      "real_share": 0.1948,
-     "sim_share": 0.1647,
-     "real_over_sim": 1.18
+     "sim_share": 0.1644,
+     "real_over_sim": 1.181
     },
     "ability_necro_zombiewall": {
      "name": "Grasping Hands",
      "kind": "ability",
      "real_share": 0.0881,
-     "sim_share": 0.056,
-     "real_over_sim": 1.57
+     "sim_share": 0.0561,
+     "real_over_sim": 1.565
     },
     "upgrade_toxic_bullets": {
      "name": "Toxic Bullets",
      "kind": "item",
      "real_share": 0.0617,
-     "sim_share": 0.065,
-     "real_over_sim": 0.947
+     "sim_share": 0.0649,
+     "real_over_sim": 0.949
     },
     "upgrade_capacitor": {
      "name": "Capacitor",
      "kind": "item",
      "real_share": 0.0552,
-     "sim_share": 0.0744,
-     "real_over_sim": 0.74
+     "sim_share": 0.0742,
+     "real_over_sim": 0.741
     },
     "upgrade_chain_lightning": {
      "name": "Tesla Bullets",
      "kind": "item",
      "real_share": 0.0522,
-     "sim_share": 0.0741,
-     "real_over_sim": 0.703
+     "sim_share": 0.0739,
+     "real_over_sim": 0.705
     },
     "upgrade_tech_damage_pulse": {
      "name": "Torment Pulse",
@@ -778,8 +785,8 @@
      "name": "Mystic Shot",
      "kind": "item",
      "real_share": 0.0333,
-     "sim_share": 0.0639,
-     "real_over_sim": 0.52
+     "sim_share": 0.0637,
+     "real_over_sim": 0.521
     },
     "MELEE": {
      "name": "MELEE",
@@ -792,8 +799,8 @@
      "name": "Siphon Bullets",
      "kind": "item",
      "real_share": 0.0111,
-     "sim_share": 0.0189,
-     "real_over_sim": 0.585
+     "sim_share": 0.0188,
+     "real_over_sim": 0.586
     },
     "upgrade_escalating_exposure": {
      "name": "Escalating Exposure",
@@ -814,10 +821,10 @@
     "other": 0.0128
    },
    "sim_mix": {
-    "gun": 0.3952,
-    "ability": 0.5501,
+    "gun": 0.3954,
+    "ability": 0.5499,
     "item": 0.0309,
-    "melee": 0.0238,
+    "melee": 0.0239,
     "other": 0.0
    },
    "mix_distance": 0.093,
@@ -826,8 +833,8 @@
      "name": "Bookwyrm",
      "kind": "ability",
      "real_share": 0.3201,
-     "sim_share": 0.3424,
-     "real_over_sim": 1.062
+     "sim_share": 0.3422,
+     "real_over_sim": 1.063
     },
     "ability_bookworm_aoemagic": {
      "name": "Captivating Read",
@@ -854,7 +861,7 @@
      "name": "MELEE",
      "kind": "melee",
      "real_share": 0.0267,
-     "sim_share": 0.0238,
+     "sim_share": 0.0239,
      "real_over_sim": 1.271
     },
     "upgrade_magic_shock": {
@@ -876,9 +883,9 @@
     "other": 0.015
    },
    "sim_mix": {
-    "gun": 0.5469,
+    "gun": 0.547,
     "ability": 0.2564,
-    "item": 0.1739,
+    "item": 0.1738,
     "melee": 0.02,
     "other": 0.0027
    },
@@ -888,57 +895,57 @@
      "name": "Lethal Venom",
      "kind": "ability",
      "real_share": 0.1117,
-     "sim_share": 0.0987,
-     "real_over_sim": 1.352
+     "sim_share": 0.0988,
+     "real_over_sim": 1.351
     },
     "upgrade_split_shot": {
      "name": "Split Shot",
      "kind": "item",
      "real_share": 0.1095,
-     "sim_share": 0.0484,
-     "real_over_sim": 2.702
+     "sim_share": 0.0485,
+     "real_over_sim": 2.7
     },
     "ability_viper_petrifybola": {
      "name": "Petrifying Bola",
      "kind": "ability",
      "real_share": 0.0796,
-     "sim_share": 0.0846,
-     "real_over_sim": 1.123
+     "sim_share": 0.0847,
+     "real_over_sim": 1.122
     },
     "ability_viper_debuffdagger": {
      "name": "Screwjab Dagger",
      "kind": "ability",
      "real_share": 0.0734,
-     "sim_share": 0.0732,
-     "real_over_sim": 1.197
+     "sim_share": 0.073,
+     "real_over_sim": 1.2
     },
     "upgrade_ethereal_bullets": {
      "name": "Mercurial Magnum",
      "kind": "item",
      "real_share": 0.054,
-     "sim_share": 0.0303,
-     "real_over_sim": 2.124
+     "sim_share": 0.0304,
+     "real_over_sim": 2.122
     },
     "upgrade_chain_lightning": {
      "name": "Tesla Bullets",
      "kind": "item",
      "real_share": 0.0438,
-     "sim_share": 0.048,
-     "real_over_sim": 1.089
+     "sim_share": 0.0478,
+     "real_over_sim": 1.093
     },
     "MELEE": {
      "name": "MELEE",
      "kind": "melee",
      "real_share": 0.017,
      "sim_share": 0.02,
-     "real_over_sim": 1.01
+     "real_over_sim": 1.011
     },
     "upgrade_capacitor": {
      "name": "Capacitor",
      "kind": "item",
      "real_share": 0.0166,
      "sim_share": 0.0232,
-     "real_over_sim": 0.851
+     "real_over_sim": 0.85
     }
    }
   },
@@ -1028,9 +1035,9 @@
     "other": 0.0088
    },
    "sim_mix": {
-    "gun": 0.3482,
-    "ability": 0.5358,
-    "item": 0.0626,
+    "gun": 0.3481,
+    "ability": 0.5361,
+    "item": 0.0625,
     "melee": 0.045,
     "other": 0.0084
    },
@@ -1040,36 +1047,36 @@
      "name": "Leech Therapy",
      "kind": "ability",
      "real_share": 0.3116,
-     "sim_share": 0.295,
-     "real_over_sim": 1.268
+     "sim_share": 0.2952,
+     "real_over_sim": 1.267
     },
     "ability_nurse_fear": {
      "name": "Lurking Terrors",
      "kind": "ability",
      "real_share": 0.3002,
-     "sim_share": 0.2408,
-     "real_over_sim": 1.497
+     "sim_share": 0.2409,
+     "real_over_sim": 1.496
     },
     "MELEE": {
      "name": "MELEE",
      "kind": "melee",
      "real_share": 0.0317,
      "sim_share": 0.045,
-     "real_over_sim": 0.846
+     "real_over_sim": 0.847
     },
     "upgrade_toxic_bullets": {
      "name": "Toxic Bullets",
      "kind": "item",
      "real_share": 0.025,
      "sim_share": 0.0219,
-     "real_over_sim": 1.374
+     "real_over_sim": 1.373
     },
     "upgrade_rupture": {
      "name": "Decay",
      "kind": "item",
      "real_share": 0.015,
      "sim_share": 0.025,
-     "real_over_sim": 0.719
+     "real_over_sim": 0.718
     }
    }
   },
@@ -1156,110 +1163,6 @@
     }
    }
   },
-  "Bebop": {
-   "players": 254,
-   "real_mix": {
-    "gun": 0.1801,
-    "ability": 0.5612,
-    "item": 0.1879,
-    "melee": 0.0489,
-    "other": 0.0219
-   },
-   "sim_mix": {
-    "gun": 0.1654,
-    "ability": 0.6266,
-    "item": 0.1696,
-    "melee": 0.0325,
-    "other": 0.0059
-   },
-   "mix_distance": 0.065,
-   "sources": {
-    "citadel_ability_sticky_bomb": {
-     "name": "Sticky Bomb",
-     "kind": "ability",
-     "real_share": 0.2772,
-     "sim_share": 0.3213,
-     "real_over_sim": 0.792
-    },
-    "citadel_ability_bebop_laser_beam": {
-     "name": "Hyper Beam",
-     "kind": "ability",
-     "real_share": 0.1286,
-     "sim_share": 0.1963,
-     "real_over_sim": 0.601
-    },
-    "citadel_ability_uppercut": {
-     "name": "Exploding Uppercut",
-     "kind": "ability",
-     "real_share": 0.1098,
-     "sim_share": 0.109,
-     "real_over_sim": 0.924
-    },
-    "upgrade_headhunter": {
-     "name": "Headhunter",
-     "kind": "item",
-     "real_share": 0.0537,
-     "sim_share": 0.0633,
-     "real_over_sim": 0.778
-    },
-    "MELEE": {
-     "name": "MELEE",
-     "kind": "melee",
-     "real_share": 0.0489,
-     "sim_share": 0.0325,
-     "real_over_sim": 1.382
-    },
-    "citadel_ability_hook": {
-     "name": "Grapple Arm",
-     "kind": "ability",
-     "real_share": 0.0457,
-     "sim_share": 0.0,
-     "real_over_sim": null
-    },
-    "upgrade_spirit_snatch": {
-     "name": "Spirit Snatch",
-     "kind": "item",
-     "real_share": 0.0288,
-     "sim_share": 0.0105,
-     "real_over_sim": 2.502
-    },
-    "upgrade_weapon_backstabber": {
-     "name": "Stalker",
-     "kind": "item",
-     "real_share": 0.0203,
-     "sim_share": 0.0246,
-     "real_over_sim": 0.756
-    },
-    "upgrade_acolytes_glove": {
-     "name": "Spirit Strike",
-     "kind": "item",
-     "real_share": 0.0136,
-     "sim_share": 0.0053,
-     "real_over_sim": 2.384
-    },
-    "upgrade_magic_burst": {
-     "name": "Mystic Burst",
-     "kind": "item",
-     "real_share": 0.0116,
-     "sim_share": 0.0093,
-     "real_over_sim": 1.138
-    },
-    "ability_nurse_adrenaline_rush": {
-     "name": "ability_nurse_adrenaline_rush",
-     "kind": "other",
-     "real_share": 0.011,
-     "sim_share": 0.0,
-     "real_over_sim": null
-    },
-    "upgrade_magic_shock": {
-     "name": "Tankbuster",
-     "kind": "item",
-     "real_share": 0.0102,
-     "sim_share": 0.0127,
-     "real_over_sim": 0.737
-    }
-   }
-  },
   "Seven": {
    "players": 95,
    "real_mix": {
@@ -1325,7 +1228,7 @@
      "kind": "melee",
      "real_share": 0.0162,
      "sim_share": 0.0184,
-     "real_over_sim": 0.947
+     "real_over_sim": 0.948
     },
     "citadel_ability_gigawatt_lightning_strike": {
      "name": "citadel_ability_gigawatt_lightning_strike",
@@ -1358,15 +1261,15 @@
      "name": "Fixation",
      "kind": "ability",
      "real_share": 0.3036,
-     "sim_share": 0.3315,
-     "real_over_sim": 0.921
+     "sim_share": 0.3314,
+     "real_over_sim": 0.922
     },
     "ability_bullet_flurry": {
      "name": "Bullet Dance",
      "kind": "ability",
      "real_share": 0.1237,
-     "sim_share": 0.155,
-     "real_over_sim": 0.803
+     "sim_share": 0.1551,
+     "real_over_sim": 0.802
     },
     "ability_sleep_dagger": {
      "name": "Sleep Dagger",
@@ -1387,7 +1290,7 @@
      "kind": "item",
      "real_share": 0.0267,
      "sim_share": 0.0121,
-     "real_over_sim": 2.224
+     "real_over_sim": 2.223
     },
     "upgrade_capacitor": {
      "name": "Capacitor",
@@ -1407,15 +1310,15 @@
      "name": "Siphon Bullets",
      "kind": "item",
      "real_share": 0.0131,
-     "sim_share": 0.0121,
-     "real_over_sim": 1.091
+     "sim_share": 0.012,
+     "real_over_sim": 1.095
     },
     "citadel_ability_shiv_defer_damage": {
      "name": "citadel_ability_shiv_defer_damage",
      "kind": "other",
      "real_share": 0.0081,
      "sim_share": 0.0103,
-     "real_over_sim": 0.784
+     "real_over_sim": 0.783
     }
    }
   },
@@ -1509,6 +1412,117 @@
     }
    }
   },
+  "Bebop": {
+   "players": 254,
+   "real_mix": {
+    "gun": 0.1801,
+    "ability": 0.5612,
+    "item": 0.1879,
+    "melee": 0.0489,
+    "other": 0.0219
+   },
+   "sim_mix": {
+    "gun": 0.1642,
+    "ability": 0.6225,
+    "item": 0.1751,
+    "melee": 0.0323,
+    "other": 0.0059
+   },
+   "mix_distance": 0.061,
+   "sources": {
+    "citadel_ability_sticky_bomb": {
+     "name": "Sticky Bomb",
+     "kind": "ability",
+     "real_share": 0.2772,
+     "sim_share": 0.3194,
+     "real_over_sim": 0.791
+    },
+    "citadel_ability_bebop_laser_beam": {
+     "name": "Hyper Beam",
+     "kind": "ability",
+     "real_share": 0.1286,
+     "sim_share": 0.1948,
+     "real_over_sim": 0.602
+    },
+    "citadel_ability_uppercut": {
+     "name": "Exploding Uppercut",
+     "kind": "ability",
+     "real_share": 0.1098,
+     "sim_share": 0.1083,
+     "real_over_sim": 0.924
+    },
+    "upgrade_headhunter": {
+     "name": "Headhunter",
+     "kind": "item",
+     "real_share": 0.0537,
+     "sim_share": 0.063,
+     "real_over_sim": 0.777
+    },
+    "MELEE": {
+     "name": "MELEE",
+     "kind": "melee",
+     "real_share": 0.0489,
+     "sim_share": 0.0323,
+     "real_over_sim": 1.383
+    },
+    "citadel_ability_hook": {
+     "name": "Grapple Arm",
+     "kind": "ability",
+     "real_share": 0.0457,
+     "sim_share": 0.0,
+     "real_over_sim": null
+    },
+    "upgrade_spirit_snatch": {
+     "name": "Spirit Snatch",
+     "kind": "item",
+     "real_share": 0.0288,
+     "sim_share": 0.0106,
+     "real_over_sim": 2.478
+    },
+    "upgrade_weapon_backstabber": {
+     "name": "Stalker",
+     "kind": "item",
+     "real_share": 0.0203,
+     "sim_share": 0.0245,
+     "real_over_sim": 0.755
+    },
+    "upgrade_acolytes_glove": {
+     "name": "Spirit Strike",
+     "kind": "item",
+     "real_share": 0.0136,
+     "sim_share": 0.0052,
+     "real_over_sim": 2.382
+    },
+    "upgrade_magic_burst": {
+     "name": "Mystic Burst",
+     "kind": "item",
+     "real_share": 0.0116,
+     "sim_share": 0.0093,
+     "real_over_sim": 1.137
+    },
+    "ability_nurse_adrenaline_rush": {
+     "name": "ability_nurse_adrenaline_rush",
+     "kind": "other",
+     "real_share": 0.011,
+     "sim_share": 0.0,
+     "real_over_sim": null
+    },
+    "upgrade_magic_shock": {
+     "name": "Tankbuster",
+     "kind": "item",
+     "real_share": 0.0102,
+     "sim_share": 0.0126,
+     "real_over_sim": 0.74
+    },
+    "upgrade_mystic_reverb": {
+     "name": "Mystic Reverb",
+     "kind": "item",
+     "real_share": 0.0082,
+     "sim_share": 0.0128,
+     "real_over_sim": 0.584
+    }
+   }
+  },
   "Celeste": {
    "players": 77,
    "real_mix": {
@@ -1519,62 +1533,62 @@
     "other": 0.0221
    },
    "sim_mix": {
-    "gun": 0.1884,
-    "ability": 0.6302,
-    "item": 0.1216,
+    "gun": 0.1885,
+    "ability": 0.6304,
+    "item": 0.1214,
     "melee": 0.0517,
     "other": 0.0081
    },
-   "mix_distance": 0.06,
+   "mix_distance": 0.061,
    "sources": {
     "ability_unicorn_radiantblast": {
      "name": "Light Eater",
      "kind": "ability",
      "real_share": 0.2201,
-     "sim_share": 0.2573,
+     "sim_share": 0.2575,
      "real_over_sim": 1.021
     },
     "ability_unicorn_luminousstrike": {
      "name": "Radiant Daggers",
      "kind": "ability",
      "real_share": 0.1839,
-     "sim_share": 0.1909,
+     "sim_share": 0.191,
      "real_over_sim": 1.15
     },
     "ability_unicorn_dazzlingorb": {
      "name": "Shining Wonder",
      "kind": "ability",
      "real_share": 0.1704,
-     "sim_share": 0.1516,
-     "real_over_sim": 1.341
+     "sim_share": 0.1517,
+     "real_over_sim": 1.342
     },
     "upgrade_tech_damage_pulse": {
      "name": "Torment Pulse",
      "kind": "item",
      "real_share": 0.0981,
-     "sim_share": 0.0943,
-     "real_over_sim": 1.241
+     "sim_share": 0.094,
+     "real_over_sim": 1.246
     },
     "MELEE": {
      "name": "MELEE",
      "kind": "melee",
      "real_share": 0.0421,
      "sim_share": 0.0517,
-     "real_over_sim": 0.971
+     "real_over_sim": 0.974
     },
     "ability_unicorn_prismaticguard": {
      "name": "Dazzling Trick",
      "kind": "ability",
      "real_share": 0.0354,
-     "sim_share": 0.0305,
-     "real_over_sim": 1.388
+     "sim_share": 0.0302,
+     "real_over_sim": 1.401
     },
     "upgrade_magic_shock": {
      "name": "Tankbuster",
      "kind": "item",
      "real_share": 0.0303,
      "sim_share": 0.0059,
-     "real_over_sim": 6.152
+     "real_over_sim": 6.153
     },
     "upgrade_escalating_exposure": {
      "name": "Escalating Exposure",
@@ -1686,7 +1700,7 @@
    },
    "sim_mix": {
     "gun": 0.2964,
-    "ability": 0.5548,
+    "ability": 0.5547,
     "item": 0.092,
     "melee": 0.0551,
     "other": 0.0017
@@ -1698,7 +1712,7 @@
      "kind": "ability",
      "real_share": 0.3973,
      "sim_share": 0.4073,
-     "real_over_sim": 1.085
+     "real_over_sim": 1.086
     },
     "ability_crackshot": {
      "name": "Crackshot",
@@ -1744,117 +1758,6 @@
     }
    }
   },
-  "Lash": {
-   "players": 216,
-   "real_mix": {
-    "gun": 0.132,
-    "ability": 0.5755,
-    "item": 0.2481,
-    "melee": 0.0272,
-    "other": 0.0171
-   },
-   "sim_mix": {
-    "gun": 0.1472,
-    "ability": 0.6015,
-    "item": 0.2133,
-    "melee": 0.0323,
-    "other": 0.0057
-   },
-   "mix_distance": 0.046,
-   "sources": {
-    "citadel_ability_lash_down_strike": {
-     "name": "Ground Strike",
-     "kind": "ability",
-     "real_share": 0.3498,
-     "sim_share": 0.3648,
-     "real_over_sim": 1.069
-    },
-    "ability_lash_flog": {
-     "name": "Flog",
-     "kind": "ability",
-     "real_share": 0.1797,
-     "sim_share": 0.1883,
-     "real_over_sim": 1.064
-    },
-    "upgrade_magic_shock": {
-     "name": "Tankbuster",
-     "kind": "item",
-     "real_share": 0.0943,
-     "sim_share": 0.07,
-     "real_over_sim": 1.502
-    },
-    "citadel_ability_lash_ultimate": {
-     "name": "Death Slam",
-     "kind": "ability",
-     "real_share": 0.0461,
-     "sim_share": 0.0484,
-     "real_over_sim": 1.061
-    },
-    "upgrade_headhunter": {
-     "name": "Headhunter",
-     "kind": "item",
-     "real_share": 0.0306,
-     "sim_share": 0.0388,
-     "real_over_sim": 0.879
-    },
-    "upgrade_quick_silver": {
-     "name": "Quicksilver Reload",
-     "kind": "item",
-     "real_share": 0.0289,
-     "sim_share": 0.0165,
-     "real_over_sim": 1.954
-    },
-    "MELEE": {
-     "name": "MELEE",
-     "kind": "melee",
-     "real_share": 0.0272,
-     "sim_share": 0.0323,
-     "real_over_sim": 0.939
-    },
-    "upgrade_magic_burst": {
-     "name": "Mystic Burst",
-     "kind": "item",
-     "real_share": 0.0231,
-     "sim_share": 0.0146,
-     "real_over_sim": 1.765
-    },
-    "upgrade_crackshot": {
-     "name": "Mystic Shot",
-     "kind": "item",
-     "real_share": 0.0191,
-     "sim_share": 0.0321,
-     "real_over_sim": 0.663
-    },
-    "upgrade_spirit_burn": {
-     "name": "Spirit Burn",
-     "kind": "item",
-     "real_share": 0.0129,
-     "sim_share": 0.0109,
-     "real_over_sim": 1.327
-    },
-    "upgrade_cold_front": {
-     "name": "Cold Front",
-     "kind": "item",
-     "real_share": 0.0127,
-     "sim_share": 0.0144,
-     "real_over_sim": 0.987
-    },
-    "upgrade_headshot_booster": {
-     "name": "Headshot Booster",
-     "kind": "item",
-     "real_share": 0.0119,
-     "sim_share": 0.0101,
-     "real_over_sim": 1.309
-    },
-    "upgrade_mystic_reverb": {
-     "name": "Mystic Reverb",
-     "kind": "item",
-     "real_share": 0.0106,
-     "sim_share": 0.0023,
-     "real_over_sim": 5.27
-    }
-   }
-  },
   "Solomon": {
    "players": 42,
    "real_mix": {
@@ -1865,10 +1768,10 @@
     "other": 0.0162
    },
    "sim_mix": {
-    "gun": 0.3983,
-    "ability": 0.5431,
+    "gun": 0.3985,
+    "ability": 0.5428,
     "item": 0.0358,
-    "melee": 0.0206,
+    "melee": 0.0207,
     "other": 0.0022
    },
    "mix_distance": 0.046,
@@ -1877,36 +1780,147 @@
      "name": "Setup Bishop",
      "kind": "ability",
      "real_share": 0.2301,
-     "sim_share": 0.2642,
+     "sim_share": 0.2641,
      "real_over_sim": 0.944
     },
     "ability_chessmaster_forkpiece": {
      "name": "Rook Battery",
      "kind": "ability",
      "real_share": 0.1667,
-     "sim_share": 0.1522,
-     "real_over_sim": 1.187
+     "sim_share": 0.152,
+     "real_over_sim": 1.189
     },
     "ability_chessmaster_queen": {
      "name": "Develop Queen",
      "kind": "ability",
      "real_share": 0.1408,
-     "sim_share": 0.1267,
-     "real_over_sim": 1.204
+     "sim_share": 0.1268,
+     "real_over_sim": 1.205
     },
     "upgrade_magic_shock": {
      "name": "Tankbuster",
      "kind": "item",
      "real_share": 0.0465,
      "sim_share": 0.015,
-     "real_over_sim": 3.353
+     "real_over_sim": 3.352
     },
     "MELEE": {
      "name": "MELEE",
      "kind": "melee",
      "real_share": 0.0104,
-     "sim_share": 0.0206,
-     "real_over_sim": 0.546
+     "sim_share": 0.0207,
+     "real_over_sim": 0.545
+    }
+   }
+  },
+  "Lash": {
+   "players": 216,
+   "real_mix": {
+    "gun": 0.132,
+    "ability": 0.5755,
+    "item": 0.2481,
+    "melee": 0.0272,
+    "other": 0.0171
+   },
+   "sim_mix": {
+    "gun": 0.1469,
+    "ability": 0.5993,
+    "item": 0.2162,
+    "melee": 0.0322,
+    "other": 0.0054
+   },
+   "mix_distance": 0.044,
+   "sources": {
+    "citadel_ability_lash_down_strike": {
+     "name": "Ground Strike",
+     "kind": "ability",
+     "real_share": 0.3498,
+     "sim_share": 0.3634,
+     "real_over_sim": 1.071
+    },
+    "ability_lash_flog": {
+     "name": "Flog",
+     "kind": "ability",
+     "real_share": 0.1797,
+     "sim_share": 0.1878,
+     "real_over_sim": 1.065
+    },
+    "upgrade_magic_shock": {
+     "name": "Tankbuster",
+     "kind": "item",
+     "real_share": 0.0943,
+     "sim_share": 0.0697,
+     "real_over_sim": 1.505
+    },
+    "citadel_ability_lash_ultimate": {
+     "name": "Death Slam",
+     "kind": "ability",
+     "real_share": 0.0461,
+     "sim_share": 0.0481,
+     "real_over_sim": 1.065
+    },
+    "upgrade_headhunter": {
+     "name": "Headhunter",
+     "kind": "item",
+     "real_share": 0.0306,
+     "sim_share": 0.0387,
+     "real_over_sim": 0.878
+    },
+    "upgrade_quick_silver": {
+     "name": "Quicksilver Reload",
+     "kind": "item",
+     "real_share": 0.0289,
+     "sim_share": 0.0164,
+     "real_over_sim": 1.955
+    },
+    "MELEE": {
+     "name": "MELEE",
+     "kind": "melee",
+     "real_share": 0.0272,
+     "sim_share": 0.0322,
+     "real_over_sim": 0.938
+    },
+    "upgrade_magic_burst": {
+     "name": "Mystic Burst",
+     "kind": "item",
+     "real_share": 0.0231,
+     "sim_share": 0.0146,
+     "real_over_sim": 1.766
+    },
+    "upgrade_crackshot": {
+     "name": "Mystic Shot",
+     "kind": "item",
+     "real_share": 0.0191,
+     "sim_share": 0.0321,
+     "real_over_sim": 0.661
+    },
+    "upgrade_spirit_burn": {
+     "name": "Spirit Burn",
+     "kind": "item",
+     "real_share": 0.0129,
+     "sim_share": 0.0108,
+     "real_over_sim": 1.327
+    },
+    "upgrade_cold_front": {
+     "name": "Cold Front",
+     "kind": "item",
+     "real_share": 0.0127,
+     "sim_share": 0.0143,
+     "real_over_sim": 0.987
+    },
+    "upgrade_headshot_booster": {
+     "name": "Headshot Booster",
+     "kind": "item",
+     "real_share": 0.0119,
+     "sim_share": 0.0101,
+     "real_over_sim": 1.31
+    },
+    "upgrade_mystic_reverb": {
+     "name": "Mystic Reverb",
+     "kind": "item",
+     "real_share": 0.0106,
+     "sim_share": 0.0056,
+     "real_over_sim": 2.098
     }
    }
   },
@@ -1920,34 +1934,34 @@
     "other": 0.0162
    },
    "sim_mix": {
-    "gun": 0.1896,
-    "ability": 0.7323,
-    "item": 0.0171,
-    "melee": 0.0547,
-    "other": 0.0063
+    "gun": 0.1895,
+    "ability": 0.7293,
+    "item": 0.0205,
+    "melee": 0.0544,
+    "other": 0.0064
    },
-   "mix_distance": 0.044,
+   "mix_distance": 0.043,
    "sources": {
     "ability_magician_magicbolt": {
      "name": "Vexing Bolt",
      "kind": "ability",
      "real_share": 0.3167,
-     "sim_share": 0.3005,
-     "real_over_sim": 1.2
+     "sim_share": 0.2982,
+     "real_over_sim": 1.209
     },
     "ability_magician_cloneturret": {
      "name": "Spectral Assistant",
      "kind": "ability",
      "real_share": 0.2,
-     "sim_share": 0.2182,
-     "real_over_sim": 1.044
+     "sim_share": 0.2168,
+     "real_over_sim": 1.051
     },
     "ability_magician_copyult": {
      "name": "Audience Participation",
      "kind": "ability",
      "real_share": 0.1965,
-     "sim_share": 0.2136,
-     "real_over_sim": 1.048
+     "sim_share": 0.2143,
+     "real_over_sim": 1.044
     },
     "ability_magician_animalhexarea": {
      "name": "Rabbit Hex",
@@ -1960,98 +1974,15 @@
      "name": "MELEE",
      "kind": "melee",
      "real_share": 0.0343,
-     "sim_share": 0.0547,
-     "real_over_sim": 0.715
+     "sim_share": 0.0544,
+     "real_over_sim": 0.719
     },
     "citadel_ability_shiv_defer_damage": {
      "name": "citadel_ability_shiv_defer_damage",
      "kind": "other",
      "real_share": 0.0135,
-     "sim_share": 0.0063,
-     "real_over_sim": 2.43
-    }
-   }
-  },
-  "Grey Talon": {
-   "players": 103,
-   "real_mix": {
-    "gun": 0.3124,
-    "ability": 0.494,
-    "item": 0.1601,
-    "melee": 0.0128,
-    "other": 0.0207
-   },
-   "sim_mix": {
-    "gun": 0.3043,
-    "ability": 0.5362,
-    "item": 0.138,
-    "melee": 0.0104,
-    "other": 0.011
-   },
-   "mix_distance": 0.042,
-   "sources": {
-    "ability_charged_shot": {
-     "name": "Charged Shot",
-     "kind": "ability",
-     "real_share": 0.3514,
-     "sim_share": 0.373,
-     "real_over_sim": 0.918
-    },
-    "ability_guided_arrow": {
-     "name": "Guided Owl",
-     "kind": "ability",
-     "real_share": 0.1352,
-     "sim_share": 0.1562,
-     "real_over_sim": 0.843
-    },
-    "upgrade_magic_shock": {
-     "name": "Tankbuster",
-     "kind": "item",
-     "real_share": 0.0712,
-     "sim_share": 0.061,
-     "real_over_sim": 1.137
-    },
-    "upgrade_mystic_reverb": {
-     "name": "Mystic Reverb",
-     "kind": "item",
-     "real_share": 0.0238,
-     "sim_share": 0.0151,
-     "real_over_sim": 1.533
-    },
-    "upgrade_crackshot": {
-     "name": "Mystic Shot",
-     "kind": "item",
-     "real_share": 0.0226,
-     "sim_share": 0.0306,
-     "real_over_sim": 0.72
-    },
-    "upgrade_magic_burst": {
-     "name": "Mystic Burst",
-     "kind": "item",
-     "real_share": 0.0187,
-     "sim_share": 0.0127,
-     "real_over_sim": 1.438
-    },
-    "upgrade_spirit_burn": {
-     "name": "Spirit Burn",
-     "kind": "item",
-     "real_share": 0.018,
-     "sim_share": 0.0141,
-     "real_over_sim": 1.248
-    },
-    "MELEE": {
-     "name": "MELEE",
-     "kind": "melee",
-     "real_share": 0.0128,
-     "sim_share": 0.0104,
-     "real_over_sim": 1.191
-    },
-    "citadel_ability_shiv_defer_damage": {
-     "name": "citadel_ability_shiv_defer_damage",
-     "kind": "other",
-     "real_share": 0.0104,
-     "sim_share": 0.011,
-     "real_over_sim": 0.921
+     "sim_share": 0.0064,
+     "real_over_sim": 2.421
     }
    }
   },
@@ -2065,11 +1996,11 @@
     "other": 0.02
    },
    "sim_mix": {
-    "gun": 0.2725,
-    "ability": 0.4598,
-    "item": 0.1368,
-    "melee": 0.1224,
-    "other": 0.0085
+    "gun": 0.2724,
+    "ability": 0.4602,
+    "item": 0.1371,
+    "melee": 0.122,
+    "other": 0.0083
    },
    "mix_distance": 0.041,
    "sources": {
@@ -2077,22 +2008,22 @@
      "name": "Rend",
      "kind": "ability",
      "real_share": 0.228,
-     "sim_share": 0.2459,
-     "real_over_sim": 0.973
+     "sim_share": 0.2462,
+     "real_over_sim": 0.972
     },
     "drifter_shadow_mark": {
      "name": "Stalker's Mark",
      "kind": "ability",
      "real_share": 0.1338,
-     "sim_share": 0.133,
-     "real_over_sim": 1.056
+     "sim_share": 0.1331,
+     "real_over_sim": 1.055
     },
     "MELEE": {
      "name": "MELEE",
      "kind": "melee",
      "real_share": 0.1135,
-     "sim_share": 0.1224,
-     "real_over_sim": 0.973
+     "sim_share": 0.122,
+     "real_over_sim": 0.976
     },
     "ability_drifter_hunger": {
      "name": "Bloodscent",
@@ -2105,8 +2036,8 @@
      "name": "Spirit Snatch",
      "kind": "item",
      "real_share": 0.039,
-     "sim_share": 0.0366,
-     "real_over_sim": 1.12
+     "sim_share": 0.0367,
+     "real_over_sim": 1.115
     },
     "upgrade_weapon_backstabber": {
      "name": "Stalker",
@@ -2119,8 +2050,8 @@
      "name": "Tankbuster",
      "kind": "item",
      "real_share": 0.0333,
-     "sim_share": 0.0211,
-     "real_over_sim": 1.656
+     "sim_share": 0.0212,
+     "real_over_sim": 1.647
     }
    }
   },
@@ -2134,11 +2065,11 @@
     "other": 0.0167
    },
    "sim_mix": {
-    "gun": 0.1807,
+    "gun": 0.1805,
     "ability": 0.6348,
-    "item": 0.1268,
+    "item": 0.127,
     "melee": 0.0391,
-    "other": 0.0185
+    "other": 0.0186
    },
    "mix_distance": 0.037,
    "sources": {
@@ -2146,22 +2077,22 @@
      "name": "Aura of Suffering",
      "kind": "ability",
      "real_share": 0.3062,
-     "sim_share": 0.3248,
-     "real_over_sim": 1.113
+     "sim_share": 0.3232,
+     "real_over_sim": 1.117
     },
     "ability_frank_shocktarget2": {
      "name": "Pain Battery",
      "kind": "ability",
      "real_share": 0.2759,
-     "sim_share": 0.2793,
-     "real_over_sim": 1.166
+     "sim_share": 0.2785,
+     "real_over_sim": 1.167
     },
     "upgrade_tech_damage_pulse": {
      "name": "Torment Pulse",
      "kind": "item",
      "real_share": 0.0726,
-     "sim_share": 0.1085,
-     "real_over_sim": 0.79
+     "sim_share": 0.108,
+     "real_over_sim": 0.791
     },
     "upgrade_escalating_exposure": {
      "name": "Escalating Exposure",
@@ -2174,22 +2105,105 @@
      "name": "Shocking Reanimation",
      "kind": "ability",
      "real_share": 0.0582,
-     "sim_share": 0.0307,
-     "real_over_sim": 2.235
+     "sim_share": 0.0331,
+     "real_over_sim": 2.071
     },
     "MELEE": {
      "name": "MELEE",
      "kind": "melee",
      "real_share": 0.0315,
      "sim_share": 0.0391,
-     "real_over_sim": 0.952
+     "real_over_sim": 0.95
     },
     "citadel_ability_shiv_defer_damage": {
      "name": "citadel_ability_shiv_defer_damage",
      "kind": "other",
      "real_share": 0.011,
-     "sim_share": 0.0185,
-     "real_over_sim": 0.7
+     "sim_share": 0.0186,
+     "real_over_sim": 0.695
+    }
+   }
+  },
+  "Grey Talon": {
+   "players": 103,
+   "real_mix": {
+    "gun": 0.3124,
+    "ability": 0.494,
+    "item": 0.1601,
+    "melee": 0.0128,
+    "other": 0.0207
+   },
+   "sim_mix": {
+    "gun": 0.2997,
+    "ability": 0.529,
+    "item": 0.149,
+    "melee": 0.0103,
+    "other": 0.012
+   },
+   "mix_distance": 0.035,
+   "sources": {
+    "ability_charged_shot": {
+     "name": "Charged Shot",
+     "kind": "ability",
+     "real_share": 0.3514,
+     "sim_share": 0.3685,
+     "real_over_sim": 0.915
+    },
+    "ability_guided_arrow": {
+     "name": "Guided Owl",
+     "kind": "ability",
+     "real_share": 0.1352,
+     "sim_share": 0.1536,
+     "real_over_sim": 0.845
+    },
+    "upgrade_magic_shock": {
+     "name": "Tankbuster",
+     "kind": "item",
+     "real_share": 0.0712,
+     "sim_share": 0.0604,
+     "real_over_sim": 1.132
+    },
+    "upgrade_mystic_reverb": {
+     "name": "Mystic Reverb",
+     "kind": "item",
+     "real_share": 0.0238,
+     "sim_share": 0.0277,
+     "real_over_sim": 0.826
+    },
+    "upgrade_crackshot": {
+     "name": "Mystic Shot",
+     "kind": "item",
+     "real_share": 0.0226,
+     "sim_share": 0.0302,
+     "real_over_sim": 0.719
+    },
+    "upgrade_magic_burst": {
+     "name": "Mystic Burst",
+     "kind": "item",
+     "real_share": 0.0187,
+     "sim_share": 0.0126,
+     "real_over_sim": 1.43
+    },
+    "upgrade_spirit_burn": {
+     "name": "Spirit Burn",
+     "kind": "item",
+     "real_share": 0.018,
+     "sim_share": 0.0138,
+     "real_over_sim": 1.257
+    },
+    "MELEE": {
+     "name": "MELEE",
+     "kind": "melee",
+     "real_share": 0.0128,
+     "sim_share": 0.0103,
+     "real_over_sim": 1.186
+    },
+    "citadel_ability_shiv_defer_damage": {
+     "name": "citadel_ability_shiv_defer_damage",
+     "kind": "other",
+     "real_share": 0.0104,
+     "sim_share": 0.012,
+     "real_over_sim": 0.834
     }
    }
   },
@@ -2204,9 +2218,9 @@
    },
    "sim_mix": {
     "gun": 0.2484,
-    "ability": 0.2118,
-    "item": 0.1238,
-    "melee": 0.4057,
+    "ability": 0.2117,
+    "item": 0.1237,
+    "melee": 0.4058,
     "other": 0.0104
    },
    "mix_distance": 0.033,
@@ -2215,7 +2229,7 @@
      "name": "MELEE",
      "kind": "melee",
      "real_share": 0.4238,
-     "sim_share": 0.4057,
+     "sim_share": 0.4058,
      "real_over_sim": 1.138
     },
     "citadel_ability_bull_heal": {
@@ -2230,7 +2244,7 @@
      "kind": "ability",
      "real_share": 0.0608,
      "sim_share": 0.0601,
-     "real_over_sim": 1.102
+     "real_over_sim": 1.103
     },
     "upgrade_melee_charge": {
      "name": "Melee Charge",
@@ -2265,7 +2279,7 @@
      "kind": "item",
      "real_share": 0.012,
      "sim_share": 0.0208,
-     "real_over_sim": 0.63
+     "real_over_sim": 0.631
     },
     "upgrade_crushing_fists": {
      "name": "Crushing Fists",
@@ -2273,6 +2287,89 @@
      "real_share": 0.0107,
      "sim_share": 0.0063,
      "real_over_sim": 1.839
+    }
+   }
+  },
+  "Pocket": {
+   "players": 117,
+   "real_mix": {
+    "gun": 0.1387,
+    "ability": 0.6601,
+    "item": 0.1626,
+    "melee": 0.0185,
+    "other": 0.0202
+   },
+   "sim_mix": {
+    "gun": 0.1311,
+    "ability": 0.6497,
+    "item": 0.1929,
+    "melee": 0.0197,
+    "other": 0.0066
+   },
+   "mix_distance": 0.032,
+   "sources": {
+    "synth_barrage": {
+     "name": "Barrage",
+     "kind": "ability",
+     "real_share": 0.2601,
+     "sim_share": 0.2304,
+     "real_over_sim": 1.068
+    },
+    "synth_pulse": {
+     "name": "Enchanter's Satchel",
+     "kind": "ability",
+     "real_share": 0.1655,
+     "sim_share": 0.1566,
+     "real_over_sim": 0.999
+    },
+    "synth_affliction": {
+     "name": "Affliction",
+     "kind": "ability",
+     "real_share": 0.1205,
+     "sim_share": 0.1512,
+     "real_over_sim": 0.754
+    },
+    "synth_plasma_flux": {
+     "name": "Flying Cloak",
+     "kind": "ability",
+     "real_share": 0.1139,
+     "sim_share": 0.1115,
+     "real_over_sim": 0.966
+    },
+    "upgrade_magic_shock": {
+     "name": "Tankbuster",
+     "kind": "item",
+     "real_share": 0.0786,
+     "sim_share": 0.0845,
+     "real_over_sim": 0.879
+    },
+    "upgrade_spirit_burn": {
+     "name": "Spirit Burn",
+     "kind": "item",
+     "real_share": 0.0427,
+     "sim_share": 0.0541,
+     "real_over_sim": 0.747
+    },
+    "MELEE": {
+     "name": "MELEE",
+     "kind": "melee",
+     "real_share": 0.0185,
+     "sim_share": 0.0197,
+     "real_over_sim": 0.887
+    },
+    "upgrade_cold_front": {
+     "name": "Cold Front",
+     "kind": "item",
+     "real_share": 0.0168,
+     "sim_share": 0.0328,
+     "real_over_sim": 0.484
+    },
+    "upgrade_magic_burst": {
+     "name": "Mystic Burst",
+     "kind": "item",
+     "real_share": 0.013,
+     "sim_share": 0.0115,
+     "real_over_sim": 1.069
     }
    }
   },
@@ -2305,15 +2402,15 @@
      "name": "Gutshot",
      "kind": "ability",
      "real_share": 0.1181,
-     "sim_share": 0.112,
-     "real_over_sim": 1.112
+     "sim_share": 0.1119,
+     "real_over_sim": 1.113
     },
     "ability_priest_weaponswap": {
      "name": "Ira Domini",
      "kind": "ability",
      "real_share": 0.1166,
-     "sim_share": 0.1238,
-     "real_over_sim": 0.994
+     "sim_share": 0.1239,
+     "real_over_sim": 0.993
     },
     "MELEE": {
      "name": "MELEE",
@@ -2327,14 +2424,14 @@
      "kind": "ability",
      "real_share": 0.0223,
      "sim_share": 0.0232,
-     "real_over_sim": 1.017
+     "real_over_sim": 1.016
     },
     "upgrade_siphon_bullets": {
      "name": "Siphon Bullets",
      "kind": "item",
      "real_share": 0.0167,
      "sim_share": 0.0079,
-     "real_over_sim": 2.214
+     "real_over_sim": 2.213
     }
    }
   },
@@ -2348,9 +2445,9 @@
     "other": 0.0192
    },
    "sim_mix": {
-    "gun": 0.2466,
-    "ability": 0.6061,
-    "item": 0.1193,
+    "gun": 0.2467,
+    "ability": 0.6062,
+    "item": 0.1192,
     "melee": 0.0234,
     "other": 0.0046
    },
@@ -2367,22 +2464,22 @@
      "name": "Flame Dash",
      "kind": "ability",
      "real_share": 0.2165,
-     "sim_share": 0.2536,
+     "sim_share": 0.2537,
      "real_over_sim": 0.931
     },
     "upgrade_toxic_bullets": {
      "name": "Toxic Bullets",
      "kind": "item",
      "real_share": 0.0824,
-     "sim_share": 0.1015,
-     "real_over_sim": 0.885
+     "sim_share": 0.1014,
+     "real_over_sim": 0.886
     },
     "ability_incendiary_projectile": {
      "name": "Napalm",
      "kind": "ability",
      "real_share": 0.0554,
-     "sim_share": 0.0499,
-     "real_over_sim": 1.213
+     "sim_share": 0.0498,
+     "real_over_sim": 1.214
     },
     "ability_fire_bomb": {
      "name": "Concussive Combustion",
@@ -2407,89 +2504,6 @@
     }
    }
   },
-  "Pocket": {
-   "players": 117,
-   "real_mix": {
-    "gun": 0.1387,
-    "ability": 0.6601,
-    "item": 0.1626,
-    "melee": 0.0185,
-    "other": 0.0202
-   },
-   "sim_mix": {
-    "gun": 0.1312,
-    "ability": 0.6502,
-    "item": 0.1923,
-    "melee": 0.0197,
-    "other": 0.0066
-   },
-   "mix_distance": 0.031,
-   "sources": {
-    "synth_barrage": {
-     "name": "Barrage",
-     "kind": "ability",
-     "real_share": 0.2601,
-     "sim_share": 0.2308,
-     "real_over_sim": 1.066
-    },
-    "synth_pulse": {
-     "name": "Enchanter's Satchel",
-     "kind": "ability",
-     "real_share": 0.1655,
-     "sim_share": 0.1567,
-     "real_over_sim": 0.999
-    },
-    "synth_affliction": {
-     "name": "Affliction",
-     "kind": "ability",
-     "real_share": 0.1205,
-     "sim_share": 0.1516,
-     "real_over_sim": 0.752
-    },
-    "synth_plasma_flux": {
-     "name": "Flying Cloak",
-     "kind": "ability",
-     "real_share": 0.1139,
-     "sim_share": 0.1111,
-     "real_over_sim": 0.97
-    },
-    "upgrade_magic_shock": {
-     "name": "Tankbuster",
-     "kind": "item",
-     "real_share": 0.0786,
-     "sim_share": 0.0847,
-     "real_over_sim": 0.878
-    },
-    "upgrade_spirit_burn": {
-     "name": "Spirit Burn",
-     "kind": "item",
-     "real_share": 0.0427,
-     "sim_share": 0.0542,
-     "real_over_sim": 0.746
-    },
-    "MELEE": {
-     "name": "MELEE",
-     "kind": "melee",
-     "real_share": 0.0185,
-     "sim_share": 0.0197,
-     "real_over_sim": 0.888
-    },
-    "upgrade_cold_front": {
-     "name": "Cold Front",
-     "kind": "item",
-     "real_share": 0.0168,
-     "sim_share": 0.0328,
-     "real_over_sim": 0.484
-    },
-    "upgrade_magic_burst": {
-     "name": "Mystic Burst",
-     "kind": "item",
-     "real_share": 0.013,
-     "sim_share": 0.0116,
-     "real_over_sim": 1.068
-    }
-   }
-  },
   "Billy": {
    "players": 93,
    "real_mix": {
@@ -2501,9 +2515,9 @@
    },
    "sim_mix": {
     "gun": 0.1967,
-    "ability": 0.3997,
-    "item": 0.1456,
-    "melee": 0.2499,
+    "ability": 0.3998,
+    "item": 0.1455,
+    "melee": 0.2498,
     "other": 0.0081
    },
    "mix_distance": 0.029,
@@ -2512,28 +2526,28 @@
      "name": "Bashdown",
      "kind": "ability",
      "real_share": 0.3088,
-     "sim_share": 0.302,
+     "sim_share": 0.3021,
      "real_over_sim": 0.975
     },
     "MELEE": {
      "name": "MELEE",
      "kind": "melee",
      "real_share": 0.2228,
-     "sim_share": 0.2499,
-     "real_over_sim": 0.85
+     "sim_share": 0.2498,
+     "real_over_sim": 0.851
     },
     "upgrade_spirit_snatch": {
      "name": "Spirit Snatch",
      "kind": "item",
      "real_share": 0.0573,
-     "sim_share": 0.0648,
-     "real_over_sim": 0.843
+     "sim_share": 0.0646,
+     "real_over_sim": 0.845
     },
     "ability_punkgoat_goatflip": {
      "name": "Rising Ram",
      "kind": "ability",
      "real_share": 0.0517,
-     "sim_share": 0.0472,
+     "sim_share": 0.0473,
      "real_over_sim": 1.044
     },
     "ability_punkgoat_tether": {
@@ -2569,76 +2583,7 @@
      "kind": "other",
      "real_share": 0.0102,
      "sim_share": 0.0081,
-     "real_over_sim": 1.204
-    }
-   }
-  },
-  "Lady Geist": {
-   "players": 37,
-   "real_mix": {
-    "gun": 0.2934,
-    "ability": 0.6155,
-    "item": 0.0485,
-    "melee": 0.0333,
-    "other": 0.0093
-   },
-   "sim_mix": {
-    "gun": 0.3079,
-    "ability": 0.6292,
-    "item": 0.0299,
-    "melee": 0.0272,
-    "other": 0.0057
-   },
-   "mix_distance": 0.028,
-   "sources": {
-    "ability_blood_bomb": {
-     "name": "Essence Bomb",
-     "kind": "ability",
-     "real_share": 0.1897,
-     "sim_share": 0.2187,
-     "real_over_sim": 0.91
-    },
-    "ability_blood_shards": {
-     "name": "Malice",
-     "kind": "ability",
-     "real_share": 0.1438,
-     "sim_share": 0.1609,
-     "real_over_sim": 0.938
-    },
-    "ability_life_drain": {
-     "name": "Life Drain",
-     "kind": "ability",
-     "real_share": 0.1434,
-     "sim_share": 0.1253,
-     "real_over_sim": 1.201
-    },
-    "ability_health_swap": {
-     "name": "Soul Exchange",
-     "kind": "ability",
-     "real_share": 0.1386,
-     "sim_share": 0.1242,
-     "real_over_sim": 1.171
-    },
-    "MELEE": {
-     "name": "MELEE",
-     "kind": "melee",
-     "real_share": 0.0333,
-     "sim_share": 0.0272,
-     "real_over_sim": 1.284
-    },
-    "upgrade_magic_shock": {
-     "name": "Tankbuster",
-     "kind": "item",
-     "real_share": 0.0173,
-     "sim_share": 0.0095,
-     "real_over_sim": 1.921
-    },
-    "upgrade_magic_burst": {
-     "name": "Mystic Burst",
-     "kind": "item",
-     "real_share": 0.0126,
-     "sim_share": 0.0084,
-     "real_over_sim": 1.577
+     "real_over_sim": 1.203
     }
    }
   },
@@ -2652,10 +2597,10 @@
     "other": 0.022
    },
    "sim_mix": {
-    "gun": 0.1373,
-    "ability": 0.3956,
+    "gun": 0.1372,
+    "ability": 0.3957,
     "item": 0.3235,
-    "melee": 0.1362,
+    "melee": 0.1361,
     "other": 0.0074
    },
    "mix_distance": 0.028,
@@ -2664,14 +2609,14 @@
      "name": "Gloom Bombs",
      "kind": "ability",
      "real_share": 0.1821,
-     "sim_share": 0.182,
+     "sim_share": 0.1821,
      "real_over_sim": 1.026
     },
     "MELEE": {
      "name": "MELEE",
      "kind": "melee",
      "real_share": 0.1494,
-     "sim_share": 0.1362,
+     "sim_share": 0.1361,
      "real_over_sim": 1.126
     },
     "ability_nano_shadow_pulse": {
@@ -2693,14 +2638,14 @@
      "kind": "item",
      "real_share": 0.079,
      "sim_share": 0.0587,
-     "real_over_sim": 1.381
+     "real_over_sim": 1.38
     },
     "upgrade_weapon_backstabber": {
      "name": "Stalker",
      "kind": "item",
      "real_share": 0.0542,
      "sim_share": 0.0741,
-     "real_over_sim": 0.751
+     "real_over_sim": 0.75
     },
     "upgrade_spirit_snatch": {
      "name": "Spirit Snatch",
@@ -2714,14 +2659,14 @@
      "kind": "item",
      "real_share": 0.0356,
      "sim_share": 0.035,
-     "real_over_sim": 1.043
+     "real_over_sim": 1.044
     },
     "upgrade_cold_front": {
      "name": "Cold Front",
      "kind": "item",
      "real_share": 0.0317,
      "sim_share": 0.027,
-     "real_over_sim": 1.205
+     "real_over_sim": 1.204
     },
     "upgrade_discord": {
      "name": "Scourge",
@@ -2735,7 +2680,7 @@
      "kind": "item",
      "real_share": 0.0114,
      "sim_share": 0.0106,
-     "real_over_sim": 1.102
+     "real_over_sim": 1.101
     },
     "citadel_ability_shiv_defer_damage": {
      "name": "citadel_ability_shiv_defer_damage",
@@ -2749,7 +2694,7 @@
      "kind": "item",
      "real_share": 0.0094,
      "sim_share": 0.0111,
-     "real_over_sim": 0.869
+     "real_over_sim": 0.868
     },
     "upgrade_crackshot": {
      "name": "Mystic Shot",
@@ -2757,6 +2702,179 @@
      "real_share": 0.0061,
      "sim_share": 0.0219,
      "real_over_sim": 0.285
+    }
+   }
+  },
+  "Lady Geist": {
+   "players": 37,
+   "real_mix": {
+    "gun": 0.2934,
+    "ability": 0.6155,
+    "item": 0.0485,
+    "melee": 0.0333,
+    "other": 0.0093
+   },
+   "sim_mix": {
+    "gun": 0.3069,
+    "ability": 0.6276,
+    "item": 0.0326,
+    "melee": 0.0272,
+    "other": 0.0057
+   },
+   "mix_distance": 0.026,
+   "sources": {
+    "ability_blood_bomb": {
+     "name": "Essence Bomb",
+     "kind": "ability",
+     "real_share": 0.1897,
+     "sim_share": 0.2181,
+     "real_over_sim": 0.91
+    },
+    "ability_blood_shards": {
+     "name": "Malice",
+     "kind": "ability",
+     "real_share": 0.1438,
+     "sim_share": 0.1607,
+     "real_over_sim": 0.936
+    },
+    "ability_life_drain": {
+     "name": "Life Drain",
+     "kind": "ability",
+     "real_share": 0.1434,
+     "sim_share": 0.1248,
+     "real_over_sim": 1.202
+    },
+    "ability_health_swap": {
+     "name": "Soul Exchange",
+     "kind": "ability",
+     "real_share": 0.1386,
+     "sim_share": 0.124,
+     "real_over_sim": 1.17
+    },
+    "MELEE": {
+     "name": "MELEE",
+     "kind": "melee",
+     "real_share": 0.0333,
+     "sim_share": 0.0272,
+     "real_over_sim": 1.28
+    },
+    "upgrade_magic_shock": {
+     "name": "Tankbuster",
+     "kind": "item",
+     "real_share": 0.0173,
+     "sim_share": 0.0088,
+     "real_over_sim": 2.068
+    },
+    "upgrade_magic_burst": {
+     "name": "Mystic Burst",
+     "kind": "item",
+     "real_share": 0.0126,
+     "sim_share": 0.0084,
+     "real_over_sim": 1.575
+    }
+   }
+  },
+  "Yamato": {
+   "players": 131,
+   "real_mix": {
+    "gun": 0.2416,
+    "ability": 0.3802,
+    "item": 0.1684,
+    "melee": 0.1836,
+    "other": 0.0262
+   },
+   "sim_mix": {
+    "gun": 0.2362,
+    "ability": 0.4008,
+    "item": 0.1736,
+    "melee": 0.179,
+    "other": 0.0104
+   },
+   "mix_distance": 0.026,
+   "sources": {
+    "MELEE": {
+     "name": "MELEE",
+     "kind": "melee",
+     "real_share": 0.1836,
+     "sim_share": 0.179,
+     "real_over_sim": 1.003
+    },
+    "citadel_ability_flying_strike": {
+     "name": "Flying Slash",
+     "kind": "ability",
+     "real_share": 0.1379,
+     "sim_share": 0.1462,
+     "real_over_sim": 0.922
+    },
+    "citadel_ability_power_slash": {
+     "name": "Power Slash",
+     "kind": "ability",
+     "real_share": 0.1292,
+     "sim_share": 0.1445,
+     "real_over_sim": 0.874
+    },
+    "citadel_ability_healing_slash": {
+     "name": "Crimson Slash",
+     "kind": "ability",
+     "real_share": 0.1132,
+     "sim_share": 0.1102,
+     "real_over_sim": 1.004
+    },
+    "upgrade_weapon_backstabber": {
+     "name": "Stalker",
+     "kind": "item",
+     "real_share": 0.0398,
+     "sim_share": 0.0564,
+     "real_over_sim": 0.689
+    },
+    "upgrade_express_shot": {
+     "name": "Express Shot",
+     "kind": "item",
+     "real_share": 0.0308,
+     "sim_share": 0.0,
+     "real_over_sim": null
+    },
+    "upgrade_tech_damage_pulse": {
+     "name": "Torment Pulse",
+     "kind": "item",
+     "real_share": 0.0208,
+     "sim_share": 0.0272,
+     "real_over_sim": 0.746
+    },
+    "upgrade_crackshot": {
+     "name": "Mystic Shot",
+     "kind": "item",
+     "real_share": 0.0165,
+     "sim_share": 0.0325,
+     "real_over_sim": 0.498
+    },
+    "upgrade_spirit_snatch": {
+     "name": "Spirit Snatch",
+     "kind": "item",
+     "real_share": 0.0135,
+     "sim_share": 0.0218,
+     "real_over_sim": 0.606
+    },
+    "ability_nurse_adrenaline_rush": {
+     "name": "ability_nurse_adrenaline_rush",
+     "kind": "other",
+     "real_share": 0.0134,
+     "sim_share": 0.0,
+     "real_over_sim": null
+    },
+    "citadel_ability_shiv_defer_damage": {
+     "name": "citadel_ability_shiv_defer_damage",
+     "kind": "other",
+     "real_share": 0.011,
+     "sim_share": 0.0104,
+     "real_over_sim": 1.033
+    },
+    "upgrade_acolytes_glove": {
+     "name": "Spirit Strike",
+     "kind": "item",
+     "real_share": 0.0085,
+     "sim_share": 0.0123,
+     "real_over_sim": 0.672
     }
    }
   },
@@ -2850,110 +2968,6 @@
     }
    }
   },
-  "Yamato": {
-   "players": 131,
-   "real_mix": {
-    "gun": 0.2416,
-    "ability": 0.3802,
-    "item": 0.1684,
-    "melee": 0.1836,
-    "other": 0.0262
-   },
-   "sim_mix": {
-    "gun": 0.2375,
-    "ability": 0.4029,
-    "item": 0.1693,
-    "melee": 0.1799,
-    "other": 0.0105
-   },
-   "mix_distance": 0.024,
-   "sources": {
-    "MELEE": {
-     "name": "MELEE",
-     "kind": "melee",
-     "real_share": 0.1836,
-     "sim_share": 0.1799,
-     "real_over_sim": 1.003
-    },
-    "citadel_ability_flying_strike": {
-     "name": "Flying Slash",
-     "kind": "ability",
-     "real_share": 0.1379,
-     "sim_share": 0.1469,
-     "real_over_sim": 0.922
-    },
-    "citadel_ability_power_slash": {
-     "name": "Power Slash",
-     "kind": "ability",
-     "real_share": 0.1292,
-     "sim_share": 0.1452,
-     "real_over_sim": 0.875
-    },
-    "citadel_ability_healing_slash": {
-     "name": "Crimson Slash",
-     "kind": "ability",
-     "real_share": 0.1132,
-     "sim_share": 0.1108,
-     "real_over_sim": 1.004
-    },
-    "upgrade_weapon_backstabber": {
-     "name": "Stalker",
-     "kind": "item",
-     "real_share": 0.0398,
-     "sim_share": 0.0567,
-     "real_over_sim": 0.69
-    },
-    "upgrade_express_shot": {
-     "name": "Express Shot",
-     "kind": "item",
-     "real_share": 0.0308,
-     "sim_share": 0.0,
-     "real_over_sim": null
-    },
-    "upgrade_tech_damage_pulse": {
-     "name": "Torment Pulse",
-     "kind": "item",
-     "real_share": 0.0208,
-     "sim_share": 0.0273,
-     "real_over_sim": 0.748
-    },
-    "upgrade_crackshot": {
-     "name": "Mystic Shot",
-     "kind": "item",
-     "real_share": 0.0165,
-     "sim_share": 0.0326,
-     "real_over_sim": 0.498
-    },
-    "upgrade_spirit_snatch": {
-     "name": "Spirit Snatch",
-     "kind": "item",
-     "real_share": 0.0135,
-     "sim_share": 0.0219,
-     "real_over_sim": 0.606
-    },
-    "ability_nurse_adrenaline_rush": {
-     "name": "ability_nurse_adrenaline_rush",
-     "kind": "other",
-     "real_share": 0.0134,
-     "sim_share": 0.0,
-     "real_over_sim": null
-    },
-    "citadel_ability_shiv_defer_damage": {
-     "name": "citadel_ability_shiv_defer_damage",
-     "kind": "other",
-     "real_share": 0.011,
-     "sim_share": 0.0105,
-     "real_over_sim": 1.033
-    },
-    "upgrade_acolytes_glove": {
-     "name": "Spirit Strike",
-     "kind": "item",
-     "real_share": 0.0085,
-     "sim_share": 0.0124,
-     "real_over_sim": 0.672
-    }
-   }
-  },
   "Dynamo": {
    "players": 53,
    "real_mix": {
@@ -2964,48 +2978,48 @@
     "other": 0.0147
    },
    "sim_mix": {
-    "gun": 0.2336,
-    "ability": 0.6408,
-    "item": 0.0771,
-    "melee": 0.0422,
+    "gun": 0.2345,
+    "ability": 0.6391,
+    "item": 0.0781,
+    "melee": 0.0421,
     "other": 0.0063
    },
-   "mix_distance": 0.02,
+   "mix_distance": 0.019,
    "sources": {
     "citadel_ability_stomp": {
      "name": "Kinetic Pulse",
      "kind": "ability",
      "real_share": 0.4435,
-     "sim_share": 0.4625,
-     "real_over_sim": 0.965
+     "sim_share": 0.4609,
+     "real_over_sim": 0.973
     },
     "citadel_ability_self_vacuum": {
      "name": "Singularity",
      "kind": "ability",
      "real_share": 0.1789,
-     "sim_share": 0.1783,
-     "real_over_sim": 1.01
+     "sim_share": 0.1782,
+     "real_over_sim": 1.015
     },
     "MELEE": {
      "name": "MELEE",
      "kind": "melee",
      "real_share": 0.0502,
-     "sim_share": 0.0422,
-     "real_over_sim": 1.197
+     "sim_share": 0.0421,
+     "real_over_sim": 1.206
     },
     "upgrade_headhunter": {
      "name": "Headhunter",
      "kind": "item",
      "real_share": 0.0334,
      "sim_share": 0.0393,
-     "real_over_sim": 0.856
+     "real_over_sim": 0.861
     },
     "upgrade_magic_shock": {
      "name": "Tankbuster",
      "kind": "item",
      "real_share": 0.019,
-     "sim_share": 0.0154,
-     "real_over_sim": 1.243
+     "sim_share": 0.0152,
+     "real_over_sim": 1.26
     }
    }
   },
@@ -3019,8 +3033,8 @@
     "other": 0.0194
    },
    "sim_mix": {
-    "gun": 0.4428,
-    "ability": 0.5026,
+    "gun": 0.4424,
+    "ability": 0.5029,
     "item": 0.0445,
     "melee": 0.0074,
     "other": 0.0028
@@ -3031,15 +3045,15 @@
      "name": "Assassinate",
      "kind": "ability",
      "real_share": 0.1622,
-     "sim_share": 0.1883,
-     "real_over_sim": 0.876
+     "sim_share": 0.1885,
+     "real_over_sim": 0.874
     },
     "citadel_ability_hornet_sting": {
      "name": "Crow Familiar",
      "kind": "ability",
      "real_share": 0.1552,
-     "sim_share": 0.1412,
-     "real_over_sim": 1.118
+     "sim_share": 0.1413,
+     "real_over_sim": 1.116
     },
     "citadel_ability_hornet_leap": {
      "name": "Flight",
@@ -3053,21 +3067,21 @@
      "kind": "ability",
      "real_share": 0.0678,
      "sim_share": 0.0673,
-     "real_over_sim": 1.025
+     "real_over_sim": 1.023
     },
     "upgrade_thermal_detonator": {
      "name": "Alchemical Fire",
      "kind": "item",
      "real_share": 0.012,
      "sim_share": 0.0091,
-     "real_over_sim": 1.331
+     "real_over_sim": 1.329
     },
     "upgrade_quick_silver": {
      "name": "Quicksilver Reload",
      "kind": "item",
      "real_share": 0.0098,
      "sim_share": 0.0174,
-     "real_over_sim": 0.573
+     "real_over_sim": 0.572
     }
    }
   },
@@ -3131,19 +3145,19 @@
      "sim_share": 0.0409,
      "real_over_sim": 0.918
     },
-    "upgrade_thermal_detonator": {
-     "name": "Alchemical Fire",
-     "kind": "item",
-     "real_share": 0.016,
-     "sim_share": 0.0184,
-     "real_over_sim": 0.876
-    },
     "upgrade_siphon_bullets": {
      "name": "Siphon Bullets",
      "kind": "item",
      "real_share": 0.016,
      "sim_share": 0.0166,
      "real_over_sim": 0.973
+    },
+    "upgrade_thermal_detonator": {
+     "name": "Alchemical Fire",
+     "kind": "item",
+     "real_share": 0.016,
+     "sim_share": 0.0184,
+     "real_over_sim": 0.876
     },
     "citadel_ability_shiv_defer_damage": {
      "name": "citadel_ability_shiv_defer_damage",
@@ -3172,7 +3186,7 @@
    },
    "sim_mix": {
     "gun": 0.3331,
-    "ability": 0.5642,
+    "ability": 0.5644,
     "item": 0.0314,
     "melee": 0.0557,
     "other": 0.0155
@@ -3183,8 +3197,8 @@
      "name": "Scrap Grenade",
      "kind": "ability",
      "real_share": 0.361,
-     "sim_share": 0.3432,
-     "real_over_sim": 1.074
+     "sim_share": 0.3434,
+     "real_over_sim": 1.073
     },
     "ability_ratking_ratnibble": {
      "name": "Rat Swarm",
@@ -3205,7 +3219,7 @@
      "kind": "melee",
      "real_share": 0.0506,
      "sim_share": 0.0557,
-     "real_over_sim": 0.927
+     "real_over_sim": 0.928
     },
     "ability_ratking_ratarmor": {
      "name": "Royal Pestments",
@@ -3230,89 +3244,6 @@
     }
    }
   },
-  "Mina": {
-   "players": 198,
-   "real_mix": {
-    "gun": 0.1221,
-    "ability": 0.6621,
-    "item": 0.1884,
-    "melee": 0.0113,
-    "other": 0.0162
-   },
-   "sim_mix": {
-    "gun": 0.1232,
-    "ability": 0.6722,
-    "item": 0.1855,
-    "melee": 0.0126,
-    "other": 0.0065
-   },
-   "mix_distance": 0.013,
-   "sources": {
-    "ability_vampirebat_lovebites": {
-     "name": "Love Bites",
-     "kind": "ability",
-     "real_share": 0.2956,
-     "sim_share": 0.2901,
-     "real_over_sim": 1.028
-    },
-    "ability_vampirebat_steallife": {
-     "name": "Rake",
-     "kind": "ability",
-     "real_share": 0.2385,
-     "sim_share": 0.2268,
-     "real_over_sim": 1.061
-    },
-    "ability_vampirebat_batswarm": {
-     "name": "Nox Nostra",
-     "kind": "ability",
-     "real_share": 0.1279,
-     "sim_share": 0.1553,
-     "real_over_sim": 0.832
-    },
-    "upgrade_magic_shock": {
-     "name": "Tankbuster",
-     "kind": "item",
-     "real_share": 0.0885,
-     "sim_share": 0.0798,
-     "real_over_sim": 1.119
-    },
-    "upgrade_quick_silver": {
-     "name": "Quicksilver Reload",
-     "kind": "item",
-     "real_share": 0.0288,
-     "sim_share": 0.0367,
-     "real_over_sim": 0.791
-    },
-    "upgrade_spirit_burn": {
-     "name": "Spirit Burn",
-     "kind": "item",
-     "real_share": 0.0237,
-     "sim_share": 0.0245,
-     "real_over_sim": 0.973
-    },
-    "upgrade_toxic_bullets": {
-     "name": "Toxic Bullets",
-     "kind": "item",
-     "real_share": 0.0221,
-     "sim_share": 0.0183,
-     "real_over_sim": 1.218
-    },
-    "upgrade_magic_burst": {
-     "name": "Mystic Burst",
-     "kind": "item",
-     "real_share": 0.0175,
-     "sim_share": 0.0181,
-     "real_over_sim": 0.978
-    },
-    "MELEE": {
-     "name": "MELEE",
-     "kind": "melee",
-     "real_share": 0.0113,
-     "sim_share": 0.0126,
-     "real_over_sim": 0.904
-    }
-   }
-  },
   "Wraith": {
    "players": 283,
    "real_mix": {
@@ -3323,8 +3254,8 @@
     "other": 0.0184
    },
    "sim_mix": {
-    "gun": 0.3258,
-    "ability": 0.4159,
+    "gun": 0.3257,
+    "ability": 0.4161,
     "item": 0.2432,
     "melee": 0.0088,
     "other": 0.0062
@@ -3335,15 +3266,15 @@
      "name": "Card Trick",
      "kind": "ability",
      "real_share": 0.2798,
-     "sim_share": 0.284,
+     "sim_share": 0.2841,
      "real_over_sim": 0.989
     },
     "citadel_ability_wraith_rapidfire": {
      "name": "Full Auto",
      "kind": "ability",
      "real_share": 0.0962,
-     "sim_share": 0.0953,
-     "real_over_sim": 1.014
+     "sim_share": 0.0954,
+     "real_over_sim": 1.012
     },
     "upgrade_chain_lightning": {
      "name": "Tesla Bullets",
@@ -3357,14 +3288,14 @@
      "kind": "item",
      "real_share": 0.0578,
      "sim_share": 0.0635,
-     "real_over_sim": 0.914
+     "real_over_sim": 0.913
     },
     "upgrade_ethereal_bullets": {
      "name": "Mercurial Magnum",
      "kind": "item",
      "real_share": 0.0422,
-     "sim_share": 0.0451,
-     "real_over_sim": 0.94
+     "sim_share": 0.0452,
+     "real_over_sim": 0.939
     },
     "citadel_ability_psychic_lift": {
      "name": "Telekinesis",
@@ -3392,14 +3323,97 @@
      "kind": "item",
      "real_share": 0.0151,
      "sim_share": 0.0217,
-     "real_over_sim": 0.701
+     "real_over_sim": 0.7
     },
     "upgrade_split_shot": {
      "name": "Split Shot",
      "kind": "item",
      "real_share": 0.0108,
      "sim_share": 0.0129,
-     "real_over_sim": 0.838
+     "real_over_sim": 0.837
+    }
+   }
+  },
+  "Mina": {
+   "players": 198,
+   "real_mix": {
+    "gun": 0.1221,
+    "ability": 0.6621,
+    "item": 0.1884,
+    "melee": 0.0113,
+    "other": 0.0162
+   },
+   "sim_mix": {
+    "gun": 0.123,
+    "ability": 0.6714,
+    "item": 0.1865,
+    "melee": 0.0126,
+    "other": 0.0065
+   },
+   "mix_distance": 0.012,
+   "sources": {
+    "ability_vampirebat_lovebites": {
+     "name": "Love Bites",
+     "kind": "ability",
+     "real_share": 0.2956,
+     "sim_share": 0.2893,
+     "real_over_sim": 1.03
+    },
+    "ability_vampirebat_steallife": {
+     "name": "Rake",
+     "kind": "ability",
+     "real_share": 0.2385,
+     "sim_share": 0.2267,
+     "real_over_sim": 1.061
+    },
+    "ability_vampirebat_batswarm": {
+     "name": "Nox Nostra",
+     "kind": "ability",
+     "real_share": 0.1279,
+     "sim_share": 0.1554,
+     "real_over_sim": 0.83
+    },
+    "upgrade_magic_shock": {
+     "name": "Tankbuster",
+     "kind": "item",
+     "real_share": 0.0885,
+     "sim_share": 0.0799,
+     "real_over_sim": 1.118
+    },
+    "upgrade_quick_silver": {
+     "name": "Quicksilver Reload",
+     "kind": "item",
+     "real_share": 0.0288,
+     "sim_share": 0.0367,
+     "real_over_sim": 0.789
+    },
+    "upgrade_spirit_burn": {
+     "name": "Spirit Burn",
+     "kind": "item",
+     "real_share": 0.0237,
+     "sim_share": 0.0245,
+     "real_over_sim": 0.974
+    },
+    "upgrade_toxic_bullets": {
+     "name": "Toxic Bullets",
+     "kind": "item",
+     "real_share": 0.0221,
+     "sim_share": 0.0183,
+     "real_over_sim": 1.215
+    },
+    "upgrade_magic_burst": {
+     "name": "Mystic Burst",
+     "kind": "item",
+     "real_share": 0.0175,
+     "sim_share": 0.0181,
+     "real_over_sim": 0.976
+    },
+    "MELEE": {
+     "name": "MELEE",
+     "kind": "melee",
+     "real_share": 0.0113,
+     "sim_share": 0.0126,
+     "real_over_sim": 0.904
     }
    }
   }
@@ -3409,43 +3423,43 @@
    "name": "Tankbuster",
    "holders": 1519,
    "real_per_gun": 1.0393,
-   "sim_per_gun": 0.4967,
-   "real_over_sim": 2.093
+   "sim_per_gun": 0.4981,
+   "real_over_sim": 2.087
   },
   "upgrade_magic_burst": {
    "name": "Mystic Burst",
    "holders": 1461,
    "real_per_gun": 0.2837,
-   "sim_per_gun": 0.1767,
+   "sim_per_gun": 0.1766,
    "real_over_sim": 1.606
   },
   "upgrade_quick_silver": {
    "name": "Quicksilver Reload",
    "holders": 1105,
    "real_per_gun": 0.1713,
-   "sim_per_gun": 0.1547,
+   "sim_per_gun": 0.1548,
    "real_over_sim": 1.107
   },
   "upgrade_toxic_bullets": {
    "name": "Toxic Bullets",
    "holders": 861,
    "real_per_gun": 0.5332,
-   "sim_per_gun": 0.4231,
-   "real_over_sim": 1.26
+   "sim_per_gun": 0.4227,
+   "real_over_sim": 1.261
   },
   "upgrade_weapon_backstabber": {
    "name": "Stalker",
    "holders": 790,
    "real_per_gun": 0.2189,
-   "sim_per_gun": 0.2182,
+   "sim_per_gun": 0.2183,
    "real_over_sim": 1.003
   },
   "upgrade_spirit_snatch": {
    "name": "Spirit Snatch",
    "holders": 709,
    "real_per_gun": 0.3666,
-   "sim_per_gun": 0.3063,
-   "real_over_sim": 1.197
+   "sim_per_gun": 0.3067,
+   "real_over_sim": 1.195
   },
   "upgrade_ricochet": {
    "name": "Ricochet",
@@ -3458,15 +3472,15 @@
    "name": "Spirit Burn",
    "holders": 574,
    "real_per_gun": 0.7702,
-   "sim_per_gun": 0.6118,
-   "real_over_sim": 1.259
+   "sim_per_gun": 0.6106,
+   "real_over_sim": 1.261
   },
   "upgrade_tech_damage_pulse": {
    "name": "Torment Pulse",
    "holders": 569,
    "real_per_gun": 1.3578,
-   "sim_per_gun": 1.1348,
-   "real_over_sim": 1.196
+   "sim_per_gun": 1.1336,
+   "real_over_sim": 1.198
   },
   "upgrade_acolytes_glove": {
    "name": "Spirit Strike",
@@ -3486,7 +3500,7 @@
    "name": "Siphon Bullets",
    "holders": 521,
    "real_per_gun": 0.2478,
-   "sim_per_gun": 0.2529,
+   "sim_per_gun": 0.2528,
    "real_over_sim": 0.98
   },
   "upgrade_escalating_exposure": {
@@ -3500,134 +3514,134 @@
    "name": "Tesla Bullets",
    "holders": 509,
    "real_per_gun": 0.4798,
-   "sim_per_gun": 0.4879,
-   "real_over_sim": 0.983
+   "sim_per_gun": 0.4872,
+   "real_over_sim": 0.985
   },
   "upgrade_cold_front": {
    "name": "Cold Front",
    "holders": 505,
    "real_per_gun": 0.447,
-   "sim_per_gun": 0.3843,
+   "sim_per_gun": 0.3844,
    "real_over_sim": 1.163
   },
   "upgrade_crackshot": {
    "name": "Mystic Shot",
    "holders": 495,
    "real_per_gun": 0.3845,
-   "sim_per_gun": 0.41,
-   "real_over_sim": 0.938
+   "sim_per_gun": 0.4106,
+   "real_over_sim": 0.937
   },
   "upgrade_headhunter": {
    "name": "Headhunter",
    "holders": 407,
    "real_per_gun": 0.4398,
-   "sim_per_gun": 0.4396,
+   "sim_per_gun": 0.4395,
    "real_over_sim": 1.001
   },
   "upgrade_melee_charge": {
    "name": "Melee Charge",
    "holders": 379,
    "real_per_gun": 0.2399,
-   "sim_per_gun": 0.1044,
-   "real_over_sim": 2.297
+   "sim_per_gun": 0.1043,
+   "real_over_sim": 2.299
   },
   "upgrade_capacitor": {
    "name": "Capacitor",
    "holders": 375,
    "real_per_gun": 0.6962,
-   "sim_per_gun": 0.7355,
-   "real_over_sim": 0.946
+   "sim_per_gun": 0.7354,
+   "real_over_sim": 0.947
   },
   "upgrade_headshot_booster": {
    "name": "Headshot Booster",
    "holders": 370,
    "real_per_gun": 0.2154,
-   "sim_per_gun": 0.1814,
-   "real_over_sim": 1.188
+   "sim_per_gun": 0.1817,
+   "real_over_sim": 1.185
   },
   "upgrade_ethereal_bullets": {
    "name": "Mercurial Magnum",
    "holders": 339,
    "real_per_gun": 0.2954,
-   "sim_per_gun": 0.2939,
-   "real_over_sim": 1.005
+   "sim_per_gun": 0.2941,
+   "real_over_sim": 1.004
   },
   "upgrade_melee_rebuttal": {
    "name": "Rebuttal",
    "holders": 210,
    "real_per_gun": 0.0628,
-   "sim_per_gun": 0.0392,
-   "real_over_sim": 1.6
+   "sim_per_gun": 0.0393,
+   "real_over_sim": 1.598
   },
   "upgrade_mystic_reverb": {
    "name": "Mystic Reverb",
    "holders": 204,
    "real_per_gun": 1.3133,
-   "sim_per_gun": 0.3455,
-   "real_over_sim": 3.801
+   "sim_per_gun": 0.7213,
+   "real_over_sim": 1.821
   },
   "upgrade_critshot": {
    "name": "Lucky Shot",
    "holders": 200,
    "real_per_gun": 0.3966,
    "sim_per_gun": 0.1968,
-   "real_over_sim": 2.016
+   "real_over_sim": 2.015
   },
   "upgrade_arctic_blast": {
    "name": "Arctic Blast",
    "holders": 171,
    "real_per_gun": 1.3245,
-   "sim_per_gun": 0.7123,
-   "real_over_sim": 1.859
+   "sim_per_gun": 0.7128,
+   "real_over_sim": 1.858
   },
   "upgrade_split_shot": {
    "name": "Split Shot",
    "holders": 170,
    "real_per_gun": 0.2567,
-   "sim_per_gun": 0.195,
-   "real_over_sim": 1.317
+   "sim_per_gun": 0.1954,
+   "real_over_sim": 1.314
   },
   "upgrade_crushing_fists": {
    "name": "Crushing Fists",
    "holders": 143,
    "real_per_gun": 0.3035,
-   "sim_per_gun": 0.0914,
-   "real_over_sim": 3.321
+   "sim_per_gun": 0.0916,
+   "real_over_sim": 3.315
   },
   "upgrade_phantom_strike": {
    "name": "Phantom Strike",
    "holders": 123,
    "real_per_gun": 0.311,
    "sim_per_gun": 0.2085,
-   "real_over_sim": 1.492
+   "real_over_sim": 1.491
   },
   "upgrade_rupture": {
    "name": "Decay",
    "holders": 107,
    "real_per_gun": 1.5375,
-   "sim_per_gun": 1.2736,
+   "sim_per_gun": 1.2733,
    "real_over_sim": 1.207
   },
   "upgrade_discord": {
    "name": "Scourge",
    "holders": 105,
    "real_per_gun": 2.0274,
-   "sim_per_gun": 1.9419,
-   "real_over_sim": 1.044
+   "sim_per_gun": 1.9452,
+   "real_over_sim": 1.042
   },
   "upgrade_return_fire": {
    "name": "Return Fire",
    "holders": 92,
    "real_per_gun": 0.4389,
-   "sim_per_gun": 0.1148,
-   "real_over_sim": 3.825
+   "sim_per_gun": 0.1157,
+   "real_over_sim": 3.794
   },
   "upgrade_thermal_detonator": {
    "name": "Alchemical Fire",
    "holders": 68,
    "real_per_gun": 0.8742,
-   "sim_per_gun": 0.5423,
-   "real_over_sim": 1.612
+   "sim_per_gun": 0.5428,
+   "real_over_sim": 1.611
   },
   "upgrade_focus_lens": {
    "name": "Focus Lens",

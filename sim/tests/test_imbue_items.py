@@ -1,6 +1,7 @@
 """Imbue item effects checked against replay measurements. Run from sim/:
     python3 -m unittest discover -s tests
 """
+import heapq
 import os
 import sys
 import unittest
@@ -49,6 +50,31 @@ class TestMysticReverb(unittest.TestCase):
         amt = e.damage(f, g, 200, "spirit", ab.ab.name, is_ability=True, ability=ab)
         ls = f.st.spirit_lifesteal + 0.22
         self.assertAlmostEqual(f.hp - before, amt * ls, delta=amt * 0.02)
+
+    def _echo(self, hits):
+        e, f, g = pair(["Mystic Reverb"], hero="Paradox")
+        ab = next(s for s in f.abilities if any(i.name == "Mystic Reverb" for i in s.imbues))
+        for raw in hits:
+            e.damage(f, g, raw, "spirit", ab.ab.name, is_ability=True, ability=ab)
+        hp = g.hp
+        e.t = 0.0
+        while e.q and e.t < 3.5:
+            t, _, fn, args = heapq.heappop(e.q)
+            e.t = t
+            if getattr(fn, "__name__", "") == "echo":
+                fn(*args)
+        return f.dmg_out.get("Mystic Reverb", 0.0), hp
+
+    def test_echo_adds_current_health_bonus(self):
+        """MaxHealthDamage is the tooltip's "Current Health Bonus Damage": the echo is 50% of the hit + 10% of the
+        target's current health (it used to be read as a cap)."""
+        dmg, hp = self._echo([200])
+        self.assertGreater(dmg, 0.5 * 0.1 * hp)    # more than the 50% x 200 = 100 raw part alone after resist
+
+    def test_small_hits_build_up_to_the_minimum(self):
+        """Ticks under MinimumDamage (100) add up until they reach it, so DoT and multi-hit imbues trigger too."""
+        self.assertGreater(self._echo([40, 40, 40])[0], 0.0)
+        self.assertEqual(self._echo([40])[0], 0.0)
 
 
 if __name__ == "__main__":

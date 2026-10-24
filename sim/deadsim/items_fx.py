@@ -1128,20 +1128,32 @@ class SurgeOfPower(FX):
 
 @handler("upgrade_mystic_reverb")
 class MysticReverb(FX):
+    """Imbued ability damage builds up while the item is ready; once it reaches MinimumDamage the item goes on cooldown
+    and DelayDuration later the echo deals TechDamagePercent% of that damage plus MaxHealthDamage% of the target's
+    current health (the tooltip's "Current Health Bonus Damage", not a cap). DoT ticks of the imbued ability count, so
+    a damage-over-time imbue (Flame Dash) triggers it too."""
+
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind != "spirit" or hit.ability is None or self.item not in hit.ability.imbues or hit.is_dot:
+        if hit.kind != "spirit" or hit.ability is None or self.item not in hit.ability.imbues:
             return
         # imbued lifesteal on this hit (engine.damage applies lifesteal before these hooks, so a short spirit_lifesteal
         # mod here would only reach the next hit)
         f.heal(hit.amount * self.item.p("ImbueAbilityLifesteal") / 100, "spirit_lifesteal", "lifesteal")
-        if not self.ready() or hit.amount < self.item.p("MinimumDamage", 0):
+        if not self.ready():
             return
+        acc = f.counters.get("reverb_acc", 0.0) + hit.raw
+        if hit.amount < self.item.p("MinimumDamage", 0) and acc < self.item.p("MinimumDamage", 0):
+            f.counters["reverb_acc"] = acc
+            return
+        f.counters["reverb_acc"] = 0.0
         self.use()
-        amt = hit.raw * self.item.p("TechDamagePercent") / 100
-        cap = self.item.p("MaxHealthDamage")
-        if cap:
-            amt = min(amt, t.max_hp * cap / 100) if amt > t.max_hp * cap / 100 else amt
-        f.e.after(self.dur("DelayDuration", 3), lambda: self.spirit(t, amt, procs=False))
+        base = acc * self.item.p("TechDamagePercent") / 100
+        pct = self.item.p("MaxHealthDamage", 0) / 100
+
+        def echo():
+            if t.alive:
+                self.spirit(t, base + pct * max(0.0, t.hp), procs=False)
+        f.e.after(self.dur("DelayDuration", 3), echo)
 
 
 @handler("upgrade_bulletshredimbue")

@@ -17,7 +17,7 @@ how many teammates are really in reach in Phantom+ fights (positions in data/tea
 mean teammates within the radius for auras and area heals, the share of fight seconds with one in cast range for
 single-target casts.
 
-Lineups: LINEUPS random 3v3s (fixed seed) of the heroes' most popular real builds at each budget (damage/out), each
+Lineups: LINEUPS random 3v3s (fixed seed) of the heroes' most popular real builds at each budget (popular), each
 A hero carrying the item in turn, focus and spread targeting, 12 and 20 m. Skills: the overall search's (Phantom+
 aim and badge, counterplay on). Writes the "items" part of data/team_value.json.
 """
@@ -41,6 +41,7 @@ from deadsim.data import game  # noqa: E402
 from deadsim.team import team_fight  # noqa: E402
 from team_fight import popular_items  # noqa: E402
 from build_pool import BRACKETS, PRIMARY  # noqa: E402
+import search as S  # noqa: E402
 
 OUT = os.path.join(SIM, "data", "team_value.json")
 BUDGETS = (10000, 18000, 27000, 37000, 50000)
@@ -67,10 +68,31 @@ def skill(hero):
     return hero_default_skill(hero, aim, badge=lo if lo > 0 else None, counterplay=True)
 
 
+_pop = {}
+
+
+def popular(hero, souls):
+    """The hero's most popular real build at this budget, the overall search's (search.popular_build on the Phantom+
+    pools, so a patch rerun uses the new patch's builds); damage/out's when the pools aren't built."""
+    key = (hero, souls)
+    if key not in _pop:
+        snaps = os.path.join(SIM, "..", "search", "work", f"snapshots_{souls}{S.suffix(PRIMARY)}.json")
+        if os.path.exists(snaps):
+            S.BRACKET = PRIMARY
+            if ("pools", souls) not in _pop:
+                _pop[("pools", souls)] = S.load_pools(souls)
+            g = game()
+            ids = S.popular_build(g.hero(hero).id, S.item_budget(souls), _pop[("pools", souls)])
+            _pop[key] = [g.item(i).name for i in ids]
+        else:
+            _pop[key] = popular_items(hero, souls)
+    return _pop[key]
+
+
 def lineups():
     g = game()
     heroes = sorted(h.name for h in (g.heroes.values() if isinstance(g.heroes, dict) else g.heroes)
-                    if popular_items(h.name, 27000))
+                    if popular(h.name, 27000))
     rng = random.Random(SEED)
     return [tuple(rng.sample(heroes, 6)) for _ in range(LINEUPS)]
 
@@ -85,8 +107,8 @@ def job(args):
     vals = []
     n = 0
     for six in lineups():
-        a = [Loadout(h, popular_items(h, souls), souls=souls, skill=skill(h)) for h in six[:3]]
-        b = [Loadout(h, popular_items(h, souls), souls=souls, skill=skill(h)) for h in six[3:]]
+        a = [Loadout(h, popular(h, souls), souls=souls, skill=skill(h)) for h in six[:3]]
+        b = [Loadout(h, popular(h, souls), souls=souls, skill=skill(h)) for h in six[3:]]
         for k in range(3):
             base = [dataclasses.replace(x, items=[i for i in x.items if i != item]) for x in a]
             with_ = list(base)
