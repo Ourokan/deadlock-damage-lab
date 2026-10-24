@@ -22,6 +22,7 @@ import urllib.request
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "..", "sim"))
 from deadsim import game  # noqa: E402
+from deadsim.dmatrix import at  # noqa: E402
 
 UA = {"User-Agent": "deadlock-build-sim/0.1 (research)"}
 G = game()
@@ -64,9 +65,10 @@ def analyse(m, acc):
                 for tp in s["damage_to_players"]:
                     tgt = P.get(tp["target_player_slot"])
                     if tgt and tgt["team"] != me["team"]:
-                        cur = series.setdefault(tgt["player_slot"], [0] * len(tp["damage"]))
-                        for k, v in enumerate(tp["damage"]):
-                            cur[k] += v
+                        # right-aligned arrays (deadsim.dmatrix): sum them per sample time, not per index
+                        cur = series.setdefault(tgt["player_slot"], [0] * len(times))
+                        for k in range(len(times)):
+                            cur[k] += at(tp["damage"], k, len(times))
         if not series:
             continue
         for k in range(1, len(times)):
@@ -78,7 +80,7 @@ def analyse(m, acc):
                 if tgt["team"] == me["team"]:
                     continue
                 cum = series.get(slot)
-                dmg = (cum[k] - cum[k - 1]) if cum and k < len(cum) else 0
+                dmg = (cum[k] - cum[k - 1]) if cum else 0
                 hp = next((s["max_health"] for s in tgt["stats"] if s["time_stamp_s"] == t1), None) or \
                     (tgt["stats"][-1]["max_health"] if tgt["stats"] else None)
                 if not hp:
