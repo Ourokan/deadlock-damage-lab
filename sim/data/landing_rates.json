@@ -729,7 +729,7 @@
   "Deadman Danny": {
    "Strix Salvo": {
     "class": "ability_deadpack_chargeblast",
-    "landing": 0.67,
+    "landing": 0.56,
     "real_share": 0.1907,
     "sim_share": 0.1588
    },
@@ -741,13 +741,13 @@
    },
    "Jettison Fuel": {
     "class": "ability_deadpack_flamethrower",
-    "landing": 0.63,
+    "landing": 0.58,
     "real_share": 0.1663,
     "sim_share": 0.1468
    },
    "Close The Deal": {
     "class": "ability_deadpack_ultimate",
-    "landing": 0.18,
+    "landing": 0.17,
     "real_share": 0.0431,
     "sim_share": 0.1336
    }
@@ -867,7 +867,17 @@
     "sim_share": 0.3109
    }
   },
-  "Graves": {},
+  "Graves": {
+   "Jar of Dead": {
+    "landing": 0.23
+   },
+   "Grasping Hands": {
+    "landing": 0.09
+   },
+   "Borrowed Decree": {
+    "landing": 0.24
+   }
+  },
   "Nurse Harrow": {
    "Leech Therapy": {
     "landing": 1.81

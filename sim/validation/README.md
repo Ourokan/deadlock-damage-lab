@@ -488,7 +488,53 @@ than 2% except Silence Wave (25 holders, 0.71). What is left in the table is mos
 - items and abilities that hit several heroes in team fights come out above 1 and are left alone: Mystic Reverb 3.9,
   Return Fire 3.9, Tankbuster 2.0, Arctic Blast 1.9, Ricochet (0 in a 1v1). Paradox (0.14) and Mo & Krill (0.12)
   are mostly this.
-- Graves and Deadman Danny are not in the audit (their guns record no hero accuracy).
+- Graves and Deadman Danny joined the audit on 2026-10-24 once their guns were calibrated from replays (next section).
+
+## Guns with no hero accuracy: Graves and Deadman Danny (2026-10-24)
+
+The match stats record no hero accuracy for Graves (The Teacher is a tether: Shots and Hits are always 0) and only
+a partial count for Danny (Chimera Peace Bringer is a charged shot; the API counts about half the replay's hits), so
+both fell back to the all-hero 26% and were left out of every fit. `scripts/gun_calib/` measures them in Phantom+
+replays instead (Deadlock API demo queries, 70 matches of Oct 20-24 with one of them, 817 player-matches):
+
+1. `fetch_guns.py` pulls one row per trigger pull (every weapon table's `m_nShotNumber` step), every hero-vs-hero
+   `DamageEvent` and the API's final and per-3-min stats (`python3 -I fetch_guns.py WORK 70 4`; WORK holds the
+   replay list `with_demo.json`, e.g. the summons one).
+2. `gun_stats.py` counts per player shots, gun hits on enemy heroes (the hero's weapon ability id), headshots
+   (`crit_damage` > 0), and shots inside fight windows (within W s of any damage between the player and an enemy
+   hero). Gun damage is also taken back to base damage with the player's weapon power at that minute. Per-player
+   rows: `validation/gun_calib/gun_stats.json.gz`.
+3. `fit_guns.py` maps replay numbers onto the API's scale with the 395 reference players (one-bullet guns whose
+   replay hits match the API's within 20%): API hero-aimed shots = 0.97 x replay shots in 4 s fight windows, with a
+   per-player spread of 13% (the same ratio, 0.9-1.25, on all 29 reference heroes). Applied to Graves and Danny this
+   gives their hero accuracy (`python3 scripts/gun_calib/fit_guns.py gun_stats.json validation/phantom_sample.jsonl.gz
+   --write` -> `data/gun_calibration.json`, read by `hero_default_skill` / `default_distance` / `player_skill`).
+
+| | accuracy p25 / p50 / p75 | headshots | base damage per hit | fight distance |
+|---|---|---|---|---|
+| Graves | 0.42 / 0.46 / 0.51 | none (the gun can't headshot) | 4.6 (sim 3.6 x 1.25, like any hero's hit) | 11.2 m |
+| Deadman Danny | 0.24 / 0.28 / 0.34 | none recorded | 49.4 = 2.64 x an ordinary hit of his 15-damage bullet | 14.3 m |
+
+- **Danny's charged shot:** every hit lands 2.64x the base damage of an ordinary hit (weapon power, headshots and
+  resists out), and he fires about one shot a second while the data's gun fires four. The sim keeps the gun's base
+  damage per second and fires 2.64x bigger shots 2.64x less often (`build.gun_quirks`, `charge_factor`), so on-hit
+  procs fire as often as real hits. Any headshot bonus is inside the factor.
+- **Graves' tether** only attaches within MaxRange 20 m (the gun's own data): beyond it the sim's gun deals nothing
+  (`Stats.gun_range_m` in `falloff`). The fit's accuracy includes his untethered shots inside fights.
+- **Cross-check:** a second, independent estimate (gun base damage per second of fighting over the gun's damage per
+  second, scaled on the references) gives 0.51 for Graves and 0.27 for Danny, close to the shot-based 0.46 / 0.28.
+  It is not used for the fit: its scale runs 0.5-2.3 between reference heroes (how much of a fight each spends
+  shooting), against 0.9-1.25 for the shot count.
+- **Landing factors** for both were refit on the Phantom+ sample with the calibrated gun as the anchor (Graves had
+  none, so his abilities landed 100%): Graves Jar of Dead 0.23 / 0.25 with mechanics, Grasping Hands 0.09 / 0.10,
+  Borrowed Decree 0.24 / 0.15; Danny Strix Salvo 0.56 / 0.51 (was 0.67 / 0.02), Chimera Mk1 0.41 / 0.36, Jettison Fuel
+  0.58 / 0.50, Close The Deal 0.17 / 0.15.
+
+Result on the Phantom+ audit: Graves' gun share 4% -> 18% (real 20%), mix distance 0.37 -> 0.18; Danny's gun share
+25% -> 20% (real 16%), mix distance 0.37 -> 0.20. Left: Graves' damage items (Capacitor, Tesla Bullets, Mystic Shot)
+come out about 2x real, since item factors are pooled over all heroes and were fit without him; Danny's Express Shot
+and Tankbuster are the bookkeeping and team-fight cases above. The damage audit, ability fit and item fit now
+include both heroes (`landing_rates.gun_known`).
 
 ## Known gaps (not yet modeled)
 
@@ -503,7 +549,8 @@ than 2% except Silence Wave (25 holders, 0.71). What is left in the table is mos
 - **Bebop Hyper Beam** dominates any 20 s duel that starts with it ready (landing 0.06); the model matches the
   data, the gap is the fresh-cooldown bias above. (Haze Bullet Dance: fixed 2026-10-21, see "Haze duels" below.)
 - **Multi-target items** (Ricochet, Split Shot) do nothing in a 1v1 without mechanics; see above. Deadman Danny's charged primary fire is
-  modeled as a plain gun.
+  modeled as a plain gun with fewer, bigger shots (see "Guns with no hero accuracy"); charge timing and its
+  explosion radius are not.
 - **Attribution:** the game books amp bonuses (Escalating Exposure, Express Shot, Siphon Bullets) under the item;
   the sim books them under the hit's source. This affects only the item-share comparison.
 - **TTK:** sim 1v1 duels between real builds take a median 19 s (28 s with landing factors) vs 13 s for real

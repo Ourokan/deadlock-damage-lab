@@ -27,6 +27,7 @@ UA = {"User-Agent": "deadlock-build-sim/0.1 (research)"}
 HERE = os.path.dirname(__file__)
 CACHE = os.path.join(HERE, "..", "cache")
 DEFAULTS = os.path.join(HERE, "..", "data", "skill_defaults.json")
+GUN_CAL = os.path.join(HERE, "..", "data", "gun_calibration.json")
 
 SHOTS, HITS, HEADS = "Enemy Hero Accuracy##Shots", "Enemy Hero Accuracy##Hits", "Enemy Hero Accuracy##Headshots"
 DIST_PREFIX = "Outgoing Bullet Dist##"
@@ -86,8 +87,15 @@ def distance_profile(custom):
 
 def player_skill(account_id, hero=None, n_matches=20, rank_spirit_accuracy=None):
     """Aim from a player's recent matches (optionally on one hero). Returns (Skill, info dict)."""
-    hist = _get(f"{API}/v1/players/{account_id}/match-history")
     hid = game().hero(hero).id if hero is not None else None
+    if hid is not None and gun_calibrated(hid):   # no per-player gun stats exist: the replay-fitted population aim
+        row = gun_calibration()[str(hid)]
+        sk = Skill(accuracy=row["accuracy"]["p50"], headshot=row["headshot"]["p50"], melee_rate=melee_rate(hero))
+        if rank_spirit_accuracy is not None:
+            sk.spirit_accuracy = rank_spirit_accuracy
+        return sk, {"matches": 0, "shots": 0, "hits": 0, "headshots": 0, "median_distance_m": default_distance(hero),
+                    "distance_share": {}, "note": "this hero's gun records no hero accuracy; replay-fitted median"}
+    hist = _get(f"{API}/v1/players/{account_id}/match-history")
     ms = [m for m in hist if hid is None or m["hero_id"] == hid][:n_matches]
     shots = hits = heads = 0
     dist = {}
@@ -258,6 +266,31 @@ def zone_exit_time(badge=None):
     return 1.5 if badge is not None and badge >= 101 else 2.0
 
 
+_gun_cal = None
+
+
+def gun_calibration():
+    """{hero id (str): row} for heroes whose gun records no hero accuracy in the match stats (Graves' tether,
+    Deadman Danny's charged shot): accuracy/headshot percentiles fitted from replays (scripts/gun_calib), on the
+    same scale as the API's hero accuracy, plus the gun's charge_factor / tether_range_m (used by build.py)."""
+    global _gun_cal
+    if _gun_cal is None:
+        try:
+            _gun_cal = json.load(open(GUN_CAL))["heroes"]
+        except (OSError, KeyError, ValueError):
+            _gun_cal = {}
+    return _gun_cal
+
+
+def gun_calibrated(hero_id):
+    """True if this hero's aim comes from the replay calibration (its match stats have no usable gun accuracy)."""
+    return str(hero_id) in gun_calibration()
+
+
+def _aim_row(d, h):
+    return d["heroes"].get(str(h.id)) or gun_calibration().get(str(h.id)) or d["all"]
+
+
 def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_override=None, heavy_share=None,
                        badge=None, counterplay=False, melee_build=True):
     """Population aim for a hero (current-patch ranked sample, hero-only accuracy). pct: p25 | p50 | p75 | p90.
@@ -269,7 +302,7 @@ def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_ove
     zones (zone_exit_s). counterplay=True also applies real-data item damage factors (item_landing)."""
     d = json.load(open(DEFAULTS))
     h = game().hero(hero)
-    row = d["heroes"].get(str(h.id)) or d["all"]
+    row = _aim_row(d, h)
     sk = Skill(accuracy=row["accuracy"][pct], headshot=row["headshot"][pct])
     if landing:
         sk.ability_landing = ability_landing(hero)
@@ -298,5 +331,4 @@ def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_ove
 def default_distance(hero):
     d = json.load(open(DEFAULTS))
     h = game().hero(hero)
-    row = d["heroes"].get(str(h.id)) or d["all"]
-    return row.get("median_distance_m", 15.0)
+    return _aim_row(d, h).get("median_distance_m", 15.0)

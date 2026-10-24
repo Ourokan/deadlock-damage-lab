@@ -136,7 +136,16 @@ def main():
     shutil.copy(os.path.join(ROOT, "data/patch.json"), os.path.join(data, "patch.json"))
     if os.path.exists(os.path.join(ROOT, "data/changes.json")):   # pipeline/changes.py: what each rerun changed
         shutil.copy(os.path.join(ROOT, "data/changes.json"), os.path.join(data, "changes.json"))
-    shutil.copy(os.path.join(ROOT, "sim/data/skill_defaults.json"), os.path.join(data, "skill_defaults.json"))  # ranked aim spread
+    # ranked aim spread; Graves and Danny (no hero accuracy in match stats) get their replay-fitted rows
+    with open(os.path.join(ROOT, "sim/data/skill_defaults.json")) as fh:
+        aim = json.load(fh)
+    cal = os.path.join(ROOT, "sim/data/gun_calibration.json")
+    if os.path.exists(cal):
+        with open(cal) as fh:
+            for hid, row in json.load(fh)["heroes"].items():
+                aim["heroes"].setdefault(hid, row)
+    with open(os.path.join(data, "skill_defaults.json"), "w") as fh:
+        json.dump(aim, fh)
     win_edge_data(data)
     with open(os.path.join(ROOT, "damage/out/index.json")) as fh:
         heroes = [{"id": h["id"], "name": h["name"]} for h in json.load(fh)["heroes"]]

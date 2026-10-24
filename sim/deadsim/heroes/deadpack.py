@@ -5,8 +5,9 @@ Assumptions:
   dealt as bullet damage without item procs.
 - Strix Salvo: MarksTotal missiles (T3 +2) lodge along the line; MISSILE_HIT_FRAC of them (x spirit
   accuracy) detonate on the target, each dealing Damage and leaving a mark. Danny consumes one mark per charged
-  shot every CHARGED_SHOT_INTERVAL s while marks last (CoatedDuration), each for CoatedDamage. Charged shots are
-  not otherwise modeled (the gun keeps its normal cycle). Mark damage is booked as "Strix Salvo (mark)".
+  shot every CHARGED_SHOT_INTERVAL s while marks last (CoatedDuration), each for CoatedDamage. The gun itself
+  fires charged shots: charge_factor x the bullet damage, charge_factor x the cycle time (data/gun_calibration.json,
+  fitted from replays; build.gun_quirks). Mark damage is booked as "Strix Salvo (mark)".
 - Chimera Mk1: fly in (reach CHIMERA_REACH), dive DIVE_TIME s after cast (players dive early). Danny can shoot
   while flying. The dive hits at spirit accuracy for ExplosionDamage (spirit) + ExplosionBulletDamage (weapon).
   On a miss he self-stuns OverheatStunDurationSelf. He takes MaxHealthSelfDamagePercent of max health unless T2

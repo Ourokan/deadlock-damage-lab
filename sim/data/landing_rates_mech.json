@@ -729,25 +729,25 @@
   "Deadman Danny": {
    "Strix Salvo": {
     "class": "ability_deadpack_chargeblast",
-    "landing": 0.024,
+    "landing": 0.51,
     "real_share": 0.1907,
     "sim_share": 0.3335
    },
    "Chimera Mk1": {
     "class": "ability_deadpack_rocketeer",
-    "landing": 0.26,
+    "landing": 0.36,
     "real_share": 0.2441,
     "sim_share": 0.1859
    },
    "Jettison Fuel": {
     "class": "ability_deadpack_flamethrower",
-    "landing": 0.828,
+    "landing": 0.5,
     "real_share": 0.1663,
     "sim_share": 0.1303
    },
    "Close The Deal": {
     "class": "ability_deadpack_ultimate",
-    "landing": 0.274,
+    "landing": 0.15,
     "real_share": 0.0431,
     "sim_share": 0.0276
    }
@@ -873,6 +873,17 @@
    },
    "Lurking Terrors": {
     "landing": 1.18
+   }
+  },
+  "Graves": {
+   "Jar of Dead": {
+    "landing": 0.25
+   },
+   "Grasping Hands": {
+    "landing": 0.1
+   },
+   "Borrowed Decree": {
+    "landing": 0.15
    }
   }
  }
