@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "description": "Browser test of the built site (browser_test.cjs); the one place the Playwright version is pinned",
+  "dependencies": {
+    "playwright": "1.49.1"
+  }
+}

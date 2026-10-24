@@ -53,6 +53,11 @@ def build_zip(path):
             z.write(f, os.path.relpath(f, ROOT))
         for f in glob.glob(os.path.join(ROOT, "sim/data/*.json")):
             z.write(f, os.path.relpath(f, ROOT))
+        # fitted Dispel Magic shares and Counterspell rates, read by accuracy.hero_default_skill (no fallback, so
+        # they must ship)
+        for f in glob.glob(os.path.join(ROOT, "sim/validation/dispel/*fit_*.json")) + \
+                glob.glob(os.path.join(ROOT, "sim/validation/counterspell/fit_*.json")):
+            z.write(f, os.path.relpath(f, ROOT))
         for name in ["abilities.json", "heroes.json", "shop_items.json", "weapons.json", "raw/items.json"]:
             z.write(os.path.join(ROOT, "data/game", name), "data/game/" + name)
         for fn, body in slim_ability_orders().items():
@@ -146,6 +151,19 @@ def counters_data():
     return len(heroes)
 
 
+def win_edge_data(data):
+    """data/win_edge.json: real per-hero item win edge (refreshed from Ritualist+ matches by each patch rerun,
+    pipeline/refresh_win_edge.py), hero id -> item id -> [edge, se] in win-rate points, for the overall tab."""
+    path = os.path.join(ROOT, "analysis/out/hero_item_edge.json")
+    if not os.path.exists(path):
+        return
+    with open(path) as fh:
+        d = json.load(fh)
+    heroes = {h: {i: [round(v[0], 2), round(v[1], 2)] for i, v in items.items()} for h, items in d["heroes"].items()}
+    with open(os.path.join(data, "win_edge.json"), "w") as fh:
+        json.dump({"meta": d["meta"], "heroes": heroes}, fh, separators=(",", ":"))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--pyodide", help="folder with an extracted pyodide-core release (copied to vendor/pyodide)")
@@ -154,7 +172,10 @@ def main():
     os.makedirs(data, exist_ok=True)
     shutil.copy(os.path.join(ROOT, "search/out/items.json"), os.path.join(data, "items.json"))
     shutil.copy(os.path.join(ROOT, "data/patch.json"), os.path.join(data, "patch.json"))
+    if os.path.exists(os.path.join(ROOT, "data/changes.json")):   # pipeline/changes.py: what each rerun changed
+        shutil.copy(os.path.join(ROOT, "data/changes.json"), os.path.join(data, "changes.json"))
     shutil.copy(os.path.join(ROOT, "sim/data/skill_defaults.json"), os.path.join(data, "skill_defaults.json"))  # ranked aim spread
+    win_edge_data(data)
     with open(os.path.join(ROOT, "damage/out/index.json")) as fh:
         heroes = [{"id": h["id"], "name": h["name"]} for h in json.load(fh)["heroes"]]
     with open(os.path.join(data, "heroes.json"), "w") as fh:

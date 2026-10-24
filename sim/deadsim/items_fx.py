@@ -290,20 +290,25 @@ class ToxicBullets(BuildUp):
     def proc(self, f, t):
         d = self.dur("DotDuration", 4)
         pct = self.v("DotHealthPercent") / 100
-        f.e.dot(f, t, pct * t.max_hp, d, self.name, kind="spirit", tick=self.item.p("TickRate", 0.5), is_item=True)
+        f.e.dot(f, t, pct * t.max_hp, d, self.name, kind="spirit", tick=self.item.p("TickRate", 0.5), is_item=True,
+                buildup=True)
         self.debuff(t, "heal_received", self.item.p("HealAmpReceivePenaltyPercent") / 100, d)
 
 
 @handler("upgrade_chain_lightning", "upgrade_capacitor")
 class TeslaBullets(FX):
+    # the shock has its own 0.2 s proc timer: Capacitor's 40 s active cooldown (ready_at) must not switch it off
+    # (it did until 2026-10-24: sim Capacitor shock damage per gun damage was 1/4.6 of real Phantom+ holders)
+    proc_at = 0.0
+
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind != "bullet" or not hit.hits or hit.is_ability or not self.ready():
+        if hit.kind != "bullet" or not hit.hits or hit.is_ability or self.now < self.proc_at:
             return
         # proc chance is per shot, not per pellet (shotguns): chance that at least one of the shots that hit procs
         p = 1.0 - (1.0 - self.item.p("ProcChance") / 100) ** shots_hit(f, hit)
         n = f.acc(self.item.class_name).take(p, 1)
         if n:
-            self.ready_at = self.now + self.item.p("ProcCooldown", 0.2)
+            self.proc_at = self.now + self.item.p("ProcCooldown", 0.2)
             self.spirit(t, self.v("DamagePerChain"))
 
     def try_active(self, f):  # Capacitor's projectile
@@ -480,10 +485,16 @@ class SiphonBullets(FX):
         if hit.kind == "bullet" and hit.hits and not hit.is_ability and self.ready():
             self.ready_at = self.now + self.item.p("ProcCooldown", 1.2)
             amt = t.max_hp_base * self.item.p("HealthStealPctHero") / 100
+            # realistic mode: the real-data factor scales the whole steal (cap drop, health taken, heal) alike, so the
+            # damage below is not marked is_item (that would scale only the health taken)
+            amt *= (f.skill.item_landing or {}).get(self.name, 1.0)
             d = self.dur("StealDuration", 17)
             k = f.counters.get("siphon", 0) + 1
             f.counters["siphon"] = k
             t.mods.add("max_health", -amt, d, ("siphon", k))
+            # the stolen health is taken from current health too: the game books it as Siphon Bullets damage
+            # (real Phantom+ holders: 0.24 Siphon damage per gun damage, sim was 0 while it only lowered the cap)
+            f.e.damage(f, t, amt, "spirit", self.name, procs=False, pure=True)
             t.hp = min(t.hp, t.max_hp)
             f.mods.add("max_health", amt, d, ("siphon", k))
             f.heal(amt, self.name)
@@ -915,29 +926,76 @@ class ReactiveBarrier(FX):
 
 @handler("upgrade_reduce_debuff_duration")
 class DispelMagic(FX):
-    """Active: purge enemy debuffs and DoTs and heal HealOnActivate. Used at once against an enemy silence or
-    disarm. Against a DoT with >= 2 s left: after Skill.dot_cleanse_delay seconds of it (default 1.5 s, a tick or
-    two, how high-rank players use it), or with dot_cleanse_delay=None only once below DOT_PANIC_HP of max health
-    (average ranked play: Decay deals the same damage to Dispel holders as to their teammates,
-    damage/work/decay_vs_dispel.json ratio 1.00, 90% CI 0.75-1.30). The +2 m/s move speed does nothing at fixed
-    distance. Assumption: BuffDuration (3 s) is the move-speed buff, not debuff immunity."""
+    """Active: purge enemy debuffs and DoTs and heal HealOnActivate. Used at once against an enemy silence or disarm.
+    Against a DoT with >= 2 s left: only on Skill.dot_cleanse_share of DoT episodes (real players mostly let Decay
+    run: on cooldown, saved for a stun, not noticed; accuracy.dot_cleanse_share), and then after
+    Skill.dot_cleanse_delay seconds of it (reaction time), or with dot_cleanse_delay=None only once below
+    DOT_PANIC_HP of max health. An episode is a stretch with some enemy DoT running, drawn once when it starts while
+    Dispel is ready (overlapping DoTs share the draw; the cooldown is simulated too, and the fit uses this same
+    code). The draw is an engine.Accum: random when the engine has an rng (fit_dispel.py), else deterministic,
+    started at Skill.fight_phase, so over the overall score's spread phases the first DoT is cleansed in exactly
+    that share of fights. Without a phase (single duels, the duel-score search) it starts at a hash of both
+    fighters' items, so across an opponent pool the first DoT is still cleansed in about that share of fights. The
+    +2 m/s move speed does nothing at fixed distance. Assumption: BuffDuration (3 s) is the move-speed buff, not
+    debuff immunity."""
     DOT_PANIC_HP = 0.5
+    DOT_MIN_LEFT = 2.0   # s: a DoT about to run out is not worth the cooldown
 
     def __init__(self, item, f):
         super().__init__(item, f)
         self.dot_seen = None
+        self.dot_go = False
+        self.dot_pick = {}
+        self.dot_buildup_drawn = False
+
+    def _draw(self, f, kind):
+        """Spend Dispel on this DoT episode? kind "buildup": Skill.dot_cleanse_share_buildup, else dot_cleanse_share
+        (None = always). One Accum per kind, both started at the same phase."""
+        sk = f.skill
+        share = sk.dot_cleanse_share_buildup if kind == "buildup" else sk.dot_cleanse_share
+        if share is None:
+            return True
+        pick = self.dot_pick.get(kind)
+        if pick is None:
+            from .engine import Accum
+            phase = sk.fight_phase
+            pick = self.dot_pick[kind] = Accum(f.e.rng, self.loadout_phase(f) if phase is None else phase)
+        return pick.take(share) > 0
+
+    @staticmethod
+    def loadout_phase(f):
+        """Stable 0-1 phase from both fighters' item ids and max health (stat-only items have no handler but change
+        health), integers only, so it is the same in every process."""
+        x = 0
+        for g in (f, f.enemy):
+            if g is None:
+                continue
+            for i in sorted(fx.item.id for fx in g.items_fx if getattr(fx, "item", None) is not None) + [
+                    int(round(g.max_hp_base * 10))]:
+                x = (x * 1000003 + i) % (1 << 61)
+        return (((x * 11400714819323198485) % (1 << 64)) >> 11) / (1 << 53)   # Fibonacci hash, high bits
 
     def try_active(self, f):
         if not self.ready() or not f.skill.use_actives:
             return False
         cc = f.afflicted(min_left=1e9, keys=("silence", "disarm"))
-        dot = f.afflicted(min_left=2.0, keys=())
+        dot = f.afflicted(min_left=self.DOT_MIN_LEFT, keys=())
         if not dot:
             self.dot_seen = None
-        elif self.dot_seen is None:
-            self.dot_seen = self.now
+        else:
+            buildup = f.buildup_dot(self.DOT_MIN_LEFT)
+            if self.dot_seen is None:
+                self.dot_seen = self.now
+                self.dot_go = self._draw(f, "buildup" if buildup else "other")
+                self.dot_buildup_drawn = buildup
+            elif buildup and not self.dot_go and not self.dot_buildup_drawn:
+                # a build-up DoT (Afterburn, Toxic Bullets) joined a running episode: its own draw
+                self.dot_buildup_drawn = True
+                self.dot_go = self._draw(f, "buildup")
         delay = f.skill.dot_cleanse_delay
-        if delay is None:
+        if not self.dot_go:
+            use_on_dot = False
+        elif delay is None:
             use_on_dot = dot and f.hp_frac < self.DOT_PANIC_HP
         else:
             use_on_dot = dot and self.now - self.dot_seen >= delay

@@ -297,6 +297,20 @@ class CastCtx:
         else:
             go()
 
+    def dot_track(self, tag, until, buildup=False):
+        """For a DoT whose ticks the ability schedules itself (not via dot): show it to the enemy's Dispel Magic
+        (Fighter.afflicted) until `until`; buildup=True for a DoT the enemy's gun keeps re-applying
+        (Fighter.buildup_dot). Returns the enemy's dispel epoch; ticks stop once dot_live(epoch) is False
+        (Fighter.dispel bumps it)."""
+        e = self.foe
+        e.counters.setdefault("dot_until", {})[tag] = until
+        if buildup:
+            e.counters.setdefault("buildup_dots", set()).add(tag)
+        return e.counters.get("dispel_epoch", 0)
+
+    def dot_live(self, epoch):
+        return self.foe.counters.get("dispel_epoch", 0) == epoch
+
     def buff(self, key, value, duration, tag=None):
         self.me.mods.add(key, value, duration, tag or (self.s.ab.class_name, key))
 

@@ -27,11 +27,23 @@ Static site, no server. Open `index.html` through any static host (or `python3 -
   one-for-one swaps of an owned item for an equal or cheaper item from those builds.
 - **Team fight**: up to three heroes a side (each starts with its popular real build) fight in the live sim
   (`bridge.team`, `team.js`). Shows damage, damage taken, heals and shields given to teammates, kills.
+- **What changed** (`data/changes.json` from `pipeline/changes.py`): one block per rerun, newest first, with why it
+  ran (game patch or hotfix from `data/patch.json`, model PRs merged since the tier's last rerun, the rerun request
+  note, newer player builds) and, per hero and net worth, the items that left and joined the best overall and best
+  raw damage builds and how their number moved. The rerun workflow appends an entry before committing results;
+  `python3 pipeline/changes.py backfill` rebuilds every entry from git history.
 - **Best damage builds** (`damage/out`, with the item buy order and the ability upgrade order for the best builds), **Duel builds** (`search/out`, shows whichever rank brackets exist) and
   **Tank builds** (`survival/out`). Every build has a Test button that loads it into the damage test.
 - **Counter items** (`counters/out/sim.json` + the real-match tables in `counters/out`): per enemy hero, what each
   defensive item adds to a hero's popular build in the overall test, next to how much more real players buy it
   against that hero and its real win edge.
+
+## Phones
+Under 640 px the tabs sit in a 3x3 grid, long intros fold to three lines, and every table with a text column turns
+into stacked cards (`stackTables()` in `app.js` labels each number with its column). Touch screens get 36 px+ controls
+and 16 px inputs (no iOS zoom on focus). On touch screens the Build maker's suggestions run on the page's sim worker
+instead of a second Pyodide instance, which would cost another ~15 MB download and enough memory to make mobile
+browsers reload the tab.
 
 ## How the damage test runs in the browser
 The real Python sim runs live in the browser with Pyodide (CPython compiled to WebAssembly), inside a Web Worker.
@@ -44,3 +56,11 @@ precomputed numbers exactly (Haze popular 27k: 1,126 / 2,445 / 3,934 both ways).
 `python3 build.py` after the sim or any search output changes (copies JSON into `data/`, rebuilds `py/sim.zip`,
 writes `artifact.html`). Add `--pyodide <dir>` with an extracted `pyodide-core-0.26.4.tar.bz2` from the Pyodide
 GitHub release to refresh `vendor/pyodide`.
+
+## Browser test
+`node web/tests/browser_test.cjs` (after `build.py --pyodide`, needs `npm install --prefix web/tests`) serves this folder and
+goes through every tab in headless Chromium at desktop and phone size: the live sim loads, the damage test, item
+breakdown, build maker, real match (a made-up match stands in for the Deadlock API), team fight and each precomputed
+tab's Test button. It fails on page or worker errors (JS or Python), console errors, files that 404, requests to
+other hosts, error boxes left showing and pages wider than the phone screen. Runs as the `browser` job of the PR
+tests and before every Pages deploy. `--shots DIR` saves a screenshot after each step.

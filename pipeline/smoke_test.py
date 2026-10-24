@@ -79,7 +79,59 @@ assert ev._map(pop + [ids["Radiant Regeneration"]]) > 1.0
 want = m / O.movement_value(pop)   # same damage: only movement and heal trips differ
 assert abs(ev.run(pop) - 1.0) < 1e-9 and abs(ev.run(pop[2:]) - want) < 1e-9, ev.run(pop)
 S.popular_build = _popular
+# real win-edge blend (overall_search.win_value): neutral without items, movement items left out, capped per item
+haze = G.hero("Haze").id
+assert O.win_value([], haze) == 1.0 and O.win_value([ids["Stalker"]], haze) == 1.0
+assert O.win_value([ids["Decay"]], haze) < 1.0, O.win_value([ids["Decay"]], haze)
+assert all(abs(v) <= O.WIN_CAP for row in O._win.values() for v in row.values())
 print("movement weights ok: Stalker", round(st, 4), "four top items", round(O.movement_value(top), 4))
+
+# what changed between reruns (pipeline/changes.py): items in/out per hero and net worth, small moves dropped
+sys.path.insert(0, os.path.join(ROOT, "pipeline"))
+import changes as C  # noqa: E402
+_b = lambda items, dbd, d15: {"best": {"items": items, "damage_before_death": dbd}, "damage_best": {"items": items, "dummy_15s": d15}}
+_old = {"heroes": {"13": {"name": "Haze", "brackets": {"phantom": {"18000": _b([1, 2, 3], 1000, 2000), "27000": _b([4, 5], 1000, 2000)}}}}}
+_new = {"heroes": {"13": {"name": "Haze", "brackets": {"phantom": {"18000": _b([1, 2, 6], 1100, 2010), "27000": _b([4, 5], 1020, 2400)}}}}}
+rows, total = C.build_rows(_old, _new, "phantom")
+assert total == 4, total
+got = {(r["souls"], r["kind"]): r for r in rows}
+assert set(got) == {(18000, "overall"), (18000, "damage"), (27000, "damage")}, got   # 27k overall moved only 2%
+assert got[(18000, "overall")]["in"] == [6] and got[(18000, "overall")]["out"] == [3] and got[(18000, "overall")]["kept"] == [1, 2]
+assert got[(27000, "damage")]["in"] == [] and got[(27000, "damage")]["new"] == 2400
+assert C.build_rows(_old, _new, "ascendant") == ([], 0)
+print("changes ok")
+
+# real win edge refresh after a patch (pipeline/refresh_win_edge.py): counts the patch window's day files, rebuilds the
+# edges with enough Ritualist+ matches and keeps the last snapshot otherwise
+import gzip  # noqa: E402
+import shutil  # noqa: E402
+import tempfile  # noqa: E402
+import refresh_win_edge as RW  # noqa: E402
+
+_tmp = tempfile.mkdtemp()
+_items = sorted(i for i in RW.W.TARGET if RW.W.TIER[i] == 1 and RW.W.SLOT[i] == "weapon")[:2]
+_day = RW.P.build_days()[0]
+with gzip.open(os.path.join(_tmp, f"{_day}.jsonl.gz"), "wt") as _f:
+    for m, badge in ((1, 85), (2, 85), (3, 40)):   # two Ritualist+ matches, one below
+        for p in range(12):
+            _f.write(json.dumps({"match_id": m, "account_id": p, "hero_id": 1 + p % 6, "won": p < 6, "badge": badge,
+                                 "purchases": [[_items[p % 2], 300, 0]]}) + "\n")
+_paths = RW.partials(_tmp, os.path.join(_tmp, "work"), RW.P.build_days(), 1)
+assert len(_paths) == 1 and RW.ritualist_matches(_paths) == 2, RW.ritualist_matches(_paths)
+RW.B.EDGE_PATH = os.path.join(_tmp, "edge.json")
+with open(RW.B.EDGE_PATH, "w") as _f:
+    json.dump({"meta": {"patch": "old"}, "heroes": {}}, _f)
+_argv = sys.argv
+sys.argv = ["refresh_win_edge.py", _tmp, "--work", os.path.join(_tmp, "work"), "--min-matches", "3"]
+RW.main()
+assert json.load(open(RW.B.EDGE_PATH))["meta"]["patch"] == "old"   # too few matches: snapshot kept
+sys.argv[-1] = "2"
+RW.main()
+_m = json.load(open(RW.B.EDGE_PATH))
+assert _m["meta"]["patch"] == RW.P.load()["patch"] and _m["meta"]["matches"] == 2, _m["meta"]
+sys.argv = _argv
+shutil.rmtree(_tmp)
+print("win edge refresh ok")
 
 # the counter items the Phantom+ rerun scores (counters/scripts/sim_counters.py) are all still in the shop
 sys.path.insert(0, os.path.join(ROOT, "counters", "scripts"))

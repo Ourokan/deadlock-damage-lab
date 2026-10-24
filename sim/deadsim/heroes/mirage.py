@@ -38,16 +38,17 @@ class FireScarabs(AbilityImpl):
         c.state["n"] = c.state.get("n", 0) + 1
         tick = 0.5
         n = max(1, int(round(d / tick)))
-        c.after(delay + tick, self.tick, c, dps * tick, n, c.state["n"])
+        epoch = c.dot_track(("scarabs", c.state["n"]), c.now + delay + n * tick)
+        c.after(delay + tick, self.tick, c, dps * tick, n, c.state["n"], epoch)
 
-    def tick(self, c, amount, left, idx):
+    def tick(self, c, amount, left, idx, epoch):
         f, e = c.me, c.foe
-        if not (f.alive and e.alive):
+        if not (f.alive and e.alive) or not c.dot_live(epoch):
             return
         dealt = c.engine.damage(f, e, amount, "spirit", self.s.ab.name, is_ability=True, ability=self.s, is_dot=True)
         c.heal(dealt)
         if left > 1:
-            c.after(0.5, self.tick, c, amount, left - 1, idx)
+            c.after(0.5, self.tick, c, amount, left - 1, idx, epoch)
 
 
 @register("mirage_tornado")

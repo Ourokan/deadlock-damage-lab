@@ -169,6 +169,9 @@ tr.pop td { background: color-mix(in srgb, var(--brass) 9%, transparent); }
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); gap: 16px; }
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px; display: grid; gap: 10px; min-width: 0; align-content: start; }
 .kv { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; font-size: .86rem; }
+.kv.kv3 { grid-template-columns: minmax(0, 1fr) auto auto; }
+.kv.kv3 > span:nth-child(n) { font-family: var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+.kv.kv3 > span:nth-child(3n+1) { font-family: inherit; text-align: left; }
 .kv span:nth-child(even) { font-family: var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
 .empty { padding: 24px; border: 1px dashed var(--line); border-radius: 6px; color: var(--muted); }
 .foot { font-size: .8rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
@@ -282,3 +285,53 @@ body.sheet-open { overflow: hidden; }
 .mk-score i { display: block; height: 100%; background: var(--accent); }
 .mk-sug-b { font-size: .84rem; color: var(--muted); }
 .mk-sug-b b { color: var(--fg); font-weight: 600; }
+
+/* What changed tab: one collapsible block per rerun */
+.chg { border: 1px solid var(--line); border-radius: 6px; background: var(--panel); margin-top: 12px; }
+.chg > summary { cursor: pointer; padding: 10px 14px; font: 500 .95rem var(--head); }
+.chg-b { padding: 0 14px 14px; }
+.chg-b h3 { font-size: .82rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 4px 0 6px; }
+.causes { margin: 0 0 12px; padding-left: 18px; font-size: .88rem; }
+.causes li { margin: 2px 0; }
+.causes .tag { margin: 0 4px 0 0; }
+.it.gone { text-decoration: line-through; opacity: .6; }
+.it.new { border-color: var(--good); }
+
+.intro .more { display: none; }
+
+/* phones: every tab in view at once, build tables as stacked cards, finger-sized controls, no zoom on input focus */
+@media (max-width: 640px) {
+  .top { position: static; }
+  .top-in { padding-block: 8px 6px; }
+  .tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; overflow: visible; }
+  .tabs a { white-space: normal; text-align: center; line-height: 1.15; font-size: .8rem; letter-spacing: .03em; padding: 8px 4px;
+    min-height: 40px; display: flex; align-items: center; justify-content: center; }
+  .tabs a[aria-current="page"] { background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 4px; }
+  .tabs a:last-child:nth-child(3n+1) { grid-column: 1 / -1; }
+  .wrap { padding-block: 16px 40px; }
+  .intro p.clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+  .intro .more { display: block; justify-self: start; border: 0; background: none; padding: 6px 0; color: var(--accent); font-size: .88rem; cursor: pointer; }
+
+  table.cards-sm, table.cards-sm tbody { display: block; }
+  table.cards-sm thead { display: none; }
+  table.cards-sm tr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  table.cards-sm tr.pop { background: color-mix(in srgb, var(--brass) 9%, transparent); padding-inline: 8px; border-radius: 4px; }
+  table.cards-sm td { display: block; padding: 0; border: 0 !important; background: none !important; }
+  table.cards-sm td.n { text-align: left; white-space: normal; }
+  table.cards-sm td[data-label]::before { content: attr(data-label); display: block; font: 600 .66rem var(--head); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+  table.cards-sm td.wide { grid-column: 1 / -1; }
+  table.cards-sm td.wide::before { display: none; }
+  table.cards-sm td:empty { display: none; }
+  table.cards-sm .chip-btn { padding-inline: 18px; }
+}
+@media (max-width: 640px) and (pointer: coarse) {
+  input, select, textarea { font-size: 16px !important; }
+}
+@media (pointer: coarse) {
+  .chip-btn, .ghost { min-height: 36px; }
+  .seg button { min-height: 38px; padding-inline: 12px; }
+  .it { min-height: 34px; }
+  .picker summary { padding-block: 10px; }
+  input[type=checkbox] { width: 20px; height: 20px; }
+  input[type=range] { min-height: 32px; }
+}

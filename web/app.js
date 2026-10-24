@@ -45,7 +45,7 @@ function tile(id, opts = {}) {
   const it = S.items[id];
   if (!it) return "";
   const dot = it.effect_modeled ? "" : ' <span class="dot stats" title="Only its always-on stats are modeled"></span>';
-  const cls = ["it", opts.remove ? "x" : "", opts.owned ? "owned" : "", opts.static ? "static" : ""].join(" ");
+  const cls = ["it", opts.cls || "", opts.remove ? "x" : "", opts.owned ? "owned" : "", opts.static ? "static" : ""].join(" ");
   const tag = opts.static ? "span" : "button";
   return `<${tag} class="${cls}" data-slot="${it.slot}" data-id="${id}" title="${esc(it.name)} · ${fmt(it.cost)} souls${it.effect_modeled ? "" : " · stats only"}">`
     + `${esc(it.name)}${dot}${opts.cost ? ` <span class="c">${fmt(it.cost / 1000, 1)}k</span>` : ""}</${tag}>`;
@@ -545,12 +545,22 @@ async function renderOverallTab() {
     <span>Dummy damage by 15 s</span><span>${fmt(x.dummy_15s)}</span></div>${testBtn(Number(id), bk, x.items, title)}</div>`;
   const row = (x, label) => `<tr><td>${label}</td><td>${bdTiles(ctx(x))}</td><td class="n">${fmt(x.cost)}</td><td class="n">${fmt(x.F.damage_before_death)}</td><td class="n">${fmt(x.F.time_alive_s, 1)} s</td><td class="n">${pct(x.F.survived_30s)}</td><td>${testBtn(Number(id), bk, x.items, label)}</td></tr>`;
   const loss = d ? Object.entries(d.best_item_removal_loss).filter(([i]) => S.items[i]).sort((a, b) => b[1] - a[1]) : [];
-  out.innerHTML = `<p class="hint">Damage before dying is averaged over all 41 heroes' typical real builds in this rank bracket, at its aim, minus the healing the enemy gets back during the fight. Fights start at the health real players bring into a fight; builds that heal more between fights arrive fuller.${stale} Tap any item to see what it adds to the build's damage.</p>
+  const weAll = await load("data/win_edge.json"), we = weAll?.heroes?.[id] || {}, weMeta = weAll?.meta || {};
+  const weStale = weMeta.patch && meta[br]?.patch && weMeta.patch !== meta[br].patch ? ` These win edges are from patch ${esc(weMeta.patch)}, older than these builds (patch ${esc(meta[br].patch)}): the new patch didn't have enough games yet. They refresh with the next rerun that has.` : "";
+  const edgeTxt = (i) => { const e = we[i]; if (!e) return "–"; const cls = e[0] - 1.96 * e[1] > 0 ? "good" : e[0] + 1.96 * e[1] < 0 ? "bad" : ""; return `<span class="${cls}" title="±${fmt(1.96 * e[1], 1)} (95%)">${e[0] > 0 ? "+" : ""}${fmt(e[0], 1)}</span>`; };
+  const inBest = new Set(b.best.items.map(String));
+  const strong = Object.entries(we).filter(([i, e]) => !inBest.has(i) && S.items[i] && S.items[i].tier <= 4 && e[0] >= 1.5 && e[0] - 1.96 * e[1] > 0 && S.items[i].cost <= Number(bk) / 2)
+    .sort((a, c) => c[1][0] - a[1][0]).slice(0, 6);
+  const losing = b.best.items.filter((i) => we[i] && we[i][0] + 1.96 * we[i][1] < 0);
+  out.innerHTML = `<p class="hint">Damage before dying is averaged over all 41 heroes' typical real builds in this rank bracket, at its aim, minus the healing the enemy gets back during the fight. Fights start at the health real players bring into a fight; builds that heal more between fights arrive fuller. The score also counts each item's real win edge on this hero (about 5% per point of win rate, see the card below), since a 1v1 can't see team auras or area hits.${stale} Tap any item to see what it adds to the build's damage.</p>
     <div class="cards">${card("Best overall build", b.best, true)}${card("Popular real build", b.popular, false)}${b.damage_best ? card("Best raw damage build", b.damage_best, true) : ""}</div>
     ${d ? `<div class="scroll"><table><thead><tr><th>Build</th><th>Items</th><th class="n">Cost</th><th class="n">Damage before dying</th><th class="n">Time alive</th><th class="n">Survives 30 s</th><th></th></tr></thead>
     <tbody>${d.builds.map((x, i) => row(x, `#${i + 1}`)).join("")}</tbody></table></div>
-    <div class="cards"><div class="card"><h3>What each best-build item adds</h3><p class="hint">Share of the build's damage before dying lost if that item is removed (1.0 = the popular build's total).</p>
-      <div class="kv">${loss.map(([i, v]) => `<span>${tile(i, { static: true })}</span><span>${fmt(v, 3)}</span>`).join("")}</div></div></div>` : ""}`;
+    <div class="cards"><div class="card"><h3>What each best-build item adds</h3><p class="hint">Share of the build's damage before dying lost if that item is removed (1.0 = the popular build's total), and the item's real win edge on this hero.</p>
+      <div class="kv kv3"><span></span><span>Sim</span><span title="Win-rate points vs other items of the same slot and tier">Real win</span>${loss.map(([i, v]) => `<span>${tile(i, { static: true })}</span><span>${fmt(v, 3)}</span><span>${edgeTxt(i)}</span>`).join("")}</div></div>
+    ${Object.keys(we).length ? `<div class="card"><h3>Checked against real games</h3><p class="hint">Real win edge: how much more often players on this hero win when they buy the item instead of another item of the same slot and tier, matched on game time, team lead and own souls (Ritualist and up, points of win rate, shrunk toward the item's edge on all heroes). Green and red are clear of the 95% noise band. Damage in a 1v1 can't see team auras, vision or objectives, so a red sim pick is worth a second look. ${weMeta.matches ? `${Number(weMeta.matches).toLocaleString()} matches, ${esc(weMeta.matches_from)} to ` : "Matches through "}${esc(weMeta.matches_through || "?")}, refreshed after each patch.${weStale}</p>
+      ${losing.length ? `<p><b>Picked here but losing real games:</b></p>${tiles(losing, { static: true })}` : `<p class="hint">No item in the best build loses real games on this hero.</p>`}
+      ${strong.length ? `<p style="margin-top:8px"><b>Winning real games but not in this build:</b></p><div class="kv">${strong.map(([i, e]) => `<span>${tile(i, { static: true })}</span><span class="good">+${fmt(e[0], 1)}</span>`).join("")}</div>` : ""}</div>` : ""}</div>` : ""}`;
 }
 
 // full game build paths (damage/scripts/game_path.py): one build from 0 souls to 50k, stage scores, buy order with spikes
@@ -743,11 +753,11 @@ function renderSheet() {
 // counter items (counters/scripts/sim_counters.py): per enemy hero, the sim value of each defensive item next to
 // real players' buy trigger and win edge (counters/scripts/report.py, triggers.py)
 async function renderCounterTab() {
-  const out = $("#c-out"), idx = await load("data/counters/index.json");
+  const out = $("#k-out"), idx = await load("data/counters/index.json");
   if (!idx) { out.innerHTML = '<p class="empty">No counter-item results yet.</p>'; return; }
   const keys = Object.keys(idx.budgets);
-  if ($("#c-budget").options.length !== keys.length) fillBudgetSelect($("#c-budget"), keys, $("#c-budget").value);
-  const bk = $("#c-budget").value, b = idx.budgets[bk], e = $("#c-enemy").value, me = $("#c-hero").value;
+  if ($("#k-budget").options.length !== keys.length) fillBudgetSelect($("#k-budget"), keys, $("#k-budget").value);
+  const bk = $("#k-budget").value, b = idx.budgets[bk], e = $("#k-enemy").value, me = $("#k-hero").value;
   const ei = b.enemies.indexOf(e), hd = me ? (await load(`data/counters/heroes/${me}.json`))?.[bk] : null;
   if (ei < 0 || (me && !hd)) { out.innerHTML = '<p class="empty">No counter-item results for this pick yet.</p>'; return; }
   const real = idx.real?.items || {}, ename = idx.heroes[e];
@@ -777,10 +787,48 @@ async function renderCounterTab() {
     <p class="fine">The sim adds the item for free, so every item looks good on a fragile hero; compare items with each other and read the extra column for counters. Real win edges are observational (being focused or out-played isn't captured).</p>`;
 }
 
+// what each rerun changed in the best builds, and why (pipeline/changes.py -> data/changes.json)
+const TIER_LABEL = { phantom: "Phantom+", ascendant: "Ascendant+", eternus: "Eternus+", all: "All ranks" };
+const REPO = "https://github.com/TylerNodell/deadlock-damage-lab";
+function causeLine(c) {
+  if (c.kind === "model") {
+    const ref = c.pr ? ` (<a href="${REPO}/pull/${c.pr}" target="_blank" rel="noopener">#${c.pr}</a>)` : c.sha ? ` (<a href="${REPO}/commit/${esc(c.sha)}" target="_blank" rel="noopener">${esc(c.sha)}</a>)` : "";
+    return `<li><span class="tag">Model</span> ${esc(c.title)}${ref}</li>`;
+  }
+  const tag = { patch: "Game patch", hotfix: "Hotfix", builds: "Player builds", request: "Rerun note", standard: "Rank" }[c.kind] || c.kind;
+  const text = c.link ? `<a href="${esc(c.link)}" target="_blank" rel="noopener">${esc(c.text)}</a>` : esc(c.text);
+  return `<li><span class="tag">${esc(tag)}</span> ${text}</li>`;
+}
+async function renderChangesTab() {
+  const out = $("#c-out"), d = await load("data/changes.json");
+  if (!d || !d.entries?.length) { out.innerHTML = '<p class="empty">No reruns recorded yet. The next rerun after a patch or model change will show up here.</p>'; return; }
+  const hero = $("#c-hero").value, kind = $("#c-kind").value, metric = kind === "overall" ? "Damage before dying" : "Dummy damage by 15 s";
+  const html = d.entries.map((e, i) => {
+    const all = e.rows.filter((r) => r.kind === kind), rows = all.filter((r) => !hero || String(r.hero) === hero);
+    const changed = all.filter((r) => r.in.length || r.out.length), total = Math.round(e.summary.builds / 2);
+    const when = new Date(e.date), date = isNaN(when) ? esc(e.date) : when.toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+    const head = `${date} · ${esc(TIER_LABEL[e.tier] || e.tier)} · patch ${esc(e.patch || "?")} · <b>${changed.length}</b> of ${total} best builds changed`
+      + (changed.length ? ` across ${new Set(changed.map((r) => r.hero)).size} heroes` : "");
+    const causes = e.causes.length ? e.causes.map(causeLine).join("") : `<li><span class="tag">Rerun</span> ${esc(e.reason || "rerun")}</li>`;
+    const row = (r) => {
+      const ch = r.old > 0 ? r.new / r.old - 1 : 0;
+      return `<tr><td>${esc(r.name || S.heroById[r.hero]?.name || r.hero)}</td><td class="n">${fmt(r.souls / 1000)}k</td>
+        <td><div class="build mini">${r.out.map((x) => tile(x, { static: true, cls: "gone" })).join("") || '<span class="fine">–</span>'}</div></td>
+        <td><div class="build mini">${r.in.map((x) => tile(x, { static: true, cls: "new" })).join("") || '<span class="fine">same items</span>'}</div></td>
+        <td class="n">${fmt(r.old)} → <b>${fmt(r.new)}</b> <span class="${ch > 0.005 ? "up" : ch < -0.005 ? "down" : ""}">${signed(ch)}</span></td>
+        <td>${testBtn(r.hero, r.souls, [...r.kept, ...r.in], "After rerun")}</td></tr>`;
+    };
+    const table = rows.length ? `<div class="scroll"><table><thead><tr><th>Hero</th><th class="n">Net worth</th><th>Out</th><th>In</th><th class="n">${metric}</th><th></th></tr></thead><tbody>${rows.map(row).join("")}</tbody></table></div>`
+      : `<p class="fine">${hero ? "No change for this hero in this run." : "No best build changed in this run."}</p>`;
+    return `<details class="chg"${i === 0 ? " open" : ""}><summary>${head}</summary><div class="chg-b"><h3>Why it ran</h3><ul class="causes">${causes}</ul>${table}</div></details>`;
+  }).join("");
+  out.innerHTML = `<p class="hint">${d.entries.length} reruns, newest first. Numbers are for the rerun's rank bracket. Some runs change many builds at once: when several builds score within a hair of each other, a small model change can reorder them.</p>${html}`;
+}
+
 // ---------- tabs ----------
 function showTab() {
   const t = (location.hash || "#test").slice(1).split("/")[0];
-  const tab = ["test", "maker", "match", "overall", "path", "damage", "duel", "tank", "counter", "team"].includes(t) ? t : "test";
+  const tab = ["test", "maker", "match", "overall", "path", "damage", "duel", "tank", "counter", "team", "changes"].includes(t) ? t : "test";
   $$(".tab").forEach((s) => (s.hidden = s.id !== "tab-" + tab));
   $$("#tabs a").forEach((a) => (a.dataset.tab === tab ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
   if (tab === "overall") renderOverallTab();
@@ -789,6 +837,48 @@ function showTab() {
   if (tab === "duel") renderDuelTab();
   if (tab === "tank") renderTankTab();
   if (tab === "counter") renderCounterTab();
+  if (tab === "changes") renderChangesTab();
+}
+
+// ---------- phones ----------
+// Tables with a text column (builds, buy orders, ability tiers) become stacked cards on narrow screens (app.css table.cards-sm): each number cell gets its
+// column name to show above it, and the label, item and button cells take a full row.
+function stackTables() {
+  for (const t of $$("table")) {
+    // rows are marked one by one: a renderer can swap a table's rows (or its whole innerHTML) without replacing it
+    const rows = [...(t.tBodies[0]?.rows || [])].filter((r) => !r.dataset.stk);
+    if (!rows.length || !t.tHead || !t.querySelector("tbody td:not(.n)") || !t.querySelector("tbody td.n")) continue;
+    const heads = [...(t.tHead.rows[0]?.cells || [])].map((c) => c.textContent.trim());
+    for (const r of rows) {
+      let col = 0;   // header column of each cell, counting colspans
+      for (const c of r.cells) {
+        if (c.colSpan > 1 || !c.classList.contains("n")) c.classList.add("wide");
+        else if (heads[col]) c.dataset.label = heads[col];
+        col += c.colSpan;
+      }
+      r.dataset.stk = "1";
+    }
+    t.classList.add("cards-sm");
+  }
+}
+// Long tab intros fold to three lines on phones, with a button to read the rest.
+function clampIntros() {
+  for (const p of $$(".intro p")) {
+    if (p.textContent.length < 220 || p.nextElementSibling?.classList.contains("more")) continue;
+    p.classList.add("clamp");
+    p.insertAdjacentHTML("afterend", `<button class="more" type="button">Read more</button>`);
+    p.nextElementSibling.onclick = (e) => { const open = p.classList.toggle("clamp"); e.target.textContent = open ? "Read more" : "Show less"; };
+  }
+}
+function phoneLayout() {
+  clampIntros();
+  let queued = false;
+  new MutationObserver(() => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => { queued = false; stackTables(); });
+  }).observe(document.body, { childList: true, subtree: true });
+  stackTables();
 }
 
 // ---------- boot ----------
@@ -804,8 +894,9 @@ async function boot() {
   const tank = await load("data/tank/index.json");
   fillHeroSelect($("#t-hero"), tank ? Object.keys(tank.heroes) : []);
   for (const s of ["#g-hero", "#u-hero", "#o-hero", "#p-hero"]) $(s).value = 13;
-  fillHeroSelect($("#c-enemy")); $("#c-enemy").value = 13;
-  $("#c-hero").innerHTML = '<option value="">Any hero (average)</option>' + $("#c-enemy").innerHTML;
+  $("#c-hero").innerHTML = '<option value="">All heroes</option>' + opts;
+  fillHeroSelect($("#k-enemy")); $("#k-enemy").value = 13;
+  $("#k-hero").innerHTML = '<option value="">Any hero (average)</option>' + $("#k-enemy").innerHTML;
   load("data/patch.json").then((p) => {
     if (!p) return;
     $("#patch").textContent = p.patch;
@@ -856,9 +947,10 @@ async function boot() {
   $("#u-hero").onchange = renderDuelTab; $("#u-budget").onchange = renderDuelTab; $("#u-bracket").onchange = renderDuelTab;
   $("#t-hero").onchange = renderTankTab; $("#t-budget").onchange = renderTankTab;
   $("#p-hero").onchange = renderPathTab; $("#p-rank").onchange = renderPathTab;
-  $("#c-enemy").onchange = renderCounterTab; $("#c-hero").onchange = renderCounterTab; $("#c-budget").onchange = renderCounterTab;
+  $("#k-enemy").onchange = renderCounterTab; $("#k-hero").onchange = renderCounterTab; $("#k-budget").onchange = renderCounterTab;
+  $("#c-hero").onchange = renderChangesTab; $("#c-kind").onchange = renderChangesTab;
   $("#o-hero").onchange = renderOverallTab; $("#o-budget").onchange = renderOverallTab; $("#o-rank").onchange = renderOverallTab;
-  for (const s of ["#g-out", "#g-skill", "#g-order", "#u-out", "#t-out", "#o-out", "#p-out"]) $(s).addEventListener("click", onTest);
+  for (const s of ["#g-out", "#g-skill", "#g-order", "#u-out", "#t-out", "#o-out", "#p-out", "#c-out"]) $(s).addEventListener("click", onTest);
   document.addEventListener("click", (e) => {
     const t = e.target.closest(".build.tap .it");
     if (t) openBreakdown(JSON.parse(t.closest(".build").dataset.bd), t.dataset.id);
@@ -869,6 +961,7 @@ async function boot() {
   $("#sh-marks").onclick = (e) => { if (e.target.dataset.v) { BD.mark = e.target.dataset.v; renderSheet(); } };
   $("#sh-body").addEventListener("click", (e) => { const r = e.target.closest(".bd-row[data-id]"); if (r) { BD.item = Number(r.dataset.id); renderSheet(); } });
   window.addEventListener("hashchange", showTab);
+  phoneLayout();
   showTab();
   startEngine();
 }

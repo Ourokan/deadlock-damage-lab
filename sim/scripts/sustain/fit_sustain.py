@@ -188,6 +188,7 @@ json.dump(res, open(OUT_JSON, "w"), indent=1)
 FARM_ITEMS = ("Radiant Regeneration", "Mystic Regeneration", "Restorative Shot", "Healing Rite", "Spirit Lifesteal",
               "Bullet Lifesteal")
 PICKUPS = ("medic_trooper_aoe_health_pickup", "citadel_pickup_health_float_in_world")
+ENTRY_Q = 20
 MIN_HOLDER_MIN = 300     # thinner phases borrow the next phase's rate (few players hold these in lane)
 sim = {"source": f"{n_match} Phantom+ replays (sim/scripts/sustain/fit_sustain.py)",
        "pickup_hp_per_min": {}, "farm_heal_hp_per_min": {}, "entry_hp": {}, "gap_s": {}}
@@ -195,6 +196,12 @@ for ph, *_ in PHASES:
     tot = sum(v for s, v in src_rate[ph].items() if s.startswith(PICKUPS))
     sim["pickup_hp_per_min"][ph] = round(tot / src_min[ph], 1)
     sim["entry_hp"][ph] = round(res["entry"][ph]["entry_hp_mean"] / 100, 3)
+    # the spread of entry health (half the fights start at full health): ENTRY_Q quantile midpoints of the missing
+    # share of max health, so extra gap healing only counts in the fights that start short of full
+    hps = sorted(r[2] for r in entry[ph])
+    sim.setdefault("entry_deficit_q", {})[ph] = [
+        round(max(0.0, 100 - hps[min(len(hps) - 1, int((k + 0.5) / ENTRY_Q * len(hps)))]) / 100, 3)
+        for k in range(ENTRY_Q)]
     sim["gap_s"][ph] = res["entry"][ph]["gap_median_s"]
 order = [ph for ph, *_ in PHASES]
 for n in FARM_ITEMS:
@@ -233,12 +240,23 @@ for n in FIELD_ITEMS:
             sh += saved * heal * w
             ss += heal * heal * w
 sim["fountain_pass"] = round(max(0.0, sh / ss), 4) if ss else 0.0
-# Tried 2026-10-24: each item's own matched saving instead of the pooled pass (Fortitude ~60 HP/min, Radiant and
-# lifesteal ~10). Fortitude then took every hero's late build (12 of 12 vs ~7% of Phantom+ players): holders of tank
-# items differ in more than the item (frontliners), so the per-item rows are not used.
 sim["field_heal_hp_per_min"] = {n: {ph: round(heal_rate[n][ph][0] / heal_rate[n][ph][1], 1)
                                     if heal_rate[n][ph][1] >= MIN_HOLDER_MIN else 0.0 for ph in ("mid", "late")}
                                 for n in FIELD_ITEMS}
+# each item's own matched fountain saving, shrunk toward the pooled pass-through (SHRINK_W holders' worth of prior,
+# so thin rows lean on the pool) and floored at 0. The pooled pass alone credited lifesteal and Radiant Regeneration
+# with 4-5x the fountain saving their real holders show (their healing lands in fights, not instead of trips) and
+# Fortitude with 2/3 of it.
+SHRINK_W = 500
+sim["fountain_saved_hp_per_min"] = {}
+for n in FIELD_ITEMS:
+    row = {}
+    for ph in ("mid", "late"):
+        prior = sim["fountain_pass"] * sim["field_heal_hp_per_min"][n][ph]
+        fr = fit_rows.get(f"{n} {ph}")
+        v = (fr["fountain_saved_per_min"] * fr["weight"] + prior * SHRINK_W) / (fr["weight"] + SHRINK_W) if fr else prior
+        row[ph] = round(max(0.0, v), 1)
+    sim["fountain_saved_hp_per_min"][n] = row
 sim["trip_deficit"] = TRIP_DEFICIT
 fh = sim["fountain_hp_per_min"]
 sim["heal_trips_per_min"] = {"mid": HEAL_TRIPS_MID, "late": round(HEAL_TRIPS_MID * min(1.0, fh["late"] / fh["mid"]), 3)}
@@ -255,5 +273,10 @@ if "healbane_landing" in old_sim:
         sim["healbane_landing_real"] = old_sim["healbane_landing_real"]
     else:
         print("healbane_landing dropped: the real rate changed, rerun fit_healbane.py", file=sys.stderr)
+# entry_heal_scale / fortitude_heal_scale are written by fit_entry.py (needs the sim; run it last): kept across refits
+# so a refit of this script alone doesn't silently put the entry gains back at full strength
+for k in ("entry_heal_scale", "fortitude_heal_scale"):
+    if k in old_sim:
+        sim[k] = old_sim[k]
 json.dump(sim, open(OUT_SIM, "w"), indent=1)
 print(json.dumps(sim, indent=1))

@@ -1,7 +1,8 @@
 # Combat model validation
 
 How far the step 2 fight model (`deadsim`) can be trusted, checked against hand calculations and 400 real
-ranked matches (badge 60+, current patch, 2026-10-13; `matches_sample.jsonl.gz`, 4,800 player-matches).
+ranked matches (badge 60+, current patch, 2026-10-13; `matches_sample.jsonl.gz`, 4,800 player-matches), and since
+2026-10-24 against 600 Phantom+ matches (`phantom_sample.jsonl.gz`, see "Damage mix audit against Phantom+").
 
 ## What it is checked against
 
@@ -143,11 +144,56 @@ Strike stay within ±0.09 of their comparison item. Heavy share (30%) is still a
 ## Cleanses
 
 Dispel Magic (added 2026-10-14 during step 3): its active purges enemy debuffs and DoTs (`Fighter.dispel`) and heals
-250. The AI fires it at once when silenced/disarmed, and against a DoT (>= 2 s left) only below 50% HP: in real matches
-Decay deals the same damage to Dispel holders as to their teammates (ratio 1.00, 90% CI 0.75-1.30, 600 matches,
-`damage/scripts/decay_vs_dispel.py`). Hero ability DoTs that schedule
-their own ticks instead of using `Engine.dot`/`CastCtx.dot` are not purged. 13-17% of ranked players hold it from
+250. The AI fires it at once when silenced/disarmed. Against a DoT (>= 2 s left) it fires on only
+`Skill.dot_cleanse_share` of DoT episodes (drawn once while some enemy DoT runs and Dispel is ready), `Skill.dot_cleanse_delay` after it lands (reaction: 1.5 s Eternus,
+3 s below). Fit (2026-10-24, `scripts/fit_dispel.py`, `validation/dispel/`): in real matches Dispel holders take 85%
+of their teammates' Decay damage at Phantom+ (1500 matches, 90% CI 0.81-0.89), 87% at all ranks, 91% at Eternus+
+(175 matches, CI 0.77-1.07), from `damage/scripts/decay_vs_dispel.py` with the right-aligned damage-matrix read (the
+first run read arrays from the start and got 1.00). Real (Decay, Dispel) holder item snapshots from the same matches,
+dueled with and without Dispel (the holder can't die, like a fixed real window), give that ratio at share 0.26
+(Phantom+, CI 0.19-0.33) and 0.16 (all ranks); Eternus+ (0.13, CI 0.00-0.34) is too thin and uses the Phantom+ share.
+Cleansing every DoT at the old rank timings gave 0.35
+(3 s) and 0.26 (1.5 s). A share, not a longer delay, so short DoTs (burns, Toxic Bullets) can still be cleansed. Which
+DoTs get cleansed is a deterministic Bernoulli started at `Skill.fight_phase`, so the overall score's spread fight
+phases cleanse the first DoT in exactly that share of fights. 13-17% of ranked players hold it from
 27k souls up, so DoT builds (Decay, Toxic Bullets, burn abilities) were overvalued before.
+
+Per enemy source (2026-10-24, `counters/scripts/cleanse_real.py`, Phantom+, 2200 matches with a Dispel holder, 5400
+Infernus windows): the same pairing for every enemy damage source, ratio = holders / teammates without Dispel.
+Holders get shot more by Infernus (gun 1.16, Napalm 1.17), so read each source against those: **Afterburn 0.73
+(0.63 of Napalm)**, **Toxic Bullets 0.70 (0.61 of Infernus' gun; 0.68 of gun from every dealer)**, Escalating
+Exposure 0.72, Decay 0.80 of gun, Crow Familiar 0.86 and Fire Scarabs 0.87 of their owners' gun, Flame Dash's ground
+trail 1.03 (not purged). Holders die 21% less to Infernus (kills per window 0.79) and 11% less to anyone. So players
+spend Dispel on the DoTs an enemy's gun keeps re-applying, and much less on Decay. Model since then:
+- Hero DoTs that tick on their own (Afterburn, Crow Familiar's bleed, Fire Scarabs) register with
+  `CastCtx.dot_track` and stop on a purge (`dot_live`); before, Dispel could not touch them, so it had no value
+  against Infernus (counter sim: -0.03 extra vs Infernus at 27k, +0.24 after).
+- Build-up DoTs (Afterburn and Toxic Bullets, `buildup=True`) draw with `Skill.dot_cleanse_share_buildup`, fitted
+  by `scripts/fit_dispel_buildup.py` to Afterburn / Napalm (`validation/dispel/buildup_fit_91.json`): the fit sits
+  at its ceiling, 1.0. Even cleansing every one, the 30 s fixed-window duel removes only 25% of Afterburn (real 37%):
+  Infernus re-ignites within seconds and Dispel has a 45 s cooldown, while a real 3-minute window holds several
+  short fights (a 13 s duel removes 30%). So 1.0 is a lower bound, not a measured share, and Dispel's value
+  against Infernus (+0.24 extra in the counter sim) is the most this model can give, still short of real. Other
+  DoTs keep `dot_cleanse_share` (Decay fit). Only Phantom+ is measured, so every badge uses it.
+- Toxic Bullets check (same duel design, 300 real (Toxic holder, Dispel holder) snapshot pairs, Toxic damage per
+  gun damage, Dispel holder vs the same build without Dispel): 0.98 at the Decay share it had before, 0.92 at the
+  build-up share of 1.0; real 0.68. So moving it to the build-up share goes toward real and still falls short. A
+  Toxic Bullets build loses about 6% of its Toxic damage against Dispel holders (13-17% of players from 27k up).
+- Dispel purges Afterburn's build-up meter too.
+
+Counterspell, same pairing (`cleanse_real.py Counterspell`, 2200 matches, 62k windows): ability damage taken 0.965
+for non-ultimates and 0.98 for ultimates vs gun damage 0.96 (Counterspell can't block guns): no measurable block.
+Against Lash, the hero that triggers it most (x2.1): Death Slam 1.00 (CI 0.95-1.06), Ground Strike 1.00, Flog 1.00,
+and holders die to Lash as often (1.03). A few slow-detonation abilities do drop (Sticky Bomb 0.82, Gloom Bombs 0.73,
+Affliction 0.79 of gun), too few casts to move the total. `Skill.spell_parry_rate_ult` (new, ultimates) and
+`spell_parry_rate` are fitted by `scripts/fit_counterspell.py` (`validation/counterspell/fit_91.json`, set by
+`accuracy.spell_parry_rates` in `hero_default_skill`): both are 0 (was a hand-set 0.05), the grid floor: the real
+targets (1.004 non-ult, 1.025 ult, against gun) sit above what a zero rate gives, so the fit clips there and its
+"CI" is that clip, not a tight bound. The data says no measurable block, and Counterspell is worth its +50 HP and
+spirit power. A parried cast stays blocked for
+`mechanics.PARRIED_CAST_SPAN` (3.5 s), so a rate set by hand can block Death Slam, whose slam lands 2.6 s after the
+grab (it never could before). So the sim's
+verdict that Counterspell is the weakest defensive item per soul matches real Phantom+ play (win edge -0.8 points).
 
 ## New mechanics: parry, summons, nearby enemies, movement (2026-10-15)
 
@@ -391,6 +437,58 @@ mean +35, sd 200 over 12 paths). Melee keeps its fitted per-second rate; escapes
   Calico +15% from Torment Pulse / close-range items). Item value on the dummy (median over heroes): Close Quarters
   +24 -> +80, Sharpshooter +316 -> +320, Long Range +197 -> +154, Point Blank +316 -> +296. Close/long range bonuses use
   the joint expectation with falloff (`Engine.band_corr`): paid where the target actually is, not at the average falloff.
+
+## Damage mix audit against Phantom+ (2026-10-24)
+
+`scripts/damage_audit.py` checks the model as the searches use it (fitted landing factors, item factors,
+counterplay, mechanics, melee by build) against a fresh sample: 600 Phantom+ ranked matches of the last 5 days
+(`phantom_sample.jsonl.gz`, from `scripts/fetch_validation.py --api 91 5`, 5,115 player-matches). Each player's real
+build and real aim duel a real enemy at 30/60/90% of the match; the damage mix (gun / abilities / items / melee) and
+every source are compared with the damage matrix. It fits nothing. Output: `damage_audit.md` / `damage_audit.json`.
+The sample now also keeps each source's cumulative damage at every damage-matrix sample (`damage_series`), so item
+damage can be divided by the gun damage dealt while the item was owned.
+
+Found and fixed:
+- **Nurse Harrow** (347 player-matches, 3rd most played) had no landing factors and no melee rate: she is newer than
+  the 2026-10-13 sample. Fitted on the Phantom+ sample (Leech Therapy 1.81 / 1.37 with mechanics, Lurking Terrors
+  1.37 / 1.18, melee 0.03 hits/s). Mix distance 0.15 -> 0.09.
+- **Silver's wolf form** (Go For The Throat, Mauling Leap, Tail Whack) had no landing factors: the game books them
+  under their own classes (`ability_werewolf_frenzy`...), which the fit never matched (`landing_rates.ALIASES`). Fitted
+  0.5 / 0.47 / 0.8. Mix distance 0.10 -> 0.02.
+- **Sinclair's Audience Participation**: the game books the copied ultimate under the enemy hero's class, so the fit
+  found no real damage and stored 0.0 (applied as 0.05), and the engine then skipped the factor because the copy is
+  named "Audience Participation (X)". Real classes of other heroes now map to it (`landing_rates.COPY_ULT`) and the
+  copy uses its factor (`Ability.landing_key`). Small sample (20), still 0.05 off.
+- **Ability sub-sources skipped their landing factor**: the fit pools "Setup Bishop squares", "Ira Domini (blessed)",
+  "Serrated Knives (rage)", "Mini Turret (wall)"... with their ability, but the engine applied the factor only to the
+  exact ability name. With mechanics on, refits had pushed Setup Bishop to 0.02 and Ira Domini to 0.03 to make up for
+  it. The engine now falls back to the ability's factor (`engine.damage`); Solomon, Venator, Celeste and Sinclair were
+  refit from scratch on the Phantom+ sample. Celeste's Shining Wonder was 1.5 (clipped from 1.9) and is 0.5 now: real
+  Phantom+ players get 0.4x of what the sim gave it.
+- **Capacitor's shock** never fired for 40 s after its active: both shared one cooldown timer. Real/sim was 4.7, now
+  0.99 (Ivy 0.105 -> 0.018, Wraith 0.061 -> 0.012).
+- **Siphon Bullets** only lowered the target's max health, so a hurt target lost nothing. The game books the stolen
+  health as damage (0.24 per gun damage for holders); the sim now deals it (item factor 0.38).
+- **Melee Charge** damage was counted as melee by the fit (`sim_key` matched "melee" before item names).
+- **Item factors** (`data/item_landing.json`) were biased low for items bought late: real item damage was divided by
+  the whole match's gun damage, while the sim divided by gun damage of the duels holding the item. They also fought
+  with abilities always landing, so on-ability procs fired too often. Refit with gun damage while owned and the
+  searches' ability factors (`python3 scripts/item_landing.py 4 --sample validation/phantom_sample.jsonl.gz`; ability
+  refits: `python3 scripts/refit_landing_heroes.py --sample validation/phantom_sample.jsonl.gz HERO ...`). Applied factors that changed: Scourge 0.63 -> 1,
+  Lightning Scroll 0.71 -> 1, Quicksilver 0.86 -> 1, Phantom Strike 0.89 -> 1, Tesla Bullets 0.92 -> 1, Mystic Shot
+  0.75 -> 0.91, Headhunter 0.75 -> 0.92, Mercurial Magnum 0.83 -> 0.89, Focus Lens 0.32 -> 0.59 (min holders 40 -> 30
+  to keep it; 36 holders, low confidence), Stalker 1 -> 0.77, Capacitor 1 -> 0.95, Siphon Bullets 1 -> 0.38.
+
+Result: the player-weighted mix distance went 0.069 -> 0.051, and no item with 30+ holders is now overrated by more
+than 2% except Silence Wave (25 holders, 0.71). What is left in the table is mostly bookkeeping or team fights, not
+1v1 damage:
+- the game books amp bonuses under the item (Escalating Exposure, Express Shot, Rabbit Hex's amp; Melee Charge and
+  Crushing Fists probably their melee bonus too), the sim under the hit. This is why Shiv, Paige, Kelvin, Seven, Victor
+  and McGinnis show a lower item share in the sim;
+- items and abilities that hit several heroes in team fights come out above 1 and are left alone: Mystic Reverb 3.9,
+  Return Fire 3.9, Tankbuster 2.0, Arctic Blast 1.9, Ricochet (0 in a 1v1). Paradox (0.14) and Mo & Krill (0.12)
+  are mostly this.
+- Graves and Deadman Danny are not in the audit (their guns record no hero accuracy).
 
 ## Known gaps (not yet modeled)
 

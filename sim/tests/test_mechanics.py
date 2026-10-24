@@ -294,6 +294,57 @@ class Items(unittest.TestCase):
         e.damage(a, b, 120, "spirit", "big", is_ability=True)
         self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 40.0, places=6)
 
+    def test_capacitor_shock_still_procs_after_its_active(self):
+        # the 40 s active cooldown used to switch the passive shock off too
+        from deadsim.engine import Hit
+        e = Engine(distance=10)
+        a = make_fighter(e, Loadout("Wraith", ["Capacitor"], souls=9000, skill=Skill(use_actives=True)))
+        b = make_fighter(e, Loadout("Abrams", [], souls=9000))
+        a.enemy, b.enemy = b, a
+        fx = next(x for x in a.items_fx if x.item.name == "Capacitor")
+        self.assertTrue(fx.try_active(a))
+        before = a.dmg_out.get("Capacitor", 0.0)
+        for i in range(100):   # t = 1 .. 25.75 s: inside the active's 40 s cooldown
+            e.t = 1.0 + i * 0.25
+            fx.on_damage_dealt(a, b, Hit("bullet", "gun", 50, 50, hits=1))
+        self.assertLess(e.t, fx.ready_at)
+        self.assertGreater(a.dmg_out.get("Capacitor", 0.0) - before, 0.0)
+
+    def test_siphon_bullets_takes_current_health(self):
+        from deadsim.engine import Hit
+        e = Engine(distance=10)
+        a = make_fighter(e, Loadout("Wraith", ["Siphon Bullets"], souls=9000))
+        b = make_fighter(e, Loadout("Abrams", [], souls=9000))
+        a.enemy, b.enemy = b, a
+        b.hp = b.max_hp * 0.5   # hurt: lowering the cap alone would not touch its health
+        hp = b.hp
+        fx = next(x for x in a.items_fx if x.item.name == "Siphon Bullets")
+        fx.on_damage_dealt(a, b, Hit("bullet", "gun", 50, 50, hits=1))
+        self.assertGreater(a.dmg_out.get("Siphon Bullets", 0.0), 0.0)
+        self.assertAlmostEqual(hp - b.hp, a.dmg_out["Siphon Bullets"], places=6)
+        # a real-data factor scales the steal as a whole: health taken = the heal = the cap drop
+        e2 = Engine(distance=10)
+        a2 = make_fighter(e2, Loadout("Wraith", ["Siphon Bullets"], souls=9000,
+                                      skill=Skill(item_landing={"Siphon Bullets": 0.5})))
+        b2 = make_fighter(e2, Loadout("Abrams", [], souls=9000))
+        a2.enemy, b2.enemy = b2, a2
+        b2.hp = b2.max_hp * 0.5
+        cap = b2.max_hp
+        fx2 = next(x for x in a2.items_fx if x.item.name == "Siphon Bullets")
+        fx2.on_damage_dealt(a2, b2, Hit("bullet", "gun", 50, 50, hits=1))
+        self.assertAlmostEqual(a2.dmg_out["Siphon Bullets"], a.dmg_out["Siphon Bullets"] * 0.5, places=6)
+        self.assertAlmostEqual(cap - b2.max_hp, a2.dmg_out["Siphon Bullets"], places=6)
+
+    def test_ability_sub_source_uses_its_ability_landing_factor(self):
+        e = Engine()
+        sk = Skill(ability_landing={"Setup Bishop": 0.5})
+        a = make_fighter(e, Loadout("Solomon", [], souls=9000, skill=sk))
+        b = make_fighter(e, Loadout("Abrams", [], souls=9000))
+        a.enemy, b.enemy = b, a
+        ab = next(s for s in a.abilities if s.ab.name == "Setup Bishop")
+        e.damage(a, b, 100, "spirit", "Setup Bishop squares", is_ability=True, ability=ab, ignore_resist=True)
+        self.assertAlmostEqual(a.dmg_out["Setup Bishop squares"], 50.0, places=6)
+
     def test_hunters_aura_doubles_in_1v1(self):
         e = Engine(distance=10)
         a = make_fighter(e, Loadout("Infernus", ["Hunter's Aura"], souls=3200))

@@ -5,7 +5,8 @@ name: Rerun searches after a patch
 # pipeline/tiers.json order (Phantom and up first, the standard; then Ascendant+, Eternus+, all ranks). Each tier runs
 # across 16 machines, commits its results to main and redeploys the site before the next starts
 # (rerun-tier.yml). Tiers not in "enabled" are skipped and keep their last results. Nothing is committed for a
-# tier unless its searches finish (pipeline/check_results.py).
+# tier unless its searches finish (pipeline/check_results.py). The real item win edge the overall search blends in
+# is rebuilt from the same builds (pipeline/refresh_win_edge.py), or kept from the last run when there are too few.
 
 # A merged change to pipeline/rerun_request.json also forces a rerun, so Claude (which can't press Run workflow)
 # can start one when asked.
@@ -125,11 +126,16 @@ jobs:
           for b in $brackets; do
             python3 search/scripts/build_pool.py $b
           done
+      - name: Real item win edge from the patch's builds (keeps the last snapshot when there are too few matches)
+        if: steps.fetch.outputs.complete == 'true'
+        continue-on-error: true   # the overall search then blends the last snapshot, as when there are too few
+        run: python3 pipeline/refresh_win_edge.py data/builds/player_builds --workers 3
       - if: steps.fetch.outputs.complete == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: inputs
           path: |
+            analysis/out/hero_item_edge.json
             data/builds/aggregates
             search/work/snapshots_*.json
             search/work/item_usage*.json
