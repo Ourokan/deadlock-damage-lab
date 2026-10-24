@@ -919,9 +919,11 @@ class DispelMagic(FX):
     disarm. Against a DoT with >= 2 s left: only on Skill.dot_cleanse_share of the DoTs that land (real players
     mostly let Decay run: on cooldown, saved for a stun, not noticed; accuracy.dot_cleanse_share), and then after
     Skill.dot_cleanse_delay seconds of it (reaction time), or with dot_cleanse_delay=None only once below
-    DOT_PANIC_HP of max health. Which DoTs are cleansed is a deterministic Bernoulli (engine.Accum) started at
-    Skill.fight_phase, so over a pool of fights with spread phases the first DoT is cleansed in exactly that share
-    of them. The +2 m/s move speed does nothing at fixed distance. Assumption: BuffDuration (3 s) is the move-speed
+    DOT_PANIC_HP of max health. Which DoTs are cleansed is an engine.Accum: a random draw per DoT when the
+    engine has an rng (fit_dispel.py), else deterministic, started at Skill.fight_phase, so over the overall score's
+    spread phases the first DoT is cleansed in exactly that share of fights. Without a phase (single duels, the
+    duel-score search) it starts at 0.5, i.e. the first DoT is cleansed only if the share is 0.5 or more: the
+    nearest all-or-nothing value to the fitted 0.33-0.43. The +2 m/s move speed does nothing at fixed distance. Assumption: BuffDuration (3 s) is the move-speed
     buff, not debuff immunity."""
     DOT_PANIC_HP = 0.5
 

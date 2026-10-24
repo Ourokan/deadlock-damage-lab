@@ -13,6 +13,7 @@ Manual input is just Skill(accuracy=..., headshot=...).
 """
 from __future__ import annotations
 
+import functools
 import json
 import os
 import time
@@ -193,11 +194,14 @@ def dot_cleanse_share(badge=None):
     (1500 matches), 87% at all ranks, 91% at Eternus+ (175 matches, noisy): Dispel is often on cooldown, saved for a
     stun or not noticed. Phantom+ (91+) uses the Phantom+ fit, lower badges and None the all-ranks fit. Eternus+
     (fit_111.json, 0.26, 90% CI 0.04-0.45) is too thin to differ from Phantom+ (0.43, CI 0.36-0.49), so it uses that."""
-    lo = 91 if badge is not None and badge >= 91 else 0
-    try:
-        return json.load(open(os.path.join(DISPEL_FIT, f"fit_{lo}.json")))["fitted_share"]
-    except (OSError, ValueError, KeyError):
-        return None
+    return _dispel_fit(91 if badge is not None and badge >= 91 else 0)
+
+
+@functools.lru_cache(maxsize=None)
+def _dispel_fit(lo):
+    # no fallback: a missing fit would silently turn every DoT cleanse back on
+    with open(os.path.join(DISPEL_FIT, f"fit_{lo}.json")) as f:
+        return float(json.load(f)["fitted_share"])
 
 
 ITEM_LANDING = os.path.join(HERE, "..", "data", "item_landing.json")
