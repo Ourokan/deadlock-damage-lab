@@ -304,9 +304,10 @@ class Items(unittest.TestCase):
         fx = next(x for x in a.items_fx if x.item.name == "Capacitor")
         self.assertTrue(fx.try_active(a))
         before = a.dmg_out.get("Capacitor", 0.0)
-        for i in range(200):
+        for i in range(100):   # t = 1 .. 25.75 s: inside the active's 40 s cooldown
             e.t = 1.0 + i * 0.25
             fx.on_damage_dealt(a, b, Hit("bullet", "gun", 50, 50, hits=1))
+        self.assertLess(e.t, fx.ready_at)
         self.assertGreater(a.dmg_out.get("Capacitor", 0.0) - before, 0.0)
 
     def test_siphon_bullets_takes_current_health(self):
