@@ -213,5 +213,6 @@ def time_to_kill(attacker: Loadout, defender: Loadout, distance=15.0, max_time=6
     fb = make_fighter(e, defender, "defender")
     # a dummy stands still: it doesn't run away, parry or time Counterspell
     fb.skill = Skill(accuracy=0.0, headshot=0.0, use_abilities=False, use_actives=defender.skill.use_actives,
-                     flee_hp=0.0, parry_rate=0.0, spell_parry_rate=0.0)
+                     flee_hp=0.0, parry_rate=0.0, spell_parry_rate=0.0,
+                     spell_parry_rate_ult=0.0)
     return e.run(fa, fb, one_way=True)

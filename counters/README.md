@@ -22,6 +22,10 @@ from the `won` flag; the enemy team's items at any moment are rebuilt from purch
 - But in real fights Dispel holders still take 85% of their teammates' Decay damage at Phantom+
   (`damage/scripts/decay_vs_dispel.py`, 1500 matches, 2026-10-24 rerun with the right-aligned damage read; the
   first run said 100%): players buy it because of Decay but mostly don't spend it on Decay. Its value comes from cleansing silences and stuns, the heal and the spirit resist.
+- Against Infernus it works (2026-10-24, `scripts/cleanse_real.py`): holders take 0.63 of their teammates'
+  Afterburn and about 0.6 of their Toxic Bullets (both against the gun damage they take), and die 21% less to
+  Infernus. The sim could not purge Afterburn until then; now it does, and Dispel is worth +0.24 extra against
+  Infernus at 27k (was -0.03).
 - Sim: one of the best defensive items per soul (+0.12 duel score at 27k, 3rd of 10), best against Pocket,
   McGinnis, Drifter and Infernus.
 
@@ -30,8 +34,10 @@ from the `won` flag; the enemy team's items at any moment are rebuilt from purch
 - Strongest hero trigger of any counter: **Lash ×2.14** (Death Slam), then Pocket, Grey Talon and Apollo
   (×1.1-1.2). It does not respond to how spirit-heavy the enemy team is (×0.89 high vs low) or to big spirit
   items (Tankbuster ×1.15, Mystic Reverb ×1.07).
-- Win edge −0.8 points. The sim does not model the spell parry, so its sim numbers count only +50 HP and
-  spirit power and should be ignored.
+- Win edge −0.8 points. In real fights it blocks about nothing (2026-10-24, `scripts/cleanse_real.py`,
+  2200 Phantom+ matches): holders take as much Death Slam damage as their teammates (1.00, CI 0.95-1.06) and die
+  to Lash as often (1.03); over all enemies their ability damage moves no more than their gun damage (0.97 vs 0.96).
+  The sim's spell parry is fitted to that (`sim/validation/counterspell/`), so its low value is real.
 
 ### Metal Skin: the most threat-driven buy, and the worst result
 - 3.8% buy it, at a median 27 minutes. Hero 88, Silver, Shiv and Billy buy it most.

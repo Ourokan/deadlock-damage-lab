@@ -67,5 +67,50 @@ class DispelShare(unittest.TestCase):
         self.assertTrue(0.35 < below < 0.65, below)
         self.assertGreater(len(set(round(p, 6) for p in phases)), len(phases) // 4)
 
+    def test_buildup_share_loaded(self):
+        from deadsim.accuracy import dot_cleanse_share_buildup
+        self.assertTrue(0.0 < dot_cleanse_share_buildup(91) <= 1.0)
+        self.assertIsNotNone(hero_default_skill("Haze", badge=91).dot_cleanse_share_buildup)
+
+
+def afterburn_taken(share_buildup, items=("Rapid Rounds", "Swift Striker", "Dispel Magic")):
+    a = Loadout("Infernus", ["Extra Spirit", "Mystic Burst", "Rapid Rounds"], souls=20000,
+                skill=hero_default_skill("Infernus", badge=91, counterplay=True))
+    sk = dataclasses.replace(hero_default_skill("Haze", badge=91, counterplay=True), dot_cleanse_share=0.0,
+                             dot_cleanse_share_buildup=share_buildup)
+    return duel(a, Loadout("Haze", list(items), souls=20000, skill=sk)).a_dmg.get("Afterburn", 0.0)
+
+
+class DispelAfterburn(unittest.TestCase):
+    def test_afterburn_is_purged(self):
+        # Afterburn ticks on its own schedule (not Engine.dot): it must still show to Dispel and stop on a purge
+        never, always = afterburn_taken(0.0), afterburn_taken(1.0)
+        self.assertGreater(never, 0.0)
+        self.assertLess(always, 0.85 * never)
+
+    def test_buildup_share_only_for_buildup(self):
+        # dot_cleanse_share 0 leaves Decay alone even with the build-up share at 1
+        a = Loadout("Seven", ["Extra Spirit", "Mystic Burst", "Decay"], souls=20000,
+                    skill=hero_default_skill("Seven", badge=91, counterplay=True))
+        sk = hero_default_skill("Haze", badge=91, counterplay=True)
+        b0 = Loadout("Haze", ["Rapid Rounds", "Swift Striker", "Dispel Magic"], souls=20000,
+                     skill=dataclasses.replace(sk, dot_cleanse_share=0.0, dot_cleanse_share_buildup=0.0))
+        b1 = Loadout("Haze", ["Rapid Rounds", "Swift Striker", "Dispel Magic"], souls=20000,
+                     skill=dataclasses.replace(sk, dot_cleanse_share=0.0, dot_cleanse_share_buildup=1.0))
+        self.assertAlmostEqual(duel(a, b0).a_dmg.get("Decay", 0.0), duel(a, b1).a_dmg.get("Decay", 0.0), places=6)
+
+
+class CounterspellUlt(unittest.TestCase):
+    def test_ult_rate_blocks_death_slam(self):
+        def slam(rate_ult):
+            a = Loadout("Lash", ["Extra Spirit", "Mystic Burst"], souls=20000,
+                        skill=hero_default_skill("Lash", badge=91, counterplay=True))
+            sk = dataclasses.replace(hero_default_skill("Haze", badge=91, counterplay=True), spell_parry_rate=0.0,
+                                     spell_parry_rate_ult=rate_ult)
+            r = duel(a, Loadout("Haze", ["Rapid Rounds", "Counterspell"], souls=20000, skill=sk))
+            return r.a_dmg.get("Death Slam", 0.0)
+        self.assertGreater(slam(0.0), 0.0)
+        self.assertLess(slam(1.0), 0.6 * slam(0.0))   # later slams can come while it is on cooldown
+
 if __name__ == "__main__":
     unittest.main()
