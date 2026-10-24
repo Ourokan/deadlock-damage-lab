@@ -796,6 +796,48 @@ Doorman 0.167 -> 0.102.
   full at the opening. The threshold is now 25 and an item active's stun / silence / disarm is x its fitted factor
   (`DamageActive.cc`, realistic mode): 2 of 8 after. Decay still shows up on 2.
 
+## Opener timing (2026-10-24)
+
+With real fight lengths (above), Vyper's gun share inside Split Shot windows was 0.53 expected vs 0.41 real: the sim
+starts every fight with every cooldown ready and casts each opener as soon as its rule allows. This measures when real
+Phantom+ players' damage abilities and items land inside a fight (`scripts/fight_length/opener_timing.py`, table in
+`validation/opener_timing.md`, real rows in `opener_timing_real.json.gz`; the fights of `fit_length.py`).
+
+**Real:** half of the openers are still on cooldown from an earlier fight: the median source is ready (no hit in its
+base cooldown before) at 68% of fight starts. Vyper's Split Shot is ready at 54%, is used in 51% of his fights (64%
+when ready), and its first hit comes a median ~1 s in when ready; its fight damage by 2 s slice is 0.43 / 0.34 / 0.14 /
+0.05, the sim's (expected) 0.65 / 0.23 / 0.11 / 0.00. Over 232 hero sources the sim puts clearly more of the damage in
+the first 2 s (by 0.15+) for 69 (casts on sight: Abrams Seismic Impact, Haze Bullet Dance, Paradoxical Swap,
+Quicksilver Reload on every holder, Wraith Card Trick, ...) and clearly less for 66 (its cast rules wait too long:
+Calico Spirit Strike / Mystic Shot procs, Victor Pain Battery, Silver Slam Fire, Bebop Spirit Strike, Lash Death Slam,
+Vyper Lethal Venom). The gun is the mirror: real 0.33 of a hero's gun damage in
+the first 2 s, sim 0.23 (casts lock the gun at the start).
+
+**Model** (`Mechanics.opener_timing`, needs `fight_length`; **off by default**): for each source the sim casts on sight
+(70%+ of its first hits in the first second), `data/opener_timing.json` holds 20 equal-probability values of the real
+hold before its first use (Kaplan-Meier first use given a use by 20 s, less the sim's own median first hit); items are
+also pooled over heroes. Its hits are booked x the mean over those values h of P(fight still going at t + h), as if
+it had opened h later; only sources with a length correction get one (the correction keeps the level). 122 hero
+sources, median hold 3.3 s. The per-source timing distance to real (half the summed 2 s slice gaps) goes 0.26 -> 0.16
+(85 of 122 closer; a pooled scale on the holds does no better, 0.167 at x0.9).
+
+**With it on** (length corrections rerun, `length_factors.py`):
+- The corrections lose most of their fudge: ability median 0.74 -> 0.99 (median |ln| 0.36 -> 0.26), Split Shot 0.48
+  -> 0.76, Mystic Burst 0.74 -> 0.98, Tankbuster 0.69 -> 0.89, Cold Front 0.50 -> 0.71, Quicksilver Reload 0.56 -> 0.81.
+- Audit: player-weighted mix 0.0403 -> 0.0399, hero mean 0.0500 -> 0.0491 (Abrams 0.043 -> 0.017, Pocket 0.060 ->
+  0.047; Venator 0.034 -> 0.047, Apollo, Nurse Harrow 0.013 -> 0.022), but pooled items 0.063 -> 0.082 and per-hero
+  items 0.257 -> 0.274 (the 3-round corrections leave items 2-4% off; Vyper's Split Shot holders real/sim 1.31 ->
+  1.42 under the pooled correction).
+- Overall search, 12 heroes at 27k: every best build changes, the mean real win edge of the picked items stays
+  (1.26 -> 1.24 points) and Decay, which loses in real matches on every hero, comes in on 4 of 12 (Haze, Dynamo,
+  Mo & Krill, Lady Geist); Vyper picks Silence Wave. So it stays off until the holds also move the fight itself
+  (casts later in the fight path, not only in the booking) or the search's item values are rechecked with it.
+
+**Found on the way:** `length_factors.py` skips ability rows without a "class" (rows added by
+`refit_landing_heroes.py`: Graves, Nurse Harrow, Silver), so they have no length correction. Giving them one pins them
+to their in-full fits and worsens their audit (Graves 0.060 -> 0.101, Nurse Harrow 0.013 -> 0.086: the uncorrected
+fight-length booking happens to suit them); a refit of those three under the fight-length booking is the fix.
+
 ## Known gaps (not yet modeled)
 
 - **Melee movement:** melee is in fights and its rate follows the build (see "Melee" above). Melee Charge's lunge

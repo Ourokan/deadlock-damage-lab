@@ -121,6 +121,22 @@ def sim_player(job, both=False):
                 out[f"_by2s:{k}"] += v
             for k in range(int(math.ceil(r.time / 2))):
                 out[f"_alive:{k}"] += 1
+            # opener timing (scripts/fight_length/opener_timing.py): first hit of each held source, 0.5 s buckets,
+            # "_fu" used in the bucket, "_fc" duel over in the bucket without a use
+            first = {}
+            for k, v in r.a_first.items():
+                key = L.sim_key(k, names, G)
+                first[key] = min(v, first.get(key, v))
+            have = set(names.values()) | {G.items[i].class_name for i in items} | set(first)
+            for key in have:
+                if key in ("GUN", "MELEE"):
+                    continue
+                if key in first:
+                    out[f"_fu:{key}:{min(40, int(first[key] / 0.5))}"] += 1
+                else:
+                    out[f"_fc:{key}:{min(40, int(r.time / 0.5))}"] += 1
+            for (k, b), v in r.a_src_2s.items():
+                out[f"_s2:{L.sim_key(k, names, G)}:{b}"] += v
         for o, hd, exp in ((out, held, True), (out_u, held_u, False)) if both else ((out, held, True),):
             d = sim_sources(r, lambda k: L.sim_key(k, names, G), exp)
             o.update(d)

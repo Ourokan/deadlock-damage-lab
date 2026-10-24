@@ -150,8 +150,13 @@ class AllyItems(unittest.TestCase):
             self.assertGreater(O.team_value([ID[name]], 27000), 1.0, name)
 
     def test_noisy_fits_count_zero(self):
-        # Hunter's Aura at 50k: 0.013 +- 0.039, inside its 95% band
-        self.assertEqual(O.team_value([ID["Hunter's Aura"]], 50000), 1.0)
+        # any item / budget whose fit is inside its 95% band (the patch rerun refits team_value.json, so which item
+        # that is changes; it was Hunter's Aura at 50k, 0.013 +- 0.039)
+        noisy = [(name, int(b)) for name, spec in O.team_data()["items"]["values"].items()
+                 for b, r in spec["budgets"].items() if r["value"] <= 1.96 * r.get("se", 0.0)]
+        self.assertTrue(noisy)
+        for name, b in noisy:
+            self.assertEqual(O.team_value([ID[name]], b), 1.0, (name, b))
 
     def test_values_add(self):
         a, b = ID["Healing Nova"], ID["Heroic Aura"]
