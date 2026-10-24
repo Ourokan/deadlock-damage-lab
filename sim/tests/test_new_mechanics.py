@@ -73,6 +73,68 @@ class TestSummons(unittest.TestCase):
         self.assertGreater(sum(on.b_summon.values()), 0.0)
         self.assertLess(on.a_dmg.get("Mini Turret", 0.0), off.a_dmg.get("Mini Turret", 0.0))
 
+    MECH = Mechanics(movement=False, parry=False, range_drift=False)
+
+    def graves(self, focus, targeting=None):
+        a = Loadout("Graves", [], souls=25000, skill=Skill(accuracy=0.0, use_actives=False))
+        b = Loadout("Haze", ["Extra Health", "Bullet Resilience"], souls=25000,
+                    skill=Skill(accuracy=0.9, summon_focus=focus, use_abilities=False))
+        saved = M._TARGETING
+        if targeting is not None:
+            M._TARGETING = targeting
+        try:
+            return duel(a, b, max_time=10, mechanics=self.MECH)   # nobody dies in 10 s
+        finally:
+            M._TARGETING = saved
+
+    def test_graves_summons_can_be_killed(self):
+        shot, ignored = self.graves(1.0), self.graves(0.0)
+        self.assertGreater(shot.b_summon.get("Deadhead", 0.0) + shot.b_summon.get("Zombie", 0.0), 0.0)
+        self.assertGreater(shot.a_summons_out["graves_skull"][1], 0)    # some Deadheads shot down
+        self.assertLess(shot.a_dmg["Jar of Dead"], ignored.a_dmg["Jar of Dead"])   # dead Deadheads stop biting
+        self.assertNotIn("Gravestone", shot.b_summon)                     # bullets don't hurt the gravestone
+
+    def test_gravestone_kill_stops_zombies(self):
+        rows = {k: dict(v) for k, v in M.summon_targeting().items()}
+        for v in rows.values():
+            v.update(focus=0.0, splash=0.0)
+        standing = self.graves(None, rows)
+        rows["graves_stone"].update(splash=50.0)    # broken by the first area hit on Graves
+        broken = self.graves(None, rows)
+        self.assertEqual(broken.a_summons_out["graves_stone"][1], 1)
+        self.assertLess(broken.a_dmg.get("Borrowed Decree (zombie)", 0.0), standing.a_dmg.get("Borrowed Decree (zombie)", 0.0))
+
+    def test_gravestone_break_is_expected_value(self):
+        rows = {k: dict(v) for k, v in M.summon_targeting().items()}
+        for v in rows.values():
+            v.update(focus=0.0, splash=0.0)
+        out = []
+        for p in (0.0, 0.5, 1.0):
+            rows["graves_stone"].update(break_p=p, break_s=3.0)
+            r = self.graves(None, rows)
+            out.append((r.a_dmg.get("Borrowed Decree (zombie)", 0.0), r.a_dmg.get("Jar of Dead", 0.0)))
+        (z0, _), (z5, _), (z1, _) = out
+        self.assertGreater(z1, 0.0)                              # zombies from before the break still bite
+        self.assertAlmostEqual(z5, (z0 + z1) / 2, delta=0.02 * z0)   # p = 0.5 is half way, no rounding
+        # the aura's spirit shred is scaled the same way: Deadheads biting after the break hit softer
+        j0, j5, j1 = (x[1] for x in out)
+        self.assertGreater(j0, j1)
+        self.assertAlmostEqual(j5, (j0 + j1) / 2, delta=0.1 * (j0 - j1))
+
+    def test_splash_hits_summons(self):
+        a = Loadout("McGinnis", [], souls=15000, skill=Skill(accuracy=0.0, use_actives=False),
+                    unlocked=[True, False, False, False])
+        b = Loadout("Infernus", [], souls=15000, skill=Skill(accuracy=0.0, summon_focus=0.0))
+        r = duel(a, b, max_time=20, mechanics=self.MECH)
+        self.assertGreater(r.b_summon_kind["mcginnis_turret"][1], 0.0)   # abilities only, no gun damage
+        self.assertEqual(r.b_summon_kind["mcginnis_turret"][0], 0.0)
+
+    def test_assistant_cannot_be_shot(self):
+        # Sinclair's Spectral Assistant has no health in replays: nothing to shoot
+        a = Loadout("Sinclair", [], souls=25000, skill=Skill(accuracy=0.3))
+        b = Loadout("Haze", [], souls=25000, skill=Skill(accuracy=0.5, summon_focus=1.0, use_abilities=False))
+        self.assertEqual(duel(a, b, max_time=20, mechanics=self.MECH).b_summon, {})
+
 
 class TestNearby(unittest.TestCase):
     def test_ricochet_splash_only_with_nearby_enemies(self):

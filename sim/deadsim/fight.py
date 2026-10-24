@@ -17,7 +17,7 @@ from functools import lru_cache
 from .abilities import AbilityState, load_heroes
 from .build import NET_WORTH_OFFSET, compute_stats
 from .data import game, DATA_DIR
-from .engine import Engine, Fighter, Skill, _UNSET
+from .engine import MELEE_ITEMS, Engine, Fighter, Skill, _UNSET
 from . import items_fx, patterns
 
 # median number of ability events (unlock or upgrade) by net worth, from 200k current-patch ranked rows
@@ -146,6 +146,14 @@ def _default_imbue_target(hero, unlocked):
     return best if best is not None else 0
 
 
+def melee_build_mult(skill, items):
+    """Skill.melee_item_mult entry for this build's count of melee items (1 when unset)."""
+    m = skill.melee_item_mult
+    if not m:
+        return 1.0
+    return m[min(len(m) - 1, sum(1 for it in items if it.class_name in MELEE_ITEMS))]
+
+
 def make_fighter(engine, lo: Loadout, name=None):
     load_heroes()
     hero, items = lo.resolve()
@@ -153,6 +161,8 @@ def make_fighter(engine, lo: Loadout, name=None):
     skill = lo.skill
     if engine.mech is not None and skill.ability_landing_mech:
         skill = dataclasses.replace(skill, ability_landing=skill.ability_landing_mech)
+    if skill.melee_item_mult:
+        skill = dataclasses.replace(skill, melee_rate=skill.melee_rate * melee_build_mult(skill, items))
     f = Fighter(engine, name or lo.name or hero.name, st, skill)
     if lo.ability_order:
         tiers, unlocked = abilities_for_order(hero, lo.ability_order, st.souls)

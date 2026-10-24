@@ -23,9 +23,18 @@ Settings fitted to real ranked matches (validation/README.md, "New mechanics"):
   holder times a spell parry with Skill.spell_parry_rate; for SpellParryDuration it blocks the damage, DoTs and
   debuffs of that cast (and of any other enemy ability or item hit). Real holders' ability damage taken drops ~0-3%
   after buying it (same-player before/after vs teammates), so the default is low.
-- Summons (Mechanics.summons): McGinnis turrets have health (TurretBaseHealth + boons, 35% spirit resist) and the
-  enemy spends Skill.summon_focus of its trigger pulls on a living turret, at SUMMON_ACC_MULT x its hero accuracy
-  (turrets stand still). A dead turret stops shooting. Damage to summons is not hero damage (`FightResult.*_summon`).
+- Summons (Mechanics.summons): McGinnis turrets and Graves' zombies, ghouls, Deadheads and gravestone have health
+  (from the data, + boons) and the enemy spends a share of its trigger pulls on each living kind, at acc_mult x its
+  hero accuracy. Shares and accuracy multipliers per kind are in data/summon_targeting.json: the shares are fitted
+  so the sim's share of enemy gun damage that hits summons instead of the owner matches Phantom+ replays
+  (scripts/summons/). Skill.summon_focus overrides every kind's share. Non-gun damage the owner takes (area
+  abilities, items, melee) also hits every living summon: x its kind's splash share, fitted the same way (in the replays
+  60-70% of what enemies deal to zombies and turrets is not gun damage). A kind with break_p (the gravestone) is
+  broken by the enemy break_s after it lands with that probability, as an expected value (real share of gravestones that took
+  hero damage and were destroyed by a hero; real median time to break). A dead summon stops attacking. Damage to
+  summons is not hero damage (`FightResult.*_summon`). A summon lives at most life_other_s (real median life of
+  summons no hero killed). Every other hero summon (Sinclair's Assistant, Grey Talon's
+  owl, Solomon's pieces, Rat King's rats and banner, Medicinal Specter) has no health in the replays: it can't be shot.
 - Other enemies (Mechanics.extra_targets): expected number of other enemy heroes close to the target. Ricochet
   bounces and Split Shot pellets that hit them are booked apart (`FightResult.*_splash`), they never kill anyone.
   Real Ricochet damage is 15% of its holders' gun damage, which is 0.23 bounces per hit, so a fair team-fight
@@ -60,8 +69,7 @@ from .data import GAME
 from .items_fx import BuildUp, FX, CC_KEYS, _basic_melee
 
 
-SUMMON_ACC_MULT = 2.5       # accuracy on a turret vs on a hero (it stands still), capped at SUMMON_ACC_MAX: assumption
-SUMMON_ACC_MAX = 0.9
+SUMMON_ACC_MAX = 0.9        # cap on accuracy against a summon (acc_mult x hero accuracy)
 SPLIT_PRIMARY_HIT = 2.8     # Split Shot copies landing on the main target per landed shot (fit to real, see README)
 SPLIT_SECONDARY_COVER = 0.5  # share of nearby enemies inside the 45 degree fan (assumption)
 WARP_AWAY = 0.3             # share of Warp Stone's teleport range that ends up as extra gap when running (fit)
@@ -206,11 +214,29 @@ def spell_blocked(eng, src, dst, ability=None):
 # ---------------------------------------------------------------------------------------------------------------
 # Summons
 # ---------------------------------------------------------------------------------------------------------------
+_TARGETING = None
+
+
+def summon_targeting():
+    """{kind: {"focus": share of trigger pulls, "acc_mult": accuracy vs on a hero}} from data/summon_targeting.json."""
+    global _TARGETING
+    if _TARGETING is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "summon_targeting.json")) as fh:
+            _TARGETING = json.load(fh)["kinds"]
+    return _TARGETING
+
+
 class Summon:
-    def __init__(self, owner, name, hp, spirit_resist=0.0, bullet_resist=0.0, until=math.inf):
+    def __init__(self, owner, name, hp, spirit_resist=0.0, bullet_resist=0.0, until=math.inf, kind="turret",
+                 on_death=None):
         self.owner, self.name, self.hp = owner, name, hp
         self.bullet_resist, self.spirit_resist = bullet_resist, spirit_resist
         self.until = until
+        self.kind = kind
+        t = summon_targeting().get(kind, {})
+        self.focus, self.acc_mult, self.splash = t.get("focus", 0.0), t.get("acc_mult", 1.0), t.get("splash", 0.0)
+        self.on_death = on_death
+        self.weight = 1.0   # expected share of fights it is still standing in (see _break)
         self.alive = True
 
     def hurt(self, amount, kind="bullet"):
@@ -220,36 +246,104 @@ class Summon:
         if self.hp <= 0:
             self.alive = False
             self.owner.e.note(f"{self.name} of {self.owner.name} destroyed")
+            if self.on_death:
+                self.on_death()
         return amt
 
 
-def add_summon(owner, name, hp, spirit_resist=0.0, bullet_resist=0.0, life=math.inf, delay=0.0):
+def add_summon(owner, name, hp, spirit_resist=0.0, bullet_resist=0.0, life=math.inf, delay=0.0, kind="turret",
+               on_death=None):
     """A summon the enemy can shoot, or None if summons are off. Give it to Engine.dot as guard= so its damage
-    stops when it dies."""
+    stops when it dies. kind picks its row in data/summon_targeting.json; on_death runs if it is killed. Its life
+    is capped at the row's life_other_s: the median real life of summons no enemy hero killed (troopers, other
+    heroes, left behind), which a 1v1 doesn't have."""
     m = owner.e.mech
     if m is None or not m.summons:
         return None
-    s = Summon(owner, name, hp, spirit_resist, bullet_resist, owner.e.t + delay + life)
+    life = min(life, summon_targeting().get(kind, {}).get("life_other_s", math.inf))
+    s = Summon(owner, name, hp, spirit_resist, bullet_resist, owner.e.t + delay + life, kind, on_death)
     owner.counters.setdefault("summons", []).append(s)
+    row = summon_targeting().get(kind, {})
+    if row.get("break_p"):
+        owner.e.after(delay + row["break_s"], _break, s, row["break_p"])
     return s
 
 
-def live_summon(f):
+def _break(s, p):
+    """The enemy walks up and breaks summon s (melee) with probability p: Graves' gravestone, which bullets can't hurt.
+    One break per fight can't be drawn as a deterministic Bernoulli (Accum would always fire for p >= 0.5), so it is
+    an expected value: s.weight drops to 1 - p, and whatever the summon still does is scaled by it (necro.py: the
+    aura and the damage of zombies spawned after it). FightResult.*_summons_out counts only real deaths, not breaks."""
+    f = s.owner.enemy
+    if f is not None and f.alive and alive(s) and s.alive:
+        d = f.counters.setdefault("summon_dmg", {})   # not in summon_dmg_kind: that is the gun / splash fit
+        d[s.name] = d.get(s.name, 0.0) + s.hp * p
+        s.weight *= 1.0 - p
+
+
+def alive(s):
+    """True for a summon still standing (or no summon: summons off)."""
+    return s is None or (s.alive and s.until > s.owner.e.t)
+
+
+def live_summons(f):
+    """The first (oldest) living summon of each kind f has out, in spawn order: the one the enemy shoots."""
     t = f.e.t
+    out, seen = [], set()
     for s in f.counters.get("summons", ()):
-        if s.alive and s.until > t:
+        if s.alive and s.until > t and s.kind not in seen:
+            seen.add(s.kind)
+            out.append(s)
+    return out
+
+
+def live_summon(f):
+    s = live_summons(f)
+    return s[0] if s else None
+
+
+def pick_summon(f, e):
+    """The enemy summon f spends this trigger pull on, or None (shoot the hero)."""
+    for s in live_summons(e):
+        if s.bullet_resist >= 1.0:   # bullets can't hurt it (Graves' gravestone)
+            continue
+        focus = s.focus if f.skill.summon_focus is None else f.skill.summon_focus
+        if focus > 0 and f.acc("summon_focus:" + s.kind).take(focus):
             return s
     return None
 
 
+def note_hit_while_summoned(src, dst, amount, source):
+    """dst took amount of hero damage while it has summons out. Books it per kind as [gun, other] (the fit compares
+    it with damage to the summons) and splashes non-gun damage (area abilities, items, melee) onto every living
+    summon: amount x its kind's splash share (fitted to replays against the damage all of a kind's summons take,
+    see data/summon_targeting.json). Gun pulls go to one summon at a time (pick_summon: the oldest of each kind)."""
+    d = dst.counters.setdefault("hit_while_summon", {})
+    gun = source == "gun"
+    for s in live_summons(dst):
+        row = d.setdefault(s.kind, [0.0, 0.0])
+        row[0 if gun else 1] += amount
+    if gun:
+        return
+    t = dst.e.t
+    for s in list(dst.counters.get("summons", ())):
+        if s.alive and s.until > t and s.splash > 0:
+            _book(src, s, s.hurt(amount * s.splash, "pure"), 1)
+
+
+def _book(f, s, amt, i):
+    d = f.counters.setdefault("summon_dmg", {})
+    d[s.name] = d.get(s.name, 0.0) + amt
+    k = f.counters.setdefault("summon_dmg_kind", {}).setdefault(s.kind, [0.0, 0.0])
+    k[i] += amt
+
+
 def shoot_summon(eng, f, s, n_bullets):
     """f spends this trigger pull on enemy summon s. Returns True (the pull is used)."""
-    hits = f.acc("summon_hit").take(min(SUMMON_ACC_MAX, f.skill.accuracy * SUMMON_ACC_MULT), n_bullets)
+    hits = f.acc("summon_hit").take(min(SUMMON_ACC_MAX, f.skill.accuracy * s.acc_mult), n_bullets)
     if hits:
         per, _ = eng.bullet_damage(f)
-        amt = s.hurt(per * hits, "bullet")
-        d = f.counters.setdefault("summon_dmg", {})
-        d[s.name] = d.get(s.name, 0.0) + amt
+        _book(f, s, s.hurt(per * hits, "bullet"), 0)
     return True
 
 
@@ -325,6 +419,9 @@ class Mover:
             v = max(v, dash)
         return max(0.0, v)
 
+    def melee_reach(self, f, heavy):
+        return melee_reach(f, heavy)
+
     def try_dash(self, f):
         if f.counters["stamina"] >= 1 and self.e.t >= f.counters["dash_until"] and f.alive \
                 and not f.mods.active("stun") and not f.mods.active("immobilize"):
@@ -392,6 +489,16 @@ class Mover:
             # nobody running: the chaser walks back into his fighting distance
             e.distance = max(self.start, e.distance - max(self.speed(a), self.speed(b)) * self.DT)
         e.after(self.DT, self.tick)
+
+
+def melee_reach(f, heavy):
+    """Gap beyond the start distance a rotation melee still lands from. Items with MeleeDistanceScale make heavy
+    melees lunge that % farther (game data: Melee Charge 50, Crushing Fists 60, Runed Gauntlets 150; the largest
+    held counts), so a chaser lands them on a runner sooner."""
+    if not heavy:
+        return MELEE_REACH
+    return MELEE_REACH * (1.0 + max((fx.item.p("MeleeDistanceScale", 0.0) for fx in f.items_fx
+                                      if getattr(fx, "item", None) is not None), default=0.0) / 100)
 
 
 def melee_reachable(eng):

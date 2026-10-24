@@ -87,23 +87,58 @@ Spirit Strike, Lifestrike, Melee Lifesteal. `accuracy.hero_default_skill` loads 
 with `hero_default_skill(hero, melee_rate_override=0.5, heavy_share=0.4)` (or `Skill(melee_rate=..., heavy_share=...)`).
 `Skill.combo_melee` (on by default) adds Abrams' charge into heavy melee combo on top of the rate.
 
+### Melee follows the build
+
+The fitted rate is the hero's average player, but players who buy melee items melee more. `scripts/melee_items_fit.py`
+replays every player's real build (30/60/90% of the match) at the hero's average rate and compares real melee/gun
+damage with the sim's, grouped by how many melee items the player held (Melee Charge, Crushing Fists, Lifestrike,
+Melee Lifesteal, Spirit Snatch, Spirit Strike, Rebuttal). The sim already gives those items their per-hit damage, so
+what is left is how often the player lands melees. Fit with hero fixed effects (within-hero comparison), 3,600
+player-matches, `data/melee_items.json`:
+
+| Melee items held | Gun heroes (rate < 0.08) | Melee heroes (Abrams, Billy, Drifter, Shiv, Calico, Yamato, Venator, Silver, Apollo) |
+|---|---|---|
+| 0 | 1 | 1 |
+| 1 | 1.86x (90% CI 1.49-2.12), **used 1.49x** | 1.07x (0.86-1.41), **used 1x** |
+| 2+ | 3.80x (2.53-4.80, 40 players), **used 2.53x** | 1.51x (1.19-2.02), **used 1.19x** |
+
+This compares players who chose melee items with players who didn't, so part of the gap is selection: players who
+like to melee buy the items. Fights therefore use each multiplier's 90% lower bound, never below 1 ("used" in the
+JSON). That is a conservative middle between "the item changes nothing about how you play" and "you play like
+today's holders", and it keeps the thinnest group (gun heroes with 2+ items) from driving build search.
+
+`accuracy.melee_rates_by_items(hero)` turns this into three rates per hero, scaled so the hero's real mix of builds
+still averages to its fitted rate (Haze 0.013 / 0.019 / 0.032 hits/s, Abrams 0.256 / 0.256 / 0.304).
+`hero_default_skill` stores the multipliers in `Skill.melee_item_mult` and `fight.make_fighter` (duels and team
+fights) scales `melee_rate` by the one that matches the build (so a caller's own `melee_rate`, 0 included, is scaled,
+never replaced; heroes missing from the fit keep the flat rate), so adding Lifestrike to a build also makes its holder melee more. A user-set
+`melee_rate_override` turns this off. `melee_items_fit.py --check` reruns with the used rates: real/sim per group is
+then 0.93-1.15 (the conservative bound leaves gun heroes with 2+ items 15% under real); with the average rate it
+was up to 1.9x off.
+
+Items with MeleeDistanceScale lunge heavy melees that much farther (game data: Melee Charge 50%, Crushing Fists 60%,
+Runed Gauntlets 150%; the largest held counts): with movement on,
+a chaser lands heavies on a runner from that much farther (`mechanics.melee_reach`). Lifestrike's slow was
+already in the movement model.
+
 `scripts/melee_value.py` measures what melee is worth on real builds: real mid/late-game snapshots of each
 hero against real enemies from the same match, 30 s duels. It compares the hero's real melee rate vs none,
 and each melee item vs a same-cost non-melee item on the same cases (`melee_value.json`). The HP margin is
-(my HP left − enemy HP left) as a fraction of max HP.
+(my HP left − enemy HP left) as a fraction of max HP. Rerun 2026-10-24 with build-based melee rates:
 
-| Hero | Win rate from melee | Lifestrike vs Bullet Resilience | Spirit Snatch vs Bullet Resilience | Crushing Fists vs Leech |
-|---|---|---|---|---|
-| Abrams | +27 pts | +0.20 | +0.21 | −0.03 |
-| Billy | +30 pts | +0.20 | +0.13 | −0.03 |
-| Drifter | +22 pts | +0.11 | +0.05 | −0.13 |
-| Calico | +16 pts | +0.09 | +0.06 | −0.11 |
-| Yamato / Apollo | +12 pts | +0.05 / +0.03 | +0.13 / +0.08 | ≈0 |
-| Gun heroes (Infernus, Haze, Shiv, Venator, Silver) | 0-3 pts | −0.05 to +0.07 | −0.08 to +0.02 | −0.04 to −0.25 |
+| Hero | Win rate from melee | Lifestrike vs Bullet Resilience | Spirit Snatch vs Bullet Resilience | Crushing Fists vs Leech | Melee Charge vs Swift Striker |
+|---|---|---|---|---|---|
+| Abrams | +19 pts | +0.23 | +0.22 | −0.03 | +0.03 |
+| Billy | +13 pts | +0.21 | +0.21 | −0.01 | +0.08 |
+| Drifter | +24 pts | +0.12 | +0.07 | −0.20 | +0.01 |
+| Calico | +19 pts | +0.07 | +0.07 | −0.14 | +0.04 |
+| Shiv | +8 pts | +0.08 | +0.04 | −0.15 | 0.00 |
+| Yamato / Apollo / Silver | +9 / +12 / +6 pts | +0.06 / +0.04 / +0.06 | +0.14 / +0.08 / +0.03 | ≈0 | +0.01 to +0.04 |
+| Gun heroes (Infernus, Haze, Venator) | 0-5 pts | −0.03 to +0.10 | −0.09 to +0.05 | −0.09 to −0.27 | −0.08 to +0.04 |
 
-Melee Charge, Melee Lifesteal and Spirit Strike come out within ±0.07 of their comparison item for every hero.
-These rates are what today's average player does on each hero; a player who builds for melee probably melees
-more, which these numbers don't capture.
+Compared with the average-rate version, melee items gained up to ~0.07 of HP margin on most melee heroes (Billy's
+Melee Charge +0.03 → +0.08, Spirit Snatch +0.13 → +0.21) and stay behind for gun heroes. Melee Lifesteal and Spirit
+Strike stay within ±0.09 of their comparison item. Heavy share (30%) is still an assumption: the API counts parries but not light vs heavy melees.
 
 ## Cleanses
 
@@ -131,7 +166,7 @@ Spirit Resilience (-8% for 30% spirit resist), so before/after effects of defens
 | Parry | defender parries `Skill.parry_rate` of incoming heavy melees: attacker stunned 2.75 s, +25% damage taken | team Parry Success vs enemy melee hits (800 teams) | 5% of hero melees parried (90% CI 2.7-7.5%); 75% of parries are vs troopers | 15% of heavies = 5% of melees |
 | Rebuttal | on parry: heal + return the parried damage, +30% damage 6 s; holders parry 1.9x | parries per 3 min, holders 0.88 vs 0.47 | 0.06% of hero damage, 45 dmg per 3 min held | 0.02% (underrated ~3x) |
 | Counterspell | spell parry timed vs `spell_parry_rate` of enemy aimed casts, blocks that cast for 0.8 s | same-player before/after buying, vs teammates | ability damage taken -4.6% (CI -6.4..-2.6); +50 HP alone explains ~4% (Extra Health -8%) | -2% (rate 0.05) |
-| Turrets | McGinnis turrets have HP (100 + 9/boon, 35% spirit resist); enemy spends `summon_focus` (0.8) of shots on them at 2.5x accuracy | not fittable (see below) | | turret damage -15%, landing 0.06 -> 0.14 |
+| Turrets | McGinnis turrets have HP (100 + 9/boon, 35% spirit resist); the enemy shoots them (see "Targetable summons" for the fit, 2026-10-24) | replays | | turret damage -15%, landing 0.06 -> 0.14 |
 | Split Shot | during the active each landed shot adds 2.8 copies on the main target (+ nearby enemies) | Split Shot dmg / gun dmg of holders | 0.271 | 0.266 |
 | Ricochet | bounces 65% of each gun hit to `Mechanics.extra_targets` nearby enemies (booked as splash) | Ricochet dmg / gun dmg of holders | 0.150 = 0.23 bounces per hit | `extra_targets=0.23` gives 0.145 |
 | Escape | below `flee_hp` (0.15) and losing, a fighter stops shooting and runs (sprint after 2 s, dashes); the other chases 85% of the time; escape at 40 m | isolated 1v1s where one side drops below 25% HP (11,720 episodes) | 20% escape, 80% die (of decided) | 21% / 79% |
@@ -161,15 +196,69 @@ only its barrier. Warp Stone's full 11 m teleport gave +23; only 30% of it count
 What the new mechanics change on real build pairs (1,138 duels, `impact.txt`): 11% of duels now end in an escape
 (no winner), 86% of results are unchanged, 1% flip winner; speed unchanged (~12 ms per 30 s duel).
 
-Limits: parry misses (as frequent as successes) cost nothing; light melees are never parried. Turret focus and
-accuracy are assumptions: McGinnis' sim gun share stays ~3% vs 26% real even with every shot on turrets, so her gap
-is elsewhere (Heavy Barrage locking the gun at fight start, the fresh-cooldown bias). Sinclair's Assistant and
-Graves' summons still can't be shot. Nearby enemies only feed Ricochet and Split Shot (AoE abilities already carry
+Limits: parry misses (as frequent as successes) cost nothing; light melees are never parried. McGinnis' sim gun
+share stayed ~3% vs 26% real even with every shot on turrets, so her gap is elsewhere (Heavy Barrage locking the gun
+at fight start, the fresh-cooldown bias). Summon targeting is now fitted to replays (next section). Nearby enemies only feed Ricochet and Split Shot (AoE abilities already carry
 team-fight hits in their landing factors); splash damage never kills anyone and is reported apart
 (`FightResult.a_splash`). Hero mobility abilities (grapples, teleports, flight) are not modeled; only items, base
 speed, sprint and stamina. Fighters hold their distance unless someone runs, so melee gap-closing is still unvalued.
 Ability slows are applied generically from SlowPercent-type properties at spirit accuracy. Real escape episodes are
 "no teammate and exactly one enemy within 25 m", which is closer to a 1v1 than a team fight but not the same.
+
+## Targetable summons (2026-10-24)
+
+Which summons can be hurt, and how much enemies go for them, from 160 Phantom+ replays (Oct 20-24, Deadlock API demo
+queries; `scripts/summons/fetch_summons.py` pulls each summon entity's spawn, despawn and health plus every hit on it,
+`summon_stats.py` -> `validation/summons/summon_stats.json`). A summon counts as killed when the hits on it add up to
+its health (the extracts leave `victim_health_new` empty).
+
+Only these summons have health in the replays: Graves' zombies and Ghouls (`CNPC_NecroSkele`, 212 HP at 0-5 min to
+~430 late = 180 + 8/boon), Deadheads (24 -> 62 HP = 20 + 1.3/boon), the Borrowed Decree gravestone (100 HP) and
+McGinnis' Mini Turrets (131 -> 406 HP). Sinclair's Spectral Assistant, Medicinal Specter, Rat King's banner, The Cube
+and Nurse Harrow's leeches sit at 1 HP and never take hero damage; Solomon's pieces, Grey Talon's owl model and the
+Goo Ball have none; Rat King's rats (100 HP) and Rem's Helpers are never hit. Vindicta's crow is a projectile, not an
+entity with health. So Graves and McGinnis are the only heroes whose summons the sim lets the enemy shoot.
+
+| Summon (n, matches) | Real life (s, median) | Killed by an enemy hero (all / of those a hero hit) | Gun share | Non-gun ratio |
+|---|---|---|---|---|
+| McGinnis turret (8,199, 43) | 10.5 | 29% / 71% | 0.57 | 0.60 |
+| Graves zombie / Ghoul (16,616, 99) | 9.3 | 28% / 58% | 0.67 | 1.15 |
+| Deadhead (21,541, 99) | 8.6 | 40% / 90% | 0.50 | 0.14 |
+| Gravestone (1,171, 99) | 17.8 | 20% / 83% (median 11 s after landing) | 0 (bullets never hurt it) | 0.05 |
+
+Gun share = enemy gun damage on summons of that kind / (that + enemy gun damage on the owner), while one is alive.
+Non-gun ratio = enemy non-gun damage (abilities, items, melee) on them / non-gun damage on the owner in the same
+windows: 63% of what turrets take and 72% of what zombies take is area damage, not aimed shots.
+
+Model (`deadsim/mechanics.py`, `data/summon_targeting.json`, refit with `scripts/summons/fit_targeting.py`):
+- Each summon has its data health (+ boons). The enemy spends `focus` of its trigger pulls on the oldest living
+  summon of each kind, at `acc_mult` x its hero accuracy (assumption: stationary turret 2.5x, walking zombies 2x,
+  small flying Deadheads 1x). `focus` is fitted so the sim's gun share matches the real one, over duels of every
+  sample McGinnis and Graves player against a real enemy build: turret 0.48, zombie 0.53, Deadhead 0.69.
+- Non-gun damage the owner takes also lands on every living summon x its kind's `splash`, fitted the same way
+  against the damage all summons of a kind take (turret 0.29, zombie 0.48, Deadhead 0.03, gravestone 0.05). Area
+  damage is most of what zombies take in the replays.
+- The gravestone can't be shot. Besides splash the enemy breaks it 11 s after it lands, 83% of the time (the real
+  rate among gravestones a hero hit), as an expected value: from then on zombie spawns and the aura are scaled by
+  0.17 (a single deterministic draw would break it in every fight). Once it is gone no more zombies spawn and the aura stops: in the replays zombie
+  spawns drop from 0.46/s to 0.14/s after a gravestone breaks.
+- A summon lives at most the real median life of those no hero killed (`life_other_s`: turret 12.8 s, zombie 10.5 s,
+  Deadhead 11.1 s, gravestone 18.6 s): troopers and other heroes kill them in real games. Zombies used to live a fixed
+  4.5 s (`ZOMBIE_LIFE`, still the value with mechanics off).
+- `Skill.summon_focus` (default None) overrides every kind's share; `FightResult.*_summon_kind`,
+  `*_hit_while_summon` and `*_summons_out` report what the fit compares.
+
+Fit result (sim vs real): gun share turret 0.57 / 0.57, zombie 0.67 / 0.67, Deadhead 0.47 / 0.50; non-gun ratio within
+0.01 for all four. Kill shares in the sim (of all summons spawned in a duel) are turret 61%, zombie 39%, Deadhead 32%
+against 71% / 58% / 90% of real ones a hero hit (the gravestone's break is the expected value above). The sim spreads area damage evenly over every
+summon, while real damage piles onto a few (a real Deadhead that gets hit at all almost always dies at 50 HP).
+
+Effect on the 252 Graves and 90 McGinnis sample duels (real builds, 30 s): Graves' damage per second -1% (275 -> 271),
+win share 69% -> 75% (zombies now live up to 10.5 s instead of 4.5 s and soak shots); McGinnis -18% (65 -> 53), 7% ->
+6%. McGinnis' landing factors were not refit: her sim damage mix with mechanics on already matches (turret 45% of her
+damage vs 44% real). Graves has no landing factors (his gun
+records no accuracy in the data), and his ability mix moved: Borrowed Decree 30% -> 39% (real 29%), Jar of Dead 29%
+-> 24% (real 23%), Grasping Hands 28% -> 24% (real 11%); his gun stays at 4% vs 18% real.
 
 ## Hero fight patterns (2026-10-16)
 
@@ -305,11 +394,13 @@ mean +35, sd 200 over 12 paths). Melee keeps its fitted per-second rate; escapes
 
 ## Known gaps (not yet modeled)
 
-- **Melee movement:** melee is now in fights (see "Melee" above), but distance stays fixed (even with movement on, unless someone runs), so gap-closing
-  (Melee Charge's lunge, Lifestrike's slow) has no value.
+- **Melee movement:** melee is in fights and its rate follows the build (see "Melee" above). Melee Charge's lunge
+  and Lifestrike's slow only count in chases (movement on); there is no positioning AI that dives in to melee, and
+  the light/heavy split (30% heavy) is an assumption.
 - **Distance:** the fight distance spreads around the hero's median (see "Range spread") as an average, not a path: there is no positioning AI (kiting to stay at range, diving with a gap closer), and ability effects inside a cast still check the median distance. Hero range checks follow the spread: cast gates through `CastCtx.within` (engage margin + walk-in) or `CastCtx.reach` (hard reach; self buffs keep the median check, since the expected wait only scales damage), in-effect radii (Frank's revive blast, Kelvin's heal, Unicorn's barrier pop, Gigawatt's storm, Ghost's tether) scale damage, heals and stun/silence durations by `CastCtx.p_in` with no cutoff at the median (the tether breaks only at p = 0), Haze's Fixation bonus and McGinnis' turret falloff average over the spread. Still at the median: melee reach (Drifter's bonus melee, Billy's Bashdown melee), Drifter's vision check (a self buff) and Paige's distance amp (scales with distance travelled). Short-range ultimates use per-hero "approach" constants to be cast.
-- **Summons can't be shot** (fixed for McGinnis turrets with `mechanics.summons`, see above): McGinnis turrets keep full uptime, so her gun share is 2% vs 26% real. Still the
-  worst-matched hero.
+- **Summons:** Graves' and McGinnis' summons can be shot and splashed (see "Targetable summons"); real enemies also
+  hit them with area abilities aimed elsewhere, which the sim folds into the splash share. Accuracy on summons is an
+  assumption. McGinnis is still the worst-matched hero (gun share 2% vs 26% real), for reasons other than turret uptime.
 - **Paradox Kinetic Carbine** damage formula is a low-confidence reading of the data (landing 2.95).
 - **Bebop Hyper Beam** dominates any 20 s duel that starts with it ready (landing 0.06); the model matches the
   data, the gap is the fresh-cooldown bias above. (Haze Bullet Dance: fixed 2026-10-21, see "Haze duels" below.)

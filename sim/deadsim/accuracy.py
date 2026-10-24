@@ -119,6 +119,7 @@ def player_skill(account_id, hero=None, n_matches=20, rank_spirit_accuracy=None)
 LANDING = os.path.join(HERE, "..", "data", "landing_rates.json")
 LANDING_MECH = os.path.join(HERE, "..", "data", "landing_rates_mech.json")
 MELEE = os.path.join(HERE, "..", "data", "melee_rates.json")
+MELEE_ITEMS_FILE = os.path.join(HERE, "..", "data", "melee_items.json")
 
 
 def melee_rate(hero):
@@ -129,6 +130,40 @@ def melee_rate(hero):
         return 0.0
     row = d.get(str(game().hero(hero).id))
     return row["rate"] if row else 0.0
+
+
+_melee_items_cache = {}
+
+
+def _melee_items():
+    if MELEE_ITEMS_FILE not in _melee_items_cache:
+        try:
+            with open(MELEE_ITEMS_FILE) as fh:
+                _melee_items_cache[MELEE_ITEMS_FILE] = json.load(fh)
+        except (OSError, ValueError):
+            _melee_items_cache[MELEE_ITEMS_FILE] = None
+    return _melee_items_cache[MELEE_ITEMS_FILE]
+
+
+def melee_item_mults(hero):
+    """(multiplier on the hero's average melee rate with 0, 1, 2+ melee items): the fitted multiplier for the build
+    (data/melee_items.json, scripts/melee_items_fit.py; its 90% lower bound, since holders partly melee more because
+    melee players buy these items), scaled so the hero's real mix of builds still averages to 1. None when the data
+    is missing or the hero was not in the fit (it keeps the flat rate)."""
+    d = _melee_items()
+    row = (d or {}).get("heroes", {}).get(str(game().hero(hero).id))
+    if not row or not row.get("mix"):
+        return None
+    cls = d["classes"][row["class"]]
+    mult = [cls[g].get("used", cls[g]["mult"]) for g in ("0", "1", "2+")]
+    norm = sum(row["mix"].get(g, 0.0) * m for g, m in zip(("0", "1", "2+"), mult)) or 1.0
+    return tuple(round(m / norm, 4) for m in mult)
+
+
+def melee_rates_by_items(hero):
+    """(landed melees per second with 0, 1, 2+ melee items): melee_rate x melee_item_mults. None without data."""
+    mult = melee_item_mults(hero)
+    return None if mult is None else tuple(round(melee_rate(hero) * m, 4) for m in mult)
 
 
 def ability_landing(hero, mech=False):
@@ -177,10 +212,11 @@ def zone_exit_time(badge=None):
 
 
 def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_override=None, heavy_share=None,
-                       badge=None, counterplay=False):
+                       badge=None, counterplay=False, melee_build=True):
     """Population aim for a hero (current-patch ranked sample, hero-only accuracy). pct: p25 | p50 | p75 | p90.
     landing=True also applies each ability's real-data landing factor (clipped to 0.05-1.5); melee=True sets the
-    hero's real melee rate. melee_rate_override (landed melees per second) and heavy_share (0-1) replace the
+    hero's real melee rate; with melee_build=True that rate follows the build (players with melee items melee more,
+    melee_rates_by_items). melee_rate_override (landed melees per second) and heavy_share (0-1) replace the
     data defaults with the user's own numbers. badge (match rank, e.g. 111 = Eternus 1) sets rank-dependent
     habits: how fast Dispel Magic is used on a DoT (dot_cleanse_delay). Targets always walk out of ground
     zones (zone_exit_s). counterplay=True also applies real-data item damage factors (item_landing)."""
@@ -193,8 +229,11 @@ def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_ove
         sk.ability_landing_mech = ability_landing(hero, mech=True)
     if melee:
         sk.melee_rate = melee_rate(hero)
+        if melee_build:
+            sk.melee_item_mult = melee_item_mults(hero)
     if melee_rate_override is not None:
         sk.melee_rate = max(0.0, float(melee_rate_override))
+        sk.melee_item_mult = None
     if heavy_share is not None:
         sk.heavy_share = min(1.0, max(0.0, float(heavy_share)))
     sk.dot_cleanse_delay = dot_cleanse_delay(badge)

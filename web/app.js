@@ -200,7 +200,7 @@ function request() {
   const A = S.A, D = S.D, num = (s) => { const v = parseFloat($(s).value); return isFinite(v) ? v : null; };
   const req = { hero: A.hero, items: A.items, souls: A.souls, aim: A.aim === "custom" ? "p50" : A.aim };
   if (A.order) req.ability_order = A.order;
-  if (A.aim === "custom") { const pc = (sel) => { const v = num(sel); return v == null ? null : v / 100; }; req.accuracy = pc("#a-acc"); req.headshot = pc("#a-hs"); req.distance = num("#a-dist"); }
+  if (A.aim === "custom") { const pc = (sel) => { const v = num(sel); return v == null ? null : v / 100; }; req.accuracy = pc("#a-acc"); req.headshot = pc("#a-hs"); req.distance = num("#a-dist"); req.melee_rate = num("#a-mel"); }
   const immortal = $("#d-immortal").checked, zone_exit_s = $("#d-walk").checked ? ZONE_EXIT_S : null;
   if (D.mode === "plain") {
     req.dummy = { hero: "Haze", items: [], hp: num("#d-hp"), immortal, zone_exit_s,
@@ -266,7 +266,7 @@ function runTest() {
 
 // ---------- share links ----------
 // The test setup lives in the query string (the hash is the tab), so a link reopens the same test.
-const SHARE_NUM = { acc: "#a-acc", hs: "#a-hs", dist: "#a-dist", hp: "#d-hp", br: "#d-br", sr: "#d-sr", mr: "#d-mr", es: "#d-souls" };
+const SHARE_NUM = { acc: "#a-acc", hs: "#a-hs", dist: "#a-dist", mel: "#a-mel", hp: "#d-hp", br: "#d-br", sr: "#d-sr", mr: "#d-mr", es: "#d-souls" };
 const AIMS = ["p25", "p50", "p75", "p90", "custom"];
 
 function shareURL(hash = location.hash) {
@@ -275,7 +275,7 @@ function shareURL(hash = location.hash) {
   if (A.items.length) p.set("i", A.items.join("."));
   if (A.order) p.set("ao", A.order.join("."));
   p.set("aim", A.aim);
-  if (A.aim === "custom") for (const k of ["acc", "hs", "dist"]) p.set(k, val(k)); // blanks too, so the recipient's saved aim can't fill them
+  if (A.aim === "custom") for (const k of ["acc", "hs", "dist", "mel"]) p.set(k, val(k)); // blanks too, so the recipient's saved aim can't fill them
   if (D.mode === "plain") {
     for (const k of ["hp", "br", "sr", "mr"]) if (val(k) && (k === "hp" || Number(val(k)) !== 0)) p.set(k, val(k));
   } else {
@@ -346,7 +346,7 @@ function renderResult() {
   drawSources(r.sources, r.damage["30s"]);
   const u = r.used;
   $("#used").textContent = u
-    ? `${u.hero} at ${fmt(r.attacker_souls)} souls · aim ${pct(u.accuracy, 1)} hero accuracy, ${pct(u.headshot, 1)} headshots · ${fmt(u.distance, 1)} m · target ${fmt(r.dummy_max_hp)} max HP · ${targetLabel(L.req)}${L.ms ? ` · ran in ${fmt(L.ms)} ms` : ""}`
+    ? `${u.hero} at ${fmt(r.attacker_souls)} souls · aim ${pct(u.accuracy, 1)} hero accuracy, ${pct(u.headshot, 1)} headshots · ${fmt(u.distance, 1)} m · ${u.melee_rate != null ? `${fmt(u.melee_rate, 3)} melee hits/s · ` : ""}target ${fmt(r.dummy_max_hp)} max HP · ${targetLabel(L.req)}${L.ms ? ` · ran in ${fmt(L.ms)} ms` : ""}`
     : L.note || "";
 }
 
