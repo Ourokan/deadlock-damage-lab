@@ -59,6 +59,10 @@ of its target). So
 - ally items (auras, ally heals and barriers) multiply the score by 1 + their team-only value per teammate in reach
   (sim/scripts/team/team_value.py: 3v3 fights with and without what reaches teammates, as a share of the holder's
   own damage) x the real number of teammates in reach (team_value).
+Kill value (2026-10-24, Decay still in ~2/3 of the best builds while losing real games on every hero): damage
+only matters through kills, and items' damage converts very unequally. Each item's own damage counts x its real
+kill weight (KILL_WEIGHT, sim/data/kill_weight.json): Decay's % current health, non-lethal ticks land mostly on
+targets that walk away (0.40 of its holder's other damage is followed by a kill), Siphon Bullets' 1.20.
 Not counted: vision, souls from farming (Monster Rounds), objective damage, debuffs from area items on the other
 enemies.
 
@@ -134,6 +138,36 @@ AREA_ITEMS = {
 RICOCHET_RADIUS = 13
 
 
+# Kill value (2026-10-24): real damage is worth what it does to kills. Each item's own damage (in the duel, on other
+# enemies and as splash) counts x its real kill weight: how often its damage is followed by the victim's death within
+# 10 s, against the holder's own other damage in the same match (sim/scripts/kill_value/fit_kill_weight.py, 260
+# Phantom+ replays; Decay 0.40, Return Fire 0.54, Ricochet 0.59, Headshot Booster 0.69, Tankbuster 0.70, Mystic
+# Reverb 0.71 ... Escalating Exposure 1.17, Siphon Bullets 1.20). Hero abilities, gun and melee keep 1 (the holder's
+# baseline).
+KILL_WEIGHT = True
+KILL_PATH = os.path.join(ROOT, "..", "sim", "data", "kill_weight.json")
+_kill = None
+
+
+def kill_weights():
+    """{item name: real kill weight} (sim/data/kill_weight.json), {} when KILL_WEIGHT is off. The file is a static
+    fit refreshed by hand (the replays live in the shared folder, CI can't refit it): after a patch that reworks an
+    item's damage, rerun sim/scripts/kill_value/fit_kill_weight.py on new replays."""
+    global _kill
+    if not KILL_WEIGHT:
+        return {}
+    if _kill is None:
+        with open(KILL_PATH) as f:   # committed file: missing = broken checkout, fail rather than publish unweighted
+            _kill = {n: v["weight"] for n, v in json.load(f)["items"].items()}
+    return _kill
+
+
+def kill_cut(by):
+    """Damage of a {source: damage} dict that real kills don't back: sum of (1 - kill weight) x each item's damage."""
+    kw = kill_weights()
+    return sum((1.0 - kw[k]) * v for k, v in by.items() if k in kw)
+
+
 def team_data():
     global _team
     if _team is None:
@@ -156,11 +190,12 @@ def near(kind, radius, souls):
 def area_damage(r, souls):
     """Damage the duel's area items (AREA_ITEMS) and splash (Ricochet, Split Shot) deal to the other enemies."""
     by = r.get("damage_by_source", {})
+    kw = kill_weights()
     extra = 0.0
     for name, (c, rad) in AREA_ITEMS.items():
         k = area_extra(name, souls)    # replay-measured at this net worth; the position count is the fallback
-        extra += by.get(name, 0.0) * (k if k is not None else near("extra" if c == "target" else "extra_self", rad, souls))
-    return extra + r.get("splash_dealt", 0.0)
+        extra += by.get(name, 0.0) * kw.get(name, 1.0) * (k if k is not None else near("extra" if c == "target" else "extra_self", rad, souls))
+    return extra + r.get("splash_dealt", 0.0) - kill_cut(r.get("splash_by_source", {}))
 
 
 def team_value(items, souls):
@@ -267,8 +302,9 @@ def _phases():
 
 
 def net_damage(r):
-    """Damage dealt minus the healing the enemy got: healing undoes damage (Healbane, enemy lifesteal...)."""
-    return max(0.0, r["damage_dealt"] - r.get("enemy_healed", 0.0))
+    """Damage dealt minus the healing the enemy got: healing undoes damage (Healbane, enemy lifesteal...). Items'
+    damage counts x their real kill weight (kill_cut)."""
+    return max(0.0, r["damage_dealt"] - kill_cut(r.get("damage_by_source", {})) - r.get("enemy_healed", 0.0))
 
 
 def fight(h, items, oh, oitems, souls, phase=None, start_hp=None):
