@@ -501,15 +501,29 @@ class Engine:
             self.log.append(f"{self.t:6.2f} {msg}")
 
     # ---- damage -------------------------------------------------------------------------------------
+    @staticmethod
+    def booking(src, dst, amt, kind, name, pure):
+        """[(name, damage)] as the game's damage records split a hit: Escalating Exposure's spirit amp is booked
+        under the item (replays and the API's damage matrix list it as its own source), the rest under name."""
+        if kind != "spirit" or pure:
+            return ((name, amt),)
+        expo = dst.mods.get("spirit_amp_taken", ("expo", src.name))
+        if not expo:
+            return ((name, amt),)
+        part = amt * expo / (1.0 + dst.stat("spirit_amp_taken"))
+        return ((name, amt - part), ("Escalating Exposure", part))
+
     def damage(self, src: Fighter, dst: Fighter, raw: float, kind: str, source: str, *,
                ignore_resist=False, is_ability=False, ability=None, is_dot=False, is_item=False,
                headshots=0, hits=0, procs=True, is_ult=False, nonlethal=False, pure=False, landed=False,
-               weapon_proc=False):
+               weapon_proc=False, book=None):
         """pure=True: raw is already final damage (e.g. Focus Lens re-dealing stored damage), so no outgoing or
         target amps, no resists and no target-side reducers (all already counted in raw). The realistic-mode item
         landing factor still applies on purpose: for Focus Lens it is the real/sim ratio of the item's own damage,
         i.e. how much less real players fit into the silence window. landed=True: the ability already applied its
-        landing factor some other way (Bullet Dance shortens its channel), so it is not applied again here."""
+        landing factor some other way (Bullet Dance shortens its channel), so it is not applied again here.
+        book: the name the damage is recorded under (dmg_out/dmg_in) when it isn't source, as the game books it: an
+        Express Shot proc shot is "Express Shot", not gun. Only the bookkeeping changes; hooks still see source."""
         if self.over or not dst.alive or raw <= 0:
             return 0.0
         amt = raw if pure else raw * src.st.outgoing_mult * (1.0 - src.stat("outgoing_penalty")) * (1.0 + src.stat("damage_amp"))
@@ -559,6 +573,12 @@ class Engine:
                 if amt <= 0:
                     return 0.0
         hit = Hit(kind, source, 0.0, raw, is_ability, ability, headshots, hits, is_dot, is_item, is_ult, weapon_proc)
+        booked = self.booking(src, dst, amt, kind, book or source, pure)
+        if src.skill.item_landing and (book or len(booked) > 1):
+            # damage booked under an item (Express Shot's proc shot, Escalating Exposure's amp) gets that item's
+            # realistic-mode factor, like an item's own damage above
+            booked = tuple((n, v if n == source else v * src.skill.item_landing.get(n, 1.0)) for n, v in booked)
+            amt = sum(v for _, v in booked)
         # barrier then health
         left = amt
         for b in dst.barriers:
@@ -570,8 +590,9 @@ class Engine:
             left = min(left, max(0.0, dst.hp - 1.0))
         dst.hp -= left
         hit.amount = amt
-        src.dmg_out[source] = src.dmg_out.get(source, 0.0) + amt
-        dst.dmg_in[source] = dst.dmg_in.get(source, 0.0) + amt
+        for name, part in booked:
+            src.dmg_out[name] = src.dmg_out.get(name, 0.0) + part
+            dst.dmg_in[name] = dst.dmg_in.get(name, 0.0) + part
         if "summons" in dst.counters and amt > 0:
             from .mechanics import note_hit_while_summoned
             note_hit_while_summoned(src, dst, amt, source)
@@ -848,9 +869,10 @@ class Engine:
             ign_hits = f.acc("armor_piercer").take(frac_ign, hits)
             if ign_hits:
                 share = ign_hits / hits
-                self.damage(f, e, raw * share, "bullet", "gun", ignore_resist=True, headshots=0, hits=ign_hits, procs=False)
+                self.damage(f, e, raw * share, "bullet", "gun", ignore_resist=True, headshots=0, hits=ign_hits, procs=False,
+                            book=ctx.get("book"))
                 raw *= (1 - share)
-        self.damage(f, e, raw, "bullet", "gun", headshots=heads, hits=hits)
+        self.damage(f, e, raw, "bullet", "gun", headshots=heads, hits=hits, book=ctx.get("book"))
         for kind_src in ctx["bonus_spirit"]:
             amount, name = kind_src
             self.damage(f, e, amount * hits, "spirit", name, is_item=True)
