@@ -254,7 +254,7 @@ class CastCtx:
         base, crit = eng.bullet_damage(f, extra_pct)
         per = base if per_bullet is None else per_bullet
         acc = f.skill.accuracy if accuracy is None else accuracy
-        hits = f.hit_acc.take(acc * (1.0 - e.stat("evasion")) * eng.hit_reach(f.st), int(n_bullets))
+        hits = f.hit_acc.take(min(1.0, acc * (1.0 - e.stat("evasion")) * eng.hit_reach(f.st)), int(n_bullets))
         if hits <= 0:
             return 0
         heads = f.head_acc.take(f.skill.headshot, hits) if headshots else 0
