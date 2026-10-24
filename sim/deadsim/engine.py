@@ -273,7 +273,7 @@ class Fighter:
         if q is False:
             q = self.opener_hold.get(source)
             if q is None:
-                best = max((n for n in self.opener_hold if source.startswith(n)), key=len, default=None)
+                best = max((n for n in self.opener_hold if source.startswith(n + " ")), key=len, default=None)
                 q = self.opener_hold[best] if best else None
             self._hold_cache[source] = q
         return q
