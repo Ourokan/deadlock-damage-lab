@@ -325,6 +325,9 @@ class Mover:
             v = max(v, dash)
         return max(0.0, v)
 
+    def melee_reach(self, f, heavy):
+        return melee_reach(f, heavy)
+
     def try_dash(self, f):
         if f.counters["stamina"] >= 1 and self.e.t >= f.counters["dash_until"] and f.alive \
                 and not f.mods.active("stun") and not f.mods.active("immobilize"):
@@ -403,9 +406,9 @@ def melee_reach(f, heavy):
                                       if getattr(fx, "item", None) is not None), default=0.0) / 100)
 
 
-def melee_reachable(eng, f=None, heavy=False):
+def melee_reachable(eng):
     mv = getattr(eng, "mover", None)
-    return mv is None or eng.distance <= mv.start + (melee_reach(f, heavy) if f is not None else MELEE_REACH)
+    return mv is None or eng.distance <= mv.start + MELEE_REACH
 
 
 # ---------------------------------------------------------------------------------------------------------------

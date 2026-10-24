@@ -824,10 +824,8 @@ class Engine:
             # parried heavies don't land: swing more often so landed melee stays at the fitted rate
             rate /= max(0.5, 1.0 - f.enemy.skill.parry_rate * f.skill.heavy_share)
         interval = 1.0 / max(rate, MELEE_MIN_RATE)
-        if self.mover is not None:
-            from .mechanics import melee_reach
         if self.mover is None or f.counters.get("fleeing") is not True and self.distance <= self.mover.start + \
-                melee_reach(f, heavy):
+                self.mover.melee_reach(f, heavy):
             self.melee_hit(f, heavy, min(1.0, rate * interval))
         self.after(interval, self.melee_tick, f)
 

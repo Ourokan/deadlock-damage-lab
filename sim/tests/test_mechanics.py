@@ -237,6 +237,20 @@ class Items(unittest.TestCase):
         self.assertAlmostEqual(melee_reach(a, False), MELEE_REACH)
         self.assertAlmostEqual(melee_reach(b, True), MELEE_REACH)
 
+    def test_melee_charge_heavy_lands_from_farther_in_fight(self):
+        # chase gap of 8 m beyond the start distance: past light reach (6 m), inside Melee Charge heavy reach (9 m)
+        from types import SimpleNamespace
+        from deadsim.mechanics import melee_reach
+        for items, heavy, lands in ((["Melee Charge"], 1.0, True), ([], 1.0, False), (["Melee Charge"], 0.0, False)):
+            e = Engine(distance=11)
+            sk = Skill(accuracy=0.0, use_abilities=False, use_actives=False, melee_rate=1.0, heavy_share=heavy)
+            a = make_fighter(e, Loadout("Abrams", items, souls=9000, skill=sk))
+            b = make_fighter(e, Loadout("Haze", [], souls=9000))
+            a.enemy, b.enemy = b, a
+            e.mover = SimpleNamespace(start=3.0, melee_reach=melee_reach)
+            e.melee_tick(a)
+            self.assertEqual(a.dmg_out.get("melee", 0) > 0, lands, (items, heavy))
+
     def test_runed_gauntlets_heavy_melee_cuts_cooldowns(self):
         e = Engine(distance=3)
         a = make_fighter(e, Loadout("Abrams", ["Runed Gauntlets"], souls=9000))
