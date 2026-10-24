@@ -2,7 +2,7 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-- Recommended item slots with data: 1855; mean edge -0.3 (popular builds +0.0); clearly positive 218, clearly negative 288.
+- Recommended item slots with data: 1855; mean edge -0.3 (popular builds +0.0); clearly positive 218, clearly negative 282.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
@@ -14,7 +14,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 
 | Item | slot/tier | builds | heroes (edge) |
 |---|---|---:|---|
-| Decay | spirit 3 | 119 | Dynamo -4.9, The Doorman -4.3, Holliday -4.2, Paige -4.2, Yamato -4.0, Abrams -4.0, Ivy -4.0, Kelvin -3.8, Billy -3.8, Calico -3.7, Sinclair -3.7, Bebop -3.6, Apollo -3.6, Haze -3.5, Celeste -3.5, Deadman Danny -3.5, Mo & Krill -3.5, Seven -3.4, Mina -3.4, Wraith -3.4, Vyper -3.3, Warden -3.3, Mirage -3.3, McGinnis -3.3, Grey Talon -3.2, Solomon -3.2, Lady Geist -3.2, Infernus -3.1, Pocket -3.0, Viscous -2.7, Graves -2.4, Rem -2.4 |
+| Decay | spirit 3 | 116 | Dynamo -4.9, The Doorman -4.3, Holliday -4.2, Paige -4.2, Yamato -4.0, Abrams -4.0, Ivy -4.0, Kelvin -3.8, Billy -3.8, Calico -3.7, Sinclair -3.7, Bebop -3.6, Apollo -3.6, Haze -3.5, Celeste -3.5, Deadman Danny -3.5, Mo & Krill -3.5, Seven -3.4, Mina -3.4, Wraith -3.4, Vyper -3.3, Warden -3.3, Mirage -3.3, McGinnis -3.3, Grey Talon -3.2, Solomon -3.2, Lady Geist -3.2, Infernus -3.1, Viscous -2.7, Graves -2.4, Rem -2.4 |
 | Return Fire | vitality 2 | 24 | Wraith -3.9, Kelvin -3.8, Mo & Krill -3.8, Bebop -3.6, Haze -3.5, Warden -3.5, Grey Talon -3.5, Vindicta -3.5, Venator -3.5, Paige -3.3, Rem -3.2, McGinnis -3.2, Mina -3.2, Viscous -3.2, Ivy -3.1, Rat King -2.9 |
 | Spirit Snatch | spirit 3 | 14 | Billy -1.7, Abrams -1.5, Apollo -1.3 |
 | Radiant Regeneration | spirit 3 | 12 | Lady Geist -3.8, Apollo -2.1, Victor -1.6 |
@@ -33,7 +33,6 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Unstoppable | vitality 4 | 4 | Pocket -3.8, Dynamo -3.8, Haze -2.0 |
 | Active Reload | weapon 2 | 4 | Haze -0.8 |
 | Spirit Lifesteal | vitality 2 | 3 | Infernus -0.8 |
-| Headhunter | weapon 3 | 3 | Ivy -1.5 |
 | Suppressor | spirit 2 | 3 | Paige -2.6, Mirage -1.6 |
 | Boundless Spirit | spirit 4 | 3 | Sinclair -2.1, Solomon -1.8, Viscous -1.7 |
 | Spirit Sap | spirit 2 | 2 | Drifter -2.8 |
@@ -58,11 +57,11 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 
 | Item | slot/tier | heroes | heroes (edge) |
 |---|---|---:|---|
-| Magic Carpet | spirit 4 | 18 | Lash +5.1, Solomon +4.7, Rem +3.7, McGinnis +3.7, Abrams +3.4, Paige +3.3, Kelvin +3.2, Venator +3.2, Deadman Danny +3.1, Pocket +3.1, Sinclair +3.1, Warden +3.1, Holliday +3.1, Ivy +3.1, Graves +3.0, Dynamo +3.0, Silver +3.0, Paradox +2.9 |
-| Heroic Aura | weapon 3 | 17 | Rat King +3.8, Sinclair +3.6, Victor +3.5, Rem +3.5, Lash +3.2, McGinnis +3.2, Dynamo +3.1, Abrams +3.1, Grey Talon +3.0, Bebop +2.9, Mo & Krill +2.9, Venator +2.9, Vindicta +2.8, The Doorman +2.7, Billy +2.3, Ivy +2.3, Paige +2.3 |
+| Magic Carpet | spirit 4 | 16 | Lash +5.1, Solomon +4.7, Rem +3.7, McGinnis +3.7, Abrams +3.4, Paige +3.3, Kelvin +3.2, Venator +3.2, Deadman Danny +3.1, Pocket +3.1, Sinclair +3.1, Warden +3.1, Holliday +3.1, Ivy +3.1, Graves +3.0, Dynamo +3.0 |
+| Heroic Aura | weapon 3 | 15 | Rat King +3.8, Sinclair +3.6, Victor +3.5, Rem +3.5, Lash +3.2, McGinnis +3.2, Dynamo +3.1, Abrams +3.1, Bebop +2.9, Mo & Krill +2.9, Vindicta +2.8, The Doorman +2.7, Billy +2.3, Ivy +2.3, Paige +2.3 |
 | Mystic Reverb | spirit 4 | 13 | Bebop +4.5, Lash +4.2, Mina +3.7, Kelvin +3.5, Pocket +3.4, Apollo +3.2, Shiv +3.1, Victor +3.1, Grey Talon +2.9, The Doorman +2.9, Paige +2.6, Holliday +2.5, Sinclair +2.5 |
-| Cheat Death | vitality 4 | 11 | Rem +3.3, Kelvin +3.1, Vindicta +3.0, Drifter +3.0, Graves +3.0, Solomon +2.8, Mina +2.8, Wraith +2.6, Paige +2.5, Dynamo +2.3, Pocket +2.0 |
-| Frenzy | weapon 4 | 9 | Abrams +3.6, Vyper +3.4, Billy +3.3, Haze +3.2, Bebop +3.0, Victor +2.8, Drifter +2.7, Rat King +2.6, Venator +2.2 |
+| Cheat Death | vitality 4 | 10 | Rem +3.3, Kelvin +3.1, Vindicta +3.0, Drifter +3.0, Graves +3.0, Mina +2.8, Wraith +2.6, Paige +2.5, Dynamo +2.3, Pocket +2.0 |
+| Frenzy | weapon 4 | 8 | Abrams +3.6, Vyper +3.4, Billy +3.3, Haze +3.2, Bebop +3.0, Drifter +2.7, Rat King +2.6, Venator +2.2 |
 | Greater Expansion | spirit 3 | 8 | Infernus +3.2, Seven +2.1, Lady Geist +2.1, Mo & Krill +1.9, Abrams +1.9, Rat King +1.8, Paradox +1.6, Billy +1.5 |
 | Witchmail | vitality 4 | 8 | Kelvin +4.4, Dynamo +3.8, Apollo +3.4, Lady Geist +3.4, Victor +3.3, Infernus +2.7, Shiv +2.3, Mo & Krill +2.2 |
 | Silencer | weapon 4 | 8 | Infernus +4.6, Billy +3.9, Mirage +3.6, Shiv +3.0, Bebop +2.9, Graves +2.5, Wraith +2.5, Vyper +2.0 |
@@ -86,7 +85,6 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Hunter's Aura | weapon 3 | 4 | Rat King +6.1, Billy +2.6, Bebop +2.3, Drifter +2.0 |
 | Superior Cooldown | spirit 3 | 4 | Drifter +2.5, Yamato +2.2, Calico +2.0, Celeste +1.8 |
 | Dispel Magic | vitality 3 | 4 | Drifter +2.4, Ivy +2.1, Yamato +1.8, Venator +1.6 |
-| Healing Nova | vitality 3 | 4 | Dynamo +2.6, Paige +2.5, Ivy +1.9, Rem +1.8 |
 | Extra Spirit | spirit 1 | 4 | Wraith +2.6, Victor +1.9, Pocket +1.8, Graves +1.6 |
 | Enduring Speed | vitality 2 | 3 | Billy +1.8, Vindicta +1.6, Abrams +1.6 |
 | Slowing Bullets | weapon 2 | 3 | Rat King +2.3, Bebop +1.9, Silver +1.8 |
@@ -95,6 +93,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Weakening Headshot | weapon 2 | 3 | Vindicta +2.8, Paradox +2.6, Haze +2.1 |
 | Siphon Bullets | vitality 4 | 3 | Warden +2.1, Haze +2.0, Lash +1.8 |
 | High-Velocity Rounds | weapon 1 | 3 | Paige +2.7, Victor +1.9, Holliday +1.8 |
+| Healing Nova | vitality 3 | 3 | Paige +2.5, Ivy +1.9, Rem +1.8 |
 | Spirit Shredder | weapon 2 | 3 | Wraith +2.8, Lady Geist +2.7, Mina +2.1 |
 | Compress Cooldown | spirit 2 | 3 | Lash +1.9, Victor +1.8, Yamato +1.7 |
 | Superior Duration | spirit 3 | 3 | Rat King +2.9, Silver +2.9, Vindicta +2.8 |
@@ -201,7 +200,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - 27k: Rapid Recharge -1.5, Decay -4.9
 - 37k: Rapid Recharge -1.5, Decay -4.9
 - 50k: Rapid Recharge -1.5, Decay -4.9, Unstoppable -3.8
-- never picked: Witchmail +3.8, Heroic Aura +3.1, Magic Carpet +3.0, Divine Barrier +3.0, Diviner's Kevlar +2.8, Healing Nova +2.6, Cheat Death +2.3, Spirit Resilience +2.3
+- never picked: Witchmail +3.8, Heroic Aura +3.1, Magic Carpet +3.0, Divine Barrier +3.0, Diviner's Kevlar +2.8, Cheat Death +2.3, Spirit Resilience +2.3
 
 ### Graves
 - 27k: Decay -2.4
@@ -213,7 +212,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - 27k: Decay -3.2, Return Fire -3.5
 - 37k: Decay -3.2
 - 50k: Decay -3.2
-- never picked: Hollow Point +3.6, Heroic Aura +3.0, Mystic Reverb +2.9
+- never picked: Hollow Point +3.6, Mystic Reverb +2.9
 
 ### Haze
 - 10k: Return Fire -3.5
@@ -240,10 +239,10 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 
 ### Ivy
 - 10k: Decay -4.0
-- 18k: Decay -4.0, Return Fire -3.1, Headhunter -1.5
-- 27k: Decay -4.0, Toxic Bullets -2.2, Headhunter -1.5
+- 18k: Decay -4.0, Return Fire -3.1
+- 27k: Decay -4.0, Toxic Bullets -2.2
 - 37k: Decay -4.0, Toxic Bullets -2.2
-- 50k: Rapid Recharge -1.2, Decay -4.0, Toxic Bullets -2.2, Headhunter -1.5
+- 50k: Rapid Recharge -1.2, Decay -4.0, Toxic Bullets -2.2
 - never picked: Magic Carpet +3.1, Hollow Point +2.6, Heroic Aura +2.3, Echo Shard +2.3, Torment Pulse +2.2, Tesla Bullets +2.1, Dispel Magic +2.1, Spirit Burn +1.9
 
 ### Kelvin
@@ -309,12 +308,12 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 
 ### Paradox
 - 50k: Mystic Shot -1.7, Sharpshooter -1.6
-- never picked: Magic Carpet +2.9, Ethereal Shift +2.7, Weakening Headshot +2.6, Hollow Point +2.2, Alchemical Fire +2.0, Spirit Burn +1.8, Greater Expansion +1.6
+- never picked: Ethereal Shift +2.7, Weakening Headshot +2.6, Hollow Point +2.2, Alchemical Fire +2.0, Spirit Burn +1.8, Greater Expansion +1.6
 
 ### Pocket
-- 27k: Tankbuster -1.1, Decay -3.0, Unstoppable -3.8
-- 37k: Tankbuster -1.1, Rusted Barrel -4.2, Decay -3.0
-- 50k: Transcendent Cooldown -1.3, Disarming Hex -6.9, Decay -3.0, Unstoppable -3.8
+- 27k: Tankbuster -1.1, Unstoppable -3.8
+- 37k: Tankbuster -1.1, Rusted Barrel -4.2
+- 50k: Transcendent Cooldown -1.3, Disarming Hex -6.9, Unstoppable -3.8
 - never picked: Mystic Reverb +3.4, Ethereal Shift +3.4, Magic Carpet +3.1, Cheat Death +2.0, Extra Spirit +1.8, Improved Spirit +1.6
 
 ### Rat King
@@ -350,7 +349,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - 27k: Toxic Bullets -2.5
 - 37k: Toxic Bullets -2.5
 - 50k: Toxic Bullets -2.5
-- never picked: Duration Extender +3.9, Restorative Locket +3.3, Magic Carpet +3.0, Superior Duration +2.9, Debuff Reducer +2.4, Phantom Strike +2.1, Diviner's Kevlar +1.8, Slowing Bullets +1.8
+- never picked: Duration Extender +3.9, Restorative Locket +3.3, Superior Duration +2.9, Debuff Reducer +2.4, Phantom Strike +2.1, Diviner's Kevlar +1.8, Slowing Bullets +1.8
 
 ### Sinclair
 - 10k: Improved Spirit -1.6
@@ -366,7 +365,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - 27k: Decay -3.2
 - 37k: Decay -3.2
 - 50k: Boundless Spirit -1.8, Decay -3.2
-- never picked: Magic Carpet +4.7, Spirit Burn +3.0, Cheat Death +2.8, Spirit Resilience +1.8, Long Range +1.7, Mystic Vulnerability +1.7
+- never picked: Magic Carpet +4.7, Spirit Burn +3.0, Spirit Resilience +1.8, Long Range +1.7, Mystic Vulnerability +1.7
 
 ### The Doorman
 - 10k: Decay -4.3
@@ -380,7 +379,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - 27k: Escalating Resilience -1.7
 - 37k: Cultist Sacrifice -2.4, Return Fire -3.5
 - 50k: Crippling Headshot -2.8
-- never picked: Magic Carpet +3.2, Heroic Aura +2.9, Frenzy +2.2, Spellslinger +1.9, Lucky Shot +1.7, Dispel Magic +1.6, Fleetfoot +1.6
+- never picked: Magic Carpet +3.2, Frenzy +2.2, Spellslinger +1.9, Lucky Shot +1.7, Dispel Magic +1.6, Fleetfoot +1.6
 
 ### Victor
 - 10k: Radiant Regeneration -1.6
@@ -388,7 +387,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - 27k: Healing Booster -1.0, Radiant Regeneration -1.6
 - 37k: Healing Booster -1.0, Radiant Regeneration -1.6, Escalating Exposure -2.2
 - 50k: Healing Booster -1.0, Radiant Regeneration -1.6, Escalating Exposure -2.2
-- never picked: Sprint Boots +3.7, Heroic Aura +3.5, Witchmail +3.3, Mystic Reverb +3.1, Frenzy +2.8, Mystic Expansion +2.4, Fleetfoot +2.4, Warp Stone +2.2
+- never picked: Sprint Boots +3.7, Heroic Aura +3.5, Witchmail +3.3, Mystic Reverb +3.1, Mystic Expansion +2.4, Fleetfoot +2.4, Warp Stone +2.2, Scourge +2.2
 
 ### Vindicta
 - 10k: Return Fire -3.5

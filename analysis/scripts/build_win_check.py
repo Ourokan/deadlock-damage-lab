@@ -73,18 +73,20 @@ def hero_edges(ev):
         a[0] += nc * (wc / nc - wo / no)
         a[1] += nc
         a[2] += nc * nc * p * (1 - p) * (1 / nc + 1 / no)
-    pool = defaultdict(lambda: [0.0, 0.0])   # item -> all-hero num, den (prior mean)
+    pool = defaultdict(lambda: [0.0, 0.0, 0.0])   # item -> all-hero num, den, var (prior mean and its variance)
     for (hero, it), a in acc.items():
         pool[it][0] += a[0]
         pool[it][1] += a[1]
+        pool[it][2] += a[2]
     heroes = defaultdict(dict)
     for (hero, it), (num, den, var, n, w) in acc.items():
         if not den:
             continue
         raw, se = num / den, math.sqrt(var) / den
-        prior = pool[it][0] / pool[it][1]
+        prior, prior_var = pool[it][0] / pool[it][1], pool[it][2] / pool[it][1] ** 2
         k = TAU ** 2 / (TAU ** 2 + se ** 2)
-        heroes[hero][it] = {"edge": prior + k * (raw - prior), "se": math.sqrt(k) * se,
+        # posterior variance with the prior's own sampling noise (rare items: k ~ 0, so the prior's se dominates)
+        heroes[hero][it] = {"edge": prior + k * (raw - prior), "se": math.sqrt(k * se ** 2 + (1 - k) ** 2 * prior_var),
                             "raw": raw, "raw_se": se, "prior": prior, "n": int(den), "buyers": n}
     return heroes
 
@@ -100,7 +102,7 @@ def main():
                                     round(100 * e["raw"], 2)]
                          for i, e in sorted(v.items())} for h, v in sorted(heroes.items())}
     patch = json.load(open(f"{REPO}/data/patch.json"))
-    json.dump({"meta": {"brackets": "Ritualist+", "patch": patch["patch"], "builds_through": last_day(),
+    json.dump({"meta": {"brackets": "Ritualist+", "patch": patch["patch"], "matches_through": last_day(),
                         "note": "static snapshot: rerun this script (needs the shared-folder cache) after a patch", "unit": "win-rate points vs same-slot same-tier items",
                         "fields": ["edge (shrunk)", "se", "matched buyers", "raw edge"],
                         "tau": TAU}, "heroes": hero_out},
