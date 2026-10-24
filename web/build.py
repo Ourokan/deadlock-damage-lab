@@ -108,6 +108,19 @@ def maker_data():
                   separators=(",", ":"))
 
 
+def win_edge_data(data):
+    """data/win_edge.json: real per-hero item win edge (analysis/scripts/build_win_check.py, a static snapshot of
+    Ritualist+ matches), hero id -> item id -> [edge, se] in win-rate points, for the overall tab."""
+    path = os.path.join(ROOT, "analysis/out/hero_item_edge.json")
+    if not os.path.exists(path):
+        return
+    with open(path) as fh:
+        d = json.load(fh)
+    heroes = {h: {i: [round(v[0], 1), round(v[1], 1)] for i, v in items.items()} for h, items in d["heroes"].items()}
+    with open(os.path.join(data, "win_edge.json"), "w") as fh:
+        json.dump({"meta": d["meta"], "heroes": heroes}, fh, separators=(",", ":"))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--pyodide", help="folder with an extracted pyodide-core release (copied to vendor/pyodide)")
@@ -119,6 +132,7 @@ def main():
     if os.path.exists(os.path.join(ROOT, "data/changes.json")):   # pipeline/changes.py: what each rerun changed
         shutil.copy(os.path.join(ROOT, "data/changes.json"), os.path.join(data, "changes.json"))
     shutil.copy(os.path.join(ROOT, "sim/data/skill_defaults.json"), os.path.join(data, "skill_defaults.json"))  # ranked aim spread
+    win_edge_data(data)
     with open(os.path.join(ROOT, "damage/out/index.json")) as fh:
         heroes = [{"id": h["id"], "name": h["name"]} for h in json.load(fh)["heroes"]]
     with open(os.path.join(data, "heroes.json"), "w") as fh:
