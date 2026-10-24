@@ -33,7 +33,7 @@ MELEE_HEAVY_TIME = 1.1
 # damage), so rare meleers still melee within a short fight.
 MELEE_MIN_RATE = 0.2
 # items bought for melee: holders melee more often than the hero's average player (data/melee_items.json,
-# Skill.melee_by_items)
+# Skill.melee_item_mult)
 MELEE_ITEMS = frozenset({"upgrade_melee_charge", "upgrade_crushing_fists", "upgrade_boxing_glove",
                          "upgrade_lifestrike_gauntlets", "upgrade_spirit_snatch", "upgrade_acolytes_glove",
                          "upgrade_melee_rebuttal"})
@@ -146,9 +146,9 @@ class Skill:
     # damage (data/melee_rates.json, loaded by accuracy.hero_default_skill); 0 = no melee.
     melee_rate: float = 0.0
     heavy_share: float = HEAVY_SHARE  # share of rotation melees that are heavy
-    # landed melee rate by melee items in the build (0, 1, 2+ of MELEE_ITEMS); when set it replaces melee_rate at
-    # fight start, since players who buy melee items melee more (accuracy.melee_rates_by_items). None = melee_rate.
-    melee_by_items: tuple | None = None
+    # multiplier on melee_rate by melee items in the build (0, 1, 2+ of MELEE_ITEMS), applied at fight start, since
+    # players who buy melee items melee more (accuracy.melee_item_mults). None = melee_rate as is.
+    melee_item_mult: tuple | None = None
     # follow an ability that sets up a free hit with a guaranteed heavy melee (Abrams: Shoulder Charge hit). These
     # come on top of melee_rate; the fitted rates already account for them.
     combo_melee: bool = True

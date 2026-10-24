@@ -9,7 +9,7 @@ import json
 
 from deadsim.accuracy import default_distance, hero_default_skill
 from deadsim.data import game
-from deadsim.engine import MELEE_ITEMS
+from deadsim.fight import melee_build_mult
 from dummy import Dummy, damage_test
 
 
@@ -29,7 +29,7 @@ def _setup(q):
         skill.headshot = float(q["headshot"])
     if q.get("melee_rate") is not None:   # own landed melees per second; else the rate follows the build
         skill.melee_rate = max(0.0, float(q["melee_rate"]))
-        skill.melee_by_items = None
+        skill.melee_item_mult = None
     dq = q.get("dummy") or {}
     dummy = Dummy(
         hero=G.hero(dq.get("hero") or "Haze").name,
@@ -44,11 +44,8 @@ def _setup(q):
 
 
 def _melee_rate(skill, items):
-    """Landed melees per second the fight used (Skill.melee_by_items picks it from the build's melee items)."""
-    by = skill.melee_by_items
-    if not by:
-        return round(skill.melee_rate, 4)
-    return by[min(len(by) - 1, sum(1 for i in items if i.class_name in MELEE_ITEMS))]
+    """Landed melees per second the fight used (scaled by the build's melee items, fight.melee_build_mult)."""
+    return round(skill.melee_rate * melee_build_mult(skill, items), 4)
 
 
 def run(req_json):

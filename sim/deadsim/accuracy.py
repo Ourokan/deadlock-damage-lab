@@ -132,23 +132,38 @@ def melee_rate(hero):
     return row["rate"] if row else 0.0
 
 
-def melee_rates_by_items(hero):
-    """(rate with 0, 1, 2+ melee items) for this hero: the average rate (melee_rates.json) times the fitted multiplier
-    for the build (data/melee_items.json, scripts/melee_items_fit.py; its 90% lower bound, since holders partly melee
-    more because melee players buy these items), scaled so the hero's real mix of builds still
-    averages to the average rate. None when the data is missing."""
-    avg = melee_rate(hero)
-    try:
-        d = json.load(open(MELEE_ITEMS_FILE))
-    except (OSError, ValueError):
+_melee_items_cache = {}
+
+
+def _melee_items():
+    if MELEE_ITEMS_FILE not in _melee_items_cache:
+        try:
+            with open(MELEE_ITEMS_FILE) as fh:
+                _melee_items_cache[MELEE_ITEMS_FILE] = json.load(fh)
+        except (OSError, ValueError):
+            _melee_items_cache[MELEE_ITEMS_FILE] = None
+    return _melee_items_cache[MELEE_ITEMS_FILE]
+
+
+def melee_item_mults(hero):
+    """(multiplier on the hero's average melee rate with 0, 1, 2+ melee items): the fitted multiplier for the build
+    (data/melee_items.json, scripts/melee_items_fit.py; its 90% lower bound, since holders partly melee more because
+    melee players buy these items), scaled so the hero's real mix of builds still averages to 1. None when the data
+    is missing or the hero was not in the fit (it keeps the flat rate)."""
+    d = _melee_items()
+    row = (d or {}).get("heroes", {}).get(str(game().hero(hero).id))
+    if not row or not row.get("mix"):
         return None
-    hid = str(game().hero(hero).id)
-    row = d["heroes"].get(hid, {})
-    cls = row.get("class") or ("melee" if avg >= d["meta"]["melee_hero_rate"] else "gun")
-    mult = [d["classes"][cls][g].get("used", d["classes"][cls][g]["mult"]) for g in ("0", "1", "2+")]
-    mix = row.get("mix") or {"0": 1.0}
-    norm = sum(mix.get(g, 0.0) * m for g, m in zip(("0", "1", "2+"), mult)) or 1.0
-    return tuple(round(avg * m / norm, 4) for m in mult)
+    cls = d["classes"][row["class"]]
+    mult = [cls[g].get("used", cls[g]["mult"]) for g in ("0", "1", "2+")]
+    norm = sum(row["mix"].get(g, 0.0) * m for g, m in zip(("0", "1", "2+"), mult)) or 1.0
+    return tuple(round(m / norm, 4) for m in mult)
+
+
+def melee_rates_by_items(hero):
+    """(landed melees per second with 0, 1, 2+ melee items): melee_rate x melee_item_mults. None without data."""
+    mult = melee_item_mults(hero)
+    return None if mult is None else tuple(round(melee_rate(hero) * m, 4) for m in mult)
 
 
 def ability_landing(hero, mech=False):
@@ -215,10 +230,10 @@ def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_ove
     if melee:
         sk.melee_rate = melee_rate(hero)
         if melee_build:
-            sk.melee_by_items = melee_rates_by_items(hero)
+            sk.melee_item_mult = melee_item_mults(hero)
     if melee_rate_override is not None:
         sk.melee_rate = max(0.0, float(melee_rate_override))
-        sk.melee_by_items = None
+        sk.melee_item_mult = None
     if heavy_share is not None:
         sk.heavy_share = min(1.0, max(0.0, float(heavy_share)))
     sk.dot_cleanse_delay = dot_cleanse_delay(badge)

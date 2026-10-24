@@ -155,12 +155,14 @@ class Items(unittest.TestCase):
         sk = hero_default_skill("Abrams", melee_rate_override=0.8, heavy_share=0.5)
         self.assertEqual((sk.melee_rate, sk.heavy_share), (0.8, 0.5))
         self.assertGreater(hero_default_skill("Abrams").melee_rate, 0.1)
-        self.assertIsNone(sk.melee_by_items)   # the user's own rate is not scaled by the build
+        self.assertIsNone(sk.melee_item_mult)   # the user's own rate is not scaled by the build
 
     def test_melee_rate_follows_melee_items(self):
         from deadsim.accuracy import hero_default_skill, melee_rate
+        from dataclasses import replace
+        from deadsim.accuracy import melee_rates_by_items
         sk = hero_default_skill("Haze")
-        r0, r1, r2 = sk.melee_by_items
+        r0, r1, r2 = melee_rates_by_items("Haze")
         self.assertLess(r0, r1)
         self.assertLess(r1, r2)
         self.assertAlmostEqual(r0, melee_rate("Haze"), delta=0.3 * melee_rate("Haze"))  # most Haze players: none
@@ -168,8 +170,12 @@ class Items(unittest.TestCase):
         rates = [make_fighter(e, Loadout("Haze", its, souls=20000, skill=sk)).skill.melee_rate
                  for its in ([], ["Melee Charge"], ["Melee Charge", "Lifestrike"], ["Melee Charge", "Lifestrike",
                                                                                     "Spirit Snatch"])]
-        self.assertEqual(rates, [r0, r1, r2, r2])
+        for got, want in zip(rates, [r0, r1, r2, r2]):
+            self.assertAlmostEqual(got, want, places=3)
         self.assertEqual(sk.melee_rate, melee_rate("Haze"))   # the Skill itself keeps the average
+        # a caller's own melee_rate is scaled, not replaced: 0 stays 0
+        f = make_fighter(e, Loadout("Haze", ["Melee Charge"], souls=20000, skill=replace(sk, melee_rate=0.0)))
+        self.assertEqual(f.skill.melee_rate, 0.0)
 
     def test_melee_build_rates_keep_hero_average(self):
         # the hero's real mix of builds (data/melee_items.json "mix") still averages to its fitted rate
@@ -188,16 +194,25 @@ class Items(unittest.TestCase):
         A.MELEE_ITEMS_FILE = os.path.join(os.path.dirname(old), "no_such_file.json")
         try:
             self.assertIsNone(A.melee_rates_by_items("Haze"))
-            self.assertIsNone(A.hero_default_skill("Haze").melee_by_items)
+            self.assertIsNone(A.hero_default_skill("Haze").melee_item_mult)
         finally:
             A.MELEE_ITEMS_FILE = old
+        # a hero missing from the fit keeps the flat rate
+        rows = A._melee_items()["heroes"]
+        hid = str(G.hero("Haze").id)
+        row = rows.pop(hid)
+        try:
+            self.assertIsNone(A.melee_item_mults("Haze"))
+        finally:
+            rows[hid] = row
 
     def test_team_fight_uses_build_melee_rate(self):
         from deadsim.accuracy import hero_default_skill
         from deadsim.team import TeamEngine
+        from deadsim.accuracy import melee_rates_by_items
         sk = hero_default_skill("Haze")
         f = make_fighter(TeamEngine(distance=10), Loadout("Haze", ["Melee Charge", "Lifestrike"], souls=20000, skill=sk))
-        self.assertEqual(f.skill.melee_rate, sk.melee_by_items[2])
+        self.assertAlmostEqual(f.skill.melee_rate, melee_rates_by_items("Haze")[2], places=3)
 
     def test_web_melee_rate_override(self):
         import json
@@ -207,10 +222,10 @@ class Items(unittest.TestCase):
         from deadsim.accuracy import melee_rates_by_items
         q = {"hero": "Haze", "items": ["Melee Charge"], "souls": 15000}
         hero, items, kw = bridge._setup(dict(q, melee_rate=0))
-        self.assertEqual((kw["skill"].melee_rate, kw["skill"].melee_by_items), (0.0, None))
+        self.assertEqual((kw["skill"].melee_rate, kw["skill"].melee_item_mult), (0.0, None))
         self.assertEqual(bridge._melee_rate(kw["skill"], items), 0.0)
         hero, items, kw = bridge._setup(q)
-        self.assertEqual(bridge._melee_rate(kw["skill"], items), melee_rates_by_items("Haze")[1])
+        self.assertAlmostEqual(bridge._melee_rate(kw["skill"], items), melee_rates_by_items("Haze")[1], places=3)
         self.assertIn("melee_rate", json.loads(bridge.run(json.dumps(dict(q, melee_rate=0.25))))["used"])
 
     def test_melee_charge_heavy_lunge_reach(self):

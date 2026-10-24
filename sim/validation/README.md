@@ -109,8 +109,9 @@ today's holders", and it keeps the thinnest group (gun heroes with 2+ items) fro
 
 `accuracy.melee_rates_by_items(hero)` turns this into three rates per hero, scaled so the hero's real mix of builds
 still averages to its fitted rate (Haze 0.013 / 0.019 / 0.032 hits/s, Abrams 0.256 / 0.256 / 0.304).
-`hero_default_skill` stores them in `Skill.melee_by_items` and `fight.make_fighter` (duels and team fights) picks
-the one that matches the build, so adding Lifestrike to a build also makes its holder melee more. A user-set
+`hero_default_skill` stores the multipliers in `Skill.melee_item_mult` and `fight.make_fighter` (duels and team
+fights) scales `melee_rate` by the one that matches the build (so a caller's own `melee_rate`, 0 included, is scaled,
+never replaced; heroes missing from the fit keep the flat rate), so adding Lifestrike to a build also makes its holder melee more. A user-set
 `melee_rate_override` turns this off. `melee_items_fit.py --check` reruns with the used rates: real/sim per group is
 then 0.93-1.15 (the conservative bound leaves gun heroes with 2+ items 15% under real); with the average rate it
 was up to 1.9x off.
