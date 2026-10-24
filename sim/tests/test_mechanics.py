@@ -322,6 +322,18 @@ class Items(unittest.TestCase):
         fx.on_damage_dealt(a, b, Hit("bullet", "gun", 50, 50, hits=1))
         self.assertGreater(a.dmg_out.get("Siphon Bullets", 0.0), 0.0)
         self.assertAlmostEqual(hp - b.hp, a.dmg_out["Siphon Bullets"], places=6)
+        # a real-data factor scales the steal as a whole: health taken = the heal = the cap drop
+        e2 = Engine(distance=10)
+        a2 = make_fighter(e2, Loadout("Wraith", ["Siphon Bullets"], souls=9000,
+                                      skill=Skill(item_landing={"Siphon Bullets": 0.5})))
+        b2 = make_fighter(e2, Loadout("Abrams", [], souls=9000))
+        a2.enemy, b2.enemy = b2, a2
+        b2.hp = b2.max_hp * 0.5
+        cap = b2.max_hp
+        fx2 = next(x for x in a2.items_fx if x.item.name == "Siphon Bullets")
+        fx2.on_damage_dealt(a2, b2, Hit("bullet", "gun", 50, 50, hits=1))
+        self.assertAlmostEqual(a2.dmg_out["Siphon Bullets"], a.dmg_out["Siphon Bullets"] * 0.5, places=6)
+        self.assertAlmostEqual(cap - b2.max_hp, a2.dmg_out["Siphon Bullets"], places=6)
 
     def test_ability_sub_source_uses_its_ability_landing_factor(self):
         e = Engine()

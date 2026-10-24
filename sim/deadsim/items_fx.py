@@ -484,13 +484,16 @@ class SiphonBullets(FX):
         if hit.kind == "bullet" and hit.hits and not hit.is_ability and self.ready():
             self.ready_at = self.now + self.item.p("ProcCooldown", 1.2)
             amt = t.max_hp_base * self.item.p("HealthStealPctHero") / 100
+            # realistic mode: the real-data factor scales the whole steal (cap drop, health taken, heal) alike, so the
+            # damage below is not marked is_item (that would scale only the health taken)
+            amt *= (f.skill.item_landing or {}).get(self.name, 1.0)
             d = self.dur("StealDuration", 17)
             k = f.counters.get("siphon", 0) + 1
             f.counters["siphon"] = k
             t.mods.add("max_health", -amt, d, ("siphon", k))
             # the stolen health is taken from current health too: the game books it as Siphon Bullets damage
             # (real Phantom+ holders: 0.24 Siphon damage per gun damage, sim was 0 while it only lowered the cap)
-            f.e.damage(f, t, amt, "spirit", self.name, procs=False, is_item=True, pure=True)
+            f.e.damage(f, t, amt, "spirit", self.name, procs=False, pure=True)
             t.hp = min(t.hp, t.max_hp)
             f.mods.add("max_health", amt, d, ("siphon", k))
             f.heal(amt, self.name)
