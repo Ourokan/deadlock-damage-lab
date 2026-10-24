@@ -70,6 +70,9 @@ def main():
                         if i in items:
                             acc[items[i]][0 if v == main else 1] += d
     base_m = sum(acc[b][0] for b in BASELINE)
+    if base_m < MIN_DMG:
+        # without the baseline every extra would be overstated by the target-switch share (~0.44)
+        sys.exit(f"too little baseline damage ({', '.join(BASELINE)}: {base_m:.0f}); add replays that have them")
     base = sum(acc[b][1] for b in BASELINE) / max(1.0, base_m)
     out = {"source": f"{n_matches} Phantom+ replays, hero-vs-hero DamageEvent (scripts/team/area_hits.py)",
            "baseline_other_per_main": round(base, 3), "items": {}}
