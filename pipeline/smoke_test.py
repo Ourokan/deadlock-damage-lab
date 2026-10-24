@@ -1,7 +1,7 @@
 """Quick end-to-end check that the searches still run on the current sim: python3 pipeline/smoke_test.py
 
 One duel from the duel search, one dummy damage test and one tank survival fight, plus a check that every hero's fight
-pattern (sim/data/fight_patterns.json) names abilities it still has, and the overall score's movement weights. Fails if any of them raises or returns nothing. Runs in CI on every pull request (.github/workflows/pr-tests.yml).
+pattern (sim/data/fight_patterns.json) names abilities it still has, the overall score's movement weights and that the counter items are still in the shop. Fails if any of them raises or returns nothing. Runs in CI on every pull request (.github/workflows/pr-tests.yml).
 """
 import json
 import os
@@ -132,3 +132,10 @@ assert _m["meta"]["patch"] == RW.P.load()["patch"] and _m["meta"]["matches"] == 
 sys.argv = _argv
 shutil.rmtree(_tmp)
 print("win edge refresh ok")
+
+# the counter items the Phantom+ rerun scores (counters/scripts/sim_counters.py) are all still in the shop
+sys.path.insert(0, os.path.join(ROOT, "counters", "scripts"))
+import sim_counters  # noqa: E402
+missing = [n for n in sim_counters.OPTIONS if n not in {it.name for it in G.items.values()}]
+assert not missing, f"counter items no longer in the shop: {missing}"
+print("counter items ok:", len(sim_counters.OPTIONS))

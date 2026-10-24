@@ -187,7 +187,7 @@ async function teamTab(page, where) {
   });
 }
 
-const STATIC_TABS = [["overall", "#o-out"], ["path", "#p-out"], ["damage", "#g-out"], ["duel", "#u-out"], ["tank", "#t-out"], ["changes", "#c-out"]];
+const STATIC_TABS = [["overall", "#o-out"], ["path", "#p-out"], ["damage", "#g-out"], ["duel", "#u-out"], ["tank", "#t-out"], ["counter", "#k-out"], ["changes", "#c-out"]];
 async function staticTabs(page, where, sim) {
   for (const [tab, out] of STATIC_TABS) {
     await step(page, where, `${tab} tab`, async () => {
@@ -196,7 +196,8 @@ async function staticTabs(page, where, sim) {
       const btn = await page.$(`${out} [data-test]`);
       if (!sim) return;
       if (!btn) {
-        if (tab !== "changes") throw new Error("no Test button in the tab");   // a fresh What changed log can have no rows
+        // a fresh What changed log can have no rows; the Counter items tab is a table of items, not builds
+        if (tab !== "changes" && tab !== "counter") throw new Error("no Test button in the tab");
         return;
       }
       const n = await runId(page);

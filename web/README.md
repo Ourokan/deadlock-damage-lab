@@ -34,6 +34,9 @@ Static site, no server. Open `index.html` through any static host (or `python3 -
   `python3 pipeline/changes.py backfill` rebuilds every entry from git history.
 - **Best damage builds** (`damage/out`, with the item buy order and the ability upgrade order for the best builds), **Duel builds** (`search/out`, shows whichever rank brackets exist) and
   **Tank builds** (`survival/out`). Every build has a Test button that loads it into the damage test.
+- **Counter items** (`counters/out/sim.json` + the real-match tables in `counters/out`): per enemy hero, what each
+  defensive item adds to a hero's popular build in the overall test, next to how much more real players buy it
+  against that hero and its real win edge.
 
 ## Phones
 Under 640 px the tabs sit in a 3x3 grid, long intros fold to three lines, and every table with a text column turns

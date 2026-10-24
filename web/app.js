@@ -750,6 +750,47 @@ function renderSheet() {
     <p class="fine" style="margin-top:12px">Measured live with the current sim against this build's dummy, so totals can differ a little from the table.</p>`;
 }
 
+// counter items (counters/scripts/sim_counters.py): per enemy hero, the sim value of each defensive item next to
+// real players' buy trigger and win edge (counters/scripts/report.py, triggers.py)
+async function renderCounterTab() {
+  const out = $("#k-out"), idx = await load("data/counters/index.json");
+  if (!idx) { out.innerHTML = '<p class="empty">No counter-item results yet.</p>'; return; }
+  const keys = Object.keys(idx.budgets);
+  if ($("#k-budget").options.length !== keys.length) fillBudgetSelect($("#k-budget"), keys, $("#k-budget").value);
+  const bk = $("#k-budget").value, b = idx.budgets[bk], e = $("#k-enemy").value, me = $("#k-hero").value;
+  const ei = b.enemies.indexOf(e), hd = me ? (await load(`data/counters/heroes/${me}.json`))?.[bk] : null;
+  if (ei < 0 || (me && !hd)) { out.innerHTML = '<p class="empty">No counter-item results for this pick yet.</p>'; return; }
+  const real = idx.real?.items || {}, ename = idx.heroes[e];
+  const rows = idx.items.map((it) => {
+    const s = b.items[it.name], r = real[it.name];
+    let vs, avg, lift, held = false;
+    if (me) {
+      const h = hd.items[it.name];
+      if (!h) held = true;
+      else {
+        vs = h.vs[ei];
+        avg = h.vs.reduce((a, x, i) => a + (x || 0) * (b.weights[b.enemies[i]] || 0), 0) / b.enemies.reduce((a, x) => a + (b.weights[x] || 0), 0);
+        lift = vs == null ? null : vs - avg;
+      }
+    } else {
+      const m = b.enemy[e]?.[it.name];
+      if (m) { [vs, lift] = m; avg = s.mean_vs; }
+    }
+    return { it, vs, avg, lift, held, per: me ? hd.items[it.name]?.per_1000 : s.per_1000, trig: r?.hero_lift?.[e], edge: r?.win_edge, rate: r?.buy_rate };
+  }).filter((x) => x.held || x.vs != null).sort((a, b) => (b.vs ?? -9) - (a.vs ?? -9));
+  const cls = (v, eps = 0.005) => (v > eps ? "up" : v < -eps ? "down" : "");
+  const row = (x) => x.held ? `<tr><td>${tile(x.it.id, { static: true })}</td><td class="n">${fmt(x.it.cost)}</td><td colspan="4" class="hint">Already in this hero's popular build.</td><td class="n">${x.trig ? "×" + fmt(x.trig, 2) : "–"}</td><td class="n">${x.edge == null ? "–" : (x.edge > 0 ? "+" : "") + fmt(x.edge * 100, 1)}</td></tr>`
+    : `<tr><td>${tile(x.it.id, { static: true })}</td><td class="n">${fmt(x.it.cost)}</td><td class="n ${cls(x.vs)}"><b>${signed(x.vs)}</b></td><td class="n">${signed(x.avg)}</td>`
+      + `<td class="n ${cls(x.lift)}">${x.lift == null ? "–" : signed(x.lift)}</td><td class="n">${x.per == null ? "–" : signed(x.per)}</td>`
+      + `<td class="n ${x.trig > 1.1 ? "up" : x.trig < 0.9 ? "down" : ""}">${x.trig ? "×" + fmt(x.trig, 2) : "–"}</td>`
+      + `<td class="n ${cls(x.edge, 0.002)}">${x.edge == null ? "–" : (x.edge > 0 ? "+" : "") + fmt(x.edge * 100, 1)}</td></tr>`;
+  const who = me ? esc(idx.heroes[me]) : "the average hero (weighted by how often each reaches this net worth)";
+  out.innerHTML = `<p class="hint">Sim values are for ${who} in ${esc(idx.bracket === "phantom" ? "Phantom and up" : idx.bracket)} games at ${fmt(bk / 1000)}k souls, with the item added on top of the popular build (built ${esc(idx.built.slice(0, 10))}). <b>Vs ${esc(ename)}</b> is how much more damage the build deals before dying in that matchup, as a share of the popular build's average over all matchups; <b>vs average</b> is the same over all enemies; <b>extra vs ${esc(ename)}</b> is the difference, so a high number means the item is a real counter to ${esc(ename)} rather than just good. Real-player columns come from ${fmt(idx.real?.matches || 0)} ranked matches of the patch the analysis ran on, all ranks: <b>overall per 1k souls</b> is the overall score gain per 1,000 souls, which also counts the item's real win edge on this hero (like the Best overall builds tab), so items real buyers lose with (Metal Skin, Return Fire) rank low there even when the sim likes them; <b>bought more</b> is how much more often players buy it in the 5 minutes after facing ${esc(ename)}; <b>win edge</b> is the buyers' win rate against same-price defensive alternatives, in points.</p>
+    <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Cost</th><th class="n">Vs ${esc(ename)}</th><th class="n">Vs average</th><th class="n">Extra vs ${esc(ename)}</th><th class="n" title="Overall score gain per 1,000 souls, including the real win edge">Overall per 1k souls</th><th class="n" title="Real players: buy rate with this hero on the enemy team / without">Bought more</th><th class="n" title="Real players: win rate of buyers minus same-price defensive alternatives, percentage points">Win edge</th></tr></thead>
+    <tbody>${rows.map(row).join("")}</tbody></table></div>
+    <p class="fine">The sim adds the item for free, so every item looks good on a fragile hero; compare items with each other and read the extra column for counters. Real win edges are observational (being focused or out-played isn't captured).</p>`;
+}
+
 // what each rerun changed in the best builds, and why (pipeline/changes.py -> data/changes.json)
 const TIER_LABEL = { phantom: "Phantom+", ascendant: "Ascendant+", eternus: "Eternus+", all: "All ranks" };
 const REPO = "https://github.com/TylerNodell/deadlock-damage-lab";
@@ -791,7 +832,7 @@ async function renderChangesTab() {
 // ---------- tabs ----------
 function showTab() {
   const t = (location.hash || "#test").slice(1).split("/")[0];
-  const tab = ["test", "maker", "match", "overall", "path", "damage", "duel", "tank", "team", "changes"].includes(t) ? t : "test";
+  const tab = ["test", "maker", "match", "overall", "path", "damage", "duel", "tank", "counter", "team", "changes"].includes(t) ? t : "test";
   $$(".tab").forEach((s) => (s.hidden = s.id !== "tab-" + tab));
   $$("#tabs a").forEach((a) => (a.dataset.tab === tab ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
   if (tab === "overall") renderOverallTab();
@@ -799,6 +840,7 @@ function showTab() {
   if (tab === "damage") renderDamageTab();
   if (tab === "duel") renderDuelTab();
   if (tab === "tank") renderTankTab();
+  if (tab === "counter") renderCounterTab();
   if (tab === "changes") renderChangesTab();
 }
 
@@ -857,6 +899,8 @@ async function boot() {
   fillHeroSelect($("#t-hero"), tank ? Object.keys(tank.heroes) : []);
   for (const s of ["#g-hero", "#u-hero", "#o-hero", "#p-hero"]) $(s).value = 13;
   $("#c-hero").innerHTML = '<option value="">All heroes</option>' + opts;
+  fillHeroSelect($("#k-enemy")); $("#k-enemy").value = 13;
+  $("#k-hero").innerHTML = '<option value="">Any hero (average)</option>' + $("#k-enemy").innerHTML;
   load("data/patch.json").then((p) => {
     if (!p) return;
     $("#patch").textContent = p.patch;
@@ -907,6 +951,7 @@ async function boot() {
   $("#u-hero").onchange = renderDuelTab; $("#u-budget").onchange = renderDuelTab; $("#u-bracket").onchange = renderDuelTab;
   $("#t-hero").onchange = renderTankTab; $("#t-budget").onchange = renderTankTab;
   $("#p-hero").onchange = renderPathTab; $("#p-rank").onchange = renderPathTab;
+  $("#k-enemy").onchange = renderCounterTab; $("#k-hero").onchange = renderCounterTab; $("#k-budget").onchange = renderCounterTab;
   $("#c-hero").onchange = renderChangesTab; $("#c-kind").onchange = renderChangesTab;
   $("#o-hero").onchange = renderOverallTab; $("#o-budget").onchange = renderOverallTab; $("#o-rank").onchange = renderOverallTab;
   for (const s of ["#g-out", "#g-skill", "#g-order", "#u-out", "#t-out", "#o-out", "#p-out", "#c-out"]) $(s).addEventListener("click", onTest);

@@ -55,6 +55,7 @@ jobs:
             damage/work/jobs_path_*
             search/work/jobs*
             survival/work/jobs
+            counters/work/jobs
             pipeline/work
 
   publish:
@@ -100,6 +101,7 @@ jobs:
           if [ "${{ inputs.tier }}" = "$primary" ]; then
             python3 damage/scripts/export.py
             python3 survival/scripts/export.py
+            python3 counters/scripts/export_sim.py
           fi
           python3 search/scripts/export.py
           python3 damage/scripts/export_overall.py
@@ -117,7 +119,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/game data/patch.json data/changes.json data/builds/aggregates damage/out search/out survival/out analysis/out/hero_item_edge.json analysis/out/build_win_check.md
+          git add data/game data/patch.json data/changes.json data/builds/aggregates damage/out search/out survival/out analysis/out/hero_item_edge.json analysis/out/build_win_check.md counters/out
           git diff --cached --quiet && { echo "No changes to commit"; exit 0; }
           git commit -m "Rerun searches (${{ inputs.tier }}): ${{ inputs.reason }}"
           git pull --no-rebase --no-edit origin main

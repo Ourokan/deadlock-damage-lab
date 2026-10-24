@@ -1,4 +1,5 @@
-"""Turn counters/work/*.json (analyze.py) and out/sim_*.json (sim_counters.py) into out/report.json + out/tables.md."""
+"""Turn counters/work/*.json (analyze.py) into out/report.json + out/tables.md (real-match tables only; the sim values
+are counters/out/sim.json and sim.md from sim_counters.py + export_sim.py)."""
 from __future__ import annotations
 
 import glob
@@ -173,27 +174,6 @@ def main():
             if e[2] >= 300:
                 r["win_edge"][f"bought_{t * 10}-{t * 10 + 10}min"] = e
         rep["items"][name] = r
-    # sim
-    rep["sim"] = {}
-    for f in sorted(glob.glob(f"{ROOT}/counters/out/sim_*.json")):
-        s = json.load(open(f))
-        w = {int(k): v for k, v in s["weights"].items()}
-        out = {}
-        for opt in s["options"]:
-            per_att = defaultdict(list)
-            for d, row in s["duels"].items():
-                for a, res in row.items():
-                    if opt in res:
-                        per_att[int(a)].append((res[opt][0] - res["none"][0], res[opt][1] - res["none"][1]))
-            allv = [x for v in per_att.values() for x in v]
-            cost = ITEMS[ID[opt]]["cost"]
-            att = {HEROES.get(a, a): sum(x for x, _ in v) / len(v) for a, v in per_att.items()}
-            mean = sum(x for x, _ in allv) / max(1, len(allv))
-            out[opt] = {"cost": cost, "score_gain": mean, "score_gain_per_1k": mean / cost * 1000,
-                        "win_gain": sum(y for _, y in allv) / max(1, len(allv)),
-                        "best_vs": sorted(att.items(), key=lambda x: -x[1])[:6],
-                        "worst_vs": sorted(att.items(), key=lambda x: x[1])[:3]}
-        rep["sim"][s["budget"]] = out
     json.dump(rep, open(f"{ROOT}/counters/out/report.json", "w"), indent=1)
     write_md(rep)
 
@@ -256,14 +236,6 @@ def write_md(rep):
         e = rep["items"][n]["win_edge"]
         L.append(f"- **{n}**: " + ", ".join(f"{k.split('_')[1]} {pp(v).split(' (')[0]}" for k, v in e.items()
                                            if k.startswith("bought")))
-    for b, out in rep["sim"].items():
-        L.append(f"\n## 6. Sim value at {int(b):,} souls\n\nEvery hero's typical real build duels every other hero's, "
-                 "with the item added for free. Score = win (1/0.5/0) + 0.3 × HP margin.\n\n"
-                 "| Item | Cost | Score gain | Per 1k souls | Duel win-rate gain | Best against | Worst against |\n|---|---|---|---|---|---|---|")
-        for n, o in sorted(out.items(), key=lambda x: -x[1]["score_gain"]):
-            L.append(f"| {n} | {o['cost']} | {o['score_gain']:+.3f} | {o['score_gain_per_1k']:+.3f} | {pct(o['win_gain'])} | "
-                     + ", ".join(f"{h} {v:+.2f}" for h, v in o["best_vs"][:4]) + " | "
-                     + ", ".join(f"{h} {v:+.2f}" for h, v in o["worst_vs"][:2]) + " |")
     open(f"{ROOT}/counters/out/tables.md", "w").write("\n".join(L) + "\n")
 
 
