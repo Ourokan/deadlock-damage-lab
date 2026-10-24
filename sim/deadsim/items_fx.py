@@ -1039,7 +1039,7 @@ class MysticBurst(FX):
     def on_damage_dealt(self, f, t, hit):
         if hit.kind != "spirit" or not hit.is_ability or hit.is_dot:
             return
-        if hit.amount < self.item.p("MinimumDamage", 80):
+        if hit.amount / max(1e-6, hit.landing) < self.item.p("MinimumDamage", 80):
             return
         charge = min(1.0, (self.now - self.charged_at) / max(1e-6, self.cd("AbilityChargeUpTime")))
         self.charged_at = self.now

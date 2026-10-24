@@ -130,6 +130,7 @@ class Bloodletting(AbilityImpl):
             f.hp -= dmg
             f.dmg_in[DEFER_SRC] = f.dmg_in.get(DEFER_SRC, 0.0) + dmg
             c.foe.dmg_out[DEFER_SRC] = c.foe.dmg_out.get(DEFER_SRC, 0.0) + dmg
+            c.foe.dmg_exp[DEFER_SRC] = c.foe.dmg_exp.get(DEFER_SRC, 0.0) + dmg * c.engine.length_w()
             if f.hp <= 0:    # let the engine handle death (on_lethal items etc.)
                 f.hp = 1e-6
                 st["bypass"] = True

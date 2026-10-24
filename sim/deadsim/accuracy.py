@@ -174,6 +174,9 @@ def melee_rates_by_items(hero):
     return None if mult is None else tuple(round(melee_rate(hero) * m, 4) for m in mult)
 
 
+LENGTH_CORR = True   # False: no fight-length corrections (scripts/fight_length/length_factors.py fits without them)
+
+
 def ability_landing(hero, mech=False):
     """{ability name: effective landing factor} fitted from real damage shares (data/landing_rates.json; with
     mech=True the refit with deadsim.mechanics on, data/landing_rates_mech.json)."""
@@ -183,6 +186,19 @@ def ability_landing(hero, mech=False):
         return {}
     rows = d.get(game().hero(hero).name, {})
     return {name: min(1.5, max(0.05, r["landing"])) for name, r in rows.items()}
+
+
+def ability_length_corr(hero):
+    """{ability name: length_corr} for fights that book damage over real fight lengths (Mechanics.fight_length): the
+    mech factors were fitted with every hit of a 20 s duel in full, and x this give the same real/sim ratio under
+    the new booking (data/landing_rates_mech.json, scripts/fight_length/length_factors.py)."""
+    if not LENGTH_CORR:
+        return {}
+    try:
+        rows = json.load(open(LANDING_MECH))["heroes"].get(game().hero(hero).name, {})
+    except (OSError, KeyError, ValueError):
+        return {}
+    return {name: r["length_corr"] for name, r in rows.items() if "length_corr" in r}
 
 
 def dot_cleanse_delay(badge=None):
@@ -258,6 +274,19 @@ def item_landing():
             if r["landing"] < 1.0 and r["holders"] >= ITEM_LANDING_MIN_HOLDERS}
 
 
+def item_length_corr():
+    """{item name: length_corr}: item_landing's factors (or 1 for an item left uncut) x this for fights that book
+    damage over real fight lengths (data/item_landing.json, scripts/fight_length/length_factors.py)."""
+    if not LENGTH_CORR:
+        return {}
+    try:
+        rows = json.load(open(ITEM_LANDING))["items"]
+    except (OSError, ValueError, KeyError):
+        return {}
+    return {r["name"]: r["length_corr"] for r in rows.values()
+            if "length_corr" in r and r["holders"] >= ITEM_LANDING_MIN_HOLDERS}
+
+
 def zone_exit_time(badge=None):
     """Seconds a player stays in an avoidable ground zone (Alchemical Fire, 10 m radius, 5 s) before walking out:
     reaction time plus the walk to the edge. Assumption, like dot_cleanse_delay: 2.0 s for ranked overall,
@@ -302,6 +331,7 @@ def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_ove
     if landing:
         sk.ability_landing = ability_landing(hero)
         sk.ability_landing_mech = ability_landing(hero, mech=True)
+        sk.ability_length_corr = ability_length_corr(hero)
     if melee:
         sk.melee_rate = melee_rate(hero)
         if melee_build:
@@ -320,6 +350,7 @@ def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_ove
     sk.zone_exit_s = zone_exit_time(badge)
     if counterplay:   # realistic mode: item damage calibrated to real matches
         sk.item_landing = item_landing()
+        sk.item_length_corr = item_length_corr()
     return sk
 
 

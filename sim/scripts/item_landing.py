@@ -109,6 +109,15 @@ def main():
                        + (", gun damage while the item was owned" if windowed else ", match-total real gun damage"),
             "sample": os.path.basename(sample),
             "use": "deadsim realistic mode scales an item's own damage by min(1, landing)"}
+    try:   # keep the fight-length corrections (scripts/fight_length/length_factors.py; rerun it after this)
+        prev = json.load(open(os.path.join(ROOT, "data", "item_landing.json")))
+        for c, r in prev["items"].items():
+            if c in out and "length_corr" in r:
+                out[c]["length_corr"] = r["length_corr"]
+        if "length" in prev.get("meta", {}):
+            meta["length"] = prev["meta"]["length"]
+    except (OSError, ValueError, KeyError):
+        pass
     json.dump({"meta": meta, "items": dict(sorted(out.items(), key=lambda x: x[1]["landing"]))},
               open(os.path.join(ROOT, "data", "item_landing.json"), "w"), indent=1)
     for c, v in sorted(out.items(), key=lambda x: x[1]["landing"]):
