@@ -102,6 +102,7 @@ def survive(hero, items, souls, enemy, enemy_items, enemy_souls=None, max_time=6
         "damage_dealt_full": round(sum(me.dmg_out.values()), 1),
         "damage_by_source": {k: round(v, 1) for k, v in me.dmg_exp.items() if v},
         "splash_dealt": round(sum(me.counters.get("splash_exp", {}).values()), 1),
+        "splash_by_source": {k: round(v, 1) for k, v in me.counters.get("splash_exp", {}).items() if v},
         "regen": me.st.health_regen, "ooc_regen": me.st.ooc_regen, "regen_amp": me.st.heal_amp,
         "heal_amp_cast": me.st.heal_amp_cast,
         "enemy_healed": round(foe.healed_exp, 1),

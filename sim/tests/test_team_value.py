@@ -42,6 +42,13 @@ class Near(unittest.TestCase):
 
 
 class AreaDamage(unittest.TestCase):
+    # raw extra hits; the kill weight on top of them is checked in test_kill_weight.py
+    def setUp(self):
+        self.kill, O.KILL_WEIGHT = O.KILL_WEIGHT, False
+
+    def tearDown(self):
+        O.KILL_WEIGHT = self.kill
+
     def test_area_item_damage_counts_on_the_other_enemies(self):
         # replay values read straight from data/area_hits.json (not through area_extra), so a refit keeps this passing
         r = {"damage_by_source": {"gun": 1000.0, "Mystic Reverb": 200.0, "Scourge": 100.0}, "splash_dealt": 30.0}
