@@ -139,7 +139,8 @@ function applyPreset(d, k, bk) {
 async function followPreset() {
   const k = S.A.preset; if (!k) return;
   const hero = S.A.hero, d = await damageHero(hero);
-  if (!d || S.A.hero !== hero || S.A.preset !== k) return;
+  if (S.A.hero !== hero || S.A.preset !== k) return;
+  if (!d) { S.A.preset = S.A.label = null; return; } // no precomputed builds for this hero: keep the items, drop the stale name
   const souls = S.A.souls, bk = nearestBudget(Object.keys(d.budgets), souls);
   applyPreset(d, k, Number(bk)); S.A.souls = souls;
   renderAttacker();
