@@ -169,6 +169,9 @@ tr.pop td { background: color-mix(in srgb, var(--brass) 9%, transparent); }
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); gap: 16px; }
 .card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px; display: grid; gap: 10px; min-width: 0; align-content: start; }
 .kv { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 3px 10px; font-size: .86rem; }
+.kv.kv3 { grid-template-columns: minmax(0, 1fr) auto auto; }
+.kv.kv3 > span:nth-child(n) { font-family: var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+.kv.kv3 > span:nth-child(3n+1) { font-family: inherit; text-align: left; }
 .kv span:nth-child(even) { font-family: var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
 .empty { padding: 24px; border: 1px dashed var(--line); border-radius: 6px; color: var(--muted); }
 .foot { font-size: .8rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
