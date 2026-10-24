@@ -758,16 +758,18 @@ function showTab() {
 // column name to show above it, and the label, item and button cells take a full row.
 function stackTables() {
   for (const t of $$("table")) {
-    if (t.dataset.stacked === String(t.tBodies[0]?.rows.length) || !t.tHead || !t.querySelector("tbody td:not(.n)")) continue;
-    const heads = [...(t.tHead?.rows[0]?.cells || [])].map((c) => c.textContent.trim());
-    for (const r of t.tBodies[0].rows) {
+    // rows are marked one by one: a renderer can swap a table's rows (or its whole innerHTML) without replacing it
+    const rows = [...(t.tBodies[0]?.rows || [])].filter((r) => !r.dataset.stk);
+    if (!rows.length || !t.tHead || !t.querySelector("tbody td:not(.n)")) continue;
+    const heads = [...(t.tHead.rows[0]?.cells || [])].map((c) => c.textContent.trim());
+    for (const r of rows) {
       [...r.cells].forEach((c, k) => {
         if (c.colSpan > 1 || !c.classList.contains("n")) c.classList.add("wide");
         else if (heads[k]) c.dataset.label = heads[k];
       });
+      r.dataset.stk = "1";
     }
     t.classList.add("cards-sm");
-    t.dataset.stacked = String(t.tBodies[0].rows.length);
   }
 }
 // Long tab intros fold to three lines on phones, with a button to read the rest.
