@@ -98,6 +98,11 @@ class Mechanics:
     # survival curve of real fight length (real_length(souls)): P(still trading at k x LENGTH_STEP s | nobody
     # died). None = the fight's damage counts in full until a death or max_time (dmg_exp = dmg_out)
     fight_length: tuple | None = None
+    # with fight_length: the hits of each source the sim casts on sight are booked as if its first use came after the
+    # real hold (opener_holds, data/opener_timing.json): real players often open later or on cooldown from a fight
+    # before. Off by default: with it on, length_factors.py must be rerun (the corrections move toward 1) and the
+    # overall search's builds did not get better (validation/README.md "Opener timing")
+    opener_timing: bool = False
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
@@ -135,6 +140,31 @@ def real_length(souls=None):
         return _LENGTH["all"]
     ph = next((n for hi, n in LENGTH_PHASES if souls < hi), "late")
     return _LENGTH.get(ph, _LENGTH["all"])
+
+
+_OPENER = None
+
+
+def opener_holds(hero, items):
+    """{damage source name: hold values (s)} for a fighter (Mechanics.opener_timing): its abilities' and items' real
+    hold before their first use in a fight (data/opener_timing.json, scripts/fight_length/opener_timing.py), items
+    pooled over heroes for a hero without a row. Only sources the sim casts on sight have one: in real Phantom+
+    fights they land a median ~3 s later (on cooldown from the fight before, or held), the sim's at ~0.5 s."""
+    global _OPENER
+    if _OPENER is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "opener_timing.json")) as fh:
+            _OPENER = json.load(fh)
+    src, pooled = _OPENER["sources"], _OPENER["items_pooled"]
+    out = {}
+    for ab in hero.abilities:
+        q = src.get(f"{hero.id}:{ab.class_name}")
+        if q:
+            out[ab.name] = tuple(q)
+    for it in items:
+        q = src.get(f"{hero.id}:{it.class_name}") or pooled.get(it.class_name)
+        if q:
+            out[it.name] = tuple(q)
+    return out
 
 
 DEFAULT = Mechanics()   # None turns the new mechanics off for every Engine built without an explicit value
@@ -262,7 +292,7 @@ def _splash(f, amount, kind, source):
     d = f.counters.setdefault("splash", {})
     d[source] = d.get(source, 0.0) + amt
     d = f.counters.setdefault("splash_exp", {})
-    d[source] = d.get(source, 0.0) + amt * f.e.length_w()
+    d[source] = d.get(source, 0.0) + amt * f.e.length_w(src=f, source=source)
     return amt
 
 

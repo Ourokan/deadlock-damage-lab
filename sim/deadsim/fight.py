@@ -202,6 +202,11 @@ def make_fighter(engine, lo: Loadout, name=None):
     if engine.mech is not None:
         from . import mechanics
         mechanics.attach(f, items)
+        if engine.length and getattr(engine.mech, "opener_timing", False):
+            # only sources whose landing factor has a length correction: the correction (length_factors.py) keeps
+            # their level as fitted, the hold only moves where in a fight the damage counts
+            corr = set(skill.ability_length_corr) | set(skill.item_length_corr)
+            f.opener_hold = {k: q for k, q in mechanics.opener_holds(hero, items).items() if k in corr}
     return f
 
 

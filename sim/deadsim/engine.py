@@ -24,6 +24,7 @@ from .build import Stats, combine_resist, stack_cdr
 from .patterns import fight_start
 
 INF = float("inf")
+PROFILE_SOURCES = False  # also book damage by source and 2 s slice (Fighter.dmg_src_2s; scripts/fight_length/opener_timing.py)
 # Melee rotation (assumptions; the API has no light/heavy split): share of landed melees that are heavy, and how
 # long each melee stops the gun.
 HEAVY_SHARE = 0.3
@@ -243,6 +244,10 @@ class Fighter:
         self.dmg_exp = {}
         self.healed_exp = 0.0
         self.dmg_by_2s = {}         # 2 s slice of the fight -> damage dealt in full (damage profile checks)
+        self.dmg_first = {}         # source -> time of its first hit, when PROFILE_SOURCES (opener timing checks)
+        self.dmg_src_2s = {}        # (source, 2 s slice) -> damage in full, when PROFILE_SOURCES
+        self.opener_hold = {}       # source name -> real hold values (s) before its first use (Mechanics.opener_timing)
+        self._hold_cache = {}
         self.items_fx = []
         self.abilities = []         # AbilityState
         self.plan = None            # deadsim.patterns.Plan (hero fight pattern), None = slot order
@@ -262,6 +267,17 @@ class Fighter:
         self.headshots_hit = 0
 
     # ---- helpers -----------------------------------------------------------------------------------
+    def hold_of(self, source):
+        """The opener hold of a damage source, also for an ability's sub-source ("Setup Bishop squares")."""
+        q = self._hold_cache.get(source, False)
+        if q is False:
+            q = self.opener_hold.get(source)
+            if q is None:
+                best = max((n for n in self.opener_hold if source.startswith(n + " ")), key=len, default=None)
+                q = self.opener_hold[best] if best else None
+            self._hold_cache[source] = q
+        return q
+
     def acc(self, key, phase=0.5):
         a = self.misc_acc.get(key)
         if a is None:
@@ -413,6 +429,8 @@ class FightResult:
     a_splash_exp: dict = field(default_factory=dict)
     b_splash_exp: dict = field(default_factory=dict)
     a_by_2s: dict = field(default_factory=dict)    # 2 s slice -> damage dealt in full (Fighter.dmg_by_2s)
+    a_first: dict = field(default_factory=dict)    # source -> time of its first hit (Fighter.dmg_first)
+    a_src_2s: dict = field(default_factory=dict)   # (source, 2 s slice) -> damage in full (PROFILE_SOURCES)
 
     def summary(self):
         def top(d):
@@ -457,11 +475,18 @@ class Engine:
         # expected over real fight lengths, without a random cut that would swing results by whole casts.
         self.length = getattr(mech, "fight_length", None) if mech is not None else None
 
-    def length_w(self, t=None):
-        """P(a real fight is still going at t s, default now | nobody died): 1 without Mechanics.fight_length."""
+    def length_w(self, t=None, src=None, source=None):
+        """P(a real fight is still going at t s, default now | nobody died): 1 without Mechanics.fight_length. With
+        src / source and an opener hold for it (Fighter.opener_hold, Mechanics.opener_timing): the mean over the
+        real hold values h of P(still going at t + h), as if the source's first use had come h later."""
         c = self.length
         if not c:
             return 1.0
+        if src is not None and src.opener_hold:
+            q = src.hold_of(source)
+            if q:
+                t0 = self.t if t is None else t
+                return sum(self.length_w(t0 + h) for h in q) / len(q)
         from .mechanics import LENGTH_STEP
         x = (self.t if t is None else t) / LENGTH_STEP
         k = int(x)
@@ -632,13 +657,17 @@ class Engine:
             left = min(left, max(0.0, dst.hp - 1.0))
         dst.hp -= left
         hit.amount = amt
-        w = self.length_w()
+        w = self.length_w(src=src, source=source)
         for name, part in booked:
             src.dmg_out[name] = src.dmg_out.get(name, 0.0) + part
             dst.dmg_in[name] = dst.dmg_in.get(name, 0.0) + part
             src.dmg_exp[name] = src.dmg_exp.get(name, 0.0) + part * w
         k = int(self.t // 2)
         src.dmg_by_2s[k] = src.dmg_by_2s.get(k, 0.0) + amt
+        if amt > 0 and PROFILE_SOURCES:
+            src.dmg_first.setdefault(source, self.t)
+            for name, part in booked:
+                src.dmg_src_2s[name, k] = src.dmg_src_2s.get((name, k), 0.0) + part
         if "summons" in dst.counters and amt > 0:
             from .mechanics import note_hit_while_summoned
             note_hit_while_summoned(src, dst, amt, source)
@@ -964,7 +993,7 @@ class Engine:
         elif not b.alive and a.alive:
             winner = a.name
         r = FightResult(winner, self.t, a.hp, b.hp, a.dmg_out, b.dmg_out, a.name, b.name, self.log,
-                        a_exp=a.dmg_exp, b_exp=b.dmg_exp, a_by_2s=a.dmg_by_2s)
+                        a_exp=a.dmg_exp, b_exp=b.dmg_exp, a_by_2s=a.dmg_by_2s, a_first=a.dmg_first, a_src_2s=a.dmg_src_2s)
         if self.mech is not None:
             r.escaped = self.escaped
             r.a_splash, r.b_splash = a.counters.get("splash", {}), b.counters.get("splash", {})

@@ -7,6 +7,7 @@ import os
 import sys
 import types
 import unittest
+from unittest import mock
 
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 sys.path[:0] = [os.path.join(ROOT, p) for p in ("sim", "sim/scripts", "search/scripts", "damage/scripts", "damage",
@@ -150,8 +151,14 @@ class AllyItems(unittest.TestCase):
             self.assertGreater(O.team_value([ID[name]], 27000), 1.0, name)
 
     def test_noisy_fits_count_zero(self):
-        # Hunter's Aura at 50k: 0.013 +- 0.039, inside its 95% band
-        self.assertEqual(O.team_value([ID["Hunter's Aura"]], 50000), 1.0)
+        # a fit inside its 95% band counts zero, one clear of it counts (synthetic specs: the patch rerun refits
+        # team_value.json, so no real item stays noisy for good; Hunter's Aura at 50k was 0.013 +- 0.039)
+        def spec(value, se):
+            return {"reach": "allies", "radius_m": 20, "reach_sim": 2.0, "budgets": {"50000": {"value": value, "se": se}}}
+        data = {"items": {"values": {"Hunter's Aura": spec(0.013, 0.039), "Healing Nova": spec(0.2, 0.02)}}}
+        with mock.patch.object(O, "team_data", return_value=data):
+            self.assertEqual(O.team_value([ID["Hunter's Aura"]], 50000), 1.0)
+            self.assertGreater(O.team_value([ID["Healing Nova"]], 50000), 1.0)
 
     def test_values_add(self):
         a, b = ID["Healing Nova"], ID["Heroic Aura"]
