@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-24T09:40:00Z",
- "reason": "Targetable summons: Graves' zombies, Deadheads and gravestone can be killed; summon targeting fitted to replays (sim/data/summon_targeting.json)"
+ "requested_at": "2026-10-24T09:50:00Z",
+ "reason": "Gravestone break scales zombie damage instead of rounding spawns (summons follow-up to #38/#39)"
 }

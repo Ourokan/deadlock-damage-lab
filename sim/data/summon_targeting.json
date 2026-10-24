@@ -7,11 +7,11 @@
    "life_other_s": 12.75,
    "sim": {
     "gun_focus_share": 0.571,
-    "splash_ratio": 0.602,
+    "splash_ratio": 0.605,
     "killed": 0.61,
     "n": 456
    },
-   "splash": 0.284,
+   "splash": 0.285,
    "real": {
     "gun_focus_share": 0.571,
     "splash_ratio": 0.603,
@@ -29,16 +29,16 @@
    }
   },
   "graves_zombie": {
-   "focus": 0.529,
+   "focus": 0.546,
    "acc_mult": 2.0,
    "life_other_s": 10.53,
    "sim": {
-    "gun_focus_share": 0.662,
-    "splash_ratio": 1.144,
-    "killed": 0.391,
-    "n": 1166
+    "gun_focus_share": 0.667,
+    "splash_ratio": 1.145,
+    "killed": 0.363,
+    "n": 1241
    },
-   "splash": 0.485,
+   "splash": 0.478,
    "real": {
     "gun_focus_share": 0.668,
     "splash_ratio": 1.145,
@@ -56,14 +56,14 @@
    }
   },
   "graves_skull": {
-   "focus": 0.685,
+   "focus": 0.677,
    "acc_mult": 1.0,
    "life_other_s": 11.08,
    "sim": {
-    "gun_focus_share": 0.472,
-    "splash_ratio": 0.139,
-    "killed": 0.317,
-    "n": 1500
+    "gun_focus_share": 0.492,
+    "splash_ratio": 0.14,
+    "killed": 0.309,
+    "n": 1504
    },
    "splash": 0.031,
    "real": {
@@ -89,7 +89,7 @@
    "sim": {
     "gun_focus_share": 0.0,
     "splash_ratio": 0.049,
-    "killed": 0.061,
+    "killed": 0.053,
     "n": 262
    },
    "splash": 0.047,
