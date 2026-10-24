@@ -150,13 +150,19 @@ _kill = None
 
 
 def kill_weights():
-    """{item name: real kill weight} (sim/data/kill_weight.json), {} when KILL_WEIGHT is off."""
+    """{item name: real kill weight} (sim/data/kill_weight.json), {} when KILL_WEIGHT is off. The file is a static
+    fit refreshed by hand (the replays live in the shared folder, CI can't refit it): after a patch that reworks an
+    item's damage, rerun sim/scripts/kill_value/fit_kill_weight.py on new replays. A missing file means weight 1."""
     global _kill
     if not KILL_WEIGHT:
         return {}
     if _kill is None:
-        with open(KILL_PATH) as f:
-            _kill = {n: v["weight"] for n, v in json.load(f)["items"].items()}
+        try:
+            with open(KILL_PATH) as f:
+                _kill = {n: v["weight"] for n, v in json.load(f)["items"].items()}
+        except FileNotFoundError:
+            print(f"warning: {KILL_PATH} missing, item damage counts in full", file=sys.stderr)
+            _kill = {}
     return _kill
 
 
