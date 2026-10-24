@@ -10,7 +10,7 @@ Assumptions:
   Damage. T1 +BonusDamagePercent damage taken for DebuffDuration; T3 adds CreateTurrets turrets (Mini Turret
   stats) for TurretLifeTime, booked as "Mini Turret (wall)" since the game credits turret damage to Mini Turret. Slow ignored.
 - With deadsim.mechanics summons on, each turret has TurretBaseHealth (+ boons) health and TechResist spirit resist,
-  the enemy can shoot it, and its damage stops when it dies.
+  the enemy can shoot it (targeting fitted to replays, data/summon_targeting.json), and its damage stops when it dies.
 - Heavy Barrage: McGinnis can't shoot while barraging; rockets fire at GrenadesPerSecond for AbilityDuration and
   ROCKET_HIT_FRAC of them hit a moving target (x spirit_accuracy). A stun ends the barrage.
 """
@@ -24,7 +24,7 @@ ROCKET_HIT_FRAC = 0.6
 def turret_summon(c, tc, life, delay, name="Mini Turret"):
     """The turret as a target the enemy can shoot (None unless deadsim.mechanics summons are on)."""
     return add_summon(c.me, name, tc.val("TurretBaseHealth"), spirit_resist=tc.raw("TechResist") / 100,
-                      life=life, delay=delay)
+                      life=life, delay=delay, kind="mcginnis_turret")
 
 
 def turret_dps(tc):

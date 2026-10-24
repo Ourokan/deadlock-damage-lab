@@ -163,7 +163,9 @@ class Skill:
     # Used only with deadsim.mechanics on (see that module for the fits):
     parry_rate: float = 0.15       # share of incoming heavy melees parried
     spell_parry_rate: float = 0.05  # Counterspell: share of enemy aimed casts a spell parry is timed against
-    summon_focus: float = 0.8      # share of trigger pulls spent on a living enemy turret (assumption)
+    # share of trigger pulls spent on a living enemy summon; None = the per-kind share fitted to Phantom+ replays
+    # (data/summon_targeting.json)
+    summon_focus: float | None = None
     flee_hp: float = 0.15          # run when below this health share and losing (fit, deadsim.mechanics)
     # Counterplay (off by default; accuracy.hero_default_skill(counterplay=True) turns it on):
     # seconds THIS fighter stays inside an avoidable ground zone (Alchemical Fire) before walking out.
@@ -364,6 +366,13 @@ class FightResult:
     b_splash: dict = field(default_factory=dict)
     a_summon: dict = field(default_factory=dict)   # damage to enemy summons (mechanics.summons)
     b_summon: dict = field(default_factory=dict)
+    # per summon kind, [gun, other]: damage to the enemy's summons, and damage taken while one's own summons were out
+    a_summon_kind: dict = field(default_factory=dict)
+    b_summon_kind: dict = field(default_factory=dict)
+    a_hit_while_summon: dict = field(default_factory=dict)
+    b_hit_while_summon: dict = field(default_factory=dict)
+    a_summons_out: dict = field(default_factory=dict)   # kind -> [summons spawned, killed by the enemy]
+    b_summons_out: dict = field(default_factory=dict)
 
     def summary(self):
         def top(d):
@@ -535,6 +544,9 @@ class Engine:
         hit.amount = amt
         src.dmg_out[source] = src.dmg_out.get(source, 0.0) + amt
         dst.dmg_in[source] = dst.dmg_in.get(source, 0.0) + amt
+        if "summons" in dst.counters and amt > 0:
+            from .mechanics import note_hit_while_summoned
+            note_hit_while_summoned(src, dst, amt, source)
         if dst.hp <= 0 and dst.mods.active("death_immune"):
             dst.hp = 1.0
         if dst.hp <= 0:
@@ -608,7 +620,8 @@ class Engine:
         per = dps * duration / n
 
         def tick_fn(i):
-            if dst.counters.get(key) is not token or not dst.alive or (guard is not None and not guard.alive):
+            if dst.counters.get(key) is not token or not dst.alive or (
+                    guard is not None and not (guard.alive and guard.until > self.t)):
                 return
             self.damage(src, dst, per, kind, source, is_dot=True, **kw)
             if i + 1 < n:
@@ -730,9 +743,9 @@ class Engine:
                 g(ab.ctx, ctx)
         n_bullets = int(st.pellets * st.burst_count * ctx["pellet_mult"])
         if self.mech is not None and self.mech.summons and "summons" in e.counters:
-            from .mechanics import live_summon, shoot_summon
-            s = live_summon(e)
-            if s is not None and f.acc("summon_focus").take(f.skill.summon_focus):
+            from .mechanics import pick_summon, shoot_summon
+            s = pick_summon(f, e)
+            if s is not None:
                 shoot_summon(self, f, s, n_bullets)
                 return
         p_hit = f.skill.accuracy * (1.0 - e.stat("evasion"))
@@ -805,6 +818,14 @@ class Engine:
             r.escaped = self.escaped
             r.a_splash, r.b_splash = a.counters.get("splash", {}), b.counters.get("splash", {})
             r.a_summon, r.b_summon = a.counters.get("summon_dmg", {}), b.counters.get("summon_dmg", {})
+            r.a_summon_kind, r.b_summon_kind = a.counters.get("summon_dmg_kind", {}), b.counters.get("summon_dmg_kind", {})
+            r.a_hit_while_summon = a.counters.get("hit_while_summon", {})
+            r.b_hit_while_summon = b.counters.get("hit_while_summon", {})
+            for f, out in ((a, r.a_summons_out), (b, r.b_summons_out)):
+                for x in f.counters.get("summons", ()):
+                    row = out.setdefault(x.kind, [0, 0])
+                    row[0] += 1
+                    row[1] += not x.alive
         return r
 
     # ---- melee ------------------------------------------------------------------------------------
