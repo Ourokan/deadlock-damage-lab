@@ -83,6 +83,28 @@ class GunCalibration(unittest.TestCase):
                      Loadout("Haze", [], souls=8000, skill=aim), distance=dist, max_time=15.0, mechanics=fixed)
             self.assertEqual(r.a_dmg.get("Tesla Bullets", 0) > 0, expect, (dist, dict(r.a_dmg)))
 
+    def test_hit_chance_is_relative_to_the_fit_distance(self):
+        """Graves' fitted accuracy already counts his real out-of-range misses: at the fit distance the hit chance
+        is the fitted one, closer it rises, further it falls."""
+        from deadsim.engine import Engine
+        st = compute_stats("Graves", souls=0)
+        d0 = st.gun_fit_m
+        self.assertAlmostEqual(Engine(distance=d0).hit_reach(st), 1.0, places=6)
+        self.assertGreater(Engine(distance=d0 / 2).hit_reach(st), 1.0)
+        self.assertLess(Engine(distance=d0 * 2).hit_reach(st), 1.0)
+        self.assertEqual(Engine(distance=d0).hit_reach(compute_stats("Haze", souls=0)), 1.0)
+
+    def test_danny_charged_shot_builds_up_like_its_size(self):
+        from deadsim.items_fx import BuildUp
+        st = compute_stats("Deadman Danny", souls=0)
+        self.assertGreater(st.gun_charge, 1.5)
+        fx = BuildUp.__new__(BuildUp)
+        fx.item = G.item("Toxic Bullets")
+        f = mock.Mock(st=st)
+        f.e.hit_falloff = lambda s: 1.0
+        per = fx.per_hit(f)
+        self.assertAlmostEqual(per, fx.item.p("BuildUpPerShot") * BuildUp.scale * st.weapon["bullet_damage"] * st.gun_charge)
+
     def test_calibrated_aim_is_the_default(self):
         for name in ("Graves", "Deadman Danny"):
             h = G.hero(name)

@@ -164,7 +164,8 @@ class BuildUp(FX):
     scale = 1.4  # wiki fit, see above
 
     def per_hit(self, f):
-        base = (f.st.weapon or {}).get("bullet_damage", 0.0) or 1.0
+        # a charged shot (Danny) is gun_charge base bullets' worth of damage, and builds up as much
+        base = ((f.st.weapon or {}).get("bullet_damage", 0.0) or 1.0) * f.st.gun_charge
         return self.item.p(self.per_prop) * self.scale * base * f.e.hit_falloff(f.st)
 
     def __init__(self, item, f):
@@ -397,14 +398,16 @@ class MysticShot(FX):
     """Real fights don't open with the proc ready: 62% of Mystic Shot damage lands on creeps and troopers, so the
     cooldown is usually part spent when a hero fight starts. Starting it ready made the sim give 0.45 x gun damage
     vs 0.32 real (126 holders, damage matrix over the held window). The cooldown starts at a random point of its
-    cycle (half-way when the engine is deterministic), which gives 0.31."""
+    cycle (half-way when the engine is deterministic), which gives 0.31. Kinetic Carbine also procs it
+    (Hit.weapon_proc)."""
 
     def on_start(self, f):
         rng = f.e.rng
         self.ready_at = self.now + self.cd() * (rng.random() if rng is not None else 0.5)
 
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind == "bullet" and hit.hits and not hit.is_ability and self.ready():
+        gun_hit = (hit.kind == "bullet" and hit.hits and not hit.is_ability) or hit.weapon_proc
+        if gun_hit and self.ready():
             self.use()
             self.spirit(t, self.v("ProcBonusMagicDamage"))
 

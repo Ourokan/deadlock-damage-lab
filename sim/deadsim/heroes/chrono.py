@@ -10,7 +10,8 @@ Assumptions:
 - Kinetic Carbine: spirit damage = MaxBonusBulletDamage + (EWeaponPower scale)% of the weapon damage, read as
   5 + 125 x (1 + weapon bonus), T3 scale 180 (low confidence: the data's EWeaponPower meaning is unclear). Charged for
   CARBINE_CHARGE seconds (no shooting), always a full charge, landing at spirit_accuracy; HeadshotBonus% at
-  the caster's headshot rate. Time-stop = stun for MaxSlowDuration.
+  the caster's headshot rate. Time-stop = stun for MaxSlowDuration. The hit procs Mystic Shot like a gun hit (replays:
+  73% of Paradox's Mystic Shot procs on heroes land with a Kinetic Carbine hit).
 - Paradoxical Swap: the projectile lands at spirit_accuracy; SwapDamage (+T3 MaxHealthDamage% of max health)
   on arrival. Both heroes are in transit for MinSwapTime: Paradox can't shoot, the target is stunned. T1 barrier
   = CombatBarrier (200 + 1.5 x spirit power).
@@ -87,7 +88,7 @@ class KineticCarbine(AbilityImpl):
         dmg = c.raw("MaxBonusBulletDamage") + c.scale("MaxBonusBulletDamage") * (1 + c.me.weapon_pct())
         dmg *= 1 + c.me.skill.headshot * c.raw("HeadshotBonus") / 100
         if c.me.acc("carbine").take(c.me.skill.spirit_accuracy):
-            c.spirit_hit(dmg, hit_chance=1.0)
+            c.spirit_hit(dmg, hit_chance=1.0, weapon_proc=True)
             c.debuff("stun", 1, c.dur("MaxSlowDuration"))
 
 

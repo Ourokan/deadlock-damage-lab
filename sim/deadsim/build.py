@@ -132,6 +132,8 @@ class Stats:
     clip: int = 1
     gun_range_m: float | None = None   # beyond it the gun deals nothing (Graves' tether)
     gun_falloff: bool = True           # False: no distance falloff inside gun_range_m (Graves' tether)
+    gun_charge: float = 1.0            # base bullet damage multiple of one (charged) shot (Danny, gun_quirks)
+    gun_fit_m: float | None = None     # fight distance the gun's accuracy was fitted at (its misses beyond range included)
     reload_time: float = 1.0
     reload_mult: float = 1.0
     bullet_lifesteal: float = 0.0
@@ -285,6 +287,9 @@ def compute_stats(hero, items=(), souls=None, level=None) -> Stats:
     st.pellets = int(w.get("bullets", 1) or 1)
     st.cycle_time = w.get("cycle_time", 1.0)
     charge, st.gun_range_m, st.gun_falloff = gun_quirks(hero.id)
+    if st.gun_range_m is not None:
+        st.gun_fit_m = (gun_calibration().get(str(hero.id)) or {}).get("median_distance_m")
+    st.gun_charge = charge
     st.bullet_damage *= charge   # same damage per second as the data's gun, in fewer, bigger (charged) shots
     st.cycle_time *= charge
     st.burst_count = int(w.get("burst_shot_count", 1) or 1)
