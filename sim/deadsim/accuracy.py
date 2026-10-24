@@ -257,9 +257,11 @@ def spell_parry_rates(badge=None):
 
 ITEM_LANDING = os.path.join(HERE, "..", "data", "item_landing.json")
 # 30 since the 2026-10-24 Phantom+ refit so Focus Lens (36 holders) keeps a cut: its factor is low-confidence (0.32 from
-# 43 holders in the biased first fit, 0.59 now), but no cut at all would be further from both. Silence Wave (25) stays out,
-# as it did at 40 (31 holders then).
-ITEM_LANDING_MIN_HOLDERS = 30
+# 43 holders in the biased first fit, 0.59 now), but no cut at all would be further from both. 25 since the fight
+# length booking (2026-10-24): Silence Wave (26 holders, 0.69; the audit has real/sim 0.35) was left uncut and, with
+# its silence landing in full at a fight's opening, picked by 5 of 8 overall builds while it loses ~1.6 win-rate
+# points on every hero. No other item has 25-29 holders.
+ITEM_LANDING_MIN_HOLDERS = 25
 
 
 def item_landing():

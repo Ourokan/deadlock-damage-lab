@@ -120,7 +120,7 @@ class AuditSources(unittest.TestCase):
         # the damage audit compares with every enemy hero's damage: area items x (1 + replay extra hits), splash as is
         r = types.SimpleNamespace(a_dmg={"gun": 1000.0, "Mystic Reverb": 200.0, "Toxic Bullets": 50.0},
                                   a_splash={"Ricochet": 40.0})
-        d = damage_audit.sim_sources(r, lambda k: k)
+        d = damage_audit.sim_sources(r, lambda k: k, exp=False)
         self.assertAlmostEqual(d["Mystic Reverb"], 200 * (1 + AREA_HITS["items"]["Mystic Reverb"]["extra_per_main"]),
                                places=6)
         self.assertEqual(d["gun"], 1000.0)

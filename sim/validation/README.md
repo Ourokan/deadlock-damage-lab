@@ -786,6 +786,13 @@ Doorman 0.167 -> 0.102.
   0.030 -> 0.059, Yamato 0.059 -> 0.081.
 - Vyper's gun share inside Split Shot windows (after the first use): real 0.41, sim in full 0.27, expected 0.53 (the
   sim opens every fight with it; real players don't always).
+- Overall search (`damage/scripts/overall_search.py`, `FIGHT_LENGTH`), 8 heroes at 27k, with vs without: builds drop
+  late sustain (Healing Nova, Restorative Locket, Escalating Resilience on 3-4 of 8) for fight openers and team items
+  (Heroic Aura, Alchemical Fire, Toxic Bullets); the best builds' time alive falls ~2-8 s. Mean real win edge of the
+  picked items (analysis/out/hero_item_edge.json) 1.14 -> 1.34 points. The first run picked Silence Wave on 5 of 8
+  (real edge about -1.6 on every hero): it had no real-data cut (26 holders, threshold 30) and its silence landed in
+  full at the opening. The threshold is now 25 and an item active's stun / silence / disarm is x its fitted factor
+  (`DamageActive.cc`, realistic mode): 2 of 8 after. Decay still shows up on 2.
 
 ## Known gaps (not yet modeled)
 

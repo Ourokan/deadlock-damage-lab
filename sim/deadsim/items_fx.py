@@ -1285,6 +1285,18 @@ class DamageActive(FX):
     def extra(self, f, t):
         pass
 
+    def cc(self, d):
+        """CC duration d x the item's real-data factor in realistic mode (accuracy.item_landing, the fitted factor
+        without the fight-length correction): the factor stands for casts that miss or come late, and a miss
+        misses its stun / silence / disarm too."""
+        if not self.f.skill.item_landing:
+            return d
+        from .accuracy import item_landing
+        global _CC_LANDING
+        if _CC_LANDING is None:
+            _CC_LANDING = item_landing()
+        return d * _CC_LANDING.get(self.name, 1.0)
+
     def try_active(self, f):
         r = self.item.p(self.radius_prop) or self.item.p("AbilityCastRange") or 15
         if not self.ready() or not self.ready_in(r):
@@ -1297,6 +1309,9 @@ class DamageActive(FX):
         return True
 
 
+_CC_LANDING = None
+
+
 @handler("upgrade_cold_front")
 class ColdFront(DamageActive):
     pass
@@ -1305,7 +1320,7 @@ class ColdFront(DamageActive):
 @handler("upgrade_arctic_blast")
 class ArcticBlast(DamageActive):
     def extra(self, f, t):
-        self.debuff(t, "stun", 1, self.dur("FreezeDuration", 1))
+        self.debuff(t, "stun", 1, self.cc(self.dur("FreezeDuration", 1)))
 
 
 @handler("upgrade_targeted_silence")
@@ -1313,7 +1328,7 @@ class SilenceWave(DamageActive):
     radius_prop = "AbilityCastRange"
 
     def extra(self, f, t):
-        self.debuff(t, "silence", 1, self.dur("AbilityDuration", 3))
+        self.debuff(t, "silence", 1, self.cc(self.dur("AbilityDuration", 3)))
 
 
 @handler("upgrade_phantom_strike")
@@ -1322,7 +1337,7 @@ class PhantomStrike(DamageActive):
     dmg_prop = "ImpactDamage"
 
     def extra(self, f, t):
-        self.debuff(t, "disarm", 1, self.dur("SlowDuration", 3))
+        self.debuff(t, "disarm", 1, self.cc(self.dur("SlowDuration", 3)))
 
 
 @handler("upgrade_target_stun")
