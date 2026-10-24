@@ -41,7 +41,7 @@ class DispelShare(unittest.TestCase):
     def test_unphased_fight_rounds_share(self):
         # no fight_phase, no rng: all or nothing, the first DoT is cleansed only from share 0.5 up
         never = decay_taken(0.0)
-        self.assertAlmostEqual(decay_taken(0.43), never)
+        self.assertAlmostEqual(decay_taken(0.26), never)
         self.assertLess(decay_taken(0.5), 0.6 * never)
 
 

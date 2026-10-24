@@ -7,9 +7,10 @@ everything that keeps Dispel off a DoT: cooldown, used on a stun or silence firs
 Sim side: real (Decay holder, Dispel holder) item snapshots from the same matches (data/builds/player_builds, items
 held 120 s after both bought their item), dueled at the bracket's aim and reaction time (accuracy.dot_cleanse_delay)
 with counterplay on. ratio(s) = Decay damage to the target holding Dispel with dot_cleanse_share s / to the same
-target with Dispel removed. At share 0 that ratio is already ~1.06-1.12: Dispel's spirit resist and heal keep the
-holder alive longer, so more Decay ticks land. Real holders carry the same resist and heal against their teammates,
-so the offset belongs in the fit. Each bracket runs at its lowest badge (91 / 111 / 0), not weighted by real badges.
+target with Dispel removed. Real ratios compare fixed 3-minute windows, so the holder's longer survival (Dispel's
+resist and heal) must not add Decay ticks: the target gets HP_MULT x health and can't die in the 30 s duel. (With
+normal HP the share-0 ratio was 1.06-1.12 and the Phantom+ fit 0.43.) Dispel's spirit resist still lowers each tick,
+as it does for real holders. Each bracket runs at its lowest badge (91 / 111 / 0), not weighted by real badges.
 Duels use an engine rng, so the share is a random draw per DoT; it averages to the same share as the deterministic
 phase-spread pick the overall score uses. ratio is
 linear in s, so the fit solves it on a grid; the real 90% CI is mapped the same way.
@@ -28,14 +29,27 @@ from multiprocessing import Pool
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, os.path.join(ROOT, "sim"))
-from deadsim import Loadout, duel, game  # noqa: E402
+from deadsim import Loadout, game  # noqa: E402
+from deadsim.engine import Engine  # noqa: E402
+from deadsim.fight import make_fighter  # noqa: E402
 from deadsim.accuracy import dot_cleanse_delay, hero_default_skill  # noqa: E402
 
 G = game()
 DECAY, DISPEL = G.item("Decay").id, G.item("Dispel Magic").id
 SHARES = (0.0, 0.25, 0.5, 0.75, 1.0)
 SEEDS = 8
-SETTLE_S = 120   # snapshot this long after the later of the two buys
+SETTLE_S = 120
+HP_MULT = 50.0   # the Dispel holder can't die in the duel (fixed window, see the docstring)
+
+
+def decay_dealt(a, b, seed):
+    """Decay damage A deals to B in a 30 s duel where B can't die: Decay takes % of current HP, so the ratio
+    between the two arms doesn't depend on the HP scale."""
+    e = Engine(rng=random.Random(seed))
+    fa, fb = make_fighter(e, a, "A"), make_fighter(e, b, "B")
+    fb.max_hp_base *= HP_MULT
+    fb.hp = fb.max_hp
+    return e.run(fa, fb).a_dmg.get("Decay", 0.0)   # snapshot this long after the later of the two buys
 
 
 def held_at(row, t):
@@ -83,7 +97,7 @@ def run(args):
     res = {}
     for name, items, share in [("none", [i for i in xi if i != DISPEL], 0.0)] + [(s, xi, s) for s in SHARES]:
         b = Loadout(xh, items, skill=dataclasses.replace(xsk, dot_cleanse_share=share))
-        res[str(name)] = sum(duel(a, b, rng=random.Random(s)).a_dmg.get("Decay", 0.0) for s in range(SEEDS)) / SEEDS
+        res[str(name)] = sum(decay_dealt(a, b, s) for s in range(SEEDS)) / SEEDS
     return res
 
 

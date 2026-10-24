@@ -20,7 +20,7 @@ players of the hero, not measured per rank, so they stand in for rank-specific a
 `eternus5` is thin (some heroes have ~11 player rows in 15 days), so its opponent builds are noisy.
 Dispel Magic against DoTs: reaction time follows the bracket's lowest badge (`accuracy.dot_cleanse_delay`: Eternus
 1.5 s, else 3 s, as Tyler set it), and holders spend it on only a share of DoTs fitted to real Decay damage
-(`accuracy.dot_cleanse_share`: 43% Phantom+, 33% all ranks; `sim/validation/dispel/`). Each bracket is a separate search (`search.py --bracket eternus`), so builds can differ by rank.
+(`accuracy.dot_cleanse_share`: 26% Phantom+, 16% all ranks; `sim/validation/dispel/`). Each bracket is a separate search (`search.py --bracket eternus`), so builds can differ by rank.
 
 ## Files for the web page (`out/`)
 

@@ -923,7 +923,7 @@ class DispelMagic(FX):
     engine has an rng (fit_dispel.py), else deterministic, started at Skill.fight_phase, so over the overall score's
     spread phases the first DoT is cleansed in exactly that share of fights. Without a phase (single duels, the
     duel-score search) it starts at 0.5, i.e. the first DoT is cleansed only if the share is 0.5 or more: the
-    nearest all-or-nothing value to the fitted 0.33-0.43. The +2 m/s move speed does nothing at fixed distance. Assumption: BuffDuration (3 s) is the move-speed
+    nearest all-or-nothing value to the fitted 0.16-0.26. The +2 m/s move speed does nothing at fixed distance. Assumption: BuffDuration (3 s) is the move-speed
     buff, not debuff immunity."""
     DOT_PANIC_HP = 0.5
 

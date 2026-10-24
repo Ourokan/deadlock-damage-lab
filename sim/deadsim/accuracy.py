@@ -193,7 +193,7 @@ def dot_cleanse_share(badge=None):
     validation/dispel/fit_<min badge>.json): Dispel holders still take 85% of their teammates' Decay damage at Phantom+
     (1500 matches), 87% at all ranks, 91% at Eternus+ (175 matches, noisy): Dispel is often on cooldown, saved for a
     stun or not noticed. Phantom+ (91+) uses the Phantom+ fit, lower badges and None the all-ranks fit. Eternus+
-    (fit_111.json, 0.26, 90% CI 0.04-0.45) is too thin to differ from Phantom+ (0.43, CI 0.36-0.49), so it uses that."""
+    (fit_111.json, 0.13, 90% CI 0.00-0.34) is too thin to differ from Phantom+ (0.26, CI 0.19-0.33), so it uses that."""
     return _dispel_fit(91 if badge is not None and badge >= 91 else 0)
 
 
