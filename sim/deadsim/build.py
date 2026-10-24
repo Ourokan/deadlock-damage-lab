@@ -11,8 +11,11 @@ Only "innate" item stats (always on) are summed here; conditional, proc and acti
 """
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass, field
 from .data import game, gun_calibration, Hero, Item, UNITS_PER_METER
+
+_warned = set()
 
 
 def gun_quirks(hero_id):
@@ -20,6 +23,14 @@ def gun_quirks(hero_id):
     Deadman Danny's charged shot lands charge_factor x the base bullet damage of an ordinary hit and fires about
     that much less often; Graves' tether gun only fires within tether_range_m."""
     row = gun_calibration().get(str(hero_id)) or {}
+    fit = row.get("fit_weapon")
+    if fit and hero_id not in _warned:
+        w = game().heroes[hero_id].weapon
+        now = {k: w.get(k) for k in ("bullet_damage", "cycle_time", "clip_size")}
+        if any(now[k] != fit[k] for k in now):
+            _warned.add(hero_id)
+            warnings.warn(f"{game().heroes[hero_id].name}'s gun changed since data/gun_calibration.json was fitted "
+                          f"({fit} -> {now}): refit with scripts/gun_calib (charge factor and accuracy may be stale)")
     return row.get("charge_factor") or 1.0, row.get("tether_range_m")
 
 # passive-section stats that are unconditional in practice (the tooltip lists them under "passive")

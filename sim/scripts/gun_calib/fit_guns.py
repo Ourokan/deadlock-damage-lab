@@ -161,6 +161,9 @@ def main():
                "replay_hit_rate_p50": round(pct([r["hits"] / r["shots"] for r in mine], .5), 4),
                "base_damage_per_hit": round(dph, 1), "sim_base_damage_per_shot": bd,
                "tether_shot_share": round(sum(r["tether_shots"] for r in mine) / sum(r["shots"] for r in mine), 3)}
+        w = game().heroes[hid].weapon   # the gun the fit saw: build.gun_quirks warns once the game data moves
+        row["fit_weapon"] = {"bullet_damage": w["bullet_damage"], "cycle_time": w["cycle_time"],
+                             "clip_size": w["clip_size"], "max_range_m": tether_range(hid)}
         if hid in CHARGED:
             row["charge_factor"] = round(dph / bd / q_ref, 3)
         if hid in TETHERED:

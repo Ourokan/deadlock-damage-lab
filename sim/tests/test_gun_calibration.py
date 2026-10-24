@@ -6,7 +6,8 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from deadsim import compute_stats, game  # noqa: E402
+from deadsim import Loadout, Skill, compute_stats, duel, game  # noqa: E402
+from deadsim.mechanics import Mechanics  # noqa: E402
 from unittest import mock  # noqa: E402
 
 import deadsim.accuracy as acc  # noqa: E402
@@ -29,9 +30,10 @@ class GunCalibration(unittest.TestCase):
 
     def test_graves_tether_range(self):
         st = compute_stats("Graves", souls=0)
-        self.assertEqual(st.gun_range_m, 20.0)
-        self.assertGreater(st.falloff(19.9), 0.0)
-        self.assertEqual(st.falloff(20.1), 0.0)
+        r = gun_calibration()[str(G.hero("Graves").id)]["tether_range_m"]
+        self.assertEqual(st.gun_range_m, r)
+        self.assertGreater(st.falloff(r - 0.1), 0.0)
+        self.assertEqual(st.falloff(r + 0.1), 0.0)
         self.assertIsNone(compute_stats("Haze", souls=0).gun_range_m)
 
     def test_calibrated_aim_is_the_default(self):
@@ -44,6 +46,37 @@ class GunCalibration(unittest.TestCase):
             self.assertEqual(sk.headshot, 0.0)
             self.assertEqual(default_distance(name), row["median_distance_m"])
         self.assertFalse(gun_calibrated(G.hero("Haze").id))
+
+    def test_graves_duel_beyond_tether_has_no_gun_damage(self):
+        aim = Skill(accuracy=0.5, headshot=0.0, use_abilities=False, use_actives=False)
+        fixed = Mechanics(range_drift=False)
+        for dist, expect_gun in ((10.0, True), (30.0, False)):
+            r = duel(Loadout("Graves", [], souls=5000, skill=aim), Loadout("Haze", [], souls=5000, skill=aim),
+                     distance=dist, max_time=10.0, mechanics=fixed)
+            gun = sum(v for k, v in r.a_dmg.items() if k in ("gun", "Gun", "GUN") or "weapon" in k.lower())
+            self.assertEqual(gun > 0, expect_gun, (dist, dict(r.a_dmg)))
+
+    def test_fit_weapon_matches_current_game_data(self):
+        """The charge factor and accuracy were fitted on these gun numbers: a patch that moves them needs a refit
+        (python3 scripts/gun_calib/fit_guns.py ... --write after fetch_guns.py / gun_stats.py)."""
+        for hid, row in gun_calibration().items():
+            w = G.heroes[int(hid)].weapon
+            fit = row["fit_weapon"]
+            for k in ("bullet_damage", "cycle_time", "clip_size"):
+                self.assertEqual(w[k], fit[k], (row["name"], k))
+            if row.get("tether_range_m") is not None:
+                self.assertEqual(row["tether_range_m"], fit["max_range_m"], row["name"])
+
+    def test_calibrated_players_are_fitted(self):
+        """landing_rates.gun_known keeps Graves/Danny players (no API hero hits) in the ability, item and audit fits."""
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+        import landing_rates as L
+        no_hits = {acc.HITS: 0}
+        self.assertTrue(L.gun_known({"hero_id": G.hero("Graves").id, "custom": no_hits}))
+        self.assertFalse(L.gun_known({"hero_id": G.hero("Haze").id, "custom": no_hits}))
+        self.assertTrue(L.gun_known({"hero_id": G.hero("Haze").id, "custom": {acc.HITS: L.MIN_HITS}}))
+        sk = L.skill_of({"hero_id": G.hero("Deadman Danny").id, "custom": {acc.SHOTS: 400, acc.HITS: 200}})
+        self.assertEqual(sk.accuracy, gun_calibration()[str(G.hero("Deadman Danny").id)]["accuracy"]["p50"])
 
     def test_player_skill_uses_the_replay_fit_without_a_lookup(self):
         """No per-player gun stats exist for these heroes: player_skill returns the replay median, never calls the

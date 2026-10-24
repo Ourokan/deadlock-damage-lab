@@ -35,7 +35,13 @@
    "tether_shot_share": 0.674,
    "tether_range_m": 20.0,
    "median_distance_m": 11.2,
-   "n_distance": 151
+   "n_distance": 151,
+   "fit_weapon": {
+    "bullet_damage": 3.6,
+    "cycle_time": 0.102,
+    "clip_size": 40,
+    "max_range_m": 20.0
+   }
   },
   "78": {
    "name": "Deadman Danny",
@@ -60,7 +66,13 @@
    "tether_shot_share": 0.0,
    "charge_factor": 2.64,
    "median_distance_m": 14.3,
-   "n_distance": 357
+   "n_distance": 357,
+   "fit_weapon": {
+    "bullet_damage": 15.0,
+    "cycle_time": 0.25,
+    "clip_size": 14,
+    "max_range_m": null
+   }
   }
  }
 }
