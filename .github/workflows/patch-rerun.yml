@@ -29,13 +29,14 @@ on:
         type: boolean
         default: false
 
-# One rerun at a time. A forced rerun (a merged rerun_request.json) cancels the one in progress: it runs the newer
-# code on the same or newer data, so the older run's results would be replaced anyway. A scheduled check never cancels
-# a run; it waits. GitHub keeps one waiting run per group, so a check can replace a waiting forced rerun: the check
-# then reruns itself when the request is newer than the results (check_patch.py, "rerun requested").
+# One rerun at a time; a newer one waits. GitHub keeps one waiting run per group (the newest), so however many reruns
+# are requested while one runs, the next run carries them all. (Cancelling the running one for a newer request starved
+# the site on 2026-10-24: merges ~40 min apart cancelled every ~60 min rerun.) A scheduled check can replace a waiting
+# forced rerun: the check then reruns itself when the request is newer than the results (check_patch.py, "rerun
+# requested").
 concurrency:
   group: patch-rerun
-  cancel-in-progress: ${{ github.event_name == 'push' }}
+  cancel-in-progress: false
 
 permissions:
   contents: read
