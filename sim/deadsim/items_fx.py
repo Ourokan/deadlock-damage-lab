@@ -296,14 +296,18 @@ class ToxicBullets(BuildUp):
 
 @handler("upgrade_chain_lightning", "upgrade_capacitor")
 class TeslaBullets(FX):
+    # the shock has its own 0.2 s proc timer: Capacitor's 40 s active cooldown (ready_at) must not switch it off
+    # (it did until 2026-10-24: sim Capacitor shock damage per gun damage was 1/4.6 of real Phantom+ holders)
+    proc_at = 0.0
+
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind != "bullet" or not hit.hits or hit.is_ability or not self.ready():
+        if hit.kind != "bullet" or not hit.hits or hit.is_ability or self.now < self.proc_at:
             return
         # proc chance is per shot, not per pellet (shotguns): chance that at least one of the shots that hit procs
         p = 1.0 - (1.0 - self.item.p("ProcChance") / 100) ** shots_hit(f, hit)
         n = f.acc(self.item.class_name).take(p, 1)
         if n:
-            self.ready_at = self.now + self.item.p("ProcCooldown", 0.2)
+            self.proc_at = self.now + self.item.p("ProcCooldown", 0.2)
             self.spirit(t, self.v("DamagePerChain"))
 
     def try_active(self, f):  # Capacitor's projectile
@@ -480,10 +484,16 @@ class SiphonBullets(FX):
         if hit.kind == "bullet" and hit.hits and not hit.is_ability and self.ready():
             self.ready_at = self.now + self.item.p("ProcCooldown", 1.2)
             amt = t.max_hp_base * self.item.p("HealthStealPctHero") / 100
+            # realistic mode: the real-data factor scales the whole steal (cap drop, health taken, heal) alike, so the
+            # damage below is not marked is_item (that would scale only the health taken)
+            amt *= (f.skill.item_landing or {}).get(self.name, 1.0)
             d = self.dur("StealDuration", 17)
             k = f.counters.get("siphon", 0) + 1
             f.counters["siphon"] = k
             t.mods.add("max_health", -amt, d, ("siphon", k))
+            # the stolen health is taken from current health too: the game books it as Siphon Bullets damage
+            # (real Phantom+ holders: 0.24 Siphon damage per gun damage, sim was 0 while it only lowered the cap)
+            f.e.damage(f, t, amt, "spirit", self.name, procs=False, pure=True)
             t.hp = min(t.hp, t.max_hp)
             f.mods.add("max_health", amt, d, ("siphon", k))
             f.heal(amt, self.name)

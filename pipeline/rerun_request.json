@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-24T14:45:00Z",
- "reason": "Dispel Magic now cleanses only a fitted share of DoTs (26% Phantom+) from real Decay data, was every DoT"
+ "requested_at": "2026-10-24T15:00:00Z",
+ "reason": "Damage audit vs Phantom+: Nurse Harrow/Silver wolf/Sinclair fitted, ability sub-parts use their landing factor, Capacitor shock and Siphon Bullets fixed, item factors refit while owned (on top of the Dispel DoT share refit)"
 }

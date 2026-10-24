@@ -496,7 +496,14 @@ class Engine:
             return 0.0
         amt = raw if pure else raw * src.st.outgoing_mult * (1.0 - src.stat("outgoing_penalty")) * (1.0 + src.stat("damage_amp"))
         if is_ability and src.skill.ability_landing and not landed:
-            amt *= src.skill.ability_landing.get(source, 1.0)
+            # a sub-source of an ability ("Setup Bishop squares", "Ira Domini (blessed)") uses its ability's factor,
+            # as landing_rates.py fits one factor per ability over all of its sources; an ability can also name the
+            # factor it uses (Sinclair's copied ultimate uses Audience Participation's)
+            fac = src.skill.ability_landing.get(source)
+            if fac is None and ability is not None:
+                fac = src.skill.ability_landing.get(getattr(ability.ab, "landing_key", None) or ability.ab.name)
+            if fac is not None:
+                amt *= fac
         if is_ability and ability is not None:
             amt *= ability.scratch.get("_avail", 1.0)   # expected wait for the target to be in reach (spread)
         if is_item and src.skill.item_landing:
