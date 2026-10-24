@@ -1026,7 +1026,8 @@ class MysticBurst(FX):
     on a cooldown: in replays (70 Phantom+ matches, hero victims) a release's damage grows linearly with the time
     since the last one, up to the full amount at 14 s (Mystic Burst median 2 after <1 s, 20 after 7 s, 39 after 14+;
     Tankbuster 7 / 75 / 188), and releases on the same victim come 0.2-2 s apart, so ReProcLockoutTime is not a
-    lockout between releases. Full charge at the fight's start."""
+    lockout between releases. Full charge at the fight's start. Hits in the same tick share one charge (the first
+    takes it); the total released doesn't depend on their order, except Tankbuster's current-health term."""
 
     def __init__(self, item, f):
         super().__init__(item, f)

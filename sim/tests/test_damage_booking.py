@@ -37,6 +37,22 @@ class MysticBurstCharge(unittest.TestCase):
         e.damage(a, b, 120, "spirit", "big", is_ability=True)
         self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 100.0, places=6)
 
+    def test_tankbuster_release_scales_current_health_and_ignores_resist(self):
+        e = Engine()
+        a, b = pair(e, "Infernus", ["Tankbuster"], souls=9000)
+        b.st.spirit_resist = [0.5]
+        hp = b.hp
+        e.damage(a, b, 400, "spirit", "big", is_ability=True)
+        full = a.dmg_out["Tankbuster"]
+        hp_at_release = hp - a.dmg_out["big"]
+        self.assertAlmostEqual(full, 40.0 + hp_at_release * 0.075, places=4)   # no 50% resist taken off
+        e.t = 3.5                                                         # a quarter of the 14 s charge
+        before, big_before = a.dmg_out["Tankbuster"], a.dmg_out["big"]
+        hp = b.hp
+        e.damage(a, b, 400, "spirit", "big", is_ability=True)
+        hp_at_release = hp - (a.dmg_out["big"] - big_before)
+        self.assertAlmostEqual(a.dmg_out["Tankbuster"] - before, 0.25 * (40.0 + hp_at_release * 0.075), places=4)
+
 
 class Booking(unittest.TestCase):
     def test_express_shot_proc_booked_under_item(self):
@@ -57,6 +73,22 @@ class Booking(unittest.TestCase):
         e.damage(a, b, 100, "spirit", "second", is_ability=True)
         total = a.dmg_out["second"] + a.dmg_out["Escalating Exposure"]
         self.assertAlmostEqual(a.dmg_out["Escalating Exposure"] / total, amp / (1 + amp), places=6)
+
+    def test_escalating_exposure_amp_gets_its_item_factor_in_realistic_mode(self):
+        """Realistic mode scales the booked amp (not the hit) by the item's factor, like an item's own damage."""
+        def second_hit(factor):
+            e = Engine()
+            a, b = pair(e, "Infernus", ["Escalating Exposure"], souls=9000)
+            if factor is not None:
+                a.skill.item_landing = {"Escalating Exposure": factor}
+            b.st.spirit_resist = []
+            e.damage(a, b, 100, "spirit", "first", is_ability=True)
+            e.damage(a, b, 100, "spirit", "second", is_ability=True)
+            return a.dmg_out["second"], a.dmg_out["Escalating Exposure"]
+        hit, amp = second_hit(None)
+        hit_half, amp_half = second_hit(0.5)
+        self.assertAlmostEqual(hit_half, hit, places=6)
+        self.assertAlmostEqual(amp_half, amp * 0.5, places=6)
 
 
 class KineticCarbine(unittest.TestCase):

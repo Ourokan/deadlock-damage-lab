@@ -613,8 +613,10 @@ the gap came from five places, all checked in the 70 Phantom+ replays (`gun_cali
 - **Express Shot and Escalating Exposure** are booked under the item in the game's records (an Express Shot proc
   shot, 1-2 hits for one-bullet guns, the whole doubled burst for Paradox) and were booked under the gun / the
   ability in the sim, which inflated the sim's gun share for every holder and hid the items. `Engine.damage(book=)`
-  and `Engine.booking` now book them the game's way (damage is unchanged, only the label), and their item factors
-  apply: Express Shot 1.03 (pooled, Paradox 0.40), Escalating Exposure 0.54 (the sim's amp is ~2x what the game books).
+  and `Engine.booking` now book them the game's way. In the default mode only the label changes; in realistic mode
+  (counterplay, the searches) the booked part gets the item's factor like an item's own damage, which cuts
+  Escalating Exposure's amp to 0.54x (the sim's amp is ~2x what the game books). Express Shot fits 1.02 (pooled,
+  Paradox 0.40), and factors above 1 are not applied, so it is unchanged.
   Landing factors refit for the holders (Paradox, Shiv, Paige, Viscous, Yamato, Kelvin, Victor, Seven, McGinnis,
   Infernus). Deadman Danny keeps his previous factors: the refit halved them and made his audit mix worse
   (distance 0.06 -> 0.09).
