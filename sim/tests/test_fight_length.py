@@ -1,5 +1,5 @@
 """Fight length (2026-10-24): with Mechanics.fight_length every hit is also booked x P(a real fight is still going),
-the fight itself unchanged; landing corrections apply only to such fights; Mystic Burst's MinimumDamage checks the
+the booking alone leaves the fight unchanged; landing corrections (which do move the fight) apply only to such fights; Mystic Burst's MinimumDamage checks the
 hit's size when it lands, not after the landing factor.
 Run: python3 -m unittest discover -s tests -v (from sim/)."""
 import dataclasses
@@ -69,6 +69,21 @@ class LengthCorrections(unittest.TestCase):
         self.assertEqual(f.skill.item_landing, {})
 
 
+class Survive(unittest.TestCase):
+    def test_expected_damage_below_full(self):
+        import importlib.util
+        path = os.path.join(os.path.dirname(__file__), "..", "..", "survival", "survival.py")
+        spec = importlib.util.spec_from_file_location("survival_mod", path)
+        S = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(S)
+        args = ("Haze", ["Headshot Booster"], 8000, "Abrams", ["Extra Health"])
+        full = S.survive(*args, max_time=20)
+        exp = S.survive(*args, max_time=20, fight_length=(1.0, 0.5, 0.2))
+        self.assertAlmostEqual(full["damage_dealt_full"], full["damage_dealt"])   # (the corrections move exp's fight)
+        self.assertLess(exp["damage_dealt"], exp["damage_dealt_full"])
+        self.assertGreater(exp["damage_dealt"], 0.0)
+
+
 class ItemActiveCC(unittest.TestCase):
     def silence(self, skill, mech=None):
         e = Engine(mech=mech)
@@ -95,6 +110,16 @@ class MinimumDamage(unittest.TestCase):
         a.enemy, b.enemy = b, a
         e.damage(a, b, 120, "spirit", "big", is_ability=True)   # 60 after the factor, 120 when it lands
         self.assertGreater(a.dmg_out.get("Mystic Burst", 0.0), 0.0)
+
+    def test_witchmail_threshold_checks_the_landed_hit_size(self):
+        e = Engine(mech=None)
+        a = make_fighter(e, Loadout("Infernus", [], souls=8000, skill=Skill(ability_landing={"big": 0.5})))
+        b = make_fighter(e, Loadout("Abrams", ["Witchmail"], souls=8000))
+        a.enemy, b.enemy = b, a
+        ab = b.abilities[0]
+        ab.ready_at = e.t + 30.0
+        e.damage(a, b, 100, "spirit", "big", is_ability=True)   # 50 after the factor, 100 (>= 75) when it lands
+        self.assertLess(ab.ready_at, e.t + 30.0)
 
 
 if __name__ == "__main__":

@@ -161,7 +161,9 @@ def make_fighter(engine, lo: Loadout, name=None):
     skill = lo.skill
     if engine.mech is not None and skill.ability_landing_mech:
         skill = dataclasses.replace(skill, ability_landing=skill.ability_landing_mech)
-    if engine.length:   # damage booked over real fight lengths: the factors with that part taken out
+    # damage booked over real fight lengths: the factors with that part taken out (hits land at the corrected
+    # rate, so these move the fight itself, unlike the booking)
+    if engine.length:
         c = skill.ability_length_corr
         if c and skill.ability_landing:
             skill = dataclasses.replace(skill, ability_landing={k: v * c.get(k, 1.0) for k, v in skill.ability_landing.items()})

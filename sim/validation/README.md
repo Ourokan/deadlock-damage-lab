@@ -753,7 +753,9 @@ one-way runs too (91% of hero damage) 7.0 s. 5 s is about a reload plus a reposi
 
 **Sim:** `Engine.length_w(t)` interpolates the phase curve (`mechanics.real_length(souls)`); `Fighter.dmg_exp`,
 `healed_exp`, the splash and `FightResult.a_exp` carry the expected values, `dmg_out` stays the fight's own (items
-and abilities that read it are unchanged), and the fight itself runs as before to a death or max_time. A single
+and abilities that read it are unchanged), and the booking alone leaves the fight as it was (to a death or max_time). The landing corrections below do move
+the fight: abilities and items land at the corrected rate, so kill times, `time_alive` and `survived` shift with them.
+A single
 random cut was not used for the same reason as the range spread (whole casts would swing results). The disengage is
 taken as independent of the fight's path (real players back off more when losing: not modeled).
 
