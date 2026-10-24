@@ -69,6 +69,7 @@ def skill(hero):
 
 
 _pop = {}
+REQUIRE_POOLS = False
 
 
 def popular(hero, souls):
@@ -85,6 +86,8 @@ def popular(hero, souls):
             ids = S.popular_build(g.hero(hero).id, S.item_budget(souls), _pop[("pools", souls)])
             _pop[key] = [g.item(i).name for i in ids]
         else:
+            if REQUIRE_POOLS:
+                sys.exit(f"no {snaps} (--require-pools): build the pools first (search/scripts/build_pool.py)")
             if ("warned",) not in _pop:
                 _pop[("warned",)] = True
                 print(f"warning: no {snaps}; using damage/out's popular builds (the last run's)", file=sys.stderr)
@@ -140,7 +143,12 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--items", default="", help="comma list: refit only these, keep the others' values")
+    ap.add_argument("--require-pools", action="store_true",
+                    help="fail instead of falling back to damage/out's builds (patch rerun: those are the old patch's)")
     q = ap.parse_args()
+    global REQUIRE_POOLS
+    REQUIRE_POOLS = q.require_pools
+    popular("Haze", BUDGETS[0])   # fail here, not inside a worker
     todo = [i for i in q.items.split(",") if i] or list(ALLY_ITEMS)
     jobs = [(i, b) for i in todo for b in BUDGETS]
     res = {}

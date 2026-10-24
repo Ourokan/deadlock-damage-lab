@@ -82,6 +82,14 @@ class TestMysticReverb(unittest.TestCase):
         self.assertGreater(self._echo([40, 40, 40])[0], 0.0)
         self.assertEqual(self._echo([40])[0], 0.0)
 
+    def test_build_up_expires(self):
+        e, f, g = pair(["Mystic Reverb"], hero="Paradox")
+        ab = next(s for s in f.abilities if any(i.name == "Mystic Reverb" for i in s.imbues))
+        e.damage(f, g, 60, "spirit", ab.ab.name, is_ability=True, ability=ab)
+        e.t = 10.0   # past DelayDuration: the next 60 starts a new build-up
+        e.damage(f, g, 60, "spirit", ab.ab.name, is_ability=True, ability=ab)
+        self.assertTrue(f.items_fx[[type(x).__name__ for x in f.items_fx].index("MysticReverb")].ready())
+
 
 if __name__ == "__main__":
     unittest.main()

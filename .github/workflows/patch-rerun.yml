@@ -136,7 +136,7 @@ jobs:
         continue-on-error: true   # team_value.json is only written at the end, so a failure keeps the last fit
         timeout-minutes: 40
         working-directory: sim
-        run: python3 scripts/team/team_value.py --workers 4
+        run: python3 scripts/team/team_value.py --workers 4 --require-pools
       - if: steps.fetch.outputs.complete == 'true'
         uses: actions/upload-artifact@v4
         with:

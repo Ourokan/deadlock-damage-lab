@@ -1133,8 +1133,8 @@ class SurgeOfPower(FX):
 class MysticReverb(FX):
     """Imbued ability damage builds up while the item is ready; once it reaches MinimumDamage the item goes on cooldown
     and DelayDuration later the echo deals TechDamagePercent% of that damage plus MaxHealthDamage% of the target's
-    current health (the tooltip's "Current Health Bonus Damage", not a cap). DoT ticks of the imbued ability count, so
-    a damage-over-time imbue (Flame Dash) triggers it too."""
+    current health (the tooltip's "Current Health Bonus Damage", not a cap). Build-up is per target and lasts
+    DelayDuration; DoT ticks of the imbued ability count, so a damage-over-time imbue (Flame Dash) triggers it too."""
 
     def on_damage_dealt(self, f, t, hit):
         if hit.kind != "spirit" or hit.ability is None or self.item not in hit.ability.imbues:
@@ -1145,13 +1145,17 @@ class MysticReverb(FX):
             f.heal(hit.amount * self.item.p("ImbueAbilityLifesteal") / 100, "spirit_lifesteal", "lifesteal")
         if not self.ready():
             return
-        # the threshold counts damage dealt (after resist); the echo repeats the raw damage (it is mitigated again)
-        dealt = f.counters.get("reverb_dealt", 0.0) + hit.amount
-        acc = f.counters.get("reverb_acc", 0.0) + hit.raw
+        # the threshold counts damage dealt (after resist) on this target within DelayDuration; the echo repeats the raw
+        # damage (it is mitigated again)
+        builds = f.counters.setdefault("reverb_build", {})
+        t0, dealt, acc = builds.get(id(t), (f.e.t, 0.0, 0.0))
+        if f.e.t - t0 > self.dur("DelayDuration", 3):
+            t0, dealt, acc = f.e.t, 0.0, 0.0
+        dealt, acc = dealt + hit.amount, acc + hit.raw
         if dealt < self.item.p("MinimumDamage", 0):
-            f.counters["reverb_dealt"], f.counters["reverb_acc"] = dealt, acc
+            builds[id(t)] = (t0, dealt, acc)
             return
-        f.counters["reverb_dealt"] = f.counters["reverb_acc"] = 0.0
+        builds.clear()
         self.use()
         base = acc * self.item.p("TechDamagePercent") / 100
         pct = self.item.p("MaxHealthDamage", 0) / 100
