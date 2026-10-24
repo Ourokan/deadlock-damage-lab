@@ -1,0 +1,115 @@
+{
+ "note": "focus = share of the enemy's trigger pulls spent on a living summon of this kind, fitted so the sim's share of enemy gun damage on summons (vs the owner) matches Phantom+ replays (scripts/summons/fit_targeting.py); splash = share of the owner's non-gun damage taken that also hits it (fitted the same way); acc_mult = accuracy on it vs on a hero (assumption); life_other_s = real median life of summons no enemy hero killed (caps the sim life)",
+ "kinds": {
+  "mcginnis_turret": {
+   "focus": 0.464,
+   "acc_mult": 2.5,
+   "life_other_s": 12.75,
+   "sim": {
+    "gun_focus_share": 0.583,
+    "splash_ratio": 0.609,
+    "killed": 0.634,
+    "n": 454
+   },
+   "splash": 0.668,
+   "real": {
+    "gun_focus_share": 0.571,
+    "splash_ratio": 0.603,
+    "focus_share": 0.431,
+    "gun_part": 0.374,
+    "hero_killed": 0.288,
+    "hero_killed_engaged": 0.711,
+    "life_s_hero_killed": 7.14,
+    "killed": 0.665,
+    "hp": 316.0,
+    "life_s": 10.53,
+    "life_s_not_hero_killed": 12.75,
+    "n": 8199,
+    "matches": 43
+   }
+  },
+  "graves_zombie": {
+   "focus": 0.6,
+   "acc_mult": 2.0,
+   "life_other_s": 10.53,
+   "sim": {
+    "gun_focus_share": 0.683,
+    "splash_ratio": 1.143,
+    "killed": 0.578,
+    "n": 1209
+   },
+   "splash": 1.367,
+   "real": {
+    "gun_focus_share": 0.668,
+    "splash_ratio": 1.145,
+    "focus_share": 0.565,
+    "gun_part": 0.277,
+    "hero_killed": 0.28,
+    "hero_killed_engaged": 0.575,
+    "life_s_hero_killed": 7.6,
+    "killed": 0.73,
+    "hp": 372.0,
+    "life_s": 9.34,
+    "life_s_not_hero_killed": 10.53,
+    "n": 16616,
+    "matches": 99
+   }
+  },
+  "graves_skull": {
+   "focus": 0.593,
+   "acc_mult": 1.0,
+   "life_other_s": 11.08,
+   "sim": {
+    "gun_focus_share": 0.498,
+    "splash_ratio": 0.138,
+    "killed": 0.505,
+    "n": 1616
+   },
+   "splash": 0.161,
+   "real": {
+    "gun_focus_share": 0.495,
+    "splash_ratio": 0.138,
+    "focus_share": 0.223,
+    "gun_part": 0.607,
+    "hero_killed": 0.396,
+    "hero_killed_engaged": 0.904,
+    "life_s_hero_killed": 3.4,
+    "killed": 0.396,
+    "hp": 50.0,
+    "life_s": 8.55,
+    "life_s_not_hero_killed": 11.08,
+    "n": 21541,
+    "matches": 99
+   }
+  },
+  "graves_stone": {
+   "focus": 0.0,
+   "acc_mult": 2.5,
+   "life_other_s": 18.62,
+   "sim": {
+    "gun_focus_share": 0.0,
+    "splash_ratio": 0.049,
+    "killed": 0.515,
+    "n": 262
+   },
+   "splash": 0.049,
+   "real": {
+    "gun_focus_share": 0.0,
+    "splash_ratio": 0.049,
+    "focus_share": 0.039,
+    "gun_part": 0.0,
+    "hero_killed": 0.202,
+    "hero_killed_engaged": 0.825,
+    "life_s_hero_killed": 11.02,
+    "killed": 0.202,
+    "hp": 100.0,
+    "life_s": 17.83,
+    "life_s_not_hero_killed": 18.62,
+    "n": 1171,
+    "matches": 99
+   },
+   "break_s": 11.02,
+   "break_p": 0.825
+  }
+ }
+}
