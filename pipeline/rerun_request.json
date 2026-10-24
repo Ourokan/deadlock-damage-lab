@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-24T09:30:00Z",
- "reason": "Melee rate follows the build: players with melee items melee more (sim/data/melee_items.json)"
+ "requested_at": "2026-10-24T09:40:00Z",
+ "reason": "Targetable summons: Graves' zombies, Deadheads and gravestone can be killed; summon targeting fitted to replays (sim/data/summon_targeting.json)"
 }

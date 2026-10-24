@@ -19,7 +19,8 @@ Assumptions:
   once. Without summons a zombie lives ZOMBIE_LIFE s (a stand-in for being killed). With summons on it has
   SummonHealth (+ boons) and lives until the enemy kills it, SummonLifetime ends or the zombie row's life_other_s
   in data/summon_targeting.json (median life of real zombies no hero killed: troopers, other heroes), and the gravestone has GravestoneHealth: once it is
-  destroyed no more zombies spawn and the aura ends (bullets don't damage it in the replays: only area damage
+  destroyed (by splash, or by the enemy's break: an expected value that scales later spawns and the aura) no
+  more zombies spawn and the aura ends (bullets don't damage it in the replays: only area damage
   splashing off Graves breaks it) (replays: zombie spawns drop from 0.46/s to 0.14/s once a
   gravestone is gone). The aura stacks TechArmorDamageReductionPerStack every StackingDebuffTickRate up to
   MaxStacks while the ult lasts (target assumed inside). T3: each zombie death deals CurrentHealthDamagePercentage %
@@ -177,7 +178,7 @@ class BorrowedDecree(AbilityImpl):
         for i in range(1, n_ticks + 1):
             stacks = min(c.raw("MaxStacks", 40), i)
             c.after(ch + i * c.raw("StackingDebuffTickRate", 0.25),
-                    lambda s=stacks: alive(stone) and c.debuff("spirit_shred", s * per,
+                    lambda s=stacks: alive(stone) and c.debuff("spirit_shred", s * per * (stone.weight if stone else 1),
                                                                c.raw("StackingDebuffTickRate", 0.25) + 0.05,
                                                                tag="decree_stacks"))
         t = ch + c.raw("SummonInitialDelay", 0.3)
@@ -188,8 +189,11 @@ class BorrowedDecree(AbilityImpl):
             t += freq
 
     def spawn(self, c):
-        if not c.me.alive or not c.foe.alive or not alive(c.state.get("stone")):
+        stone = c.state.get("stone")
+        if not c.me.alive or not c.foe.alive or not alive(stone):
             return
+        if stone is not None and stone.weight < 1 and not c.me.acc("decree_spawn").take(stone.weight):
+            return   # the gravestone is broken in this share of fights (mechanics._break)
         now = c.now
         live = [x for x in c.state["alive"] if x[0] > now and alive(x[1])]
         c.state["alive"] = live

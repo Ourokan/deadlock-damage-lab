@@ -239,7 +239,8 @@ Model (`deadsim/mechanics.py`, `data/summon_targeting.json`, refit with `scripts
   against the damage all summons of a kind take (turret 0.29, zombie 0.48, Deadhead 0.03, gravestone 0.05). Area
   damage is most of what zombies take in the replays.
 - The gravestone can't be shot. Besides splash the enemy breaks it 11 s after it lands, 83% of the time (the real
-  rate among gravestones a hero hit). Once it is gone no more zombies spawn and the aura stops: in the replays zombie
+  rate among gravestones a hero hit), as an expected value: from then on zombie spawns and the aura are scaled by
+  0.17 (a single deterministic draw would break it in every fight). Once it is gone no more zombies spawn and the aura stops: in the replays zombie
   spawns drop from 0.46/s to 0.14/s after a gravestone breaks.
 - A summon lives at most the real median life of those no hero killed (`life_other_s`: turret 12.8 s, zombie 10.5 s,
   Deadhead 11.1 s, gravestone 18.6 s): troopers and other heroes kill them in real games. Zombies used to live a fixed
@@ -248,10 +249,9 @@ Model (`deadsim/mechanics.py`, `data/summon_targeting.json`, refit with `scripts
   `*_hit_while_summon` and `*_summons_out` report what the fit compares.
 
 Fit result (sim vs real): gun share turret 0.57 / 0.57, zombie 0.67 / 0.67, Deadhead 0.47 / 0.50; non-gun ratio within
-0.01 for all four. Kill shares in the sim (of all summons spawned in a duel) are turret 61%, zombie 40%, Deadhead 32%,
-gravestone 42% against 71% / 58% / 90% / 83% of real ones a hero hit. The sim spreads area damage evenly over every
-summon, while real damage piles onto a few (a real Deadhead that gets hit at all almost always dies at 50 HP), and
-many sim fights end before the gravestone's 11 s.
+0.01 for all four. Kill shares in the sim (of all summons spawned in a duel) are turret 61%, zombie 39%, Deadhead 32%
+against 71% / 58% / 90% of real ones a hero hit (the gravestone's break is the expected value above). The sim spreads area damage evenly over every
+summon, while real damage piles onto a few (a real Deadhead that gets hit at all almost always dies at 50 HP).
 
 Effect on the 252 Graves and 90 McGinnis sample duels (real builds, 30 s): Graves' damage per second -1% (275 -> 271),
 win share 69% -> 75% (zombies now live up to 10.5 s instead of 4.5 s and soak shots); McGinnis -18% (65 -> 53), 7% ->

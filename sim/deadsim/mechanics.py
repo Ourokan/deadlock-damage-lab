@@ -30,7 +30,7 @@ Settings fitted to real ranked matches (validation/README.md, "New mechanics"):
   (scripts/summons/). Skill.summon_focus overrides every kind's share. Non-gun damage the owner takes (area
   abilities, items, melee) also hits every living summon: x its kind's splash share, fitted the same way (in the replays
   60-70% of what enemies deal to zombies and turrets is not gun damage). A kind with break_p (the gravestone) is
-  broken outright by the enemy break_s after it lands with that probability (real share of gravestones that took
+  broken by the enemy break_s after it lands with that probability, as an expected value (real share of gravestones that took
   hero damage and were destroyed by a hero; real median time to break). A dead summon stops attacking. Damage to
   summons is not hero damage (`FightResult.*_summon`). A summon lives at most life_other_s (real median life of
   summons no hero killed). Every other hero summon (Sinclair's Assistant, Grey Talon's
@@ -236,6 +236,7 @@ class Summon:
         t = summon_targeting().get(kind, {})
         self.focus, self.acc_mult, self.splash = t.get("focus", 0.0), t.get("acc_mult", 1.0), t.get("splash", 0.0)
         self.on_death = on_death
+        self.weight = 1.0   # expected share of fights it is still standing in (see _break)
         self.alive = True
 
     def hurt(self, amount, kind="bullet"):
@@ -269,11 +270,14 @@ def add_summon(owner, name, hp, spirit_resist=0.0, bullet_resist=0.0, life=math.
 
 
 def _break(s, p):
-    """The enemy walks up and breaks summon s (melee) with probability p: Graves' gravestone, which bullets can't hurt."""
+    """The enemy walks up and breaks summon s (melee) with probability p: Graves' gravestone, which bullets can't hurt.
+    One break per fight can't be drawn as a deterministic Bernoulli (Accum would always fire for p >= 0.5), so it is
+    an expected value: s.weight drops to 1 - p, and whatever the summon still does is scaled by it (necro.py)."""
     f = s.owner.enemy
-    if f is not None and f.alive and alive(s) and s.alive and f.acc("summon_break:" + s.kind).take(p):
+    if f is not None and f.alive and alive(s) and s.alive:
         d = f.counters.setdefault("summon_dmg", {})   # not in summon_dmg_kind: that is the gun / splash fit
-        d[s.name] = d.get(s.name, 0.0) + s.hurt(s.hp, "pure")
+        d[s.name] = d.get(s.name, 0.0) + s.hp * p
+        s.weight *= 1.0 - p
 
 
 def alive(s):
