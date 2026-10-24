@@ -181,7 +181,9 @@ def main():
            "sim_ratio": {f"{r_}|{u_}": [round(a, 3), round(b, 3)] for (r_, u_), (a, b) in grid.items()},
            "fitted_rate": r, "fitted_rate_ult": u,
            "fitted_rate_90ci": [lo[0], hi[0]], "fitted_rate_ult_90ci": [lo[1], hi[1]],
-           "sim_ratio_at_fit": [round(x, 3) for x in at(r, u)]}
+           "sim_ratio_at_fit": [round(x, 3) for x in at(r, u)],
+           # a target above the zero-rate ratio clips to rate 0: then the fit and its CI are the grid floor
+           "at_floor": [tgt["non"] >= at(0.0, u)[0], tgt["ult"] >= at(r, 0.0)[1]]}
     print(json.dumps({k: v for k, v in out.items() if k != "sim_ratio"}, indent=1))
     os.makedirs(os.path.join(ROOT, "sim", "validation", "counterspell"), exist_ok=True)
     json.dump(out, open(os.path.join(ROOT, "sim", "validation", "counterspell", f"fit_{min_badge}.json"), "w"), indent=1)
