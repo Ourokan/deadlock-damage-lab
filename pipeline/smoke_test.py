@@ -80,3 +80,18 @@ want = m / O.movement_value(pop)   # same damage: only movement and heal trips d
 assert abs(ev.run(pop) - 1.0) < 1e-9 and abs(ev.run(pop[2:]) - want) < 1e-9, ev.run(pop)
 S.popular_build = _popular
 print("movement weights ok: Stalker", round(st, 4), "four top items", round(O.movement_value(top), 4))
+
+# what changed between reruns (pipeline/changes.py): items in/out per hero and net worth, small moves dropped
+sys.path.insert(0, os.path.join(ROOT, "pipeline"))
+import changes as C  # noqa: E402
+_b = lambda items, dbd, d15: {"best": {"items": items, "damage_before_death": dbd}, "damage_best": {"items": items, "dummy_15s": d15}}
+_old = {"heroes": {"13": {"name": "Haze", "brackets": {"phantom": {"18000": _b([1, 2, 3], 1000, 2000), "27000": _b([4, 5], 1000, 2000)}}}}}
+_new = {"heroes": {"13": {"name": "Haze", "brackets": {"phantom": {"18000": _b([1, 2, 6], 1100, 2010), "27000": _b([4, 5], 1020, 2400)}}}}}
+rows, total = C.build_rows(_old, _new, "phantom")
+assert total == 4, total
+got = {(r["souls"], r["kind"]): r for r in rows}
+assert set(got) == {(18000, "overall"), (18000, "damage"), (27000, "damage")}, got   # 27k overall moved only 2%
+assert got[(18000, "overall")]["in"] == [6] and got[(18000, "overall")]["out"] == [3] and got[(18000, "overall")]["kept"] == [1, 2]
+assert got[(27000, "damage")]["in"] == [] and got[(27000, "damage")]["new"] == 2400
+assert C.build_rows(_old, _new, "ascendant") == ([], 0)
+print("changes ok")

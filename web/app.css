@@ -283,6 +283,17 @@ body.sheet-open { overflow: hidden; }
 .mk-sug-b { font-size: .84rem; color: var(--muted); }
 .mk-sug-b b { color: var(--fg); font-weight: 600; }
 
+/* What changed tab: one collapsible block per rerun */
+.chg { border: 1px solid var(--line); border-radius: 6px; background: var(--panel); margin-top: 12px; }
+.chg > summary { cursor: pointer; padding: 10px 14px; font: 500 .95rem var(--head); }
+.chg-b { padding: 0 14px 14px; }
+.chg-b h3 { font-size: .82rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 4px 0 6px; }
+.causes { margin: 0 0 12px; padding-left: 18px; font-size: .88rem; }
+.causes li { margin: 2px 0; }
+.causes .tag { margin: 0 4px 0 0; }
+.it.gone { text-decoration: line-through; opacity: .6; }
+.it.new { border-color: var(--good); }
+
 .intro .more { display: none; }
 
 /* phones: every tab in view at once, build tables as stacked cards, finger-sized controls, no zoom on input focus */
@@ -293,6 +304,7 @@ body.sheet-open { overflow: hidden; }
   .tabs a { white-space: normal; text-align: center; line-height: 1.15; font-size: .8rem; letter-spacing: .03em; padding: 8px 4px;
     min-height: 40px; display: flex; align-items: center; justify-content: center; }
   .tabs a[aria-current="page"] { background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 4px; }
+  .tabs a:last-child:nth-child(3n+1) { grid-column: 1 / -1; }
   .wrap { padding-block: 16px 40px; }
   .intro p.clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
   .intro .more { display: block; justify-self: start; border: 0; background: none; padding: 6px 0; color: var(--accent); font-size: .88rem; cursor: pointer; }

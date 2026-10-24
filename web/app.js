@@ -45,7 +45,7 @@ function tile(id, opts = {}) {
   const it = S.items[id];
   if (!it) return "";
   const dot = it.effect_modeled ? "" : ' <span class="dot stats" title="Only its always-on stats are modeled"></span>';
-  const cls = ["it", opts.remove ? "x" : "", opts.owned ? "owned" : "", opts.static ? "static" : ""].join(" ");
+  const cls = ["it", opts.cls || "", opts.remove ? "x" : "", opts.owned ? "owned" : "", opts.static ? "static" : ""].join(" ");
   const tag = opts.static ? "span" : "button";
   return `<${tag} class="${cls}" data-slot="${it.slot}" data-id="${id}" title="${esc(it.name)} · ${fmt(it.cost)} souls${it.effect_modeled ? "" : " · stats only"}">`
     + `${esc(it.name)}${dot}${opts.cost ? ` <span class="c">${fmt(it.cost / 1000, 1)}k</span>` : ""}</${tag}>`;
@@ -740,10 +740,48 @@ function renderSheet() {
     <p class="fine" style="margin-top:12px">Measured live with the current sim against this build's dummy, so totals can differ a little from the table.</p>`;
 }
 
+// what each rerun changed in the best builds, and why (pipeline/changes.py -> data/changes.json)
+const TIER_LABEL = { phantom: "Phantom+", ascendant: "Ascendant+", eternus: "Eternus+", all: "All ranks" };
+const REPO = "https://github.com/TylerNodell/deadlock-damage-lab";
+function causeLine(c) {
+  if (c.kind === "model") {
+    const ref = c.pr ? ` (<a href="${REPO}/pull/${c.pr}" target="_blank" rel="noopener">#${c.pr}</a>)` : c.sha ? ` (<a href="${REPO}/commit/${esc(c.sha)}" target="_blank" rel="noopener">${esc(c.sha)}</a>)` : "";
+    return `<li><span class="tag">Model</span> ${esc(c.title)}${ref}</li>`;
+  }
+  const tag = { patch: "Game patch", hotfix: "Hotfix", builds: "Player builds", request: "Rerun note", standard: "Rank" }[c.kind] || c.kind;
+  const text = c.link ? `<a href="${esc(c.link)}" target="_blank" rel="noopener">${esc(c.text)}</a>` : esc(c.text);
+  return `<li><span class="tag">${esc(tag)}</span> ${text}</li>`;
+}
+async function renderChangesTab() {
+  const out = $("#c-out"), d = await load("data/changes.json");
+  if (!d || !d.entries?.length) { out.innerHTML = '<p class="empty">No reruns recorded yet. The next rerun after a patch or model change will show up here.</p>'; return; }
+  const hero = $("#c-hero").value, kind = $("#c-kind").value, metric = kind === "overall" ? "Damage before dying" : "Dummy damage by 15 s";
+  const html = d.entries.map((e, i) => {
+    const all = e.rows.filter((r) => r.kind === kind), rows = all.filter((r) => !hero || String(r.hero) === hero);
+    const changed = all.filter((r) => r.in.length || r.out.length), total = Math.round(e.summary.builds / 2);
+    const when = new Date(e.date), date = isNaN(when) ? esc(e.date) : when.toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+    const head = `${date} · ${esc(TIER_LABEL[e.tier] || e.tier)} · patch ${esc(e.patch || "?")} · <b>${changed.length}</b> of ${total} best builds changed`
+      + (changed.length ? ` across ${new Set(changed.map((r) => r.hero)).size} heroes` : "");
+    const causes = e.causes.length ? e.causes.map(causeLine).join("") : `<li><span class="tag">Rerun</span> ${esc(e.reason || "rerun")}</li>`;
+    const row = (r) => {
+      const ch = r.old > 0 ? r.new / r.old - 1 : 0;
+      return `<tr><td>${esc(r.name || S.heroById[r.hero]?.name || r.hero)}</td><td class="n">${fmt(r.souls / 1000)}k</td>
+        <td><div class="build mini">${r.out.map((x) => tile(x, { static: true, cls: "gone" })).join("") || '<span class="fine">–</span>'}</div></td>
+        <td><div class="build mini">${r.in.map((x) => tile(x, { static: true, cls: "new" })).join("") || '<span class="fine">same items</span>'}</div></td>
+        <td class="n">${fmt(r.old)} → <b>${fmt(r.new)}</b> <span class="${ch > 0.005 ? "up" : ch < -0.005 ? "down" : ""}">${signed(ch)}</span></td>
+        <td>${testBtn(r.hero, r.souls, [...r.kept, ...r.in], "After rerun")}</td></tr>`;
+    };
+    const table = rows.length ? `<div class="scroll"><table><thead><tr><th>Hero</th><th class="n">Net worth</th><th>Out</th><th>In</th><th class="n">${metric}</th><th></th></tr></thead><tbody>${rows.map(row).join("")}</tbody></table></div>`
+      : `<p class="fine">${hero ? "No change for this hero in this run." : "No best build changed in this run."}</p>`;
+    return `<details class="chg"${i === 0 ? " open" : ""}><summary>${head}</summary><div class="chg-b"><h3>Why it ran</h3><ul class="causes">${causes}</ul>${table}</div></details>`;
+  }).join("");
+  out.innerHTML = `<p class="hint">${d.entries.length} reruns, newest first. Numbers are for the rerun's rank bracket. Some runs change many builds at once: when several builds score within a hair of each other, a small model change can reorder them.</p>${html}`;
+}
+
 // ---------- tabs ----------
 function showTab() {
   const t = (location.hash || "#test").slice(1).split("/")[0];
-  const tab = ["test", "maker", "match", "overall", "path", "damage", "duel", "tank", "team"].includes(t) ? t : "test";
+  const tab = ["test", "maker", "match", "overall", "path", "damage", "duel", "tank", "team", "changes"].includes(t) ? t : "test";
   $$(".tab").forEach((s) => (s.hidden = s.id !== "tab-" + tab));
   $$("#tabs a").forEach((a) => (a.dataset.tab === tab ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
   if (tab === "overall") renderOverallTab();
@@ -751,6 +789,7 @@ function showTab() {
   if (tab === "damage") renderDamageTab();
   if (tab === "duel") renderDuelTab();
   if (tab === "tank") renderTankTab();
+  if (tab === "changes") renderChangesTab();
 }
 
 // ---------- phones ----------
@@ -805,6 +844,7 @@ async function boot() {
   const tank = await load("data/tank/index.json");
   fillHeroSelect($("#t-hero"), tank ? Object.keys(tank.heroes) : []);
   for (const s of ["#g-hero", "#u-hero", "#o-hero", "#p-hero"]) $(s).value = 13;
+  $("#c-hero").innerHTML = '<option value="">All heroes</option>' + opts;
   load("data/patch.json").then((p) => {
     if (!p) return;
     $("#patch").textContent = p.patch;
@@ -855,8 +895,9 @@ async function boot() {
   $("#u-hero").onchange = renderDuelTab; $("#u-budget").onchange = renderDuelTab; $("#u-bracket").onchange = renderDuelTab;
   $("#t-hero").onchange = renderTankTab; $("#t-budget").onchange = renderTankTab;
   $("#p-hero").onchange = renderPathTab; $("#p-rank").onchange = renderPathTab;
+  $("#c-hero").onchange = renderChangesTab; $("#c-kind").onchange = renderChangesTab;
   $("#o-hero").onchange = renderOverallTab; $("#o-budget").onchange = renderOverallTab; $("#o-rank").onchange = renderOverallTab;
-  for (const s of ["#g-out", "#g-skill", "#g-order", "#u-out", "#t-out", "#o-out", "#p-out"]) $(s).addEventListener("click", onTest);
+  for (const s of ["#g-out", "#g-skill", "#g-order", "#u-out", "#t-out", "#o-out", "#p-out", "#c-out"]) $(s).addEventListener("click", onTest);
   document.addEventListener("click", (e) => {
     const t = e.target.closest(".build.tap .it");
     if (t) openBreakdown(JSON.parse(t.closest(".build").dataset.bd), t.dataset.id);
