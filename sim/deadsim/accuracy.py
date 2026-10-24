@@ -189,7 +189,7 @@ def dot_cleanse_delay(badge=None):
 
 
 ITEM_LANDING = os.path.join(HERE, "..", "data", "item_landing.json")
-ITEM_LANDING_MIN_HOLDERS = 40
+ITEM_LANDING_MIN_HOLDERS = 30   # 2026-10-24 Phantom+ refit: keeps Focus Lens (36 holders, 0.59)
 
 
 def item_landing():
