@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-24T11:14:53Z",
+ "generated": "2026-10-24T13:12:44Z",
  "patch": "09-29-2026",
  "budgets": [
   {
@@ -40,7 +40,7 @@
    "aim_percentile": "p75",
    "label": "Phantom and up",
    "patch": "09-29-2026",
-   "generated": "2026-10-24T11:14:53Z"
+   "generated": "2026-10-24T13:12:44Z"
   },
   {
    "id": "eternus",
@@ -65,33 +65,33 @@
     "phantom": {
      "10000": {
       "best_win_rate": 0.5659,
-      "best_score": 0.5868,
+      "best_score": 0.586,
       "popular_win_rate": 0.3195,
-      "popular_score": 0.2351
+      "popular_score": 0.2363
      },
      "18000": {
-      "best_win_rate": 0.8232,
-      "best_score": 1.0184,
-      "popular_win_rate": 0.6483,
-      "popular_score": 0.7426
+      "best_win_rate": 0.8398,
+      "best_score": 1.053,
+      "popular_win_rate": 0.6519,
+      "popular_score": 0.748
      },
      "27000": {
-      "best_win_rate": 0.8641,
-      "best_score": 1.092,
-      "popular_win_rate": 0.7014,
-      "popular_score": 0.8564
+      "best_win_rate": 0.8586,
+      "best_score": 1.0843,
+      "popular_win_rate": 0.6959,
+      "popular_score": 0.8522
      },
      "37000": {
-      "best_win_rate": 0.969,
-      "best_score": 1.2894,
-      "popular_win_rate": 0.8536,
-      "popular_score": 1.1107
+      "best_win_rate": 0.9528,
+      "best_score": 1.2658,
+      "popular_win_rate": 0.8375,
+      "popular_score": 1.0883
      },
      "50000": {
-      "best_win_rate": 0.9518,
-      "best_score": 1.2463,
-      "popular_win_rate": 0.7557,
-      "popular_score": 0.9177
+      "best_win_rate": 0.9484,
+      "best_score": 1.2399,
+      "popular_win_rate": 0.7521,
+      "popular_score": 0.9141
      }
     },
     "all": {
@@ -166,34 +166,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.769,
-      "best_score": 0.8805,
-      "popular_win_rate": 0.378,
-      "popular_score": 0.3001
+      "best_win_rate": 0.7498,
+      "best_score": 0.8566,
+      "popular_win_rate": 0.3684,
+      "popular_score": 0.2888
      },
      "18000": {
-      "best_win_rate": 0.8426,
-      "best_score": 1.0527,
+      "best_win_rate": 0.7911,
+      "best_score": 0.9505,
       "popular_win_rate": 0.4909,
-      "popular_score": 0.4966
+      "popular_score": 0.4958
      },
      "27000": {
-      "best_win_rate": 0.9793,
-      "best_score": 1.3346,
+      "best_win_rate": 0.9754,
+      "best_score": 1.3298,
       "popular_win_rate": 0.5532,
-      "popular_score": 0.6085
+      "popular_score": 0.6087
      },
      "37000": {
-      "best_win_rate": 0.9222,
-      "best_score": 1.1953,
-      "popular_win_rate": 0.6895,
-      "popular_score": 0.8368
+      "best_win_rate": 0.9261,
+      "best_score": 1.2021,
+      "popular_win_rate": 0.6972,
+      "popular_score": 0.8467
      },
      "50000": {
       "best_win_rate": 0.9218,
-      "best_score": 1.2428,
-      "popular_win_rate": 0.7718,
-      "popular_score": 0.9684
+      "best_score": 1.2435,
+      "popular_win_rate": 0.7969,
+      "popular_score": 0.9986
      }
     },
     "all": {
@@ -268,34 +268,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.6557,
-      "best_score": 0.7227,
+      "best_win_rate": 0.6516,
+      "best_score": 0.7175,
       "popular_win_rate": 0.0916,
-      "popular_score": -0.1191
+      "popular_score": -0.1198
      },
      "18000": {
-      "best_win_rate": 0.7667,
-      "best_score": 0.9235,
+      "best_win_rate": 0.7762,
+      "best_score": 0.9322,
       "popular_win_rate": 0.178,
-      "popular_score": -0.0266
+      "popular_score": -0.0271
      },
      "27000": {
       "best_win_rate": 0.6849,
-      "best_score": 0.7497,
-      "popular_win_rate": 0.2372,
-      "popular_score": 0.104
+      "best_score": 0.7489,
+      "popular_win_rate": 0.2332,
+      "popular_score": 0.0988
      },
      "37000": {
-      "best_win_rate": 0.7374,
-      "best_score": 0.8999,
+      "best_win_rate": 0.7236,
+      "best_score": 0.8697,
       "popular_win_rate": 0.1599,
-      "popular_score": -0.0345
+      "popular_score": -0.0351
      },
      "50000": {
-      "best_win_rate": 0.8031,
-      "best_score": 1.0382,
+      "best_win_rate": 0.7229,
+      "best_score": 0.8759,
       "popular_win_rate": 0.2297,
-      "popular_score": 0.082
+      "popular_score": 0.0816
      }
     },
     "all": {
@@ -371,33 +371,33 @@
     "phantom": {
      "10000": {
       "best_win_rate": 0.979,
-      "best_score": 1.321,
-      "popular_win_rate": 0.9563,
-      "popular_score": 1.2464
+      "best_score": 1.3206,
+      "popular_win_rate": 0.937,
+      "popular_score": 1.2215
      },
      "18000": {
-      "best_win_rate": 0.928,
-      "best_score": 1.185,
+      "best_win_rate": 0.9371,
+      "best_score": 1.1916,
       "popular_win_rate": 0.7934,
-      "popular_score": 1.0115
+      "popular_score": 1.012
      },
      "27000": {
-      "best_win_rate": 0.9672,
-      "best_score": 1.3058,
+      "best_win_rate": 0.9712,
+      "best_score": 1.3097,
       "popular_win_rate": 0.814,
-      "popular_score": 1.0611
+      "popular_score": 1.0625
      },
      "37000": {
-      "best_win_rate": 0.9981,
-      "best_score": 1.3775,
+      "best_win_rate": 0.9887,
+      "best_score": 1.3302,
       "popular_win_rate": 0.8414,
-      "popular_score": 1.054
+      "popular_score": 1.0518
      },
      "50000": {
       "best_win_rate": 0.9876,
-      "best_score": 1.3295,
-      "popular_win_rate": 0.8474,
-      "popular_score": 1.1094
+      "best_score": 1.33,
+      "popular_win_rate": 0.8546,
+      "popular_score": 1.119
      }
     },
     "all": {
@@ -472,34 +472,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.9289,
-      "best_score": 1.2944,
-      "popular_win_rate": 0.6976,
-      "popular_score": 0.9128
+      "best_win_rate": 0.9248,
+      "best_score": 1.29,
+      "popular_win_rate": 0.7113,
+      "popular_score": 0.9296
      },
      "18000": {
       "best_win_rate": 0.9216,
-      "best_score": 1.239,
-      "popular_win_rate": 0.7118,
-      "popular_score": 0.8482
+      "best_score": 1.2392,
+      "popular_win_rate": 0.7154,
+      "popular_score": 0.8515
      },
      "27000": {
-      "best_win_rate": 0.9193,
-      "best_score": 1.3005,
-      "popular_win_rate": 0.7444,
-      "popular_score": 0.9608
+      "best_win_rate": 0.9189,
+      "best_score": 1.2965,
+      "popular_win_rate": 0.7389,
+      "popular_score": 0.955
      },
      "37000": {
       "best_win_rate": 0.9887,
-      "best_score": 1.4457,
+      "best_score": 1.4474,
       "popular_win_rate": 0.8276,
-      "popular_score": 1.0916
+      "popular_score": 1.0921
      },
      "50000": {
       "best_win_rate": 1.0,
-      "best_score": 1.468,
-      "popular_win_rate": 0.6787,
-      "popular_score": 0.8364
+      "best_score": 1.4692,
+      "popular_win_rate": 0.6859,
+      "popular_score": 0.8469
      }
     },
     "all": {
@@ -574,34 +574,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.2969,
-      "best_score": 0.2149,
+      "best_win_rate": 0.2965,
+      "best_score": 0.2137,
       "popular_win_rate": 0.2965,
-      "popular_score": 0.2146
+      "popular_score": 0.2137
      },
      "18000": {
-      "best_win_rate": 0.7513,
-      "best_score": 0.8954,
+      "best_win_rate": 0.7487,
+      "best_score": 0.8738,
       "popular_win_rate": 0.3953,
-      "popular_score": 0.3273
+      "popular_score": 0.3253
      },
      "27000": {
-      "best_win_rate": 0.8133,
-      "best_score": 1.0115,
+      "best_win_rate": 0.8173,
+      "best_score": 1.0122,
       "popular_win_rate": 0.3954,
-      "popular_score": 0.2925
+      "popular_score": 0.291
      },
      "37000": {
-      "best_win_rate": 0.8374,
-      "best_score": 1.096,
+      "best_win_rate": 0.8213,
+      "best_score": 1.072,
       "popular_win_rate": 0.4009,
-      "popular_score": 0.3324
+      "popular_score": 0.3303
      },
      "50000": {
-      "best_win_rate": 0.9058,
-      "best_score": 1.2253,
+      "best_win_rate": 0.888,
+      "best_score": 1.2,
       "popular_win_rate": 0.324,
-      "popular_score": 0.2628
+      "popular_score": 0.2625
      }
     },
     "all": {
@@ -676,34 +676,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.4829,
-      "best_score": 0.509,
-      "popular_win_rate": 0.4198,
-      "popular_score": 0.3264
+      "best_win_rate": 0.5,
+      "best_score": 0.4406,
+      "popular_win_rate": 0.3579,
+      "popular_score": 0.2255
      },
      "18000": {
-      "best_win_rate": 0.6541,
-      "best_score": 0.763,
-      "popular_win_rate": 0.4381,
-      "popular_score": 0.3624
+      "best_win_rate": 0.5157,
+      "best_score": 0.5677,
+      "popular_win_rate": 0.3647,
+      "popular_score": 0.2376
      },
      "27000": {
-      "best_win_rate": 0.9489,
-      "best_score": 1.2283,
-      "popular_win_rate": 0.619,
-      "popular_score": 0.7167
+      "best_win_rate": 0.8246,
+      "best_score": 1.0648,
+      "popular_win_rate": 0.5061,
+      "popular_score": 0.521
      },
      "37000": {
-      "best_win_rate": 0.9631,
-      "best_score": 1.3587,
-      "popular_win_rate": 0.7376,
-      "popular_score": 0.8625
+      "best_win_rate": 0.9015,
+      "best_score": 1.2469,
+      "popular_win_rate": 0.5763,
+      "popular_score": 0.6116
      },
      "50000": {
-      "best_win_rate": 0.9483,
-      "best_score": 1.3489,
-      "popular_win_rate": 0.6951,
-      "popular_score": 0.8216
+      "best_win_rate": 0.8103,
+      "best_score": 1.023,
+      "popular_win_rate": 0.5526,
+      "popular_score": 0.5739
      }
     },
     "all": {
@@ -778,34 +778,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.9156,
-      "best_score": 1.2166,
+      "best_win_rate": 0.9293,
+      "best_score": 1.2313,
       "popular_win_rate": 0.8339,
-      "popular_score": 1.0759
+      "popular_score": 1.0742
      },
      "18000": {
       "best_win_rate": 0.9345,
-      "best_score": 1.3009,
+      "best_score": 1.3011,
       "popular_win_rate": 0.8218,
-      "popular_score": 1.0771
+      "popular_score": 1.0776
      },
      "27000": {
       "best_win_rate": 0.9803,
-      "best_score": 1.4485,
-      "popular_win_rate": 0.7452,
-      "popular_score": 0.941
+      "best_score": 1.4442,
+      "popular_win_rate": 0.7263,
+      "popular_score": 0.9186
      },
      "37000": {
       "best_win_rate": 0.9728,
       "best_score": 1.4495,
       "popular_win_rate": 0.7189,
-      "popular_score": 0.936
+      "popular_score": 0.9388
      },
      "50000": {
       "best_win_rate": 0.9889,
-      "best_score": 1.4626,
-      "popular_win_rate": 0.598,
-      "popular_score": 0.7695
+      "best_score": 1.4625,
+      "popular_win_rate": 0.6088,
+      "popular_score": 0.7851
      }
     },
     "all": {
@@ -880,34 +880,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.6384,
-      "best_score": 0.744,
+      "best_win_rate": 0.6372,
+      "best_score": 0.7377,
       "popular_win_rate": 0.4312,
-      "popular_score": 0.3696
+      "popular_score": 0.3694
      },
      "18000": {
-      "best_win_rate": 0.8076,
-      "best_score": 0.9803,
+      "best_win_rate": 0.7857,
+      "best_score": 0.9539,
       "popular_win_rate": 0.4245,
-      "popular_score": 0.3618
+      "popular_score": 0.3615
      },
      "27000": {
-      "best_win_rate": 0.8682,
-      "best_score": 1.0794,
+      "best_win_rate": 0.8568,
+      "best_score": 1.0698,
       "popular_win_rate": 0.4271,
       "popular_score": 0.3212
      },
      "37000": {
       "best_win_rate": 0.9773,
-      "best_score": 1.2794,
-      "popular_win_rate": 0.5246,
-      "popular_score": 0.5596
+      "best_score": 1.2799,
+      "popular_win_rate": 0.5146,
+      "popular_score": 0.5404
      },
      "50000": {
       "best_win_rate": 0.8944,
-      "best_score": 1.1738,
-      "popular_win_rate": 0.5687,
-      "popular_score": 0.6213
+      "best_score": 1.1746,
+      "popular_win_rate": 0.5794,
+      "popular_score": 0.6365
      }
     },
     "all": {
@@ -982,34 +982,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.5416,
-      "best_score": 0.6075,
-      "popular_win_rate": 0.4904,
-      "popular_score": 0.4296
+      "best_win_rate": 0.5243,
+      "best_score": 0.495,
+      "popular_win_rate": 0.5,
+      "popular_score": 0.4397
      },
      "18000": {
       "best_win_rate": 0.669,
-      "best_score": 0.7759,
-      "popular_win_rate": 0.4774,
-      "popular_score": 0.4296
+      "best_score": 0.7763,
+      "popular_win_rate": 0.4868,
+      "popular_score": 0.4402
      },
      "27000": {
-      "best_win_rate": 0.8177,
-      "best_score": 1.0277,
-      "popular_win_rate": 0.514,
-      "popular_score": 0.5466
+      "best_win_rate": 0.8217,
+      "best_score": 1.0335,
+      "popular_win_rate": 0.5235,
+      "popular_score": 0.5593
      },
      "37000": {
       "best_win_rate": 0.7714,
-      "best_score": 0.949,
+      "best_score": 0.9485,
       "popular_win_rate": 0.554,
-      "popular_score": 0.5981
+      "popular_score": 0.5983
      },
      "50000": {
       "best_win_rate": 0.8565,
       "best_score": 1.0902,
-      "popular_win_rate": 0.7153,
-      "popular_score": 0.8393
+      "popular_win_rate": 0.7261,
+      "popular_score": 0.8535
      }
     },
     "all": {
@@ -1084,34 +1084,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.4767,
-      "best_score": 0.453,
+      "best_win_rate": 0.4863,
+      "best_score": 0.4618,
       "popular_win_rate": 0.2739,
-      "popular_score": 0.144
+      "popular_score": 0.1438
      },
      "18000": {
-      "best_win_rate": 0.738,
-      "best_score": 0.8794,
-      "popular_win_rate": 0.3975,
-      "popular_score": 0.2695
+      "best_win_rate": 0.719,
+      "best_score": 0.8518,
+      "popular_win_rate": 0.407,
+      "popular_score": 0.2792
      },
      "27000": {
-      "best_win_rate": 0.6846,
-      "best_score": 0.7827,
+      "best_win_rate": 0.6656,
+      "best_score": 0.7587,
       "popular_win_rate": 0.2982,
-      "popular_score": 0.1581
+      "popular_score": 0.1575
      },
      "37000": {
-      "best_win_rate": 0.8211,
-      "best_score": 1.0271,
+      "best_win_rate": 0.8173,
+      "best_score": 1.0236,
       "popular_win_rate": 0.4455,
-      "popular_score": 0.3641
+      "popular_score": 0.3617
      },
      "50000": {
-      "best_win_rate": 0.77,
-      "best_score": 0.9323,
+      "best_win_rate": 0.8075,
+      "best_score": 0.9689,
       "popular_win_rate": 0.3408,
-      "popular_score": 0.1891
+      "popular_score": 0.1882
      }
     },
     "all": {
@@ -1186,34 +1186,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.7538,
-      "best_score": 0.9056,
-      "popular_win_rate": 0.4623,
-      "popular_score": 0.4722
+      "best_win_rate": 0.719,
+      "best_score": 0.8807,
+      "popular_win_rate": 0.4664,
+      "popular_score": 0.476
      },
      "18000": {
-      "best_win_rate": 0.7347,
-      "best_score": 0.8923,
-      "popular_win_rate": 0.4541,
-      "popular_score": 0.4778
+      "best_win_rate": 0.7383,
+      "best_score": 0.8939,
+      "popular_win_rate": 0.4577,
+      "popular_score": 0.4815
      },
      "27000": {
       "best_win_rate": 0.7212,
-      "best_score": 0.8605,
-      "popular_win_rate": 0.4046,
-      "popular_score": 0.3958
+      "best_score": 0.8592,
+      "popular_win_rate": 0.4086,
+      "popular_score": 0.4
      },
      "37000": {
-      "best_win_rate": 0.8533,
-      "best_score": 1.1384,
-      "popular_win_rate": 0.4376,
-      "popular_score": 0.437
+      "best_win_rate": 0.8572,
+      "best_score": 1.1435,
+      "popular_win_rate": 0.4414,
+      "popular_score": 0.4396
      },
      "50000": {
-      "best_win_rate": 0.7624,
-      "best_score": 0.9366,
-      "popular_win_rate": 0.3431,
-      "popular_score": 0.2601
+      "best_win_rate": 0.7695,
+      "best_score": 0.956,
+      "popular_win_rate": 0.3504,
+      "popular_score": 0.2673
      }
     },
     "all": {
@@ -1288,28 +1288,28 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.6746,
-      "best_score": 0.7303,
-      "popular_win_rate": 0.5179,
-      "popular_score": 0.5136
+      "best_win_rate": 0.6675,
+      "best_score": 0.7316,
+      "popular_win_rate": 0.522,
+      "popular_score": 0.5184
      },
      "18000": {
-      "best_win_rate": 0.6347,
-      "best_score": 0.6734,
-      "popular_win_rate": 0.4674,
-      "popular_score": 0.4158
+      "best_win_rate": 0.6308,
+      "best_score": 0.6729,
+      "popular_win_rate": 0.4579,
+      "popular_score": 0.4068
      },
      "27000": {
       "best_win_rate": 0.5981,
-      "best_score": 0.6574,
+      "best_score": 0.6584,
       "popular_win_rate": 0.4982,
-      "popular_score": 0.4911
+      "popular_score": 0.4916
      },
      "37000": {
       "best_win_rate": 0.6811,
-      "best_score": 0.8029,
+      "best_score": 0.8023,
       "popular_win_rate": 0.4506,
-      "popular_score": 0.476
+      "popular_score": 0.4771
      },
      "50000": {
       "best_win_rate": 0.6712,
@@ -1390,34 +1390,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.7163,
-      "best_score": 0.8102,
-      "popular_win_rate": 0.5547,
-      "popular_score": 0.6071
+      "best_win_rate": 0.7012,
+      "best_score": 0.7912,
+      "popular_win_rate": 0.5396,
+      "popular_score": 0.5893
      },
      "18000": {
-      "best_win_rate": 0.8156,
-      "best_score": 0.9973,
-      "popular_win_rate": 0.5017,
-      "popular_score": 0.5286
+      "best_win_rate": 0.7928,
+      "best_score": 0.9862,
+      "popular_win_rate": 0.5054,
+      "popular_score": 0.5321
      },
      "27000": {
-      "best_win_rate": 0.802,
-      "best_score": 0.9935,
+      "best_win_rate": 0.821,
+      "best_score": 1.015,
       "popular_win_rate": 0.4551,
-      "popular_score": 0.4526
+      "popular_score": 0.4529
      },
      "37000": {
-      "best_win_rate": 0.8363,
-      "best_score": 1.1717,
-      "popular_win_rate": 0.501,
-      "popular_score": 0.4995
+      "best_win_rate": 0.7406,
+      "best_score": 0.8583,
+      "popular_win_rate": 0.491,
+      "popular_score": 0.4897
      },
      "50000": {
       "best_win_rate": 0.8285,
-      "best_score": 1.1165,
-      "popular_win_rate": 0.5427,
-      "popular_score": 0.6217
+      "best_score": 1.1181,
+      "popular_win_rate": 0.5463,
+      "popular_score": 0.6265
      }
     },
     "all": {
@@ -1492,34 +1492,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.5306,
-      "best_score": 0.5848,
+      "best_win_rate": 0.5347,
+      "best_score": 0.5885,
       "popular_win_rate": 0.243,
-      "popular_score": 0.1653
+      "popular_score": 0.1652
      },
      "18000": {
-      "best_win_rate": 0.5471,
-      "best_score": 0.4949,
+      "best_win_rate": 0.5376,
+      "best_score": 0.4841,
       "popular_win_rate": 0.328,
-      "popular_score": 0.1953
+      "popular_score": 0.1941
      },
      "27000": {
-      "best_win_rate": 0.7591,
-      "best_score": 0.9201,
+      "best_win_rate": 0.763,
+      "best_score": 0.929,
       "popular_win_rate": 0.3957,
-      "popular_score": 0.3394
+      "popular_score": 0.3392
      },
      "37000": {
-      "best_win_rate": 0.6953,
-      "best_score": 0.8994,
+      "best_win_rate": 0.7151,
+      "best_score": 0.8877,
       "popular_win_rate": 0.4541,
-      "popular_score": 0.4399
+      "popular_score": 0.4387
      },
      "50000": {
-      "best_win_rate": 0.8625,
-      "best_score": 1.127,
-      "popular_win_rate": 0.4663,
-      "popular_score": 0.4685
+      "best_win_rate": 0.8388,
+      "best_score": 1.0766,
+      "popular_win_rate": 0.4699,
+      "popular_score": 0.4726
      }
     },
     "all": {
@@ -1594,34 +1594,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.6797,
-      "best_score": 0.8372,
+      "best_win_rate": 0.7492,
+      "best_score": 0.9175,
       "popular_win_rate": 0.4616,
-      "popular_score": 0.497
+      "popular_score": 0.4971
      },
      "18000": {
-      "best_win_rate": 0.8174,
-      "best_score": 1.0459,
+      "best_win_rate": 0.8115,
+      "best_score": 1.0385,
       "popular_win_rate": 0.4989,
       "popular_score": 0.5478
      },
      "27000": {
       "best_win_rate": 0.8892,
-      "best_score": 1.1978,
+      "best_score": 1.2001,
       "popular_win_rate": 0.5078,
-      "popular_score": 0.5601
+      "popular_score": 0.5606
      },
      "37000": {
       "best_win_rate": 0.9143,
-      "best_score": 1.2221,
-      "popular_win_rate": 0.5275,
-      "popular_score": 0.5383
+      "best_score": 1.2241,
+      "popular_win_rate": 0.5413,
+      "popular_score": 0.5538
      },
      "50000": {
       "best_win_rate": 0.9637,
-      "best_score": 1.2871,
+      "best_score": 1.2873,
       "popular_win_rate": 0.6637,
-      "popular_score": 0.8193
+      "popular_score": 0.8214
      }
     },
     "all": {
@@ -1696,34 +1696,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.9284,
-      "best_score": 1.2255,
+      "best_win_rate": 0.9092,
+      "best_score": 1.2007,
       "popular_win_rate": 0.8743,
-      "popular_score": 1.1301
+      "popular_score": 1.1284
      },
      "18000": {
-      "best_win_rate": 1.0,
-      "best_score": 1.3436,
+      "best_win_rate": 0.9848,
+      "best_score": 1.3321,
       "popular_win_rate": 0.8998,
-      "popular_score": 1.1608
+      "popular_score": 1.1583
      },
      "27000": {
-      "best_win_rate": 0.9904,
-      "best_score": 1.3852,
-      "popular_win_rate": 0.9212,
-      "popular_score": 1.2271
+      "best_win_rate": 0.9755,
+      "best_score": 1.3222,
+      "popular_win_rate": 0.9022,
+      "popular_score": 1.2012
      },
      "37000": {
-      "best_win_rate": 0.9804,
-      "best_score": 1.3485,
-      "popular_win_rate": 0.8697,
-      "popular_score": 1.1293
+      "best_win_rate": 0.9887,
+      "best_score": 1.3742,
+      "popular_win_rate": 0.8736,
+      "popular_score": 1.1322
      },
      "50000": {
       "best_win_rate": 1.0,
-      "best_score": 1.3915,
-      "popular_win_rate": 0.8281,
-      "popular_score": 1.0496
+      "best_score": 1.3898,
+      "popular_win_rate": 0.8067,
+      "popular_score": 1.022
      }
     },
     "all": {
@@ -1799,33 +1799,33 @@
     "phantom": {
      "10000": {
       "best_win_rate": 0.5657,
-      "best_score": 0.6569,
+      "best_score": 0.6548,
       "popular_win_rate": 0.3807,
-      "popular_score": 0.3187
+      "popular_score": 0.3173
      },
      "18000": {
       "best_win_rate": 0.6383,
-      "best_score": 0.729,
+      "best_score": 0.7282,
       "popular_win_rate": 0.3755,
-      "popular_score": 0.3195
+      "popular_score": 0.3183
      },
      "27000": {
-      "best_win_rate": 0.6055,
-      "best_score": 0.8041,
+      "best_win_rate": 0.5879,
+      "best_score": 0.7828,
       "popular_win_rate": 0.4042,
-      "popular_score": 0.3125
+      "popular_score": 0.3116
      },
      "37000": {
-      "best_win_rate": 0.8591,
-      "best_score": 1.1399,
+      "best_win_rate": 0.9286,
+      "best_score": 1.2292,
       "popular_win_rate": 0.4351,
-      "popular_score": 0.4651
+      "popular_score": 0.4647
      },
      "50000": {
-      "best_win_rate": 0.7872,
-      "best_score": 1.0458,
+      "best_win_rate": 0.7485,
+      "best_score": 1.0055,
       "popular_win_rate": 0.418,
-      "popular_score": 0.4068
+      "popular_score": 0.4067
      }
     },
     "all": {
@@ -1901,33 +1901,33 @@
     "phantom": {
      "10000": {
       "best_win_rate": 0.6151,
-      "best_score": 0.6634,
+      "best_score": 0.662,
       "popular_win_rate": 0.4817,
-      "popular_score": 0.4726
+      "popular_score": 0.4712
      },
      "18000": {
       "best_win_rate": 0.8204,
-      "best_score": 0.9683,
+      "best_score": 0.9674,
       "popular_win_rate": 0.4195,
-      "popular_score": 0.3588
+      "popular_score": 0.3578
      },
      "27000": {
-      "best_win_rate": 0.8639,
-      "best_score": 1.1113,
+      "best_win_rate": 0.8489,
+      "best_score": 1.092,
       "popular_win_rate": 0.5212,
-      "popular_score": 0.5322
+      "popular_score": 0.5314
      },
      "37000": {
-      "best_win_rate": 0.7978,
-      "best_score": 0.9978,
+      "best_win_rate": 0.8283,
+      "best_score": 1.0624,
       "popular_win_rate": 0.515,
-      "popular_score": 0.5058
+      "popular_score": 0.5037
      },
      "50000": {
       "best_win_rate": 0.8608,
-      "best_score": 1.1277,
+      "best_score": 1.1265,
       "popular_win_rate": 0.5465,
-      "popular_score": 0.6031
+      "popular_score": 0.6037
      }
     },
     "all": {
@@ -2002,34 +2002,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.8138,
-      "best_score": 1.0553,
-      "popular_win_rate": 0.6708,
-      "popular_score": 0.8814
+      "best_win_rate": 0.7987,
+      "best_score": 1.0351,
+      "popular_win_rate": 0.6556,
+      "popular_score": 0.861
      },
      "18000": {
       "best_win_rate": 0.8578,
-      "best_score": 1.1378,
+      "best_score": 1.1351,
       "popular_win_rate": 0.6159,
-      "popular_score": 0.7862
+      "popular_score": 0.7887
      },
      "27000": {
-      "best_win_rate": 0.8708,
-      "best_score": 1.1629,
+      "best_win_rate": 0.8677,
+      "best_score": 1.1642,
       "popular_win_rate": 0.5431,
-      "popular_score": 0.6783
+      "popular_score": 0.6767
      },
      "37000": {
-      "best_win_rate": 0.8526,
-      "best_score": 1.1142,
+      "best_win_rate": 0.8565,
+      "best_score": 1.1163,
       "popular_win_rate": 0.6174,
-      "popular_score": 0.7449
+      "popular_score": 0.7441
      },
      "50000": {
-      "best_win_rate": 0.9066,
-      "best_score": 1.1878,
-      "popular_win_rate": 0.586,
-      "popular_score": 0.6662
+      "best_win_rate": 0.7466,
+      "best_score": 0.9281,
+      "popular_win_rate": 0.5896,
+      "popular_score": 0.6708
      }
     },
     "all": {
@@ -2104,34 +2104,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.8747,
-      "best_score": 1.1241,
+      "best_win_rate": 0.8707,
+      "best_score": 1.1181,
       "popular_win_rate": 0.6689,
-      "popular_score": 0.7752
+      "popular_score": 0.7738
      },
      "18000": {
-      "best_win_rate": 0.8685,
-      "best_score": 1.0921,
-      "popular_win_rate": 0.684,
-      "popular_score": 0.7784
+      "best_win_rate": 0.9289,
+      "best_score": 1.1978,
+      "popular_win_rate": 0.6876,
+      "popular_score": 0.7814
      },
      "27000": {
-      "best_win_rate": 0.8442,
-      "best_score": 1.0787,
-      "popular_win_rate": 0.6597,
-      "popular_score": 0.7737
+      "best_win_rate": 0.8213,
+      "best_score": 1.0507,
+      "popular_win_rate": 0.6636,
+      "popular_score": 0.7778
      },
      "37000": {
-      "best_win_rate": 0.9773,
-      "best_score": 1.3214,
+      "best_win_rate": 0.8438,
+      "best_score": 1.1115,
       "popular_win_rate": 0.3859,
       "popular_score": 0.3687
      },
      "50000": {
       "best_win_rate": 0.8343,
-      "best_score": 1.086,
-      "popular_win_rate": 0.4761,
-      "popular_score": 0.4341
+      "best_score": 1.0851,
+      "popular_win_rate": 0.4654,
+      "popular_score": 0.4221
      }
     },
     "all": {
@@ -2206,34 +2206,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.76,
-      "best_score": 0.889,
+      "best_win_rate": 0.7559,
+      "best_score": 0.882,
       "popular_win_rate": 0.4275,
-      "popular_score": 0.3961
+      "popular_score": 0.3959
      },
      "18000": {
-      "best_win_rate": 0.8415,
-      "best_score": 1.0407,
+      "best_win_rate": 0.8802,
+      "best_score": 1.1099,
       "popular_win_rate": 0.5448,
-      "popular_score": 0.561
+      "popular_score": 0.5613
      },
      "27000": {
-      "best_win_rate": 0.8958,
-      "best_score": 1.1499,
+      "best_win_rate": 0.8491,
+      "best_score": 1.1065,
       "popular_win_rate": 0.4786,
-      "popular_score": 0.4739
+      "popular_score": 0.4737
      },
      "37000": {
-      "best_win_rate": 0.8889,
-      "best_score": 1.1147,
-      "popular_win_rate": 0.5257,
-      "popular_score": 0.5296
+      "best_win_rate": 0.8687,
+      "best_score": 1.1162,
+      "popular_win_rate": 0.5295,
+      "popular_score": 0.5341
      },
      "50000": {
-      "best_win_rate": 0.8251,
-      "best_score": 1.0488,
-      "popular_win_rate": 0.4941,
-      "popular_score": 0.4761
+      "best_win_rate": 0.8392,
+      "best_score": 1.0514,
+      "popular_win_rate": 0.4977,
+      "popular_score": 0.4803
      }
     },
     "all": {
@@ -2308,34 +2308,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.7069,
-      "best_score": 0.8563,
+      "best_win_rate": 0.6973,
+      "best_score": 0.8411,
       "popular_win_rate": 0.3633,
-      "popular_score": 0.3405
+      "popular_score": 0.3407
      },
      "18000": {
       "best_win_rate": 0.9369,
-      "best_score": 1.2104,
+      "best_score": 1.2088,
       "popular_win_rate": 0.5075,
-      "popular_score": 0.5282
+      "popular_score": 0.5276
      },
      "27000": {
       "best_win_rate": 0.9022,
-      "best_score": 1.1859,
-      "popular_win_rate": 0.5037,
-      "popular_score": 0.5009
+      "best_score": 1.186,
+      "popular_win_rate": 0.5077,
+      "popular_score": 0.5061
      },
      "37000": {
       "best_win_rate": 0.9531,
-      "best_score": 1.2578,
+      "best_score": 1.258,
       "popular_win_rate": 0.5882,
-      "popular_score": 0.6417
+      "popular_score": 0.6418
      },
      "50000": {
-      "best_win_rate": 0.9224,
-      "best_score": 1.252,
+      "best_win_rate": 0.9217,
+      "best_score": 1.2492,
       "popular_win_rate": 0.6462,
-      "popular_score": 0.6911
+      "popular_score": 0.6903
      }
     },
     "all": {
@@ -2410,34 +2410,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.6756,
-      "best_score": 0.7579,
+      "best_win_rate": 0.6796,
+      "best_score": 0.7614,
       "popular_win_rate": 0.3902,
       "popular_score": 0.3053
      },
      "18000": {
-      "best_win_rate": 0.8096,
-      "best_score": 0.9793,
+      "best_win_rate": 0.7978,
+      "best_score": 0.9738,
       "popular_win_rate": 0.5191,
-      "popular_score": 0.5337
+      "popular_score": 0.5317
      },
      "27000": {
-      "best_win_rate": 0.8121,
-      "best_score": 1.0183,
+      "best_win_rate": 0.8161,
+      "best_score": 1.0206,
       "popular_win_rate": 0.4722,
-      "popular_score": 0.5024
+      "popular_score": 0.5027
      },
      "37000": {
-      "best_win_rate": 0.8655,
-      "best_score": 1.1103,
-      "popular_win_rate": 0.7058,
-      "popular_score": 0.8504
+      "best_win_rate": 0.8594,
+      "best_score": 1.1007,
+      "popular_win_rate": 0.6897,
+      "popular_score": 0.8291
      },
      "50000": {
-      "best_win_rate": 0.8769,
-      "best_score": 1.153,
-      "popular_win_rate": 0.6109,
-      "popular_score": 0.7176
+      "best_win_rate": 0.8698,
+      "best_score": 1.1383,
+      "popular_win_rate": 0.6037,
+      "popular_score": 0.7082
      }
     },
     "all": {
@@ -2513,33 +2513,33 @@
     "phantom": {
      "10000": {
       "best_win_rate": 0.6489,
-      "best_score": 0.7114,
+      "best_score": 0.7102,
       "popular_win_rate": 0.4484,
-      "popular_score": 0.3721
+      "popular_score": 0.3714
      },
      "18000": {
-      "best_win_rate": 0.6186,
-      "best_score": 0.7013,
+      "best_win_rate": 0.6564,
+      "best_score": 0.7476,
       "popular_win_rate": 0.2944,
-      "popular_score": 0.1501
+      "popular_score": 0.1493
      },
      "27000": {
-      "best_win_rate": 0.7788,
-      "best_score": 0.9535,
+      "best_win_rate": 0.7883,
+      "best_score": 0.9622,
       "popular_win_rate": 0.3447,
-      "popular_score": 0.2185
+      "popular_score": 0.2184
      },
      "37000": {
-      "best_win_rate": 0.8802,
-      "best_score": 1.1654,
-      "popular_win_rate": 0.3984,
-      "popular_score": 0.3103
+      "best_win_rate": 0.8638,
+      "best_score": 1.1077,
+      "popular_win_rate": 0.4022,
+      "popular_score": 0.313
      },
      "50000": {
       "best_win_rate": 0.8346,
-      "best_score": 1.0839,
+      "best_score": 1.0805,
       "popular_win_rate": 0.4503,
-      "popular_score": 0.3385
+      "popular_score": 0.3386
      }
     },
     "all": {
@@ -2615,33 +2615,33 @@
     "phantom": {
      "10000": {
       "best_win_rate": 0.6713,
-      "best_score": 0.8357,
-      "popular_win_rate": 0.527,
-      "popular_score": 0.6033
+      "best_score": 0.837,
+      "popular_win_rate": 0.5462,
+      "popular_score": 0.6274
      },
      "18000": {
       "best_win_rate": 0.7436,
-      "best_score": 0.8885,
+      "best_score": 0.8905,
       "popular_win_rate": 0.5678,
-      "popular_score": 0.625
+      "popular_score": 0.6265
      },
      "27000": {
       "best_win_rate": 0.9477,
-      "best_score": 1.2814,
-      "popular_win_rate": 0.6404,
-      "popular_score": 0.7209
+      "best_score": 1.2831,
+      "popular_win_rate": 0.6554,
+      "popular_score": 0.7415
      },
      "37000": {
       "best_win_rate": 0.8901,
-      "best_score": 1.2475,
-      "popular_win_rate": 0.781,
-      "popular_score": 0.9951
+      "best_score": 1.2485,
+      "popular_win_rate": 0.791,
+      "popular_score": 1.0108
      },
      "50000": {
       "best_win_rate": 0.9122,
-      "best_score": 1.2468,
+      "best_score": 1.2487,
       "popular_win_rate": 0.8351,
-      "popular_score": 1.1124
+      "popular_score": 1.1147
      }
     },
     "all": {
@@ -2716,34 +2716,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.6177,
-      "best_score": 0.6957,
-      "popular_win_rate": 0.2673,
-      "popular_score": 0.2058
+      "best_win_rate": 0.6217,
+      "best_score": 0.7,
+      "popular_win_rate": 0.2618,
+      "popular_score": 0.2008
      },
      "18000": {
-      "best_win_rate": 0.706,
-      "best_score": 0.8398,
+      "best_win_rate": 0.7148,
+      "best_score": 0.8429,
       "popular_win_rate": 0.2361,
-      "popular_score": 0.1078
+      "popular_score": 0.1084
      },
      "27000": {
-      "best_win_rate": 0.6149,
-      "best_score": 0.6587,
+      "best_win_rate": 0.6244,
+      "best_score": 0.6683,
       "popular_win_rate": 0.2276,
-      "popular_score": 0.1045
+      "popular_score": 0.1038
      },
      "37000": {
-      "best_win_rate": 0.7741,
-      "best_score": 1.004,
+      "best_win_rate": 0.6347,
+      "best_score": 0.7244,
       "popular_win_rate": 0.1713,
-      "popular_score": 0.0243
+      "popular_score": 0.0235
      },
      "50000": {
-      "best_win_rate": 0.8942,
-      "best_score": 1.2053,
-      "popular_win_rate": 0.2366,
-      "popular_score": 0.1329
+      "best_win_rate": 0.9014,
+      "best_score": 1.2158,
+      "popular_win_rate": 0.2402,
+      "popular_score": 0.1363
      }
     },
     "all": {
@@ -2818,34 +2818,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.8769,
-      "best_score": 1.1311,
+      "best_win_rate": 0.9112,
+      "best_score": 1.1659,
       "popular_win_rate": 0.7305,
-      "popular_score": 0.8613
+      "popular_score": 0.86
      },
      "18000": {
-      "best_win_rate": 0.817,
-      "best_score": 0.9986,
+      "best_win_rate": 0.8173,
+      "best_score": 1.003,
       "popular_win_rate": 0.7344,
-      "popular_score": 0.8463
+      "popular_score": 0.8458
      },
      "27000": {
-      "best_win_rate": 0.9228,
-      "best_score": 1.1902,
+      "best_win_rate": 0.9038,
+      "best_score": 1.1663,
       "popular_win_rate": 0.7394,
-      "popular_score": 0.8879
+      "popular_score": 0.8872
      },
      "37000": {
-      "best_win_rate": 0.8764,
-      "best_score": 1.1276,
-      "popular_win_rate": 0.5632,
-      "popular_score": 0.6362
+      "best_win_rate": 0.8726,
+      "best_score": 1.1207,
+      "popular_win_rate": 0.5709,
+      "popular_score": 0.6435
      },
      "50000": {
-      "best_win_rate": 0.8994,
-      "best_score": 1.1399,
+      "best_win_rate": 0.9066,
+      "best_score": 1.149,
       "popular_win_rate": 0.5397,
-      "popular_score": 0.553
+      "popular_score": 0.552
      }
     },
     "all": {
@@ -2921,33 +2921,33 @@
     "phantom": {
      "10000": {
       "best_win_rate": 0.9686,
-      "best_score": 1.3602,
+      "best_score": 1.3597,
       "popular_win_rate": 0.8984,
-      "popular_score": 1.2293
+      "popular_score": 1.2283
      },
      "18000": {
       "best_win_rate": 0.9563,
       "best_score": 1.2255,
       "popular_win_rate": 0.8873,
-      "popular_score": 1.1538
+      "popular_score": 1.1529
      },
      "27000": {
       "best_win_rate": 0.9707,
-      "best_score": 1.3381,
+      "best_score": 1.3383,
       "popular_win_rate": 0.8562,
-      "popular_score": 1.1259
+      "popular_score": 1.1258
      },
      "37000": {
       "best_win_rate": 0.9816,
-      "best_score": 1.424,
+      "best_score": 1.4235,
       "popular_win_rate": 0.8596,
-      "popular_score": 1.1476
+      "popular_score": 1.1474
      },
      "50000": {
       "best_win_rate": 0.9891,
-      "best_score": 1.4112,
+      "best_score": 1.4113,
       "popular_win_rate": 0.8163,
-      "popular_score": 1.1134
+      "popular_score": 1.1115
      }
     },
     "all": {
@@ -3022,32 +3022,32 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.9524,
-      "best_score": 1.2358,
-      "popular_win_rate": 0.6865,
-      "popular_score": 0.781
+      "best_win_rate": 0.9157,
+      "best_score": 1.2064,
+      "popular_win_rate": 0.6673,
+      "popular_score": 0.751
      },
      "18000": {
       "best_win_rate": 0.9429,
-      "best_score": 1.2181,
-      "popular_win_rate": 0.5957,
-      "popular_score": 0.6174
+      "best_score": 1.2179,
+      "popular_win_rate": 0.5863,
+      "popular_score": 0.6072
      },
      "27000": {
       "best_win_rate": 0.9289,
       "best_score": 1.2004,
       "popular_win_rate": 0.5918,
-      "popular_score": 0.661
+      "popular_score": 0.6616
      },
      "37000": {
-      "best_win_rate": 0.9717,
-      "best_score": 1.2973,
-      "popular_win_rate": 0.7101,
-      "popular_score": 0.841
+      "best_win_rate": 0.9751,
+      "best_score": 1.2963,
+      "popular_win_rate": 0.7001,
+      "popular_score": 0.8275
      },
      "50000": {
       "best_win_rate": 0.9849,
-      "best_score": 1.2772,
+      "best_score": 1.2754,
       "popular_win_rate": 0.692,
       "popular_score": 0.8321
      }
@@ -3124,34 +3124,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.8067,
-      "best_score": 1.0222,
-      "popular_win_rate": 0.4583,
-      "popular_score": 0.4644
+      "best_win_rate": 0.7971,
+      "best_score": 1.0103,
+      "popular_win_rate": 0.4624,
+      "popular_score": 0.4674
      },
      "18000": {
       "best_win_rate": 0.8097,
-      "best_score": 1.0391,
+      "best_score": 1.0371,
       "popular_win_rate": 0.4231,
-      "popular_score": 0.38
+      "popular_score": 0.3797
      },
      "27000": {
-      "best_win_rate": 0.8767,
-      "best_score": 1.1296,
+      "best_win_rate": 0.8577,
+      "best_score": 1.1051,
       "popular_win_rate": 0.4435,
-      "popular_score": 0.42
+      "popular_score": 0.4203
      },
      "37000": {
       "best_win_rate": 0.9035,
-      "best_score": 1.223,
-      "popular_win_rate": 0.3747,
-      "popular_score": 0.2483
+      "best_score": 1.2241,
+      "popular_win_rate": 0.3708,
+      "popular_score": 0.2434
      },
      "50000": {
-      "best_win_rate": 0.8614,
-      "best_score": 1.1107,
+      "best_win_rate": 0.8164,
+      "best_score": 1.0981,
       "popular_win_rate": 0.3119,
-      "popular_score": 0.1827
+      "popular_score": 0.1828
      }
     },
     "all": {
@@ -3227,31 +3227,31 @@
     "phantom": {
      "10000": {
       "best_win_rate": 0.7032,
-      "best_score": 0.8159,
+      "best_score": 0.8152,
       "popular_win_rate": 0.3227,
-      "popular_score": 0.2415
+      "popular_score": 0.2413
      },
      "18000": {
-      "best_win_rate": 0.6392,
-      "best_score": 0.6998,
+      "best_win_rate": 0.6175,
+      "best_score": 0.7129,
       "popular_win_rate": 0.4114,
-      "popular_score": 0.3312
+      "popular_score": 0.331
      },
      "27000": {
       "best_win_rate": 0.5307,
-      "best_score": 0.5399,
+      "best_score": 0.5388,
       "popular_win_rate": 0.2955,
-      "popular_score": 0.1426
+      "popular_score": 0.1429
      },
      "37000": {
-      "best_win_rate": 0.7608,
-      "best_score": 0.8998,
-      "popular_win_rate": 0.3556,
-      "popular_score": 0.2264
+      "best_win_rate": 0.7311,
+      "best_score": 0.8216,
+      "popular_win_rate": 0.3518,
+      "popular_score": 0.2218
      },
      "50000": {
-      "best_win_rate": 0.7047,
-      "best_score": 0.8267,
+      "best_win_rate": 0.6668,
+      "best_score": 0.7024,
       "popular_win_rate": 0.4155,
       "popular_score": 0.263
      }
@@ -3328,34 +3328,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.7943,
-      "best_score": 0.99,
-      "popular_win_rate": 0.5099,
-      "popular_score": 0.5256
+      "best_win_rate": 0.8123,
+      "best_score": 1.0159,
+      "popular_win_rate": 0.5003,
+      "popular_score": 0.5147
      },
      "18000": {
-      "best_win_rate": 0.935,
-      "best_score": 1.3149,
+      "best_win_rate": 0.9246,
+      "best_score": 1.3105,
       "popular_win_rate": 0.7149,
-      "popular_score": 0.9535
+      "popular_score": 0.9508
      },
      "27000": {
       "best_win_rate": 0.9508,
-      "best_score": 1.3382,
+      "best_score": 1.3375,
       "popular_win_rate": 0.755,
-      "popular_score": 1.0631
+      "popular_score": 1.0627
      },
      "37000": {
-      "best_win_rate": 0.8699,
-      "best_score": 1.2065,
-      "popular_win_rate": 0.729,
-      "popular_score": 0.9538
+      "best_win_rate": 0.8788,
+      "best_score": 1.242,
+      "popular_win_rate": 0.719,
+      "popular_score": 0.945
      },
      "50000": {
-      "best_win_rate": 0.8907,
-      "best_score": 1.2812,
-      "popular_win_rate": 0.7267,
-      "popular_score": 0.9828
+      "best_win_rate": 0.9064,
+      "best_score": 1.304,
+      "popular_win_rate": 0.7375,
+      "popular_score": 0.9948
      }
     },
     "all": {
@@ -3430,34 +3430,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.9961,
-      "best_score": 1.4114,
-      "popular_win_rate": 0.7997,
-      "popular_score": 1.013
+      "best_win_rate": 0.9721,
+      "best_score": 1.3744,
+      "popular_win_rate": 0.8215,
+      "popular_score": 1.0672
      },
      "18000": {
-      "best_win_rate": 0.9607,
-      "best_score": 1.3481,
-      "popular_win_rate": 0.7764,
-      "popular_score": 0.9439
+      "best_win_rate": 0.9902,
+      "best_score": 1.4313,
+      "popular_win_rate": 0.8196,
+      "popular_score": 1.0429
      },
      "27000": {
-      "best_win_rate": 1.0,
-      "best_score": 1.4253,
-      "popular_win_rate": 0.6944,
-      "popular_score": 0.8801
+      "best_win_rate": 0.9913,
+      "best_score": 1.4371,
+      "popular_win_rate": 0.8465,
+      "popular_score": 1.0913
      },
      "37000": {
-      "best_win_rate": 0.9955,
-      "best_score": 1.4355,
-      "popular_win_rate": 0.6457,
-      "popular_score": 0.7873
+      "best_win_rate": 1.0,
+      "best_score": 1.4766,
+      "popular_win_rate": 0.7443,
+      "popular_score": 0.9426
      },
      "50000": {
-      "best_win_rate": 0.9889,
-      "best_score": 1.4365,
-      "popular_win_rate": 0.825,
-      "popular_score": 1.0755
+      "best_win_rate": 0.9827,
+      "best_score": 1.4297,
+      "popular_win_rate": 0.8073,
+      "popular_score": 1.0896
      }
     },
     "all": {
@@ -3532,34 +3532,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.9273,
-      "best_score": 1.2891,
-      "popular_win_rate": 0.8951,
-      "popular_score": 1.2082
+      "best_win_rate": 0.9432,
+      "best_score": 1.2999,
+      "popular_win_rate": 0.9048,
+      "popular_score": 1.2205
      },
      "18000": {
-      "best_win_rate": 0.9311,
-      "best_score": 1.2712,
-      "popular_win_rate": 0.7718,
-      "popular_score": 1.0434
+      "best_win_rate": 0.9312,
+      "best_score": 1.2601,
+      "popular_win_rate": 0.7754,
+      "popular_score": 1.0459
      },
      "27000": {
-      "best_win_rate": 0.8953,
-      "best_score": 1.2264,
-      "popular_win_rate": 0.8109,
-      "popular_score": 1.1162
+      "best_win_rate": 0.891,
+      "best_score": 1.2229,
+      "popular_win_rate": 0.807,
+      "popular_score": 1.1121
      },
      "37000": {
       "best_win_rate": 0.9428,
-      "best_score": 1.2959,
+      "best_score": 1.2962,
       "popular_win_rate": 0.7864,
-      "popular_score": 1.0682
+      "popular_score": 1.0687
      },
      "50000": {
       "best_win_rate": 0.9879,
-      "best_score": 1.3585,
+      "best_score": 1.3586,
       "popular_win_rate": 0.7391,
-      "popular_score": 0.9879
+      "popular_score": 0.9896
      }
     },
     "all": {
@@ -3635,33 +3635,33 @@
     "phantom": {
      "10000": {
       "best_win_rate": 0.8737,
-      "best_score": 1.1434,
-      "popular_win_rate": 0.654,
-      "popular_score": 0.7722
+      "best_score": 1.1416,
+      "popular_win_rate": 0.6581,
+      "popular_score": 0.775
      },
      "18000": {
-      "best_win_rate": 0.9135,
-      "best_score": 1.2173,
+      "best_win_rate": 0.932,
+      "best_score": 1.2862,
       "popular_win_rate": 0.6526,
-      "popular_score": 0.8163
+      "popular_score": 0.8143
      },
      "27000": {
       "best_win_rate": 1.0,
-      "best_score": 1.3951,
+      "best_score": 1.3954,
       "popular_win_rate": 0.8744,
-      "popular_score": 1.1743
+      "popular_score": 1.1762
      },
      "37000": {
       "best_win_rate": 0.966,
-      "best_score": 1.3414,
+      "best_score": 1.3412,
       "popular_win_rate": 0.8486,
-      "popular_score": 1.149
+      "popular_score": 1.1492
      },
      "50000": {
       "best_win_rate": 0.9889,
-      "best_score": 1.3873,
-      "popular_win_rate": 0.7207,
-      "popular_score": 0.9633
+      "best_score": 1.3878,
+      "popular_win_rate": 0.7243,
+      "popular_score": 0.9689
      }
     },
     "all": {
@@ -3736,34 +3736,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.4487,
-      "best_score": 0.3273,
+      "best_win_rate": 0.4404,
+      "best_score": 0.3135,
       "popular_win_rate": 0.254,
       "popular_score": 0.0643
      },
      "18000": {
       "best_win_rate": 0.4493,
-      "best_score": 0.3233,
-      "popular_win_rate": 0.2352,
-      "popular_score": 0.028
+      "best_score": 0.3227,
+      "popular_win_rate": 0.2257,
+      "popular_score": 0.0178
      },
      "27000": {
       "best_win_rate": 0.5453,
-      "best_score": 0.6107,
-      "popular_win_rate": 0.2633,
-      "popular_score": 0.0432
+      "best_score": 0.6105,
+      "popular_win_rate": 0.2672,
+      "popular_score": 0.0473
      },
      "37000": {
       "best_win_rate": 0.5,
-      "best_score": 0.4359,
+      "best_score": 0.4346,
       "popular_win_rate": 0.2456,
-      "popular_score": 0.027
+      "popular_score": 0.0269
      },
      "50000": {
-      "best_win_rate": 0.4893,
-      "best_score": 0.521,
+      "best_win_rate": 0.4904,
+      "best_score": 0.4996,
       "popular_win_rate": 0.0705,
-      "popular_score": -0.1618
+      "popular_score": -0.1617
      }
     },
     "all": {
@@ -3838,34 +3838,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.915,
-      "best_score": 1.2718,
-      "popular_win_rate": 0.8362,
-      "popular_score": 1.1614
+      "best_win_rate": 0.9094,
+      "best_score": 1.2561,
+      "popular_win_rate": 0.817,
+      "popular_score": 1.1314
      },
      "18000": {
-      "best_win_rate": 0.9513,
-      "best_score": 1.3227,
-      "popular_win_rate": 0.9239,
-      "popular_score": 1.2934
+      "best_win_rate": 0.9359,
+      "best_score": 1.2977,
+      "popular_win_rate": 0.9086,
+      "popular_score": 1.2689
      },
      "27000": {
-      "best_win_rate": 0.9392,
-      "best_score": 1.2966,
-      "popular_win_rate": 0.9116,
-      "popular_score": 1.2548
+      "best_win_rate": 0.9679,
+      "best_score": 1.3551,
+      "popular_win_rate": 0.8966,
+      "popular_score": 1.2309
      },
      "37000": {
-      "best_win_rate": 0.9406,
-      "best_score": 1.3142,
-      "popular_win_rate": 0.7707,
-      "popular_score": 1.0092
+      "best_win_rate": 0.9338,
+      "best_score": 1.2999,
+      "popular_win_rate": 0.7646,
+      "popular_score": 0.9976
      },
      "50000": {
-      "best_win_rate": 0.8773,
-      "best_score": 1.1737,
-      "popular_win_rate": 0.8255,
-      "popular_score": 1.064
+      "best_win_rate": 0.8631,
+      "best_score": 1.1501,
+      "popular_win_rate": 0.804,
+      "popular_score": 1.0316
      }
     },
     "all": {
@@ -3940,34 +3940,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.8793,
-      "best_score": 1.1755,
-      "popular_win_rate": 0.6544,
-      "popular_score": 0.7874
+      "best_win_rate": 0.8627,
+      "best_score": 1.1528,
+      "popular_win_rate": 0.6585,
+      "popular_score": 0.7913
      },
      "18000": {
-      "best_win_rate": 0.8783,
-      "best_score": 1.2,
+      "best_win_rate": 0.8688,
+      "best_score": 1.1881,
       "popular_win_rate": 0.5439,
-      "popular_score": 0.6494
+      "popular_score": 0.6482
      },
      "27000": {
-      "best_win_rate": 0.945,
-      "best_score": 1.318,
-      "popular_win_rate": 0.4596,
-      "popular_score": 0.5001
+      "best_win_rate": 0.9555,
+      "best_score": 1.3337,
+      "popular_win_rate": 0.4501,
+      "popular_score": 0.49
      },
      "37000": {
-      "best_win_rate": 0.9082,
-      "best_score": 1.2714,
+      "best_win_rate": 0.9159,
+      "best_score": 1.2827,
       "popular_win_rate": 0.5603,
-      "popular_score": 0.6204
+      "popular_score": 0.6202
      },
      "50000": {
-      "best_win_rate": 0.9666,
-      "best_score": 1.3198,
+      "best_win_rate": 0.9573,
+      "best_score": 1.2566,
       "popular_win_rate": 0.5393,
-      "popular_score": 0.5827
+      "popular_score": 0.5815
      }
     },
     "all": {
@@ -4042,34 +4042,34 @@
    "brackets": {
     "phantom": {
      "10000": {
-      "best_win_rate": 0.8236,
-      "best_score": 1.0335,
+      "best_win_rate": 0.8181,
+      "best_score": 1.026,
       "popular_win_rate": 0.5684,
       "popular_score": 0.625
      },
      "18000": {
-      "best_win_rate": 0.8435,
-      "best_score": 1.0823,
-      "popular_win_rate": 0.5301,
-      "popular_score": 0.5762
+      "best_win_rate": 0.9246,
+      "best_score": 1.2056,
+      "popular_win_rate": 0.5206,
+      "popular_score": 0.5659
      },
      "27000": {
-      "best_win_rate": 0.9149,
-      "best_score": 1.202,
+      "best_win_rate": 0.8731,
+      "best_score": 1.1373,
       "popular_win_rate": 0.6279,
-      "popular_score": 0.727
+      "popular_score": 0.7263
      },
      "37000": {
-      "best_win_rate": 0.775,
-      "best_score": 1.0717,
+      "best_win_rate": 0.8812,
+      "best_score": 1.2559,
       "popular_win_rate": 0.6278,
-      "popular_score": 0.8019
+      "popular_score": 0.8031
      },
      "50000": {
-      "best_win_rate": 0.9514,
-      "best_score": 1.3761,
-      "popular_win_rate": 0.6984,
-      "popular_score": 0.9093
+      "best_win_rate": 0.8768,
+      "best_score": 1.2808,
+      "popular_win_rate": 0.702,
+      "popular_score": 0.9169
      }
     },
     "all": {
@@ -4145,33 +4145,33 @@
     "phantom": {
      "10000": {
       "best_win_rate": 0.918,
-      "best_score": 1.1577,
-      "popular_win_rate": 0.4634,
-      "popular_score": 0.4557
+      "best_score": 1.1568,
+      "popular_win_rate": 0.4675,
+      "popular_score": 0.4593
      },
      "18000": {
-      "best_win_rate": 0.9153,
-      "best_score": 1.1567,
+      "best_win_rate": 0.9366,
+      "best_score": 1.221,
       "popular_win_rate": 0.6087,
       "popular_score": 0.7067
      },
      "27000": {
-      "best_win_rate": 0.9289,
-      "best_score": 1.2238,
+      "best_win_rate": 0.9328,
+      "best_score": 1.2291,
       "popular_win_rate": 0.5265,
-      "popular_score": 0.5777
+      "popular_score": 0.5773
      },
      "37000": {
       "best_win_rate": 0.9747,
-      "best_score": 1.3129,
+      "best_score": 1.3146,
       "popular_win_rate": 0.5683,
-      "popular_score": 0.646
+      "popular_score": 0.6461
      },
      "50000": {
-      "best_win_rate": 0.9673,
-      "best_score": 1.3207,
-      "popular_win_rate": 0.579,
-      "popular_score": 0.6259
+      "best_win_rate": 0.9659,
+      "best_score": 1.279,
+      "popular_win_rate": 0.5862,
+      "popular_score": 0.6348
      }
     },
     "all": {
@@ -4247,33 +4247,33 @@
     "phantom": {
      "10000": {
       "best_win_rate": 0.4146,
-      "best_score": 0.2488,
+      "best_score": 0.248,
       "popular_win_rate": 0.1257,
-      "popular_score": -0.0999
+      "popular_score": -0.1
      },
      "18000": {
       "best_win_rate": 0.4657,
-      "best_score": 0.3922,
+      "best_score": 0.3915,
       "popular_win_rate": 0.0627,
-      "popular_score": -0.1676
+      "popular_score": -0.1677
      },
      "27000": {
-      "best_win_rate": 0.4966,
-      "best_score": 0.3354,
+      "best_win_rate": 0.5006,
+      "best_score": 0.3391,
       "popular_win_rate": 0.0453,
-      "popular_score": -0.2019
+      "popular_score": -0.2021
      },
      "37000": {
-      "best_win_rate": 0.58,
-      "best_score": 0.4839,
+      "best_win_rate": 0.4893,
+      "best_score": 0.4146,
       "popular_win_rate": 0.0591,
-      "popular_score": -0.1916
+      "popular_score": -0.1918
      },
      "50000": {
       "best_win_rate": 0.4747,
-      "best_score": 0.3825,
+      "best_score": 0.3819,
       "popular_win_rate": 0.0914,
-      "popular_score": -0.1694
+      "popular_score": -0.1695
      }
     }
    }
