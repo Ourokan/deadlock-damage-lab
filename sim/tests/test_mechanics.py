@@ -155,6 +155,103 @@ class Items(unittest.TestCase):
         sk = hero_default_skill("Abrams", melee_rate_override=0.8, heavy_share=0.5)
         self.assertEqual((sk.melee_rate, sk.heavy_share), (0.8, 0.5))
         self.assertGreater(hero_default_skill("Abrams").melee_rate, 0.1)
+        self.assertIsNone(sk.melee_item_mult)   # the user's own rate is not scaled by the build
+
+    def test_melee_rate_follows_melee_items(self):
+        from deadsim.accuracy import hero_default_skill, melee_rate
+        from dataclasses import replace
+        from deadsim.accuracy import melee_rates_by_items
+        sk = hero_default_skill("Haze")
+        r0, r1, r2 = melee_rates_by_items("Haze")
+        self.assertLess(r0, r1)
+        self.assertLess(r1, r2)
+        self.assertAlmostEqual(r0, melee_rate("Haze"), delta=0.3 * melee_rate("Haze"))  # most Haze players: none
+        e = Engine(distance=10)
+        rates = [make_fighter(e, Loadout("Haze", its, souls=20000, skill=sk)).skill.melee_rate
+                 for its in ([], ["Melee Charge"], ["Melee Charge", "Lifestrike"], ["Melee Charge", "Lifestrike",
+                                                                                    "Spirit Snatch"])]
+        for got, want in zip(rates, [r0, r1, r2, r2]):
+            self.assertAlmostEqual(got, want, places=3)
+        self.assertEqual(sk.melee_rate, melee_rate("Haze"))   # the Skill itself keeps the average
+        # a caller's own melee_rate is scaled, not replaced: 0 stays 0
+        f = make_fighter(e, Loadout("Haze", ["Melee Charge"], souls=20000, skill=replace(sk, melee_rate=0.0)))
+        self.assertEqual(f.skill.melee_rate, 0.0)
+
+    def test_melee_build_rates_keep_hero_average(self):
+        # the hero's real mix of builds (data/melee_items.json "mix") still averages to its fitted rate
+        import json
+        from deadsim.accuracy import MELEE_ITEMS_FILE, melee_rate, melee_rates_by_items
+        rows = json.load(open(MELEE_ITEMS_FILE))["heroes"]
+        for hero in ("Abrams", "Haze", "Drifter", "Bebop"):
+            mix = rows[str(G.hero(hero).id)]["mix"]
+            by = melee_rates_by_items(hero)
+            avg = sum(mix[g] * r for g, r in zip(("0", "1", "2+"), by))
+            self.assertAlmostEqual(avg, melee_rate(hero), delta=0.002 + 0.01 * melee_rate(hero))
+
+    def test_melee_build_rates_missing_data(self):
+        import deadsim.accuracy as A
+        old = A.MELEE_ITEMS_FILE
+        A.MELEE_ITEMS_FILE = os.path.join(os.path.dirname(old), "no_such_file.json")
+        try:
+            self.assertIsNone(A.melee_rates_by_items("Haze"))
+            self.assertIsNone(A.hero_default_skill("Haze").melee_item_mult)
+        finally:
+            A.MELEE_ITEMS_FILE = old
+        # a hero missing from the fit keeps the flat rate
+        rows = A._melee_items()["heroes"]
+        hid = str(G.hero("Haze").id)
+        row = rows.pop(hid)
+        try:
+            self.assertIsNone(A.melee_item_mults("Haze"))
+        finally:
+            rows[hid] = row
+
+    def test_team_fight_uses_build_melee_rate(self):
+        from deadsim.accuracy import hero_default_skill
+        from deadsim.team import TeamEngine
+        from deadsim.accuracy import melee_rates_by_items
+        sk = hero_default_skill("Haze")
+        f = make_fighter(TeamEngine(distance=10), Loadout("Haze", ["Melee Charge", "Lifestrike"], souls=20000, skill=sk))
+        self.assertAlmostEqual(f.skill.melee_rate, melee_rates_by_items("Haze")[2], places=3)
+
+    def test_web_melee_rate_override(self):
+        import json
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "web"))
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "damage"))
+        import bridge
+        from deadsim.accuracy import melee_rates_by_items
+        q = {"hero": "Haze", "items": ["Melee Charge"], "souls": 15000}
+        hero, items, kw = bridge._setup(dict(q, melee_rate=0))
+        self.assertEqual((kw["skill"].melee_rate, kw["skill"].melee_item_mult), (0.0, None))
+        self.assertEqual(bridge._melee_rate(kw["skill"], items), 0.0)
+        hero, items, kw = bridge._setup(q)
+        self.assertAlmostEqual(bridge._melee_rate(kw["skill"], items), melee_rates_by_items("Haze")[1], places=3)
+        self.assertIn("melee_rate", json.loads(bridge.run(json.dumps(dict(q, melee_rate=0.25))))["used"])
+
+    def test_melee_charge_heavy_lunge_reach(self):
+        from deadsim.mechanics import MELEE_REACH, melee_reach
+        e = Engine(distance=3)
+        a = make_fighter(e, Loadout("Abrams", ["Melee Charge"], souls=9000))
+        b = make_fighter(e, Loadout("Abrams", [], souls=9000))
+        self.assertAlmostEqual(melee_reach(a, True), MELEE_REACH * 1.5)   # MeleeDistanceScale 50%
+        self.assertAlmostEqual(melee_reach(a, False), MELEE_REACH)
+        self.assertAlmostEqual(melee_reach(b, True), MELEE_REACH)
+        c = make_fighter(e, Loadout("Abrams", ["Melee Charge", "Runed Gauntlets"], souls=20000))
+        self.assertAlmostEqual(melee_reach(c, True), MELEE_REACH * 2.5)   # Runed Gauntlets 150%, the largest held
+
+    def test_melee_charge_heavy_lands_from_farther_in_fight(self):
+        # chase gap of 8 m beyond the start distance: past light reach (6 m), inside Melee Charge heavy reach (9 m)
+        from types import SimpleNamespace
+        from deadsim.mechanics import melee_reach
+        for items, heavy, lands in ((["Melee Charge"], 1.0, True), ([], 1.0, False), (["Melee Charge"], 0.0, False)):
+            e = Engine(distance=11)
+            sk = Skill(accuracy=0.0, use_abilities=False, use_actives=False, melee_rate=1.0, heavy_share=heavy)
+            a = make_fighter(e, Loadout("Abrams", items, souls=9000, skill=sk))
+            b = make_fighter(e, Loadout("Haze", [], souls=9000))
+            a.enemy, b.enemy = b, a
+            e.mover = SimpleNamespace(start=3.0, melee_reach=melee_reach)
+            e.melee_tick(a)
+            self.assertEqual(a.dmg_out.get("melee", 0) > 0, lands, (items, heavy))
 
     def test_runed_gauntlets_heavy_melee_cuts_cooldowns(self):
         e = Engine(distance=3)

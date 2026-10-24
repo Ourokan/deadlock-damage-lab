@@ -32,6 +32,11 @@ MELEE_HEAVY_TIME = 1.1
 # Below MELEE_MIN_RATE hits/s a melee event fires every 1/MELEE_MIN_RATE s with a fractional weight (expected
 # damage), so rare meleers still melee within a short fight.
 MELEE_MIN_RATE = 0.2
+# items bought for melee: holders melee more often than the hero's average player (data/melee_items.json,
+# Skill.melee_item_mult)
+MELEE_ITEMS = frozenset({"upgrade_melee_charge", "upgrade_crushing_fists", "upgrade_boxing_glove",
+                         "upgrade_lifestrike_gauntlets", "upgrade_spirit_snatch", "upgrade_acolytes_glove",
+                         "upgrade_melee_rebuttal"})
 # range spread (deadsim.mechanics range_drift): 7-point Gauss-Hermite nodes (weight e^-x^2) with weights normalized to
 # sum 1; a standard normal value is sqrt(2) x
 _GH = ((-2.6519613568, 0.000548268858), (-1.6735516288, 0.0307571239), (-0.8162878829, 0.240123178),
@@ -141,6 +146,9 @@ class Skill:
     # damage (data/melee_rates.json, loaded by accuracy.hero_default_skill); 0 = no melee.
     melee_rate: float = 0.0
     heavy_share: float = HEAVY_SHARE  # share of rotation melees that are heavy
+    # multiplier on melee_rate by melee items in the build (0, 1, 2+ of MELEE_ITEMS), applied at fight start, since
+    # players who buy melee items melee more (accuracy.melee_item_mults). None = melee_rate as is.
+    melee_item_mult: tuple | None = None
     # follow an ability that sets up a free hit with a guaranteed heavy melee (Abrams: Shoulder Charge hit). These
     # come on top of melee_rate; the fitted rates already account for them.
     combo_melee: bool = True
@@ -816,7 +824,8 @@ class Engine:
             # parried heavies don't land: swing more often so landed melee stays at the fitted rate
             rate /= max(0.5, 1.0 - f.enemy.skill.parry_rate * f.skill.heavy_share)
         interval = 1.0 / max(rate, MELEE_MIN_RATE)
-        if self.mover is None or f.counters.get("fleeing") is not True and self.distance <= self.mover.start + 6.0:
+        if self.mover is None or f.counters.get("fleeing") is not True and self.distance <= self.mover.start + \
+                self.mover.melee_reach(f, heavy):
             self.melee_hit(f, heavy, min(1.0, rate * interval))
         self.after(interval, self.melee_tick, f)
 

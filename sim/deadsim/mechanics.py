@@ -325,6 +325,9 @@ class Mover:
             v = max(v, dash)
         return max(0.0, v)
 
+    def melee_reach(self, f, heavy):
+        return melee_reach(f, heavy)
+
     def try_dash(self, f):
         if f.counters["stamina"] >= 1 and self.e.t >= f.counters["dash_until"] and f.alive \
                 and not f.mods.active("stun") and not f.mods.active("immobilize"):
@@ -392,6 +395,16 @@ class Mover:
             # nobody running: the chaser walks back into his fighting distance
             e.distance = max(self.start, e.distance - max(self.speed(a), self.speed(b)) * self.DT)
         e.after(self.DT, self.tick)
+
+
+def melee_reach(f, heavy):
+    """Gap beyond the start distance a rotation melee still lands from. Items with MeleeDistanceScale make heavy
+    melees lunge that % farther (game data: Melee Charge 50, Crushing Fists 60, Runed Gauntlets 150; the largest
+    held counts), so a chaser lands them on a runner sooner."""
+    if not heavy:
+        return MELEE_REACH
+    return MELEE_REACH * (1.0 + max((fx.item.p("MeleeDistanceScale", 0.0) for fx in f.items_fx
+                                      if getattr(fx, "item", None) is not None), default=0.0) / 100)
 
 
 def melee_reachable(eng):
