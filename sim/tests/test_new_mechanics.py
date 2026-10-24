@@ -150,6 +150,31 @@ class TestNearby(unittest.TestCase):
         r = duel(a, b, max_time=5, mechanics=Mechanics(movement=False))
         self.assertGreater(r.a_dmg.get("Split Shot", 0.0), 0.0)
 
+    def test_split_shot_main_copies_follow_landed_bullets(self):
+        """Replays: 0.66 Split Shot hits on the main target per landed gun bullet during the active."""
+        a = Loadout("Haze", ["Split Shot"], souls=15000, skill=Skill(accuracy=0.5, use_abilities=False))
+        b = Loadout("Abrams", [], souls=15000, skill=Skill(accuracy=0.0, **OFF))
+        r = duel(a, b, max_time=4, mechanics=Mechanics(movement=False, parry=False))
+        ratio = r.a_dmg["Split Shot"] / r.a_dmg["gun"]
+        self.assertAlmostEqual(ratio, M.SPLIT_PRIMARY_HIT, delta=0.15)
+
+    def test_split_shot_waits_for_a_target_it_can_hurt(self):
+        from deadsim.engine import Engine
+        from deadsim.fight import make_fighter
+        e = Engine(distance=10, max_time=5, mech=Mechanics(movement=False))
+        f = make_fighter(e, Loadout("Haze", ["Split Shot"], souls=15000))
+        g = make_fighter(e, Loadout("Abrams", [], souls=15000))
+        f.enemy, g.enemy = g, f
+        fx = next(x for x in f.items_fx if x.name == "Split Shot")
+        g.mods.add("invulnerable", 1, 2.0, "test")
+        self.assertFalse(fx.try_active(f))
+        g.mods.remove("invulnerable", "test")
+        self.assertTrue(fx.try_active(f))
+
+    def test_real_nearby_enemies(self):
+        x = M.real_nearby("extra", M.RICOCHET_RADIUS, 20000)
+        self.assertTrue(0.2 < x < 0.4)
+
 
 class TestMovement(unittest.TestCase):
     def setUp(self):

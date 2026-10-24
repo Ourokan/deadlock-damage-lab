@@ -1098,7 +1098,8 @@ class SpiritBurn(FX):
 
 
 class ImbueCharge(FX):
-    """Quicksilver Reload / Mercurial Magnum: imbued ability cast while charged -> bonus damage, fire rate, reload."""
+    """Quicksilver Reload / Mercurial Magnum: imbued ability cast while charged -> bonus damage, fire rate, reload.
+    Mercurial's per-bullet bonus lasts BuffDuration (12 s) with the fire rate."""
 
     def on_start(self, f):
         self.ready_at = 0.0
@@ -1116,7 +1117,9 @@ class ImbueCharge(FX):
         self.buff("fire_rate", self.item.p("BonusFireRate") / 100, d)
         f.clip = f.st.clip
         if self.item.class_name == "upgrade_ethereal_bullets":
-            self.buff("mercurial", 1, 1e9)
+            # the bullet bonus lasts the buff, not one clip: in Phantom+ replays 82% of a Vyper holder's gun hits after
+            # the first proc carry it (Wraith 78%, Warden 97%) while his clip lasts 1.7 s
+            self.buff("mercurial", 1, d)
 
     def on_damage_dealt(self, f, t, hit):
         if self.pending is not None and hit.ability is self.pending and hit.kind == "spirit":
@@ -1128,8 +1131,6 @@ class ImbueCharge(FX):
             pct = self.v("BulletsBonusMagicDamage") / 100
             self.spirit(t, f.st.bullet_damage * pct * hit.hits, procs=False)
 
-    def on_reload(self, f):
-        f.mods.d.pop("mercurial", None)
 
 
 HANDLERS["upgrade_quick_silver"] = ImbueCharge

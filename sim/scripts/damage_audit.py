@@ -3,6 +3,8 @@ build searches use it (ability landing factors, real-data item factors, counterp
 
 For each player-match in the sample, duel the player's real build (items and net worth at 30/60/90% of the match,
 the player's real hero accuracy and headshot rate) against a real enemy from the same match at the same moment,
+with the real mean count of other enemies near the target (Mechanics.extra_targets = mechanics.real_nearby, as the
+searches fight; Ricochet and Split Shot hits on them count, since the real damage matrix has every enemy hero),
 then compare where the damage comes from with the match's real damage matrix (damage to enemy heroes):
 
 - per hero: share of gun / abilities / items / melee, real vs sim, and the total distance between the two mixes
@@ -34,6 +36,7 @@ sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from deadsim import Loadout, duel, game  # noqa: E402
 from deadsim.abilities import load_heroes  # noqa: E402
+from deadsim.mechanics import DEFAULT as MECH, RICOCHET_RADIUS, real_nearby  # noqa: E402
 from deadsim.accuracy import HEADS, HITS, SHOTS, default_distance, gun_calibrated, hero_default_skill  # noqa: E402
 import landing_rates as L  # noqa: E402
 
@@ -87,12 +90,16 @@ def sim_player(job):
         a = Loadout(h.name, items, souls=souls, skill=skill_of(me))
         b = Loadout(foe["hero_id"], fitems, souls=fsouls, skill=skill_of(foe))
         try:
-            r = duel(a, b, distance=default_distance(h.name), max_time=L.FIGHT_TIME, rng=random.Random(rnd.random()))
+            mech = dataclasses.replace(MECH, extra_targets=real_nearby("extra", RICOCHET_RADIUS, souls))
+            r = duel(a, b, distance=default_distance(h.name), max_time=L.FIGHT_TIME, rng=random.Random(rnd.random()),
+                     mechanics=mech)
         except Exception as e:  # noqa: BLE001
             out["_err:" + type(e).__name__ + ":" + str(e)[:80]] += 1
             continue
         d = collections.Counter()
         for k, v in r.a_dmg.items():
+            d[L.sim_key(k, names, G)] += v
+        for k, v in r.a_splash.items():     # Ricochet / Split Shot hits on the other enemies near the target
             d[L.sim_key(k, names, G)] += v
         out.update(d)
         for i in items:
@@ -228,7 +235,8 @@ def main():
     hero_items.sort(key=lambda x: -abs(math.log(x["real_over_sim"])) if x["real_over_sim"] else -9.0)
 
     meta = {"sample": os.path.basename(sample), "matches": n_matches, "player_matches": len(jobs),
-            "duels": f"{len(L.FRACS)} per player-match, {L.FIGHT_TIME:.0f} s max, real builds both sides",
+            "duels": f"{len(L.FRACS)} per player-match, {L.FIGHT_TIME:.0f} s max, real builds both sides, "
+                     "real nearby enemies (extra_targets)",
             "model": f"hero_default_skill(badge={BADGE}, counterplay=True) with each player's real aim",
             "errors": sum(errs.values())}
     out = {"meta": meta, "heroes": dict(sorted(heroes.items(), key=lambda x: -x[1]["mix_distance"])),

@@ -87,6 +87,7 @@ import search as S  # noqa: E402
 from build_pool import BRACKETS, BUDGETS, PRIMARY  # noqa: E402
 from deadsim.accuracy import hero_default_skill  # noqa: E402
 from deadsim.build import compute_stats  # noqa: E402
+from deadsim.mechanics import real_nearby  # noqa: E402
 from survival import survive  # noqa: E402
 
 MAX_TIME = 30.0
@@ -131,29 +132,8 @@ def team_data():
 
 
 def near(kind, radius, souls):
-    """Real mean count in a Phantom+ fight second (team_value.json positions): kind "extra" = other enemies within
-    radius m of the target, "extra_self" = of the holder, "allies" = teammates within radius m, "any_ally" = share of
-    seconds with a teammate within radius m. Linear in the radius, log-linear in net worth between budget bins."""
-    pos = team_data()["positions"]
-    radii = pos["radii_m"]
-
-    def at(row):
-        tab = row[kind]
-        r = max(radii[0], min(radii[-1], radius))
-        hi = next(x for x in radii if x >= r)
-        lo = max(x for x in radii if x <= r)
-        if hi == lo:
-            return tab[str(lo)]
-        return tab[str(lo)] + (tab[str(hi)] - tab[str(lo)]) * (r - lo) / (hi - lo)
-
-    bins = sorted(int(b) for b in pos["budgets"] if b != "all")
-    s = max(bins[0], min(bins[-1], souls))
-    hi = next(b for b in bins if b >= s)
-    lo = max(b for b in bins if b <= s)
-    if hi == lo:
-        return at(pos["budgets"][str(lo)])
-    w = math.log(s / lo) / math.log(hi / lo)
-    return at(pos["budgets"][str(lo)]) * (1 - w) + at(pos["budgets"][str(hi)]) * w
+    """Real mean count of enemies / teammates in reach in a Phantom+ fight second (deadsim.mechanics.real_nearby)."""
+    return real_nearby(kind, radius, souls)
 
 
 def area_damage(r, souls):

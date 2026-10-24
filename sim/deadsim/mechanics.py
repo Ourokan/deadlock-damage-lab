@@ -41,9 +41,13 @@ Settings fitted to real ranked matches (validation/README.md, "New mechanics"):
   bounces and Split Shot pellets that hit them are booked apart (`FightResult.*_splash`), they never kill anyone.
   Real Ricochet damage is 15% of its holders' gun damage, which is 0.23 bounces per hit, so a fair team-fight
   value is about 0.25, not 1-2.
-- Split Shot also hits the main target: during the active each landed shot lands SPLIT_PRIMARY_HIT more copies
-  (fit: real Split Shot damage is 27% of its holders' gun damage; the tooltip's "each target hit once per
-  multishot" would allow at most 1, so the game's rule is looser than it reads).
+- Split Shot also hits the main target: during the active each landed gun bullet lands SPLIT_PRIMARY_HIT more
+  copies, which proc on-hit items like bullets (Mercurial Magnum's bonus rides on them in replays). Other nearby
+  enemies take SPLIT_SECONDARY_COVER x Mechanics.extra_targets copies per landed bullet. Both from Phantom+ replays
+  (scripts/mechanics/split_shot_replays.py, 614 activations of Vyper, Wraith, Yamato, Paige): in the 5 s after an
+  activation the main target takes 0.66 Split Shot hits per landed gun bullet (Vyper 0.69, Wraith 0.50), the others
+  0.29 of that, with ~0.29 other enemies within 13 m (real_nearby).
+  The active waits until the holder can shoot a target that can be hurt (not into Vyper's own petrify).
 - Movement (Mechanics.movement): fighters hold their distance (the step 2 calibration) until one is losing and below
   Skill.flee_hp; he stops shooting and runs, the other chases and keeps shooting. Speed = hero max_move_speed +
   move speed items and buffs, times (1 - slows x (1 - slow resist)); stunned / immobilized = 0. Both dash
@@ -72,8 +76,8 @@ from .items_fx import BuildUp, FX, CC_KEYS, _basic_melee
 
 
 SUMMON_ACC_MAX = 0.9        # cap on accuracy against a summon (acc_mult x hero accuracy)
-SPLIT_PRIMARY_HIT = 2.8     # Split Shot copies landing on the main target per landed shot (fit to real, see README)
-SPLIT_SECONDARY_COVER = 0.5  # share of nearby enemies inside the 45 degree fan (assumption)
+SPLIT_PRIMARY_HIT = 0.66    # Split Shot copies landing on the main target per landed gun bullet (replays)
+SPLIT_SECONDARY_COVER = 0.66  # copies on other enemies per landed gun bullet per nearby enemy (replays)
 WARP_AWAY = 0.3             # share of Warp Stone's teleport range that ends up as extra gap when running (fit)
 MELEE_REACH = 6.0           # beyond this gap (+ start distance) rotation melees don't land
 FLEE_RECOVER = 0.25         # stop running once health is this much above flee_hp (heals)
@@ -108,6 +112,41 @@ def drift_params():
 
 
 DEFAULT = Mechanics()   # None turns the new mechanics off for every Engine built without an explicit value
+
+RICOCHET_RADIUS = 13.0   # m: Ricochet's bounce radius, the reach used for a duel's extra_targets
+_NEAR = None
+
+
+def real_nearby(kind, radius, souls):
+    """Real mean count in a Phantom+ fight second (data/team_value.json positions, scripts/team/fit_team.py): kind
+    "extra" = other enemies within radius m of the target, "extra_self" = of the holder, "allies" = teammates within
+    radius m, "any_ally" = share of seconds with a teammate within radius m. Linear in the radius, log-linear in net
+    worth between budget bins. real_nearby("extra", RICOCHET_RADIUS, souls) is a duel's Mechanics.extra_targets."""
+    global _NEAR
+    if _NEAR is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "team_value.json")) as fh:
+            _NEAR = json.load(fh)["positions"]
+    pos = _NEAR
+    radii = pos["radii_m"]
+
+    def at(row):
+        tab = row[kind]
+        r = max(radii[0], min(radii[-1], radius))
+        hi = next(x for x in radii if x >= r)
+        lo = max(x for x in radii if x <= r)
+        if hi == lo:
+            return tab[str(lo)]
+        return tab[str(lo)] + (tab[str(hi)] - tab[str(lo)]) * (r - lo) / (hi - lo)
+
+    bins = sorted(int(b) for b in pos["budgets"] if b != "all")
+    s = max(bins[0], min(bins[-1], souls))
+    hi = next(b for b in bins if b >= s)
+    lo = max(b for b in bins if b <= s)
+    if hi == lo:
+        return at(pos["budgets"][str(lo)])
+    w = math.log(s / lo) / math.log(hi / lo)
+    return at(pos["budgets"][str(lo)]) * (1 - w) + at(pos["budgets"][str(hi)]) * w
+
 
 
 _RAW = None
@@ -603,38 +642,49 @@ class Ricochet(FX):
             _splash(f, hit.raw * k * self.item.p("RicochetDamagePercent", 65) / 100, "bullet", self.name)
 
 
+def _take(acc, p, n):
+    """acc.take for an expected count p per trial that can be above 1."""
+    whole = int(p)
+    return whole * n + acc.take(p - whole, n)
+
+
 @mech_handler("upgrade_split_shot", need="any")
 class SplitShot(FX):
-    """Active for BonusShotsDuration: every trigger pull also throws a fan of BulletSplitShot bullets; each target is
-    hit at most once per fan. The main target takes SPLIT_PRIMARY_HIT more copies of each landed shot; other
-    nearby heroes (Mechanics.extra_targets) are hit at accuracy x SPLIT_SECONDARY_COVER and each such shot adds a
-    WeaponDamagePerStack% weapon damage stack (MaxStacks, WeaponDamageBonusDuration). Booked as Split Shot."""
+    """Active for BonusShotsDuration: every trigger pull also throws a fan of BulletSplitShot bullets. Each landed gun
+    bullet lands SPLIT_PRIMARY_HIT copies on the main target (on-hit items proc on them) and SPLIT_SECONDARY_COVER x
+    nearby enemies (Mechanics.extra_targets) copies on others; each side hit adds a WeaponDamagePerStack% weapon
+    damage stack (MaxStacks, WeaponDamageBonusDuration). Booked as Split Shot."""
 
     def try_active(self, f):
-        if not self.ready() or f.e.distance > 35:
+        if not self.ready() or f.e.distance > 35 or not f.can_shoot() or f.clip <= 0:
+            return False
+        e = f.enemy
+        if e.mods.active("invulnerable") or e.mods.active("bullet_immune"):
             return False
         self.use()
         self.until = self.now + self.item.p("BonusShotsDuration", 5)
         return True
 
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind != "bullet" or hit.source != "gun" or self.now >= getattr(self, "until", -1):
+        if hit.kind != "bullet" or hit.source != "gun" or not hit.hits or self.now >= getattr(self, "until", -1):
             return
-        st = f.st
-        n = st.pellets * st.burst_count
-        k = f.acc("split_main").take(f.skill.accuracy * (1.0 - t.stat("evasion")), n)
         per = f.counters.get("bullet_per", 0.0)
-        if k and per:
-            f.e.damage(f, t, per * k * SPLIT_PRIMARY_HIT, "bullet", self.name, is_item=True, procs=False, hits=k)
+        if not per:
+            return
+        k = _take(f.acc("split_main"), SPLIT_PRIMARY_HIT, hit.hits)
+        if k:
+            f.e.damage(f, t, per * k, "bullet", self.name, is_item=True, hits=k)
         x = nearby_enemies(f)
-        if x > 0 and per:
-            k2 = f.acc("split_side").take(min(1.0, f.skill.accuracy * SPLIT_SECONDARY_COVER * x), 1)
+        if x > 0:
+            k2 = _take(f.acc("split_side"), SPLIT_SECONDARY_COVER * x, hit.hits)
             if k2:
-                _splash(f, per * n * f.skill.accuracy, "bullet", self.name)
-                j = f.counters.get("split_stack", 0)
-                f.counters["split_stack"] = j + 1
-                self.buff("weapon_pct", self.item.p("WeaponDamagePerStack", 8) / 100,
-                          self.item.p("WeaponDamageBonusDuration", 12), tag=("split", j % int(self.item.p("MaxStacks", 5))))
+                _splash(f, per * k2, "bullet", self.name)
+                for _ in range(k2):
+                    j = f.counters.get("split_stack", 0)
+                    f.counters["split_stack"] = j + 1
+                    self.buff("weapon_pct", self.item.p("WeaponDamagePerStack", 8) / 100,
+                              self.item.p("WeaponDamageBonusDuration", 12),
+                              tag=("split", j % int(self.item.p("MaxStacks", 5))))
 
 
 # -- movement items ---------------------------------------------------------------------------------------------
