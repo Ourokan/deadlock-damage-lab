@@ -80,7 +80,7 @@ direction check, not the fit. Cheat Death and Mystic Reverb show no teammate eff
   explain 1.4x of that; the rest is the sim's trigger (one echo per hit of 100+ damage) under-firing, a follow-up.
 - **Magic Carpet** is a movement item (already in movement_value) and has no team part.
 
-Refresh: each patch rerun refits the ally item values (team_value.py on the new patch's popular Phantom+ builds,
+Refresh: each patch rerun refits the ally item values (the tables above are the 2026-10-24 fit; the json is current) (team_value.py on the new patch's popular Phantom+ builds,
 ~15 min on 4 cores, no API queries) in its data job and commits team_value.json with the results. The positions are a
 static snapshot (the match paths live in the project files): rerun fit_team.py after a map change.
 
