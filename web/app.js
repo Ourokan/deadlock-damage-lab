@@ -767,7 +767,11 @@ async function renderCounterTab() {
     if (me) {
       const h = hd.items[it.name];
       if (!h) held = true;
-      else { vs = h.vs[ei]; avg = h.gain; lift = vs == null ? null : vs - h.vs.reduce((a, x, i) => a + (x || 0) * (b.weights[b.enemies[i]] || 0), 0) / b.enemies.reduce((a, x) => a + (b.weights[x] || 0), 0); }
+      else {
+        vs = h.vs[ei];
+        avg = h.vs.reduce((a, x, i) => a + (x || 0) * (b.weights[b.enemies[i]] || 0), 0) / b.enemies.reduce((a, x) => a + (b.weights[x] || 0), 0);
+        lift = vs == null ? null : vs - avg;
+      }
     } else {
       const m = b.enemy[e]?.[it.name];
       if (m) { [vs, lift] = m; avg = s.mean_vs; }
@@ -781,8 +785,8 @@ async function renderCounterTab() {
       + `<td class="n ${x.trig > 1.1 ? "up" : x.trig < 0.9 ? "down" : ""}">${x.trig ? "×" + fmt(x.trig, 2) : "–"}</td>`
       + `<td class="n ${cls(x.edge, 0.002)}">${x.edge == null ? "–" : (x.edge > 0 ? "+" : "") + fmt(x.edge * 100, 1)}</td></tr>`;
   const who = me ? esc(idx.heroes[me]) : "the average hero (weighted by how often each reaches this net worth)";
-  out.innerHTML = `<p class="hint">Sim values are for ${who} in ${esc(idx.bracket === "phantom" ? "Phantom and up" : idx.bracket)} games at ${fmt(bk / 1000)}k souls, with the item added on top of the popular build (built ${esc(idx.built.slice(0, 10))}). <b>Vs ${esc(ename)}</b> is how much more damage the build deals before dying in that matchup, as a share of the popular build's average over all matchups; <b>vs average</b> is the same over all enemies (the overall score gain); <b>extra vs ${esc(ename)}</b> is the difference, so a high number means the item is a real counter to ${esc(ename)} rather than just good. Real-player columns come from ${fmt(idx.real?.matches || 0)} ranked matches of the patch the analysis ran on, all ranks: <b>bought more</b> is how much more often players buy it in the 5 minutes after facing ${esc(ename)}; <b>win edge</b> is the buyers' win rate against same-price defensive alternatives, in points.</p>
-    <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Cost</th><th class="n">Vs ${esc(ename)}</th><th class="n">Vs average</th><th class="n">Extra vs ${esc(ename)}</th><th class="n">Per 1k souls</th><th class="n" title="Real players: buy rate with this hero on the enemy team / without">Bought more</th><th class="n" title="Real players: win rate of buyers minus same-price defensive alternatives, percentage points">Win edge</th></tr></thead>
+  out.innerHTML = `<p class="hint">Sim values are for ${who} in ${esc(idx.bracket === "phantom" ? "Phantom and up" : idx.bracket)} games at ${fmt(bk / 1000)}k souls, with the item added on top of the popular build (built ${esc(idx.built.slice(0, 10))}). <b>Vs ${esc(ename)}</b> is how much more damage the build deals before dying in that matchup, as a share of the popular build's average over all matchups; <b>vs average</b> is the same over all enemies; <b>extra vs ${esc(ename)}</b> is the difference, so a high number means the item is a real counter to ${esc(ename)} rather than just good. Real-player columns come from ${fmt(idx.real?.matches || 0)} ranked matches of the patch the analysis ran on, all ranks: <b>overall per 1k souls</b> is the overall score gain per 1,000 souls, which also counts the item's real win edge on this hero (like the Best overall builds tab), so items real buyers lose with (Metal Skin, Return Fire) rank low there even when the sim likes them; <b>bought more</b> is how much more often players buy it in the 5 minutes after facing ${esc(ename)}; <b>win edge</b> is the buyers' win rate against same-price defensive alternatives, in points.</p>
+    <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Cost</th><th class="n">Vs ${esc(ename)}</th><th class="n">Vs average</th><th class="n">Extra vs ${esc(ename)}</th><th class="n" title="Overall score gain per 1,000 souls, including the real win edge">Overall per 1k souls</th><th class="n" title="Real players: buy rate with this hero on the enemy team / without">Bought more</th><th class="n" title="Real players: win rate of buyers minus same-price defensive alternatives, percentage points">Win edge</th></tr></thead>
     <tbody>${rows.map(row).join("")}</tbody></table></div>
     <p class="fine">The sim adds the item for free, so every item looks good on a fragile hero; compare items with each other and read the extra column for counters. Real win edges are observational (being focused or out-played isn't captured).</p>`;
 }

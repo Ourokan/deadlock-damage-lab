@@ -86,19 +86,20 @@ def write_md(res):
          f"Built {res['built']} by `counters/scripts/export_sim.py`. Each hero's most popular real build gets the item "
          "added on top and is scored with the overall test (net damage dealt before dying against every hero's "
          "typical real build at that net worth; sustain, movement, mechanics and counterplay on). Gain = overall "
-         "score change (0.10 = 10% more damage before dying), weighted by how often each hero reaches that net "
-         "worth. *Vs enemy* = the change in that one matchup's damage before dying, as a share of the popular "
+         "score change, weighted by how often each hero reaches that net worth; the overall score also multiplies in "
+         "the item's real per-hero win edge (overall_search win_value), so items real buyers lose with score low on "
+         "Gain even when the sim likes them. *Sim mean* = the same without the win edge (mean of vs over enemies). *Vs enemy* = the change in that one matchup's damage before dying, as a share of the popular "
          "build's mean over all matchups (so its enemy-weighted mean is the gain); *lift* = vs enemy minus the item's "
          "mean over all enemies.\n"]
     for b, d in res["budgets"].items():
-        L.append(f"## {int(b):,} souls\n\n| Item | Cost | Gain | Per 1k souls | Best vs (lift) | Already in popular build |"
-                 "\n|---|---|---|---|---|---|")
+        L.append(f"## {int(b):,} souls\n\n| Item | Cost | Gain | Per 1k souls | Sim mean | Best vs (lift) | Already in popular build |"
+                 "\n|---|---|---|---|---|---|---|")
         cost = {x["name"]: x["cost"] for x in res["items"]}
         for n, v in sorted(d["items"].items(), key=lambda x: -(x[1]["per_1000"] or -9)):
             if v["gain"] is None:
                 continue
             best = sorted(((e, row[n]) for e, row in d["enemy"].items() if row.get(n)), key=lambda x: -x[1][1])[:3]
-            L.append(f"| {n} | {cost[n]:,} | {v['gain']:+.3f} | {v['per_1000']:+.3f} | "
+            L.append(f"| {n} | {cost[n]:,} | {v['gain']:+.3f} | {v['per_1000']:+.3f} | {v['mean_vs']:+.3f} | "
                      + ", ".join(f"{H[e]} {m[1]:+.2f}" for e, m in best) + f" | {v['held']} heroes |")
         L.append("\nBest counter per enemy hero (highest lift; matchup change in brackets):\n")
         for e in d["enemies"]:
