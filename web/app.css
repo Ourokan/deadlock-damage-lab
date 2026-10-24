@@ -313,7 +313,7 @@ body.sheet-open { overflow: hidden; }
   table.cards-sm thead { display: none; }
   table.cards-sm tr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 10px; padding: 12px 0; border-bottom: 1px solid var(--line); }
   table.cards-sm tr.pop { background: color-mix(in srgb, var(--brass) 9%, transparent); padding-inline: 8px; border-radius: 4px; }
-  table.cards-sm td { display: block; padding: 0; border: 0; background: none !important; }
+  table.cards-sm td { display: block; padding: 0; border: 0 !important; background: none !important; }
   table.cards-sm td.n { text-align: left; white-space: normal; }
   table.cards-sm td[data-label]::before { content: attr(data-label); display: block; font: 600 .66rem var(--head); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
   table.cards-sm td.wide { grid-column: 1 / -1; }

@@ -45,16 +45,16 @@ function tfRender() {
 
 function tfResult(r) {
   const win = r.winner ? `Team ${r.winner} wins in ${fmt(r.time, 1)} s` : `Nobody wins in ${fmt(r.time, 0)} s`;
-  const row = (x) => `<tr><td>${esc(x.team)}</td><td>${esc(x.hero)}</td><td>${fmt(x.damage)}</td><td>${fmt(x.damage_taken)}</td>
-    <td>${fmt(x.healing_given + x.barrier_given)}</td><td>${fmt(x.kills)}</td>
+  const row = (x) => `<tr><td>${esc(x.team)}</td><td>${esc(x.hero)}</td><td class="n">${fmt(x.damage)}</td><td class="n">${fmt(x.damage_taken)}</td>
+    <td class="n">${fmt(x.healing_given + x.barrier_given)}</td><td class="n">${fmt(x.kills)}</td>
     <td>${x.alive ? `${fmt(x.hp)} / ${fmt(x.max_hp)} HP` : `died at ${fmt(x.death_time, 1)} s`}</td></tr>`;
   const tot = (side, k) => r.fighters.filter((x) => x.team === side).reduce((s, x) => s + x[k], 0);
-  const totRow = (side) => `<tr class="tf-tot"><td>${side}</td><td>Team</td><td>${fmt(tot(side, "damage"))}</td><td>${fmt(tot(side, "damage_taken"))}</td>
-    <td>${fmt(tot(side, "healing_given") + tot(side, "barrier_given"))}</td><td>${fmt(tot(side, "kills"))}</td><td></td></tr>`;
+  const totRow = (side) => `<tr class="tf-tot"><td>${side}</td><td>Team</td><td class="n">${fmt(tot(side, "damage"))}</td><td class="n">${fmt(tot(side, "damage_taken"))}</td>
+    <td class="n">${fmt(tot(side, "healing_given") + tot(side, "barrier_given"))}</td><td class="n">${fmt(tot(side, "kills"))}</td><td></td></tr>`;
   const support = r.fighters.filter((x) => x.healing_given > 0).map((x) =>
     `${esc(x.hero)}: ${Object.entries(x.healing_given_by_source).map(([k, v]) => `${esc(k)} ${fmt(v)}`).join(", ")}`).join(" · ");
   $("#tf-out").innerHTML = `<h2>${win}</h2>
-    <div class="scroll"><table class="tf-table"><thead><tr><th>Team</th><th>Hero</th><th>Damage</th><th>Taken</th><th>Heals + shields given</th><th>Kills</th><th>End</th></tr></thead>
+    <div class="scroll"><table class="tf-table"><thead><tr><th>Team</th><th>Hero</th><th class="n">Damage</th><th class="n">Taken</th><th class="n">Heals + shields given</th><th class="n">Kills</th><th>End</th></tr></thead>
     <tbody>${r.fighters.map(row).join("")}${totRow("A")}${totRow("B")}</tbody></table></div>
     ${support ? `<p class="fine">Heals on teammates: ${support}</p>` : ""}`;
 }

@@ -799,7 +799,7 @@ function stackTables() {
   for (const t of $$("table")) {
     // rows are marked one by one: a renderer can swap a table's rows (or its whole innerHTML) without replacing it
     const rows = [...(t.tBodies[0]?.rows || [])].filter((r) => !r.dataset.stk);
-    if (!rows.length || !t.tHead || !t.querySelector("tbody td:not(.n)")) continue;
+    if (!rows.length || !t.tHead || !t.querySelector("tbody td:not(.n)") || !t.querySelector("tbody td.n")) continue;
     const heads = [...(t.tHead.rows[0]?.cells || [])].map((c) => c.textContent.trim());
     for (const r of rows) {
       let col = 0;   // header column of each cell, counting colspans
