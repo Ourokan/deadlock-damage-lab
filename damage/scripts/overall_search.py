@@ -35,6 +35,14 @@ saves trips back to the fountain (map_time: each item's real fountain saving on 
 Healbane's cut runs at the real heal-prevented rate (healbane_landing, sim/scripts/sustain/fit_healbane.py).
 Not counted: team heals and team auras, vision, souls from farming (Monster Rounds), objective damage.
 
+Real win edge (Tyler 2026-10-24, "blend win edge into score"): the score is also multiplied by
+exp(WIN_K x the sum of the held items' real win edges on this hero) / the popular build's (win_value). Edge = win-rate
+points vs other same-slot same-tier items, Ritualist+, matched and shrunk toward the item's all-hero edge
+(analysis/out/hero_item_edge.json from analysis/scripts/build_win_check.py; a static snapshot). The 1v1 score alone
+ranked items almost unrelated to real wins (r 0.05 over 16 heroes): Decay was in 119 of ~200 best builds while
+losing 2-5 points on every hero, and team auras / AoE / death saves (Heroic Aura, Mystic Reverb, Cheat Death) were
+never picked. Movement items already carry a real-data value (movement_value) and are left out of the blend.
+
 Scores are relative to the hero's most popular real build (1.0 = popular). Same search machinery as the duel search
 (search/scripts/search.py: screen on 16 enemies, confirm on 41, up to 8 rounds, same budget rules).
 
@@ -49,6 +57,7 @@ from __future__ import annotations
 import argparse
 import dataclasses
 import json
+import math
 import os
 import sys
 import time
@@ -71,6 +80,37 @@ FOCUS = 2.0
 _sk = {}
 MOVE_PATH = os.path.join(ROOT, "..", "sim", "data", "movement_value.json")
 _move = None
+
+
+WIN_EDGE = os.path.join(ROOT, "..", "analysis", "out", "hero_item_edge.json")
+# score factor per win-rate point of real edge: a +3 point item = x1.16, Decay on most heroes (-3.5) = x0.84, about
+# the sim value Decay adds over a typical spirit item (~0.3-0.5 of the popular build's score at 27k)
+WIN_K = 0.05
+WIN_CAP = 4.0   # points
+_win = None
+
+
+def win_value(items, hero):
+    """exp(WIN_K x sum of the held items' real per-hero win edges, in points). Only edges clear of their 95% band
+    count, each capped at +-WIN_CAP (the search maximises, so it would chase noisy edges of rare items); movement
+    items are left out (their real value is already in movement_value). The edges are a static snapshot: a warning
+    is printed when its patch differs from data/patch.json."""
+    global _win
+    if _win is None:
+        with open(WIN_EDGE) as f:
+            d = json.load(f)
+        with open(os.path.join(ROOT, "..", "data", "patch.json")) as f:
+            patch = json.load(f)["patch"]
+        if d["meta"].get("patch") != patch:
+            print(f"warning: {WIN_EDGE} is from patch {d['meta'].get('patch')}, the sim is on {patch}; "
+                  "rerun analysis/scripts/build_win_check.py", file=sys.stderr)
+        movement_value((), None)   # loads _move
+        moving = _move[2] | {i for row in _move[3].values() for i in row}
+        _win = {int(h): {int(i): max(-WIN_CAP, min(WIN_CAP, v[0])) for i, v in row.items()
+                         if int(i) not in moving and abs(v[0]) > 1.96 * v[1]}
+                for h, row in d["heroes"].items()}
+    row = _win.get(int(hero), {})
+    return math.exp(WIN_K * sum(row.get(i, 0.0) for i in set(items)))
 
 
 def movement_value(items, hero=None):
@@ -330,7 +370,7 @@ class Evaluator:
         self.map_pop = map_time(hero, pop, budget, pop)
         for pool in ("S", "F", "F2"):
             self.norm[pool] = max(1.0, self._mean(self._rows(pop, pool), 2)) * movement_value(pop, hero) \
-                * self._map(pop)
+                * self._map(pop) * win_value(pop, hero)
 
     def _rows(self, items, pool):
         key = (tuple(sorted(items)), pool)
@@ -358,7 +398,8 @@ class Evaluator:
         dmg = self._mean(rows, 2)
         move = movement_value(items, self.h)
         mt = self._map(items)
-        score = dmg * move * mt / self.norm[pool]
+        win = win_value(items, self.h)
+        score = dmg * move * mt * win / self.norm[pool]
         if not detail:
             return score
         t = self._mean(rows, 3)
@@ -371,6 +412,7 @@ class Evaluator:
             "dps_while_alive": round(dmg / max(0.1, t), 1),
             "movement_value": round(move, 4),
             "map_time": round(mt, 4),   # time on the map vs the popular build (fewer heal trips)
+            "win_value": round(win, 4),  # real win-edge factor (win_value), before dividing by the popular build's
             "matchups": {str(r[0]): [round(r[2]), round(r[3], 2)] for r in rows},
         }
 
