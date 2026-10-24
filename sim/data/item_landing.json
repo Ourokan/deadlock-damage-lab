@@ -2,7 +2,7 @@
  "meta": {
   "source": "5115 player-matches x 3 duels (20 s), real builds both sides",
   "formula": "(real item dmg / real gun dmg) / (sim item dmg / sim gun dmg), item holders only, gun damage while the item was owned",
-  "sample": "phantom_sample2.jsonl.gz",
+  "sample": "phantom_sample.jsonl.gz",
   "use": "deadsim realistic mode scales an item's own damage by min(1, landing)"
  },
  "items": {

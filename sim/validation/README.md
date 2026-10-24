@@ -428,10 +428,11 @@ Found and fixed:
 - **Item factors** (`data/item_landing.json`) were biased low for items bought late: real item damage was divided by
   the whole match's gun damage, while the sim divided by gun damage of the duels holding the item. They also fought
   with abilities always landing, so on-ability procs fired too often. Refit with gun damage while owned and the
-  searches' ability factors (`scripts/item_landing.py --sample`). Applied factors that changed: Scourge 0.63 -> 1,
+  searches' ability factors (`python3 scripts/item_landing.py 4 --sample validation/phantom_sample.jsonl.gz`; ability
+  refits: `python3 scripts/refit_landing_heroes.py --sample validation/phantom_sample.jsonl.gz HERO ...`). Applied factors that changed: Scourge 0.63 -> 1,
   Lightning Scroll 0.71 -> 1, Quicksilver 0.86 -> 1, Phantom Strike 0.89 -> 1, Tesla Bullets 0.92 -> 1, Mystic Shot
   0.75 -> 0.91, Headhunter 0.75 -> 0.92, Mercurial Magnum 0.83 -> 0.89, Focus Lens 0.32 -> 0.59 (min holders 40 -> 30
-  to keep it), Stalker 1 -> 0.77, Capacitor 1 -> 0.95, Siphon Bullets 1 -> 0.38.
+  to keep it; 36 holders, low confidence), Stalker 1 -> 0.77, Capacitor 1 -> 0.95, Siphon Bullets 1 -> 0.38.
 
 Result: the player-weighted mix distance went 0.069 -> 0.051, and no item with 30+ holders is now overrated by more
 than 2% except Silence Wave (25 holders, 0.71). What is left in the table is mostly bookkeeping or team fights, not

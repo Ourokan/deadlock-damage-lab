@@ -189,7 +189,10 @@ def dot_cleanse_delay(badge=None):
 
 
 ITEM_LANDING = os.path.join(HERE, "..", "data", "item_landing.json")
-ITEM_LANDING_MIN_HOLDERS = 30   # 2026-10-24 Phantom+ refit: keeps Focus Lens (36 holders, 0.59)
+# 30 since the 2026-10-24 Phantom+ refit so Focus Lens (36 holders) keeps a cut: its factor is low-confidence (0.32 from
+# 43 holders in the biased first fit, 0.59 now), but no cut at all would be further from both. Silence Wave (25) stays out,
+# as it did at 40 (31 holders then).
+ITEM_LANDING_MIN_HOLDERS = 30
 
 
 def item_landing():
