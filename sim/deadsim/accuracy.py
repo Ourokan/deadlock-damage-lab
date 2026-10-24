@@ -177,15 +177,17 @@ def ability_landing(hero, mech=False):
     return {name: min(1.5, max(0.05, r["landing"])) for name, r in rows.items()}
 
 
+DOT_CLEANSE_DELAY = 8.5
+
+
 def dot_cleanse_delay(badge=None):
-    """Seconds a DoT (Decay etc.) runs before a Dispel Magic holder cleanses it, by match badge (tier*10+subrank).
-    Eternus (111+): 1.5 s, a tick or two (Tyler, an Eternus player). Ascendant/Phantom (91-110): 3 s. Lower ranks and
-    badge=None: None = only below 50% health. Real data (damage/work/decay_vs_dispel_*.json) shows a smaller effect:
-    Dispel holders still take 99% (all ranks), 91% (81+) and 85% (111+) of their teammates' Decay damage, likely
-    because Dispel is often on cooldown or used on something else first."""
-    if badge is None or badge < 91:
-        return None
-    return 1.5 if badge >= 111 else 3.0
+    """Effective seconds a DoT (Decay etc.) runs before a Dispel Magic holder cleanses it, fitted to real Decay
+    damage (sim/scripts/fit_dispel.py, sim/validation/dispel/): Dispel holders take 85% of their teammates' Decay
+    damage at Phantom+ (1500 matches, 90% CI 81-89%), 87% at all ranks and 91% at Eternus+ (175 matches, CI 77-107%),
+    which the sim matches at 8.4, 9.4 and 9.6 s. Ranks don't differ beyond noise, so every badge uses the Phantom+ fit.
+    It is an average, not a reaction time: a player who is watching cleanses in a tick or two (Tyler, Eternus), but
+    Dispel is often on cooldown, spent on a stun or another DoT first, or not used. badge is kept for callers."""
+    return DOT_CLEANSE_DELAY
 
 
 ITEM_LANDING = os.path.join(HERE, "..", "data", "item_landing.json")

@@ -1,0 +1,22 @@
+{
+ "min_badge": 91,
+ "pairs": 400,
+ "real_ratio": 0.8492524912766649,
+ "real_ratio_90ci": [
+  0.8059262387067432,
+  0.894338399439997
+ ],
+ "sim_ratio_by_delay": {
+  "0.5": 0.621,
+  "1.5": 0.341,
+  "3.0": 0.432,
+  "5.0": 0.556,
+  "7.0": 0.739,
+  "9.0": 0.898,
+  "11.0": 1.066,
+  "None": 1.018,
+  "inf": 1.123
+ },
+ "fitted_delay_s": 8.4,
+ "note": "fitted_delay_s None = real ratio above every finite delay (Dispel ~never used on Decay)"
+}

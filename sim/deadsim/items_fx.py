@@ -916,10 +916,9 @@ class ReactiveBarrier(FX):
 @handler("upgrade_reduce_debuff_duration")
 class DispelMagic(FX):
     """Active: purge enemy debuffs and DoTs and heal HealOnActivate. Used at once against an enemy silence or
-    disarm. Against a DoT with >= 2 s left: after Skill.dot_cleanse_delay seconds of it (default 1.5 s, a tick or
-    two, how high-rank players use it), or with dot_cleanse_delay=None only once below DOT_PANIC_HP of max health
-    (average ranked play: Decay deals the same damage to Dispel holders as to their teammates,
-    damage/work/decay_vs_dispel.json ratio 1.00, 90% CI 0.75-1.30). The +2 m/s move speed does nothing at fixed
+    disarm. Against a DoT with >= 2 s left: after Skill.dot_cleanse_delay seconds of it (8.5 s, fitted to real
+    Decay damage on Dispel holders, accuracy.dot_cleanse_delay), or with dot_cleanse_delay=None only once below
+    DOT_PANIC_HP of max health. The +2 m/s move speed does nothing at fixed
     distance. Assumption: BuffDuration (3 s) is the move-speed buff, not debuff immunity."""
     DOT_PANIC_HP = 0.5
 
