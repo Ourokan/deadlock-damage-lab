@@ -35,6 +35,13 @@ Static site, no server. Open `index.html` through any static host (or `python3 -
 - **Best damage builds** (`damage/out`, with the item buy order and the ability upgrade order for the best builds), **Duel builds** (`search/out`, shows whichever rank brackets exist) and
   **Tank builds** (`survival/out`). Every build has a Test button that loads it into the damage test.
 
+## Phones
+Under 640 px the tabs sit in a 3x3 grid, long intros fold to three lines, and every table with a text column turns
+into stacked cards (`stackTables()` in `app.js` labels each number with its column). Touch screens get 36 px+ controls
+and 16 px inputs (no iOS zoom on focus). On touch screens the Build maker's suggestions run on the page's sim worker
+instead of a second Pyodide instance, which would cost another ~15 MB download and enough memory to make mobile
+browsers reload the tab.
+
 ## How the damage test runs in the browser
 The real Python sim runs live in the browser with Pyodide (CPython compiled to WebAssembly), inside a Web Worker.
 Pyodide core 0.26.4 (Python 3.12) is self-hosted in `vendor/pyodide`, so no CDN is needed. `py/sim.zip` holds

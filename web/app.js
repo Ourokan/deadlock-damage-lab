@@ -792,6 +792,47 @@ function showTab() {
   if (tab === "changes") renderChangesTab();
 }
 
+// ---------- phones ----------
+// Tables with a text column (builds, buy orders, ability tiers) become stacked cards on narrow screens (app.css table.cards-sm): each number cell gets its
+// column name to show above it, and the label, item and button cells take a full row.
+function stackTables() {
+  for (const t of $$("table")) {
+    // rows are marked one by one: a renderer can swap a table's rows (or its whole innerHTML) without replacing it
+    const rows = [...(t.tBodies[0]?.rows || [])].filter((r) => !r.dataset.stk);
+    if (!rows.length || !t.tHead || !t.querySelector("tbody td:not(.n)") || !t.querySelector("tbody td.n")) continue;
+    const heads = [...(t.tHead.rows[0]?.cells || [])].map((c) => c.textContent.trim());
+    for (const r of rows) {
+      let col = 0;   // header column of each cell, counting colspans
+      for (const c of r.cells) {
+        if (c.colSpan > 1 || !c.classList.contains("n")) c.classList.add("wide");
+        else if (heads[col]) c.dataset.label = heads[col];
+        col += c.colSpan;
+      }
+      r.dataset.stk = "1";
+    }
+    t.classList.add("cards-sm");
+  }
+}
+// Long tab intros fold to three lines on phones, with a button to read the rest.
+function clampIntros() {
+  for (const p of $$(".intro p")) {
+    if (p.textContent.length < 220 || p.nextElementSibling?.classList.contains("more")) continue;
+    p.classList.add("clamp");
+    p.insertAdjacentHTML("afterend", `<button class="more" type="button">Read more</button>`);
+    p.nextElementSibling.onclick = (e) => { const open = p.classList.toggle("clamp"); e.target.textContent = open ? "Read more" : "Show less"; };
+  }
+}
+function phoneLayout() {
+  clampIntros();
+  let queued = false;
+  new MutationObserver(() => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => { queued = false; stackTables(); });
+  }).observe(document.body, { childList: true, subtree: true });
+  stackTables();
+}
+
 // ---------- boot ----------
 async function boot() {
   load("data/damage/index.json").then((d) => { if (d && d.dummy_zone_exit_s != null) ZONE_EXIT_S = d.dummy_zone_exit_s; });
@@ -869,6 +910,7 @@ async function boot() {
   $("#sh-marks").onclick = (e) => { if (e.target.dataset.v) { BD.mark = e.target.dataset.v; renderSheet(); } };
   $("#sh-body").addEventListener("click", (e) => { const r = e.target.closest(".bd-row[data-id]"); if (r) { BD.item = Number(r.dataset.id); renderSheet(); } });
   window.addEventListener("hashchange", showTab);
+  phoneLayout();
   showTab();
   startEngine();
 }
