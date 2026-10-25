@@ -50,7 +50,8 @@ def cut_cooldowns(c, secs):
         if ab.next_charge:
             ab.next_charge = max(now, ab.next_charge - secs)
     for fx in c.me.items_fx:
-        if fx.item.activation != "passive" and fx.ready_at > now:
+        it = getattr(fx, "item", None)   # hero effects (parry, revive, ...) sit in items_fx without an item
+        if it is not None and it.activation != "passive" and fx.ready_at > now:
             fx.ready_at = max(now, fx.ready_at - secs / 2)
 
 
