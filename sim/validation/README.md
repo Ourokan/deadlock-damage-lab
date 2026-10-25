@@ -1153,13 +1153,16 @@ started empty.
   factors already priced in the missing low-health casts: Assassinate share 0.11 -> 0.40, real 0.16) and newly held
   abilities lost their level (Storm Cloud 0.21 -> 0.04, real 0.20).
 
-Results on main after #78/#95 (sim_vs_win is a correlation: higher is better):
+Results (sim_vs_win is a correlation: higher is better). "This (default)" is measured on main after #96/#97, with
+only the Silver, Celeste and Rat King rows refit (`fit_cast_timing.py --hero`, then `length_factors.py --entry
+--target-holds --hero`). "With entry_hp on" is a full refit on main after #78/#95, whose own numbers it is compared
+with (main moved 0.0314 -> 0.0316 audit between the two):
 
 | | main | this (default) | with entry_hp on |
 |---|---|---|---|
-| damage audit mix | 0.0314 | 0.0317 | 0.0330 |
-| sim_vs_win all / damage items | 0.164 / 0.042 | 0.162 / 0.040 | 0.164 / 0.037 |
-| clear of noise / per item | 0.267 / 0.239 | 0.264 / 0.234 | 0.259 / 0.216 |
+| damage audit mix | 0.0316 | 0.0320 | 0.0330 (main 0.0314) |
+| sim_vs_win all / damage items | 0.165 / 0.044 | 0.163 / 0.043 | 0.164 / 0.037 (main 0.164 / 0.042) |
+| clear of noise / per item | 0.267 / 0.238 | 0.266 / 0.235 | 0.259 / 0.216 (main 0.267 / 0.239) |
 | opener timing sources > 0.5 s late (of 222), mean real - sim | 103, -0.47 s | 103, -0.49 s | 83, -0.25 s |
 
 Mean first hit real / main / entry_hp on: Slam Fire 3.3 / 6.0 / 3.2 (3.3 by default); Assassinate 7.4 / 9.6 / 5.9;
