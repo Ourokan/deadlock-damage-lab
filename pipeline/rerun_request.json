@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-25T18:40:00Z",
- "reason": "Item sheet Why tab: the overall search saves each best-build item swapped for the popular pick it displaces (best_item_swaps) and healing per fight by source; scores unchanged"
+ "requested_at": "2026-10-25T18:45:00Z",
+ "reason": "Hero calibration (#91): Victor ult cooldown carried over from earlier fights, Bebop Grapple Arm damage, ability factors refit to the damage audit for 11 heroes"
 }
