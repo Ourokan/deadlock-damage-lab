@@ -78,11 +78,11 @@ def surv_fn(curve):
         return lambda t: 1.0
 
     def alive(t):
-        x = t / LENGTH_STEP
+        x = max(0.0, t) / LENGTH_STEP   # (precasts come before t = 0: the fight is surely still on)
         i = int(x)
         if i + 1 >= len(curve):
-            return curve[-1]
-        return curve[i] + (x - i) * (curve[i + 1] - curve[i])
+            return max(0.0, min(1.0, curve[-1]))
+        return max(0.0, min(1.0, curve[i] + (x - i) * (curve[i + 1] - curve[i])))
     return alive
 
 

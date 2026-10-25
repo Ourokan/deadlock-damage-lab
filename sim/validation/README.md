@@ -341,16 +341,23 @@ share weighted by the real chance the fight still goes on, first-cast share, med
   fights; it now waits until all the other unlocked abilities are on cooldown: 7.0 s in 32% (replays 9 s, 26%).
   It also casts below 35% health, and 16 s into the fight at the latest (a slow or silenced kit never gets all three
   on cooldown; 12 s cast it in 41% of fights, 16 s gives 36% at 7.3 s with mix 0.019).
+  combo_check's survival weight is clamped to [0, 1] and starts at t = 0 for precasts (first-cast shares had gone
+  outside [0, 1]).
 - Sinclair: Rabbit Hex's damage amp on his own hits is booked under Rabbit Hex (`engine.BOOKED_AMPS`; the mod tag
   carries the caster), as the damage matrix lists ~5% of his damage under it though it deals none itself.
-- Patterns on for Sinclair (Assistant > Bolt > Hex) and Apollo (replay order). Apollo has no cast_timing rows and
-  only 6 sample players with gun data; his abilities still land at t=0 where real ones come 3-5 s in.
+- Acceptance rule under cast timing (fight_patterns.json `_doc`): a replay combo is on when combo_check, with 20+
+  audit players with gun data, gives it an ability log error and mix distance no worse than slot order and a timing
+  error no worse (+0.01). Sinclair (Assistant > Bolt > Hex) passes on 20 players (log error 0.140 -> 0.134, timing 0.373 -> 0.362). Apollo
+  is better on all three (0.632 -> 0.521, mix 0.199 -> 0.175) but has 6 players and no cast_timing rows (his
+  abilities land at t=0, real 3-5 s in), so he stays on slot order.
 - Haze: a Bullet Dance hold on Fixation stacks helped before cast timing, but now compounds with its held cast
   (cast share 0.16 vs real 0.23), so Haze is unchanged.
 Refit for Yamato and Sinclair: `refit_landing_heroes.py --iterate 3 --sample validation/phantom_sample.jsonl.gz`, then
 `length_factors.py --write --refit --no-cast-timing --hero X`, then `length_factors.py --write --hero X` (keep mode).
-Damage mix distance (audit) main -> this: Yamato 0.078 -> 0.019, Sinclair 0.028 -> 0.023, Apollo 0.193 -> 0.167,
+Damage mix distance (audit) main -> this: Yamato 0.078 -> 0.019, Sinclair 0.028 -> 0.023, Apollo 0.199 (slot order, unchanged),
 Haze 0.043 -> 0.044; other heroes 0.0517 -> 0.0517; pooled item error 0.198 -> 0.197.
+Also fixed: Nurse Harrow's specter heal hook didn't take engine.heal's `origin` (#93), so a lifesteal heal during
+Wretched Vapors crashed the duel (103 audit duels on main).
 
 Mo & Krill: Mo is underground when 26% of all fights start, 36% after laning (47% have a Burrow cast in the 10 s
 before the first hit), 9-24% in lane. So "most fights" holds for committed mid-game engages more than for lane

@@ -15,7 +15,10 @@ def first_shadow(unlocked):
     a = Loadout("Yamato", [], souls=20000, skill=Skill(accuracy=0.3, use_actives=False), unlocked=unlocked)
     r = duel(a, Loadout("Abrams", [], souls=20000, skill=DUMMY), distance=5.0, max_time=20.0, mechanics=None, log=True)
     casts = [float(x.split()[0]) for x in r.log if "casts Shadow Transformation" in x]
-    others = {x.split("casts ")[1] for x in r.log if "casts " in x and "Yamato" in x.split("casts")[0]}
+    others = {}
+    for x in r.log:
+        if "casts " in x and "Yamato" in x.split("casts")[0]:
+            others.setdefault(x.split("casts ")[1].strip(), float(x.split()[0]))
     return (casts[0] if casts else None), others
 
 
@@ -23,7 +26,9 @@ class ShadowTransformationHold(unittest.TestCase):
     def test_waits_for_the_other_three(self):
         t, others = first_shadow(None)
         self.assertIsNotNone(t)
-        self.assertTrue({"Power Slash", "Flying Slash", "Crimson Slash"} <= others, others)
+        for n in ("Power Slash", "Flying Slash", "Crimson Slash"):
+            self.assertIn(n, others)
+            self.assertGreaterEqual(t, others[n], n)   # the hold: each of the other three comes first
 
     def test_fewer_abilities_unlocked_still_casts(self):
         # only Crimson Slash and the ult unlocked: waiting for three on cooldown would hold it forever

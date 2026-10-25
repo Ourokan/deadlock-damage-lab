@@ -37,13 +37,13 @@
    "ult_after": [],
    "timing": {
     "Sleep Dagger": {
-     "cast_share": 0.79,
-     "first_share": 0.818,
+     "cast_share": 0.791,
+     "first_share": 0.819,
      "median_first_cast_s": 2.5,
-     "ult_after_share": 0.384
+     "ult_after_share": 0.387
     },
     "Smoke Bomb": {
-     "cast_share": 0.076,
+     "cast_share": 0.075,
      "first_share": 0.012,
      "median_first_cast_s": 7.9,
      "ult_after_share": 0.02
@@ -55,8 +55,8 @@
      "ult_after_share": 0.0
     },
     "Bullet Dance": {
-     "cast_share": 0.234,
-     "first_share": 0.17,
+     "cast_share": 0.233,
+     "first_share": 0.168,
      "median_first_cast_s": 2.0,
      "ult_after_share": null
     }
@@ -64,11 +64,11 @@
    "timing_error": 0.384,
    "mix_distance": 0.044,
    "ability_real_over_sim": {
-    "Sleep Dagger": 1.005,
-    "Fixation": 0.929,
-    "Bullet Dance": 0.809
+    "Sleep Dagger": 1.008,
+    "Fixation": 0.93,
+    "Bullet Dance": 0.812
    },
-   "ability_log_err": 0.097,
+   "ability_log_err": 0.096,
    "real_mix": {
     "gun": 0.3456,
     "ability": 0.5032,
@@ -77,10 +77,10 @@
     "other": 0.0201
    },
    "sim_mix": {
-    "gun": 0.3408,
-    "ability": 0.5477,
-    "item": 0.0927,
-    "melee": 0.0133,
+    "gun": 0.3412,
+    "ability": 0.547,
+    "item": 0.0931,
+    "melee": 0.0132,
     "other": 0.0055
    }
   },
@@ -95,10 +95,10 @@
    ],
    "timing": {
     "Sleep Dagger": {
-     "cast_share": 0.788,
-     "first_share": 0.817,
+     "cast_share": 0.789,
+     "first_share": 0.819,
      "median_first_cast_s": 2.5,
-     "ult_after_share": 0.384
+     "ult_after_share": 0.387
     },
     "Smoke Bomb": {
      "cast_share": 0.076,
@@ -113,18 +113,18 @@
      "ult_after_share": 0.0
     },
     "Bullet Dance": {
-     "cast_share": 0.234,
-     "first_share": 0.17,
+     "cast_share": 0.233,
+     "first_share": 0.169,
      "median_first_cast_s": 2.0,
      "ult_after_share": null
     }
    },
-   "timing_error": 0.385,
-   "mix_distance": 0.045,
+   "timing_error": 0.386,
+   "mix_distance": 0.044,
    "ability_real_over_sim": {
-    "Sleep Dagger": 1.01,
-    "Fixation": 0.928,
-    "Bullet Dance": 0.81
+    "Sleep Dagger": 1.013,
+    "Fixation": 0.929,
+    "Bullet Dance": 0.813
    },
    "ability_log_err": 0.098,
    "real_mix": {
@@ -135,9 +135,9 @@
     "other": 0.0201
    },
    "sim_mix": {
-    "gun": 0.3409,
-    "ability": 0.5477,
-    "item": 0.0926,
+    "gun": 0.3413,
+    "ability": 0.5471,
+    "item": 0.0929,
     "melee": 0.0132,
     "other": 0.0055
    }
@@ -181,14 +181,14 @@
    "ult_after": [],
    "timing": {
     "Power Slash": {
-     "cast_share": 0.464,
-     "first_share": -0.033,
-     "median_first_cast_s": 4.0,
-     "ult_after_share": 0.942
+     "cast_share": 0.585,
+     "first_share": 0.093,
+     "median_first_cast_s": 3.2,
+     "ult_after_share": 0.917
     },
     "Flying Slash": {
      "cast_share": 0.996,
-     "first_share": 1.033,
+     "first_share": 0.907,
      "median_first_cast_s": 0.0,
      "ult_after_share": 1.0
     },
@@ -199,18 +199,18 @@
      "ult_after_share": 1.0
     },
     "Shadow Transformation": {
-     "cast_share": 0.33,
+     "cast_share": 0.362,
      "first_share": 0.0,
-     "median_first_cast_s": 6.6,
+     "median_first_cast_s": 7.3,
      "ult_after_share": null
     }
    },
-   "timing_error": 0.661,
-   "mix_distance": 0.02,
+   "timing_error": 0.583,
+   "mix_distance": 0.019,
    "ability_real_over_sim": {
-    "Power Slash": 1.01,
-    "Flying Slash": 1.004,
-    "Crimson Slash": 1.016
+    "Power Slash": 0.986,
+    "Flying Slash": 1.0,
+    "Crimson Slash": 1.015
    },
    "ability_log_err": 0.01,
    "real_mix": {
@@ -221,11 +221,11 @@
     "other": 0.0262
    },
    "sim_mix": {
-    "gun": 0.2434,
-    "ability": 0.3795,
-    "item": 0.1809,
-    "melee": 0.1893,
-    "other": 0.0069
+    "gun": 0.2417,
+    "ability": 0.3804,
+    "item": 0.1821,
+    "melee": 0.189,
+    "other": 0.0068
    }
   },
   "replay": {
@@ -241,14 +241,14 @@
    ],
    "timing": {
     "Power Slash": {
-     "cast_share": 0.455,
-     "first_share": -0.034,
-     "median_first_cast_s": 4.0,
-     "ult_after_share": 0.941
+     "cast_share": 0.576,
+     "first_share": 0.092,
+     "median_first_cast_s": 3.2,
+     "ult_after_share": 0.915
     },
     "Flying Slash": {
      "cast_share": 0.996,
-     "first_share": 1.034,
+     "first_share": 0.908,
      "median_first_cast_s": 0.0,
      "ult_after_share": 1.0
     },
@@ -259,20 +259,20 @@
      "ult_after_share": 1.0
     },
     "Shadow Transformation": {
-     "cast_share": 0.323,
+     "cast_share": 0.356,
      "first_share": 0.0,
-     "median_first_cast_s": 6.9,
+     "median_first_cast_s": 7.4,
      "ult_after_share": null
     }
    },
-   "timing_error": 0.662,
-   "mix_distance": 0.02,
+   "timing_error": 0.586,
+   "mix_distance": 0.021,
    "ability_real_over_sim": {
-    "Power Slash": 1.134,
-    "Flying Slash": 0.94,
-    "Crimson Slash": 0.932
+    "Power Slash": 1.133,
+    "Flying Slash": 0.931,
+    "Crimson Slash": 0.918
    },
-   "ability_log_err": 0.086,
+   "ability_log_err": 0.094,
    "real_mix": {
     "gun": 0.2416,
     "ability": 0.3802,
@@ -281,11 +281,11 @@
     "other": 0.0262
    },
    "sim_mix": {
-    "gun": 0.2412,
-    "ability": 0.3814,
-    "item": 0.1787,
-    "melee": 0.1919,
-    "other": 0.0068
+    "gun": 0.2396,
+    "ability": 0.3822,
+    "item": 0.18,
+    "melee": 0.1915,
+    "other": 0.0067
    }
   }
  },
@@ -327,31 +327,31 @@
    "ult_after": [],
    "timing": {
     "Vexing Bolt": {
-     "cast_share": 0.427,
-     "first_share": 0.343,
-     "median_first_cast_s": 2.7,
+     "cast_share": 0.667,
+     "first_share": 0.443,
+     "median_first_cast_s": 0.7,
      "ult_after_share": 0.465
     },
     "Spectral Assistant": {
-     "cast_share": 0.333,
-     "first_share": 0.191,
-     "median_first_cast_s": 4.0,
+     "cast_share": 0.574,
+     "first_share": 0.303,
+     "median_first_cast_s": 1.1,
      "ult_after_share": 0.33
     },
     "Rabbit Hex": {
      "cast_share": 0.39,
-     "first_share": 0.246,
+     "first_share": 0.134,
      "median_first_cast_s": 2.5,
      "ult_after_share": 0.22
     },
     "Audience Participation": {
      "cast_share": 0.35,
-     "first_share": 0.22,
+     "first_share": 0.12,
      "median_first_cast_s": 2.8,
      "ult_after_share": null
     }
    },
-   "timing_error": 0.659,
+   "timing_error": 0.373,
    "mix_distance": 0.023,
    "ability_real_over_sim": {
     "Vexing Bolt": 1.095,
@@ -385,31 +385,31 @@
    "ult_after": [],
    "timing": {
     "Vexing Bolt": {
-     "cast_share": 0.427,
-     "first_share": 0.324,
-     "median_first_cast_s": 2.7,
+     "cast_share": 0.667,
+     "first_share": 0.433,
+     "median_first_cast_s": 0.7,
      "ult_after_share": 0.465
     },
     "Spectral Assistant": {
-     "cast_share": 0.333,
-     "first_share": 0.184,
-     "median_first_cast_s": 4.0,
+     "cast_share": 0.574,
+     "first_share": 0.299,
+     "median_first_cast_s": 1.0,
      "ult_after_share": 0.33
     },
     "Rabbit Hex": {
      "cast_share": 0.391,
-     "first_share": 0.271,
+     "first_share": 0.148,
      "median_first_cast_s": 2.5,
      "ult_after_share": 0.22
     },
     "Audience Participation": {
      "cast_share": 0.35,
-     "first_share": 0.22,
+     "first_share": 0.12,
      "median_first_cast_s": 2.8,
      "ult_after_share": null
     }
    },
-   "timing_error": 0.657,
+   "timing_error": 0.362,
    "mix_distance": 0.022,
    "ability_real_over_sim": {
     "Vexing Bolt": 1.092,
