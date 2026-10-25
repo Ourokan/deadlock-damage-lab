@@ -120,8 +120,10 @@ async function loadMatch(e) {
     mStatus(`Match ${id}, ${clock(M.match.duration)} long. Pick the player and the target, then test.`);
     $("#m-out").innerHTML = "";
     renderPick();
+    rpLoad(id);
   } catch (err) {
     M.match = null; renderPick();
+    $("#r-box").hidden = true;
     mStatus(err.message || "Couldn't load that match.", true);
   } finally { $("#m-load").disabled = false; }
 }
@@ -235,7 +237,7 @@ function matchFromHash() {
 (async function bootMatch() {
   await S.dataReady;
   $("#m-form").addEventListener("submit", loadMatch);
-  $("#m-a").onchange = (e) => { M.a = Number(e.target.value); if (M.d != null && pl(M.d).team === pl(M.a).team) M.d = defaultTarget(pl(M.a)); renderPick(); };
+  $("#m-a").onchange = (e) => { M.a = Number(e.target.value); if (M.d != null && pl(M.d).team === pl(M.a).team) M.d = defaultTarget(pl(M.a)); renderPick(); if (R.fights.length) rpList(); };
   $("#m-d").onchange = (e) => { M.d = Number(e.target.value); renderPick(); };
   $("#m-t").onchange = (e) => { M.t = Number(e.target.value); renderPick(); };
   $("#m-aim").onchange = (e) => { M.aim = e.target.checked; };
