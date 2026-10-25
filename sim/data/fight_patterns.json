@@ -1,5 +1,5 @@
 {
- "_doc": "Per-hero fight behaviour (deadsim.patterns). order: cast priority once the fight is on (abilities not listed follow in slot order). ult_after: the ultimate waits until one of these setup abilities was cast this fight (or SETUP_WAIT s pass). prefight: ability used before the fight starts (its impl's prefight hook runs at t=0). order and ult_after come from 158 Phantom+ replays (Oct 2026, Deadlock API demo extracts, 'replay' block): a fight is a run of hero-vs-hero damage with gaps under 8 s and at least 300 damage; order ranks abilities cast in >= 10% of fights by which one usually comes first; ult_after lists abilities cast before the ultimate in >= 60% of fights with an ultimate. engage_share / start_distance_m: real match_paths (300 matches): share of fight starts during ability movement, median distance to the nearest enemy when the fight starts. guide_* and the other research fields (engage, ult, holds, range, notes, sources, confidence) come from web guides, kept for reference. A combo is used only when it fits the real damage mix (scripts/landing_rates.py, mechanics on) within 0.05 of slot order's mean |log landing factor| (fit_error); otherwise order is empty and 'dropped' says why. Mo & Krill's burrow opener stays on (Tyler).",
+ "_doc": "Per-hero fight behaviour (deadsim.patterns). order: cast priority once the fight is on (abilities not listed follow in slot order). ult_after: the ultimate waits until one of these setup abilities was cast this fight (or SETUP_WAIT s pass). prefight: ability used before the fight starts (its impl's prefight hook runs at t=0). order and ult_after come from 158 Phantom+ replays (Oct 2026, Deadlock API demo extracts, 'replay' block): a fight is a run of hero-vs-hero damage with gaps under 8 s and at least 300 damage; order ranks abilities cast in >= 10% of fights by which one usually comes first; ult_after lists abilities cast before the ultimate in >= 60% of fights with an ultimate. engage_share / start_distance_m: real match_paths (300 matches): share of fight starts during ability movement, median distance to the nearest enemy when the fight starts. guide_* and the other research fields (engage, ult, holds, range, notes, sources, confidence) come from web guides, kept for reference. A combo is used only when it fits the real damage mix (scripts/landing_rates.py, mechanics on) within 0.05 of slot order's mean |log landing factor| (fit_error); otherwise order is empty and 'dropped' says why. Mo & Krill's burrow opener stays on (Tyler). Sinclair and Apollo (dropped at first) are on since 2026-10-25, judged by scripts/fight_patterns/combo_check.py (cast timing vs the replays + damage audit).",
  "heroes": {
   "1": {
    "name": "Infernus",
@@ -2654,7 +2654,12 @@
   },
   "60": {
    "name": "Sinclair",
-   "order": [],
+   "order": [
+    "ability_magician_cloneturret",
+    "ability_magician_magicbolt",
+    "ability_magician_animalhexarea",
+    "ability_magician_copyult"
+   ],
    "ult_after": [],
    "prefight": null,
    "guide_order": [
@@ -2750,8 +2755,7 @@
     "ability_magician_magicbolt",
     "ability_magician_copyult"
    ],
-   "replay_ult_after": [],
-   "dropped": "the replay combo fits the real damage mix worse than slot order in the sim (mean |log landing| 1.86 -> 1.97), which points at a gap in this hero's ability model; slot order kept"
+   "replay_ult_after": []
   },
   "63": {
    "name": "Mina",
@@ -3551,8 +3555,16 @@
   },
   "77": {
    "name": "Apollo",
-   "order": [],
-   "ult_after": [],
+   "order": [
+    "ability_fencer_throwblade",
+    "ability_fencer_lunge",
+    "ability_fencer_riposte",
+    "ability_fencer_ultimate"
+   ],
+   "ult_after": [
+    "ability_fencer_throwblade",
+    "ability_fencer_lunge"
+   ],
    "prefight": null,
    "guide_order": [
     "ability_fencer_lunge",
@@ -3653,8 +3665,7 @@
    "replay_ult_after": [
     "ability_fencer_throwblade",
     "ability_fencer_lunge"
-   ],
-   "dropped": "the replay combo fits the real damage mix worse than slot order in the sim (mean |log landing| 0.68 -> 0.78), which points at a gap in this hero's ability model; slot order kept"
+   ]
   },
   "78": {
    "name": "Deadman Danny",

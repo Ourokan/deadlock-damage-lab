@@ -25,6 +25,10 @@ from .build import Stats, combine_resist, stack_cdr
 from .patterns import fight_start
 
 INF = float("inf")
+# (mod key, tag, damage source): a target's damage amp the game books under the ability that put it there; the
+# mod's tag is this tag + the caster's name, so only the caster's own hits book it (team fights: allies' hits on a
+# hexed target stay theirs)
+BOOKED_AMPS = (("damage_taken_amp", ("ability_magician_animalhexarea", "damage_taken_amp"), "Rabbit Hex"),)
 PROFILE_SOURCES = False  # also book damage by source and 2 s slice (Fighter.dmg_src_2s; scripts/fight_length/opener_timing.py)
 # Melee rotation (assumptions; the API has no light/heavy split): share of landed melees that are heavy, and how
 # long each melee stops the gun.
@@ -614,14 +618,35 @@ class Engine:
     @staticmethod
     def booking(src, dst, amt, kind, name, pure):
         """[(name, damage)] as the game's damage records split a hit: Escalating Exposure's spirit amp is booked
-        under the item (replays and the API's damage matrix list it as its own source), the rest under name."""
-        if kind != "spirit" or pure:
+        under the item (replays and the API's damage matrix list it as its own source), an ability's damage amp
+        on the target under that ability (BOOKED_AMPS: Sinclair's Rabbit Hex deals no damage of its own, yet
+        the matrix lists ~5% of his damage under it), the rest under name."""
+        if pure:
             return ((name, amt),)
-        expo = dst.mods.get("spirit_amp_taken", ("expo", src.name))
-        if not expo:
+        out = []
+        left = amt
+        if kind == "spirit":
+            expo = dst.mods.get("spirit_amp_taken", ("expo", src.name))
+            if expo:
+                part = amt * expo / (1.0 + dst.stat("spirit_amp_taken"))
+                out.append(("Escalating Exposure", part))
+                left -= part
+        for key, tag, label in BOOKED_AMPS:
+            v = dst.mods.get(key, (*tag, src.name))
+            if v and label != name:
+                part = amt * v / (1.0 + dst.stat(key))
+                out.append((label, part))
+                left -= part
+        if not out:
             return ((name, amt),)
-        part = amt * expo / (1.0 + dst.stat("spirit_amp_taken"))
-        return ((name, amt - part), ("Escalating Exposure", part))
+        return ((name, left), *out)
+
+    @staticmethod
+    def booked_factor(src, name):
+        il = src.skill.item_landing or {}
+        if name in il:
+            return il[name]
+        return (src.skill.ability_landing or {}).get(name, 1.0)
 
     def damage(self, src: Fighter, dst: Fighter, raw: float, kind: str, source: str, *,
                ignore_resist=False, is_ability=False, ability=None, is_dot=False, is_item=False,
@@ -690,10 +715,10 @@ class Engine:
         hit = Hit(kind, source, 0.0, raw, is_ability, ability, headshots, hits, is_dot, is_item, is_ult, weapon_proc,
                   landing=land, pre_mit=pre_mit)
         booked = self.booking(src, dst, amt, kind, book or source, pure)
-        if src.skill.item_landing and (book or len(booked) > 1):
+        if (src.skill.item_landing or src.skill.ability_landing) and (book or len(booked) > 1):
             # damage booked under an item (Express Shot's proc shot, Escalating Exposure's amp) gets that item's
-            # realistic-mode factor, like an item's own damage above
-            booked = tuple((n, v if n == source else v * src.skill.item_landing.get(n, 1.0)) for n, v in booked)
+            # realistic-mode factor, like an item's own damage above; an ability's booked amp its landing factor
+            booked = tuple((n, v if n == source else v * self.booked_factor(src, n)) for n, v in booked)
             amt = sum(v for _, v in booked)
         # barrier then health
         left = amt

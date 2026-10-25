@@ -27,6 +27,8 @@ every hit in full and keep the old length_corr) rerun this.
 
 usage: python3 length_factors.py [workers] [--sample PATH] [--rounds 3] [--write] [--hero NAME] [--refit]   (~1 min a round on 4 cores)
 --hero: only that hero's players and ability rows (a newly added hero); item factors are left as they are.
+After refit_landing_heroes.py for a hero: --refit --no-cast-timing --hero NAME (the corrections as before cast
+timing), then --hero NAME in keep mode (the file's cast_timing_kept mark covers the other rows and stays).
 """
 import collections
 import gzip
@@ -104,7 +106,9 @@ def main():
         sample = args[i + 1]
         args = args[:i] + args[i + 2:]
     write = "--write" in args
-    args = [a for a in args if a not in ("--write", "--refit")]
+    if "--no-cast-timing" in args:   # duels cast on sight: the pre-cast-timing refit for a hero refit's new rows
+        set_cast_timing(False)
+    args = [a for a in args if a not in ("--write", "--refit", "--no-cast-timing")]
     rounds = 3
     if "--rounds" in args:
         i = args.index("--rounds")
@@ -133,7 +137,9 @@ def main():
     target_ab = target_it = None
     abil, items = json.load(open(ABILITY_FILE)), json.load(open(ITEM_FILE))
     keep = A.MECH.cast_timing and "--refit" not in sys.argv
-    if keep and "cast_timing_kept" in abil["meta"]:
+    # --hero rescales only that hero's rows, which a hero refit just reset (refit_landing_heroes.py, then this
+    # with --refit --no-cast-timing, then this again in keep mode): the file's other rows and its mark stay
+    if keep and "cast_timing_kept" in abil["meta"] and only is None:
         # the target run would cast on sight with corrections already scaled for held casts: rerunning compounds
         sys.exit("length_factors: these factors are already scaled for cast timing (meta cast_timing_kept). Start "
                  "from the factors before it (git: the commit before the cast-timing refit) or use --refit.")
@@ -190,7 +196,7 @@ def main():
             f"scripts/fight_length/length_factors.py, {os.path.basename(sample)}, {rounds} rounds)")
     abil["meta"]["length"] = note
     items["meta"]["length"] = note
-    for d in (abil, items):
+    for d in () if only is not None else (abil, items):
         d["meta"].pop("cast_timing_kept", None)
         if keep:
             d["meta"]["cast_timing_kept"] = ("length_corr scaled so held first casts (Mechanics.cast_timing) keep the "

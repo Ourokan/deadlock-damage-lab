@@ -109,6 +109,31 @@ class Booking(unittest.TestCase):
         self.assertAlmostEqual(amp_half, amp * 0.5, places=6)
 
 
+    def test_rabbit_hex_amp_booked_under_the_hex(self):
+        """Rabbit Hex deals no damage; the game books its damage amp on the target under it (2026-10-25)."""
+        def hit(factor):
+            e = Engine()
+            a, b = pair(e, "Sinclair", [], souls=9000)
+            if factor is not None:
+                a.skill.ability_landing = {"Rabbit Hex": factor}
+            b.mods.add("damage_taken_amp", 0.15, 5.0, ("ability_magician_animalhexarea", "damage_taken_amp", a.name))
+            e.damage(a, b, 100, "bullet", "gun")
+            return a.dmg_out["gun"], a.dmg_out.get("Rabbit Hex", 0.0)
+        gun, hx = hit(None)
+        self.assertAlmostEqual(hx / (gun + hx), 0.15 / 1.15, places=6)
+        gun_h, hx_h = hit(0.5)
+        self.assertAlmostEqual(gun_h, gun, places=6)
+        self.assertAlmostEqual(hx_h, hx * 0.5, places=6)
+
+    def test_rabbit_hex_amp_not_booked_on_someone_elses_hits(self):
+        e = Engine()
+        a, b = pair(e, "Haze", [], souls=9000)
+        b.mods.add("damage_taken_amp", 0.15, 5.0, ("ability_magician_animalhexarea", "damage_taken_amp", "Sinclair"))
+        a.skill.ability_landing = {"Rabbit Hex": 0.5}
+        e.damage(a, b, 100, "bullet", "gun")
+        self.assertNotIn("Rabbit Hex", a.dmg_out)
+
+
 class KineticCarbine(unittest.TestCase):
     def carbine_hit(self, souls):
         aim = Skill(accuracy=0.0, headshot=0.0, spirit_accuracy=1.0, use_abilities=True, use_actives=False)

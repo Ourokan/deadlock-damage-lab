@@ -74,7 +74,9 @@ class RabbitHex(AbilityImpl):
         acc = c.me.skill.spirit_accuracy
         d = c.dur("HexDuration")
         c.debuff("stun", 1, d * acc, delay=t)
-        c.debuff("damage_taken_amp", c.val("DamageAmpPercentage") / 100 * acc, d, delay=t)
+        # tagged with Sinclair's name: engine.BOOKED_AMPS books the amp on his own hits under Rabbit Hex
+        c.debuff("damage_taken_amp", c.val("DamageAmpPercentage") / 100 * acc, d, delay=t,
+                 tag=("ability_magician_animalhexarea", "damage_taken_amp", c.me.name))
 
 
 @register("ability_magician_copyult")

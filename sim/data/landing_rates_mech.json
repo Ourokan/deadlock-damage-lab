@@ -474,24 +474,24 @@
   "Yamato": {
    "Power Slash": {
     "class": "citadel_ability_power_slash",
-    "landing": 0.23,
+    "landing": 0.27,
     "real_share": 0.1412,
     "sim_share": 0.1331,
-    "length_corr": 1.439
+    "length_corr": 1.783
    },
    "Flying Slash": {
     "class": "citadel_ability_flying_strike",
-    "landing": 0.52,
+    "landing": 0.56,
     "real_share": 0.1371,
     "sim_share": 0.1289,
-    "length_corr": 0.716
+    "length_corr": 1.1
    },
    "Crimson Slash": {
     "class": "citadel_ability_healing_slash",
-    "landing": 0.39,
+    "landing": 0.43,
     "real_share": 0.1132,
     "sim_share": 0.1062,
-    "length_corr": 0.714
+    "length_corr": 1.128
    }
   },
   "Lash": {
@@ -622,21 +622,26 @@
     "landing": 0.63,
     "real_share": 0.3224,
     "sim_share": 0.2603,
-    "length_corr": 1.122
+    "length_corr": 1.14
    },
    "Spectral Assistant": {
     "class": "ability_magician_cloneturret",
     "landing": 0.41,
     "real_share": 0.2117,
     "sim_share": 0.1711,
-    "length_corr": 1.714
+    "length_corr": 1.671
    },
    "Audience Participation": {
     "class": "ability_magician_copyult",
-    "landing": 0.76,
+    "landing": 0.6,
     "real_share": 0.0,
     "sim_share": 0.3541,
-    "length_corr": 4.029
+    "length_corr": 4.575
+   },
+   "Rabbit Hex": {
+    "landing": 0.51,
+    "class": "ability_magician_animalhexarea",
+    "length_corr": 2.493
    }
   },
   "Mina": {

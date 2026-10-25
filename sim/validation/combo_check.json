@@ -1,0 +1,583 @@
+{
+ "Haze": {
+  "real": {
+   "Sleep Dagger": {
+    "cast_share": 0.823,
+    "first_share": 0.71,
+    "pre_share": 0.238,
+    "median_first_cast_s": 1.0,
+    "ult_after_share": 0.876
+   },
+   "Smoke Bomb": {
+    "cast_share": 0.336,
+    "first_share": 0.128,
+    "pre_share": 0.063,
+    "median_first_cast_s": 6.48,
+    "ult_after_share": 0.253
+   },
+   "Fixation": {
+    "cast_share": 0.0,
+    "first_share": 0.0,
+    "pre_share": 0.0,
+    "median_first_cast_s": null,
+    "ult_after_share": 0.0
+   },
+   "Bullet Dance": {
+    "cast_share": 0.234,
+    "first_share": 0.026,
+    "pre_share": 0.013,
+    "median_first_cast_s": 4.67,
+    "ult_after_share": null
+   }
+  },
+  "players": 324,
+  "mix_players": 324,
+  "off": {
+   "order": [],
+   "ult_after": [],
+   "timing": {
+    "Sleep Dagger": {
+     "cast_share": 0.792,
+     "first_share": 0.82,
+     "median_first_cast_s": 2.5,
+     "ult_after_share": 0.389
+    },
+    "Smoke Bomb": {
+     "cast_share": 0.076,
+     "first_share": 0.011,
+     "median_first_cast_s": 8.1,
+     "ult_after_share": 0.021
+    },
+    "Fixation": {
+     "cast_share": 0.0,
+     "first_share": 0.0,
+     "median_first_cast_s": null,
+     "ult_after_share": 0.0
+    },
+    "Bullet Dance": {
+     "cast_share": 0.234,
+     "first_share": 0.169,
+     "median_first_cast_s": 2.0,
+     "ult_after_share": null
+    }
+   },
+   "timing_error": 0.386,
+   "mix_distance": 0.044,
+   "ability_real_over_sim": {
+    "Sleep Dagger": 1.009,
+    "Fixation": 0.927,
+    "Bullet Dance": 0.809
+   },
+   "ability_log_err": 0.099,
+   "real_mix": {
+    "gun": 0.3456,
+    "ability": 0.5032,
+    "item": 0.1156,
+    "melee": 0.0155,
+    "other": 0.0201
+   },
+   "sim_mix": {
+    "gun": 0.3406,
+    "ability": 0.5476,
+    "item": 0.0929,
+    "melee": 0.0133,
+    "other": 0.0055
+   }
+  },
+  "replay": {
+   "order": [
+    "ability_sleep_dagger",
+    "ability_smoke_bomb",
+    "ability_bullet_flurry"
+   ],
+   "ult_after": [
+    "ability_sleep_dagger"
+   ],
+   "timing": {
+    "Sleep Dagger": {
+     "cast_share": 0.801,
+     "first_share": 0.893,
+     "median_first_cast_s": 2.4,
+     "ult_after_share": 0.646
+    },
+    "Smoke Bomb": {
+     "cast_share": 0.077,
+     "first_share": 0.012,
+     "median_first_cast_s": 8.1,
+     "ult_after_share": 0.021
+    },
+    "Fixation": {
+     "cast_share": 0.0,
+     "first_share": 0.0,
+     "median_first_cast_s": null,
+     "ult_after_share": 0.0
+    },
+    "Bullet Dance": {
+     "cast_share": 0.224,
+     "first_share": 0.095,
+     "median_first_cast_s": 3.3,
+     "ult_after_share": null
+    }
+   },
+   "timing_error": 0.34,
+   "mix_distance": 0.048,
+   "ability_real_over_sim": {
+    "Sleep Dagger": 0.997,
+    "Fixation": 0.906,
+    "Bullet Dance": 0.814
+   },
+   "ability_log_err": 0.103,
+   "real_mix": {
+    "gun": 0.3456,
+    "ability": 0.5032,
+    "item": 0.1156,
+    "melee": 0.0155,
+    "other": 0.0201
+   },
+   "sim_mix": {
+    "gun": 0.3382,
+    "ability": 0.5511,
+    "item": 0.0921,
+    "melee": 0.0131,
+    "other": 0.0055
+   }
+  }
+ },
+ "Yamato": {
+  "real": {
+   "Power Slash": {
+    "cast_share": 0.604,
+    "first_share": 0.158,
+    "pre_share": 0.036,
+    "median_first_cast_s": 4.48,
+    "ult_after_share": 0.595
+   },
+   "Flying Slash": {
+    "cast_share": 0.736,
+    "first_share": 0.457,
+    "pre_share": 0.304,
+    "median_first_cast_s": 0.44,
+    "ult_after_share": 0.8
+   },
+   "Crimson Slash": {
+    "cast_share": 0.849,
+    "first_share": 0.314,
+    "pre_share": 0.033,
+    "median_first_cast_s": 2.05,
+    "ult_after_share": 0.833
+   },
+   "Shadow Transformation": {
+    "cast_share": 0.261,
+    "first_share": 0.017,
+    "pre_share": 0.009,
+    "median_first_cast_s": 8.95,
+    "ult_after_share": null
+   }
+  },
+  "players": 197,
+  "mix_players": 131,
+  "off": {
+   "order": [],
+   "ult_after": [],
+   "timing": {
+    "Power Slash": {
+     "cast_share": 0.587,
+     "first_share": 0.092,
+     "median_first_cast_s": 3.2,
+     "ult_after_share": 0.937
+    },
+    "Flying Slash": {
+     "cast_share": 0.991,
+     "first_share": 0.908,
+     "median_first_cast_s": 0.0,
+     "ult_after_share": 1.0
+    },
+    "Crimson Slash": {
+     "cast_share": 0.959,
+     "first_share": 0.0,
+     "median_first_cast_s": 0.5,
+     "ult_after_share": 1.0
+    },
+    "Shadow Transformation": {
+     "cast_share": 0.315,
+     "first_share": 0.0,
+     "median_first_cast_s": 7.0,
+     "ult_after_share": null
+    }
+   },
+   "timing_error": 0.571,
+   "mix_distance": 0.019,
+   "ability_real_over_sim": {
+    "Power Slash": 1.007,
+    "Flying Slash": 1.003,
+    "Crimson Slash": 1.016
+   },
+   "ability_log_err": 0.009,
+   "real_mix": {
+    "gun": 0.2416,
+    "ability": 0.3802,
+    "item": 0.1684,
+    "melee": 0.1836,
+    "other": 0.0262
+   },
+   "sim_mix": {
+    "gun": 0.2439,
+    "ability": 0.3808,
+    "item": 0.181,
+    "melee": 0.1875,
+    "other": 0.0068
+   }
+  },
+  "replay": {
+   "order": [
+    "citadel_ability_flying_strike",
+    "citadel_ability_healing_slash",
+    "citadel_ability_power_slash",
+    "citadel_ability_infinity_slash"
+   ],
+   "ult_after": [
+    "citadel_ability_flying_strike",
+    "citadel_ability_healing_slash"
+   ],
+   "timing": {
+    "Power Slash": {
+     "cast_share": 0.573,
+     "first_share": 0.0,
+     "median_first_cast_s": 3.2,
+     "ult_after_share": 0.93
+    },
+    "Flying Slash": {
+     "cast_share": 0.998,
+     "first_share": 1.0,
+     "median_first_cast_s": 0.0,
+     "ult_after_share": 1.0
+    },
+    "Crimson Slash": {
+     "cast_share": 0.981,
+     "first_share": 0.0,
+     "median_first_cast_s": 0.5,
+     "ult_after_share": 1.0
+    },
+    "Shadow Transformation": {
+     "cast_share": 0.286,
+     "first_share": 0.0,
+     "median_first_cast_s": 7.4,
+     "ult_after_share": null
+    }
+   },
+   "timing_error": 0.617,
+   "mix_distance": 0.019,
+   "ability_real_over_sim": {
+    "Power Slash": 1.176,
+    "Flying Slash": 0.941,
+    "Crimson Slash": 0.941
+   },
+   "ability_log_err": 0.095,
+   "real_mix": {
+    "gun": 0.2416,
+    "ability": 0.3802,
+    "item": 0.1684,
+    "melee": 0.1836,
+    "other": 0.0262
+   },
+   "sim_mix": {
+    "gun": 0.2441,
+    "ability": 0.3807,
+    "item": 0.1771,
+    "melee": 0.1913,
+    "other": 0.0068
+   }
+  }
+ },
+ "Sinclair": {
+  "real": {
+   "Vexing Bolt": {
+    "cast_share": 0.786,
+    "first_share": 0.168,
+    "pre_share": 0.121,
+    "median_first_cast_s": 0.58,
+    "ult_after_share": 0.52
+   },
+   "Spectral Assistant": {
+    "cast_share": 0.807,
+    "first_share": 0.443,
+    "pre_share": 0.298,
+    "median_first_cast_s": 0.75,
+    "ult_after_share": 0.507
+   },
+   "Rabbit Hex": {
+    "cast_share": 0.634,
+    "first_share": 0.256,
+    "pre_share": 0.152,
+    "median_first_cast_s": 1.8,
+    "ult_after_share": 0.539
+   },
+   "Audience Participation": {
+    "cast_share": 0.354,
+    "first_share": 0.093,
+    "pre_share": 0.07,
+    "median_first_cast_s": 4.25,
+    "ult_after_share": null
+   }
+  },
+  "players": 56,
+  "mix_players": 20,
+  "off": {
+   "order": [],
+   "ult_after": [],
+   "timing": {
+    "Vexing Bolt": {
+     "cast_share": 0.426,
+     "first_share": 0.342,
+     "median_first_cast_s": 2.7,
+     "ult_after_share": 0.464
+    },
+    "Spectral Assistant": {
+     "cast_share": 0.336,
+     "first_share": 0.191,
+     "median_first_cast_s": 4.0,
+     "ult_after_share": 0.341
+    },
+    "Rabbit Hex": {
+     "cast_share": 0.392,
+     "first_share": 0.247,
+     "median_first_cast_s": 2.5,
+     "ult_after_share": 0.219
+    },
+    "Audience Participation": {
+     "cast_share": 0.349,
+     "first_share": 0.22,
+     "median_first_cast_s": 2.8,
+     "ult_after_share": null
+    }
+   },
+   "timing_error": 0.657,
+   "mix_distance": 0.023,
+   "ability_real_over_sim": {
+    "Vexing Bolt": 1.1,
+    "Spectral Assistant": 1.207,
+    "Rabbit Hex": 1.176,
+    "Audience Participation": 0.891
+   },
+   "ability_log_err": 0.14,
+   "real_mix": {
+    "gun": 0.1664,
+    "ability": 0.7578,
+    "item": 0.0226,
+    "melee": 0.0343,
+    "other": 0.0189
+   },
+   "sim_mix": {
+    "gun": 0.1759,
+    "ability": 0.7519,
+    "item": 0.0312,
+    "melee": 0.0396,
+    "other": 0.0015
+   }
+  },
+  "replay": {
+   "order": [
+    "ability_magician_animalhexarea",
+    "ability_magician_cloneturret",
+    "ability_magician_magicbolt",
+    "ability_magician_copyult"
+   ],
+   "ult_after": [],
+   "timing": {
+    "Vexing Bolt": {
+     "cast_share": 0.426,
+     "first_share": 0.313,
+     "median_first_cast_s": 2.7,
+     "ult_after_share": 0.464
+    },
+    "Spectral Assistant": {
+     "cast_share": 0.336,
+     "first_share": 0.185,
+     "median_first_cast_s": 4.0,
+     "ult_after_share": 0.341
+    },
+    "Rabbit Hex": {
+     "cast_share": 0.393,
+     "first_share": 0.282,
+     "median_first_cast_s": 2.5,
+     "ult_after_share": 0.219
+    },
+    "Audience Participation": {
+     "cast_share": 0.349,
+     "first_share": 0.22,
+     "median_first_cast_s": 2.8,
+     "ult_after_share": null
+    }
+   },
+   "timing_error": 0.656,
+   "mix_distance": 0.022,
+   "ability_real_over_sim": {
+    "Vexing Bolt": 1.09,
+    "Spectral Assistant": 1.209,
+    "Rabbit Hex": 1.131,
+    "Audience Participation": 0.892
+   },
+   "ability_log_err": 0.128,
+   "real_mix": {
+    "gun": 0.1664,
+    "ability": 0.7578,
+    "item": 0.0226,
+    "melee": 0.0343,
+    "other": 0.0189
+   },
+   "sim_mix": {
+    "gun": 0.1752,
+    "ability": 0.753,
+    "item": 0.031,
+    "melee": 0.0393,
+    "other": 0.0015
+   }
+  }
+ },
+ "Apollo": {
+  "real": {
+   "Disengaging Sigil": {
+    "cast_share": 0.776,
+    "first_share": 0.37,
+    "pre_share": 0.063,
+    "median_first_cast_s": 3.11,
+    "ult_after_share": 0.709
+   },
+   "Riposte": {
+    "cast_share": 0.631,
+    "first_share": 0.228,
+    "pre_share": 0.063,
+    "median_first_cast_s": 4.16,
+    "ult_after_share": 0.566
+   },
+   "Flawless Advance": {
+    "cast_share": 0.702,
+    "first_share": 0.285,
+    "pre_share": 0.028,
+    "median_first_cast_s": 5.2,
+    "ult_after_share": 0.686
+   },
+   "Itani Lo Sahn": {
+    "cast_share": 0.23,
+    "first_share": 0.039,
+    "pre_share": 0.02,
+    "median_first_cast_s": 9.38,
+    "ult_after_share": null
+   }
+  },
+  "players": 111,
+  "mix_players": 6,
+  "off": {
+   "order": [],
+   "ult_after": [],
+   "timing": {
+    "Disengaging Sigil": {
+     "cast_share": 1.0,
+     "first_share": 1.0,
+     "median_first_cast_s": 0.0,
+     "ult_after_share": 1.0
+    },
+    "Riposte": {
+     "cast_share": 0.976,
+     "first_share": 0.0,
+     "median_first_cast_s": 0.1,
+     "ult_after_share": 0.989
+    },
+    "Flawless Advance": {
+     "cast_share": 0.997,
+     "first_share": 0.0,
+     "median_first_cast_s": 0.2,
+     "ult_after_share": 1.0
+    },
+    "Itani Lo Sahn": {
+     "cast_share": 0.574,
+     "first_share": 0.0,
+     "median_first_cast_s": 3.0,
+     "ult_after_share": null
+    }
+   },
+   "timing_error": 1.187,
+   "mix_distance": 0.193,
+   "ability_real_over_sim": {
+    "Disengaging Sigil": 0.516,
+    "Flawless Advance": 0.58,
+    "Itani Lo Sahn": 0.573
+   },
+   "ability_log_err": 0.588,
+   "real_mix": {
+    "gun": 0.2434,
+    "ability": 0.2939,
+    "item": 0.16,
+    "melee": 0.2869,
+    "other": 0.0158
+   },
+   "sim_mix": {
+    "gun": 0.2243,
+    "ability": 0.4871,
+    "item": 0.1145,
+    "melee": 0.1741,
+    "other": 0.0
+   }
+  },
+  "replay": {
+   "order": [
+    "ability_fencer_throwblade",
+    "ability_fencer_lunge",
+    "ability_fencer_riposte",
+    "ability_fencer_ultimate"
+   ],
+   "ult_after": [
+    "ability_fencer_throwblade",
+    "ability_fencer_lunge"
+   ],
+   "timing": {
+    "Disengaging Sigil": {
+     "cast_share": 1.0,
+     "first_share": 1.0,
+     "median_first_cast_s": 0.0,
+     "ult_after_share": 1.0
+    },
+    "Riposte": {
+     "cast_share": 0.973,
+     "first_share": 0.0,
+     "median_first_cast_s": 0.2,
+     "ult_after_share": 0.984
+    },
+    "Flawless Advance": {
+     "cast_share": 0.998,
+     "first_share": 0.0,
+     "median_first_cast_s": 0.1,
+     "ult_after_share": 1.0
+    },
+    "Itani Lo Sahn": {
+     "cast_share": 0.573,
+     "first_share": 0.0,
+     "median_first_cast_s": 2.9,
+     "ult_after_share": null
+    }
+   },
+   "timing_error": 1.188,
+   "mix_distance": 0.167,
+   "ability_real_over_sim": {
+    "Disengaging Sigil": 0.579,
+    "Flawless Advance": 0.64,
+    "Itani Lo Sahn": 0.648
+   },
+   "ability_log_err": 0.476,
+   "real_mix": {
+    "gun": 0.2434,
+    "ability": 0.2939,
+    "item": 0.16,
+    "melee": 0.2869,
+    "other": 0.0158
+   },
+   "sim_mix": {
+    "gun": 0.2366,
+    "ability": 0.4609,
+    "item": 0.1062,
+    "melee": 0.1964,
+    "other": 0.0
+   }
+  }
+ }
+}
