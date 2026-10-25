@@ -18,6 +18,7 @@ from __future__ import annotations
 import heapq
 import itertools
 import math
+import zlib
 from dataclasses import dataclass, field
 
 from .build import Stats, combine_resist, stack_cdr
@@ -130,6 +131,32 @@ def long_cooldowns_spent(f):
             fx.ready_at = max(fx.ready_at, c - FIGHT_GAP)
 
 
+def unused_items(f):
+    """Mark the active items this fighter leaves unused in this fight (fx.unused, read by on_start effects such as
+    Cultist Sacrifice's pre-fight buff): an item with real use share u (Skill.item_use) is unused when a quasi-random
+    draw from the fight phase is >= u, so over the overall score's spread enemy pool it is used in a share u of the
+    fights. The draw is shifted by a hash of the item and the fighter, so two items, or the same item on both sides
+    (whose phases differ by 0.5), are not left unused in the same fights. The cooldown is blocked afterwards
+    (block_unused), once on_start effects have set their own ready times."""
+    use = f.skill.item_use
+    if not use:
+        return
+    for fx in f.items_fx:
+        it = getattr(fx, "item", None)
+        u = use.get(it.name) if it is not None else None
+        if u is None or u >= 1.0:
+            continue
+        r = (f.skill.fight_phase + zlib.crc32(f"{it.name}|{f.name}".encode()) / 2 ** 32) % 1.0
+        if r >= u:
+            fx.unused = True
+
+
+def block_unused(f):
+    for fx in f.items_fx:
+        if getattr(fx, "unused", False):
+            fx.ready_at = math.inf
+
+
 @dataclass
 class Skill:
     accuracy: float = 0.26      # fraction of bullets that hit the target hero (ranked median, data/skill_defaults.json)
@@ -195,6 +222,10 @@ class Skill:
     # per-item damage factor keyed by item name, fitted from real damage (data/item_landing.json, factors < 1
     # only): procs spent on creeps, charges used outside fights. Multiplies damage booked under that item.
     item_landing: dict = field(default_factory=dict)
+    # per-item real use share of non-damage actives (data/item_use.json, scripts/item_use/fit_item_use.py: real
+    # Phantom+ holders cast Disarming Hex / Metal Skin / Unstoppable... in ~30-60% of their fights, the sim on sight
+    # in all). With a fight_phase the item sits unused in 1 - share of the fights (unused_items).
+    item_use: dict = field(default_factory=dict)
     # per-hero fight pattern (data/fight_patterns.json, deadsim.patterns): combo cast order, setup before the
     # ultimate, abilities used before the fight (Mo & Krill arrive under Burrow). False = cast in slot order.
     fight_pattern: bool = True
@@ -957,12 +988,15 @@ class Engine:
         a.enemy, b.enemy = b, a
         self.fighters = [a, b]
         for f in (a, b):
+            if f.skill.fight_phase is not None:
+                unused_items(f)
             for fx in f.items_fx:
                 g = getattr(fx, "on_start", None)
                 if g:
                     g(f)
             if f.skill.fight_phase is not None:
                 long_cooldowns_spent(f)
+                block_unused(f)
             for ab in f.abilities:
                 ab.start()
         for f in (a, b):

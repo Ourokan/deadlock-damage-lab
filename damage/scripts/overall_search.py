@@ -63,6 +63,12 @@ Kill value (2026-10-24, Decay still in ~2/3 of the best builds while losing real
 only matters through kills, and items' damage converts very unequally. Each item's own damage counts x its real
 kill weight (KILL_WEIGHT, sim/data/kill_weight.json): Decay's % current health, non-lethal ticks land mostly on
 targets that walk away (0.40 of its holder's other damage is followed by a kill), Siphon Bullets' 1.20.
+Item use (2026-10-24): the sim casts every active the moment it can; damage actives carry a real damage factor
+for that (item_landing), but debuff / buff / shield actives had none and counted in full in every fight. In 260
+Phantom+ replays holders cast them in only part of their engagements (sim/data/item_use.json,
+sim/scripts/item_use/fit_item_use.py: Knockdown 0.45, Cursed Relic 0.42, Disarming Hex 0.68, Rusted Barrel 0.74,
+Rescue Beam 0.28 of the sim's use; Metal Skin as often as the sim), so in realistic mode each sits unused in the rest of
+the spread fights (deadsim engine.unused_items). Ally actives' team value (team_value) is left as fitted.
 Not counted: vision, souls from farming (Monster Rounds), objective damage, debuffs from area items on the other
 enemies.
 
@@ -200,7 +206,10 @@ def area_damage(r, souls):
 
 def team_value(items, souls):
     """1 + the held ally items' team-only value (share of the holder's damage it gives teammates, per teammate in the
-    3v3) x real teammates in reach / the 3v3's (team_value.json items). Only fits clear of their 95% band count."""
+    3v3) x real teammates in reach / the 3v3's (team_value.json items). Only fits clear of their 95% band count.
+    The 3v3 fit casts ally actives whenever ready; their real use share (item_use.json) is NOT applied here: the
+    fitted value mixes the passive aura (Heroic Aura's ally bullet resist...) with the active, and scaling all of it
+    by the active's share moved the sim further from real wins (Heroic Aura +2.6 win points already under)."""
     vals = team_data().get("items", {}).get("values", {})
     g = S.G()
     v = 1.0
