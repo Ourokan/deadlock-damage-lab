@@ -12,7 +12,8 @@ length booking leaves the fight itself unchanged, so one run gives both.
 
 With Mechanics.cast_timing on (first casts held to real cast timing, scripts/cast_timing/fit_cast_timing.py; the
 default) the run keeps levels instead: the target is each source's expected source / gun with the current
-corrections in duels with cast_timing off, and every correction (1 for rows without one, e.g. Graves and Nurse
+corrections in duels with cast_timing off (and Mechanics.entry_hp off: the factors were fitted with fights starting at full
+health, so a low entry health moves when health-gated abilities land, not how much they give), and every correction (1 for rows without one, e.g. Graves and Nurse
 Harrow, whose factors were fitted to the expected booking) is scaled until the held duels give that again. So the
 holds move when in a fight the damage lands, not how much of it the fitted factors give. --refit: the old full
 refit (target = the in-full ratios) on the duels as they now run. That keeps every earlier fit and choice
@@ -57,10 +58,11 @@ def job(j):
     return A.sim_player(j, both=True)
 
 
-def set_cast_timing(on):
-    """Mechanics.cast_timing for the audit's duels (forked workers inherit it)."""
+def set_cast_timing(on, entry=None):
+    """Mechanics.cast_timing (and entry_hp, which the factors were fitted without) for the audit's duels (forked
+    workers inherit it)."""
     import dataclasses
-    A.MECH = dataclasses.replace(A.MECH, cast_timing=on)
+    A.MECH = dataclasses.replace(A.MECH, cast_timing=on, entry_hp=on if entry is None else entry)
 
 
 KEEP_RANGE = (0.1, 10.0)   # with cast_timing: a held ultimate cast in ~1 fight of 4 (was ~9 of 10) needs ~5-8x
@@ -143,9 +145,10 @@ def main():
         # damage lands, not how much of it the fitted factors give: target = that run, rounds scale the current
         # corrections (rows without one start at 1) by target / what they now give
         ACC.LENGTH_CORR = True
+        entry = A.MECH.entry_hp
         set_cast_timing(False)
         target_ab, _, target_it, _, _ = run(jobs, workers)
-        set_cast_timing(True)
+        set_cast_timing(True, entry)
     for rnd in range(rounds if write else 1):
         sim_w, sim_u, held_w, held_u, holders = run(jobs, workers)
         if target_ab is None:

@@ -1107,6 +1107,37 @@ Left: health-gated executes (Killing Blow, Assassinate, Close The Deal, Lethal V
 fight-entry health (sim duels start full); resource gates (Slam Fire rage, Pain Battery, Djinn's Mark stacks) still
 land 2-7 s later than real.
 
+### Fight entry health, Pain Battery and Slam Fire on real timing
+
+Health-gated abilities (Killing Blow, Assassinate, Close The Deal, Lethal Venom, Soul Exchange) waited for the target
+to drop below their threshold from full health, while real fights start with the target already short (sustain.json
+entry_deficit_q: about half start full, a quarter 15%+ short). Resource-gated ones started empty.
+
+- `Mechanics.entry_hp` (on, with fight_length): a fighter whose start health wasn't set (`Fighter.entry_set`;
+  survive's start_hp sets it, so the overall search keeps its own entry health for the build) starts short by a
+  deficit drawn from the real spread for its net worth (phase or rng draw like cast_timing; deterministic fights
+  start full).
+- Pain Battery starts charged by the health Victor is missing at the start (damage taken before the fight).
+- Slam Fire: a first cast held to real cast timing opens with it whatever the clip (`AbilityState.held_opener`; the
+  ultimate setup skip uses it too). `fit_cast_timing.py` measures these with `abilities.PROBE_HELD` (every first cast
+  acts as held) in place of #92's ULT_WAIT pass; abilities marked `held_opens` and ultimates take that run.
+  New holds: Slam Fire, Storm Cloud, Dazzling Trick, Royal Pestments (118).
+- `length_factors.py` keep mode: the target run has entry_hp off too. A first refit with the target at entry health
+  doubled health-gated damage (the fitted landing factors already priced in the missing low-health casts: Vindicta's
+  Assassinate share 0.11 -> 0.40, real 0.16; sim_vs_win per item 0.236 -> 0.218), so entry health moves when they
+  land, not how much they give.
+
+Results (main after the 09-29 hotfix rerun -> this; that rerun refreshed team values and win edges, so main's
+sim_vs_win is lower than #92's): opener timing mean time real - sim -0.52 -> -0.30 s, sources > 0.5 s late 101 ->
+89 of 220, median |shift| 0.80 -> 0.67 s (Assassinate mean first hit 9.5 -> 6.0 s, real 7.4; Lethal Venom 12.2 ->
+6.8, real 6.3; Close The Deal 8.5 -> 5.6, real 6.2; Killing Blow 11.0 -> 9.6, real 6.9; Slam Fire 6.0 -> 3.2, real
+3.3; Pain Battery 7.7 -> 6.1, real 5.0); damage audit mix 0.0375 -> 0.0378; sim_vs_win at 27k (correlation, higher
+is better) all 0.164 -> 0.163, damage items 0.035 -> 0.034, edges clear of noise 0.266 -> 0.260, per item 0.236 ->
+0.214 (Seven 0.02 -> 0.22 with Storm Cloud held; Silver 0.17 -> 0.07, 0.12 without the Slam Fire opener; per-hero
+values move +-0.1 by noise).
+
+Left: Djinn's Mark (stacks build in the fight, real first pop 9.8 s vs sim 12.6 s); Killing Blow still ~3 s late.
+
 ## Tankbuster minimum damage (2026-10-25)
 
 Follow-up of cast timing (its audit loss was mostly Tankbuster on spirit heroes). In 260 Phantom+ replays (every

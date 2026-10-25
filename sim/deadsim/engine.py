@@ -266,6 +266,7 @@ class Fighter:
         self.opts = build_opts or {}
         self.max_hp_base = stats.max_health
         self.hp = stats.max_health
+        self.entry_set = False      # start health set by the caller (Mechanics.entry_hp leaves it)
         self.mods = Mods(engine)
         self.barriers = []          # [amount, expire]
         self.enemy: Fighter = None
@@ -1006,6 +1007,9 @@ class Engine:
         a.enemy, b.enemy = b, a
         self.fighters = [a, b]
         for f in (a, b):
+            if self.length and self.mech is not None and getattr(self.mech, "entry_hp", False):
+                from .mechanics import entry_health
+                entry_health(f)
             if f.skill.fight_phase is not None:
                 unused_items(f)
             for fx in f.items_fx:

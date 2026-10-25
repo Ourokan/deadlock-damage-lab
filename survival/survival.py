@@ -81,8 +81,10 @@ def survive(hero, items, souls, enemy, enemy_items, enemy_souls=None, max_time=6
                                   skill=enemy_skill or _sk(en, enemy_aim)), "enemy")
     if start_hp is not None:
         me.hp = max(1.0, min(start_hp, me.max_hp))
+        me.entry_set = True
     if enemy_start_hp is not None:
         foe.hp = max(1.0, min(enemy_start_hp, foe.max_hp))
+        foe.entry_set = True
     refill = _Refill()
     foe.items_fx.append(refill)
     foe.st.outgoing_mult *= focus
