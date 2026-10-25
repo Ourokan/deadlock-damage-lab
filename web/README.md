@@ -59,7 +59,21 @@ browsers reload the tab.
 The real Python sim runs live in the browser with Pyodide (CPython compiled to WebAssembly), inside a Web Worker.
 Pyodide core 0.26.4 (Python 3.12) is self-hosted in `vendor/pyodide`, so no CDN is needed. `py/sim.zip` holds
 `sim/deadsim`, the game data it reads, `damage/dummy.py` and `bridge.py` (the page's JSON in, `damage_test()` out).
-First load downloads about 14 MB and takes about 4 s; each run after that takes about 0.2 s. Live runs match the
+Each run takes about 0.2 s.
+
+Load time (cold, measured on a local build with gzip like GitHub Pages; first live result): desktop 1.4 s, phone on
+fast 4G (9 Mbps) 6.5 s, slow 4G (1.6 Mbps) 31 s, for 5.7 MB over the wire (was 3.0 s / 9.9 s / 39 s and 6.8 MB). What
+keeps it there:
+- `py/stdlib.zip` replaces Pyodide's 2.3 MB `python_stdlib.zip` with only the modules the site imports
+  (`stdlib_keep.txt`). If code ever imports one outside the list, `worker.js` fetches the full stdlib then and the
+  import still works; the browser test fails on it so the list gets updated (`node web/tests/browser_test.cjs
+  --record-stdlib` rewrites it).
+- On Python 3.12 (CI), `build.py` ships both bundles as compiled `.pyc`, which saves Pyodide about 1 s of compiling on
+  a desktop (several on a phone). `raw/items.json` loses its UI-only text and icons, and the JSON ships without
+  whitespace.
+- The page starts the sim worker before loading its own data, and the worker downloads `sim.zip` while Pyodide starts.
+  The precomputed result shows until the live sim is ready.
+- The Pyodide wasm itself (3.2 MB gzipped) is now over half the download and can't shrink. Live runs match the
 precomputed numbers exactly (Haze popular 27k: 1,126 / 2,445 / 3,934 both ways).
 
 ## Rebuild
