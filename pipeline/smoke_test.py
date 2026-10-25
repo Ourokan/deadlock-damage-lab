@@ -109,6 +109,7 @@ print("changes ok")
 # real win edge refresh after a patch (pipeline/refresh_win_edge.py): counts the patch window's day files, rebuilds the
 # edges with enough Ritualist+ matches and keeps the last snapshot otherwise
 import gzip  # noqa: E402
+import math  # noqa: E402
 import shutil  # noqa: E402
 import tempfile  # noqa: E402
 import refresh_win_edge as RW  # noqa: E402
@@ -136,12 +137,32 @@ _m = json.load(open(RW.B.EDGE_PATH))
 assert _m["meta"]["patch"] == RW.P.load()["patch"] and _m["meta"]["matches"] == 2, _m["meta"]
 sys.argv = _argv
 shutil.rmtree(_tmp)
-# rare-pick prior (build_win_check.rarity_fit): items seldom bought that lose more give a negative slope per decade
-_cells = [{"raw": -0.01 * r + 0.002 * (k % 3 - 1), "raw_se": 0.005, "prior0": 0.0, "rare": r}
+assert "rare_pick" in _m["meta"], _m["meta"]   # hero_edges -> write_edges carries the fit
+# rare-pick prior (build_win_check.rarity_fit): items seldom bought that lose more give a negative slope per decade,
+# and a spread that grows with rarity
+_cells = [{"raw": -0.01 * r + 0.01 * r * (k % 3 - 1), "raw_se": 0.005, "prior0": 0.0, "rare": r}
           for k in range(60) for r in (0.0, 0.5, 1.0, 2.0)]
 _fit = RW.B.rarity_fit(_cells)
-assert abs(_fit["beta"] + 0.01) < 1e-3 and _fit["tau2"] > 0, _fit
+assert abs(_fit["beta"] + 0.01) < 1e-3 and _fit["tau2_rare"] > 0, _fit
 assert RW.B.rarity_fit([]) == {"beta": 0.0, "tau2": RW.B.TAU ** 2, "tau2_rare": 0.0}
+# hero_edges end to end on a tiny ev: two same-slot same-tier items on one hero, 90% / 10% of the buys
+_a, _b = _items
+_ev = {(_a, 1, 300, 0, 0): [900, 450], (_b, 1, 300, 0, 0): [100, 60]}
+_h, _f = RW.B.hero_edges(_ev, {"beta": -0.01, "tau2": RW.B.TAU ** 2, "tau2_rare": 0.0})
+assert abs(_h[1][_a]["share"] - 0.9) < 1e-9 and abs(_h[1][_b]["share"] - 0.1) < 1e-9, _h
+_tmp = tempfile.mkdtemp()
+RW.B.write_edges(_h, os.path.join(_tmp, "e.json"), fit=RW.B.rarity_fit([]))
+assert json.load(open(os.path.join(_tmp, "e.json")))["meta"]["rare_pick"]["knee_share"] == RW.B.SHARE_KNEE
+# the blend's bands (overall_search.win_value): a loss at 1.5 se counts, a gain at 1.5 se does not
+_hz = str(G.hero("Haze").id)
+with open(os.path.join(_tmp, "w.json"), "w") as _f:
+    json.dump({"meta": {"patch": RW.P.load()["patch"]},
+               "heroes": {_hz: {str(ids["Decay"]): [-1.5, 1.0, 100, -1.5], str(ids["Mystic Shot"]): [1.5, 1.0, 100, 1.5]}}}, _f)
+_we, O.WIN_EDGE, O._win = O.WIN_EDGE, os.path.join(_tmp, "w.json"), None
+assert abs(O.win_value([ids["Decay"]], int(_hz)) - math.exp(-1.5 * O.WIN_K)) < 1e-9
+assert O.win_value([ids["Mystic Shot"]], int(_hz)) == 1.0
+O.WIN_EDGE, O._win = _we, None
+shutil.rmtree(_tmp)
 print("win edge refresh ok")
 
 # the counter items the Phantom+ rerun scores (counters/scripts/sim_counters.py) are all still in the shop
