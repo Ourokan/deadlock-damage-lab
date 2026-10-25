@@ -7,6 +7,7 @@ patch.json fields:
   builds_through  last full UTC day of player builds the results use
   game_hash       fingerprint of data/game (gameplay values only), to spot hotfixes without a changelog
   results_built   when the searches last ran
+  results_commit  the commit whose code built them (the rerun's github.sha; main has moved on by the time it publishes)
 """
 import datetime
 import hashlib

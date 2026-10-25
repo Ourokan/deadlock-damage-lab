@@ -95,6 +95,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      # main moved on while the run ran: game data rebuilt with main's code, main's newer fits kept
+      - name: Keep files built by older code off main (pipeline/publish_guard.py)
+        run: python3 pipeline/publish_guard.py --built-at ${{ github.sha }}
       - name: Check the tier's searches finished
         run: python3 pipeline/check_results.py --tier ${{ inputs.tier }}
       - name: Export results for the site
@@ -103,6 +106,7 @@ jobs:
           import datetime, json
           p = json.load(open("data/patch.json"))
           p["results_built"] = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+          p["results_commit"] = "${{ github.sha }}"   # the code the results were built with (check_patch.py)
           json.dump(p, open("data/patch.json", "w"), indent=1); open("data/patch.json", "a").write("\n")
           EOF
           primary=$(python3 -c 'import sys; sys.path.insert(0, "search/scripts"); from build_pool import PRIMARY; print(PRIMARY)')
