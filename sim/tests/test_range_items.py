@@ -153,6 +153,24 @@ class TestRangeSpread(unittest.TestCase):
         ab.cast()   # a cast without the gate
         self.assertEqual(ab.scratch["_avail"], 1.0)
 
+    def test_copied_ult_blocked_gate_leaves_no_stale_wait(self):
+        """Sinclair's copied ult checks should_cast itself (try_copy), so it needs the same cleanup as try_cast."""
+        from deadsim.abilities import AbilityState
+        e = Engine(distance=30.0, mech=SPREAD)
+        f = make_fighter(e, Loadout("Sinclair", [], souls=27000), "a")
+        g = make_fighter(e, Loadout("Haze", [], souls=27000), "d")
+        f.enemy, g.enemy = g, f
+        s = next(a for a in f.abilities if a.ab.ultimate)
+        cp = AbilityState(f, next(a for a in g.abilities if a.ab.ultimate).ab, tier=s.tier, unlocked=True)
+        cp.start()
+
+        def blocked(c):
+            cp.scratch["_reach_delay"] = 2.0   # the reach part passed, the rest of the condition failed
+            return False
+        cp.impl.should_cast = blocked
+        s.impl.try_copy(s.ctx, cp, s.ctx.now + 9.0)
+        self.assertNotIn("_reach_delay", cp.scratch)
+
     def test_moving_distance_cache_stays_small(self):
         """A chase moves the distance every step: the spread caches bucket it instead of growing per step."""
         e = Engine(distance=16.3, mech=SPREAD)
