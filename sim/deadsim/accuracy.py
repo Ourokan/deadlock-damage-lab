@@ -264,16 +264,27 @@ ITEM_LANDING = os.path.join(HERE, "..", "data", "item_landing.json")
 ITEM_LANDING_MIN_HOLDERS = 25
 
 
-def item_landing():
+HERO_ITEM_LANDING = True   # False: every hero gets the pooled factors
+
+
+def item_landing(hero=None):
     """{item name: real-data damage factor} for items whose own damage the 1v1 sim over-predicts (factor < 1,
     clipped at 0.25; data/item_landing.json, scripts/item_landing.py). Items real players get MORE from are left
-    at 1: that excess is mostly hitting several heroes in team fights, which a 1v1 should not count."""
+    at 1: that excess is mostly hitting several heroes in team fights, which a 1v1 should not count.
+    hero (name): that hero's own factors where the damage audit has enough holders (item_landing.json "heroes",
+    scripts/item_landing_heroes.py) replace the pooled ones, same cap at 1: the pooled fit is mostly the heroes that
+    buy an item most, and how much of it lands differs by hero (Torment Pulse: real/sim 0.57 on Graves, 1.74 on Shiv)."""
     try:
-        rows = json.load(open(ITEM_LANDING))["items"]
+        data = json.load(open(ITEM_LANDING))
+        rows = data["items"]
     except (OSError, ValueError, KeyError):
         return {}
-    return {r["name"]: max(0.25, r["landing"]) for r in rows.values()
-            if r["landing"] < 1.0 and r["holders"] >= ITEM_LANDING_MIN_HOLDERS}
+    out = {r["name"]: max(0.25, r["landing"]) for r in rows.values()
+           if r["landing"] < 1.0 and r["holders"] >= ITEM_LANDING_MIN_HOLDERS}
+    if hero is not None and HERO_ITEM_LANDING:
+        for name, r in data.get("heroes", {}).get(hero, {}).items():
+            out[name] = max(0.25, min(1.0, r["landing"]))
+    return out
 
 
 ITEM_USE_PATH = os.path.join(HERE, "..", "data", "item_use.json")
@@ -369,7 +380,7 @@ def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_ove
     # on in every mode since 2026-10-21 (Tyler: no Alchemical Fire for heroes that can't hold a target in it)
     sk.zone_exit_s = zone_exit_time(badge)
     if counterplay:   # realistic mode: item damage calibrated to real matches
-        sk.item_landing = item_landing()
+        sk.item_landing = item_landing(h.name)
         sk.item_length_corr = item_length_corr()
         sk.item_use = item_use()
     return sk

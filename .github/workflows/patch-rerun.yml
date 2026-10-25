@@ -54,6 +54,8 @@ jobs:
       patch_start: ${{ steps.window.outputs.patch_start }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # check_patch.py asks git whether the last rerun request is in the results' commit
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

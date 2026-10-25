@@ -955,6 +955,32 @@ data: Phantom+ replays (89 matches, 31 with a Baba, 868 fights) and 151 Baba pla
   capped at 1 (`item_landing`). The same check across heroes ranges 0.65x (Abrams, sim too close) to 2.45x
   (Grey Talon, sim too far): the aim-based median distance is not the real fight distance for close-range items.
 
+## Per-hero item factors (2026-10-25)
+
+- The pooled item factors (`item_landing`) fit every holder at once, so they follow the heroes that buy an item most.
+  Per hero the audit's holders-only table was far off in both directions: Torment Pulse real/sim 0.57 on Graves and
+  0.64 on Yamato (sim too high) to 1.75 on Shiv and 2.1 on Baba (sim too low), Cold Front 0.53 on Danny and Pocket,
+  Stalker 0.68 on Bebop and Yamato. Hero x item error (holder-weighted mean |ln real/sim|) 0.338, radius items 0.313.
+- Fight distance is not the cause. In 400 Phantom+ match_paths matches the share of fight seconds with the nearest
+  enemy within 9.5 m is 0.54x the sim's for Abrams (aim-based median 7.3 m, real fights centred near 14 m) and up to
+  2x for Grey Talon and Vindicta. Making item radii follow each hero's real fight distance (a per-hero radius scale
+  fitted to those shares, pooled factors rescaled) left the per-hero gaps as wide: radius items 0.313 -> 0.323, and
+  on held-out halves it made the per-hero factors below worse too (0.249 -> 0.255). Not shipped. Team fights explain
+  little: replays' other-hero / main-target ratio for Torment Pulse runs 0.71 (Bebop) to 1.12 (Baba) around the
+  pooled 0.92, a few percent of the gap.
+- Fix: `scripts/item_landing_heroes.py` takes the audit's hero x item rows (>= 20 holders) and sets that hero's factor
+  to current x (real/sim)^(n/(n+20)), same 0.25-1 cap as the pooled ones (item_landing.json "heroes", read by
+  `accuracy.item_landing(hero)`; `HERO_ITEM_LANDING = False` turns it off). Under-booked items can only rise to an
+  uncut 1 (Shiv and Baba Torment Pulse 0.90 -> 1), so what is left above 1 stays out of 1v1s on purpose.
+- Split-half check (fit on even match ids, audit the odd ones and the other way round): hero x item error 0.338 ->
+  0.250, radius items 0.317 -> 0.179, damage-mix distance 0.0417 -> 0.0383. Shrinkage priors 0 / 20 / 40 / 80 gave
+  0.249 / 0.250 / 0.260 / 0.277. Full sample after the fit (118 rows): hero x item 0.338 -> 0.215, radius items
+  0.313 -> 0.135, mix distance 0.041 -> 0.037 (Graves 0.060 -> 0.043, Yamato 0.081 -> 0.058, Calico 0.058 -> 0.041).
+- sim_vs_win (all heroes at 27k): all pairs Pearson 0.176 -> 0.173, damage items -0.025 -> -0.020, edges clear of
+  noise 0.257 -> 0.254, per item 0.268 -> 0.268: flat.
+- Rerun order after a big patch: item_landing.py, damage_audit.py, item_landing_heroes.py --write (it starts from the
+  audit's residuals, so run it once per audit, not twice in a row on the same audit).
+
 ## Known gaps (not yet modeled)
 
 - **Melee movement:** melee is in fights and its rate follows the build (see "Melee" above). Melee Charge's lunge

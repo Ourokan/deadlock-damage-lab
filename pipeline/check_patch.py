@@ -41,9 +41,23 @@ def latest_patch(patches):
     return max(dated) if dated else (None, None)
 
 
+def request_in(commit, root=ROOT):
+    """Whether the last change to pipeline/rerun_request.json is in commit's history; None when git can't tell
+    (shallow checkout, unknown commit)."""
+    git = lambda *a: subprocess.run(["git", *a], cwd=root, capture_output=True, text=True)  # noqa: E731
+    last = git("log", "-1", "--format=%H", "--", os.path.relpath(REQUEST, root)).stdout.strip()
+    if not last or git("cat-file", "-e", f"{commit}^{{commit}}").returncode:
+        return None
+    r = git("merge-base", "--is-ancestor", last, commit)
+    return {0: True, 1: False}.get(r.returncode)
+
+
 def pending_request(state, now):
     """The reason of a rerun requested (pipeline/rerun_request.json) after the results were built, or None. Under 2
-    days old only, so a request whose rerun keeps failing doesn't rerun every 6 hours for good."""
+    days old only, so a request whose rerun keeps failing doesn't rerun every 6 hours for good. "After" means not in
+    the commit the results were built with (patch.json results_commit): a run publishes ~2 hours after it took its
+    code, so a request merged meanwhile is older than results_built but not in the results. Without that commit
+    in the history, results_built against requested_at decides."""
     try:
         with open(REQUEST) as f:
             req = json.load(f)
@@ -51,7 +65,8 @@ def pending_request(state, now):
         built = datetime.datetime.fromisoformat(state["results_built"].replace("Z", "+00:00"))
     except (OSError, ValueError, KeyError):
         return None
-    if built < at and now - at < datetime.timedelta(days=2):
+    included = request_in(state["results_commit"]) if state.get("results_commit") else None
+    if (built < at if included is None else not included) and now - at < datetime.timedelta(days=2):
         return req.get("reason") or "requested"
     return None
 

@@ -116,10 +116,16 @@ def main():
                 out[c]["length_corr"] = r["length_corr"]
         if "length" in prev.get("meta", {}):
             meta["length"] = prev["meta"]["length"]
+        heroes = prev.get("heroes")   # per-hero factors (scripts/item_landing_heroes.py; rerun it after this)
+        hero_meta = prev.get("meta", {}).get("heroes")
     except (OSError, ValueError, KeyError):
-        pass
-    json.dump({"meta": meta, "items": dict(sorted(out.items(), key=lambda x: x[1]["landing"]))},
-              open(os.path.join(ROOT, "data", "item_landing.json"), "w"), indent=1)
+        heroes = hero_meta = None
+    if hero_meta:
+        meta["heroes"] = hero_meta
+    res = {"meta": meta, "items": dict(sorted(out.items(), key=lambda x: x[1]["landing"]))}
+    if heroes:
+        res["heroes"] = heroes
+    json.dump(res, open(os.path.join(ROOT, "data", "item_landing.json"), "w"), indent=1)
     for c, v in sorted(out.items(), key=lambda x: x[1]["landing"]):
         print(f"{v['name']:28s} n={v['holders']:5d} real {v['real_per_gun']:.4f} sim {v['sim_per_gun']:.4f} landing {v['landing']:.2f}")
 
