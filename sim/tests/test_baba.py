@@ -51,6 +51,13 @@ class BabaCase(unittest.TestCase):
         self.e.melee_hit(self.f, True)
         self.assertGreater(self.f.dmg_out.get("Granny Long Legs", 0), 0)
 
+    def test_granny_long_legs_turns_heavies_up(self):
+        from deadsim.heroes import baba
+        self.ab["ability_baba_bench_run"].cast()
+        share, until = self.f.counters["heavy_share"]
+        self.assertEqual(share, baba.GLL_HEAVY_SHARE)
+        self.assertAlmostEqual(until, self.e.t + self.ab["ability_baba_bench_run"].ctx.dur("AbilityDuration"))
+
     def test_first_brew_is_prebrewed(self):
         br = self.ab["ability_baba_hexing_brew"]
         br.cast()
