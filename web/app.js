@@ -27,6 +27,7 @@ const S = {
 
 S.whenReady = new Promise((res) => (S.readyNow = res));
 S.dataReady = new Promise((res) => (S.dataNow = res));
+S.booted = new Promise((res) => (S.bootNow = res));
 
 // ---------- data ----------
 const cached = {};
@@ -252,7 +253,8 @@ function startEngine() {
   }
   S.engine.onmessage = (e) => {
     const m = e.data;
-    if (m.type === "ready") { S.ready = true; S.readyNow(); state("ready", "Sim ready"); $("#run").disabled = false; runTest(); }
+    // the worker starts loading before the page has wired its controls; the first run waits for those
+    if (m.type === "ready") S.booted.then(() => { S.ready = true; S.readyNow(); state("ready", "Sim ready"); $("#run").disabled = false; runTest(); });
     else if (m.type === "result") { S.pending[m.id]?.(m); delete S.pending[m.id]; }
     else if (m.type === "error") {
       if (m.id && S.pending[m.id]) { S.pending[m.id](m); delete S.pending[m.id]; }
@@ -971,6 +973,7 @@ function phoneLayout() {
 
 // ---------- boot ----------
 async function boot() {
+  startEngine();   // first: Pyodide and the sim bundle are the longest download, so they start before the page's data
   const top = $(".top");
   new ResizeObserver(() => document.documentElement.style.setProperty("--top-h", getComputedStyle(top).position === "sticky" ? `${top.offsetHeight + 8}px` : "0px")).observe(top);
   load("data/damage/index.json").then((d) => { if (d && d.dummy_zone_exit_s != null) ZONE_EXIT_S = d.dummy_zone_exit_s; });
@@ -1060,7 +1063,7 @@ async function boot() {
   window.addEventListener("hashchange", showTab);
   phoneLayout();
   showTab();
-  startEngine();
+  S.bootNow();
 }
 
 boot().catch((e) => showErr("The page could not load its data: " + e.message));

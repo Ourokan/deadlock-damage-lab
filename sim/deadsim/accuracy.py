@@ -17,7 +17,6 @@ import functools
 import json
 import os
 import time
-import urllib.request
 
 from .data import game, gun_calibration
 from .engine import Skill
@@ -34,6 +33,7 @@ DIST_EDGES = {"10": 10, "20": 20, "30": 30, "40": 40, "50": 50, "75": 75, "100":
 
 
 def _get(url, tries=4):
+    import urllib.request   # here, not at the top: the site's Pyodide bundle never fetches, so it skips loading urllib
     for i in range(tries):
         try:
             with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=120) as r:

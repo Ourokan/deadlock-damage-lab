@@ -14,6 +14,10 @@ const { chromium, devices } = require("playwright");
 const WEB = path.resolve(__dirname, "..");
 const args = process.argv.slice(2);
 const SHOTS = args.includes("--shots") ? path.resolve(args[args.indexOf("--shots") + 1]) : null;
+// --record-stdlib: rewrite web/stdlib_keep.txt with the stdlib modules the sim workers imported over the whole test
+const RECORD_STDLIB = args.includes("--record-stdlib");
+const KEEP = path.join(WEB, "stdlib_keep.txt");
+const imported = new Set();
 const SIM_LOAD_MS = 180000;
 const STEP_MS = 90000;
 const MATCH_ID = 990000001;
@@ -105,6 +109,7 @@ async function watch(context, where, base, missing) {
     window.Worker = class extends W {
       constructor(...a) {
         super(...a);
+        (window.__simWorkers ||= []).push(this);
         this.addEventListener("message", (e) => { if (e.data && e.data.type === "error") console.error("[sim worker] " + e.data.message); });
         this.addEventListener("error", (e) => console.error("[sim worker error] " + (e.message || e)));
       }
@@ -115,7 +120,11 @@ async function watch(context, where, base, missing) {
   page.on("console", (m) => { if (m.type() === "error" && !/net::ERR_FAILED/.test(m.text())) fail(where, `console error: ${m.text().slice(0, 2000)}`); });
   page.on("requestfailed", (r) => { if (new URL(r.url()).origin === origin) fail(where, `request failed: ${r.url()} ${r.failure()?.errorText}`); });
   page.on("response", (r) => { if (new URL(r.url()).origin === origin && r.status() >= 400) fail(where, `${r.status()} for ${new URL(r.url()).pathname}`); });
-  page.on("worker", (w) => w.on("console", (m) => { if (m.type() === "error") fail(where, `worker console error: ${m.text().slice(0, 2000)}`); }));
+  page.on("worker", (w) => w.on("console", (m) => {
+    if (m.type() === "error") fail(where, `worker console error: ${m.text().slice(0, 2000)}`);
+    // worker.js had to fetch the full stdlib: add the module to web/stdlib_keep.txt (or rerun with --record-stdlib)
+    else if (m.text().includes("not in the slim stdlib") && !RECORD_STDLIB) fail(where, m.text());
+  }));
   return page;
 }
 
@@ -296,6 +305,13 @@ async function run(browser, base, where, contextOpts, missing) {
     await teamTab(page, where);
   } else console.log("  the sim did not load: skipping the build maker, real match, team fight and Test buttons");
   await staticTabs(page, where, sim);
+  if (RECORD_STDLIB) {
+    const names = await page.evaluate(() => Promise.all((window.__simWorkers || []).map((w) => new Promise((ok) => {
+      const f = (e) => { if (e.data?.type === "modules") { w.removeEventListener("message", f); ok(e.data.names); } };
+      w.addEventListener("message", f); w.postMessage({ type: "modules" }); setTimeout(() => ok([]), 5000);
+    }))));
+    for (const n of names.flat()) imported.add(n);
+  }
   await context.close();
 }
 
@@ -314,6 +330,11 @@ async function run(browser, base, where, contextOpts, missing) {
   } finally {
     await browser.close();
     server.close();
+  }
+  if (RECORD_STDLIB && imported.size) {
+    const head = fs.readFileSync(KEEP, "utf8").split("\n").filter((l) => l.startsWith("#"));
+    fs.writeFileSync(KEEP, [...head, ...[...imported].sort()].join("\n") + "\n");
+    console.log(`\n${imported.size} stdlib modules written to ${KEEP}`);
   }
   for (const m of new Set(missing)) if (!failures.some((f) => f.includes(m))) failures.push(`[server] missing file ${m}`);
   if (failures.length) {

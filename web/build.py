@@ -7,7 +7,9 @@ Re-run after the sim or any search output changes; lists load whatever exists.
 import argparse
 import base64
 import glob
+import importlib.util
 import json
+import marshal
 import os
 import shutil
 import sys
@@ -16,6 +18,14 @@ import zipfile
 ROOT = os.environ.get("DEADSIM_ROOT", os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # project root (the folder holding sim/, data/, damage/ ...)
 WEB = os.path.dirname(os.path.abspath(__file__))
 PYODIDE_FILES = ["pyodide.js", "pyodide.asm.js", "pyodide.asm.wasm", "python_stdlib.zip", "pyodide-lock.json"]
+# Pyodide 0.26.4 runs Python 3.12: on a 3.12 build the bundles ship compiled .pyc (no compile at page load), on any
+# other Python they ship the .py sources and still work
+PYC = sys.version_info[:2] == (3, 12)
+# drop from raw/items.json what only the game's UI uses (no sim code reads these keys): about 90% of its size
+RAW_ITEM_DROP = {"description", "tooltip_details", "image", "image_webp", "shop_image", "shop_image_webp"}
+RAW_PROP_DROP = {"icon", "label", "postvalue_label", "css_class", "display_units", "postfix", "prefix",
+                 "loc_token_override", "can_set_token_override", "disable_value", "usage_flags", "tooltip_section",
+                 "tooltip_is_elevated", "tooltip_is_important"}
 
 
 def copy_out(src_dir, dst_dir):
@@ -47,23 +57,84 @@ def slim_ability_orders():
     return out
 
 
+def pyc(source, dfile):
+    """A sourceless .pyc of `source` (unchecked hash, so it never looks for the .py)."""
+    code = compile(source, dfile, "exec", dont_inherit=True)
+    return importlib.util.MAGIC_NUMBER + (1).to_bytes(4, "little") + importlib.util.source_hash(source) + \
+        marshal.dumps(code)
+
+
+def write_py(z, src, arc, dfile=None):
+    """A module into a zip: compiled to arc + "c" (Python finds foo.pyc in place of foo.py) when PYC."""
+    with open(src, "rb") as fh:
+        body = fh.read()
+    if PYC:
+        z.writestr(arc + "c", pyc(body, dfile or "/app/" + arc))
+    else:
+        z.writestr(arc, body)
+
+
+def write_json(z, src, arc, slim=None):
+    """JSON without whitespace (the same values, read faster); slim(data) trims it first."""
+    with open(src) as fh:
+        d = json.load(fh)
+    z.writestr(arc, json.dumps(slim(d) if slim else d, separators=(",", ":")))
+
+
+def slim_raw_items(items):
+    out = []
+    for x in items:
+        x = {k: v for k, v in x.items() if k not in RAW_ITEM_DROP}
+        if isinstance(x.get("properties"), dict):
+            x["properties"] = {k: {a: b for a, b in v.items() if a not in RAW_PROP_DROP} if isinstance(v, dict) else v
+                               for k, v in x["properties"].items()}
+        out.append(x)
+    return out
+
+
 def build_zip(path):
-    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
+    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
         for f in glob.glob(os.path.join(ROOT, "sim/deadsim/**/*.py"), recursive=True):
-            z.write(f, os.path.relpath(f, ROOT))
+            write_py(z, f, os.path.relpath(f, ROOT))
         for f in glob.glob(os.path.join(ROOT, "sim/data/*.json")):
-            z.write(f, os.path.relpath(f, ROOT))
+            write_json(z, f, os.path.relpath(f, ROOT))
         # fitted Dispel Magic shares and Counterspell rates, read by accuracy.hero_default_skill (no fallback, so
         # they must ship)
         for f in glob.glob(os.path.join(ROOT, "sim/validation/dispel/*fit_*.json")) + \
                 glob.glob(os.path.join(ROOT, "sim/validation/counterspell/fit_*.json")):
-            z.write(f, os.path.relpath(f, ROOT))
+            write_json(z, f, os.path.relpath(f, ROOT))
         for name in ["abilities.json", "heroes.json", "shop_items.json", "weapons.json", "raw/items.json"]:
-            z.write(os.path.join(ROOT, "data/game", name), "data/game/" + name)
+            write_json(z, os.path.join(ROOT, "data/game", name), "data/game/" + name,
+                       slim_raw_items if name == "raw/items.json" else None)
         for fn, body in slim_ability_orders().items():
             z.writestr("data/builds/aggregates/per_hero/" + fn, body)
-        z.write(os.path.join(ROOT, "damage/dummy.py"), "damage/dummy.py")
-        z.write(os.path.join(WEB, "bridge.py"), "damage/bridge.py")
+        write_py(z, os.path.join(ROOT, "damage/dummy.py"), "damage/dummy.py")
+        write_py(z, os.path.join(WEB, "bridge.py"), "damage/bridge.py")
+
+
+def build_stdlib(full, path):
+    """py/stdlib.zip: the part of Pyodide's standard library the site imports (stdlib_keep.txt), compiled, in place of
+    the full 2.3 MB python_stdlib.zip. worker.js fetches the full one if anything outside the list is imported."""
+    with open(os.path.join(WEB, "stdlib_keep.txt")) as fh:
+        keep = {l.strip() for l in fh if l.strip() and not l.startswith("#")}
+    with zipfile.ZipFile(full) as src, zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+        names = set(src.namelist())
+        for m in sorted(keep):
+            parts = m.split(".")
+            for i in range(1, len(parts) + 1):   # the module and every package above it
+                p = "/".join(parts[:i])
+                for arc in ([p + ".py"] if i == len(parts) else []) + [p + "/__init__.py"]:
+                    if arc in names and arc + "c" not in z.namelist() and arc not in z.namelist():
+                        body = src.read(arc)
+                        if PYC:
+                            z.writestr(arc + "c", pyc(body, "/lib/python312.zip/" + arc))
+                        else:
+                            z.writestr(arc, body)
+        z.writestr("site-packages/", b"")
+        # every module the full stdlib has, so worker.js fetches it only for those (not for optional imports such
+        # as hashlib's _hashlib, which Pyodide has in neither)
+        full_mods = sorted({n[:-3].removesuffix("/__init__").replace("/", ".") for n in names if n.endswith(".py")})
+        z.writestr("_full_stdlib.py", "MODULES = frozenset(%r)\n" % full_mods)
 
 
 CC_KEYS = ("StunDuration", "ImmobilizeDuration", "SleepDuration", "SilenceRadius", "LiftHeight", "LiftDuration",
@@ -214,6 +285,9 @@ def main():
         os.makedirs(dst, exist_ok=True)
         for f in PYODIDE_FILES:
             shutil.copy(os.path.join(a.pyodide, f), dst)
+    full_std = os.path.join(WEB, "vendor", "pyodide", "python_stdlib.zip")
+    if os.path.exists(full_std):
+        build_stdlib(full_std, os.path.join(WEB, "py", "stdlib.zip"))
     # the Artifact preview wraps the page in its own document, so it gets the body without the wrapper tags
     with open(os.path.join(WEB, "index.html")) as fh:
         html = fh.read()
@@ -222,11 +296,13 @@ def main():
     head = "\n".join(l for l in head.splitlines() if "charset" not in l and 'name="viewport"' not in l)
     with open(os.path.join(WEB, "artifact.html"), "w") as fh:
         fh.write(head.strip() + "\n<script>window.__ARTIFACT__ = 1;</script>\n" + body.strip() + "\n")
-    for z in ["py/sim.zip", "vendor/pyodide/python_stdlib.zip"]:
+    for z in ["py/sim.zip", "py/stdlib.zip", "vendor/pyodide/python_stdlib.zip"]:
         if os.path.exists(os.path.join(WEB, z)):
             with open(os.path.join(WEB, z), "rb") as fh, open(os.path.join(WEB, z + ".b64.txt"), "w") as out:
                 out.write(base64.b64encode(fh.read()).decode())
-    print("files copied:", counts, "| sim.zip", os.path.getsize(os.path.join(WEB, "py", "sim.zip")) // 1024, "KB")
+    sizes = {z: os.path.getsize(os.path.join(WEB, "py", z)) // 1024 for z in ("sim.zip", "stdlib.zip")
+             if os.path.exists(os.path.join(WEB, "py", z))}
+    print("files copied:", counts, "|", ", ".join(f"{k} {v} KB" for k, v in sizes.items()), "| .pyc" if PYC else "| .py")
 
 
 if __name__ == "__main__":
