@@ -49,9 +49,13 @@ def main(heroes, rounds=0):
             d = json.load(open(path))
             for h in heroes:
                 new = fit(h, mech, iterate=rounds > 0)
-                rows = d["heroes"].setdefault(L.game().hero(h).name, {})
+                hero = L.game().hero(h)
+                classes = {a.name: a.class_name for a in hero.abilities}
+                rows = d["heroes"].setdefault(hero.name, {})
                 for ab, v in new.items():
                     old = rows.setdefault(ab, {"landing": None})
+                    if "class" not in old and ab in classes:   # length_factors.py needs it for a new row
+                        old["class"] = classes[ab]
                     print(f"{fn} {h} {ab}: {old['landing']} -> {v}", flush=True)
                     old["landing"] = v
             json.dump(d, open(path, "w"), indent=1)   # the next round's fights read these factors
