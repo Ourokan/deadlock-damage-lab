@@ -621,7 +621,7 @@ async function renderOverallTab() {
   const latest = idx.brackets.map((x) => x.generated).sort().pop();
   const old = b.patch && meta[br] && b.patch !== meta[br].patch ? ` This hero and net worth didn't finish in the latest run, so it shows the patch ${esc(b.patch)} result.` : "";
   const stale = old || (meta[br] && meta[br].generated < latest ? ` These ${esc(meta[br].label)} results are from an earlier run (${esc(meta[br].generated.slice(0, 10))}, patch ${esc(meta[br].patch)}); they refresh after the brackets before them.` : "");
-  const ctx = (x) => ({ kind: "overall", hero: Number(id), souls: Number(bk), items: x.items, popular: b.popular.items });
+  const ctx = (x) => ({ kind: "overall", hero: Number(id), souls: Number(bk), br, items: x.items, popular: b.popular.items });
   const card = (title, x, note) => `<div class="card"><h3>${title}</h3>${bdTiles(ctx(x))}
     <div class="kv"><span>Damage before dying</span><span><b>${fmt(x.damage_before_death)}</b>${note ? ` (${signed(x.damage_before_death / b.popular.damage_before_death - 1)})` : ""}</span>
     <span>Time alive</span><span>${fmt(x.time_alive_s, 1)} s</span>
@@ -762,14 +762,40 @@ async function bdPopular(ctx) {
   return d ? d.budgets[nearestBudget(Object.keys(d.budgets), ctx.souls)].popular.items : [];
 }
 
+// the overall search's saved numbers for this exact build (best build only: best_item_swaps, healing per fight)
+async function bdOverall(ctx) {
+  if (ctx.kind !== "overall" || !ctx.br) return null;
+  const d = await load(`data/overall/heroes/${ctx.hero}_${ctx.br}_${ctx.souls}.json`), b = d?.builds?.[0];
+  const key = (a) => [...a].map(Number).sort((x, y) => x - y).join(",");
+  return b && key(b.items) === key(ctx.items) ? { best: b, pop: d.popular?.F || {}, swaps: d.best_item_swaps || null, removal: d.best_item_removal_loss || {} } : null;
+}
+
+// the popular pick each item stands in for: the overall search's swap when it has one, else an item of the popular
+// build this build doesn't hold, same slot first, then closest price, no dearer than the item
+function bdAlts(ctx, saved) {
+  const mine = new Set(ctx.items.map(Number)), popAll = (ctx.popular || []).map(Number);
+  const pop = popAll.filter((i) => !mine.has(i) && S.items[i]), out = {};
+  for (const i of mine) {
+    const it = S.items[i];
+    if (!it || popAll.includes(i)) continue;
+    if (saved) { if (saved.swaps?.[i]) out[i] = saved.swaps[i].alt; continue; }
+    const alt = pop.filter((j) => S.items[j].cost <= it.cost)
+      .sort((a, b) => (S.items[b].slot === it.slot) - (S.items[a].slot === it.slot) || Math.abs(S.items[a].cost - it.cost) - Math.abs(S.items[b].cost - it.cost))[0];
+    if (alt != null) out[i] = alt;
+  }
+  return out;
+}
+
 async function openBreakdown(ctx, itemId) {
-  BD.ctx = ctx; BD.item = Number(itemId); BD.mark = ctx.mark || "15s"; BD.data = null;
+  BD.ctx = ctx; BD.item = Number(itemId); BD.mark = ctx.mark || "15s"; BD.data = null; BD.saved = null; BD.edge = null;
   $("#sheet").hidden = false; document.body.classList.add("sheet-open");
   $("#sh-close").focus();
   renderSheet();
   try {
     ctx.popular = await bdPopular(ctx);
-    const req = await bdRequest(ctx), key = JSON.stringify(req);
+    const [saved, we] = await Promise.all([bdOverall(ctx).catch(() => null), load("data/win_edge.json").catch(() => null)]);
+    if (BD.ctx === ctx) { BD.saved = saved; BD.edge = we?.heroes?.[ctx.hero] || null; }
+    const req = { ...(await bdRequest(ctx)), alts: bdAlts(ctx, saved) }, key = JSON.stringify(req);
     if (!BD.cache.has(key)) BD.cache.set(key, simCall("breakdown", req));
     const data = await BD.cache.get(key);
     if (BD.ctx === ctx) { BD.data = data; renderSheet(); }
@@ -781,58 +807,117 @@ async function openBreakdown(ctx, itemId) {
 
 function closeSheet() { $("#sheet").hidden = true; document.body.classList.remove("sheet-open"); BD.ctx = null; }
 
-function whyText(ctx, d, x, m) {
-  const it = S.items[x.id], pop = new Set((ctx.popular || []).map(Number)), mine = new Set(ctx.items.map(Number));
-  const out = [];
-  if (ctx.kind === "duel" || ctx.kind === "tank" || ctx.kind === "overall")
-    out.push(`This build was picked for ${ctx.kind === "duel" ? "winning 1v1 duels" : ctx.kind === "tank" ? "staying alive under focus" : "dealing the most damage before dying against real builds"}, so items can earn their place without adding damage. Damage here is measured on the standard training dummy.`);
-  if (pop.size) {
-    if (pop.has(x.id)) out.push("The most popular real build buys it too.");
-    else {
-      const dropped = [...pop].filter((i) => !mine.has(i) && S.items[i])
-        .sort((a, b) => (S.items[b].slot === it.slot) - (S.items[a].slot === it.slot) || S.items[b].cost - S.items[a].cost)
-        .slice(0, 3).map((i) => S.items[i].name);
-      out.push(`The most popular real build doesn't buy it.${dropped.length ? ` Its souls go here instead of popular picks like ${dropped.join(", ")}.` : ""}`);
-    }
-  }
-  if (x.loss[m] <= 0) {
-    out.push(it && !it.effect_modeled ? "It adds no damage here. Only its always-on stats are modeled, so its own effect isn't counted yet."
-      : "It adds no damage against this target.");
-  } else {
+// a heal source of the sim (deadsim Fighter.heal_raw / heal_exp keys) in words
+function healLabel(k) {
+  const [src, from] = k.split("|"), on = (x) => (x === "gun" ? "gun damage" : x === "melee" ? "melee hits" : x);
+  if (src === "spirit_lifesteal") return `Spirit lifesteal on ${on(from || "abilities")}`;
+  if (src === "bullet_lifesteal") return `Bullet lifesteal on ${on(from || "bullets")}`;
+  if (src === "regen") return "Health regen";
+  return `${src} heal`;
+}
+const healGain = (h) => Object.entries(h || {}).filter(([, v]) => v >= 1).sort((a, b) => b[1] - a[1]);
+const healList = (rows, n = 4) => rows.slice(0, n).map(([k, v]) => `${esc(healLabel(k))} ${fmt(v)}`).join(", ") + (rows.length > n ? `, ${plural(rows.length - n, "other source", "other sources")}` : "");
+
+// what the item does, as short sentences (Damage tab facts the Why tab explains)
+function whatItDoes(ctx, d, x, m) {
+  const it = S.items[x.id], out = [];
+  const heal = healGain(x.heals), healed = heal.reduce((s, [, v]) => s + v, 0);
+  if (x.loss[m] > 0) {
     const own = x.direct, boosts = Object.entries(x.sources).filter(([k, v]) => v > 0 && k !== it.name && !k.startsWith(it.name + " ")).slice(0, 3);
-    if (own >= 0.5 * x.loss["30s"]) out.push(`Most of its value is its own damage: ${fmt(own)} over 30 s.`);
-    else if (boosts.length) out.push(`It works by making the rest of the build hit harder: ${boosts.map(([k, v]) => `+${fmt(v)} ${k === "gun" ? "gun damage" : k}`).join(", ")} over 30 s.`);
+    if (own >= 0.5 * x.loss["30s"]) out.push(`Most of its damage is its own: ${fmt(own)} over 30 s on the dummy.`);
+    else if (boosts.length) out.push(`It makes the rest of the build hit harder: ${boosts.map(([k, v]) => `+${fmt(v)} ${k === "gun" ? "gun damage" : esc(k)}`).join(", ")} over 30 s on the dummy.`);
     const totalCost = d.items.reduce((s, y) => s + y.cost, 0), extra = d.total[m] - d.base[m];
     const per = x.share[m] / (x.cost / 1000), avg = totalCost ? extra / (totalCost / 1000) : 0;
-    if (avg > 0) out.push(`That's ${fmt(per)} damage per 1,000 souls, ${per >= avg ? "above" : "below"} this build's average of ${fmt(avg)}.`);
-  }
-  if (x.loss[m] > 0 && Math.abs(x.loss[m] - x.share[m]) > 0.15 * Math.max(x.loss[m], 1))
-    out.push(`Removing it alone would cost ${fmt(x.loss[m])}; items overlap or stack with each other, so shares are scaled to add up to the total.`);
+    if (avg > 0) out.push(`That's ${fmt(per)} damage per 1,000 souls by ${MARK_LABEL[m]}, ${per >= avg ? "above" : "below"} this build's average of ${fmt(avg)}.`);
+  } else if (healed < 5) {
+    out.push(it?.effect_modeled ? "It adds no damage against the dummy."
+      : it?.stats_only ? "It adds no damage against the dummy. All it does is always-on stats, and those are modeled."
+        : "It adds no damage against the dummy. Its always-on stats are modeled, but its own effect isn't yet.");
+  } else out.push("It adds no damage against the dummy: its value is healing and survival.");
+  if (healed >= 5) out.push(`On the dummy it adds <b>${fmt(healed)} HP</b> of healing over 30 s (what the hero would heal while hurt): ${healList(heal, 3)}.`);
   return out;
+}
+
+// the Why tab: what the item does, where its healing comes from in real fights, and its numbers against the
+// popular pick it stands in for (the overall search's swap for the best overall build; the live dummy run always)
+// the overall score's factors (overall_search.Evaluator.run), in words, for "where the score gain comes from"
+const SCORE_PARTS = [["damage_before_death", "damage before dying"], ["win_value", "real win edge", "Real win edge factor"], ["map_time", "time on the map (fewer walks back to heal)", "Time on the map"],
+  ["team_value", "team value", "Team value"], ["death_value", "time not spent dead", "Time not dead"], ["fight_rate", "fights per minute", "Fights per minute"],
+  ["death_rate_value", "real holders' death rate", "Real death rate factor"], ["movement_value", "movement", "Movement"]];
+
+function whyHtml(ctx, d, x, m) {
+  const pop = new Set((ctx.popular || []).map(Number)), sv = BD.saved, sw = sv?.swaps?.[x.id], a = x.alt, an = a ? esc(a.name) : null;
+  const parts = [];
+  if (pop.has(x.id)) parts.push('<p>The most popular real build buys it too.</p>');
+  else if (!a) parts.push(`<p>The most popular real build doesn't buy it${sv && !sw ? ", and none of its items fits in this item's souls, so there is no straight swap to compare" : ", and leaves out no item of its price or less to compare it with"}.</p>`);
+  if (a && sw) {
+    const F = sv.best.F, G = sw.F, ch = F.score / G.score - 1;
+    const drivers = SCORE_PARTS.map(([k, l]) => [l, F[k] != null && G[k] ? F[k] / G[k] - 1 : 0]).filter(([, v]) => Math.abs(v) >= 0.005)
+      .sort((p, q) => Math.abs(q[1]) - Math.abs(p[1])).slice(0, 3);
+    parts.push(`<p>${pop.size ? "The most popular real build doesn't buy it. " : ""}Swapped for <b>${an}</b>, the popular pick the search compares it with, the overall score goes from ${fmt(G.score, 2)} to <b>${fmt(F.score, 2)}</b> (${signed(ch)})${drivers.length ? `, mostly from ${drivers.map(([l, v]) => `${l} ${signed(v)}`).join(", ")}` : ""}.</p>`);
+    const heal = healGain(Object.fromEntries(Object.entries(F.healing_by_source || {}).map(([k, v]) => [k, v - (G.healing_by_source?.[k] || 0)])));
+    const healed = heal.reduce((t, [, v]) => t + v, 0);
+    if (healed >= 1) parts.push(`<p>In fights against real builds it heals <b>${fmt(healed)} HP more per fight</b>, from ${healList(heal)}.</p>`);
+  } else if (a) parts.push(`<p>${pop.size ? "The most popular real build doesn't buy it. " : ""}Compared with <b>${an}</b> (${fmt(a.cost)} souls), a popular pick of the same slot and price, with everything else the same:</p>`);
+  parts.push(`<ul class="why">${whatItDoes(ctx, d, x, m).map((t) => `<li>${t}</li>`).join("")}</ul>`);
+  if (a) {
+    const rows = [], row = (label, mine, theirs, dig = 0, tip = "", rel = true) => {
+      if (mine == null || theirs == null) return;
+      const c = rel ? (theirs ? mine / theirs - 1 : null) : mine - theirs;
+      const cls = c == null ? "" : c > 0.005 ? "up" : c < -0.005 ? "down" : "";
+      rows.push(`<tr${tip ? ` title="${esc(tip)}"` : ""}><td>${label}</td><td class="n">${fmt(mine, dig)}</td><td class="n">${fmt(theirs, dig)}</td><td class="n ${cls}">${c == null ? "–" : rel ? signed(c) : (c > 0 ? "+" : "") + fmt(c, dig)}</td></tr>`);
+    };
+    if (sw) {
+      const F = sv.best.F, G = sw.F, P = sv.pop, f = (k) => [F[k], G[k]];
+      const ht = (h) => Object.values(h || {}).reduce((t, v) => t + v, 0);
+      row("<b>Overall score</b>", F.score, G.score, 2, "What the builds are ranked by (1.00 = the popular build)");
+      row("Damage before dying", ...f("damage_before_death"), 0, "Mean over real enemy builds, net of the enemy's healing");
+      row("Time alive (s)", ...f("time_alive_s"), 1);
+      row("Health at fight start", ...f("entry_hp"), 0, "Healing between fights: builds that heal more arrive fuller");
+      row("Healing per fight", ht(F.healing_by_source), ht(G.healing_by_source), 0, "Own healing in a fight, expected over real fight lengths");
+      for (const [k, l, short] of SCORE_PARTS.slice(1))
+        if (F[k] != null && G[k] && P[k] && Math.abs(F[k] / G[k] - 1) >= 0.005) row(`${short} ×`, F[k] / P[k], G[k] / P[k], 2, `Score factor for ${l}, 1.00 = the popular build`);
+    }
+    row(`Dummy damage by ${MARK_LABEL[m]}`, d.total[m], a.damage[m], 0, "Live run on the training dummy");
+    const healAll = Object.values(d.heals || {}).reduce((t, v) => t + v, 0);
+    if (Math.abs(healAll - a.heal) >= 5) row("Healing on the dummy, 30 s", healAll, a.heal, 0, "What the hero would heal over 30 s of hitting the dummy while hurt");
+    const we = BD.edge || {}, e1 = we[x.id], e2 = we[a.id];
+    if (e1 || e2) row("Real win edge (points)", e1?.[0] ?? 0, e2?.[0] ?? 0, 1, "Real players on this hero: win rate when buying it vs other items of its slot and tier", false);
+    parts.push(`<div class="scroll"><table class="why-t"><thead><tr><th></th><th class="n">With it</th><th class="n">${an}</th><th class="n">Change</th></tr></thead><tbody>${rows.join("")}</tbody></table></div>`);
+  }
+  const removal = sv?.removal?.[x.id];
+  if (removal != null) parts.push(`<p class="fine">Removing it with nothing in its place costs ${fmt(removal, 2)} of the overall score (1.00 = the popular build's).</p>`);
+  if (ctx.kind === "overall" && !sv) parts.push('<p class="fine">Fight numbers against real builds (score, damage before dying, healing per fight) are saved for the best overall build of each net worth; this build shows the live dummy numbers.</p>');
+  return parts.join("");
 }
 
 function renderSheet() {
   const ctx = BD.ctx; if (!ctx) return;
-  const it = S.items[BD.item], d = BD.data, m = BD.mark;
+  const it = S.items[BD.item], d = BD.data, m = BD.mark, tab = BD.tab || "damage";
   $("#sh-title").innerHTML = it ? `${esc(it.name)} <span class="c">${fmt(it.cost)} souls</span>` : "Item";
   $("#sh-title").dataset.slot = it?.slot || "";
+  $("#sh-tabs").innerHTML = [["damage", "Damage"], ["why", "Why it's here"]].map(([k, l]) => `<button data-v="${k}" class="${k === tab ? "on" : ""}" aria-pressed="${k === tab}">${l}</button>`).join("");
   $("#sh-marks").innerHTML = Object.entries(MARK_LABEL).map(([k, l]) => `<button data-v="${k}" class="${k === m ? "on" : ""}">${l}</button>`).join("");
   const body = $("#sh-body");
   if (!d) { body.innerHTML = `<p class="hint">${S.ready ? "Running the build once without each item…" : "The sim is still loading. This fills in as soon as it's ready."}</p>`; return; }
   if (d.error) { body.innerHTML = `<p class="err">Couldn't measure this build: ${esc(d.error)}</p>`; return; }
   const x = d.items.find((y) => y.id === BD.item), total = d.total[m];
   if (!x) { body.innerHTML = '<p class="hint">This item isn\'t in the build.</p>'; return; }
+  const head = `<div class="bd-head"><span class="v">${fmt(x.share[m])}</span><span class="l">of ${fmt(total)} damage by ${MARK_LABEL[m]} (${pct(x.share[m] / total)})</span></div>`;
+  if (tab === "why") { body.innerHTML = whyHtml(ctx, d, x, m); return; }
   const segs = [{ name: "Hero with no items", v: d.base[m], cls: "base" }, ...d.items.map((y) => ({ name: y.name, v: y.share[m], id: y.id, slot: S.items[y.id]?.slot }))];
   const bar = `<div class="stack-bar" role="img" aria-label="Damage split by item">${segs.filter((sg) => sg.v > 0).map((sg) =>
     `<i class="${sg.cls || ""}${sg.id === BD.item ? " sel" : ""}" data-slot="${sg.slot || ""}" style="flex-grow:${sg.v}" title="${esc(sg.name)}: ${fmt(sg.v)}"></i>`).join("")}</div>`;
   const list = [...d.items].sort((a, b) => b.share[m] - a.share[m]).map((y) =>
     `<button class="bd-row${y.id === BD.item ? " on" : ""}" data-id="${y.id}"><span class="dot" style="--slot:var(--${S.items[y.id]?.slot})"></span><span class="n">${esc(y.name)}</span><span class="v">${fmt(y.share[m])}</span><span class="p">${pct(y.share[m] / total)}</span></button>`).join("");
-  body.innerHTML = `<div class="bd-head"><span class="v">${fmt(x.share[m])}</span><span class="l">of ${fmt(total)} damage by ${MARK_LABEL[m]} (${pct(x.share[m] / total)})</span></div>
+  const overlap = x.loss[m] > 0 && Math.abs(x.loss[m] - x.share[m]) > 0.15 * Math.max(x.loss[m], 1)
+    ? ` Removing ${esc(it?.name || "it")} alone would cost ${fmt(x.loss[m])}; items overlap or stack with each other, so shares are scaled to add up to the total.` : "";
+  body.innerHTML = `${head}
     ${bar}
-    <ul class="why">${whyText(ctx, d, x, m).map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
+    <p class="hint">Damage on the standard training dummy. <button class="link" data-tab="why">Why it's in the build</button></p>
     <h3>Whole build, damage by ${MARK_LABEL[m]}</h3>
     <div class="bd-list"><div class="bd-row base"><span class="dot"></span><span class="n">Hero with no items</span><span class="v">${fmt(d.base[m])}</span><span class="p">${pct(d.base[m] / total)}</span></div>${list}</div>
-    <p class="fine" style="margin-top:12px">Measured live with the current sim against this build's dummy, so totals can differ a little from the table.</p>`;
+    <p class="fine" style="margin-top:12px">Measured live with the current sim against this build's dummy, so totals can differ a little from the table.${overlap}</p>`;
 }
 
 // counter items (counters/scripts/sim_counters.py): per enemy hero, the sim value of each defensive item next to
@@ -936,6 +1021,7 @@ function showTab() {
 function stackTables() {
   for (const t of $$("table")) {
     // rows are marked one by one: a renderer can swap a table's rows (or its whole innerHTML) without replacing it
+    if (t.classList.contains("why-t")) continue;   // the item sheet's short comparison fits a phone as it is
     const rows = [...(t.tBodies[0]?.rows || [])].filter((r) => !r.dataset.stk);
     if (!rows.length || !t.tHead || !t.querySelector("tbody td:not(.n)") || !t.querySelector("tbody td.n")) continue;
     const heads = [...(t.tHead.rows[0]?.cells || [])].map((c) => c.textContent.trim());
@@ -1059,7 +1145,8 @@ async function boot() {
   $("#sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") closeSheet(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#sheet").hidden) closeSheet(); });
   $("#sh-marks").onclick = (e) => { if (e.target.dataset.v) { BD.mark = e.target.dataset.v; renderSheet(); } };
-  $("#sh-body").addEventListener("click", (e) => { const r = e.target.closest(".bd-row[data-id]"); if (r) { BD.item = Number(r.dataset.id); renderSheet(); } });
+  $("#sh-tabs").onclick = (e) => { if (e.target.dataset.v) { BD.tab = e.target.dataset.v; renderSheet(); } };
+  $("#sh-body").addEventListener("click", (e) => { if (e.target.dataset.tab) { BD.tab = e.target.dataset.tab; renderSheet(); return; } const r = e.target.closest(".bd-row[data-id]"); if (r) { BD.item = Number(r.dataset.id); renderSheet(); } });
   window.addEventListener("hashchange", showTab);
   phoneLayout();
   showTab();

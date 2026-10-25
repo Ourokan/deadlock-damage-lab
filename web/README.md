@@ -35,6 +35,13 @@ Static site, no server. Open `index.html` through any static host (or `python3 -
   accuracy, at the fight's median distance, for its real length. Any hero's items can be changed; the page shows the
   real fight, the replay with real items and the replay with changed items, and can search single swaps for one hero.
   How close the replay gets to real fights: `sim/validation/README.md` "Fight replay".
+- **Item sheet** (tap any item of a build, `bridge.breakdown`): a Damage tab (the item's share of the build's dummy
+  damage, the whole build split by item) and a "Why it's here" tab: what the item does on the dummy (own damage, what
+  it boosts, the healing it adds, lifesteal split by the damage it heals from), and the item against the popular pick
+  it stands in for. For the best overall build that pick is the overall search's swap (`search.item_swaps`, saved as
+  `best_item_swaps`): overall score, damage before dying, health at fight start, healing per fight by source and the
+  score factors next to each other. Every build also gets the live dummy damage and healing with the swap and the real
+  win edge of both items.
 - **Team fight**: up to three heroes a side (each starts with its popular real build) fight in the live sim
   (`bridge.team`, `team.js`). Shows damage, damage taken, heals and shields given to teammates, kills.
 - **What changed** (`data/changes.json` from `pipeline/changes.py`): one block per rerun, newest first, with why it
