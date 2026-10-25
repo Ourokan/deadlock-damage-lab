@@ -89,6 +89,9 @@ def damage_test(hero, items, souls=None, dummy: Dummy | None = None, skill: Skil
         "damage": {f"{t:g}s": round(v, 1) for t, v in got.items()},
         "dps": {f"{t:g}s": round(v / t, 1) for t, v in got.items()},
         "sources": {k: round(v, 1) for k, v in sorted(a.dmg_out.items(), key=lambda x: -x[1])},
+        # healing over the whole run before the max health cap (the attacker is never hit, so none of it lands):
+        # source, or "spirit_lifesteal|<damage source>" for lifesteal
+        "heals": {k: round(v, 1) for k, v in sorted(a.heal_raw.items(), key=lambda x: -x[1]) if v >= 0.05},
         "timeline": timeline,
         "kill_time": d.death_time,
         "dummy_max_hp": round(d.max_hp), "attacker_souls": a.st.souls,

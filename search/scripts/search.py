@@ -57,6 +57,7 @@ MAX_ITEMS = 12
 S_SIZE = 16
 ROUNDS = 8
 MIN_GAIN = 0.004        # stop when a round improves the F score by less than this
+SWAPS = False           # also score each best-build item swapped for the popular pick it displaced (item_swaps)
 FULL_SCAN_ROUNDS = 1      # rounds that scan every candidate item; later rounds scan the TOP_SCAN best + owned
 TOP_SCAN = 45
 PROPOSALS_S = 14          # proposals evaluated on S per round
@@ -253,6 +254,28 @@ def popular_build(hero, limit, pools):
     return build
 
 
+def item_swaps(ev, best, popular, limit):
+    """Per best-build item: the best build with it swapped for an item of the popular build that the best build
+    doesn't hold (same slot first, then closest cost; the first that fits the budget without dropping any other
+    item), evaluated in detail on F. The site's item breakdown shows the two side by side."""
+    g = G()
+    out = {}
+    alts = [j for j in popular if j not in best]
+    for i in best:
+        it = g.items[i]
+        rest = [x for x in best if x != i]
+        for j in sorted(alts, key=lambda j: (g.items[j].slot != it.slot, abs(g.items[j].cost - it.cost))):
+            if any(j in component_ids(g.items[x]) or x in component_ids(g.items[j]) for x in rest):
+                continue
+            if not valid(rest + [j], limit):
+                continue
+            d = ev.run(tuple(sorted(rest + [j])), "F", detail=True)
+            d.pop("matchups", None)
+            out[str(i)] = {"alt": j, "F": d}
+            break
+    return out
+
+
 def search(hero, budget, log=print):
     g = G()
     pools = load_pools(budget)
@@ -354,6 +377,7 @@ def search(hero, budget, log=print):
     return {
         "hero_id": hero, "hero": g.hero(hero).name, "budget": budget, "item_budget": limit,
         "builds": out_builds, "popular": pop, "best_item_removal_loss": item_values,
+        **({"best_item_swaps": item_swaps(ev, best, popular, limit)} if SWAPS else {}),
         "fights": ev.fights, "seconds": round(time.time() - t0, 1), "candidates": len(cand),
     }
 

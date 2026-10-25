@@ -210,9 +210,25 @@ async function testTab(page, where) {
     await page.waitForFunction(() => BD.data, null, { timeout: STEP_MS });
     const e = await page.evaluate(() => BD.data.error);
     if (e) throw new Error(`breakdown failed: ${e}`);
+    await whyTab(page);
     await page.click("#sh-close");
   });
   return true;
+}
+
+// the item sheet's Why tab: what the item does, every item of the build, and nothing wider than the sheet
+async function whyTab(page) {
+  await page.click('#sh-tabs [data-v="why"]');
+  const ids = await page.evaluate(() => BD.data.items.map((x) => x.id));
+  for (const id of ids) {
+    await page.evaluate((i) => { BD.item = i; renderSheet(); }, id);
+    const txt = await page.$eval("#sh-body", (b) => b.textContent);
+    if (!(await page.$("#sh-body .why li"))) throw new Error(`no Why text for item ${id}`);
+    if (/isn't counted yet|was picked for dealing/.test(txt)) throw new Error(`old Why text for item ${id}: ${txt.slice(0, 200)}`);
+    const wide = await page.$eval(".sheet-in", (e) => e.scrollWidth > e.clientWidth + 1);
+    if (wide) throw new Error(`the item sheet scrolls sideways for item ${id}`);
+  }
+  await page.click('#sh-tabs [data-v="damage"]');
 }
 
 async function makerTab(page, where) {
@@ -275,6 +291,15 @@ async function staticTabs(page, where, sim) {
       await page.waitForFunction((s) => $(s).children.length > 0, out, { timeout: 30000 });
       const btn = await page.$(`${out} [data-test]`);
       if (!sim) return;
+      if (tab === "overall") {
+        // an item of the best overall build: the sheet compares it with the popular pick it stands in for
+        await page.click(`${out} .card .build.tap .it`);
+        await page.waitForFunction(() => BD.data, null, { timeout: STEP_MS });
+        const e = await page.evaluate(() => BD.data.error);
+        if (e) throw new Error(`breakdown failed: ${e}`);
+        await whyTab(page);
+        await page.click("#sh-close");
+      }
       if (!btn) {
         // a fresh What changed log can have no rows; the Counter items tab is a table of items, not builds
         if (tab !== "changes" && tab !== "counter") throw new Error("no Test button in the tab");
