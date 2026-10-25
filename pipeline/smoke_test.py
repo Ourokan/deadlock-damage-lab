@@ -39,6 +39,14 @@ for hid in G.heroes:
     assert not gone, f"fight_patterns.json: {G.hero(hid).name} lists abilities it no longer has: {gone}"
 print("fight patterns ok:", len(G.heroes), "heroes")
 
+# every hero both ways in the survival fight the overall, counter and survival searches run (its immortal refill sits
+# in items_fx without an item; Violet crashed on it and rerun 73 lost every overall job, 2026-10-25)
+for hid in G.heroes:
+    _n = G.hero(hid).name
+    for _a, _b in ((_n, "Abrams"), ("Abrams", _n)):
+        assert survive(_a, [], 20000, _b, [], max_time=10.0)["time_alive"] > 0, (_a, _b)
+print("every hero in a survival fight ok")
+
 # overall score movement weights (sim/data/movement_value.json): none = 1, duplicates count once, stacks are capped,
 # and the popular build still scores exactly 1.0 when it holds movement items
 import overall_search as O  # noqa: E402

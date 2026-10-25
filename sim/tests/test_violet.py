@@ -66,6 +66,23 @@ class TestLivingInk(VioletCase):
         self.assertEqual(li.ready_at, 20.0)
         self.assertAlmostEqual(sl.ready_at, 18.5)
 
+    def test_cuts_skip_effects_without_an_item(self):
+        """survival.py's immortal refill (and hero pseudo effects) sit in items_fx with no item: Violet as the
+        survival or overall search's enemy crashed every fight on it (rerun 73, 2026-10-25)."""
+        import types
+        li = self.ab["ability_artist_homingbrush"]
+        none, missing = types.SimpleNamespace(item=None, ready_at=5.0), types.SimpleNamespace(ready_at=5.0)
+        self.f.items_fx += [none, missing]
+        self.e.t = 1.0
+        artist.cut_cooldowns(li.ctx, 1.5)
+        self.assertEqual((none.ready_at, missing.ready_at), (5.0, 5.0))
+
+    def test_survival_fight_with_violet_as_enemy(self):
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "survival"))
+        from survival import survive
+        r = survive("Abrams", [], 20000, "Violet", [])
+        self.assertGreater(r["damage_taken"], 0)
+
 
 class TestStillLife(VioletCase):
     def test_sketch_completes_and_stuns(self):

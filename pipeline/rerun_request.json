@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-25T14:20:00Z",
- "reason": "Per-hero item damage factors (Torment Pulse, Cold Front, Stalker ... land differently per hero)"
+ "requested_at": "2026-10-25T15:30:00Z",
+ "reason": "Violet as an enemy no longer crashes survival/overall/counter fights (reruns 73 and 74 lost every overall job)"
 }
