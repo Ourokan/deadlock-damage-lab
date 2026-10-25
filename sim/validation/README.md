@@ -1007,3 +1007,49 @@ data: Phantom+ replays (89 matches, 31 with a Baba, 868 fights) and 151 Baba pla
 
 About 9 ms per 20-second duel on one core (abilities and items on), after caching. Fine for thousands of fights;
 the build search will want more.
+
+## Cast timing (2026-10-25)
+
+Follow-up of the opener timing above: why 66 sources landed LATER in the sim than in real fights. The main cause was the
+opposite of a late cast rule: the sim opened every duel with every ability, the ultimate included (~90% of duels cast
+it at t=0; real Phantom+ players cast it in 17-40% of their fights by 20 s), and the ult's cast lock / channel
+(Heavy Barrage, Singularity, Concussive Combustion, ...) plus the enemy's t=0 stuns kept the gun quiet for the first
+~4 s: gun damage in the first 2 s was 0.20 of the gun's fight damage vs 0.32 real, and Mystic Shot and the other gun
+procs followed it.
+
+**Real cast times:** `scripts/cast_timing/fetch_ability_casts.py` (ability cooldown starts per pawn, the 259
+fight-length replays; raw in the project folder `analysis/work/cast_timing/raw`), `fit_cast_timing.py real`: per
+hero ability, P(first cast by t | the pair fight still going), Kaplan-Meier, a cast up to 1 s before the first hit
+counts as t = 0 (`validation/cast_timing_real.json`). Pair fights, not merged engagements: the sim's duel clock is
+the pair fight's (the fight-length booking is fitted on them); merged engagements put the casts ~1 s too late.
+
+**Model:** `Mechanics.cast_timing` (ON, fights with `fight_length` and an rng or a `Skill.fight_phase`): each ability
+the sim casts on sight gets its first cast held by a draw of 20 equal-probability real values (None = not cast in
+that fight), less the sim's own median cast time (`data/cast_timing.json`, 109 abilities; gated abilities keep their
+own timing; Mo & Krill's prefight Burrow keeps its own). Phase draws are quasi-random like `engine.unused_items`.
+`length_factors.py` then keeps each source's expected level (source / gun with the current corrections in duels that
+cast on sight) instead of refitting to the in-full ratios, so the holds move when damage lands, not how much the
+fitted factors give; held ults need up to 10x (`KEEP_RANGE`; Hyper Beam, Blasted, Develop Queen hit it).
+Rows without a class (Graves, Nurse Harrow) get a correction now too.
+
+**Results** (main with Violet / Baba / the Nurse Harrow refit): cast curve |real - sim| 0.40 -> 0.12 over 146
+abilities (`validation/cast_timing.md`); gun damage in the first 2 s 0.20 -> 0.27 (real 0.32); sim_vs_win at 27k
+all pairs 0.181 -> 0.205, per item 0.277 -> 0.303, damage items -0.018 -> +0.028, edges clear of noise 0.265 ->
+0.283; damage audit mix 0.0409 -> 0.0428 (pooled items unchanged, 0.083 -> 0.084). The audit loss is mostly
+Tankbuster / Mystic Reverb on spirit heroes: spaced-out casts let the linear charge-up release more per cast, and
+the item corrections are pooled over heroes (Grey Talon Tankbuster share 0.096 -> 0.136, real 0.071).
+On main after the per-hero item factors (#85), refit with `item_landing_heroes.py --write` after the keep run:
+sim_vs_win all pairs 0.178 -> 0.205, per item 0.277 -> 0.302, damage items -0.014 -> +0.026, edges clear of noise
+0.261 -> 0.282; damage audit mix 0.0367 -> 0.0377 (the per-hero factors take back most of the Tankbuster loss).
+
+Holds are `AbilityState.held_until`, not the cooldown: Witchmail / Runed Gauntlets cuts and Refresher's reset see a
+held ability as ready, so they neither waste a cut on it nor release a "not cast" draw. `length_factors.py` keep mode
+is one-shot: it marks the files (meta `cast_timing_kept`) and refuses to rescale them again. Abilities without a
+`cast_timing.json` entry (gated ones, Violet and Baba, new abilities after a patch) keep the sim's own timing.
+
+Left: damage of held casts lands later than real hits on average (opener_timing compare: real fights opened by an
+ability hit put that damage at t = 0, and early casts deal more per cast than late ones); melee items (Spirit Strike,
+Spirit Snatch, Melee Charge) still proc late since melee is a steady rate; a per-hero-type Tankbuster correction.
+Refit after a patch that changes cooldowns: `fetch_ability_casts.py` (new replays) -> `fit_cast_timing.py real` ->
+`fit --write` -> `length_factors.py --write` starting from the factors before the keep run (not wired into the
+patch rerun: `cast_timing.json` and the corrections are static snapshots like `opener_timing.json`).

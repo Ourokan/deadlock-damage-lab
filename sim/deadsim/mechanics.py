@@ -69,6 +69,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import zlib
 from dataclasses import dataclass
 
 from .build import combine_resist
@@ -103,6 +104,12 @@ class Mechanics:
     # before. Off by default: with it on, length_factors.py must be rerun (the corrections move toward 1) and the
     # overall search's builds did not get better (validation/README.md "Opener timing")
     opener_timing: bool = False
+    # with fight_length: each ability's first cast waits a hold drawn from the real Phantom+ cast timing (cast_holds,
+    # data/cast_timing.json, scripts/cast_timing/fit_cast_timing.py), so a duel no longer opens with every ability
+    # and the ultimate at t=0 (real players cast the ult in ~10-40% of fights; on cooldown or held). Fights with a
+    # Skill.fight_phase draw the hold quasi-randomly from it, others from the engine rng; deterministic fights
+    # (no rng, no phase) keep casting on sight
+    cast_timing: bool = True
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
@@ -165,6 +172,46 @@ def opener_holds(hero, items):
         if q:
             out[it.name] = tuple(q)
     return out
+
+
+_CAST = None
+
+
+def cast_holds():
+    """{"hero id:ability class": QBINS hold values (s) before the ability's first cast in a fight, None = not cast
+    in that fight} (data/cast_timing.json)."""
+    global _CAST
+    if _CAST is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "cast_timing.json")) as fh:
+            _CAST = json.load(fh)["sources"]
+    return _CAST
+
+
+def hold_first_casts(f):
+    """Mechanics.cast_timing at the fight start: each unlocked ability with a real hold gets its first cast moved to
+    now + a hold drawn from it (never in this fight for a None value). The hold is AbilityState.held_until, not its
+    cooldown, so items that read cooldowns (Witchmail's cut, Refresher's reset) neither see a held ability as cooling
+    nor release it. The prefight ability (Mo & Krill's Burrow,
+    deadsim.patterns) keeps its own timing."""
+    holds = cast_holds()
+    phase = f.skill.fight_phase
+    rng = f.e.rng
+    if phase is None and rng is None:
+        return
+    pre = f.plan.prefight if f.plan is not None else None
+    hid = f.st.hero.id
+    for ab in f.abilities:
+        if not ab.unlocked or ab is pre:
+            continue
+        q = holds.get(f"{hid}:{ab.ab.class_name}")
+        if not q:
+            continue
+        if phase is not None:
+            u = (phase + zlib.crc32(f"{ab.ab.class_name}|{f.name}".encode()) / 2 ** 32) % 1.0
+        else:
+            u = rng.random()
+        h = q[min(len(q) - 1, int(u * len(q)))]
+        ab.held_until = f.e.t + (math.inf if h is None else h)
 
 
 DEFAULT = Mechanics()   # None turns the new mechanics off for every Engine built without an explicit value

@@ -411,6 +411,7 @@ class AbilityState:
         self.charges = 0
         self.next_charge = 0.0
         self.ready_at = 0.0
+        self.held_until = 0.0   # first cast held to real cast timing (mechanics.hold_first_casts); not a cooldown
         self.casts = 0
 
     # stats --------------------------------------------------------------------------------------------
@@ -484,7 +485,7 @@ class AbilityState:
             return False
         t = self.f.e.t
         self._recharge()
-        if self.charges <= 0 or t < self.ready_at:
+        if self.charges <= 0 or t < self.ready_at or t < self.held_until:
             return False
         if self.f.counters.get("fleeing") and self.impl.kind != "self":
             return False
@@ -518,6 +519,8 @@ class AbilityState:
             self.ready_at = t + self.cooldown()
             self.next_charge = self.ready_at
         f.e.note(f"{f.name} casts {self.ab.name}")
+        if getattr(f.e, "profile_casts", False):
+            f.cast_first.setdefault(self.ab.class_name, t)
         wait = self.scratch.pop("_reach_delay", 0.0)   # range spread: damage x cooldown / (cooldown + expected wait)
         cd = self.cooldown()   # time per cast: charges recharge one per cooldown, so the gap between charges isn't it
         self.scratch["_avail"] = cd / (cd + wait) if wait > 0 and cd > 0 else 1.0

@@ -137,6 +137,13 @@ def sim_player(job, both=False):
                     out[f"_fc:{key}:{min(40, int(r.time / 0.5))}"] += 1
             for (k, b), v in r.a_src_2s.items():
                 out[f"_s2:{L.sim_key(k, names, G)}:{b}"] += v
+            # cast timing (scripts/cast_timing/fit_cast_timing.py): first cast of each unlocked ability, "_cu" cast in
+            # the 0.5 s bucket, "_cn" duel over in the bucket without a cast
+            for cls in r.a_castable:
+                if cls in r.a_cast_first:
+                    out[f"_cu:{cls}:{min(40, int(r.a_cast_first[cls] / 0.5))}"] += 1
+                else:
+                    out[f"_cn:{cls}:{min(40, int(r.time / 0.5))}"] += 1
         for o, hd, exp in ((out, held, True), (out_u, held_u, False)) if both else ((out, held, True),):
             d = sim_sources(r, lambda k: L.sim_key(k, names, G), exp)
             o.update(d)
