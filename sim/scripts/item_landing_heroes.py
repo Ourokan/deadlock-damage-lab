@@ -18,7 +18,10 @@ it starts from the audit's residuals, so a second pass refines the first. PRIOR 
 (fit on one half of the sample's matches, audited on the other: held-out hero x item error 0.338 -> 0.249 with no
 shrinkage, 0.250 at 20, 0.260 at 40, 0.277 at 80; 20 hedges rows near the 20-holder floor at almost no cost).
 
-usage: python3 scripts/item_landing_heroes.py [--audit PATH] [--prior N] [--write]
+With --hero NAME (repeatable) only that hero's rows are refit and the other heroes' rows are kept, for a hero whose
+ability factors were just refit (scripts/refit_landing_heroes.py): its old item rows made up for the old abilities.
+
+usage: python3 scripts/item_landing_heroes.py [--audit PATH] [--prior N] [--hero NAME ...] [--write]
 """
 import json
 import math
@@ -32,10 +35,13 @@ from deadsim import accuracy  # noqa: E402
 PRIOR = 20
 
 
-def fit(audit, prior=PRIOR):
+def fit(audit, prior=PRIOR, only=None):
+    """only: refit just these heroes' rows (after refitting their abilities) and keep every other hero's."""
     data = json.load(open(accuracy.ITEM_LANDING))
-    heroes = {}
+    heroes = {h: v for h, v in data.get("heroes", {}).items() if only and h not in only}
     for r in audit["hero_items"]:
+        if only and r["hero"] not in only:
+            continue
         x = r.get("real_over_sim")
         if not x or x <= 0:
             continue
@@ -62,9 +68,12 @@ def main():
         path = args[args.index("--audit") + 1]
     if "--prior" in args:
         prior = float(args[args.index("--prior") + 1])
-    data = fit(json.load(open(path)), prior)
+    only = {args[i + 1] for i, a in enumerate(args) if a == "--hero"}
+    data = fit(json.load(open(path)), prior, only)
     n = sum(len(v) for v in data["heroes"].values())
     for h, v in data["heroes"].items():
+        if only and h not in only:
+            continue
         for it, r in v.items():
             print(f"{h:15s} {it:22s} n={r['holders']:4d} real/sim {r['real_over_sim']:.2f} -> {r['landing']:.3f}")
     print(f"{n} hero x item factors")

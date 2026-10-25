@@ -294,7 +294,7 @@ def main():
             "errors": sum(errs.values())}
     out = {"meta": meta, "heroes": dict(sorted(heroes.items(), key=lambda x: -x[1]["mix_distance"])),
            "items": dict(sorted(items.items(), key=lambda x: -x[1]["holders"])), "hero_items": hero_items}
-    json.dump(out, open(os.path.join(ROOT, "validation", "damage_audit.json"), "w"), indent=1)
+    json.dump(out, open(os.environ.get("AUDIT_OUT", os.path.join(ROOT, "validation", "damage_audit")) + ".json", "w"), indent=1)
     write_md(out)
 
 
@@ -342,7 +342,7 @@ def write_md(out):
     for v in out.get("hero_items", [])[:40]:
         L_.append(f"| {v['hero']} | {v['item']} | {v['holders']} | {v['real_per_gun']:.3f} | {v['sim_per_gun']:.3f} | "
                   f"{fmt_ratio(v['real_over_sim'])} |")
-    open(os.path.join(ROOT, "validation", "damage_audit.md"), "w").write("\n".join(L_) + "\n")
+    open(os.environ.get("AUDIT_OUT", os.path.join(ROOT, "validation", "damage_audit")) + ".md", "w").write("\n".join(L_) + "\n")
 
 
 if __name__ == "__main__":
