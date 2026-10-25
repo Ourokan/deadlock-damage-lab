@@ -4,7 +4,7 @@
   "formula": "(real ability dmg / real gun dmg) / (sim ability dmg / sim gun dmg)",
   "length": "fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x length_corr (the sim's source/gun in full / the same expected over real fight lengths, scripts/fight_length/length_factors.py, phantom_sample.jsonl.gz, 3 rounds)",
   "cast_timing_kept": "length_corr scaled so held first casts (Mechanics.cast_timing) keep the expected levels of cast-on-sight duels; rerun from the factors before",
-  "audit_corr_heroes": "length_corr fitted straight to the damage audit (scripts/ability_corr_heroes.py, phantom_sample.jsonl.gz, 3 rounds) after a Phantom+ landing refit for: Venator, Infernus, Victor, Silver, Seven, Vyper, Paige, Mirage, Ivy, Kelvin, Bebop (2026-10-25, validation/README.md), Deadman Danny (2026-10-25, per-ability check); Apollo with no landing refit after his cast timing rows (2026-10-25)"
+  "audit_corr_heroes": "length_corr fitted straight to the damage audit (scripts/ability_corr_heroes.py, phantom_sample.jsonl.gz, 3 rounds) after a Phantom+ landing refit for: Venator, Infernus, Victor, Silver, Seven, Vyper, Paige, Mirage, Ivy, Kelvin, Bebop (2026-10-25, validation/README.md), Deadman Danny (2026-10-25, per-ability check); Apollo with no landing refit after his cast timing rows (2026-10-25); Violet, The Doorman, Solomon the same once landing_rates.SLOW_GUNS let their players in (2026-10-25)"
  },
  "heroes": {
   "Infernus": {
@@ -778,21 +778,21 @@
     "landing": 0.602,
     "real_share": 0.3491,
     "sim_share": 0.3762,
-    "length_corr": 0.393
+    "length_corr": 1.505
    },
    "Luggage Cart": {
     "class": "ability_doorman_luggage_cart",
     "landing": 0.717,
     "real_share": 0.1004,
     "sim_share": 0.1082,
-    "length_corr": 0.332
+    "length_corr": 1.197
    },
    "Hotel Guest": {
     "class": "ability_doorman_hotel",
     "landing": 0.4,
     "real_share": 0.0487,
     "sim_share": 0.0524,
-    "length_corr": 0.282
+    "length_corr": 1.378
    }
   },
   "Billy": {
@@ -995,14 +995,14 @@
     "landing": 0.28,
     "real_share": 0.2519,
     "sim_share": 0.4439,
-    "length_corr": 3.236
+    "length_corr": 3.923
    },
    "Rook Battery": {
     "class": "ability_chessmaster_forkpiece",
     "landing": 0.86,
     "real_share": 0.1739,
     "sim_share": 0.1337,
-    "length_corr": 1.167
+    "length_corr": 1.552
    },
    "Develop Queen": {
     "class": "ability_chessmaster_queen",
@@ -1042,17 +1042,17 @@
    "Living Ink": {
     "class": "ability_artist_homingbrush",
     "landing": 0.68,
-    "length_corr": 0.967
+    "length_corr": 1.383
    },
    "Flow State": {
     "class": "ability_artist_rollingprojectile",
     "landing": 0.47,
-    "length_corr": 0.75
+    "length_corr": 1.478
    },
    "Still Life": {
     "class": "ability_artist_tether",
     "landing": 0.75,
-    "length_corr": 0.853
+    "length_corr": 1.302
    },
    "Abstract Landscape": {
     "class": "ability_artist_bamboogrove",
