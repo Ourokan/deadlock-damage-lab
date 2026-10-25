@@ -329,8 +329,8 @@ Sources, scripts in `scripts/fight_patterns/`:
 
 Check against the real damage mix (`fit_check.py`, mechanics on): a replay combo is used only when the sim's damage
 mix with it fits the real damage matrix within 0.05 of slot order (mean |log landing factor|). Haze, Yamato,
-Sinclair and Apollo fit worse with their real order, which points at gaps in those ability models, so they kept slot
-order at first (see "Yamato, Sinclair, Apollo" below). The ultimate stops waiting for its setup when no setup ability is off cooldown, when either side is
+Sinclair and Apollo fit worse with their real order, which points at gaps in those ability models, so they keep slot
+order (re-checked under cast timing in "Yamato, Sinclair, Apollo" below). The ultimate stops waiting for its setup when no setup ability is off cooldown, when either side is
 below 30% health, or after 4 s. Landing factors were refit for every hero whose fights changed
 (`scripts/refit_landing_heroes.py`). `tests/test_patterns.py` pins a few duels with patterns on.
 
@@ -338,7 +338,7 @@ below 30% health, or after 4 s. Landing factors were refit for every hero whose 
 runs the damage audit's duels per pattern variant and compares the sim's casts with the fight_patterns replays (cast
 share weighted by the real chance the fight still goes on, first-cast share, median first cast) plus the audit mix.
 - Yamato: Shadow Transformation is not held by cast timing (it is not cast on sight) and came at 1.2 s in 90% of
-  fights; it now waits until all the other unlocked abilities are on cooldown: 7.0 s in 32% (replays 9 s, 26%).
+  fights; it now waits until all the other unlocked abilities are on cooldown: 7.3 s in 36% (replays 9 s, 26%).
   It also casts below 35% health, and 16 s into the fight at the latest (a slow or silenced kit never gets all three
   on cooldown; 12 s cast it in 41% of fights, 16 s gives 36% at 7.3 s with mix 0.019).
   combo_check's survival weight is clamped to [0, 1] and starts at t = 0 for precasts (first-cast shares had gone
@@ -347,15 +347,15 @@ share weighted by the real chance the fight still goes on, first-cast share, med
   carries the caster), as the damage matrix lists ~5% of his damage under it though it deals none itself.
 - Acceptance rule under cast timing (fight_patterns.json `_doc`): a replay combo is on when combo_check, with 20+
   audit players with gun data, gives it an ability log error and mix distance no worse than slot order and a timing
-  error no worse (+0.01). Sinclair (Assistant > Bolt > Hex) passes on 20 players (log error 0.140 -> 0.134, timing 0.373 -> 0.362). Apollo
-  is better on all three (0.632 -> 0.521, mix 0.199 -> 0.175) but has 6 players and no cast_timing rows (his
-  abilities land at t=0, real 3-5 s in), so he stays on slot order.
+  error at least 0.03 better. Sinclair's combo is within noise (20 players: timing 0.429 -> 0.418, log error
+  0.146 -> 0.141; the timing error moves ~0.05 between runs) and Apollo's has 6 players and no cast_timing rows (his abilities land at t=0, real 3-5 s in), so
+  both keep slot order; the Rabbit Hex booking and the Sinclair refit stay.
 - Haze: a Bullet Dance hold on Fixation stacks helped before cast timing, but now compounds with its held cast
   (cast share 0.16 vs real 0.23), so Haze is unchanged.
 Refit for Yamato and Sinclair: `refit_landing_heroes.py --iterate 3 --sample validation/phantom_sample.jsonl.gz`, then
 `length_factors.py --write --refit --no-cast-timing --hero X`, then `length_factors.py --write --hero X` (keep mode).
-Damage mix distance (audit) main -> this: Yamato 0.078 -> 0.019, Sinclair 0.028 -> 0.023, Apollo 0.199 (slot order, unchanged),
-Haze 0.043 -> 0.044; other heroes 0.0517 -> 0.0517; pooled item error 0.198 -> 0.197.
+Damage mix distance (audit) main (with #91) -> this: Yamato 0.080 -> 0.020, Sinclair 0.027 -> 0.024, Apollo 0.201
+(unchanged), Haze 0.043 -> 0.044; other heroes 0.0432 -> 0.0430.
 Also fixed: Nurse Harrow's specter heal hook didn't take engine.heal's `origin` (#93), so a lifesteal heal during
 Wretched Vapors crashed the duel (103 audit duels on main).
 
@@ -1159,3 +1159,39 @@ later than real (sim resists are lower or replay damage leaves out barrier hits;
 
 Left: Paradox (3.3x under) and Bebop (2.1x) Tankbuster; both trigger right in the sim (Kinetic Carbine, Sticky Bomb),
 but have few qualifying hits per duel. Grey Talon / Pocket / Mina are 0.88-0.93 (fine).
+
+## Heroes furthest from real damage: refit to the audit, Victor's ult, Bebop's hook (2026-10-25)
+
+Damage audit on main after cast timing (#86) and the timing follow-ups (#90, #92): player-weighted mix distance 0.0378. Many heroes' ability factors
+came from the old all-rank sample (Deadman Danny's Close The Deal real share 0.043 there vs 0.098 in Phantom+).
+
+- **Refit straight to the audit.** `length_factors.py` can't redo a refit hero's length_corr once the factors are
+  scaled for cast timing (keep mode refuses; `--refit` targets the in-full ratio of duels with held casts, which is
+  not what the landing fit saw: held-out 0.040 -> 0.063). So, per hero: `refit_landing_heroes.py --iterate 2
+  --sample phantom` (in-full landing, the dummy page), then 3 rounds of audit + `scripts/ability_corr_heroes.py
+  --hero H --write` (length_corr x (real/sim)^(n/(n+20)) per ability, from the audit's sources), then audit +
+  `item_landing_heroes.py --hero H --write` (new `--hero`: refits that hero's item rows, keeps everyone else's;
+  without it the script replaced the whole "heroes" block).
+- **Held-out check.** Fit on even match ids, audit the odd ones, then the reverse. Kept only heroes better both
+  ways (checked again after #90): Venator, Infernus, Victor, Silver, Seven, Vyper, Paige, Mirage, Ivy, Kelvin, plus
+  Bebop (needs a row for the new hook; one half better, one worse). Rem was better before #90, not after. Worse in one direction (left as they were): Shiv, Baba, Billy, Celeste, Warden, Violet;
+  worse or flat held-out: Paradox, Vindicta, Danny, Drifter, McGinnis, Lash, Grey Talon, Dynamo, Lady Geist, Viscous.
+  Haze, Yamato, Sinclair and Apollo were left to the fight-combo PR (#78).
+- **Victor (`heroes/frank.py`, `data/victor_revive.json`, `scripts/mechanics/victor_revive.py`).** Real ult damage
+  is 53% the T1 per-bullet bonus ("while on cooldown") and 47% the revive blast. In 59 Phantom+ replays (4.6
+  revives a match) the ult is still on cooldown at the start of 11% of his lane fights and 30-50% later; the sim
+  always started with it ready. Fights with fight_length and an rng or fight phase now draw the seconds since his
+  last revive (20 bins per phase) and start with the rest of the cooldown left.
+- **Bebop (`heroes/bebop.py`).** Grapple Arm deals 0.7 x light melee damage on hit (raw ability data: Damage 0 with
+  an ELightMeleeDamage stat_scale 0.7, dropped by `data/game/abilities.json`). Replays: one hit on 42% of casts,
+  median 51 before 8 min and 96 at 30-40 min, ~1 s after the cast. The sim dealt 0 (real 4.6% of his damage).
+  Other zero-base scaled properties the normalizer drops (Kelvin Ice Path ExplodeDamage, Magnetic Flux GrabDamage,
+  Setup Bishop PulseDamage...) are a possible follow-up.
+
+Results (full Phantom+ sample, on main after #92): mix 0.0378 -> 0.0331; Vyper 0.076 -> 0.018, Mirage 0.110 ->
+0.026, Victor 0.059 -> 0.018 (ult share 0.023 -> 0.056, real 0.058), Paige 0.066 -> 0.017, Seven 0.050 -> 0.026,
+Infernus 0.043 -> 0.021, Bebop 0.023 -> 0.021. sim_vs_win at 27k flat (checked on main after #90: all pairs
+0.167 -> 0.166, per item 0.235 -> 0.238, damage items 0.040 -> 0.038). `damage_audit.py` writes to
+`$AUDIT_OUT.json/.md` when set.
+Left: Paradox Kinetic Carbine hit count (real often partly charged, ~3.7 hits per 1000 gun dmg vs sim 2.0) and
+Bebop Sticky / Uppercut hit counts (both drive Tankbuster procs).

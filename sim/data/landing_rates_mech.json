@@ -3,67 +3,68 @@
   "source": "3628 player-matches x 3 duels, 20 s max, real builds both sides",
   "formula": "(real ability dmg / real gun dmg) / (sim ability dmg / sim gun dmg)",
   "length": "fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x length_corr (the sim's source/gun in full / the same expected over real fight lengths, scripts/fight_length/length_factors.py, phantom_sample.jsonl.gz, 3 rounds)",
-  "cast_timing_kept": "length_corr scaled so held first casts (Mechanics.cast_timing) keep the expected levels of cast-on-sight duels; rerun from the factors before"
+  "cast_timing_kept": "length_corr scaled so held first casts (Mechanics.cast_timing) keep the expected levels of cast-on-sight duels; rerun from the factors before",
+  "audit_corr_heroes": "length_corr fitted straight to the damage audit (scripts/ability_corr_heroes.py, phantom_sample.jsonl.gz, 3 rounds) after a Phantom+ landing refit for: Venator, Infernus, Victor, Silver, Seven, Vyper, Paige, Mirage, Ivy, Kelvin, Bebop (2026-10-25, validation/README.md)"
  },
  "heroes": {
   "Infernus": {
    "Napalm": {
     "class": "ability_incendiary_projectile",
-    "landing": 0.33,
+    "landing": 0.41,
     "real_share": 0.0548,
     "sim_share": 0.0511,
-    "length_corr": 1.409
+    "length_corr": 1.473
    },
    "Flame Dash": {
     "class": "ability_flame_dash",
-    "landing": 0.68,
+    "landing": 0.82,
     "real_share": 0.2607,
     "sim_share": 0.244,
-    "length_corr": 1.606
+    "length_corr": 1.729
    },
    "Afterburn": {
     "class": "ability_afterburn",
-    "landing": 0.65,
+    "landing": 0.59,
     "real_share": 0.2763,
     "sim_share": 0.2579,
-    "length_corr": 1.354
+    "length_corr": 1.439
    },
    "Concussive Combustion": {
     "class": "ability_fire_bomb",
-    "landing": 0.16,
+    "landing": 0.23,
     "real_share": 0.035,
     "sim_share": 0.0327,
-    "length_corr": 1.781
+    "length_corr": 1.83
    }
   },
   "Seven": {
    "Lightning Ball": {
     "class": "citadel_ability_lightning_ball",
-    "landing": 0.3,
+    "landing": 0.38,
     "real_share": 0.1887,
     "sim_share": 0.2007,
-    "length_corr": 0.745
+    "length_corr": 0.799
    },
    "Static Charge": {
     "class": "citadel_ability_static_charge",
-    "landing": 0.78,
+    "landing": 1.15,
     "real_share": 0.0568,
     "sim_share": 0.0604,
-    "length_corr": 0.507
+    "length_corr": 0.533
    },
    "Power Surge": {
     "class": "ability_power_surge",
-    "landing": 0.57,
+    "landing": 0.56,
     "real_share": 0.1592,
     "sim_share": 0.1702,
-    "length_corr": 1.401
+    "length_corr": 1.784
    },
    "Storm Cloud": {
     "class": "citadel_ability_storm_cloud",
-    "landing": 0.58,
+    "landing": 0.56,
     "real_share": 0.2828,
     "sim_share": 0.3019,
-    "length_corr": 0.261
+    "length_corr": 0.302
    }
   },
   "Vindicta": {
@@ -237,17 +238,17 @@
   "Kelvin": {
    "Frost Grenade": {
     "class": "ability_ice_grenade",
-    "landing": 0.86,
+    "landing": 0.94,
     "real_share": 0.2661,
     "sim_share": 0.2933,
-    "length_corr": 0.595
+    "length_corr": 0.62
    },
    "Arctic Beam": {
     "class": "ability_icebeam",
-    "landing": 0.81,
+    "landing": 0.88,
     "real_share": 0.3468,
     "sim_share": 0.3797,
-    "length_corr": 0.472
+    "length_corr": 0.523
    }
   },
   "Haze": {
@@ -306,24 +307,29 @@
   "Bebop": {
    "Exploding Uppercut": {
     "class": "citadel_ability_uppercut",
-    "landing": 1.003,
+    "landing": 0.98,
     "real_share": 0.1015,
     "sim_share": 0.1132,
-    "length_corr": 1.776
+    "length_corr": 1.71
    },
    "Sticky Bomb": {
     "class": "citadel_ability_sticky_bomb",
-    "landing": 1.19,
+    "landing": 1.04,
     "real_share": 0.3026,
     "sim_share": 0.3372,
-    "length_corr": 1.666
+    "length_corr": 1.571
    },
    "Hyper Beam": {
     "class": "citadel_ability_bebop_laser_beam",
-    "landing": 0.136,
+    "landing": 0.11,
     "real_share": 0.1574,
     "sim_share": 0.1741,
     "length_corr": 10.0
+   },
+   "Grapple Arm": {
+    "landing": 0.42,
+    "class": "citadel_ability_hook",
+    "length_corr": 2.183
    }
   },
   "Calico": {
@@ -428,24 +434,24 @@
   "Ivy": {
    "Entangling Thorns": {
     "class": "citadel_ability_tengu_urn",
-    "landing": 0.293,
+    "landing": 0.32,
     "real_share": 0.2041,
     "sim_share": 0.2176,
-    "length_corr": 1.498
+    "length_corr": 1.409
    },
    "Stone Form": {
     "class": "citadel_ability_tengu_stone_form",
-    "landing": 0.298,
+    "landing": 0.31,
     "real_share": 0.0733,
     "sim_share": 0.0782,
-    "length_corr": 0.752
+    "length_corr": 0.724
    },
    "Air Drop": {
     "class": "citadel_ability_tengu_airlift",
-    "landing": 0.561,
+    "landing": 0.67,
     "real_share": 0.0839,
     "sim_share": 0.0896,
-    "length_corr": 1.262
+    "length_corr": 1.204
    }
   },
   "Warden": {
@@ -573,47 +579,47 @@
   "Mirage": {
    "Fire Scarabs": {
     "class": "mirage_fire_beetles",
-    "landing": 0.395,
+    "landing": 0.48,
     "real_share": 0.1134,
     "sim_share": 0.1042,
-    "length_corr": 1.412
+    "length_corr": 1.288
    },
    "Dust Devil": {
     "class": "mirage_tornado",
-    "landing": 0.354,
+    "landing": 0.45,
     "real_share": 0.0623,
     "sim_share": 0.0574,
-    "length_corr": 1.385
+    "length_corr": 1.338
    },
    "Djinn's Mark": {
     "class": "mirage_sand_phantom",
-    "landing": 0.467,
+    "landing": 0.73,
     "real_share": 0.2795,
     "sim_share": 0.2562,
-    "length_corr": 2.379
+    "length_corr": 2.544
    }
   },
   "Vyper": {
    "Screwjab Dagger": {
     "class": "ability_viper_debuffdagger",
-    "landing": 0.173,
+    "landing": 0.23,
     "real_share": 0.0679,
     "sim_share": 0.0756,
-    "length_corr": 1.243
+    "length_corr": 1.277
    },
    "Lethal Venom": {
     "class": "ability_viper_venom",
-    "landing": 0.846,
+    "landing": 1.16,
     "real_share": 0.1205,
     "sim_share": 0.1339,
-    "length_corr": 1.72
+    "length_corr": 2.097
    },
    "Petrifying Bola": {
     "class": "ability_viper_petrifybola",
-    "landing": 0.254,
+    "landing": 0.29,
     "real_share": 0.0745,
     "sim_share": 0.0825,
-    "length_corr": 0.772
+    "length_corr": 0.809
    }
   },
   "Sinclair": {
@@ -693,77 +699,77 @@
   "Venator": {
    "Consecrating Grenade": {
     "class": "ability_priest_flashbang",
-    "landing": 1.55,
+    "landing": 1.77,
     "real_share": 0.1497,
     "sim_share": 0.1334,
-    "length_corr": 1.449
+    "length_corr": 1.584
    },
    "Gutshot": {
     "class": "ability_priest_knockback",
-    "landing": 1.29,
+    "landing": 1.31,
     "real_share": 0.1157,
     "sim_share": 0.1129,
-    "length_corr": 1.438
+    "length_corr": 1.518
    },
    "Hex-Lined Snap Trap": {
     "class": "ability_priest_beartrap",
-    "landing": 0.29,
+    "landing": 0.3,
     "real_share": 0.0245,
     "sim_share": 0.0238,
-    "length_corr": 2.372
+    "length_corr": 2.275
    },
    "Ira Domini": {
     "class": "ability_priest_weaponswap",
-    "landing": 0.63,
+    "landing": 0.65,
     "real_share": 0.1124,
     "sim_share": 0.1784,
-    "length_corr": 1.175
+    "length_corr": 1.168
    }
   },
   "Victor": {
    "Pain Battery": {
     "class": "ability_frank_shocktarget2",
-    "landing": 0.63,
+    "landing": 0.82,
     "real_share": 0.2667,
     "sim_share": 0.2899,
-    "length_corr": 1.569
+    "length_corr": 1.587
    },
    "Aura of Suffering": {
     "class": "ability_frank_painaura",
-    "landing": 0.58,
+    "landing": 0.57,
     "real_share": 0.2848,
     "sim_share": 0.312,
-    "length_corr": 4.293
+    "length_corr": 4.842
    },
    "Shocking Reanimation": {
     "class": "ability_frank_revive",
-    "landing": 0.81,
+    "landing": 2.94,
     "real_share": 0.0629,
     "sim_share": 0.036,
-    "length_corr": 2.73
+    "length_corr": 2.951
    }
   },
   "Paige": {
    "Bookwyrm": {
     "class": "ability_bookworm_dragonfire",
-    "landing": 0.45,
+    "landing": 0.51,
     "real_share": 0.3256,
     "sim_share": 0.3439,
-    "length_corr": 1.362
+    "length_corr": 1.44
    },
    "Captivating Read": {
     "class": "ability_bookworm_aoemagic",
-    "landing": 0.76,
+    "landing": 0.9,
     "real_share": 0.127,
     "sim_share": 0.1348,
-    "length_corr": 1.264
+    "length_corr": 1.313
    },
    "Rallying Charge": {
     "class": "ability_bookworm_knightcharge",
-    "landing": 0.48,
+    "landing": 0.72,
     "real_share": 0.0818,
     "sim_share": 0.0867,
-    "length_corr": 1.939
+    "length_corr": 2.107
    }
   },
   "The Doorman": {
@@ -891,35 +897,35 @@
   "Silver": {
    "Slam Fire": {
     "class": "ability_werewolf_unloadgun",
-    "landing": 0.7,
+    "landing": 0.88,
     "real_share": 0.0518,
     "sim_share": 0.0419,
-    "length_corr": 0.662
+    "length_corr": 0.655
    },
    "Boot Kick": {
     "class": "ability_werewolf_kickflip",
-    "landing": 0.92,
+    "landing": 1.05,
     "real_share": 0.0885,
     "sim_share": 0.0715,
-    "length_corr": 0.841
+    "length_corr": 0.83
    },
    "Entangling Bola": {
     "class": "ability_werewolf_netshot",
-    "landing": 1.13,
+    "landing": 1.27,
     "real_share": 0.0452,
     "sim_share": 0.0365,
-    "length_corr": 0.862
+    "length_corr": 0.836
    },
    "Go For The Throat": {
-    "landing": 0.51,
+    "landing": 0.5,
     "length_corr": 1.998
    },
    "Mauling Leap": {
-    "landing": 0.45,
+    "landing": 0.38,
     "length_corr": 3.446
    },
    "Tail Whack": {
-    "landing": 0.79,
+    "landing": 0.82,
     "length_corr": 1.97
    }
   },

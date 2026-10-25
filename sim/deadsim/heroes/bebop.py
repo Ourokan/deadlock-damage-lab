@@ -3,7 +3,10 @@
 Assumptions:
 - Grapple Arm: lands with spirit accuracy after AbilityCastDelay + HookImpactDelay and pulls the target into
   melee range for HOOK_CLOSE_WINDOW s (the engine distance is fixed, so the pull only unlocks Bebop's close-range
-  abilities). Bebop can't shoot during cast + post-cast. T1: +20% bullet damage taken by the victim.
+  abilities). Bebop can't shoot during cast + post-cast. T1: +20% bullet damage taken by the victim. The hook hits
+  for HOOK_MELEE_SCALE x light melee damage as melee damage when it lands (the raw ability data's Damage: 0 base
+  with an ELightMeleeDamage stat_scale of 0.7, which data/game/abilities.json drops; Phantom+ replays: one hit on
+  42% of casts, median 51 before 8 min and 96 at 30-40 min, ~1 s after the cast).
 - Exploding Uppercut: a light-melee-strength hit (UppercutDamage + light melee damage) when the target is within
   MeleeAttackLength (+ engage margin) or was just hooked. The landing explosion only damages *other* enemies,
   so it deals nothing in a 1v1. T2: +BuffBaseWeaponPct weapon damage for UppercutBuffOnHit s; T3: Grapple Arm
@@ -18,6 +21,7 @@ Assumptions:
 """
 from deadsim.abilities import AbilityImpl, register
 
+HOOK_MELEE_SCALE = 0.7     # raw Grapple Arm Damage: 0 + 0.7 x ELightMeleeDamage
 HOOK_CLOSE_WINDOW = 3.0   # s the hooked target stays in melee / sticky range after the pull
 HOOK_KEY = "bebop_hooked_until"
 FLIGHT_KEY = "bebop_hook_flight"
@@ -100,6 +104,7 @@ class GrappleArm(AbilityImpl):
         land = cd + c.raw("HookImpactDelay")
         c.me.counters[FLIGHT_KEY] = c.now + land
         c.after(land, self.pulled, c)
+        c.melee_hit(HOOK_MELEE_SCALE * c.light_melee(), delay=land)
         if c.tier >= 1:
             c.debuff("bullet_amp_taken", c.raw("BulletAmp") / 100, c.raw("BulletAmpDuration"), delay=land)
 

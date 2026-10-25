@@ -206,7 +206,10 @@ def main():
     abil["meta"]["length"] = note
     items["meta"]["length"] = note
     if only is not None and write:
-        pending = [h for h in pending if h != hero_name] + ([hero_name] if not keep else [])
+        # only the --refit --no-cast-timing run gives the rows keep mode starts from; a --refit run with cast
+        # timing on already fits the held duels, so it leaves nothing for a keep run to scale
+        ready = not keep and not A.MECH.cast_timing
+        pending = [h for h in pending if h != hero_name] + ([hero_name] if ready else [])
         if pending:
             abil["meta"][PENDING] = pending
         else:
