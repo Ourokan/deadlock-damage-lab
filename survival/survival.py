@@ -98,6 +98,9 @@ def survive(hero, items, souls, enemy, enemy_items, enemy_souls=None, max_time=6
         "damage_taken": round(sum(taken.values()), 1),
         "damage_taken_by_source": {k: round(v, 1) for k, v in sorted(taken.items(), key=lambda x: -x[1])},
         "healing": round(getattr(me, "healed", 0.0) or 0.0, 1),
+        # expected over real fight lengths like damage_dealt (the enemy's hits on me x P(the fight still goes on))
+        "damage_taken_exp": round(sum(foe.dmg_exp.values()), 1),
+        "healing_exp": round(me.healed_exp, 1),
         "damage_dealt": round(sum(me.dmg_exp.values()), 1),
         "damage_dealt_full": round(sum(me.dmg_out.values()), 1),
         "damage_by_source": {k: round(v, 1) for k, v in me.dmg_exp.items() if v},
