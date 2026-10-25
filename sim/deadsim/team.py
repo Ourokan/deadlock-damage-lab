@@ -389,6 +389,9 @@ class TeamEngine(Engine):
                 if g:
                     g(f)
             if f.skill.fight_phase is not None:
+                # no engine.unused_items here on purpose: team fights fit the ally items' value with every active
+                # used whenever ready (scripts/team/team_value.py); the overall score applies real use shares to
+                # the duel only (data/item_use.json)
                 long_cooldowns_spent(f)
             for ab in f.abilities:
                 ab.start()

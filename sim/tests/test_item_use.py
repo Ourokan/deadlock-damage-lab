@@ -88,6 +88,32 @@ class ItemUse(unittest.TestCase):
         finally:
             accuracy.ITEM_USE = was
 
+    def test_unused_cultist_sacrifice_has_no_prefight_buff(self):
+        import overall_search as O
+        import search as S
+        O._phases()
+        g = S.G()
+        h, oh = g.hero("Haze").id, g.hero("Abrams").id
+        cs = next(i for i, it in g.items.items() if it.name == "Cultist Sacrifice")
+        buffs = []
+        orig = items_fx.FX.buff
+
+        def buff(self, *a, **k):
+            if self.name == "Cultist Sacrifice" and self.f.name == "me":
+                buffs.append(a[0])
+            return orig(self, *a, **k)
+        items_fx.FX.buff = buff
+        sk = O.skill(h)
+        try:
+            for share in (1.0, 0.0):
+                O._sk[h] = dataclasses.replace(sk, item_use={"Cultist Sacrifice": share})
+                buffs.clear()
+                O.fight(h, [cs], oh, [], 27000, phase=0.3)
+                (self.assertTrue if share else self.assertFalse)(buffs, share)
+        finally:
+            items_fx.FX.buff = orig
+            O._sk[h] = sk
+
     def test_unused_item_is_never_cast(self):
         import overall_search as O
         import search as S
