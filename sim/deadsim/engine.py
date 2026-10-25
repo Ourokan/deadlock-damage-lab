@@ -132,10 +132,12 @@ def long_cooldowns_spent(f):
 
 
 def unused_items(f):
-    """Mark the active items this fighter leaves unused in this fight: an item with real use share u
-    (Skill.item_use) is unused when a per-item quasi-random draw from the fight phase is >= u, so over the overall
-    score's spread enemy pool it is used in a share u of the fights (the draws of different items are shifted
-    apart by their names)."""
+    """Mark the active items this fighter leaves unused in this fight (fx.unused, read by on_start effects such as
+    Cultist Sacrifice's pre-fight buff): an item with real use share u (Skill.item_use) is unused when a quasi-random
+    draw from the fight phase is >= u, so over the overall score's spread enemy pool it is used in a share u of the
+    fights. The draw is shifted by a hash of the item and the fighter, so two items, or the same item on both sides
+    (whose phases differ by 0.5), are not left unused in the same fights. The cooldown is blocked afterwards
+    (block_unused), once on_start effects have set their own ready times."""
     use = f.skill.item_use
     if not use:
         return
@@ -144,9 +146,14 @@ def unused_items(f):
         u = use.get(it.name) if it is not None else None
         if u is None or u >= 1.0:
             continue
-        r = (f.skill.fight_phase + zlib.crc32(it.name.encode()) / 2 ** 32) % 1.0
+        r = (f.skill.fight_phase + zlib.crc32(f"{it.name}|{f.name}".encode()) / 2 ** 32) % 1.0
         if r >= u:
             fx.unused = True
+
+
+def block_unused(f):
+    for fx in f.items_fx:
+        if getattr(fx, "unused", False):
             fx.ready_at = math.inf
 
 
@@ -989,6 +996,7 @@ class Engine:
                     g(f)
             if f.skill.fight_phase is not None:
                 long_cooldowns_spent(f)
+                block_unused(f)
             for ab in f.abilities:
                 ab.start()
         for f in (a, b):

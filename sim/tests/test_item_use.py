@@ -11,7 +11,7 @@ ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 sys.path[:0] = [os.path.join(ROOT, p) for p in ("sim", "search/scripts", "damage/scripts", "survival")]
 
 from deadsim import accuracy, items_fx  # noqa: E402
-from deadsim.engine import Skill, unused_items  # noqa: E402
+from deadsim.engine import Skill, block_unused, unused_items  # noqa: E402
 
 with open(os.path.join(ROOT, "sim", "data", "item_use.json")) as _fh:
     USE = json.load(_fh)["items"]
@@ -32,6 +32,11 @@ class _F:
     def __init__(self, names, use, phase):
         self.items_fx = [_FX(n) for n in names]
         self.skill = Skill(item_use=use, fight_phase=phase)
+        self.name = "me"
+
+    def mark(self):
+        unused_items(self)
+        block_unused(self)
 
 
 class ItemUse(unittest.TestCase):
@@ -48,15 +53,29 @@ class ItemUse(unittest.TestCase):
         used = 0
         for k in range(n):
             f = _F(["Knockdown", "Extra Health"], {"Knockdown": 0.4}, ((k + 1) * 0.6180339887) % 1.0)
-            unused_items(f)
+            f.mark()
             used += f.items_fx[0].ready_at == 0.0
             self.assertEqual(f.items_fx[1].ready_at, 0.0)   # items without a share are untouched
         self.assertAlmostEqual(used / n, 0.4, delta=0.02)
 
     def test_no_phase_or_no_share_keeps_items(self):
         f = _F(["Knockdown"], {}, 0.3)
-        unused_items(f)
+        f.mark()
         self.assertEqual(f.items_fx[0].ready_at, 0.0)
+
+    def test_sides_draw_apart(self):
+        # the enemy's phase is the holder's + 0.5: the same item must not be used / unused in lockstep on both sides
+        both = 0
+        n = 400
+        for k in range(n):
+            p = ((k + 1) * 0.6180339887) % 1.0
+            a = _F(["Knockdown"], {"Knockdown": 0.5}, p)
+            b = _F(["Knockdown"], {"Knockdown": 0.5}, (p + 0.5) % 1.0)
+            b.name = "enemy"
+            a.mark()
+            b.mark()
+            both += a.items_fx[0].ready_at == 0.0 and b.items_fx[0].ready_at == 0.0
+        self.assertGreater(both / n, 0.1)
 
     def test_realistic_skill_loads_shares(self):
         sk = accuracy.hero_default_skill("Haze", counterplay=True)
