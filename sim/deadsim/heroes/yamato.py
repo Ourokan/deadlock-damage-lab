@@ -22,6 +22,7 @@ from deadsim.abilities import AbilityImpl, register
 
 ST_ON_CD = 3     # Shadow Transformation once this many of the other abilities are on cooldown (replays: median 9 s)
 ST_HP = 0.35     # ... or Yamato below this health share
+ST_WAIT = 16.0   # ... or this far into the fight (a slow or silenced kit never gets all three on cooldown)
 NEG_STATUS = ("stun", "silence", "disarm", "immobilize", "fire_rate_slow", "item_silence")
 
 
@@ -105,7 +106,7 @@ class ShadowTransformation(AbilityImpl):
         on_cd = sum(1 for a in others if a.ready_at > c.now + 2.0)
         # all of the others when fewer than ST_ON_CD are unlocked (early levels)
         need = min(ST_ON_CD, len(others))
-        return not busy(c) and ((need and on_cd >= need) or c.me.hp_frac < ST_HP)
+        return not busy(c) and ((need and on_cd >= need) or c.me.hp_frac < ST_HP or c.now >= ST_WAIT)
 
     def cast(self, c):
         ch = c.raw("AbilityChannelTime", 1.5)

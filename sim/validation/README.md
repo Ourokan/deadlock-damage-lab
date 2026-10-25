@@ -339,6 +339,8 @@ runs the damage audit's duels per pattern variant and compares the sim's casts w
 share weighted by the real chance the fight still goes on, first-cast share, median first cast) plus the audit mix.
 - Yamato: Shadow Transformation is not held by cast timing (it is not cast on sight) and came at 1.2 s in 90% of
   fights; it now waits until all the other unlocked abilities are on cooldown: 7.0 s in 32% (replays 9 s, 26%).
+  It also casts below 35% health, and 16 s into the fight at the latest (a slow or silenced kit never gets all three
+  on cooldown; 12 s cast it in 41% of fights, 16 s gives 36% at 7.3 s with mix 0.019).
 - Sinclair: Rabbit Hex's damage amp on his own hits is booked under Rabbit Hex (`engine.BOOKED_AMPS`; the mod tag
   carries the caster), as the damage matrix lists ~5% of his damage under it though it deals none itself.
 - Patterns on for Sinclair (Assistant > Bolt > Hex) and Apollo (replay order). Apollo has no cast_timing rows and

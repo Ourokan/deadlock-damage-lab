@@ -30,6 +30,22 @@ class ShadowTransformationHold(unittest.TestCase):
         t, _ = first_shadow([False, False, True, True])
         self.assertIsNotNone(t)
 
+    def test_casts_by_the_time_fallback(self):
+        # the cooldown condition switched off (need 0) and a target that never hurts Yamato: only the time is left
+        from deadsim.heroes import yamato
+        a = Loadout("Yamato", [], souls=20000, skill=Skill(accuracy=0.3, use_actives=False))
+        b = Loadout("Abrams", [], souls=20000, skill=DUMMY)
+        old = yamato.ST_ON_CD
+        yamato.ST_ON_CD = 0
+        try:
+            r = duel(a, b, distance=5.0, max_time=20.0, mechanics=None, log=True)
+        finally:
+            yamato.ST_ON_CD = old
+        casts = [float(x.split()[0]) for x in r.log if "casts Shadow Transformation" in x]
+        self.assertTrue(casts)
+        self.assertGreaterEqual(casts[0], yamato.ST_WAIT - 0.01)
+        self.assertLessEqual(casts[0], yamato.ST_WAIT + 2.5)   # (after a slash or channel in progress)
+
 
 if __name__ == "__main__":
     unittest.main()
