@@ -469,7 +469,8 @@ def team_fight(team_a, team_b, distance=15.0, max_time=40.0, focus="focus", hudd
                rng=None, log=False, mechanics=_UNSET, allies=True, start_hp=None):
     """team_a, team_b: lists of Loadout (1-6 each). Returns TeamResult.
     start_hp: health each hero starts at as a share of its max (team_a then team_b; None = full), for replaying a
-    real fight that began with heroes already hurt.
+    real fight that began with heroes already hurt. TeamResult.hp_lost and team_item_value's swing still count from
+    max health, so with start_hp take health lost as start health minus end health (bridge.replay reports start_hp).
     allies=False turns everything that reaches teammates off (duel item handlers, no ally abilities, huddle 0), so
     a fight with and without it isolates what items give teammates (scripts/team/team_value.py)."""
     if not allies:
