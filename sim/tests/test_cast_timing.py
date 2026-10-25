@@ -175,6 +175,14 @@ class Precast(unittest.TestCase):
         self.assertEqual(kc.casts, 0)
         self.assertEqual((kc.ready_at, kc.held_until), (0.0, 0.0))   # waits for the first chance in the fight
 
+    def test_refused_precast_restores_the_gun_lock(self):
+        e, f, kc = self.paradox()
+        f.gun_locked_until = -0.5   # free at t=0, but locked at the precast time
+        kc.precast_at = -2.0
+        kc.impl.should_cast = lambda c: False
+        M.precast(f)
+        self.assertEqual(f.gun_locked_until, -0.5)
+
     def test_damage_before_the_start_books_in_slice_0(self):
         e, f, kc = self.paradox()
         g = make_fighter(e, Loadout("Abrams", [], souls=27000))
