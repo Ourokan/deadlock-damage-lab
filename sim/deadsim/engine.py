@@ -1096,15 +1096,16 @@ class Engine:
             # parried heavies don't land: swing more often so landed melee stays at the fitted rate
             rate /= max(0.5, 1.0 - f.enemy.skill.parry_rate * share)
         interval = 1.0 / max(rate, MELEE_MIN_RATE)
-        w = min(1.0, rate * interval)
-        debt = f.counters.get("melee_debt", 0.0)
-        if debt > 0:   # an opening melee (melee_open) came out of this rate
-            pay = min(debt, w)
-            f.counters["melee_debt"] = debt - pay
-            w -= pay
-        if w > 1e-9 and (self.mover is None or f.counters.get("fleeing") is not True and
-                         self.distance <= self.mover.start + self.mover.melee_reach(f, heavy)):
-            self.melee_hit(f, heavy, w)
+        if self.mover is None or f.counters.get("fleeing") is not True and self.distance <= self.mover.start + \
+                self.mover.melee_reach(f, heavy):
+            w = min(1.0, rate * interval)
+            debt = f.counters.get("melee_debt", 0.0)
+            if debt > 0:   # an opening melee (melee_open) came out of this rate: only a tick that lands pays
+                pay = min(debt, w)
+                f.counters["melee_debt"] = debt - pay
+                w -= pay
+            if w > 1e-9:
+                self.melee_hit(f, heavy, w)
         self.after(interval, self.melee_tick, f)
 
     def melee_open(self, f: Fighter, heavy: bool):

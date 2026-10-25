@@ -245,6 +245,17 @@ class MeleeOpener(unittest.TestCase):
         self.assertLess(debt, 1e-9)
         self.assertAlmostEqual(sum(hits), sum(base))   # ... that the later ticks pay back in full
 
+    def test_out_of_reach_tick_keeps_the_debt(self):
+        mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(15000))
+        e = Engine(distance=30, max_time=60, rng=random.Random(3), mech=mech)
+        a = make_fighter(e, Loadout("Bebop", ["Spirit Strike"], souls=15000, skill=hero_default_skill("Bebop")))
+        b = make_fighter(e, Loadout("Abrams", [], souls=15000))
+        a.enemy, b.enemy = b, a
+        a.counters["melee_debt"] = 1.0
+        e.mover = type("Far", (), {"start": 0.0, "melee_reach": lambda self, f, heavy: 3.0})()
+        e.melee_tick(a)
+        self.assertEqual(a.counters["melee_debt"], 1.0)   # no hit landed, nothing paid
+
     def test_parried_opener_owes_nothing(self):
         mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(15000))
         e = Engine(distance=8, max_time=60, rng=random.Random(3), mech=mech)
