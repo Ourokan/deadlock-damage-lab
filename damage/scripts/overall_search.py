@@ -276,6 +276,11 @@ def fight_rate_data():
     if _rate is None:
         with open(FIGHT_RATE_PATH) as f:
             _rate = json.load(f)
+        with open(os.path.join(ROOT, "..", "data", "patch.json")) as f:
+            patch = json.load(f)["patch"]
+        if _rate.get("patch") != patch:   # static fit: CI can't refit it (the timelines live in the shared folder)
+            print(f"warning: {FIGHT_RATE_PATH} is from patch {_rate.get('patch')}, the sim is on {patch}; rerun "
+                  "sim/scripts/fight_rate/fetch_rates.py and fit_fight_rate.py", file=sys.stderr)
     return _rate
 
 
@@ -289,6 +294,9 @@ def death_rates(souls):
         moving = _move[2] | {i for row in _move[3].values() for i in row}
         lo, hi = DEATH_RATE_CLAMP
         by_name = {it.name: i for i, it in S.G().items.items()}
+        gone = sorted(n for n in d[b]["items"] if n not in by_name)
+        if gone:   # renamed or removed by a patch: their ratios are dropped (pipeline/smoke_test.py checks this)
+            print(f"warning: {FIGHT_RATE_PATH} names items the game no longer has: {gone}", file=sys.stderr)
         _drate[b] = {by_name[n]: max(lo, min(hi, e["deaths"][0])) for n, e in d[b]["items"].items()
                      if n in by_name and by_name[n] not in moving and abs(e["deaths"][1]) >= DEATH_RATE_Z}
     return _drate[b]

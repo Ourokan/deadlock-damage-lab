@@ -127,7 +127,10 @@ def main():
                 t[items[i]["name"]] = {"slot": items[i].get("slot"), "holders": e["n"],
                                        **{k: [round(e[k]["ratio"], 4), round(e[k]["z"], 1)] for k in KEYS}}
         tables[str(b)] = {"nw": [int(BAND[0] * b), int(BAND[1] * b)], "intervals": strata.n, "items": t}
+    with open(os.path.join(ROOT, "data", "patch.json")) as f:
+        patch = json.load(f)["patch"]
     res = {
+        "patch": patch,
         "_note": ("Real Phantom+ stat timelines (sim/scripts/fight_rate/fetch_rates.py), patch 09-29-2026. "
                   "hp_elasticity: d log(damage taken per minute) / d log(max health) at the same hero, net worth "
                   "and game time, per game phase (overall_search.game_phase; opt-in fight_value). items[budget]: "

@@ -1,4 +1,5 @@
 {
+ "patch": "09-29-2026",
  "_note": "Real Phantom+ stat timelines (sim/scripts/fight_rate/fetch_rates.py), patch 09-29-2026. hp_elasticity: d log(damage taken per minute) / d log(max health) at the same hero, net worth and game time, per game phase (overall_search.game_phase; opt-in fight_value). items[budget]: holders / non-holders ratio [ratio, z] of each per-minute rate at the same hero, net worth and game time (deaths used by overall_search.death_rate_value). Static snapshot: refit with sim/scripts/fight_rate/fit_fight_rate.py after fetching new timelines.",
  "matches": 74338,
  "hp_elasticity": {
