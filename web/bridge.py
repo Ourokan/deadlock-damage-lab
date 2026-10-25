@@ -156,7 +156,8 @@ def replay(req_json):
                    max_time=float(q.get("max_time") or 20.0), focus=q.get("focus") or "focus", start_hp=start)
     out = r.to_dict()
     for row, frac in zip(out["fighters"], start):
-        row["start_hp"] = round(row["max_hp"] * (1.0 if frac is None else max(0.0, min(1.0, float(frac)))), 1)
+        # as team_fight sets it: at least 1 HP
+        row["start_hp"] = round(row["max_hp"] if frac is None else max(1.0, min(1.0, float(frac)) * row["max_hp"]), 1)
     return json.dumps(out)
 
 
