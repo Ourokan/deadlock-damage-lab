@@ -1040,6 +1040,28 @@
     "landing": 1.18,
     "length_corr": 0.821
    }
+  },
+  "Baba": {
+   "Threadsap": {
+    "class": "ability_baba_bubbling_brew",
+    "landing": 0.59,
+    "length_corr": 1.071
+   },
+   "Granny Long Legs": {
+    "class": "ability_baba_bench_run",
+    "landing": 1.24,
+    "length_corr": 0.666
+   },
+   "Baba's Brew": {
+    "class": "ability_baba_hexing_brew",
+    "landing": 0.36,
+    "length_corr": 1.41
+   },
+   "Feed The Birds": {
+    "class": "ability_baba_ultimate_2",
+    "landing": 0.61,
+    "length_corr": 0.567
+   }
   }
  }
 }

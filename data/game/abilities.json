@@ -21087,5 +21087,717 @@
    }
   ],
   "weapon_info": null
+ },
+ {
+  "hero_id": 88,
+  "hero": "Baba",
+  "slot": "signature1",
+  "id": 1282689113,
+  "class_name": "ability_baba_bubbling_brew",
+  "name": "Threadsap",
+  "ability_type": "signature",
+  "boss_damage_scale": 1.0,
+  "description": {
+   "desc": "Weave a scraggly thread that follows your crosshair before bursting along its path, dealing spirit damage and stealing enemy Spirit, increased in effectiveness for Baba.While holding stolen Spirit, Baba deals bonus spirit damage with every bullet.",
+   "quip": "Threadsap",
+   "t2_desc": "-12s Cooldown+8s Debuff Duration",
+   "t3_desc": "+1 ChargeOn Hit: Pull enemies 7m"
+  },
+  "properties": {
+   "AbilityCooldown": {
+    "value": 28.0,
+    "label": "Cooldown",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "AbilityCooldown_scale_function",
+     "specific_stat_scale_type": "ETechCooldown"
+    }
+   },
+   "AbilityCastRange": {
+    "value": 35.0,
+    "raw": "35m",
+    "label": "Cast Range",
+    "postfix": "m",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "AbilityCastRange_scale_function",
+     "specific_stat_scale_type": "ETechRange"
+    }
+   },
+   "AbilityUnitTargetLimit": {
+    "value": 1.0
+   },
+   "AbilityCharges": {
+    "value": 1.0,
+    "label": "Charges",
+    "scale": {
+     "class_name": "scale_function_ability_charges",
+     "subclass_name": "AbilityCharges_scale_function"
+    }
+   },
+   "AbilityCooldownBetweenCharge": {
+    "value": 6.0,
+    "label": "Charge Delay",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_ability_recharge_time",
+     "subclass_name": "scale_function_ability_recharge_time"
+    }
+   },
+   "ProjectileSpeed": {
+    "value": 2600.0
+   },
+   "ProjectileTurnRate": {
+    "value": 220.0
+   },
+   "ProjectileSpacingThinkInterval": {
+    "value": 0.05
+   },
+   "ExplodeTime": {
+    "value": 0.9,
+    "label": "Burst Delay",
+    "postfix": "s"
+   },
+   "StolenSpiritEffectiveness": {
+    "value": 175.0,
+    "label": "Stolen Spirit Effectiveness",
+    "postfix": "%"
+   },
+   "Damage": {
+    "value": 50.0,
+    "label": "Damage"
+   },
+   "ExplodeRadius": {
+    "value": 3.5,
+    "raw": "3.5m",
+    "label": "Explosion Radius",
+    "postfix": "m",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "Radius_scale_function",
+     "specific_stat_scale_type": "ETechRadius"
+    }
+   },
+   "ExplodeTimeInterval": {
+    "value": 0.05,
+    "label": "Burst Interval",
+    "postfix": "s"
+   },
+   "DebuffDuration": {
+    "value": 22.0,
+    "label": "Debuff Duration",
+    "postfix": "s",
+    "street_brawl_value": "14",
+    "scale": {
+     "class_name": "scale_function_tech_duration",
+     "subclass_name": "duration_scale_function"
+    }
+   },
+   "TechPowerGain": {
+    "value": 10.0,
+    "label": "Spirit Stolen per Hit",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "TechPowerGain_scale_function",
+     "specific_stat_scale_type": "ELevelUpBoons",
+     "stat_scale": 0.9
+    }
+   },
+   "MaxStacks": {
+    "value": 45.0,
+    "label": "Max Spirit Stolen",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "MaxStacks_scale_function",
+     "specific_stat_scale_type": "ELevelUpBoons",
+     "stat_scale": 2.0
+    }
+   },
+   "ProjectileTurnMaxDegrees": {
+    "value": 270.0
+   },
+   "PullDistance": {
+    "value": 0.0,
+    "raw": "0m",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "PullDistance_scale_function",
+     "specific_stat_scale_type": "ETechRange"
+    }
+   },
+   "PullDuration": {
+    "value": 0.6
+   },
+   "MagicDamagePerBullet": {
+    "value": 8.0,
+    "label": "Spirit Damage Per Bullet",
+    "scale": {
+     "class_name": "scale_function_tech_damage",
+     "subclass_name": "DPS_scale_function",
+     "stat_scale": 0.26
+    }
+   }
+  },
+  "upgrades": [
+   {
+    "MagicDamagePerBullet": 8.0
+   },
+   {
+    "AbilityCooldown": -12.0,
+    "DebuffDuration": 8.0
+   },
+   {
+    "AbilityCharges": 1.0,
+    "PullDistance": 7.0
+   }
+  ],
+  "weapon_info": null
+ },
+ {
+  "hero_id": 88,
+  "hero": "Baba",
+  "slot": "signature2",
+  "id": 3122124161,
+  "class_name": "ability_baba_bench_run",
+  "name": "Granny Long Legs",
+  "ability_type": "signature",
+  "boss_damage_scale": 1.0,
+  "description": {
+   "desc": "Your bench's legs extend, granting bonus move speed, higher jumps, Debuff Resistance and Melee Resistance.Light Melee: Perform a kick that knocks enemies back.Heavy Melee: Perform a ground pound that applies knockup, slow, and deals spirit damage.Hold Crouch / slide to charge a high jump, release to jump.",
+   "quip": "Granny Long Legs: jump high and kick anyone nearby with spirit-charged legs.",
+   "t1_desc": "+2.5m Move Speed",
+   "t2_desc": "-7.0s Cooldown",
+   "t3_desc": "+15% Resists+50% Melee Lifesteal"
+  },
+  "properties": {
+   "AbilityCooldown": {
+    "value": 32.0,
+    "label": "Cooldown",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "AbilityCooldown_scale_function",
+     "specific_stat_scale_type": "ETechCooldown"
+    }
+   },
+   "AbilityDuration": {
+    "value": 10.0,
+    "label": "Duration",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_tech_duration",
+     "subclass_name": "BenchRunDuration_scale_function",
+     "specific_stat_scale_type": "ETechDuration"
+    }
+   },
+   "AbilityUnitTargetLimit": {
+    "value": 1.0
+   },
+   "ChannelMoveSpeed": {
+    "value": 1.0,
+    "raw": "1m",
+    "postfix": "m"
+   },
+   "Radius": {
+    "value": 8.0,
+    "raw": "8m",
+    "label": "Radius",
+    "postfix": "m",
+    "scale": {
+     "class_name": "scale_function_tech_range",
+     "subclass_name": "ground_pound_radius_sf"
+    }
+   },
+   "BonusMoveSpeed": {
+    "value": 5.0,
+    "raw": "5m",
+    "label": "Move Speed",
+    "postfix": " m",
+    "provided_property_type": "MODIFIER_VALUE_MOVEMENT_SPEED_MAX",
+    "usage_flags": [
+     "ConditionallyApplied"
+    ]
+   },
+   "CrouchMoveSpeedBonus": {
+    "value": 3.5,
+    "raw": "3.5m",
+    "provided_property_type": "MODIFIER_VALUE_CROUCH_SPEED_BONUS",
+    "usage_flags": [
+     "ConditionallyApplied"
+    ]
+   },
+   "HeavyMeleeSpiritDamage": {
+    "value": 75.0,
+    "label": "Heavy Melee Damage",
+    "scale": {
+     "class_name": "scale_function_tech_damage",
+     "subclass_name": "HeavyMeleeSpiritDamage_scale_function",
+     "specific_stat_scale_type": "ETechPower",
+     "stat_scale": 0.6
+    }
+   },
+   "HeavyMeleeSlowPercent": {
+    "value": 50.0,
+    "label": "Heavy Melee Movement Slow",
+    "postfix": "%",
+    "provided_property_type": "MODIFIER_VALUE_MOVEMENT_SPEED_SLOW_PERCENT",
+    "usage_flags": [
+     "ConditionallyApplied"
+    ]
+   },
+   "HeavyMeleeDashSlowPercent": {
+    "value": -25.0,
+    "provided_property_type": "MODIFIER_VALUE_MOVEMENT_GROUND_DASH_REDUCTION_PERCENT",
+    "usage_flags": [
+     "ConditionallyApplied"
+    ]
+   },
+   "HeavyMeleeSlowDuration": {
+    "value": 4.0,
+    "label": "Heavy Melee Slow Duration",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_tech_duration",
+     "subclass_name": "HeavyMeleeSlowDuration_scale_function"
+    }
+   },
+   "MoveWhileShootingSpeedPenaltyReductionPercent": {
+    "value": 100.0,
+    "provided_property_type": "MODIFIER_VALUE_MOVEMENT_SPEED_WHILE_SHOOTING_PENALTY_REDUCTION_PERCENT",
+    "usage_flags": [
+     "ConditionallyApplied"
+    ]
+   },
+   "StatusResistancePercent": {
+    "value": 30.0,
+    "label": "Debuff Resist",
+    "postfix": "%",
+    "provided_property_type": "MODIFIER_VALUE_STATUS_RESISTANCE",
+    "usage_flags": [
+     "ConditionallyApplied"
+    ]
+   },
+   "MeleeResist": {
+    "value": 30.0,
+    "label": "Melee Resist",
+    "postfix": "%",
+    "provided_property_type": "MODIFIER_VALUE_MELEE_RESIST",
+    "usage_flags": [
+     "ConditionallyApplied"
+    ]
+   },
+   "MeleeLifestealNonHeroPct": {
+    "value": 60.0
+   },
+   "LightKickKnockbackDistance": {
+    "value": 10.0,
+    "raw": "10m",
+    "label": "Light Melee Knockback",
+    "postfix": "m",
+    "scale": {
+     "class_name": "scale_function_tech_range",
+     "subclass_name": "light_kick_knockback_distance_sf"
+    }
+   },
+   "LightKickKnockbackHeight": {
+    "value": 0.75,
+    "raw": "0.75m"
+   },
+   "GroundPoundKnockUpDuration": {
+    "value": 0.3,
+    "label": "Ground Pound Knock Up",
+    "postfix": "s"
+   },
+   "GroundPoundFallTimeReductionPercent": {
+    "value": 30.0
+   },
+   "GroundPoundKnockUpHeight": {
+    "value": 2.54,
+    "raw": "2.54m"
+   },
+   "KickKnockbackDuration": {
+    "value": 0.45
+   },
+   "BonusMeleeRange": {
+    "value": 2.0,
+    "raw": "2m",
+    "label": "Melee Range",
+    "postfix": "m",
+    "provided_property_type": "MODIFIER_VALUE_BONUS_MELEE_RANGE",
+    "usage_flags": [
+     "ConditionallyApplied"
+    ]
+   },
+   "GravityScalePercent": {
+    "value": 80.0
+   },
+   "RisingGravityScalePercent": {
+    "value": 50.0
+   },
+   "EndLaunchMaxLingerTime": {
+    "value": 3.0
+   },
+   "MinJumpHeight": {
+    "value": 75.0,
+    "label": "Jump Height",
+    "postfix": "%"
+   },
+   "MaxJumpHeight": {
+    "value": 250.0,
+    "label": "Fully Charged Jump Height",
+    "postfix": "%"
+   },
+   "JumpSoundLayerVolumeMin": {
+    "value": -60.0
+   },
+   "JumpSoundLayerVolumeMax": {
+    "value": -4.0
+   },
+   "ChargedJumpForwardForce": {
+    "value": 300.0
+   },
+   "DashDistancePercent": {
+    "value": 20.0,
+    "provided_property_type": "MODIFIER_VALUE_MOVEMENT_GROUND_DASH_INCREASE_PERCENT",
+    "usage_flags": [
+     "ConditionallyApplied"
+    ]
+   },
+   "AirDashDistancePercent": {
+    "value": 20.0,
+    "provided_property_type": "MODIFIER_VALUE_AIR_DASH_DISTANCE_INCREASE_PERCENT",
+    "usage_flags": [
+     "ConditionallyApplied"
+    ]
+   }
+  },
+  "upgrades": [
+   {
+    "BonusMoveSpeed": 2.5
+   },
+   {
+    "AbilityCooldown": -7.0
+   },
+   {
+    "StatusResistancePercent": 15.0,
+    "MeleeResist": 15.0,
+    "MeleeLifesteal": 50.0
+   }
+  ],
+  "weapon_info": null
+ },
+ {
+  "hero_id": 88,
+  "hero": "Baba",
+  "slot": "signature3",
+  "id": 2003165630,
+  "class_name": "ability_baba_hexing_brew",
+  "name": "Baba's Brew",
+  "ability_type": "signature",
+  "boss_damage_scale": 1.0,
+  "description": {
+   "desc": "Brew a pot of tea that applies a magical effect in an area when thrown, cycling over time between a soothing barrier, Silence, or scalding burn that deals spirit damage over time and reduces spirit resist. Press to pause or resume brewing.",
+   "quip": "Brew Baba's special pot of tea, then throw it to ignite or silence enemies, or shield allies",
+   "t3_desc": "+33.33% Brew Effectiveness"
+  },
+  "properties": {
+   "AbilityCooldown": {
+    "value": 27.0,
+    "label": "Cooldown",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "AbilityCooldown_scale_function",
+     "specific_stat_scale_type": "ETechCooldown"
+    }
+   },
+   "AbilityCastRange": {
+    "value": 12.0,
+    "raw": "12m",
+    "label": "Cast Range",
+    "postfix": "m",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "AbilityCastRange_scale_function",
+     "specific_stat_scale_type": "ETechRange"
+    }
+   },
+   "AbilityUnitTargetLimit": {
+    "value": 1.0
+   },
+   "AbilityChannelTime": {
+    "value": 1.0,
+    "label": "Channel Duration",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_multi_stats",
+     "subclass_name": "scale_duration",
+     "scaling_stats": [
+      "EChannelDuration",
+      "ETechDuration"
+     ]
+    }
+   },
+   "BrewTime": {
+    "value": 1.5,
+    "label": "Initial Brew Time",
+    "postfix": "s"
+   },
+   "BarrierLockTime": {
+    "value": 2.5
+   },
+   "SilenceLockTime": {
+    "value": 3.5
+   },
+   "FireLockTime": {
+    "value": 4.5
+   },
+   "SelfCastForwardOffset": {
+    "value": 1.0,
+    "raw": "1m"
+   },
+   "Radius": {
+    "value": 6.0,
+    "raw": "6m",
+    "label": "Radius",
+    "postfix": "m",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "Radius_scale_function",
+     "specific_stat_scale_type": "ETechRadius"
+    }
+   },
+   "DamagePerSecond": {
+    "value": 12.0,
+    "label": "Burn DPS",
+    "usage_flags": [
+     "ConditionallyApplied"
+    ],
+    "scale": {
+     "class_name": "scale_function_tech_damage",
+     "subclass_name": "DamagePerSecond_scale_function",
+     "specific_stat_scale_type": "ETechPower",
+     "stat_scale": 0.152
+    }
+   },
+   "BurnDuration": {
+    "value": 8.0,
+    "label": "Burn Duration",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_tech_duration",
+     "subclass_name": "BurnDuration_scale_function"
+    }
+   },
+   "SpiritResistReduction": {
+    "value": -15.0,
+    "label": "Burn Spirit Resist",
+    "postfix": "%",
+    "provided_property_type": "MODIFIER_VALUE_TECH_RESIST_REDUCTION",
+    "usage_flags": [
+     "ConditionallyApplied"
+    ]
+   },
+   "CombatBarrier": {
+    "value": 90.0,
+    "label": "Barrier",
+    "provided_property_type": "MODIFIER_VALUE_BARRIER_HEALTH",
+    "usage_flags": [
+     "ConditionallyApplied"
+    ],
+    "scale": {
+     "class_name": "scale_function_tech_damage",
+     "subclass_name": "CombatBarrier_scale_function",
+     "specific_stat_scale_type": "ETechPower",
+     "stat_scale": 0.7
+    }
+   },
+   "BarrierDuration": {
+    "value": 8.0,
+    "label": "Barrier Duration",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_tech_duration",
+     "subclass_name": "BarrierDuration_scale_function"
+    }
+   },
+   "SilenceDuration": {
+    "value": 3.0,
+    "label": "Silence Duration",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_tech_duration",
+     "subclass_name": "SilenceDuration_scale_function"
+    }
+   }
+  },
+  "upgrades": [
+   {
+    "Radius": 3.0
+   },
+   {
+    "AbilityCooldown": -14.0
+   },
+   {
+    "BrewEffectiveness": 33.33,
+    "DamagePerSecond": 1.3333,
+    "CombatBarrier": 1.3333,
+    "SilenceDuration": 33.33,
+    "SpiritResistReduction": 33.33
+   }
+  ],
+  "weapon_info": null
+ },
+ {
+  "hero_id": 88,
+  "hero": "Baba",
+  "slot": "signature4",
+  "id": 299875845,
+  "class_name": "ability_baba_ultimate_2",
+  "name": "Feed The Birds",
+  "ability_type": "ultimate",
+  "boss_damage_scale": 1.0,
+  "description": {
+   "desc": "Cover targets in front of you with bread, adding a stacking slow .When the channel ends a flock of pigeons bombard the targets, dealing spirit damage and hexing each target into a pigeon, increasing in both damage and duration based on bread count.",
+   "t1_desc": "+4m Cast Range+32% Max Slow",
+   "t3_desc": "+125 Max Damage +125 Spirit Scaling+0.5s Max Duration"
+  },
+  "properties": {
+   "TimeToGainLockonStack": {
+    "value": 0.7,
+    "label": "Lock-on Time Per Pigeon",
+    "postfix": "s"
+   },
+   "LockonConeAngle": {
+    "value": 40.0
+   },
+   "TimeToLoseLockonStack": {
+    "value": 2.0
+   },
+   "LosingLockGraceTime": {
+    "value": 1.0
+   },
+   "MaxLockonStacks": {
+    "value": 1.0,
+    "label": "Max Pigeons Per Target"
+   },
+   "TimeToMaxStacks": {
+    "value": 3.5,
+    "label": "Time To Max Stacks",
+    "postfix": "s"
+   },
+   "AbilityCooldown": {
+    "value": 150.0,
+    "label": "Cooldown",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "AbilityCooldown_scale_function",
+     "specific_stat_scale_type": "ETechCooldown"
+    }
+   },
+   "AbilityCastRange": {
+    "value": 18.0,
+    "raw": "18m",
+    "label": "Cast Range",
+    "postfix": "m",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "AbilityCastRange_scale_function",
+     "specific_stat_scale_type": "ETechRange"
+    }
+   },
+   "AbilityUnitTargetLimit": {
+    "value": 9999.0
+   },
+   "AbilityCastDelay": {
+    "value": 0.15,
+    "label": "Cast Delay",
+    "postfix": "s"
+   },
+   "AbilityChannelTime": {
+    "value": 6.5,
+    "label": "Channel Duration",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_multi_stats",
+     "subclass_name": "scale_duration",
+     "scaling_stats": [
+      "EChannelDuration",
+      "ETechDuration"
+     ]
+    }
+   },
+   "AbilityPostCastDuration": {
+    "value": 0.6
+   },
+   "ChannelMoveSpeed": {
+    "value": 99.0,
+    "raw": "99m",
+    "postfix": "m"
+   },
+   "MaxSlow": {
+    "value": 32.0,
+    "label": "Max Slow",
+    "postfix": "%",
+    "provided_property_type": "MODIFIER_VALUE_MOVEMENT_SPEED_SLOW_PERCENT",
+    "usage_flags": [
+     "ConditionallyApplied"
+    ]
+   },
+   "BarrageMaxDamage": {
+    "value": 450.0,
+    "label": "Max Damage",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "tickdamage_scale_function",
+     "specific_stat_scale_type": "ETechPower",
+     "stat_scale": 1.6
+    }
+   },
+   "TickDamageIncreasePerHit": {
+    "value": 30.0,
+    "label": "Damage Escalation",
+    "postfix": "%"
+   },
+   "TickInterval": {
+    "value": 0.15,
+    "label": "Time Between Hits",
+    "postfix": "s"
+   },
+   "BarrageStartDelayMin": {
+    "value": 1.2
+   },
+   "BarrageStartDelayMax": {
+    "value": 1.8
+   },
+   "FinalTickDelay": {
+    "value": 1.2
+   },
+   "HexDuration": {
+    "value": 2.75,
+    "label": "Max Pigeon Duration",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_tech_duration",
+     "subclass_name": "hexduration_scale_function"
+    }
+   }
+  },
+  "upgrades": [
+   {
+    "MaxSlow": 32.0,
+    "AbilityCastRange": 4.0
+   },
+   {
+    "AbilityCooldown": -55.0
+   },
+   {
+    "BarrageMaxDamage": 1.5,
+    "HexDuration": 0.5
+   }
+  ],
+  "weapon_info": null
  }
 ]
