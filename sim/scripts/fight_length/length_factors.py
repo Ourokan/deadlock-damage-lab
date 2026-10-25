@@ -18,11 +18,8 @@ Each row keeps its fitted factor (landing) and gets length_corr; deadsim.accurac
 keep the fit as it is. After a refit (landing_rates.py, refit_landing_heroes.py, item_landing.py: they fit with
 every hit in full and keep the old length_corr) rerun this.
 
-With --hero NAME only that hero's duels run and only its ability rows change (items are left as they are): for a hero
-whose abilities were just modeled or refit (refit_landing_heroes.py), without moving every other hero's correction.
-
-usage: python3 length_factors.py [workers] [--sample PATH] [--rounds 3] [--write] [--hero NAME]
-(~1 min a round on 4 cores)
+usage: python3 length_factors.py [workers] [--sample PATH] [--rounds 3] [--write] [--hero NAME ...]
+(--hero: only those heroes' ability rows, from their own players' duels; item rows stay as they are)   (~1 min a round on 4 cores)
 """
 import collections
 import gzip
@@ -90,13 +87,13 @@ def main():
         i = args.index("--sample")
         sample = args[i + 1]
         args = args[:i] + args[i + 2:]
-    hero = None
-    if "--hero" in args:
-        i = args.index("--hero")
-        hero = args[i + 1]
-        args = args[:i] + args[i + 2:]
     write = "--write" in args
     args = [a for a in args if a != "--write"]
+    only = set()
+    while "--hero" in args:   # refit only these heroes' ability rows (after a hero file change); items stay
+        i = args.index("--hero")
+        only.add(game().hero(args[i + 1]).id)
+        args = args[:i] + args[i + 2:]
     rounds = 3
     if "--rounds" in args:
         i = args.index("--rounds")
@@ -109,7 +106,7 @@ def main():
     for line in gzip.open(sample):
         m = json.loads(line)
         for p in m["players"]:
-            if p["hero_id"] in G.heroes and L.gun_known(p) and (hero is None or p["hero_id"] == G.hero(hero).id):
+            if p["hero_id"] in G.heroes and L.gun_known(p) and (not only or p["hero_id"] in only):
                 jobs.append((m, p["slot"]))
     random.Random(1).shuffle(jobs)
     # round 0 on the fitted factors alone: the in-full ratios are the target, the expected ones give the first
@@ -128,11 +125,10 @@ def main():
                 hid = G.hero(hn).id
             except Exception:  # noqa: BLE001
                 continue
-            if hero is not None and hid != G.hero(hero).id:
+            if only and hid not in only:
                 continue
-            by_name = {ab.name: ab.class_name for ab in G.hero(hid).abilities}
             for name, r in rows.items():
-                cls = r.get("class") or L.ALIASES.get(name) or by_name.get(name)
+                cls = r.get("class") or L.ALIASES.get(name)
                 c = corr(sim_w[hid], target_ab[hid], cls) if cls else None
                 if c is None:
                     continue
@@ -140,8 +136,8 @@ def main():
                 r["length_corr"] = round(c, 3)
                 n_ab += 1
                 print(f"  {hn:14s} {name:28s} {r['landing']} x{c:.2f}")
-        for cls, r in () if hero else items["items"].items():
-            if holders[cls] < MIN_HOLDERS:   # (accuracy.item_landing uses 30+)
+        for cls, r in items["items"].items():
+            if only or holders[cls] < MIN_HOLDERS:   # (accuracy.item_landing uses 30+)
                 continue
             c = corr(held_w[cls], target_it[cls], cls)
             if c is None:
@@ -160,9 +156,8 @@ def main():
     note = ("fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x "
             "length_corr (the sim's source/gun in full / the same expected over real fight lengths, "
             f"scripts/fight_length/length_factors.py, {os.path.basename(sample)}, {rounds} rounds)")
-    if hero is None:
-        abil["meta"]["length"] = note
-        items["meta"]["length"] = note
+    abil["meta"]["length"] = note
+    items["meta"]["length"] = note
     if write:
         for fn, d in ((ABILITY_FILE, abil), (ITEM_FILE, items)):
             with open(fn, "w") as fh:

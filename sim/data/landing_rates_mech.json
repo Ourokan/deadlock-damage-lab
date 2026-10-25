@@ -1003,11 +1003,13 @@
   "Nurse Harrow": {
    "Leech Therapy": {
     "landing": 1.36,
-    "length_corr": 0.453
+    "length_corr": 0.453,
+    "class": "ability_nurse_leech_therapy"
    },
    "Lurking Terrors": {
     "landing": 0.6,
-    "length_corr": 0.528
+    "length_corr": 0.528,
+    "class": "ability_nurse_fear"
    }
   },
   "Graves": {
