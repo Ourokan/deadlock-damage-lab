@@ -24,6 +24,25 @@ class WebZip(unittest.TestCase):
             r = subprocess.run([sys.executable, "-I", "-c", code], cwd=d, capture_output=True, text=True)
             self.assertEqual(r.returncode, 0, r.stderr[-800:])
 
+    def test_slim_bundle_reads_the_same_game_data(self):
+        """build.py drops UI-only keys from raw/items.json and re-serializes the JSON: the sim must read exactly the
+        same game data (items, abilities, heroes, raw item properties) from the bundle as from data/game."""
+        import build
+        code = ("import sys; sys.path.insert(0, 'sim'); from deadsim.data import game; "
+                "from deadsim.mechanics import raw_props; from deadsim.heroes.werewolf import _raw, raw_ability; g = game(); "
+                "print(repr(sorted(g.items.items()))); print(repr(sorted(g.abilities_by_class.items()))); "
+                "print(repr(sorted(g.heroes.items()))); print(repr({c: raw_props(c) for c in sorted(_raw())})); "
+                "print(repr({c: raw_ability(c) for c in sorted(_raw()) if c.startswith(('ability', 'citadel_ability'))}))")
+        full = subprocess.run([sys.executable, "-I", "-c", code], cwd=ROOT, capture_output=True, text=True)
+        self.assertEqual(full.returncode, 0, full.stderr[-800:])
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "sim.zip")
+            build.build_zip(path)
+            zipfile.ZipFile(path).extractall(d)
+            slim = subprocess.run([sys.executable, "-I", "-c", code], cwd=d, capture_output=True, text=True)
+            self.assertEqual(slim.returncode, 0, slim.stderr[-800:])
+        self.assertTrue(full.stdout == slim.stdout, "the bundle's game data differs from data/game")
+
 
 if __name__ == "__main__":
     unittest.main()
