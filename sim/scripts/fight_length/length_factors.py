@@ -27,6 +27,10 @@ every hit in full and keep the old length_corr) rerun this.
 
 usage: python3 length_factors.py [workers] [--sample PATH] [--rounds 3] [--write] [--hero NAME] [--refit]   (~1 min a round on 4 cores)
 --hero: only that hero's players and ability rows (a newly added hero); item factors are left as they are.
+After refit_landing_heroes.py for a hero: --refit --no-cast-timing --hero NAME (the corrections as before cast
+timing), then --hero NAME in keep mode once (the file's cast_timing_kept mark covers the other rows and stays). Keep
+mode scales the current corrections, so a second keep run on the same rows would compound: it refuses unless the
+--refit run listed the hero in meta cast_timing_pending_heroes.
 """
 import collections
 import gzip
@@ -63,6 +67,7 @@ def set_cast_timing(on):
     A.MECH = dataclasses.replace(A.MECH, cast_timing=on)
 
 
+PENDING = "cast_timing_pending_heroes"   # meta: heroes refit (--refit --hero) and not yet keep-scaled
 KEEP_RANGE = (0.1, 10.0)   # with cast_timing: a held ultimate cast in ~1 fight of 4 (was ~9 of 10) needs ~5-8x
 
 
@@ -104,7 +109,9 @@ def main():
         sample = args[i + 1]
         args = args[:i] + args[i + 2:]
     write = "--write" in args
-    args = [a for a in args if a not in ("--write", "--refit")]
+    if "--no-cast-timing" in args:   # duels cast on sight: the pre-cast-timing refit for a hero refit's new rows
+        set_cast_timing(False)
+    args = [a for a in args if a not in ("--write", "--refit", "--no-cast-timing")]
     rounds = 3
     if "--rounds" in args:
         i = args.index("--rounds")
@@ -133,7 +140,15 @@ def main():
     target_ab = target_it = None
     abil, items = json.load(open(ABILITY_FILE)), json.load(open(ITEM_FILE))
     keep = A.MECH.cast_timing and "--refit" not in sys.argv
-    if keep and "cast_timing_kept" in abil["meta"]:
+    # --hero: a hero refit (refit_landing_heroes.py, then this with --refit --no-cast-timing --hero X) resets that
+    # hero's rows and lists the hero under PENDING; one keep run --hero X then rescales them and takes it off. The
+    # file's other rows and its mark stay as they are.
+    pending = abil["meta"].get(PENDING, [])
+    hero_name = G.hero(only).name if only is not None else None
+    if keep and only is not None and "cast_timing_kept" in abil["meta"] and hero_name not in pending:
+        sys.exit(f"length_factors: {hero_name}'s rows are already scaled for cast timing; a second keep run would "
+                 f"compound them. Run --refit --no-cast-timing --hero first.")
+    if keep and "cast_timing_kept" in abil["meta"] and only is None:
         # the target run would cast on sight with corrections already scaled for held casts: rerunning compounds
         sys.exit("length_factors: these factors are already scaled for cast timing (meta cast_timing_kept). Start "
                  "from the factors before it (git: the commit before the cast-timing refit) or use --refit.")
@@ -179,8 +194,8 @@ def main():
             n_it += 1
             print(f"  item {r['name']:24s} {r['landing']} x{c:.2f}")
         print(f"round {rnd + 1}: {n_ab} ability factors, {n_it} item factors corrected", flush=True)
-        if write:
-            for fn, d in ((ABILITY_FILE, abil), (ITEM_FILE, items)):
+        if write:   # (the next round's duels read the files; --hero leaves the item file as it is)
+            for fn, d in ((ABILITY_FILE, abil),) + (() if only is not None else ((ITEM_FILE, items),)):
                 with open(fn, "w") as fh:
                     json.dump(d, fh, indent=1)
                     fh.write("\n")
@@ -190,13 +205,22 @@ def main():
             f"scripts/fight_length/length_factors.py, {os.path.basename(sample)}, {rounds} rounds)")
     abil["meta"]["length"] = note
     items["meta"]["length"] = note
-    for d in (abil, items):
+    if only is not None and write:
+        # only the --refit --no-cast-timing run gives the rows keep mode starts from; a --refit run with cast
+        # timing on already fits the held duels, so it leaves nothing for a keep run to scale
+        ready = not keep and not A.MECH.cast_timing
+        pending = [h for h in pending if h != hero_name] + ([hero_name] if ready else [])
+        if pending:
+            abil["meta"][PENDING] = pending
+        else:
+            abil["meta"].pop(PENDING, None)
+    for d in () if only is not None else (abil, items):
         d["meta"].pop("cast_timing_kept", None)
         if keep:
             d["meta"]["cast_timing_kept"] = ("length_corr scaled so held first casts (Mechanics.cast_timing) keep the "
                                              "expected levels of cast-on-sight duels; rerun from the factors before")
     if write:
-        for fn, d in ((ABILITY_FILE, abil), (ITEM_FILE, items)):
+        for fn, d in ((ABILITY_FILE, abil),) + (() if only is not None else ((ITEM_FILE, items),)):
             with open(fn, "w") as fh:
                 json.dump(d, fh, indent=1)
                 fh.write("\n")

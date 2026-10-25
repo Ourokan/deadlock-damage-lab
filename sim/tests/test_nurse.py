@@ -77,6 +77,16 @@ class TestVapors(NurseCase):
         self.f.heal(pending / 2, "test", "ability")
         self.assertLess(wv.scratch["pending"], pending)
 
+    def test_lifesteal_heal_with_origin(self):
+        # lifesteal heals pass the damage source they came from (engine.heal origin=): the specter hook takes it too
+        wv = self.ab["ability_nurse_adrenaline_rush"]
+        wv.cast()
+        self.run_until(0.3)
+        self.e.damage(self.g, self.f, 200.0, "spirit", "test", ignore_resist=True)
+        pending = wv.scratch["pending"]
+        self.f.heal(pending / 2, "lifesteal", "regen", origin="gun")
+        self.assertLess(wv.scratch["pending"], pending)
+
 
 class TestTerrors(NurseCase):
     def test_fear_after_buildup_and_gun_locked(self):
