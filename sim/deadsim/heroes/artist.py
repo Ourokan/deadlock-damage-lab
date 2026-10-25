@@ -17,11 +17,11 @@ Assumptions:
   its full OutgoingDamagePercent for DamageAmpDuration once half of DamageAmpBuildDuration has passed (it builds
   while sliding on the trail). T1 stamina is movement only.
 - Still Life: lock-on within AbilityCastRange. The sketch fills BuildUpPerSecond per s, BuildUpPerShot per landed
-  gun shot and BuildUpPerAbility per ability hit; it deals DPS every TickInterval while drawing and at 100 deals
-  Damage and stuns for StunDuration. Violet keeps shooting meanwhile. The draw gives up after SKETCH_MAX s (no
-  limit in the data). T1 regen on cast and again on pickup (the sketch is assumed picked up), T2 the subject deals
-  OutgoingDamagePercent less while drawn. The permanent per-sketch stats are not modeled (they depend on how many
-  sketches were taken earlier in the game).
+  gun shot and BuildUpPerAbility per ability hit (a Living Ink hit counts once, as its gun shot); it deals DPS every
+  TickInterval while drawing and at 100 deals Damage and stuns for StunDuration. Violet keeps shooting meanwhile.
+  The draw gives up after SKETCH_MAX s (no limit in the data). T1 regen (HealthRegen, spirit scaled) on cast and
+  again on pickup (the sketch is assumed picked up), T2 the subject deals OutgoingDamagePercent less while drawn.
+  The permanent per-sketch stats are not modeled (they depend on how many sketches were taken earlier in the game).
 - Abstract Landscape: cast when the target is within GroveRadius. Violet stands inside for AbilityDuration and
   gains TechPower spirit power (T2 also spirit lifesteal). The target walks out through the ink at GROVE_FIRST_HIT
   s, taking Damage and Silence (the slow is skipped), and crosses it again GROVE_HITS - 1 times on average (replay
@@ -30,6 +30,7 @@ Assumptions:
 """
 from deadsim.abilities import AbilityImpl, register
 
+LIVING_INK = "Living Ink"
 SKETCH_MAX = 6.0     # s a Still Life draw keeps going before it is given up (no limit in the data)
 # Abstract Landscape, from Phantom+ replays (97 casts): an enemy that takes its damage first does at 3.7 s after the
 # cast (median; channel included), and is hit 1.71 times on average (it crosses the ink again 1.3 s later)
@@ -150,7 +151,7 @@ class StillLife(AbilityImpl):
         st = c.state
         st.update(active=True, meter=0.0, start=c.now, epoch=st.get("epoch", 0) + 1)
         if c.raw("HealthRegen"):
-            c.buff("regen", c.raw("HealthRegen"), c.dur("BuffDuration", 4))
+            c.buff("regen", c.val("HealthRegen"), c.dur("BuffDuration", 4))
         if c.raw("OutgoingDamagePercent"):
             c.debuff("outgoing_penalty", abs(c.raw("OutgoingDamagePercent")) / 100, SKETCH_MAX, tag="still_life_t2")
         c.after(c.raw("TickInterval", 0.15), self.tick, c, st["epoch"])
@@ -179,7 +180,7 @@ class StillLife(AbilityImpl):
             return
         if hit.source == "gun" and hit.hits:
             st["meter"] += c.raw("BuildUpPerShot") * hit.hits / max(1, c.me.st.pellets)
-        elif hit.is_ability:
+        elif hit.is_ability and hit.source != LIVING_INK:   # an empowered hit counts once, as its gun shot
             st["meter"] += c.raw("BuildUpPerAbility")
         self.complete(c)
 
@@ -191,7 +192,7 @@ class StillLife(AbilityImpl):
         c.spirit_hit(c.val("Damage"))
         c.debuff("stun", 1, c.raw("StunDuration"))
         if c.raw("HealthRegen"):   # T1: refreshed on pickup
-            c.buff("regen", c.raw("HealthRegen"), c.dur("BuffDuration", 4))
+            c.buff("regen", c.val("HealthRegen"), c.dur("BuffDuration", 4))
         return True
 
 

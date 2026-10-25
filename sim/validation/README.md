@@ -908,8 +908,8 @@ Violet player-matches):
   all-rank sample (`fetch_validation.py --api 60 4`, 400 matches): Violet acc p50 0.271, headshots 0.211.
 - Fight pattern: replay order Still Life > Living Ink > Abstract Landscape > Flow State, but it fits the real damage
   mix worse than slot order (0.39 -> 0.47), so slot order is kept (row `dropped`).
-- Fits on the Phantom+ sample: melee 0.0225 hits/s; landing (mechanics on) Living Ink 0.66, Flow State 0.48, Still
-  Life 0.79, Abstract Landscape 1.26, fight-length factors 0.83-0.96 (`length_factors.py --hero`, which leaves the
+- Fits on the Phantom+ sample: melee 0.0225 hits/s; landing (mechanics on) Living Ink 0.68, Flow State 0.47, Still
+  Life 0.75, Abstract Landscape 1.18, fight-length factors 0.78-0.96 (`length_factors.py --hero`, which leaves the
   item factors alone). Sim vs real damage mix after the fit: gun 0.29/0.29, Living Ink 0.28/0.28, ultimate
   0.17/0.17, Still Life 0.15/0.15, Flow State 0.06/0.06.
 - Pooled (no Violet-specific fit yet): fight range spread, fight length ratio, death cost, item win edges (the next
