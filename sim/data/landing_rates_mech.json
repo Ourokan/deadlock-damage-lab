@@ -4,7 +4,7 @@
   "formula": "(real ability dmg / real gun dmg) / (sim ability dmg / sim gun dmg)",
   "length": "fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x length_corr (the sim's source/gun in full / the same expected over real fight lengths, scripts/fight_length/length_factors.py, phantom_sample.jsonl.gz, 3 rounds)",
   "cast_timing_kept": "length_corr scaled so held first casts (Mechanics.cast_timing) keep the expected levels of cast-on-sight duels; rerun from the factors before",
-  "audit_corr_heroes": "length_corr fitted straight to the damage audit (scripts/ability_corr_heroes.py, phantom_sample.jsonl.gz, 3 rounds) after a Phantom+ landing refit for: Venator, Infernus, Victor, Silver, Seven, Vyper, Paige, Mirage, Ivy, Kelvin, Bebop (2026-10-25, validation/README.md)"
+  "audit_corr_heroes": "length_corr fitted straight to the damage audit (scripts/ability_corr_heroes.py, phantom_sample.jsonl.gz, 3 rounds) after a Phantom+ landing refit for: Venator, Infernus, Victor, Silver, Seven, Vyper, Paige, Mirage, Ivy, Kelvin, Bebop (2026-10-25), Deadman Danny (2026-10-25, per-ability check) - validation/README.md"
  },
  "heroes": {
   "Infernus": {
@@ -851,31 +851,31 @@
   "Deadman Danny": {
    "Strix Salvo": {
     "class": "ability_deadpack_chargeblast",
-    "landing": 0.4,
+    "landing": 0.25,
     "real_share": 0.1907,
     "sim_share": 0.3335,
-    "length_corr": 1.429
+    "length_corr": 1.621
    },
    "Chimera Mk1": {
     "class": "ability_deadpack_rocketeer",
-    "landing": 0.29,
+    "landing": 0.17,
     "real_share": 0.2441,
     "sim_share": 0.1859,
-    "length_corr": 1.792
+    "length_corr": 2.028
    },
    "Jettison Fuel": {
     "class": "ability_deadpack_flamethrower",
-    "landing": 0.4,
+    "landing": 0.46,
     "real_share": 0.1663,
     "sim_share": 0.1303,
-    "length_corr": 1.258
+    "length_corr": 1.372
    },
    "Close The Deal": {
     "class": "ability_deadpack_ultimate",
-    "landing": 0.13,
+    "landing": 0.34,
     "real_share": 0.0431,
     "sim_share": 0.0276,
-    "length_corr": 1.042
+    "length_corr": 1.413
    }
   },
   "Rem": {
