@@ -322,10 +322,11 @@ async function rpFindSwaps() {
     if (!R.base || R.base.f !== F || R.base.focus !== s) R.base = { f: F, focus: s, res: await simCall("replay", rpReq(null)) };
     const real = itemsAt(p, F.t0), cand = new Set();
     for (const r of await alternatives({ hero: p.hero, souls: netWorthAt(p, F.t0) })) for (const i of r.items) if (!real.includes(i) && S.items[i]) cand.add(i);
-    const pairs = [];
-    for (const o of real) for (const c of cand) if (S.items[c].cost <= S.items[o].cost) pairs.push([o, c]);
-    pairs.sort((x, y) => S.items[y[1]].cost - S.items[x[1]].cost);
-    const todo = pairs.slice(0, 40), out = [], base = rpSwing(R.base.res);
+    // each real item's candidates priciest first, taken in turns across the real items so every item gets tried
+    const per = real.map((o) => [...cand].filter((c) => S.items[c].cost <= S.items[o].cost).sort((x, y) => S.items[y].cost - S.items[x].cost).map((c) => [o, c]));
+    const todo = [];
+    for (let k = 0; todo.length < 40 && per.some((l) => l.length > k); k++) for (const l of per) if (l[k] && todo.length < 40) todo.push(l[k]);
+    const total = per.reduce((t, l) => t + l.length, 0), out = [], base = rpSwing(R.base.res);
     for (const [k, [o, c]] of todo.entries()) {
       if (run !== R.run) return;
       btn.textContent = `Trying swaps (${k + 1}/${todo.length})…`;
@@ -333,7 +334,7 @@ async function rpFindSwaps() {
       const res = await simCall("replay", rpReq({ [s]: real.map((i) => (i === o ? c : i)) }));
       out.push({ out: o, in: c, gain: rpSwing(res) - base, kills: rpDead(res, "B") - rpDead(R.base.res, "B"), deaths: rpDead(res, "A") - rpDead(R.base.res, "A") });
     }
-    R.swaps = { slot: s, rows: out.sort((x, y) => y.gain - x.gain), tried: todo.length };
+    R.swaps = { slot: s, rows: out.sort((x, y) => y.gain - x.gain), tried: todo.length, total };
     if (run === R.run) rpResult();
   } catch (e) {
     if (run === R.run) $("#r-out").insertAdjacentHTML("beforeend", `<p class="err">The sim failed: ${esc(e.message)}</p>`);
@@ -346,10 +347,10 @@ function rpSwapsHTML() {
   const sw = R.swaps, good = sw.rows.filter((x) => x.gain > 1).slice(0, 6);
   const fx = (x) => [x.kills ? `${x.kills > 0 ? "+" : ""}${x.kills} kill${Math.abs(x.kills) === 1 ? "" : "s"}` : "", x.deaths ? `${x.deaths > 0 ? "+" : ""}${x.deaths} death${Math.abs(x.deaths) === 1 ? "" : "s"}` : ""].filter(Boolean).join(", ");
   return `<div class="card" style="margin-top:16px"><h3>Best single swaps for ${esc(heroName(pl(sw.slot).hero))}</h3>
-    <p class="hint">${sw.tried} swaps of one real item for an equal or cheaper item from the damage search's builds at this net worth, everyone else on their real items, scored by the fight's HP swing.</p>
+    <p class="hint">${sw.tried}${sw.total > sw.tried ? ` of ${sw.total}` : ""} swaps of one real item for an equal or cheaper item from the damage search's builds at this net worth${sw.total > sw.tried ? " (each real item's priciest options first)" : ""}, everyone else on their real items, scored by the fight's HP swing against the replay with the real items.</p>
     ${good.length ? `<div class="kv kv3">${good.map((x) => `<span>${tile(x.out, { static: true })} → ${tile(x.in, { static: true })}</span><span class="up">+${fmt(x.gain)} HP${fx(x) ? ` (${fx(x)})` : ""}</span>
       <span><button class="chip-btn" data-rapply='${JSON.stringify([sw.slot, x.out, x.in])}'>Try it</button></span>`).join("")}</div>`
-      : "<p>No single swap improves this fight. The real build was already close to the best the sim found here.</p>"}</div>`;
+      : `<p>None of the swaps tried improves this fight.</p>`}</div>`;
 }
 
 // ---------- boot ----------
