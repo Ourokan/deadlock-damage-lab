@@ -1047,9 +1047,39 @@ held ability as ready, so they neither waste a cut on it nor release a "not cast
 is one-shot: it marks the files (meta `cast_timing_kept`) and refuses to rescale them again. Abilities without a
 `cast_timing.json` entry (gated ones, Violet and Baba, new abilities after a patch) keep the sim's own timing.
 
-Left: damage of held casts lands later than real hits on average (opener_timing compare: real fights opened by an
-ability hit put that damage at t = 0, and early casts deal more per cast than late ones); melee items (Spirit Strike,
-Spirit Snatch, Melee Charge) still proc late since melee is a steady rate; a per-hero-type Tankbuster correction.
 Refit after a patch that changes cooldowns: `fetch_ability_casts.py` (new replays) -> `fit_cast_timing.py real` ->
-`fit --write` -> `length_factors.py --write` starting from the factors before the keep run (not wired into the
-patch rerun: `cast_timing.json` and the corrections are static snapshots like `opener_timing.json`).
+`fit --write` -> `length_factors.py --write` starting from the factors before the keep run -> `item_landing_heroes.py
+--write` (not wired into the patch rerun: `cast_timing.json` and the corrections are static snapshots like
+`opener_timing.json`).
+
+### Holds on hit time, precast openers, melee item openers (2026-10-25)
+
+After the cast holds, `opener_timing.py compare` still put 143 of 262 sources > 0.5 s later than real. The sim's
+casts followed the real ones, and the cast -> hit time matched too (real median from the replays: Kinetic Carbine
+2.3 s vs sim 2.5, Sticky Bomb 3.5 / 3.5, Concussive Combustion 3.25 / 3.25), but the real cast curve lost the fights a
+charged or fused ability opens: its cast comes more than PRE_S before the fight's first hit (which is its own hit),
+so that fight counted a later cast or none. Paradox's Carbine put 61% of its fight damage in the first 2 s real, 0%
+in the sim.
+
+- `fit_cast_timing.py real` now also gives each damage ability its median cast -> hit time (`hit_lag_s`) and a due
+  curve (`due_by`): when the first cast's damage lands, counted from the fight's first hit, taking casts up to
+  LAG_MAX before the fight whose hit lands from PRE_S before it on.
+- `holds()` (PRECAST): for those abilities the holds are the due curve less the sim's median cast and cast -> hit
+  time (`_lg` from the audit duels), down to -(cast -> hit time). A negative hold is `mechanics.precast`: after both
+  fight starts the ability is cast that long before t = 0 (its charge and gun lock fall before the fight), if its rule
+  allows; otherwise it waits for the first chance. 94 of 113 held abilities have some precast values.
+- `Mechanics.melee_timing` (on): a melee item holder (Spirit Strike, Spirit Snatch, Melee Charge, Crushing Fists)
+  lands one full melee hit at a time drawn from the real holders' first proc (`data/melee_timing.json`,
+  `scripts/fight_length/melee_timing.py`, pooled over heroes: 11-19% by 1 s, 64-76% by 20 s), heavy for Melee Charge /
+  Crushing Fists; later melee ticks pay it back (`counters["melee_debt"]`), so the melee per fight stays the fitted
+  rate. Before, the first melee came at 2.5 s as a fraction of a hit, and holders' procs waited for the weights to
+  add up.
+
+Results (main with cast timing -> this, refit in the same order as above): opener timing sources > 0.5 s late
+143 -> 124, mean shift -0.78 -> -0.59 s (Carbine first-2 s share 0.00 -> 0.49, real 0.61; Spirit Strike on Bebop
+0.00 -> 0.38, real 0.59); damage audit mix 0.0377 -> 0.0372, per-source |log ratio| 0.137 -> 0.124, items 0.102 ->
+0.083; sim_vs_win at 27k all pairs 0.205 -> 0.217, damage items 0.026 -> 0.099, per item 0.302 -> 0.309, edges clear
+of noise 0.282 -> 0.275. Precast alone: 0.215 / audit 0.0389.
+
+Left: gated abilities keep their own timing (Lash's Death Slam waits ~4 s for its combo, real 62% of its damage in
+the first 2 s); precasts that fail their range rule (half of Sticky Bomb's) wait for the fight.

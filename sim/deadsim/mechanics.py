@@ -110,6 +110,11 @@ class Mechanics:
     # Skill.fight_phase draw the hold quasi-randomly from it, others from the engine rng; deterministic fights
     # (no rng, no phase) keep casting on sight
     cast_timing: bool = True
+    # melee item holders' opening melee (2026-10-25): with fight_length, a fighter holding a melee item (Spirit Strike,
+    # Spirit Snatch, Melee Charge, Crushing Fists) lands one full melee hit at a time drawn from the real holders'
+    # first proc (data/melee_timing.json, scripts/fight_length/melee_timing.py); the steady melee rate then pays it
+    # back (the fitted melee damage per fight stays). Draws like cast_timing (phase or rng; deterministic fights skip)
+    melee_timing: bool = True
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
@@ -175,6 +180,7 @@ def opener_holds(hero, items):
 
 
 _CAST = None
+_MELEE_T = None
 
 
 def cast_holds():
@@ -185,6 +191,38 @@ def cast_holds():
         with open(os.path.join(os.path.dirname(__file__), "..", "data", "cast_timing.json")) as fh:
             _CAST = json.load(fh)["sources"]
     return _CAST
+
+
+def melee_holds():
+    """{item class: {"fights", "holds": QBINS times (s) of a holder's opening melee proc, None = none}}
+    (data/melee_timing.json)."""
+    global _MELEE_T
+    if _MELEE_T is None:
+        try:
+            with open(os.path.join(os.path.dirname(__file__), "..", "data", "melee_timing.json")) as fh:
+                _MELEE_T = json.load(fh)["items"]
+        except (OSError, ValueError, KeyError):
+            _MELEE_T = {}
+    return _MELEE_T
+
+
+HEAVY_OPENERS = frozenset({"upgrade_melee_charge", "upgrade_crushing_fists"})   # proc on a heavy melee
+
+
+def melee_opener(f):
+    """Mechanics.melee_timing: (seconds into the fight, heavy) of the fighter's opening melee, or None (no melee item
+    with a fit, nothing to draw from, or a no-opener draw). The item with the most real fights decides."""
+    rows = melee_holds()
+    held = [it.class_name for it in (getattr(fx, "item", None) for fx in f.items_fx)
+            if it is not None and it.class_name in rows]
+    phase, rng = f.skill.fight_phase, f.e.rng
+    if not held or (phase is None and rng is None):
+        return None
+    cls = max(held, key=lambda c: rows[c]["fights"])
+    q = rows[cls]["holds"]
+    u = (phase + zlib.crc32(f"melee|{f.name}".encode()) / 2 ** 32) % 1.0 if phase is not None else rng.random()
+    h = q[min(len(q) - 1, int(u * len(q)))]
+    return None if h is None else (h, cls in HEAVY_OPENERS)
 
 
 def hold_first_casts(f):

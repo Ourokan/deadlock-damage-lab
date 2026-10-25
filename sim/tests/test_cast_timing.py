@@ -12,7 +12,9 @@ import unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from deadsim import Loadout, duel, game  # noqa: E402
+from deadsim import engine  # noqa: E402
 from deadsim import mechanics as M  # noqa: E402
+from deadsim.accuracy import hero_default_skill  # noqa: E402
 from deadsim.engine import Engine  # noqa: E402
 from deadsim.fight import make_fighter  # noqa: E402
 
@@ -118,6 +120,83 @@ class CastHolds(unittest.TestCase):
         M.hold_first_casts(f)
         if f.plan is not None and f.plan.prefight is not None:
             self.assertEqual(f.plan.prefight.held_until, 0.0)
+
+
+class Precast(unittest.TestCase):
+    """A negative hold (mechanics.precast): the ability went out before the fight so its hit opens it."""
+
+    def paradox(self, seed=1):
+        mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(27000))
+        e = Engine(mech=mech, rng=random.Random(seed))
+        f = make_fighter(e, Loadout("Paradox", [], souls=27000))
+        for ab in f.abilities:
+            ab.start()
+        return e, f, next(ab for ab in f.abilities if ab.ab.name == "Kinetic Carbine")
+
+    def test_carbine_has_precast_holds(self):
+        q = M.cast_holds()[f"{game().hero('Paradox').id}:citadel_ability_chrono_kinetic_carbine"]
+        self.assertLess(min(h for h in q if h is not None), -1.0)   # real openers land with the fight's first hit
+
+    def test_precast_casts_before_the_start(self):
+        e, f, kc = self.paradox()
+        kc.precast_at = -2.0
+        M.precast(f)
+        self.assertEqual(kc.casts, 1)
+        self.assertEqual(e.t, 0.0)
+        self.assertGreater(kc.ready_at, 0.0)   # the cooldown counts from the precast
+        self.assertIsNone(kc.precast_at)
+
+    def test_precast_skips_an_ability_on_cooldown(self):
+        e, f, kc = self.paradox()
+        kc.ready_at = 5.0
+        kc.precast_at = -2.0
+        M.precast(f)
+        self.assertEqual(kc.casts, 0)
+        self.assertEqual(kc.ready_at, 5.0)
+
+    def test_carbine_opener_lands_early(self):
+        engine.PROFILE_SOURCES = True
+        try:
+            early = 0
+            for s in range(60):
+                mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(27000))
+                e = Engine(distance=15, max_time=10, rng=random.Random(s), mech=mech)
+                a = make_fighter(e, Loadout("Paradox", [], souls=27000))
+                b = make_fighter(e, Loadout("Abrams", [], souls=27000))
+                e.run(a, b)
+                early += a.dmg_first.get("Kinetic Carbine", math.inf) < 1.0
+        finally:
+            engine.PROFILE_SOURCES = False
+        self.assertGreater(early, 6)   # the 2.5 s charge alone kept every Carbine hit past 2.5 s
+
+
+class MeleeOpener(unittest.TestCase):
+    def duels(self, on, n=80):
+        engine.PROFILE_SOURCES = True
+        first = []
+        try:
+            for s in range(n):
+                mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(15000), melee_timing=on)
+                e = Engine(distance=8, max_time=10, rng=random.Random(s), mech=mech)
+                a = make_fighter(e, Loadout("Bebop", ["Spirit Strike"], souls=15000,
+                                            skill=hero_default_skill("Bebop")))
+                b = make_fighter(e, Loadout("Abrams", [], souls=15000))
+                e.run(a, b)
+                first.append(a.dmg_first.get("Spirit Strike", math.inf))
+        finally:
+            engine.PROFILE_SOURCES = False
+        return first
+
+    def test_holders_open_with_the_proc(self):
+        off, on = self.duels(False), self.duels(True)
+        self.assertEqual(sum(t < 1.0 for t in off), 0)   # the steady rate's first melee comes at 2.5 s
+        self.assertGreater(sum(t < 1.0 for t in on), 3)
+
+    def test_no_item_no_opener(self):
+        mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(15000))
+        e = Engine(mech=mech, rng=random.Random(1))
+        f = make_fighter(e, Loadout("Bebop", [], souls=15000, skill=hero_default_skill("Bebop")))
+        self.assertIsNone(M.melee_opener(f))
 
 
 if __name__ == "__main__":

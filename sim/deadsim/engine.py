@@ -1031,6 +1031,11 @@ class Engine:
         for f in ((a,) if one_way else (a, b)):
             if f.skill.melee_rate > 0:
                 self.at(0.5 / max(f.skill.melee_rate, MELEE_MIN_RATE), self.melee_tick, f)
+                if self.length and self.mech is not None and getattr(self.mech, "melee_timing", False):
+                    from .mechanics import melee_opener
+                    o = melee_opener(f)
+                    if o is not None:
+                        self.at(self.t + o[0], self.melee_open, f, o[1])
         self.at(0.0, self.regen_tick)
         if self.mech is not None and self.mech.movement:
             from .mechanics import Mover
@@ -1087,10 +1092,35 @@ class Engine:
             # parried heavies don't land: swing more often so landed melee stays at the fitted rate
             rate /= max(0.5, 1.0 - f.enemy.skill.parry_rate * share)
         interval = 1.0 / max(rate, MELEE_MIN_RATE)
-        if self.mover is None or f.counters.get("fleeing") is not True and self.distance <= self.mover.start + \
-                self.mover.melee_reach(f, heavy):
-            self.melee_hit(f, heavy, min(1.0, rate * interval))
+        w = min(1.0, rate * interval)
+        debt = f.counters.get("melee_debt", 0.0)
+        if debt > 0:   # an opening melee (melee_open) came out of this rate
+            pay = min(debt, w)
+            f.counters["melee_debt"] = debt - pay
+            w -= pay
+        if w > 1e-9 and (self.mover is None or f.counters.get("fleeing") is not True and
+                         self.distance <= self.mover.start + self.mover.melee_reach(f, heavy)):
+            self.melee_hit(f, heavy, w)
         self.after(interval, self.melee_tick, f)
+
+    def melee_open(self, f: Fighter, heavy: bool):
+        """Mechanics.melee_timing: a melee item holder's opening melee, one full hit (heavy for Melee Charge /
+        Crushing Fists), so the item procs when real holders' do. Postponed while stunned, busy or out of reach;
+        later melee ticks pay it back (Fighter.counters["melee_debt"])."""
+        if self.over or not f.alive:
+            return
+        t = self.t
+        if f.mods.active("stun") or t < f.gun_locked_until:
+            self.at(max(t + 0.1, f.gun_locked_until), self.melee_open, f, heavy)
+            return
+        if self.mover is not None and (f.counters.get("fleeing") is True or
+                                       self.distance > self.mover.start + self.mover.melee_reach(f, heavy)):
+            self.at(t + 0.25, self.melee_open, f, heavy)
+            return
+        if not heavy:
+            heavy = f.acc("melee_heavy").take(f.skill.heavy_share, 1) > 0
+        self.melee_hit(f, heavy, 1.0)
+        f.counters["melee_debt"] = f.counters.get("melee_debt", 0.0) + 1.0
 
     def melee_hit(self, f: Fighter, heavy: bool, w: float = 1.0):
         """Land one basic melee (weight w = expected fraction of a hit) and stop the gun for its swing."""
