@@ -1,4 +1,4 @@
-"""Fight entry health (2026-10-25): with Mechanics.fight_length and entry_hp (on by default), a fighter whose start
+"""Fight entry health (2026-10-25): with Mechanics.fight_length and entry_hp (opt-in, off by default), a fighter whose start
 health wasn't set starts short by a deficit drawn from the real Phantom+ entry health spread (data/sustain.json), so
 health-gated abilities meet their threshold as early as in real fights; Pain Battery starts charged by it, and a held
 first Slam Fire opens whatever the clip.
@@ -55,6 +55,24 @@ class EntryHealth(unittest.TestCase):
         pb.start()
         self.assertGreater(pb.ctx.state["stored"], 0.4 * f.max_hp)
         self.assertTrue(pb.impl.full(pb.ctx))
+
+
+class EngineRun(unittest.TestCase):
+    def start_hp(self, mech, seed=3):
+        e, f, g = pair("Haze", seed, mech)
+        seen = []
+        g.items_fx.append(type("Probe", (), {"on_start": lambda self, f: seen.append(f.hp / f.max_hp)})())
+        e.run(f, g)
+        return seen[0]
+
+    def test_off_by_default_on_when_asked(self):
+        self.assertFalse(M.DEFAULT.entry_hp)
+        base = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(27000))
+        self.assertEqual(self.start_hp(base), 1.0)
+        on = dataclasses.replace(base, entry_hp=True)
+        fracs = [self.start_hp(on, s) for s in range(20)]
+        self.assertTrue(all(0.0 < x <= 1.0 for x in fracs))
+        self.assertTrue(any(x < 0.95 for x in fracs))   # Engine.run drew real entry deficits
 
 
 class SlamFireOpener(unittest.TestCase):

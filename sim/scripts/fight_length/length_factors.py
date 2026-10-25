@@ -70,7 +70,9 @@ def set_cast_timing(on, entry=None):
     """Mechanics.cast_timing (and entry_hp, which the factors were fitted without) for the audit's duels (forked
     workers inherit it)."""
     import dataclasses
-    A.MECH = dataclasses.replace(A.MECH, cast_timing=on, entry_hp=on if entry is None else entry)
+    if entry is None:   # off with cast timing off (the fitted state), else as configured
+        entry = A.MECH.entry_hp if on else False
+    A.MECH = dataclasses.replace(A.MECH, cast_timing=on, entry_hp=entry)
 
 
 PENDING = "cast_timing_pending_heroes"   # meta: heroes refit (--refit --hero) and not yet keep-scaled
@@ -245,7 +247,8 @@ def main():
             d["meta"]["entry_hp_kept"] = ("length_corr scaled so held first casts and Mechanics.entry_hp (as "
                                           "configured in the run) keep the expected levels of a target run at full "
                                           "health with the previous holds (length_factors.py --entry --target-holds)")
-            d["meta"]["cast_timing_kept"] = kept
+            if kept is not None:
+                d["meta"]["cast_timing_kept"] = kept
         elif keep:
             d["meta"]["cast_timing_kept"] = ("length_corr scaled so held first casts (Mechanics.cast_timing) keep the "
                                              "expected levels of cast-on-sight duels; rerun from the factors before")
