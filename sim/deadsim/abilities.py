@@ -413,6 +413,7 @@ class AbilityState:
         self.ready_at = 0.0
         self.held_until = 0.0   # first cast held to real cast timing (mechanics.hold_first_casts); not a cooldown
         self.precast_at = None   # mechanics.precast: cast this long before the fight start
+        self.timed = False       # the first cast has a real cast timing hold (patterns.Plan skips the ult's wait)
         self.casts = 0
 
     # stats --------------------------------------------------------------------------------------------
