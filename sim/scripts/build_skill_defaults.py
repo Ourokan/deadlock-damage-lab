@@ -2,7 +2,11 @@
 
 Per hero: hero-only accuracy (Enemy Hero Accuracy Hits/Shots) and headshot rate (Headshots/Hits) percentiles
 across player-matches with >= MIN_SHOTS shots, plus the median fight distance from the bullet-hit histogram
-("Outgoing Bullet Dist" counts all bullet hits, creeps included, so it is only a proxy for duel range)."""
+("Outgoing Bullet Dist" counts all bullet hits, creeps included, so it is only a proxy for duel range).
+
+usage: python3 scripts/build_skill_defaults.py                     (rebuild every row)
+       python3 scripts/build_skill_defaults.py --add-missing SAMPLE (add rows only for heroes the file lacks, e.g. a
+       hero newer than the sample, from another sample such as fetch_validation.py --api 60 4; other rows stay)"""
 import gzip
 import json
 import os
@@ -36,7 +40,8 @@ def summarize(rows):
 
 
 def main():
-    src = os.path.join(ROOT, "validation", "matches_sample.jsonl.gz")
+    add = "--add-missing" in sys.argv
+    src = sys.argv[sys.argv.index("--add-missing") + 1] if add else os.path.join(ROOT, "validation", "matches_sample.jsonl.gz")
     by_hero, allrows, badges = {}, [], []
     for line in gzip.open(src):
         m = json.loads(line)
@@ -56,6 +61,14 @@ def main():
            "heroes": {str(h): dict(name=names.get(h, str(h)), **summarize(rows))
                       for h, rows in sorted(by_hero.items()) if len(rows) >= 15}}
     dst = os.path.join(ROOT, "data", "skill_defaults.json")
+    if add:
+        with open(dst) as f:
+            old = json.load(f)
+        new = {h: dict(r, source=out["source"]) for h, r in out["heroes"].items() if h not in old["heroes"]}
+        old["heroes"].update(new)
+        old["heroes"] = dict(sorted(old["heroes"].items(), key=lambda x: int(x[0])))
+        out = old
+        print("added:", {h: r["name"] for h, r in new.items()})
     json.dump(out, open(dst, "w"), indent=1)
     print(json.dumps(out["all"]))
     for h, r in sorted(out["heroes"].items(), key=lambda x: -x[1]["accuracy"]["p50"]):

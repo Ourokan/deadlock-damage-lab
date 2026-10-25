@@ -48,11 +48,15 @@ for fn in files:
             if aid in AB:
                 votes[r["a"] & 0x3FFF][AB[aid][0]] += 1
     pawn = {e: c.most_common(1)[0][0] for e, c in votes.items()}
+    # a cast sets the cooldown start to the current game time (a fixed offset from tick / TICK in each replay);
+    # cooldown cuts (Violet's Living Ink hits, Witchmail) move the start back, which is no cast
+    off = collections.Counter(round(r["tick"] / TICK - r["v"], 2) for r in rows if r["k"] == "cast").most_common(1)
+    off = off[0][0] if off else None
     casts = collections.defaultdict(list); dmg = collections.defaultdict(list); ground = collections.defaultdict(list)
     for r in rows:
         if r["k"] == "cast":
             e = r["a"] & 0x3FFF
-            if e not in pawn: continue
+            if e not in pawn or abs(r["tick"] / TICK - r["v"] - off) > 0.05: continue
             aid = struct.unpack("<I", bytes.fromhex(r["s"][:8]))[0]
             if aid in AB and AB[aid][0] == pawn[e]:
                 casts[e].append((r["tick"] / TICK, aid))

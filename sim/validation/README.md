@@ -884,6 +884,37 @@ by positioning, cover and timing the replay does not know (HP swing correlation 
 still a different hero in the sim. Read a changed build against the replay with the real items, which is what the
 page compares.
 
+## Violet added (2026-10-25)
+
+Violet (id 86, `hero_artist`) and Baba (88) are pickable and played a lot (last 3 days ~180k and ~53k player-matches)
+but the API marks them `in_development`, which `data/scripts/normalize_game.py` dropped. The hero set now keeps an
+in-development hero once the sim has a hero file for it (`deadsim/heroes/<class without hero_>.py`), so a new hero
+never runs on generic abilities; `fetch_analytics.py` uses the same rule. Violet's model is `deadsim/heroes/artist.py`.
+
+Real data used (Phantom+ replays: 50 matches, Oct 22-25, 32 with a Violet, 939 fights; `phantom_sample.jsonl.gz`: 424
+Violet player-matches):
+- Living Ink: each empowered hit is two damage events on the same tick, a gun bullet (booked under the weapon) and the
+  spirit splash (booked under Living Ink), so the sim books them the same way. Each hit moves the other abilities'
+  cooldown starts back 1.5 s; Living Ink's own never moves.
+- Flow State: casts are at least ~21 s apart (p10 of 44 gaps, cooldown 23 s), so the Living Ink passive ("casting any
+  other ability refreshes the cooldown of Flow State") is not a cooldown reset and is left out.
+- Abstract Landscape: an enemy that takes its damage first does 3.7 s after the cast (median), and is hit 1.71 times
+  (crossing the ink again ~1.3 s later); 1.53 enemies per cast (the landing factor holds the multi-target part).
+- Casts per fight (in fights: 0.65 Living Ink, 0.28 Flow State, 0.35 Still Life, 0.10 ultimate per 10 s).
+- `scripts/fight_patterns/replay_openers.py` now counts a cast only when the cooldown start equals the game time:
+  cooldown cuts also change it (Violet, Witchmail). Earlier rows were built without this; their cast shares may be a
+  little high for heroes whose cooldowns get cut.
+- Aim: `scripts/build_skill_defaults.py --add-missing` adds rows only for heroes the file lacks, here from a fresh
+  all-rank sample (`fetch_validation.py --api 60 4`, 400 matches): Violet acc p50 0.271, headshots 0.211.
+- Fight pattern: replay order Still Life > Living Ink > Abstract Landscape > Flow State, but it fits the real damage
+  mix worse than slot order (0.39 -> 0.47), so slot order is kept (row `dropped`).
+- Fits on the Phantom+ sample: melee 0.0225 hits/s; landing (mechanics on) Living Ink 0.68, Flow State 0.47, Still
+  Life 0.75, Abstract Landscape 1.18, fight-length factors 0.78-0.96 (`length_factors.py --hero`, which leaves the
+  item factors alone). Sim vs real damage mix after the fit: gun 0.29/0.29, Living Ink 0.28/0.28, ultimate
+  0.17/0.17, Still Life 0.15/0.15, Flow State 0.06/0.06.
+- Pooled (no Violet-specific fit yet): fight range spread, fight length ratio, death cost, item win edges (the next
+  patch rerun rebuilds the win edge and team values with her).
+
 ## Known gaps (not yet modeled)
 
 - **Melee movement:** melee is in fights and its rate follows the build (see "Melee" above). Melee Charge's lunge

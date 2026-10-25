@@ -16,7 +16,11 @@ SLIM = "--slim" in sys.argv
 start = patch_state.day(patch_state.load()["patch_start"])
 PATCH_TS = int(datetime.datetime.combine(start, datetime.time(), datetime.timezone.utc).timestamp())
 A = "https://api.deadlock-api.com"
-heroes = [h for h in json.load(open(HEROES)) if h["player_selectable"] and not h["disabled"] and not h["in_development"]]
+# same hero set as normalize_game.py: in-development heroes count once the sim models them
+MODELED = {f[:-3] for f in os.listdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "sim", "deadsim", "heroes"))
+           if f.endswith(".py")}
+heroes = [h for h in json.load(open(HEROES)) if h["player_selectable"] and not h["disabled"]
+          and (not h["in_development"] or h["class_name"].removeprefix("hero_") in MODELED)]
 def get(path, **q):
     url = A + path + ("?" + urllib.parse.urlencode(q) if q else "")
     for i in range(6):

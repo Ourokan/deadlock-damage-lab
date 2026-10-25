@@ -18,7 +18,8 @@ Each row keeps its fitted factor (landing) and gets length_corr; deadsim.accurac
 keep the fit as it is. After a refit (landing_rates.py, refit_landing_heroes.py, item_landing.py: they fit with
 every hit in full and keep the old length_corr) rerun this.
 
-usage: python3 length_factors.py [workers] [--sample PATH] [--rounds 3] [--write]   (~1 min a round on 4 cores)
+usage: python3 length_factors.py [workers] [--sample PATH] [--rounds 3] [--write] [--hero NAME]   (~1 min a round on 4 cores)
+--hero: only that hero's players and ability rows (a newly added hero); item factors are left as they are.
 """
 import collections
 import gzip
@@ -93,14 +94,20 @@ def main():
         i = args.index("--rounds")
         rounds = int(args[i + 1])
         args = args[:i] + args[i + 2:]
+    only = None
+    if "--hero" in args:
+        i = args.index("--hero")
+        only = args[i + 1]
+        args = args[:i] + args[i + 2:]
     workers = int(args[0]) if args else os.cpu_count()
     G = game()
+    only = G.hero(only).id if only else None
     load_heroes()
     jobs = []
     for line in gzip.open(sample):
         m = json.loads(line)
         for p in m["players"]:
-            if p["hero_id"] in G.heroes and L.gun_known(p):
+            if p["hero_id"] in G.heroes and L.gun_known(p) and only in (None, p["hero_id"]):
                 jobs.append((m, p["slot"]))
     random.Random(1).shuffle(jobs)
     # round 0 on the fitted factors alone: the in-full ratios are the target, the expected ones give the first
@@ -119,6 +126,8 @@ def main():
                 hid = G.hero(hn).id
             except Exception:  # noqa: BLE001
                 continue
+            if only is not None and hid != only:
+                continue
             for name, r in rows.items():
                 cls = r.get("class") or L.ALIASES.get(name)
                 c = corr(sim_w[hid], target_ab[hid], cls) if cls else None
@@ -128,7 +137,7 @@ def main():
                 r["length_corr"] = round(c, 3)
                 n_ab += 1
                 print(f"  {hn:14s} {name:28s} {r['landing']} x{c:.2f}")
-        for cls, r in items["items"].items():
+        for cls, r in () if only is not None else items["items"].items():
             if holders[cls] < MIN_HOLDERS:   # (accuracy.item_landing uses 30+)
                 continue
             c = corr(held_w[cls], target_it[cls], cls)
