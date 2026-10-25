@@ -133,6 +133,10 @@ def main():
     target_ab = target_it = None
     abil, items = json.load(open(ABILITY_FILE)), json.load(open(ITEM_FILE))
     keep = A.MECH.cast_timing and "--refit" not in sys.argv
+    if keep and "cast_timing_kept" in abil["meta"]:
+        # the target run would cast on sight with corrections already scaled for held casts: rerunning compounds
+        sys.exit("length_factors: these factors are already scaled for cast timing (meta cast_timing_kept). Start "
+                 "from the factors before it (git: the commit before the cast-timing refit) or use --refit.")
     if keep:
         # Mechanics.cast_timing: keep each source's expected level (source / gun over real fight lengths) as the
         # current corrections give it in duels that cast on sight, so held first casts change when in a fight the
@@ -186,6 +190,11 @@ def main():
             f"scripts/fight_length/length_factors.py, {os.path.basename(sample)}, {rounds} rounds)")
     abil["meta"]["length"] = note
     items["meta"]["length"] = note
+    for d in (abil, items):
+        d["meta"].pop("cast_timing_kept", None)
+        if keep:
+            d["meta"]["cast_timing_kept"] = ("length_corr scaled so held first casts (Mechanics.cast_timing) keep the "
+                                             "expected levels of cast-on-sight duels; rerun from the factors before")
     if write:
         for fn, d in ((ABILITY_FILE, abil), (ITEM_FILE, items)):
             with open(fn, "w") as fh:

@@ -1006,15 +1006,21 @@ cast on sight) instead of refitting to the in-full ratios, so the holds move whe
 fitted factors give; held ults need up to 10x (`KEEP_RANGE`; Hyper Beam, Blasted, Develop Queen hit it).
 Rows without a class (Graves, Nurse Harrow) get a correction now too.
 
-**Results** (on main after Violet / Baba / the Nurse Harrow refit): cast curve |real - sim| 0.40 -> 0.12 over 146
+**Results** (main with Violet / Baba / the Nurse Harrow refit): cast curve |real - sim| 0.40 -> 0.12 over 146
 abilities (`validation/cast_timing.md`); gun damage in the first 2 s 0.20 -> 0.27 (real 0.32); sim_vs_win at 27k
-all pairs 0.191 -> 0.208, per item 0.282 -> 0.323, damage items -0.024 -> +0.045; damage audit mix 0.0410 -> 0.0437
-(pooled items 0.047 -> 0.049). The audit loss is mostly Tankbuster / Mystic Reverb on spirit heroes: spaced-out casts
-let the linear charge-up release more per cast, and the item corrections are pooled over heroes (Grey Talon
-Tankbuster 0.096 -> 0.136 of damage, real 0.071; Pocket 0.112 -> 0.150, real 0.079).
+all pairs 0.181 -> 0.205, per item 0.277 -> 0.303, damage items -0.018 -> +0.028, edges clear of noise 0.265 ->
+0.283; damage audit mix 0.0409 -> 0.0428 (pooled items unchanged, 0.083 -> 0.084). The audit loss is mostly
+Tankbuster / Mystic Reverb on spirit heroes: spaced-out casts let the linear charge-up release more per cast, and
+the item corrections are pooled over heroes (Grey Talon Tankbuster share 0.096 -> 0.136, real 0.071).
+
+Holds are `AbilityState.held_until`, not the cooldown: Witchmail / Runed Gauntlets cuts and Refresher's reset see a
+held ability as ready, so they neither waste a cut on it nor release a "not cast" draw. `length_factors.py` keep mode
+is one-shot: it marks the files (meta `cast_timing_kept`) and refuses to rescale them again. Abilities without a
+`cast_timing.json` entry (gated ones, Violet and Baba, new abilities after a patch) keep the sim's own timing.
 
 Left: damage of held casts lands later than real hits on average (opener_timing compare: real fights opened by an
 ability hit put that damage at t = 0, and early casts deal more per cast than late ones); melee items (Spirit Strike,
 Spirit Snatch, Melee Charge) still proc late since melee is a steady rate; a per-hero-type Tankbuster correction.
 Refit after a patch that changes cooldowns: `fetch_ability_casts.py` (new replays) -> `fit_cast_timing.py real` ->
-`fit --write` -> `length_factors.py --write`.
+`fit --write` -> `length_factors.py --write` starting from the factors before the keep run (not wired into the
+patch rerun: `cast_timing.json` and the corrections are static snapshots like `opener_timing.json`).

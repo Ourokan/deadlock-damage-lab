@@ -411,6 +411,7 @@ class AbilityState:
         self.charges = 0
         self.next_charge = 0.0
         self.ready_at = 0.0
+        self.held_until = 0.0   # first cast held to real cast timing (mechanics.hold_first_casts); not a cooldown
         self.casts = 0
 
     # stats --------------------------------------------------------------------------------------------
@@ -484,7 +485,7 @@ class AbilityState:
             return False
         t = self.f.e.t
         self._recharge()
-        if self.charges <= 0 or t < self.ready_at:
+        if self.charges <= 0 or t < self.ready_at or t < self.held_until:
             return False
         if self.f.counters.get("fleeing") and self.impl.kind != "self":
             return False

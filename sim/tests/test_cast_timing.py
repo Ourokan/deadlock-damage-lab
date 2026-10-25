@@ -41,7 +41,8 @@ class CastHolds(unittest.TestCase):
         M.hold_first_casts(f)
         ult = f.abilities[3]
         q = M.cast_holds()[ult_key("McGinnis")]
-        self.assertTrue(ult.ready_at == math.inf or ult.ready_at in q)
+        self.assertTrue(ult.held_until == math.inf or ult.held_until in q)
+        self.assertEqual(ult.ready_at, 0.0)   # not a cooldown
 
     def test_phase_draw_spreads_over_the_holds(self):
         mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(27000))
@@ -55,8 +56,9 @@ class CastHolds(unittest.TestCase):
             for ab in f.abilities:
                 ab.start()
             M.hold_first_casts(f)
-            never += f.abilities[3].ready_at == math.inf
-        self.assertEqual(never, 2 * sum(h is None for h in q))   # 40 phases = 2 per bin
+            never += f.abilities[3].held_until == math.inf
+        # 40 evenly spaced phases (shifted by the hash) give each of the 20 bins 2, give or take one at the edges
+        self.assertLessEqual(abs(never - 2 * sum(h is None for h in q)), 1)
 
     def test_deterministic_and_full_length_fights_cast_on_sight(self):
         a, b = Loadout("McGinnis", [], souls=27000), Loadout("Abrams", [], souls=27000)
@@ -85,6 +87,37 @@ class CastHolds(unittest.TestCase):
                 else:
                     off += r.a_dmg.get("gun", 0.0)
         self.assertGreater(on, off)
+
+    def held_mcginnis(self, items=()):
+        mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(27000))
+        e = Engine(mech=mech, rng=random.Random(1))
+        f = make_fighter(e, Loadout("McGinnis", list(items), souls=27000))
+        for ab in f.abilities:
+            ab.start()
+        for ab in f.abilities:
+            ab.held_until = math.inf    # a "not cast in this fight" draw for every ability
+        return f
+
+    def test_held_never_casts_and_is_not_on_cooldown(self):
+        f = self.held_mcginnis()
+        self.assertFalse(any(ab.try_cast() for ab in f.abilities))
+        self.assertTrue(all(ab.ready_at <= f.e.t for ab in f.abilities))
+
+    def test_refresher_does_not_release_a_held_ability(self):
+        f = self.held_mcginnis(["Refresher"])
+        fx = next(x for x in f.items_fx if x.item.name == "Refresher")
+        fx.try_active(f)   # nothing is on cooldown: no reset, and a reset would leave the hold anyway
+        self.assertFalse(any(ab.try_cast() for ab in f.abilities))
+
+    def test_prefight_ability_keeps_its_timing(self):
+        mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(27000))
+        e = Engine(mech=mech, rng=random.Random(1))
+        f = make_fighter(e, Loadout("Mo & Krill", [], souls=27000))
+        for ab in f.abilities:
+            ab.start()
+        M.hold_first_casts(f)
+        if f.plan is not None and f.plan.prefight is not None:
+            self.assertEqual(f.plan.prefight.held_until, 0.0)
 
 
 if __name__ == "__main__":

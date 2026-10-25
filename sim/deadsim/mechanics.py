@@ -189,7 +189,9 @@ def cast_holds():
 
 def hold_first_casts(f):
     """Mechanics.cast_timing at the fight start: each unlocked ability with a real hold gets its first cast moved to
-    now + a hold drawn from it (never in this fight for a None value). The prefight ability (Mo & Krill's Burrow,
+    now + a hold drawn from it (never in this fight for a None value). The hold is AbilityState.held_until, not its
+    cooldown, so items that read cooldowns (Witchmail's cut, Refresher's reset) neither see a held ability as cooling
+    nor release it. The prefight ability (Mo & Krill's Burrow,
     deadsim.patterns) keeps its own timing."""
     holds = cast_holds()
     phase = f.skill.fight_phase
@@ -209,7 +211,7 @@ def hold_first_casts(f):
         else:
             u = rng.random()
         h = q[min(len(q) - 1, int(u * len(q)))]
-        ab.ready_at = max(ab.ready_at, f.e.t + (math.inf if h is None else h))
+        ab.held_until = f.e.t + (math.inf if h is None else h)
 
 
 DEFAULT = Mechanics()   # None turns the new mechanics off for every Engine built without an explicit value
