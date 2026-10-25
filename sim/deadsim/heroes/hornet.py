@@ -8,7 +8,8 @@ Assumptions:
   per TickRate as spirit damage for DebuffDuration. Resist reductions applied as bullet/spirit shred.
 - Assassinate: spirit damage (as in game); scoping for TimeToFullCharge locks the gun and the shot is always
   full charge. HeadshotBonus (+20%) is applied at the caster's headshot rate. Used as an execute: only when the
-  target is under LowHealthEnemyThresholdPct or the shot would kill.
+  target is under LowHealthEnemyThresholdPct or the shot would kill. Both checks and the low-health bonus use the
+  target's gate health (Mechanics.entry_gate: short by its real entry deficit).
 """
 from deadsim.abilities import AbilityImpl, register
 
@@ -92,10 +93,10 @@ class Assassinate(AbilityImpl):
 
     def should_cast(self, c):
         thr = c.raw("LowHealthEnemyThresholdPct", 50) / 100
-        if c.foe.hp_frac < thr:
+        if c.foe.gate_frac < thr:
             return True
         res = 1 - sum(c.foe.st.spirit_resist) if c.foe.st.spirit_resist else 1.0
-        return self.damage(c, False) * c.me.skill.spirit_accuracy * res >= c.foe.hp
+        return self.damage(c, False) * c.me.skill.spirit_accuracy * res >= c.foe.gate_hp
 
     def cast(self, c):
         charge = c.raw("TimeToFullCharge", 1.0)
@@ -105,5 +106,5 @@ class Assassinate(AbilityImpl):
     def shoot(self, c):
         if not c.me.alive or not c.foe.alive:
             return
-        low = c.foe.hp_frac < c.raw("LowHealthEnemyThresholdPct", 50) / 100
+        low = c.foe.gate_frac < c.raw("LowHealthEnemyThresholdPct", 50) / 100
         c.spirit_hit(self.damage(c, low))

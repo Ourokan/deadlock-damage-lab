@@ -1172,7 +1172,48 @@ per-item win match (Silver, Vindicta, Sinclair lose most; Seven gains), so it st
 entry_hp=True and rerun `length_factors.py 4 --write --entry --target-holds <cast_timing.json before>`.
 
 Left: Djinn's Mark (stacks build in the fight, real first pop 9.8 s vs sim 12.6 s); with entry_hp, Killing Blow is
-still ~3 s late and Soul Exchange ~2 s early.
+still ~3 s late and Soul Exchange ~2 s early. (Executes and Djinn's Mark: next section.)
+
+### Execute gates on real entry health; Djinn's Mark gaps (2026-10-26)
+
+Follow-up of the section above: entry health put the executes on real timing but lowered the per-item win match,
+because every fight then started short (shorter fights for every hero, not only the executes). Djinn's Mark popped
+~3 s late.
+
+- `Mechanics.entry_gate` (**on**, with fight_length, entry_hp off): a fighter facing an execute (Killing Blow,
+  Assassinate, Close The Deal, Lethal Venom: `mechanics.EXECUTE_GATES`) gets the same real entry deficit draw, but
+  its health stays; only those gates and their low-health scaling see it (`Fighter.gate_hp` / `gate_frac`). Fights
+  against other heroes draw nothing. Levels kept with `length_factors.py --entry --target-holds --hero` for the four
+  heroes (target run with entry_gate off).
+- Djinn's Mark: in 260 Phantom+ replays, after a mark real Mirage lands no next mark on that enemy within
+  VictimStackDuration ~48% of the time at 5 s, ~24% at 8 s (fight still going; `scripts/mechanics/djinn_gaps.py` ->
+  `data/djinn_gaps.json`): most first pops are low-stack expiry pops. The sim's steady gun never let marks expire.
+  Now (`mirage.MARK_GAPS`, fights booked over real lengths with an rng or phase) each mark draws that gap: no mark
+  until they expire and pop. A first cast held to real cast timing pops the marks there are (`held_opens =
+  "first_hit"`; the fit's probe counts it on sight by 2 s since the first mark waits for a gun hit). Mirage's rows
+  refit with `fit_cast_timing.py --hero Mirage`, then `length_factors.py --entry --target-holds <before> --target-off
+  deadsim.heroes.mirage.MARK_GAPS --hero Mirage` (Djinn's Mark length_corr 2.54 -> 6.56: the duel holds one target,
+  real Mirage marks several).
+
+Timing (mean first-hit time real / main / this; P(first hit by 1 / 3 / 6 s) real vs this):
+
+| source | real | main | this | used by 1/3/6 s real | this |
+|---|---|---|---|---|---|
+| Killing Blow | 6.9 | 11.3 | 8.3 | 0.01 / 0.03 / 0.06 | 0.00 / 0.02 / 0.05 |
+| Assassinate | 7.4 | 10.2 | 6.2 | 0.02 / 0.06 / 0.13 | 0.07 / 0.10 / 0.17 |
+| Lethal Venom | 6.3 | 11.8 | 6.9 | 0.00 / 0.04 / 0.27 | 0.00 / 0.18 / 0.26 |
+| Close The Deal | 6.2 | 9.4 | 6.0 | 0.01 / 0.04 / 0.10 | 0.00 / 0.15 / 0.24 |
+| Djinn's Mark | 9.8 | 12.2 | 9.1 | 0.06 / 0.10 / 0.23 | 0.05 / 0.10 / 0.21 |
+
+Djinn's Mark split-half (gaps fit on one half of the replays, first-pop curve of the other half; holds as fitted):
+mean |real - sim| of the 0-20 s curve 0.164 -> 0.046 (even) and 0.164 -> 0.076 (odd).
+
+Results on main after #100 (sim_vs_win is a correlation: higher is better): sim_vs_win at 27k all pairs 0.159 ->
+0.162, damage items 0.041 -> 0.050, clear of noise 0.264 -> 0.265, per item 0.230 -> 0.231 (full entry_hp: per item
+-0.023). Damage audit mix 0.0311 -> 0.0317 (Vindicta 0.056 -> 0.061, Danny 0.022 -> 0.026); source levels kept
+(Killing Blow share 0.033, Djinn's Mark 0.284 -> 0.273, real 0.291).
+
+Left: Assassinate now ~1 s early (the shot-would-kill check on gate health); Killing Blow ~1.4 s late.
 
 ## Tankbuster minimum damage (2026-10-25)
 
