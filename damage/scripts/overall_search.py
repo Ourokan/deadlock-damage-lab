@@ -69,6 +69,22 @@ Phantom+ replays holders cast them in only part of their engagements (sim/data/i
 sim/scripts/item_use/fit_item_use.py: Knockdown 0.45, Cursed Relic 0.42, Disarming Hex 0.68, Rusted Barrel 0.74,
 Rescue Beam 0.28 of the sim's use; Metal Skin as often as the sim), so in realistic mode each sits unused in the rest of
 the spread fights (deadsim engine.unused_items). Ally actives' team value (team_value) is left as fitted.
+Death cost (2026-10-25, the real win check found Cheat Death and late vitality winning while never picked): the 30 s
+duel ends at a death, so dying cost nothing beyond the damage not dealt after it, while a real death costs the
+respawn (~9 s at 0-5k net worth, ~65 s at 27k, ~85 s from 40k), the walk back, and the kill bounty the enemy team
+gets (~1700 souls at 27-37k, worth ~73 s of the hero's own farm). The score is multiplied by death_value: the share
+of the game a build spends fighting, (c + d_pop x L) / (c + d x L), where c = real alive seconds per engagement, L =
+the seconds a death costs and d the build's deaths per engagement: the hero's real rate (sim/data/death_cost.json,
+sim/scripts/death_cost/fit_death_cost.py: 0.15 / 0.26 / 0.22 per engagement in lane / mid / late, per hero ratio)
+x the build's sim death chance over the popular build's, a death at t s counting x P(a real fight is still going at
+t) (a build that dies after the real fight would have ended mostly lives). Lane stages: 1 (the lane test ends at
+a death already). OPT-IN (DEATH_COST, off by default): it does not rank items more like real wins
+(analysis/scripts/sim_vs_win.py --death, 42 heroes at 27k: all pairs Pearson 0.136 -> 0.128 with the bounty, 0.132 without;
+per item 0.214 -> 0.194 / 0.205). It lifts Cheat Death (sim death chance x0.36, real edge +2.9) but every tank item
+with it (Metal Skin -5.8, Rebuttal -2.2), and real holders of tank items barely die less: deaths per 10 min of
+holders vs others at equal hero, net worth and length are 0.90-1.07 where the sim's death chance says 0.48-0.75
+(analysis/scripts/death_check.py: log sim vs log real ratio r -0.04 over 1158 hero x item pairs). Real players
+spend extra survivability on fighting more, not on dying less.
 Not counted: vision, souls from farming (Monster Rounds), objective damage, debuffs from area items on the other
 enemies.
 
@@ -111,7 +127,7 @@ import search as S  # noqa: E402
 from build_pool import BRACKETS, BUDGETS, PRIMARY  # noqa: E402
 from deadsim.accuracy import hero_default_skill  # noqa: E402
 from deadsim.build import compute_stats  # noqa: E402
-from deadsim.mechanics import area_extra, real_length, real_nearby  # noqa: E402
+from deadsim.mechanics import LENGTH_STEP, area_extra, real_length, real_nearby  # noqa: E402
 from survival import survive  # noqa: E402
 
 MAX_TIME = 30.0
@@ -153,6 +169,64 @@ RICOCHET_RADIUS = 13
 KILL_WEIGHT = True
 KILL_PATH = os.path.join(ROOT, "..", "sim", "data", "kill_weight.json")
 _kill = None
+
+
+DEATH_COST = False    # opt-in, see the docstring (does not track real wins)
+DEATH_PATH = os.path.join(ROOT, "..", "sim", "data", "death_cost.json")
+DEATH_BOUNTY = 1.0     # weight of the enemy team's kill bounty in a death's cost (0 = only the time dead)
+DEATH_EPS = 0.01       # floor of the sim death chance in the ratio (a popular build that never dies)
+_death = None
+
+
+def death_data():
+    global _death
+    if _death is None:
+        with open(DEATH_PATH) as f:
+            _death = json.load(f)
+    return _death
+
+
+def death_seconds(souls):
+    """Seconds of the game a death costs at net worth souls: respawn + walk back + the enemy team's kill bounty in
+    seconds of the hero's own farm (x DEATH_BOUNTY)."""
+    d = death_data()
+    rs = d["respawn_s"]
+    if souls <= rs[0][0]:
+        r = rs[0][1]
+    elif souls >= rs[-1][0]:
+        r = rs[-1][1]
+    else:
+        k = next(k for k in range(1, len(rs)) if rs[k][0] >= souls)
+        (x0, y0), (x1, y1) = rs[k - 1], rs[k]
+        r = y0 + (y1 - y0) * (souls - x0) / (x1 - x0)
+    so = [b for b in d["souls"] if b["nw"] <= souls][-1]
+    return r + d["phases"][game_phase(souls)]["walk_back_s"] + DEATH_BOUNTY * max(0.0, so["bounty"]) / so["soul_rate"]
+
+
+def death_chance(r, souls):
+    """Sim chance that a fight is a death: 0 when the build lives through it, else P(a real fight is still going at
+    the death's time) (the real disengage curve, real_length); 1 at a death without FIGHT_LENGTH."""
+    if r["survived"]:
+        return 0.0
+    if not FIGHT_LENGTH:
+        return 1.0
+    c = real_length(souls)
+    k = min(len(c) - 1, int(r["time_alive"] / LENGTH_STEP))
+    return c[k]
+
+
+def death_value(pd, pd_pop, hero, souls):
+    """Share of the game a build spends fighting relative to the popular build's: (c + d_pop L) / (c + d L), c = the
+    real alive seconds per engagement, L = death_seconds, d_pop = the hero's real deaths per engagement and d = d_pop x
+    the build's sim death chance (death_chance, mean over enemies) / the popular build's. 1 when DEATH_COST is off."""
+    if not DEATH_COST:
+        return 1.0
+    dd = death_data()
+    row = dd["phases"][game_phase(souls)]
+    d_pop = row["deaths_per_engagement"] * dd["heroes"].get(str(hero), {}).get("ratio", 1.0)
+    d = d_pop * (pd + DEATH_EPS) / (pd_pop + DEATH_EPS)
+    c, L = row["alive_s_per_engagement"], death_seconds(souls)
+    return (c + d_pop * L) / (c + d * L)
 
 
 def kill_weights():
@@ -322,7 +396,7 @@ def fight(h, items, oh, oitems, souls, phase=None, start_hp=None):
     r = survive(h, items, souls, oh, oitems, max_time=MAX_TIME, focus=FOCUS, skill=sk, enemy_skill=esk,
                 start_hp=start_hp, extra_targets=near("extra", RICOCHET_RADIUS, souls),
                 fight_length=real_length(souls) if FIGHT_LENGTH else None)
-    return net_damage(r) + area_damage(r, souls), r["time_alive"], r["survived"]
+    return net_damage(r) + area_damage(r, souls), r["time_alive"], r["survived"], death_chance(r, souls)
 
 
 # Laning phase (Tyler, 2026-10-21: "in laning phase regen and other sources of healing can be more valuable than pure
@@ -506,8 +580,11 @@ class Evaluator:
         self.deficit = entry_deficit(hero, pop, budget)
         self.pop = pop
         self.map_pop = map_time(hero, pop, budget, pop)
+        self.pd_pop = {}
         for pool in ("S", "F", "F2"):
-            self.norm[pool] = max(1.0, self._mean(self._rows(pop, pool), 2)) * movement_value(pop, hero) \
+            rows = self._rows(pop, pool)
+            self.pd_pop[pool] = self._death(rows)
+            self.norm[pool] = max(1.0, self._mean(rows, 2)) * movement_value(pop, hero) \
                 * self._map(pop) * win_value(pop, hero) * team_value(pop, budget)
 
     def _rows(self, items, pool):
@@ -516,8 +593,9 @@ class Evaluator:
             rows = []
             start = entry_hp_start(self.h, key[0], self.souls, self.deficit)
             for k, (oh, oitems, w) in enumerate(self.pools[pool]):
-                d, t, alive = self.fight(self.h, key[0], oh, oitems, self.souls, phase=PHASES[oh], start_hp=start)
-                rows.append((oh, w, d, t, alive))
+                d, t, alive, *pd = self.fight(self.h, key[0], oh, oitems, self.souls, phase=PHASES[oh],
+                                              start_hp=start)
+                rows.append((oh, w, d, t, alive, pd[0] if pd else 0.0))   # lane fights: no death chance
                 self.fights += 1
             self.cache[key] = rows
         return self.cache[key]
@@ -525,6 +603,11 @@ class Evaluator:
     def _map(self, items):
         """map_time relative to the popular build (lane stages: 1, the lane test already scores staying in lane)."""
         return map_time(self.h, items, self.souls, self.pop) / self.map_pop
+
+    def _death(self, rows):
+        """Mean sim death chance over the enemies (rows without one: 0)."""
+        tw = sum(r[1] for r in rows)
+        return sum(r[1] * (r[5] if len(r) > 5 else 0.0) for r in rows) / tw
 
     @staticmethod
     def _mean(rows, k):
@@ -538,7 +621,9 @@ class Evaluator:
         mt = self._map(items)
         win = win_value(items, self.h)
         team = team_value(items, self.souls)
-        score = dmg * move * mt * win * team / self.norm[pool]
+        pd = self._death(rows)
+        death = death_value(pd, self.pd_pop[pool], self.h, self.souls)
+        score = dmg * move * mt * win * team * death / self.norm[pool]
         if not detail:
             return score
         t = self._mean(rows, 3)
@@ -553,6 +638,8 @@ class Evaluator:
             "map_time": round(mt, 4),   # time on the map vs the popular build (fewer heal trips)
             "win_value": round(win, 4),  # real win-edge factor (win_value), before dividing by the popular build's
             "team_value": round(team, 4),  # ally items' value to teammates (team_value), same
+            "death_chance": round(pd, 4),  # sim chance a fight is a real death (death_chance), mean over enemies
+            "death_value": round(death, 4),  # share of the game fighting vs the popular build (death_value)
             "matchups": {str(r[0]): [round(r[2]), round(r[3], 2)] for r in rows},
         }
 

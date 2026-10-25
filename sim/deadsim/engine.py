@@ -405,6 +405,11 @@ class Fighter:
         self.hp += amt
         self.healed += amt
         self.healed_exp += amt * self.e.length_w()
+        if kind != "lifesteal" and source not in NOT_HEALS:
+            for fx in self.items_fx:
+                f = getattr(fx, "on_healed", None)
+                if f:
+                    f(self, amt)
         return amt
 
     def add_barrier(self, amount, duration):
@@ -414,6 +419,11 @@ class Fighter:
         now = self.e.t
         self.barriers = [b for b in self.barriers if b[1] > now and b[0] > 0]
         return sum(b[0] for b in self.barriers)
+
+
+# heal sources that are regen in game, not a heal (Healing Tempo's "does not apply on innate Regen or passive Bullet/Spirit
+# Lifesteals"; the lifesteals have kind "lifesteal")
+NOT_HEALS = frozenset({"regen", "Fortitude"})
 
 
 def kill_hooks(killer, dead):

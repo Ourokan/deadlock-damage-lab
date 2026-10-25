@@ -1014,7 +1014,16 @@ class DispelMagic(FX):
 
 @handler("upgrade_healbuff")
 class HealingTempo(FX):
-    pass
+    """A heal of at least MinimumHealAmount the holder gets from its abilities or items (not regen or the passive
+    lifesteals, Fighter.heal) grants BonusFireRate and BonusMoveSpeed for BuffDuration, at most once per
+    AbilityCooldown. Ally heals (team fights) are not counted."""
+    def on_healed(self, f, amt):
+        if amt < self.item.p("MinimumHealAmount", 1.0) or not self.ready():
+            return
+        self.use()
+        d = self.dur("BuffDuration", 7)
+        self.buff("fire_rate", self.item.p("BonusFireRate") / 100, d, tag="tempo")
+        self.buff("move_speed", self.item.p("BonusMoveSpeed"), d, tag="tempo")
 
 
 # ---------------------------------------------------------------------------------------------------
