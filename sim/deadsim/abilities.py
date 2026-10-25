@@ -518,6 +518,8 @@ class AbilityState:
             self.ready_at = t + self.cooldown()
             self.next_charge = self.ready_at
         f.e.note(f"{f.name} casts {self.ab.name}")
+        if getattr(f.e, "profile_casts", False):
+            f.cast_first.setdefault(self.ab.class_name, t)
         wait = self.scratch.pop("_reach_delay", 0.0)   # range spread: damage x cooldown / (cooldown + expected wait)
         cd = self.cooldown()   # time per cast: charges recharge one per cooldown, so the gap between charges isn't it
         self.scratch["_avail"] = cd / (cd + wait) if wait > 0 and cd > 0 else 1.0

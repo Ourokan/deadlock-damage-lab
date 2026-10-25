@@ -277,6 +277,7 @@ class Fighter:
         self.dmg_by_2s = {}         # 2 s slice of the fight -> damage dealt in full (damage profile checks)
         self.dmg_first = {}         # source -> time of its first hit, when PROFILE_SOURCES (opener timing checks)
         self.dmg_src_2s = {}        # (source, 2 s slice) -> damage in full, when PROFILE_SOURCES
+        self.cast_first = {}        # ability class -> time of its first cast, when PROFILE_SOURCES (cast timing fit)
         self.opener_hold = {}       # source name -> real hold values (s) before its first use (Mechanics.opener_timing)
         self._hold_cache = {}
         self.items_fx = []
@@ -472,6 +473,8 @@ class FightResult:
     a_by_2s: dict = field(default_factory=dict)    # 2 s slice -> damage dealt in full (Fighter.dmg_by_2s)
     a_first: dict = field(default_factory=dict)    # source -> time of its first hit (Fighter.dmg_first)
     a_src_2s: dict = field(default_factory=dict)   # (source, 2 s slice) -> damage in full (PROFILE_SOURCES)
+    a_cast_first: dict = field(default_factory=dict)   # ability class -> time of its first cast (PROFILE_SOURCES)
+    a_castable: list = field(default_factory=list)     # A's unlocked active abilities (classes)
 
     def summary(self):
         def top(d):
@@ -515,6 +518,7 @@ class Engine:
         # also booked x P(the two are still trading at its time | nobody died) in Fighter.dmg_exp: the damage
         # expected over real fight lengths, without a random cut that would swing results by whole casts.
         self.length = getattr(mech, "fight_length", None) if mech is not None else None
+        self.profile_casts = PROFILE_SOURCES   # Fighter.cast_first (AbilityState.cast)
 
     def length_w(self, t=None, src=None, source=None):
         """P(a real fight is still going at t s, default now | nobody died): 1 without Mechanics.fight_length. With
@@ -1009,6 +1013,9 @@ class Engine:
                 block_unused(f)
             for ab in f.abilities:
                 ab.start()
+            if self.length and self.mech is not None and getattr(self.mech, "cast_timing", False):
+                from .mechanics import hold_first_casts
+                hold_first_casts(f)
         for f in (a, b):
             fight_start(f)
         self.at(0.0, self.gun_tick, a)
@@ -1037,7 +1044,9 @@ class Engine:
         elif not b.alive and a.alive:
             winner = a.name
         r = FightResult(winner, self.t, a.hp, b.hp, a.dmg_out, b.dmg_out, a.name, b.name, self.log,
-                        a_exp=a.dmg_exp, b_exp=b.dmg_exp, a_by_2s=a.dmg_by_2s, a_first=a.dmg_first, a_src_2s=a.dmg_src_2s)
+                        a_exp=a.dmg_exp, b_exp=b.dmg_exp, a_by_2s=a.dmg_by_2s, a_first=a.dmg_first, a_src_2s=a.dmg_src_2s,
+                        a_cast_first=a.cast_first,
+                        a_castable=[ab.ab.class_name for ab in a.abilities if ab.unlocked and ab.impl.kind != "passive"])
         if self.mech is not None:
             r.escaped = self.escaped
             r.a_splash, r.b_splash = a.counters.get("splash", {}), b.counters.get("splash", {})

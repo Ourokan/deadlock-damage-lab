@@ -8,7 +8,14 @@ fights being shorter (an opener counts for more of a short fight than of a 20 s 
     length_corr = (sim source dmg / sim gun dmg, every hit in full) / (the same, expected over real fight lengths)
 
 from the same duels (the damage audit's: Phantom+ sample, real builds both sides, the searches' skills): a fight
-length booking leaves the fight itself unchanged, so one run gives both. That keeps every earlier fit and choice
+length booking leaves the fight itself unchanged, so one run gives both.
+
+With Mechanics.cast_timing on (first casts held to real cast timing, scripts/cast_timing/fit_cast_timing.py; the
+default) the run keeps levels instead: the target is each source's expected source / gun with the current
+corrections in duels with cast_timing off, and every correction (1 for rows without one, e.g. Graves and Nurse
+Harrow, whose factors were fitted to the expected booking) is scaled until the held duels give that again. So the
+holds move when in a fight the damage lands, not how much of it the fitted factors give. --refit: the old full
+refit (target = the in-full ratios) on the duels as they now run. That keeps every earlier fit and choice
 (heroes refit on Phantom+, refits that were kept out) and changes only what the fight length explains: the factor
 x length_corr gives the same pooled real/sim ratio under the new booking as the old factor gave under the old one.
 Abilities: per hero; items: holders only, gun damage of the duels holding the item, pooled over heroes (as fitted).
@@ -18,7 +25,7 @@ Each row keeps its fitted factor (landing) and gets length_corr; deadsim.accurac
 keep the fit as it is. After a refit (landing_rates.py, refit_landing_heroes.py, item_landing.py: they fit with
 every hit in full and keep the old length_corr) rerun this.
 
-usage: python3 length_factors.py [workers] [--sample PATH] [--rounds 3] [--write] [--hero NAME]   (~1 min a round on 4 cores)
+usage: python3 length_factors.py [workers] [--sample PATH] [--rounds 3] [--write] [--hero NAME] [--refit]   (~1 min a round on 4 cores)
 --hero: only that hero's players and ability rows (a newly added hero); item factors are left as they are.
 """
 import collections
@@ -50,8 +57,17 @@ def job(j):
     return A.sim_player(j, both=True)
 
 
-def clip(c):
-    return max(CORR_RANGE[0], min(CORR_RANGE[1], c))
+def set_cast_timing(on):
+    """Mechanics.cast_timing for the audit's duels (forked workers inherit it)."""
+    import dataclasses
+    A.MECH = dataclasses.replace(A.MECH, cast_timing=on)
+
+
+KEEP_RANGE = (0.1, 10.0)   # with cast_timing: a held ultimate cast in ~1 fight of 4 (was ~9 of 10) needs ~5-8x
+
+
+def clip(c, lo_hi=CORR_RANGE):
+    return max(lo_hi[0], min(lo_hi[1], c))
 
 
 def corr(w, u, key):
@@ -88,7 +104,7 @@ def main():
         sample = args[i + 1]
         args = args[:i] + args[i + 2:]
     write = "--write" in args
-    args = [a for a in args if a != "--write"]
+    args = [a for a in args if a not in ("--write", "--refit")]
     rounds = 3
     if "--rounds" in args:
         i = args.index("--rounds")
@@ -116,6 +132,16 @@ def main():
     ACC.LENGTH_CORR = False   # forked workers inherit it
     target_ab = target_it = None
     abil, items = json.load(open(ABILITY_FILE)), json.load(open(ITEM_FILE))
+    keep = A.MECH.cast_timing and "--refit" not in sys.argv
+    if keep:
+        # Mechanics.cast_timing: keep each source's expected level (source / gun over real fight lengths) as the
+        # current corrections give it in duels that cast on sight, so held first casts change when in a fight the
+        # damage lands, not how much of it the fitted factors give: target = that run, rounds scale the current
+        # corrections (rows without one start at 1) by target / what they now give
+        ACC.LENGTH_CORR = True
+        set_cast_timing(False)
+        target_ab, _, target_it, _, _ = run(jobs, workers)
+        set_cast_timing(True)
     for rnd in range(rounds if write else 1):
         sim_w, sim_u, held_w, held_u, holders = run(jobs, workers)
         if target_ab is None:
@@ -128,12 +154,13 @@ def main():
                 continue
             if only is not None and hid != only:
                 continue
+            by_name = {ab.name: ab.class_name for ab in G.heroes[hid].abilities}
             for name, r in rows.items():
-                cls = r.get("class") or L.ALIASES.get(name)
+                cls = r.get("class") or L.ALIASES.get(name) or (by_name.get(name) if keep else None)
                 c = corr(sim_w[hid], target_ab[hid], cls) if cls else None
                 if c is None:
                     continue
-                c = clip(c * (r.get("length_corr", 1.0) if rnd else 1.0))
+                c = clip(c * (r.get("length_corr", 1.0) if rnd or keep else 1.0), KEEP_RANGE if keep else CORR_RANGE)
                 r["length_corr"] = round(c, 3)
                 n_ab += 1
                 print(f"  {hn:14s} {name:28s} {r['landing']} x{c:.2f}")
@@ -143,7 +170,7 @@ def main():
             c = corr(held_w[cls], target_it[cls], cls)
             if c is None:
                 continue
-            c = clip(c * (r.get("length_corr", 1.0) if rnd else 1.0))
+            c = clip(c * (r.get("length_corr", 1.0) if rnd or keep else 1.0), KEEP_RANGE if keep else CORR_RANGE)
             r["length_corr"] = round(c, 3)
             n_it += 1
             print(f"  item {r['name']:24s} {r['landing']} x{c:.2f}")
