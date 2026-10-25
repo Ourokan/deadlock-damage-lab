@@ -253,7 +253,7 @@ function rpCard(s) {
     <div class="build">${tiles || '<span class="hint">No items.</span>'}</div>
     <input type="search" list="r-items" placeholder="Add an item" data-radd="${s}" aria-label="Add an item to ${esc(heroName(p.hero))}">
     <div class="kv"><span>Net worth</span><span>${fmt(netWorthAt(p, F.t0))}</span><span>Items held</span><span>${fmt(items.reduce((t, i) => t + (S.items[i]?.cost || 0), 0))}</span>
-      <span>Health at the start</span><span>${pct(F.hp0[s])}</span><span>Hero accuracy this match</span><span>${p.aim ? pct(p.aim.accuracy, 1) : "median"}</span>${late}</div></div>`;
+      <span>Health at the start</span><span>${pct(F.hp0[s])}</span><span>Hero accuracy this match</span><span>${p.aim ? aimText(p.aim) : "median"}</span>${late}</div></div>`;
 }
 
 function rpRender() {
