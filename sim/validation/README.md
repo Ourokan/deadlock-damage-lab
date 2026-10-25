@@ -1196,6 +1196,17 @@ Infernus 0.043 -> 0.021, Bebop 0.023 -> 0.021. sim_vs_win at 27k flat (checked o
 Left: Paradox Kinetic Carbine hit count (real often partly charged, ~3.7 hits per 1000 gun dmg vs sim 2.0) and
 Bebop Sticky / Uppercut hit counts (both drive Tankbuster procs).
 
+### Deadman Danny and a per-ability check (2026-10-25)
+
+The mix distance above only compares gun / abilities / items / melee, so it misses a hero whose ability total is right
+but whose abilities are off against each other. Danny was like that: Close The Deal 0.030 of his damage vs 0.098
+real, Strix Salvo 0.31 vs 0.25, Chimera Mk1 0.27 vs 0.20. The per-ability check is half the summed share gaps over every
+source. The same refit as above was tried on the 28 heroes not refit yet, fit on one half and audited on the other,
+both ways. Only Danny got better on both measures both ways (sources 0.113 -> 0.019 and 0.119 -> 0.018, mix 0.032 ->
+0.025 and 0.037 -> 0.020). Full sample (main after #78): Danny sources 0.116 -> 0.014, mix 0.035 -> 0.022 (Close The Deal 0.096,
+Strix 0.247, Chimera 0.200), audit 0.0314 -> 0.0306 (0.0316 -> 0.0309 on main after #97, Apollo unchanged). Paradox, Vindicta, Shiv, Pocket, Solomon and the rest were
+mixed or worse on one half and were left as they were.
+
 ## Apollo: slow-gun players back in the fits, cast timing rows (2026-10-25)
 
 Apollo had no `data/cast_timing.json` rows and the worst audit mix (0.20). The replays were not the gap: the cast
