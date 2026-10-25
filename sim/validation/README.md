@@ -930,10 +930,14 @@ data: Phantom+ replays (89 matches, 31 with a Baba, 868 fights) and 151 Baba pla
   cooldown starts and comes as ~4.5 hits per victim over 1.8 s.
 - Fight pattern (kept, fit 0.653 slot order vs 0.654 replay order): Baba's Brew > Threadsap > Granny Long Legs >
   Feed The Birds, ultimate after Threadsap / Granny Long Legs / Baba's Brew.
-- Fits: melee 0.23 hits/s; landing (mechanics on) Threadsap 0.59, Granny Long Legs 1.24, Baba's Brew 0.36, Feed The
-  Birds 0.61. Mix after the fit (real/sim): Threadsap 0.23/0.25, ultimate 0.13/0.14, melee 0.12/0.14, Granny Long
-  Legs 0.10/0.11, Baba's Brew 0.07/0.08, gun 0.07/0.07. Torment Pulse, which pays for standing next to enemies
-  (real 17% of her damage), is under in the sim (6%): item fits are pooled over heroes.
+- Fits: melee 0.23 hits/s; landing (mechanics on) Threadsap 0.62, Granny Long Legs 1.29, Baba's Brew 0.53, Feed The
+  Birds 0.52, each with a fight-length factor. Mix in the full audit (real/sim, Baba's 146 sample players):
+  Threadsap 0.23/0.25, Torment Pulse 0.17/0.12, ultimate 0.13/0.14, melee 0.12/0.14, Granny Long Legs 0.10/0.06,
+  Baba's Brew 0.07/0.08, gun 0.07/0.07; class mix distance 0.025. Torment Pulse (it pays for standing next to
+  enemies) is under because item fits are pooled over heroes. Granny Long Legs is under once fight length is booked
+  (length factor 0.66: the landing fit alone puts it at 0.11), an open follow-up.
+- The first Brew was waiting the brew time and later ones none (inverted); fixed so only repeat throws brew, and
+  Baba refit after it (mix distance 0.027 -> 0.025).
 - Aim: the existing row (old all-rank sample, acc p50 0.16).
 
 ## Known gaps (not yet modeled)

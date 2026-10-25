@@ -93,7 +93,7 @@ class BabasBrew(AbilityImpl):
         c.state["thrown"] = False
 
     def cast(self, c):
-        brew = 0.0 if c.state.get("thrown") else c.raw("FireLockTime", 4.5)
+        brew = c.raw("FireLockTime", 4.5) if c.state.get("thrown") else 0.0
         c.state["thrown"] = True
         throw = brew + c.raw("AbilityChannelTime")
         c.lock_gun(c.raw("AbilityChannelTime"))
