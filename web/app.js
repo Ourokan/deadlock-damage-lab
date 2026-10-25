@@ -6,6 +6,7 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const fmt = (n, d = 0) => (n == null || !isFinite(n) ? "–" : Number(n).toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d }));
 const pct = (n, d = 0) => (n == null ? "–" : fmt(n * 100, d) + "%");
+const plural = (n, one, many) => `${fmt(n)} ${n === 1 ? one : many}`;
 const signed = (n) => (n > 0 ? "+" : "") + fmt(n * 100, 0) + "%";
 const getJSON = async (u) => { const r = await fetch(u); if (!r.ok) throw new Error(u + " " + r.status); return r.json(); };
 
@@ -624,7 +625,7 @@ async function renderOverallTab() {
     <span>Time alive</span><span>${fmt(x.time_alive_s, 1)} s</span>
     <span>Survives 30 s</span><span>${pct(x.survived_30s)}</span>
     <span>Dummy damage by 15 s</span><span>${fmt(x.dummy_15s)}</span></div>${testBtn(Number(id), bk, x.items, title)}</div>`;
-  const row = (x, label) => `<tr><td>${label}</td><td>${bdTiles(ctx(x))}</td><td class="n">${fmt(x.cost)}</td><td class="n">${fmt(x.F.damage_before_death)}</td><td class="n">${fmt(x.F.time_alive_s, 1)} s</td><td class="n">${pct(x.F.survived_30s)}</td><td>${testBtn(Number(id), bk, x.items, label)}</td></tr>`;
+  const row = (x, label) => `<tr><td>${label}</td><td>${bdTiles(ctx(x))}</td><td class="n">${fmt(x.cost)}</td><td class="n">${fmt(x.F.score, 2)}</td><td class="n">${fmt(x.F.damage_before_death)}</td><td class="n">${fmt(x.F.time_alive_s, 1)} s</td><td class="n">${pct(x.F.survived_30s)}</td><td>${testBtn(Number(id), bk, x.items, label)}</td></tr>`;
   const loss = d ? Object.entries(d.best_item_removal_loss).filter(([i]) => S.items[i]).sort((a, b) => b[1] - a[1]) : [];
   const weAll = await load("data/win_edge.json"), we = weAll?.heroes?.[id] || {}, weMeta = weAll?.meta || {};
   const weStale = weMeta.patch && meta[br]?.patch && weMeta.patch !== meta[br].patch ? ` These win edges are from patch ${esc(weMeta.patch)}, older than these builds (patch ${esc(meta[br].patch)}): the new patch didn't have enough games yet. They refresh with the next rerun that has.` : "";
@@ -635,8 +636,9 @@ async function renderOverallTab() {
   const losing = b.best.items.filter((i) => we[i] && we[i][0] + 1.96 * we[i][1] < 0);
   out.innerHTML = `<p class="hint">Damage before dying is averaged over all 41 heroes' typical real builds in this rank bracket, at its aim, minus the healing the enemy gets back during the fight. Fights start at the health real players bring into a fight; builds that heal more between fights arrive fuller. The score also counts each item's real win edge on this hero (about 5% per point of win rate, see the card below), since a 1v1 can't see team auras or area hits.${stale} Tap any item to see what it adds to the build's damage.</p>
     <div class="cards">${card("Best overall build", b.best, true)}${card("Popular real build", b.popular, false)}${b.damage_best ? card("Best raw damage build", b.damage_best, true) : ""}</div>
-    ${d ? `<div class="scroll"><table><thead><tr><th>Build</th><th>Items</th><th class="n">Cost</th><th class="n">Damage before dying</th><th class="n">Time alive</th><th class="n">Survives 30 s</th><th></th></tr></thead>
+    ${d ? `<div class="scroll"><table><thead><tr><th>Build</th><th>Items</th><th class="n">Cost</th><th class="n" title="What the builds are ranked by">Score</th><th class="n">Damage before dying</th><th class="n">Time alive</th><th class="n">Survives 30 s</th><th></th></tr></thead>
     <tbody>${d.builds.map((x, i) => row(x, `#${i + 1}`)).join("")}</tbody></table></div>
+    <p class="hint">Ranked by score: damage before dying weighted by each item's real win edge, how often holders take part in kills and die, and team value. So a build lower down can deal more damage before dying and still rank below one that wins more real games.</p>
     <div class="cards"><div class="card"><h3>What each best-build item adds</h3><p class="hint">Share of the build's damage before dying lost if that item is removed (1.0 = the popular build's total), and the item's real win edge on this hero.</p>
       <div class="kv kv3"><span></span><span>Sim</span><span title="Win-rate points vs other items of the same slot and tier">Real win</span>${loss.map(([i, v]) => `<span>${tile(i, { static: true })}</span><span>${fmt(v, 3)}</span><span>${edgeTxt(i)}</span>`).join("")}</div></div>
     ${Object.keys(we).length ? `<div class="card"><h3>Checked against real games</h3><p class="hint">Real win edge: how much more often players on this hero win when they buy the item instead of another item of the same slot and tier, matched on game time, team lead and own souls (Ritualist and up, points of win rate, shrunk toward the item's edge on all heroes). Green and red are clear of the 95% noise band. Damage in a 1v1 can't see team auras, vision or objectives, so a red sim pick is worth a second look. ${weMeta.matches ? `${Number(weMeta.matches).toLocaleString()} matches, ${esc(weMeta.matches_from)} to ` : "Matches through "}${esc(weMeta.matches_through || "?")}, refreshed after each patch.${weStale}</p>
@@ -893,7 +895,7 @@ async function renderChangesTab() {
     const changed = all.filter((r) => r.in.length || r.out.length), total = Math.round(e.summary.builds / 2);
     const when = new Date(e.date), date = isNaN(when) ? esc(e.date) : when.toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
     const head = `${date} · ${esc(TIER_LABEL[e.tier] || e.tier)} · patch ${esc(e.patch || "?")} · <b>${changed.length}</b> of ${total} best builds changed`
-      + (changed.length ? ` across ${new Set(changed.map((r) => r.hero)).size} heroes` : "");
+      + (changed.length ? ` across ${plural(new Set(changed.map((r) => r.hero)).size, "hero", "heroes")}` : "");
     const causes = e.causes.length ? e.causes.map(causeLine).join("") : `<li><span class="tag">Rerun</span> ${esc(e.reason || "rerun")}</li>`;
     const row = (r) => {
       const ch = r.old > 0 ? r.new / r.old - 1 : 0;
@@ -969,6 +971,8 @@ function phoneLayout() {
 
 // ---------- boot ----------
 async function boot() {
+  const top = $(".top");
+  new ResizeObserver(() => document.documentElement.style.setProperty("--top-h", getComputedStyle(top).position === "sticky" ? `${top.offsetHeight + 8}px` : "0px")).observe(top);
   load("data/damage/index.json").then((d) => { if (d && d.dummy_zone_exit_s != null) ZONE_EXIT_S = d.dummy_zone_exit_s; });
   const [items, heroes] = await Promise.all([getJSON("data/items.json"), getJSON("data/heroes.json")]);
   S.items = items; S.heroes = heroes;
