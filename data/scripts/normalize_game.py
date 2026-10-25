@@ -42,7 +42,12 @@ def desc(x):
     if isinstance(d, dict): return {k: text(v) for k, v in d.items() if v}
     return text(d)
 
-release = [h for h in heroes if h["player_selectable"] and not h["disabled"] and not h["in_development"]]
+# In-development heroes (Violet, Baba) are pickable in real matches. Keep one once the sim has a model for it
+# (sim/deadsim/heroes/<class without hero_>.py), so a new hero never runs on generic abilities.
+MODELED = {f[:-3] for f in os.listdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "sim", "deadsim", "heroes"))
+           if f.endswith(".py")}
+release = [h for h in heroes if h["player_selectable"] and not h["disabled"]
+           and (not h["in_development"] or h["class_name"].removeprefix("hero_") in MODELED)]
 H, A, W = [], [], []
 for h in release:
     sig = {k: h["items"].get(k) for k in ("signature1", "signature2", "signature3", "signature4")}
