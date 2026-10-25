@@ -28,7 +28,8 @@ every hit in full and keep the old length_corr) rerun this.
 usage: python3 length_factors.py [workers] [--sample PATH] [--rounds 3] [--write] [--hero NAME] [--refit]   (~1 min a round on 4 cores)
 --hero: only that hero's players and ability rows (a newly added hero); item factors are left as they are.
 After refit_landing_heroes.py for a hero: --refit --no-cast-timing --hero NAME (the corrections as before cast
-timing), then --hero NAME in keep mode (the file's cast_timing_kept mark covers the other rows and stays).
+timing), then --hero NAME in keep mode once (the file's cast_timing_kept mark covers the other rows and stays). Keep
+mode scales the current corrections, so a second keep run on the same rows compounds: redo the --refit run first.
 """
 import collections
 import gzip

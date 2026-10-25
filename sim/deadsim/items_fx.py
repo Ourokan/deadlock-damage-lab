@@ -1171,7 +1171,8 @@ class MysticReverb(FX):
         # imbued lifesteal on this hit (engine.damage applies lifesteal before these hooks, so a short spirit_lifesteal
         # mod here would only reach the next hit)
         if not hit.is_dot:   # DoT ticks build up the echo (below) but keep the old no-lifesteal rule
-            f.heal(hit.amount * self.item.p("ImbueAbilityLifesteal") / 100, "spirit_lifesteal", "lifesteal")
+            f.heal(hit.amount * self.item.p("ImbueAbilityLifesteal") / 100, "spirit_lifesteal", "lifesteal",
+                   origin=hit.source)
         if not self.ready():
             return
         # the threshold counts damage dealt (after resist) on this target within DelayDuration; the echo repeats the raw

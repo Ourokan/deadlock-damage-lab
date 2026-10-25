@@ -509,7 +509,7 @@ def fight(h, items, oh, oitems, souls, phase=None, start_hp=None):
                 start_hp=start_hp, extra_targets=near("extra", RICOCHET_RADIUS, souls),
                 fight_length=real_length(souls) if FIGHT_LENGTH else None)
     return (net_damage(r) + area_damage(r, souls), r["time_alive"], r["survived"], death_chance(r, souls),
-            r["damage_taken_exp"] - r["healing_exp"])
+            r["damage_taken_exp"] - r["healing_exp"], r["healing_by_source"])
 
 
 # Laning phase (Tyler, 2026-10-21: "in laning phase regen and other sources of healing can be more valuable than pure
@@ -711,7 +711,8 @@ class Evaluator:
                 d, t, alive, *pd = self.fight(self.h, key[0], oh, oitems, self.souls, phase=PHASES[oh],
                                               start_hp=start)
                 # lane fights: no death chance or health lost
-                rows.append((oh, w, d, t, alive, pd[0] if pd else 0.0, pd[1] if len(pd) > 1 else 0.0))
+                rows.append((oh, w, d, t, alive, pd[0] if pd else 0.0, pd[1] if len(pd) > 1 else 0.0,
+                             pd[2] if len(pd) > 2 else {}))
                 self.fights += 1
             self.cache[key] = rows
         return self.cache[key]
@@ -729,6 +730,15 @@ class Evaluator:
         """Mean health lost per fight over the enemies (rows without one: 0)."""
         tw = sum(r[1] for r in rows)
         return sum(r[1] * (r[6] if len(r) > 6 else 0.0) for r in rows) / tw
+
+    @staticmethod
+    def _heals(rows):
+        """Mean healing per fight over the enemies, by heal source (survive's healing_by_source)."""
+        tw, out = sum(r[1] for r in rows), {}
+        for r in rows:
+            for k, v in (r[7] if len(r) > 7 else {}).items():
+                out[k] = out.get(k, 0.0) + r[1] * v / tw
+        return {k: round(v, 1) for k, v in sorted(out.items(), key=lambda x: -x[1]) if v >= 0.5}
 
     @staticmethod
     def _mean(rows, k):
@@ -766,6 +776,7 @@ class Evaluator:
             "death_chance": round(pd, 4),  # sim chance a fight is a real death (death_chance), mean over enemies
             "death_value": round(death, 4),  # share of the game fighting vs the popular build (death_value)
             "hp_lost_per_fight": round(loss, 1),  # expected damage taken - healed over real fight lengths
+            "healing_by_source": self._heals(rows),  # mean healing per fight (expected over real lengths) by source
             "fight_rate": round(rate, 4),  # fights per minute vs the popular build (fight_value)
             "death_rate_value": round(drate, 4),  # real holders' deaths (death_rate_value), before the popular's
             "matchups": {str(r[0]): [round(r[2]), round(r[3], 2)] for r in rows},
@@ -835,6 +846,7 @@ def main():
     set_bracket(a.bracket)
     S.Evaluator = Evaluator
     S.MIN_GAIN = 0.004
+    S.SWAPS = True
     _phases()
     g = S.G()
     heroes = [g.hero(int(h) if h.isdigit() else h).id for h in a.heroes.split(",") if h] or sorted(g.heroes)

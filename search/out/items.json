@@ -6,7 +6,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": true
 },
 "968099481": {
 "name": "Extra Spirit",
@@ -15,7 +16,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": true
 },
 "2462046703": {
 "name": "Golden Goose Egg",
@@ -24,7 +26,8 @@
 "tier": 1,
 "cost": 800,
 "active": true,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "1998374645": {
 "name": "Mystic Burst",
@@ -33,7 +36,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "754480263": {
 "name": "Mystic Expansion",
@@ -42,7 +46,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "1439347412": {
 "name": "Mystic Regeneration",
@@ -51,7 +56,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2922054143": {
 "name": "Rusted Barrel",
@@ -60,7 +66,8 @@
 "tier": 1,
 "cost": 800,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "465043967": {
 "name": "Spirit Strike",
@@ -69,7 +76,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1150006784": {
 "name": "Arcane Surge",
@@ -78,7 +86,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2971868509": {
 "name": "Bullet Resist Shredder",
@@ -87,7 +96,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1976391348": {
 "name": "Cold Front",
@@ -96,7 +106,8 @@
 "tier": 2,
 "cost": 1600,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "380806748": {
 "name": "Compress Cooldown",
@@ -105,7 +116,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "2951612397": {
 "name": "Duration Extender",
@@ -114,7 +126,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "7409189": {
 "name": "Improved Spirit",
@@ -123,7 +136,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "1102081447": {
 "name": "Mystic Slow",
@@ -132,7 +146,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "2081037738": {
 "name": "Mystic Vulnerability",
@@ -141,7 +156,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "84321454": {
 "name": "Quicksilver Reload",
@@ -150,7 +166,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1813726886": {
 "name": "Slowing Hex",
@@ -159,7 +176,8 @@
 "tier": 2,
 "cost": 1600,
 "active": true,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "1219329868": {
 "name": "Spirit Sap",
@@ -168,7 +186,8 @@
 "tier": 2,
 "cost": 1600,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1925087134": {
 "name": "Suppressor",
@@ -177,7 +196,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3144988365": {
 "name": "Decay",
@@ -186,7 +206,8 @@
 "tier": 3,
 "cost": 3200,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2061878743": {
 "name": "Disarming Hex",
@@ -195,7 +216,8 @@
 "tier": 3,
 "cost": 3200,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1193964439": {
 "name": "Greater Expansion",
@@ -204,7 +226,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "1254091416": {
 "name": "Knockdown",
@@ -213,7 +236,8 @@
 "tier": 3,
 "cost": 3200,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2947183272": {
 "name": "Radiant Regeneration",
@@ -222,7 +246,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "787198704": {
 "name": "Rapid Recharge",
@@ -231,7 +256,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": true
 },
 "619484391": {
 "name": "Silence Wave",
@@ -240,7 +266,8 @@
 "tier": 3,
 "cost": 3200,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3190916303": {
 "name": "Spirit Snatch",
@@ -249,7 +276,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3261353684": {
 "name": "Superior Cooldown",
@@ -258,7 +286,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "2717651715": {
 "name": "Superior Duration",
@@ -267,7 +296,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "1292979587": {
 "name": "Surge of Power",
@@ -276,7 +306,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2121044373": {
 "name": "Tankbuster",
@@ -285,7 +316,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "395944548": {
 "name": "Torment Pulse",
@@ -294,7 +326,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3812615317": {
 "name": "Arctic Blast",
@@ -303,7 +336,8 @@
 "tier": 4,
 "cost": 6400,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2519598785": {
 "name": "Boundless Spirit",
@@ -312,7 +346,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": true
 },
 "2617435668": {
 "name": "Cursed Relic",
@@ -321,7 +356,8 @@
 "tier": 4,
 "cost": 6400,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "630839635": {
 "name": "Echo Shard",
@@ -330,7 +366,8 @@
 "tier": 4,
 "cost": 6400,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3005970438": {
 "name": "Escalating Exposure",
@@ -339,7 +376,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2533252781": {
 "name": "Ethereal Shift",
@@ -348,7 +386,8 @@
 "tier": 4,
 "cost": 6400,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2142980412": {
 "name": "Focus Lens",
@@ -357,7 +396,8 @@
 "tier": 4,
 "cost": 6400,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "493591231": {
 "name": "Lightning Scroll",
@@ -366,7 +406,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2800629741": {
 "name": "Magic Carpet",
@@ -375,7 +416,8 @@
 "tier": 4,
 "cost": 6400,
 "active": true,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "3919289022": {
 "name": "Mercurial Magnum",
@@ -384,7 +426,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3577481646": {
 "name": "Mystic Reverb",
@@ -393,7 +436,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "677738769": {
 "name": "Refresher",
@@ -402,7 +446,8 @@
 "tier": 4,
 "cost": 6400,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2417568017": {
 "name": "Scourge",
@@ -411,7 +456,8 @@
 "tier": 4,
 "cost": 6400,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "343572757": {
 "name": "Spirit Burn",
@@ -420,7 +466,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "915014646": {
 "name": "Transcendent Cooldown",
@@ -429,7 +476,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "1152158042": {
 "name": "Vortex Web",
@@ -438,7 +486,8 @@
 "tier": 4,
 "cost": 6400,
 "active": true,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "2068250483": {
 "name": "Frostbite Charm",
@@ -447,7 +496,8 @@
 "tier": 5,
 "cost": 9999,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "4050602737": {
 "name": "Mystic Conduit",
@@ -456,7 +506,8 @@
 "tier": 5,
 "cost": 9999,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "2054088113": {
 "name": "Mystical Piano",
@@ -465,7 +516,8 @@
 "tier": 5,
 "cost": 9999,
 "active": true,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "424779525": {
 "name": "Omnicharge Signet",
@@ -474,7 +526,8 @@
 "tier": 5,
 "cost": 9999,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "1132564516": {
 "name": "Prism Blast",
@@ -483,7 +536,8 @@
 "tier": 5,
 "cost": 9999,
 "active": true,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "4121584236": {
 "name": "Shrink Ray",
@@ -492,7 +546,8 @@
 "tier": 5,
 "cost": 9999,
 "active": true,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "1558545403": {
 "name": "Unstable Concoction",
@@ -501,7 +556,8 @@
 "tier": 5,
 "cost": 9999,
 "active": true,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "3633614685": {
 "name": "Extra Health",
@@ -510,7 +566,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": true
 },
 "2829638276": {
 "name": "Extra Regen",
@@ -519,7 +576,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": true
 },
 "4139877411": {
 "name": "Extra Stamina",
@@ -528,7 +586,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": true
 },
 "1672893796": {
 "name": "Grit",
@@ -537,7 +596,8 @@
 "tier": 1,
 "cost": 800,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1710079648": {
 "name": "Healing Rite",
@@ -546,7 +606,8 @@
 "tier": 1,
 "cost": 800,
 "active": true,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "1437614329": {
 "name": "Melee Lifesteal",
@@ -555,7 +616,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "4204808176": {
 "name": "Rebuttal",
@@ -564,7 +626,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "3399065363": {
 "name": "Sprint Boots",
@@ -573,7 +636,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": true
 },
 "1235347618": {
 "name": "Battle Vest",
@@ -582,7 +646,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "499683006": {
 "name": "Bullet Lifesteal",
@@ -591,7 +656,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": true
 },
 "1047818222": {
 "name": "Debuff Reducer",
@@ -600,7 +666,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "3970837787": {
 "name": "Enchanter's Emblem",
@@ -609,7 +676,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2447176615": {
 "name": "Enduring Speed",
@@ -618,7 +686,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "857669956": {
 "name": "Guardian Ward",
@@ -627,7 +696,8 @@
 "tier": 2,
 "cost": 1600,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2603935618": {
 "name": "Healbane",
@@ -636,7 +706,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2566692615": {
 "name": "Healing Booster",
@@ -645,7 +716,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "1644605047": {
 "name": "Reactive Barrier",
@@ -654,7 +726,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2059712766": {
 "name": "Restorative Locket",
@@ -663,7 +736,8 @@
 "tier": 2,
 "cost": 1600,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3361075077": {
 "name": "Return Fire",
@@ -672,7 +746,8 @@
 "tier": 2,
 "cost": 1600,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "876563814": {
 "name": "Spirit Lifesteal",
@@ -681,7 +756,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": true
 },
 "112198670": {
 "name": "Spirit Shielding",
@@ -690,7 +766,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3074274290": {
 "name": "Trophy Collector",
@@ -699,7 +776,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "805079544": {
 "name": "Weapon Shielding",
@@ -708,7 +786,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3140772621": {
 "name": "Bullet Resilience",
@@ -717,7 +796,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1414025773": {
 "name": "Counterspell",
@@ -726,7 +806,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "3731635960": {
 "name": "Dispel Magic",
@@ -735,7 +816,8 @@
 "tier": 3,
 "cost": 3200,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3585132399": {
 "name": "Fortitude",
@@ -744,7 +826,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1409190604": {
 "name": "Fury Trance",
@@ -753,7 +836,8 @@
 "tier": 3,
 "cost": 3200,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2956256701": {
 "name": "Healing Nova",
@@ -762,7 +846,8 @@
 "tier": 3,
 "cost": 3200,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1252627263": {
 "name": "Lifestrike",
@@ -771,7 +856,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "600033864": {
 "name": "Majestic Leap",
@@ -780,7 +866,8 @@
 "tier": 3,
 "cost": 3200,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1378931225": {
 "name": "Metal Skin",
@@ -789,7 +876,8 @@
 "tier": 3,
 "cost": 3200,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1804594021": {
 "name": "Rescue Beam",
@@ -798,7 +886,8 @@
 "tier": 3,
 "cost": 3200,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2163598980": {
 "name": "Spirit Resilience",
@@ -807,7 +896,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "334300056": {
 "name": "Stamina Mastery",
@@ -816,7 +906,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": true
 },
 "865958998": {
 "name": "Veil Walker",
@@ -825,7 +916,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "3270001687": {
 "name": "Warp Stone",
@@ -834,7 +926,8 @@
 "tier": 3,
 "cost": 3200,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3361811174": {
 "name": "Cheat Death",
@@ -843,7 +936,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2407781327": {
 "name": "Colossus",
@@ -852,7 +946,8 @@
 "tier": 4,
 "cost": 6400,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1662311306": {
 "name": "Divine Barrier",
@@ -861,7 +956,8 @@
 "tier": 4,
 "cost": 6400,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2820116164": {
 "name": "Diviner's Kevlar",
@@ -870,7 +966,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1427630806": {
 "name": "Healing Tempo",
@@ -879,7 +976,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "951866250": {
 "name": "Indomitable",
@@ -888,7 +986,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1797283378": {
 "name": "Infuser",
@@ -897,7 +996,8 @@
 "tier": 4,
 "cost": 6400,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2037039379": {
 "name": "Inhibitor",
@@ -906,7 +1006,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1250307611": {
 "name": "Juggernaut",
@@ -915,7 +1016,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "865846625": {
 "name": "Leech",
@@ -924,7 +1026,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": true
 },
 "1371725689": {
 "name": "Phantom Strike",
@@ -933,7 +1036,8 @@
 "tier": 4,
 "cost": 6400,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3491236900": {
 "name": "Plated Armor",
@@ -942,7 +1046,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1282141666": {
 "name": "Siphon Bullets",
@@ -951,7 +1056,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1955841979": {
 "name": "Spellbreaker",
@@ -960,7 +1066,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3357231760": {
 "name": "Unstoppable",
@@ -969,7 +1076,8 @@
 "tier": 4,
 "cost": 6400,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1055679805": {
 "name": "Vampiric Burst",
@@ -978,7 +1086,8 @@
 "tier": 4,
 "cost": 6400,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3028234315": {
 "name": "Witchmail",
@@ -987,7 +1096,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3729138568": {
 "name": "Celestial Blessing",
@@ -996,7 +1106,8 @@
 "tier": 5,
 "cost": 9999,
 "active": true,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "3523480953": {
 "name": "Cloak of Opportunity",
@@ -1005,7 +1116,8 @@
 "tier": 5,
 "cost": 9999,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "1825399334": {
 "name": "Electric Slippers",
@@ -1014,7 +1126,8 @@
 "tier": 5,
 "cost": 9999,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "230297145": {
 "name": "Eternal Gift",
@@ -1023,7 +1136,8 @@
 "tier": 5,
 "cost": 9999,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "3949773228": {
 "name": "Nullification Burst",
@@ -1032,7 +1146,8 @@
 "tier": 5,
 "cost": 9999,
 "active": true,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "1736094134": {
 "name": "Seraphim Wings",
@@ -1041,7 +1156,8 @@
 "tier": 5,
 "cost": 9999,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "2319629810": {
 "name": "Shadow Strike",
@@ -1050,7 +1166,8 @@
 "tier": 5,
 "cost": 9999,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "1342610602": {
 "name": "Close Quarters",
@@ -1059,7 +1176,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1548066885": {
 "name": "Extended Magazine",
@@ -1068,7 +1186,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": true
 },
 "2010028405": {
 "name": "Headshot Booster",
@@ -1077,7 +1196,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3077079169": {
 "name": "High-Velocity Rounds",
@@ -1086,7 +1206,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": true
 },
 "1009965641": {
 "name": "Monster Rounds",
@@ -1095,7 +1216,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": true
 },
 "668299740": {
 "name": "Rapid Rounds",
@@ -1104,7 +1226,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": true
 },
 "3862866912": {
 "name": "Restorative Shot",
@@ -1113,7 +1236,8 @@
 "tier": 1,
 "cost": 800,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "381961617": {
 "name": "Active Reload",
@@ -1122,7 +1246,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3403085434": {
 "name": "Fleetfoot",
@@ -1131,7 +1256,8 @@
 "tier": 2,
 "cost": 1600,
 "active": true,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "2407033488": {
 "name": "Intensifying Magazine",
@@ -1140,7 +1266,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3977876567": {
 "name": "Kinetic Dash",
@@ -1149,7 +1276,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3331811235": {
 "name": "Long Range",
@@ -1158,7 +1286,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "26002154": {
 "name": "Melee Charge",
@@ -1167,7 +1296,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "395867183": {
 "name": "Mystic Shot",
@@ -1176,7 +1306,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2064029594": {
 "name": "Opening Rounds",
@@ -1185,7 +1316,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1763073141": {
 "name": "Recharging Rush",
@@ -1194,7 +1326,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "393974127": {
 "name": "Slowing Bullets",
@@ -1203,7 +1336,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1144549437": {
 "name": "Spirit Shredder",
@@ -1212,7 +1346,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3647584222": {
 "name": "Split Shot",
@@ -1221,7 +1356,8 @@
 "tier": 2,
 "cost": 1600,
 "active": true,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "98582110": {
 "name": "Stalker",
@@ -1230,7 +1366,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "4104549924": {
 "name": "Swift Striker",
@@ -1239,7 +1376,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": true
 },
 "2356412290": {
 "name": "Titanic Magazine",
@@ -1248,7 +1386,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": true
 },
 "1770441818": {
 "name": "Weakening Headshot",
@@ -1257,7 +1396,8 @@
 "tier": 2,
 "cost": 1600,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1932939246": {
 "name": "Alchemical Fire",
@@ -1266,7 +1406,8 @@
 "tier": 3,
 "cost": 3200,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3294954488": {
 "name": "Ballistic Enchantment",
@@ -1275,7 +1416,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1414319208": {
 "name": "Berserker",
@@ -1284,7 +1426,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "989206714": {
 "name": "Blood Tribute",
@@ -1293,7 +1436,8 @@
 "tier": 3,
 "cost": 3200,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2739107182": {
 "name": "Burst Fire",
@@ -1302,7 +1446,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "709540378": {
 "name": "Cultist Sacrifice",
@@ -1311,7 +1456,8 @@
 "tier": 3,
 "cost": 3200,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2463960640": {
 "name": "Escalating Resilience",
@@ -1320,7 +1466,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "690458959": {
 "name": "Express Shot",
@@ -1329,7 +1476,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "4053935515": {
 "name": "Headhunter",
@@ -1338,7 +1486,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2108215830": {
 "name": "Heroic Aura",
@@ -1347,7 +1496,8 @@
 "tier": 3,
 "cost": 3200,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2678489038": {
 "name": "Hollow Point",
@@ -1356,7 +1506,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2481177645": {
 "name": "Hunter's Aura",
@@ -1365,7 +1516,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2095565695": {
 "name": "Point Blank",
@@ -1374,7 +1526,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "1798666702": {
 "name": "Shadow Weave",
@@ -1383,7 +1536,8 @@
 "tier": 3,
 "cost": 3200,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2152872419": {
 "name": "Sharpshooter",
@@ -1392,7 +1546,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "4075861416": {
 "name": "Spirit Rend",
@@ -1401,7 +1556,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "811521119": {
 "name": "Tesla Bullets",
@@ -1410,7 +1566,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3696726732": {
 "name": "Toxic Bullets",
@@ -1419,7 +1576,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3791587546": {
 "name": "Weighted Shots",
@@ -1428,7 +1586,8 @@
 "tier": 3,
 "cost": 3200,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "673001892": {
 "name": "Armor Piercer",
@@ -1437,7 +1596,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "710436191": {
 "name": "Capacitor",
@@ -1446,7 +1606,8 @@
 "tier": 4,
 "cost": 6400,
 "active": true,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3884003354": {
 "name": "Crippling Headshot",
@@ -1455,7 +1616,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "800008313": {
 "name": "Crushing Fists",
@@ -1464,7 +1626,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "339443430": {
 "name": "Frenzy",
@@ -1473,7 +1636,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "365620721": {
 "name": "Glass Cannon",
@@ -1482,7 +1646,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "1396247347": {
 "name": "Lucky Shot",
@@ -1491,7 +1656,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2480592370": {
 "name": "Ricochet",
@@ -1500,7 +1666,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "1113837674": {
 "name": "Silencer",
@@ -1509,7 +1676,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2221211450": {
 "name": "Spellslinger",
@@ -1518,7 +1686,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "2226497419": {
 "name": "Spiritual Overflow",
@@ -1527,7 +1696,8 @@
 "tier": 4,
 "cost": 6400,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3568217437": {
 "name": "Haunting Shot",
@@ -1536,7 +1706,8 @@
 "tier": 5,
 "cost": 9999,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 },
 "3269957497": {
 "name": "Infinite Rounds",
@@ -1545,7 +1716,8 @@
 "tier": 5,
 "cost": 9999,
 "active": false,
-"effect_modeled": false
+"effect_modeled": false,
+"stats_only": false
 },
 "64550694": {
 "name": "Runed Gauntlets",
@@ -1554,6 +1726,7 @@
 "tier": 5,
 "cost": 9999,
 "active": false,
-"effect_modeled": true
+"effect_modeled": true,
+"stats_only": false
 }
 }

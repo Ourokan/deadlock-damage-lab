@@ -175,6 +175,14 @@ class Precast(unittest.TestCase):
         self.assertEqual(kc.casts, 0)
         self.assertEqual((kc.ready_at, kc.held_until), (0.0, 0.0))   # waits for the first chance in the fight
 
+    def test_refused_precast_restores_the_gun_lock(self):
+        e, f, kc = self.paradox()
+        f.gun_locked_until = -0.5   # free at t=0, but locked at the precast time
+        kc.precast_at = -2.0
+        kc.impl.should_cast = lambda c: False
+        M.precast(f)
+        self.assertEqual(f.gun_locked_until, -0.5)
+
     def test_damage_before_the_start_books_in_slice_0(self):
         e, f, kc = self.paradox()
         g = make_fighter(e, Loadout("Abrams", [], souls=27000))
@@ -184,6 +192,21 @@ class Precast(unittest.TestCase):
         e.t = 0.0
         self.assertEqual(set(f.dmg_by_2s), {0})
         self.assertAlmostEqual(f.dmg_exp["Kinetic Carbine"], f.dmg_out["Kinetic Carbine"])   # P(going) at t<0 is 1
+
+    def test_precast_sees_a_free_gun_and_goes_earliest_first(self):
+        mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(27000))
+        e = Engine(distance=8, mech=mech, rng=random.Random(1))
+        f = make_fighter(e, Loadout("Lash", [], souls=27000))
+        g = make_fighter(e, Loadout("Abrams", [], souls=27000))
+        f.enemy, g.enemy = g, f
+        for ab in f.abilities:
+            ab.start()
+        by = {ab.ab.name: ab for ab in f.abilities}
+        by["Ground Strike"].precast_at = -0.4   # listed first, cast later
+        by["Death Slam"].precast_at = -2.9      # gated on "not busy": t=0's gun state must not turn it down
+        M.precast(f)
+        self.assertEqual(by["Death Slam"].casts, 1)
+
 
     def test_carbine_opener_lands_early(self):
         engine.PROFILE_SOURCES = True
@@ -199,6 +222,32 @@ class Precast(unittest.TestCase):
         finally:
             engine.PROFILE_SOURCES = False
         self.assertGreater(early, 6)   # the 2.5 s charge alone kept every Carbine hit past 2.5 s
+
+
+class UltWait(unittest.TestCase):
+    def lash(self):
+        mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(27000))
+        e = Engine(distance=8, mech=mech, rng=random.Random(1))
+        f = make_fighter(e, Loadout("Lash", [], souls=27000))
+        g = make_fighter(e, Loadout("Abrams", [], souls=27000))
+        f.enemy, g.enemy = g, f
+        for ab in f.abilities:
+            ab.start()
+        by = {ab.ab.name: ab for ab in f.abilities}
+        return f, by["Grapple"], by["Death Slam"]
+
+    def test_held_setup_does_not_block_the_ult(self):
+        f, grapple, ult = self.lash()
+        self.assertFalse(f.plan.allows(ult))   # Death Slam waits for Grapple ...
+        grapple.held_until = math.inf
+        self.assertTrue(f.plan.allows(ult))    # ... unless Grapple is held out of the fight
+
+    def test_held_first_cast_skips_the_wait(self):
+        f, grapple, ult = self.lash()
+        ult.timed = True
+        self.assertTrue(f.plan.allows(ult))
+        ult.casts = 1
+        self.assertFalse(f.plan.allows(ult))   # later casts wait as before
 
 
 class MeleeOpener(unittest.TestCase):

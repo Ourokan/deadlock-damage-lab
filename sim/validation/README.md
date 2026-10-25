@@ -1100,6 +1100,29 @@ of noise 0.282 -> 0.275. Precast alone: 0.215 / audit 0.0389.
 Left: gated abilities keep their own timing (Lash's Death Slam waits ~4 s for its combo, real 62% of its damage in
 the first 2 s); precasts that fail their range rule (half of Sticky Bomb's) wait for the fight.
 
+### Combo-held ultimates on real timing
+
+An ultimate with a setup (`patterns.Plan.allows`, ult_after: Lash's Death Slam after Grapple, ...) waited up to
+SETUP_WAIT = 4 s for the setup even when its first cast was already held to the real cast time, so the real timing
+was counted twice (Death Slam 0% of its damage in the first 2 s, real 62%).
+
+- A first cast held by `mechanics.cast_timing` (`AbilityState.timed`, no casts yet) skips the wait; later casts wait
+  as before. A setup ability that is itself held (`held_until`) no longer counts as castable, so it doesn't block.
+- `fit_cast_timing.py fit` measures the sim's own timing twice: with the wait (all abilities, as before) and with
+  `patterns.ULT_WAIT = False` (only for ultimates that aren't cast on sight with the wait). One run without the wait
+  shifted other abilities and lost their holds (Lash's Flog, Grapple, Ground Strike).
+- `mechanics.precast` goes earliest first and sees a free gun at its cast time (a later precast's gun lock, or the
+  fight-start lock, turned down Death Slam's), and restores the lock when the cast is refused.
+
+Results (main -> this, same refit order): held abilities 113 -> 114 (Death Slam); Death Slam first-2 s share 0.00 ->
+0.51 (real 0.62); opener timing sources > 0.5 s late 124 -> 118, mean shift -0.59 -> -0.53 s; Carbine hits by 1 s
+22% -> 30%; damage audit mix 0.0380 -> 0.0375; sim_vs_win at 27k (correlation, higher is better) all pairs 0.215 ->
+0.213, damage items 0.097 -> 0.093, per item 0.308 -> 0.311, edges clear of noise 0.272 -> 0.276 (flat within noise).
+
+Left: health-gated executes (Killing Blow, Assassinate, Close The Deal, Lethal Venom) need the enemy's real
+fight-entry health (sim duels start full); resource gates (Slam Fire rage, Pain Battery, Djinn's Mark stacks) still
+land 2-7 s later than real.
+
 ## Tankbuster minimum damage (2026-10-25)
 
 Follow-up of cast timing (its audit loss was mostly Tankbuster on spirit heroes). In 260 Phantom+ replays (every

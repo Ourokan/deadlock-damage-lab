@@ -248,6 +248,7 @@ def hold_first_casts(f):
             u = rng.random()
         h = q[min(len(q) - 1, int(u * len(q)))]
         ab.held_until = f.e.t + (math.inf if h is None else max(0.0, h))
+        ab.timed = True
         ab.precast_at = f.e.t + h if h is not None and h < 0 else None
 
 
@@ -259,15 +260,17 @@ def precast(f):
     (scripts/cast_timing/fit_cast_timing.py, due times). The cast's own rule still decides (try_cast); one it turns
     down waits for the first chance in the fight."""
     t0 = f.e.t
-    for ab in f.abilities:
-        at = getattr(ab, "precast_at", None)
-        if at is None:
-            continue
+    # earliest first: a later precast's cast lock must not turn down one that went out before it
+    for ab in sorted((a for a in f.abilities if getattr(a, "precast_at", None) is not None),
+                     key=lambda a: a.precast_at):
+        at = ab.precast_at
         ab.precast_at = None
         if ab.ready_at > t0:
             continue   # on cooldown at the start (spent before the fight): nothing to precast
-        ready, held = ab.ready_at, ab.held_until
+        ready, held, lock = ab.ready_at, ab.held_until, f.gun_locked_until
         ab.ready_at = ab.held_until = at   # ready then, not only from t = 0
+        if lock <= t0:
+            f.gun_locked_until = min(lock, at)   # free then too (a cast gated on "not busy")
         f.e.t = at
         try:
             cast = ab.try_cast()
@@ -275,6 +278,8 @@ def precast(f):
             f.e.t = t0
         if not cast:
             ab.ready_at, ab.held_until = ready, held
+            if f.gun_locked_until == min(lock, at):
+                f.gun_locked_until = lock
 
 
 DEFAULT = Mechanics()   # None turns the new mechanics off for every Engine built without an explicit value

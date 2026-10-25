@@ -109,6 +109,23 @@ def export_usage(G):
     return list(out)
 
 
+# properties of an item outside its always-on stats that change nothing in a fight
+NO_EFFECT_PROPS = {"AbilityUnitTargetLimit"}
+
+
+def item_meta(G):
+    """out/items.json. effect_modeled: the item has its own effect code (deadsim.items_fx); stats_only: a passive item
+    whose only properties are always-on stats, so the stats are the whole item and nothing is missing without
+    effect code (Spirit Lifesteal, Extra Health)."""
+    def stats_only(i):
+        extra = {k for k, v in i.props.items() if v and k not in i.innate}
+        return i.activation == "passive" and all(k in NO_EFFECT_PROPS or k.endswith("TooltipOnly") for k in extra)
+    return {str(i.id): {"name": i.name, "class_name": i.class_name, "slot": i.slot, "tier": i.tier, "cost": i.cost,
+                        "active": i.activation != "passive", "effect_modeled": i.class_name in MODELED,
+                        "stats_only": i.class_name not in MODELED and stats_only(i)}
+            for i in G.items.values() if i.cost > 0}
+
+
 def main():
     G = game()
     os.makedirs(os.path.join(OUT, "heroes"), exist_ok=True)
@@ -122,10 +139,7 @@ def main():
     carry = [b for b in BRACKETS if b in old_meta and b not in jobs]
     old_patch = old.get("patch")
 
-    items = {str(i.id): {"name": i.name, "class_name": i.class_name, "slot": i.slot, "tier": i.tier, "cost": i.cost,
-                         "active": i.activation != "passive", "effect_modeled": i.class_name in MODELED}
-             for i in G.items.values() if i.cost > 0}
-    json.dump(items, open(os.path.join(OUT, "items.json"), "w"), indent=0)
+    json.dump(item_meta(G), open(os.path.join(OUT, "items.json"), "w"), indent=0)
 
     opp = {}
     for br in jobs:

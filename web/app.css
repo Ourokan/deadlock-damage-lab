@@ -219,6 +219,13 @@ body.sheet-open { overflow: hidden; }
 .stack-bar i.base { background: var(--line); opacity: 1; }
 .stack-bar i.sel { opacity: 1; }
 .why { margin: 0; padding-left: 18px; display: grid; gap: 6px; max-width: 62ch; }
+.sh-ctl { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; }
+#sh-body > p { margin: 0; max-width: 62ch; }
+button.link { border: 0; background: none; padding: 0; color: var(--accent); font: inherit; text-decoration: underline; cursor: pointer; }
+.why-t { width: 100%; font-size: .85rem; }
+.why-t td, .why-t th { padding: 5px 6px; }
+.why-t td:first-child { white-space: normal; width: 46%; }
+.why-t td.n { font-family: var(--mono); font-size: .8rem; white-space: nowrap; }
 .bd-list { display: grid; }
 .bd-row { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto 3.5em; gap: 8px; align-items: center; padding: 6px 4px; border: 0; border-bottom: 1px solid var(--line);
   background: transparent; text-align: left; font-size: .88rem; cursor: pointer; }
