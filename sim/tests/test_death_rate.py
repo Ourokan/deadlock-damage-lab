@@ -1,6 +1,7 @@
 """Checks of the overall score's real death rate value (damage/scripts/overall_search.py death_rate_value) and the
 opt-in fight rate (fight_value), both from sim/data/fight_rate.json.
 Run from sim/: python3 -m unittest discover -s tests"""
+import math
 import os
 import sys
 import unittest
@@ -43,14 +44,48 @@ class DeathRate(unittest.TestCase):
         worse = [i for i, r in rates.items() if r > 1.0]
         self.assertTrue(worse)
         self.assertLess(O.death_rate_value(worse[:1], hero, 27000), 1.0)
-        # never better than not dying at all
+        # exact form: (c + d L) / (c + d x ratio x L)
         dd = O.death_data()
         row = dd["phases"][O.game_phase(27000)]
         d = row["deaths_per_engagement"] * dd["heroes"].get(str(hero), {}).get("ratio", 1.0)
-        cap = 1 + d * O.death_seconds(27000) / row["alive_s_per_engagement"]
-        self.assertLess(O.death_rate_value(list(rates), hero, 27000), cap)
+        c, L = row["alive_s_per_engagement"], O.death_seconds(27000)
+        self.assertAlmostEqual(O.death_rate_value([cd], hero, 27000), (c + d * L) / (c + d * rates[cd] * L))
+        # the product of many items is clamped
+        self.assertAlmostEqual(O.death_rate_value(list(rates), hero, 27000),
+                               (c + d * L) / (c + d * max(O.DEATH_RATE_CLAMP[0], min(O.DEATH_RATE_CLAMP[1],
+                                   math.prod(rates.values()))) * L))
         O.DEATH_RATE = False
         self.assertEqual(O.death_rate_value([cd], hero, 27000), 1.0)
+
+    def test_through_the_evaluator(self):
+        """The popular build scores 1 (its own death rate value is divided out), Cheat Death raises a build's score
+        by exactly its death rate value when damage is unchanged; the lane score gets it too."""
+        hero = S.G().hero("Abrams").id
+        pop = [item("Extra Health"), item("Headshot Booster")]
+        cd = item("Cheat Death")
+        was = S.popular_build
+        S.popular_build = lambda *a: pop
+
+        class Ev(O.Evaluator):
+            def _rows(self, items, pool):
+                return [(1, 1.0, 900.0, 12.0, False, 0.2, 800.0)]
+
+        class Lane(O.LaneEvaluator):
+            def _rows(self, items, pool):
+                return [(1, 1.0, 900.0, 12.0, False)]
+        try:
+            for cls in (Ev, Lane):
+                ev = cls(hero, 27000, {})
+                self.assertAlmostEqual(ev.run(pop), 1.0)
+                gain = ev.run(pop + [cd]) / (O.movement_value(pop + [cd], hero) * ev._map(pop + [cd])
+                                             * O.win_value(pop + [cd], hero) * O.team_value(pop + [cd], 27000)
+                                             / (O.movement_value(pop, hero) * O.win_value(pop, hero)
+                                                * O.team_value(pop, 27000)))
+                want = O.death_rate_value(pop + [cd], hero, 27000) / O.death_rate_value(pop, hero, 27000)
+                self.assertGreater(want, 1.0)
+                self.assertAlmostEqual(gain, want, places=6)
+        finally:
+            S.popular_build = was
 
     def test_movement_items_left_out(self):
         # movement_value already counts their deaths (escape)
