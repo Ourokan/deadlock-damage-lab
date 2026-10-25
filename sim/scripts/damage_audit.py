@@ -82,7 +82,7 @@ def kind(key, G, classes):
         return "melee"
     if key.startswith("upgrade_") or key.lower() in G.items_by_name:
         return "item"
-    if key in classes or (key in L.ALIASES.values() and key != L.SHIV_DEFER):
+    if key in classes or (key in L.ALIASES.values() and key not in L.ENEMY_BOOKED):
         return "ability"
     return "other"
 

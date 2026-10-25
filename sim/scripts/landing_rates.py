@@ -50,8 +50,11 @@ ALIASES = {
     "Mauling Leap": "ability_werewolf_maulingleap",
     "Tail Whack": "ability_werewolf_cripplingslash",
     "Bloodletting (deferred)": "citadel_ability_shiv_defer_damage",   # an enemy Shiv's deferred damage
+    "Wretched Vapors (crash)": "ability_nurse_adrenaline_rush",       # an enemy Nurse's specters (her own vapors)
 }
 SHIV_DEFER = "citadel_ability_shiv_defer_damage"
+# damage the game books under the enemy's ability (deferred damage hitting its owner): not one of this hero's sources
+ENEMY_BOOKED = {SHIV_DEFER, "ability_nurse_adrenaline_rush"}
 COPY_ULT = "ability_magician_copyult"   # Sinclair: the copied ultimate is booked under the enemy hero's own class
 MIN_HITS = 150
 FIGHT_TIME = 20.0
@@ -66,7 +69,7 @@ def real_key(name, classes):
     if "ability_melee_" in name:
         return "MELEE"
     best = max((c for c in classes if name == c or name.startswith(c + "_")), key=len, default=None)
-    if best is None and COPY_ULT in classes and name != SHIV_DEFER and "ability_" in name:
+    if best is None and COPY_ULT in classes and name not in ENEMY_BOOKED and "ability_" in name:
         return COPY_ULT   # another hero's ability class in Sinclair's damage: the ultimate she copied
     return best or name
 
@@ -266,7 +269,7 @@ def main():
         rows = {}
         srcs = [(ab.name, ab.class_name) for ab in h.abilities]
         srcs += [(lab, cls) for lab, cls in ALIASES.items() if cls not in {c for _, c in srcs} and s.get(cls, 0) > 0
-                 and cls != SHIV_DEFER]
+                 and cls not in ENEMY_BOOKED]
         for ab_name, ab_class in srcs:
             ra, sa = r.get(ab_class, 0), s.get(ab_class, 0)
             if sa <= 0 or r["GUN"] <= 0 or s["GUN"] <= 0:
