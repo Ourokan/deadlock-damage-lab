@@ -6,178 +6,178 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 
 | Item | Overall | Damage (dummy 15 s) | Popular |
 |---|---:|---:|---:|
-| Restorative Locket | 26 | 0 | 0 |
-| Mystic Shot | 10 | 33 | 2 |
-| Mystic Burst | 9 | 11 | 18 |
-| Improved Spirit | 5 | 22 | 11 |
-| Extra Charge | 10 | 6 | 9 |
-| Stalker | 7 | 12 | 7 |
-| Bullet Resist Shredder | 11 | 1 | 2 |
-| Spirit Lifesteal | 11 | 0 | 2 |
-| Mystic Vulnerability | 11 | 1 | 1 |
-| Extra Spirit | 5 | 4 | 9 |
-| Enchanter's Emblem | 7 | 3 | 4 |
-| Cold Front | 2 | 15 | 4 |
+| Restorative Locket | 35 | 0 | 0 |
+| Mystic Shot | 11 | 35 | 2 |
+| Stalker | 11 | 11 | 7 |
+| Mystic Burst | 6 | 12 | 18 |
+| Improved Spirit | 4 | 20 | 11 |
+| Spirit Lifesteal | 13 | 0 | 2 |
+| Cold Front | 6 | 16 | 4 |
+| Extra Spirit | 6 | 7 | 10 |
+| Bullet Resist Shredder | 11 | 0 | 2 |
+| Extra Charge | 5 | 8 | 11 |
+| Mystic Vulnerability | 10 | 1 | 1 |
+| Enchanter's Emblem | 8 | 3 | 4 |
+| Spirit Strike | 5 | 6 | 4 |
 | Close Quarters | 4 | 3 | 8 |
-| Spirit Snatch | 4 | 8 | 3 |
+| Titanic Magazine | 3 | 8 | 5 |
 | Mystic Expansion | 3 | 2 | 11 |
-| Titanic Magazine | 3 | 7 | 5 |
+| Headhunter | 6 | 3 | 1 |
+| Spirit Snatch | 3 | 9 | 3 |
 | Torment Pulse | 6 | 1 | 1 |
 | Melee Lifesteal | 3 | 4 | 7 |
-| Headhunter | 5 | 4 | 1 |
 | Opening Rounds | 1 | 5 | 11 |
-| Spirit Strike | 3 | 6 | 3 |
-| Extra Health | 3 | 0 | 7 |
 | Guardian Ward | 4 | 0 | 3 |
-| Decay | 2 | 8 | 0 |
+| Alchemical Fire | 3 | 6 | 0 |
 | Extra Regen | 0 | 0 | 13 |
+| Decay | 1 | 10 | 0 |
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 2190 | 3867 | 2933 |
-| spirit | 3124 | 3905 | 3181 |
-| vitality | 2686 | 229 | 1829 |
+| weapon | 2545 | 3691 | 2800 |
+| spirit | 2618 | 4127 | 3255 |
+| vitality | 2818 | 182 | 1891 |
 
 ## 18000 net worth
 
 | Item | Overall | Damage (dummy 15 s) | Popular |
 |---|---:|---:|---:|
-| Mystic Shot | 22 | 37 | 6 |
-| Restorative Locket | 27 | 0 | 2 |
-| Decay | 12 | 34 | 0 |
-| Mystic Vulnerability | 15 | 8 | 6 |
+| Mystic Shot | 19 | 38 | 7 |
+| Restorative Locket | 25 | 0 | 3 |
+| Stalker | 15 | 9 | 7 |
+| Mystic Vulnerability | 15 | 10 | 6 |
 | Bullet Resist Shredder | 15 | 5 | 8 |
-| Heroic Aura | 18 | 0 | 1 |
-| Stalker | 13 | 9 | 7 |
-| Enchanter's Emblem | 13 | 5 | 9 |
-| Extra Charge | 11 | 7 | 8 |
-| Mystic Burst | 8 | 5 | 17 |
-| Spirit Lifesteal | 14 | 0 | 3 |
-| Torment Pulse | 13 | 1 | 4 |
-| Improved Spirit | 1 | 23 | 16 |
-| Healing Nova | 14 | 0 | 0 |
-| Spirit Snatch | 6 | 10 | 6 |
-| Titanic Magazine | 6 | 10 | 5 |
-| Alchemical Fire | 6 | 15 | 0 |
+| Torment Pulse | 17 | 1 | 5 |
+| Enchanter's Emblem | 14 | 5 | 9 |
+| Improved Spirit | 4 | 24 | 17 |
+| Alchemical Fire | 12 | 16 | 0 |
+| Heroic Aura | 16 | 0 | 1 |
+| Spirit Lifesteal | 15 | 0 | 3 |
+| Decay | 3 | 35 | 0 |
+| Headhunter | 11 | 6 | 5 |
+| Mystic Burst | 6 | 5 | 17 |
+| Cold Front | 4 | 16 | 4 |
+| Spirit Snatch | 5 | 11 | 6 |
+| Extra Charge | 5 | 8 | 9 |
 | Close Quarters | 6 | 3 | 9 |
-| Headhunter | 6 | 6 | 5 |
-| Cold Front | 3 | 15 | 4 |
-| Toxic Bullets | 1 | 22 | 1 |
-| Mystic Expansion | 1 | 1 | 19 |
-| Extra Spirit | 6 | 2 | 3 |
-| Spirit Shredder | 6 | 2 | 1 |
-| Rapid Recharge | 2 | 8 | 7 |
+| Toxic Bullets | 2 | 23 | 1 |
+| Titanic Magazine | 5 | 10 | 5 |
+| Healing Nova | 10 | 0 | 0 |
+| Rapid Recharge | 4 | 9 | 8 |
+| Spirit Resilience | 8 | 0 | 1 |
+| Mystic Expansion | 1 | 1 | 20 |
+| Spirit Strike | 5 | 7 | 1 |
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 5371 | 7314 | 4629 |
-| spirit | 5048 | 7505 | 5410 |
-| vitality | 4762 | 381 | 4952 |
+| weapon | 5855 | 7200 | 4455 |
+| spirit | 4564 | 7636 | 5564 |
+| vitality | 4745 | 364 | 4982 |
 
 ## 27000 net worth
 
 | Item | Overall | Damage (dummy 15 s) | Popular |
 |---|---:|---:|---:|
-| Mystic Shot | 17 | 35 | 6 |
-| Heroic Aura | 26 | 0 | 2 |
-| Decay | 14 | 36 | 0 |
-| Alchemical Fire | 20 | 13 | 0 |
-| Stalker | 16 | 9 | 7 |
-| Bullet Resist Shredder | 15 | 4 | 8 |
-| Enchanter's Emblem | 14 | 5 | 9 |
-| Mystic Vulnerability | 15 | 2 | 5 |
+| Mystic Shot | 24 | 37 | 7 |
+| Stalker | 21 | 9 | 7 |
+| Alchemical Fire | 21 | 15 | 0 |
+| Heroic Aura | 22 | 0 | 2 |
+| Enchanter's Emblem | 16 | 6 | 9 |
+| Bullet Resist Shredder | 16 | 4 | 8 |
+| Spirit Resilience | 16 | 0 | 10 |
+| Torment Pulse | 16 | 3 | 4 |
+| Toxic Bullets | 6 | 33 | 3 |
+| Mystic Vulnerability | 15 | 2 | 6 |
 | Titanic Magazine | 9 | 17 | 7 |
-| Restorative Locket | 16 | 0 | 1 |
-| Spirit Lifesteal | 15 | 0 | 4 |
-| Torment Pulse | 14 | 3 | 3 |
-| Healing Nova | 16 | 0 | 0 |
-| Toxic Bullets | 4 | 32 | 3 |
-| Improved Spirit | 3 | 15 | 18 |
-| Spirit Snatch | 7 | 15 | 6 |
-| Headhunter | 10 | 4 | 4 |
-| Spirit Resilience | 9 | 0 | 10 |
-| Superior Duration | 8 | 5 | 7 |
-| Escalating Exposure | 0 | 30 | 3 |
-| Diviner's Kevlar | 11 | 0 | 0 |
-| Tankbuster | 4 | 5 | 14 |
-| Rapid Recharge | 3 | 10 | 11 |
-| Mystic Reverb | 10 | 0 | 0 |
-| Close Quarters | 5 | 5 | 9 |
+| Spirit Snatch | 9 | 16 | 7 |
+| Decay | 3 | 38 | 0 |
+| Spirit Lifesteal | 14 | 0 | 4 |
+| Improved Spirit | 3 | 16 | 19 |
+| Headhunter | 11 | 4 | 4 |
+| Diviner's Kevlar | 12 | 0 | 0 |
+| Escalating Exposure | 0 | 32 | 3 |
+| Rapid Recharge | 4 | 11 | 12 |
+| Tankbuster | 5 | 5 | 15 |
+| Superior Duration | 7 | 5 | 7 |
+| Close Quarters | 6 | 5 | 9 |
+| Restorative Locket | 9 | 0 | 2 |
+| Mystic Reverb | 9 | 0 | 0 |
+| Healbane | 3 | 0 | 17 |
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 8324 | 9943 | 7029 |
-| spirit | 8248 | 13752 | 9638 |
-| vitality | 7410 | 305 | 7124 |
+| weapon | 9091 | 9836 | 6782 |
+| spirit | 7636 | 13836 | 9927 |
+| vitality | 7255 | 327 | 7091 |
 
 ## 37000 net worth
 
 | Item | Overall | Damage (dummy 15 s) | Popular |
 |---|---:|---:|---:|
-| Heroic Aura | 38 | 0 | 2 |
-| Mystic Shot | 21 | 34 | 7 |
-| Decay | 15 | 35 | 0 |
-| Stalker | 19 | 9 | 7 |
-| Superior Duration | 13 | 19 | 14 |
-| Alchemical Fire | 20 | 12 | 0 |
-| Escalating Exposure | 9 | 34 | 6 |
-| Bullet Resist Shredder | 17 | 4 | 10 |
-| Torment Pulse | 16 | 10 | 5 |
-| Spirit Resilience | 16 | 0 | 13 |
+| Mystic Shot | 23 | 35 | 8 |
+| Heroic Aura | 32 | 0 | 2 |
+| Stalker | 23 | 8 | 7 |
+| Alchemical Fire | 22 | 15 | 0 |
+| Superior Duration | 15 | 20 | 15 |
+| Spirit Resilience | 21 | 0 | 13 |
+| Torment Pulse | 19 | 10 | 7 |
+| Escalating Exposure | 10 | 36 | 6 |
+| Headhunter | 18 | 4 | 4 |
 | Diviner's Kevlar | 20 | 0 | 1 |
-| Toxic Bullets | 8 | 31 | 5 |
-| Titanic Magazine | 10 | 15 | 8 |
-| Enchanter's Emblem | 11 | 4 | 10 |
-| Headhunter | 13 | 4 | 4 |
-| Spirit Lifesteal | 13 | 0 | 2 |
-| Superior Cooldown | 3 | 11 | 18 |
-| Spirit Rend | 8 | 14 | 0 |
-| Rapid Recharge | 4 | 12 | 13 |
-| Spirit Snatch | 4 | 15 | 7 |
-| Healbane | 6 | 1 | 15 |
-| Mystic Reverb | 10 | 3 | 1 |
-| Hollow Point | 7 | 7 | 2 |
-| Mystic Vulnerability | 9 | 0 | 2 |
-| Tankbuster | 2 | 7 | 15 |
+| Bullet Resist Shredder | 15 | 4 | 10 |
+| Toxic Bullets | 7 | 32 | 5 |
+| Enchanter's Emblem | 12 | 4 | 10 |
+| Spirit Lifesteal | 16 | 0 | 2 |
+| Titanic Magazine | 9 | 15 | 8 |
+| Decay | 3 | 37 | 0 |
+| Rapid Recharge | 6 | 13 | 14 |
+| Superior Cooldown | 4 | 11 | 20 |
+| Spirit Snatch | 5 | 16 | 8 |
+| Mystic Reverb | 11 | 3 | 1 |
+| Focus Lens | 6 | 16 | 0 |
+| Spirit Rend | 6 | 15 | 0 |
+| Tankbuster | 3 | 7 | 16 |
+| Berserker | 8 | 0 | 6 |
+| Healbane | 4 | 1 | 16 |
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 12476 | 11181 | 8400 |
-| spirit | 11105 | 20895 | 13733 |
-| vitality | 9029 | 571 | 9352 |
+| weapon | 12582 | 10982 | 8091 |
+| spirit | 11000 | 21109 | 14109 |
+| vitality | 8964 | 545 | 9255 |
 
 ## 50000 net worth
 
 | Item | Overall | Damage (dummy 15 s) | Popular |
 |---|---:|---:|---:|
-| Escalating Exposure | 24 | 37 | 10 |
-| Heroic Aura | 32 | 0 | 2 |
-| Superior Duration | 14 | 26 | 16 |
-| Focus Lens | 16 | 36 | 0 |
-| Mystic Shot | 13 | 34 | 5 |
-| Alchemical Fire | 19 | 21 | 0 |
-| Decay | 12 | 37 | 0 |
-| Diviner's Kevlar | 21 | 3 | 1 |
-| Spirit Resilience | 17 | 0 | 14 |
-| Toxic Bullets | 6 | 34 | 7 |
-| Stalker | 16 | 4 | 5 |
-| Torment Pulse | 15 | 7 | 5 |
-| Boundless Spirit | 4 | 24 | 19 |
-| Mystic Reverb | 16 | 4 | 3 |
-| Bullet Resist Shredder | 14 | 4 | 8 |
-| Spirit Burn | 12 | 0 | 17 |
-| Cheat Death | 16 | 0 | 2 |
-| Enchanter's Emblem | 10 | 8 | 10 |
-| Spirit Lifesteal | 15 | 0 | 0 |
-| Titanic Magazine | 7 | 15 | 7 |
-| Spirit Snatch | 7 | 12 | 8 |
-| Spirit Rend | 7 | 19 | 1 |
-| Rapid Recharge | 4 | 12 | 14 |
-| Greater Expansion | 6 | 0 | 19 |
-| Silence Wave | 12 | 0 | 0 |
+| Escalating Exposure | 26 | 39 | 12 |
+| Superior Duration | 17 | 27 | 17 |
+| Spirit Resilience | 25 | 0 | 14 |
+| Mystic Shot | 15 | 36 | 6 |
+| Alchemical Fire | 20 | 24 | 0 |
+| Focus Lens | 14 | 38 | 0 |
+| Diviner's Kevlar | 24 | 3 | 1 |
+| Heroic Aura | 22 | 0 | 2 |
+| Torment Pulse | 18 | 6 | 7 |
+| Stalker | 19 | 4 | 5 |
+| Mystic Reverb | 18 | 4 | 3 |
+| Spirit Burn | 14 | 0 | 18 |
+| Bullet Resist Shredder | 16 | 4 | 8 |
+| Toxic Bullets | 5 | 35 | 7 |
+| Boundless Spirit | 3 | 24 | 21 |
+| Decay | 4 | 39 | 0 |
+| Enchanter's Emblem | 10 | 10 | 10 |
+| Spirit Snatch | 8 | 13 | 9 |
+| Tankbuster | 5 | 5 | 20 |
+| Spirit Lifesteal | 13 | 0 | 0 |
+| Spirit Rend | 6 | 20 | 1 |
+| Greater Expansion | 6 | 0 | 20 |
+| Rapid Recharge | 3 | 13 | 15 |
+| Titanic Magazine | 5 | 15 | 7 |
+| Berserker | 10 | 0 | 6 |
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 11771 | 13314 | 9600 |
-| spirit | 19505 | 29238 | 19676 |
-| vitality | 12038 | 914 | 12248 |
+| weapon | 12364 | 13036 | 9200 |
+| spirit | 19109 | 29473 | 20309 |
+| vitality | 11909 | 945 | 12091 |
