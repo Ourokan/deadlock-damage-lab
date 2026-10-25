@@ -1,8 +1,8 @@
 # Real use of non-damage active items (Phantom+)
 
-260 Phantom+ replays (fight_length raw + item casts, fetch_item_casts.py). Use = the fighter casts the item from 2 s before the fight's first hit to 1 s after its last (fights: two enemy heroes trading, sim/scripts/fight_length). Sim use = the overall search's fight, P(the fight is still going at the first cast). Factor = real / sim, shrunk toward 1 (tau 0.39), max 1.
+260 Phantom+ replays (fight_length raw + item casts, fetch_item_casts.py). Use = the fighter casts the item from 2 s before the fight's first hit to 1 s after its last (engagement: a fighter's fights with enemy heroes, sim/scripts/fight_length, merged when they overlap or follow within 5 s). Sim use = the overall search's fight, P(the fight is still going at the first cast). Factor = real / sim, shrunk toward 1 (tau 0.39), max 1.
 
-| Item | Real use | Sim use | Raw | Factor | Holder-matches | Fights |
+| Item | Real use | Sim use | Raw | Factor | Holder-matches | Engagements |
 |---|---|---|---|---|---|---|
 | Rescue Beam | 0.15 | 0.53 | 0.28 +- 0.03 | **0.28** | 46 | 382 |
 | Cursed Relic | 0.39 | 0.95 | 0.42 +- 0.02 | **0.42** | 113 | 632 |

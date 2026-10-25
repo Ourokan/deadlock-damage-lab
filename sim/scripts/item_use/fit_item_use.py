@@ -9,8 +9,9 @@ sim-vs-real gaps among them (Disarming Hex -6.4 win points, Metal Skin -5.8, Rus
 ranked them average or better in their tier).
 
 real: in the fight-length replays (sim/scripts/fight_length/fetch_fights.py: two enemy heroes trading, gaps < 5 s,
->= 4 hits both ways) and their item casts (fetch_item_casts.py: cooldown starts per owner pawn), for each fighter
-holding the item at the fight's start (validation sample buy / sell times, components gone once their upgrade is
+>= 4 hits both ways; a fighter's pair fights that overlap or follow within 5 s are one engagement, since one cast
+of a single-target item serves a whole team fight, like the sim's one duel) and their item casts
+(fetch_item_casts.py: cooldown starts per owner pawn), for each fighter holding the item at the engagement's start (validation sample buy / sell times, components gone once their upgrade is
 bought): did the fighter cast it from PRE_S before the first hit to POST_S after the last? Items whose effect
 outlasts fights (Cultist Sacrifice's 160 s buff) count as used when the buff is up at any time of the fight.
 sim: the overall search's fight (damage/scripts/overall_search.fight: counterplay skill, real fight-length booking)
@@ -147,7 +148,7 @@ def real_rows(args):
         sp.sort()
         merged = []
         for t0, t1 in sp:
-            if merged and t0 <= merged[-1][1] + (FL.GAP_S if MERGE else 0.0) and MERGE:
+            if MERGE and merged and t0 <= merged[-1][1] + FL.GAP_S:
                 merged[-1][1] = max(merged[-1][1], t1)
             else:
                 merged.append([t0, t1])
@@ -311,10 +312,10 @@ def main():
     with open(REPORT, "w") as f:
         f.write("# Real use of non-damage active items (Phantom+)\n\n"
                 f"{meta['source']}. Use = the fighter casts the item from {PRE_S:g} s before the fight's first hit "
-                f"to {POST_S:g} s after its last (fights: two enemy heroes trading, sim/scripts/fight_length). Sim "
+                f"to {POST_S:g} s after its last (engagement: a fighter's fights with enemy heroes, sim/scripts/fight_length, merged when they overlap or follow within 5 s). Sim "
                 "use = the overall search's fight, P(the fight is still going at the first cast). Factor = real / "
                 f"sim, shrunk toward 1 (tau {tau2 ** 0.5:.2f}), max 1.\n\n"
-                "| Item | Real use | Sim use | Raw | Factor | Holder-matches | Fights |\n|---|---|---|---|---|---|---|\n")
+                "| Item | Real use | Sim use | Raw | Factor | Holder-matches | Engagements |\n|---|---|---|---|---|---|---|\n")
         f.write("\n".join(lines) + "\n")
     print(f"tau {tau2 ** 0.5:.3f}; wrote {a.out}, {REPORT}")
 
