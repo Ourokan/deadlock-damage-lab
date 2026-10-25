@@ -536,7 +536,7 @@ class Engine:
                 t0 = self.t if t is None else t
                 return sum(self.length_w(t0 + h) for h in q) / len(q)
         from .mechanics import LENGTH_STEP
-        x = (self.t if t is None else t) / LENGTH_STEP
+        x = max(0.0, self.t if t is None else t) / LENGTH_STEP
         k = int(x)
         if k >= len(c) - 1:
             return c[-1]
@@ -711,7 +711,7 @@ class Engine:
             src.dmg_out[name] = src.dmg_out.get(name, 0.0) + part
             dst.dmg_in[name] = dst.dmg_in.get(name, 0.0) + part
             src.dmg_exp[name] = src.dmg_exp.get(name, 0.0) + part * w
-        k = int(self.t // 2)
+        k = int(max(0.0, self.t) // 2)   # a precast's hit before the fight start (mechanics.precast) books in slice 0
         src.dmg_by_2s[k] = src.dmg_by_2s.get(k, 0.0) + amt
         if amt > 0 and PROFILE_SOURCES:
             src.dmg_first.setdefault(source, self.t)
@@ -1022,6 +1022,10 @@ class Engine:
                 hold_first_casts(f)
         for f in (a, b):
             fight_start(f)
+        if self.length and self.mech is not None and getattr(self.mech, "cast_timing", False):
+            from .mechanics import precast
+            for f in (a, b):
+                precast(f)
         self.at(0.0, self.gun_tick, a)
         if not one_way:
             self.at(0.0, self.gun_tick, b)
@@ -1031,6 +1035,11 @@ class Engine:
         for f in ((a,) if one_way else (a, b)):
             if f.skill.melee_rate > 0:
                 self.at(0.5 / max(f.skill.melee_rate, MELEE_MIN_RATE), self.melee_tick, f)
+                if self.length and self.mech is not None and getattr(self.mech, "melee_timing", False):
+                    from .mechanics import melee_opener
+                    o = melee_opener(f)
+                    if o is not None:
+                        self.at(self.t + o[0], self.melee_open, f, o[1])
         self.at(0.0, self.regen_tick)
         if self.mech is not None and self.mech.movement:
             from .mechanics import Mover
@@ -1089,11 +1098,38 @@ class Engine:
         interval = 1.0 / max(rate, MELEE_MIN_RATE)
         if self.mover is None or f.counters.get("fleeing") is not True and self.distance <= self.mover.start + \
                 self.mover.melee_reach(f, heavy):
-            self.melee_hit(f, heavy, min(1.0, rate * interval))
+            w = min(1.0, rate * interval)
+            debt = f.counters.get("melee_debt", 0.0)
+            if debt > 0:   # an opening melee (melee_open) came out of this rate: only a tick that lands pays
+                pay = min(debt, w)
+                f.counters["melee_debt"] = debt - pay
+                w -= pay
+            if w > 1e-9:
+                self.melee_hit(f, heavy, w)
         self.after(interval, self.melee_tick, f)
 
+    def melee_open(self, f: Fighter, heavy: bool):
+        """Mechanics.melee_timing: a melee item holder's opening melee, one full hit (heavy for Melee Charge /
+        Crushing Fists), so the item procs when real holders' do. Postponed while stunned, busy or out of reach;
+        later melee ticks pay it back (Fighter.counters["melee_debt"])."""
+        if self.over or not f.alive:
+            return
+        t = self.t
+        if f.mods.active("stun") or t < f.gun_locked_until:
+            self.at(max(t + 0.1, f.gun_locked_until), self.melee_open, f, heavy)
+            return
+        if self.mover is not None and (f.counters.get("fleeing") is True or
+                                       self.distance > self.mover.start + self.mover.melee_reach(f, heavy)):
+            self.at(t + 0.25, self.melee_open, f, heavy)
+            return
+        if not heavy:
+            heavy = f.acc("melee_heavy").take(f.skill.heavy_share, 1) > 0
+        landed = self.melee_hit(f, heavy, 1.0)
+        f.counters["melee_debt"] = f.counters.get("melee_debt", 0.0) + landed   # a parried opener owes nothing
+
     def melee_hit(self, f: Fighter, heavy: bool, w: float = 1.0):
-        """Land one basic melee (weight w = expected fraction of a hit) and stop the gun for its swing."""
+        """Land one basic melee (weight w = expected fraction of a hit) and stop the gun for its swing. Returns the
+        share of it that landed (a parried heavy lands less or nothing)."""
         t = self.t
         st = f.st
         light = st.hero.base.get("light_melee_damage", 0.0)
@@ -1107,12 +1143,15 @@ class Engine:
         f.counters["melee_heavy"] = heavy
         f.counters["melee_weight"] = w
         f.gun_locked_until = max(f.gun_locked_until, t + (MELEE_HEAVY_TIME if heavy else MELEE_LIGHT_TIME) * w)
+        landed = 1.0
         if heavy and self.mech is not None and self.mech.parry:
             from .mechanics import parry_check
-            raw *= parry_check(self, f, f.enemy, raw, w)
+            landed = parry_check(self, f, f.enemy, raw, w)
+            raw *= landed
             if raw <= 0:
-                return
+                return 0.0
         self.damage(f, f.enemy, raw, "melee", "melee", hits=1)
+        return landed
 
     def regen_tick(self):
         if self.over:

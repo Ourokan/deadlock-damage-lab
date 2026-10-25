@@ -12,7 +12,9 @@ import unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from deadsim import Loadout, duel, game  # noqa: E402
+from deadsim import engine  # noqa: E402
 from deadsim import mechanics as M  # noqa: E402
+from deadsim.accuracy import hero_default_skill  # noqa: E402
 from deadsim.engine import Engine  # noqa: E402
 from deadsim.fight import make_fighter  # noqa: E402
 
@@ -118,6 +120,161 @@ class CastHolds(unittest.TestCase):
         M.hold_first_casts(f)
         if f.plan is not None and f.plan.prefight is not None:
             self.assertEqual(f.plan.prefight.held_until, 0.0)
+
+
+class Precast(unittest.TestCase):
+    """A negative hold (mechanics.precast): the ability went out before the fight so its hit opens it."""
+
+    def paradox(self, seed=1):
+        mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(27000))
+        e = Engine(mech=mech, rng=random.Random(seed))
+        f = make_fighter(e, Loadout("Paradox", [], souls=27000))
+        for ab in f.abilities:
+            ab.start()
+        return e, f, next(ab for ab in f.abilities if ab.ab.name == "Kinetic Carbine")
+
+    def test_holds_on_due_time_floor_at_the_hit_lag(self):
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts", "cast_timing"))
+        import fit_cast_timing as FCT
+        n = len(FCT.GRID)
+        sim = {"cast_by": [1.0] * n, "hit_lag_s": 2.5}            # casts on sight, hits 2.5 s later
+        real = {"cast_by": [0.0] * 4 + [0.5] * (n - 4),          # real casts: half by 2 s
+                "due_by": [0.4] + [0.6] * (n - 1)}               # but 40% of the damage opens the fight
+        q = FCT.holds(real, sim)
+        self.assertEqual(q[:8], [-2.5] * 8)                        # cast 2.5 s before t=0, the hit at 0
+        self.assertTrue(all(h is None for h in q[12:]))           # 60% landed by 20 s
+        del sim["hit_lag_s"]                                       # no damage lag: the old cast-curve holds
+        self.assertTrue(all(h is None or h >= 0 for h in FCT.holds(real, sim)))
+
+    def test_carbine_has_precast_holds(self):
+        q = M.cast_holds()[f"{game().hero('Paradox').id}:citadel_ability_chrono_kinetic_carbine"]
+        self.assertLess(min(h for h in q if h is not None), -1.0)   # real openers land with the fight's first hit
+
+    def test_precast_casts_before_the_start(self):
+        e, f, kc = self.paradox()
+        kc.precast_at = -2.0
+        M.precast(f)
+        self.assertEqual(kc.casts, 1)
+        self.assertEqual(e.t, 0.0)
+        self.assertGreater(kc.ready_at, 0.0)   # the cooldown counts from the precast
+        self.assertIsNone(kc.precast_at)
+
+    def test_precast_skips_an_ability_on_cooldown(self):
+        e, f, kc = self.paradox()
+        kc.ready_at = 5.0
+        kc.precast_at = -2.0
+        M.precast(f)
+        self.assertEqual(kc.casts, 0)
+        self.assertEqual(kc.ready_at, 5.0)
+
+    def test_refused_precast_restores_the_ability(self):
+        e, f, kc = self.paradox()
+        kc.precast_at = -2.0
+        kc.impl.should_cast = lambda c: False   # its rule turns it down before the fight
+        M.precast(f)
+        self.assertEqual(kc.casts, 0)
+        self.assertEqual((kc.ready_at, kc.held_until), (0.0, 0.0))   # waits for the first chance in the fight
+
+    def test_damage_before_the_start_books_in_slice_0(self):
+        e, f, kc = self.paradox()
+        g = make_fighter(e, Loadout("Abrams", [], souls=27000))
+        f.enemy, g.enemy = g, f
+        e.t = -0.4
+        e.damage(f, g, 100.0, "spirit", "Kinetic Carbine", is_ability=True)
+        e.t = 0.0
+        self.assertEqual(set(f.dmg_by_2s), {0})
+        self.assertAlmostEqual(f.dmg_exp["Kinetic Carbine"], f.dmg_out["Kinetic Carbine"])   # P(going) at t<0 is 1
+
+    def test_carbine_opener_lands_early(self):
+        engine.PROFILE_SOURCES = True
+        try:
+            early = 0
+            for s in range(60):
+                mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(27000))
+                e = Engine(distance=15, max_time=10, rng=random.Random(s), mech=mech)
+                a = make_fighter(e, Loadout("Paradox", [], souls=27000))
+                b = make_fighter(e, Loadout("Abrams", [], souls=27000))
+                e.run(a, b)
+                early += a.dmg_first.get("Kinetic Carbine", math.inf) < 1.0
+        finally:
+            engine.PROFILE_SOURCES = False
+        self.assertGreater(early, 6)   # the 2.5 s charge alone kept every Carbine hit past 2.5 s
+
+
+class MeleeOpener(unittest.TestCase):
+    def duels(self, on, n=80):
+        engine.PROFILE_SOURCES = True
+        first = []
+        try:
+            for s in range(n):
+                mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(15000), melee_timing=on)
+                e = Engine(distance=8, max_time=10, rng=random.Random(s), mech=mech)
+                a = make_fighter(e, Loadout("Bebop", ["Spirit Strike"], souls=15000,
+                                            skill=hero_default_skill("Bebop")))
+                b = make_fighter(e, Loadout("Abrams", [], souls=15000))
+                e.run(a, b)
+                first.append(a.dmg_first.get("Spirit Strike", math.inf))
+        finally:
+            engine.PROFILE_SOURCES = False
+        return first
+
+    def test_holders_open_with_the_proc(self):
+        off, on = self.duels(False), self.duels(True)
+        self.assertEqual(sum(t < 1.0 for t in off), 0)   # the steady rate's first melee comes at 2.5 s
+        self.assertGreater(sum(t < 1.0 for t in on), 3)
+
+    def test_opener_is_paid_back_by_later_melee(self):
+        def ticks(opener):
+            mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(15000))
+            e = Engine(distance=8, max_time=60, rng=random.Random(3), mech=mech)
+            a = make_fighter(e, Loadout("Bebop", ["Spirit Strike"], souls=15000, skill=hero_default_skill("Bebop")))
+            b = make_fighter(e, Loadout("Abrams", [], souls=15000))
+            a.enemy, b.enemy = b, a
+            hits = []
+            orig = e.melee_hit
+            e.melee_hit = lambda f, heavy, w=1.0: hits.append(w) or orig(f, heavy, w)
+            if opener:
+                e.melee_open(a, False)
+            for k in range(12):
+                e.t = 2.5 + 5 * k
+                e.melee_tick(a)
+            return hits, a.counters.get("melee_debt", 0.0)
+        base, _ = ticks(False)
+        hits, debt = ticks(True)
+        self.assertEqual(hits[0], 1.0)            # the opener is one full hit
+        self.assertLess(debt, 1e-9)
+        self.assertAlmostEqual(sum(hits), sum(base))   # ... that the later ticks pay back in full
+
+    def test_out_of_reach_tick_keeps_the_debt(self):
+        mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(15000))
+        e = Engine(distance=30, max_time=60, rng=random.Random(3), mech=mech)
+        a = make_fighter(e, Loadout("Bebop", ["Spirit Strike"], souls=15000, skill=hero_default_skill("Bebop")))
+        b = make_fighter(e, Loadout("Abrams", [], souls=15000))
+        a.enemy, b.enemy = b, a
+        a.counters["melee_debt"] = 1.0
+        e.mover = type("Far", (), {"start": 0.0, "melee_reach": lambda self, f, heavy: 3.0})()
+        e.melee_tick(a)
+        self.assertEqual(a.counters["melee_debt"], 1.0)   # no hit landed, nothing paid
+
+    def test_parried_opener_owes_nothing(self):
+        mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(15000))
+        e = Engine(distance=8, max_time=60, rng=random.Random(3), mech=mech)
+        a = make_fighter(e, Loadout("Bebop", ["Melee Charge"], souls=15000, skill=hero_default_skill("Bebop")))
+        b = make_fighter(e, Loadout("Abrams", [], souls=15000))
+        a.enemy, b.enemy = b, a
+        orig = M.parry_check
+        M.parry_check = lambda *args: 0.0
+        try:
+            e.melee_open(a, True)
+        finally:
+            M.parry_check = orig
+        self.assertEqual(a.counters.get("melee_debt"), 0.0)
+
+    def test_no_item_no_opener(self):
+        mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(15000))
+        e = Engine(mech=mech, rng=random.Random(1))
+        f = make_fighter(e, Loadout("Bebop", [], souls=15000, skill=hero_default_skill("Bebop")))
+        self.assertIsNone(M.melee_opener(f))
 
 
 if __name__ == "__main__":

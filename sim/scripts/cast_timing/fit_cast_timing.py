@@ -42,6 +42,7 @@ sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 sys.path.insert(0, os.path.join(ROOT, "scripts", "fight_length"))
 import fit_length as FL  # noqa: E402
+import opener_timing as OT  # noqa: E402
 
 FIGHTS = "/mnt/project-files/analysis/work/fight_length/raw/"
 CASTS = "/mnt/project-files/analysis/work/cast_timing/raw/"
@@ -57,10 +58,17 @@ MIN_FIGHTS = 60      # real fights for a row
 MIN_DUELS = 30
 CAST_ON_SIGHT = 0.7
 QBINS = 20
+LAG_MAX = 8.0        # a hit this long after the cast belongs to it (charge-up, fuse, travel, a DoT's first tick)
+MIN_LAGS = 30        # casts with a hit for an ability's median cast -> hit time
+PRECAST = True       # damage abilities: hold on when the damage lands (due), not the cast (holds())
 # a fighter's overlapping pair fights merged into one engagement (as fit_item_use.py)? No: the sim's duel timeline is
 # the pair fight's (its length booking, data/fight_length.json, is fitted on pair fights), and merged engagements put
 # a later-joining enemy's whole fight after t0 (the curve came out ~1 s later than the hits, opener_timing.md)
 MERGE = False
+
+
+def cls_key(hid, cls):
+    return f"{hid}:{cls}"
 
 
 def km(rows):
@@ -80,9 +88,12 @@ def km(rows):
 
 
 def real_rows(args):
-    """[(hero id, ability class, first cast s or None, fight length s)] for one match."""
-    fn, cast_fn, m, abil = args
-    hero, ev = FL.read(fn)
+    """[(hero id, ability class, first cast s or None, fight length s, its hit s after the cast or None, first due s
+    or None)] for one match. Due: when the first cast's damage lands (its own hit, else the cast + the ability's
+    median cast -> hit time from lags), counted from the fight's first hit; a cast before the fight whose damage
+    lands from PRE_S before the first hit on opens it (a charged Kinetic Carbine fired 2 s before it lands)."""
+    fn, cast_fn, m, abil, lags = args
+    hero, ev = OT.read(fn)   # FL.read's rows + the hit's ability id
     by_hero = {p["hero_id"]: p for p in m["players"]}
     casts = collections.defaultdict(list)
     for line in gzip.open(cast_fn, "rt"):
@@ -91,12 +102,14 @@ def real_rows(args):
     for v in casts.values():
         v.sort()
     pairs = collections.defaultdict(list)
+    hits = collections.defaultdict(list)
     for e in ev:
         _, a, v = e[:3]
         pa, pv = by_hero.get(hero.get(a)), by_hero.get(hero.get(v))
         if pa is None or pv is None or pa["team"] == pv["team"]:
             continue
         pairs[min(a, v), max(a, v)].append(e)
+        hits[a, e[6]].append(e[0])
     spans = collections.defaultdict(list)
     for (x, y), es in pairs.items():
         runs = []
@@ -131,7 +144,23 @@ def real_rows(args):
                 first = cs[k] if k < len(cs) and cs[k] <= t1 else None
                 if first is None and not (k > 0):
                     continue   # never cast before in the match: not unlocked (or never used) yet
-                out.append((hid, cls, None if first is None else max(0.0, first - t0), t1 - t0))
+                lag = None
+                if first is not None:
+                    hs = hits.get((pawn, aid), [])
+                    j = bisect.bisect_left(hs, first)
+                    if j < len(hs) and hs[j] - first <= LAG_MAX:
+                        lag = hs[j] - first
+                hs = hits.get((pawn, aid), [])
+                due = None
+                for c in cs[bisect.bisect_left(cs, t0 - LAG_MAX):]:
+                    if c > t1:
+                        break
+                    j = bisect.bisect_left(hs, c)
+                    d = hs[j] if j < len(hs) and hs[j] - c <= LAG_MAX else c + lags.get(cls_key(hid, cls), 0.0)
+                    if d >= t0 - PRE_S:
+                        due = max(0.0, d - t0)
+                        break
+                out.append((hid, cls, None if first is None else max(0.0, first - t0), t1 - t0, lag, due))
     return out
 
 
@@ -144,11 +173,20 @@ def real(fights_dir, casts_dir, workers):
     sample = FL.load_sample(SAMPLE, mids)
     jobs = [(os.path.join(fights_dir, f"{mid}.ndjson.gz"), os.path.join(casts_dir, f"{mid}.ndjson.gz"), sample[mid],
              abil) for mid in sorted(mids) if mid in sample]
-    rows = collections.defaultdict(list)
-    with Pool(workers) as p:
-        for rs in p.imap_unordered(real_rows, jobs):
-            for hid, cls, u, d in rs:
-                rows[f"{hid}:{cls}"].append((u, d))
+    # two passes: the median cast -> hit time of each ability, then each fight's due time with it (a missed cast)
+    med = {}
+    for _ in range(2):
+        rows = collections.defaultdict(list)
+        dues = collections.defaultdict(list)
+        lags = collections.defaultdict(list)
+        with Pool(workers) as p:
+            for rs in p.imap_unordered(real_rows, [j + (med,) for j in jobs]):
+                for hid, cls, u, d, lag, due in rs:
+                    rows[cls_key(hid, cls)].append((u, d))
+                    dues[cls_key(hid, cls)].append((due, d))
+                    if lag is not None:
+                        lags[cls_key(hid, cls)].append(lag)
+        med = {k: statistics.median(v) for k, v in lags.items() if len(v) >= MIN_LAGS}
     res = {"source": f"{len(jobs)} Phantom+ replays, pair fights (scripts/cast_timing/fit_cast_timing.py real)",
            "grid_s": GRID, "rows": {}}
     for key, rs in sorted(rows.items()):
@@ -156,6 +194,9 @@ def real(fights_dir, casts_dir, workers):
             continue
         res["rows"][key] = {"fights": len(rs), "cast_share": round(sum(u is not None for u, _ in rs) / len(rs), 3),
                             "cast_by": km(rs)}
+        if key in med:
+            res["rows"][key]["hit_lag_s"] = round(med[key], 3)
+            res["rows"][key]["due_by"] = km(dues[key])
     with open(REAL, "w") as fh:
         json.dump(res, fh, indent=1)
         fh.write("\n")
@@ -172,7 +213,7 @@ def sim_job(args):
     engine.PROFILE_SOURCES = True
     A.MECH = dataclasses.replace(A.MECH, cast_timing=timing)
     hid, d, _ = A.sim_player(j)
-    return hid, {k: v for k, v in d.items() if k.startswith(("_cu:", "_cn:", "_fu:", "_fc:"))}
+    return hid, {k: v for k, v in d.items() if k.startswith(("_cu:", "_cn:", "_fu:", "_fc:", "_lg:"))}
 
 
 def sim_curves(n, workers, timing):
@@ -208,6 +249,15 @@ def sim_curves(n, workers, timing):
         if not n_all:
             continue
         out[key] = {"duels": n_all, "cast_by": cast, "hit_by": curve(c, "_fu", "_fc")[1]}
+        lg = sorted((b, v) for (k, b), v in c.items() if k == "_lg")
+        n_lg = sum(v for _, v in lg)
+        if n_lg >= MIN_LAGS:
+            acc = 0
+            for b, v in lg:
+                acc += v
+                if acc >= n_lg / 2:
+                    out[key]["hit_lag_s"] = 0.25 * b + 0.125
+                    break
     return out
 
 
@@ -222,20 +272,35 @@ def quantile(curve, p):
     return GRID[k] - 0.5 * (curve[k] - p) / max(1e-9, curve[k] - lo)
 
 
-def holds(real_cast, sim_cast):
+def holds(real, sim):
     """QBINS hold values: equal-probability points of the real first cast curve (None past its share cast by
-    HORIZON: not cast in that fight), less the sim's own median first cast."""
+    HORIZON: not cast in that fight), less the sim's own median first cast. For an ability that deals damage (a real
+    and a sim cast -> hit time): points of the real due curve (when the first cast's damage lands) less the sim's
+    median cast and cast -> hit time, so the sim's hits land when the real ones do. That can be negative, down to
+    -(the sim's cast -> hit time): the cast went out before the fight and its hit opens it (a charged Kinetic Carbine,
+    a fused Sticky Bomb; mechanics.precast)."""
     h = int(HORIZON / 0.5)
+    sim_cast = sim["cast_by"]
     s_top = sim_cast[h] or 1.0
     s_med = quantile([v / s_top for v in sim_cast], 0.5) or 0.0
+    curve, shift, floor = real["cast_by"], s_med, 0.0
+    if PRECAST and "due_by" in real and sim.get("hit_lag_s") is not None:
+        curve, shift, floor = real["due_by"], s_med + sim["hit_lag_s"], -sim["hit_lag_s"]
     out = []
     for b in range(QBINS):
         p = (b + 0.5) / QBINS
-        if p > real_cast[h]:
+        if p > curve[h]:
             out.append(None)
             continue
-        out.append(round(max(0.0, quantile(real_cast, p) - s_med), 3))
+        out.append(round(max(floor, quantile(curve, p) - shift), 3))
     return out
+
+
+NOTE = ("QBINS equal-probability holds (s) before an ability's first cast in a fight (None: not cast in that fight), "
+        "only for abilities the sim casts on sight (Mechanics.cast_timing). Damage abilities: the real due time (when "
+        "the first cast's damage lands, Kaplan-Meier, fight end censors) less the sim's median cast and cast -> hit "
+        "time; a negative value is a precast, cast that long before t = 0 (mechanics.precast). Others: the real first "
+        "cast less the sim's median cast time.")
 
 
 def fit(n, workers, write):
@@ -253,11 +318,9 @@ def fit(n, workers, write):
             continue
         if sm["cast_by"][2] < CAST_ON_SIGHT * sm["cast_by"][h]:
             continue   # the sim already waits for something (a health gate, stacks, range): its timing is its own
-        out[key] = holds(r["cast_by"], sm["cast_by"])
+        out[key] = holds(r, sm)
     res = {"source": json.load(open(REAL))["source"] + "; sim: damage audit duels, holds off",
-           "note": "QBINS equal-probability holds (s) before an ability's first cast in a fight (None: not cast in "
-                   "that fight): the real first cast (Kaplan-Meier, fight end censors) less the sim's own median "
-                   "cast time; only abilities the sim casts on sight (Mechanics.cast_timing)",
+           "note": NOTE,
            "horizon_s": HORIZON, "sources": out}
     print(f"{len(out)} abilities held")
     if not write:

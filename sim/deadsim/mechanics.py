@@ -110,6 +110,12 @@ class Mechanics:
     # Skill.fight_phase draw the hold quasi-randomly from it, others from the engine rng; deterministic fights
     # (no rng, no phase) keep casting on sight
     cast_timing: bool = True
+    # melee item holders' opening melee (2026-10-25): with fight_length, a fighter holding a melee item (Spirit Strike,
+    # Spirit Snatch, Melee Charge, Crushing Fists) lands one full melee hit at a time drawn from the real holders'
+    # first proc (data/melee_timing.json, scripts/fight_length/melee_timing.py); the steady melee rate then pays it
+    # back (a long fight keeps the fitted melee; a short one up to one hit more, as real openers add). Draws like
+    # cast_timing (phase or rng; deterministic fights skip)
+    melee_timing: bool = True
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
@@ -175,6 +181,7 @@ def opener_holds(hero, items):
 
 
 _CAST = None
+_MELEE_T = None
 
 
 def cast_holds():
@@ -185,6 +192,35 @@ def cast_holds():
         with open(os.path.join(os.path.dirname(__file__), "..", "data", "cast_timing.json")) as fh:
             _CAST = json.load(fh)["sources"]
     return _CAST
+
+
+def melee_holds():
+    """{item class: {"fights", "holds": QBINS times (s) of a holder's opening melee proc, None = none}}
+    (data/melee_timing.json)."""
+    global _MELEE_T
+    if _MELEE_T is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "melee_timing.json")) as fh:
+            _MELEE_T = json.load(fh)["items"]
+    return _MELEE_T
+
+
+HEAVY_OPENERS = frozenset({"upgrade_melee_charge", "upgrade_crushing_fists"})   # proc on a heavy melee
+
+
+def melee_opener(f):
+    """Mechanics.melee_timing: (seconds into the fight, heavy) of the fighter's opening melee, or None (no melee item
+    with a fit, nothing to draw from, or a no-opener draw). The item with the most real fights decides."""
+    rows = melee_holds()
+    held = [it.class_name for it in (getattr(fx, "item", None) for fx in f.items_fx)
+            if it is not None and it.class_name in rows]
+    phase, rng = f.skill.fight_phase, f.e.rng
+    if not held or (phase is None and rng is None):
+        return None
+    cls = max(held, key=lambda c: rows[c]["fights"])
+    q = rows[cls]["holds"]
+    u = (phase + zlib.crc32(f"melee|{f.name}".encode()) / 2 ** 32) % 1.0 if phase is not None else rng.random()
+    h = q[min(len(q) - 1, int(u * len(q)))]
+    return None if h is None else (h, cls in HEAVY_OPENERS)
 
 
 def hold_first_casts(f):
@@ -211,7 +247,34 @@ def hold_first_casts(f):
         else:
             u = rng.random()
         h = q[min(len(q) - 1, int(u * len(q)))]
-        ab.held_until = f.e.t + (math.inf if h is None else h)
+        ab.held_until = f.e.t + (math.inf if h is None else max(0.0, h))
+        ab.precast_at = f.e.t + h if h is not None and h < 0 else None
+
+
+def precast(f):
+    """Mechanics.cast_timing, after both fighters' fight start: an ability drawn with a negative hold (its real damage
+    lands at the fight's first hit or within PRE_S of it, but the sim's cast takes longer to land: a Kinetic Carbine
+    charge, a Sticky Bomb fuse, a Concussive Combustion wind-up) is cast that long before t = 0, so its charge-up and
+    gun lock fall before the fight and its hit opens it, as in the real fights the hold comes from
+    (scripts/cast_timing/fit_cast_timing.py, due times). The cast's own rule still decides (try_cast); one it turns
+    down waits for the first chance in the fight."""
+    t0 = f.e.t
+    for ab in f.abilities:
+        at = getattr(ab, "precast_at", None)
+        if at is None:
+            continue
+        ab.precast_at = None
+        if ab.ready_at > t0:
+            continue   # on cooldown at the start (spent before the fight): nothing to precast
+        ready, held = ab.ready_at, ab.held_until
+        ab.ready_at = ab.held_until = at   # ready then, not only from t = 0
+        f.e.t = at
+        try:
+            cast = ab.try_cast()
+        finally:
+            f.e.t = t0
+        if not cast:
+            ab.ready_at, ab.held_until = ready, held
 
 
 DEFAULT = Mechanics()   # None turns the new mechanics off for every Engine built without an explicit value

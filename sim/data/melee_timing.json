@@ -1,0 +1,135 @@
+{
+ "source": "validation/opener_timing_real.json.gz (260 Phantom+ replays), melee item holders' first proc on the fight's enemy, pooled over heroes (scripts/fight_length/melee_timing.py)",
+ "note": "QBINS equal-probability times (s) of a holder's opening melee proc (None: no opening proc in that fight); Mechanics.melee_timing",
+ "horizon_s": 20.0,
+ "items": {
+  "upgrade_acolytes_glove": {
+   "name": "Spirit Strike",
+   "fights": 5886,
+   "used_by_1_3_6_20s": [
+    0.169,
+    0.272,
+    0.37,
+    0.64
+   ],
+   "holds": [
+    0.0,
+    0.0,
+    0.396,
+    1.083,
+    1.955,
+    3.084,
+    4.56,
+    6.168,
+    8.163,
+    10.589,
+    12.768,
+    15.487,
+    17.906,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  "upgrade_crushing_fists": {
+   "name": "Crushing Fists",
+   "fights": 814,
+   "used_by_1_3_6_20s": [
+    0.154,
+    0.292,
+    0.431,
+    0.761
+   ],
+   "holds": [
+    0.0,
+    0.272,
+    0.778,
+    1.192,
+    1.713,
+    2.636,
+    3.649,
+    4.486,
+    5.734,
+    7.409,
+    9.195,
+    11.498,
+    13.619,
+    15.046,
+    16.897,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  "upgrade_melee_charge": {
+   "name": "Melee Charge",
+   "fights": 4162,
+   "used_by_1_3_6_20s": [
+    0.113,
+    0.249,
+    0.369,
+    0.67
+   ],
+   "holds": [
+    0.0,
+    0.566,
+    1.138,
+    1.739,
+    2.535,
+    3.592,
+    4.816,
+    6.167,
+    7.454,
+    9.516,
+    11.56,
+    13.872,
+    17.093,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  },
+  "upgrade_spirit_snatch": {
+   "name": "Spirit Snatch",
+   "fights": 9583,
+   "used_by_1_3_6_20s": [
+    0.19,
+    0.313,
+    0.428,
+    0.741
+   ],
+   "holds": [
+    0.0,
+    0.0,
+    0.383,
+    0.86,
+    1.45,
+    2.283,
+    3.27,
+    4.484,
+    5.911,
+    7.339,
+    9.081,
+    10.97,
+    13.162,
+    15.793,
+    19.327,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  }
+ }
+}
