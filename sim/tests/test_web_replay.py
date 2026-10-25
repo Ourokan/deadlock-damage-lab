@@ -72,6 +72,42 @@ class TestReplay(unittest.TestCase):
         self.assertEqual(len(base["fighters"]), 4)
         self.assertGreater(more["fighters"][0]["damage"], base["fighters"][0]["damage"])
 
+    def test_late_joiner_takes_no_damage_before_arriving(self):
+        on = replay([member("Haze"), member("Abrams")], [member("Infernus")])["fighters"]
+        late = replay([member("Haze"), member("Abrams", join=10)], [member("Infernus")])["fighters"]
+        self.assertGreater(on[1]["damage"], late[1]["damage"])
+        self.assertTrue(late[1]["alive"])
+
+    def test_side_with_nobody_yet_waits(self):
+        # B arrives at 5 s: nobody shoots before, so A's lone hero takes nothing until then
+        r = replay([member("Haze")], [member("Abrams", join=5)])
+        self.assertTrue(all(x["alive"] for x in r["fighters"]))
+        never = replay([member("Haze")], [member("Abrams", join=20)])["fighters"]
+        self.assertEqual(never[0]["damage"], 0)
+        self.assertEqual(never[1]["damage_taken"], 0)
+
+    def test_leaver_walks_out_alive(self):
+        stay = replay([member("Haze", hp=0.3)], [member("Infernus", ["Mystic Burst"])])["fighters"][0]
+        out = replay([member("Haze", hp=0.3, leave=1)], [member("Infernus", ["Mystic Burst"])])["fighters"][0]
+        self.assertFalse(stay["alive"])
+        self.assertTrue(out["alive"])
+        self.assertGreater(out["hp"], 0)
+
+    def test_target_plan(self):
+        # everyone on A shoots B's second hero, not the weakest (B's first, at 20%)
+        a = [member("Haze", targets=[1] * 15), member("Wraith", targets=[1] * 15)]
+        b = [member("Abrams", hp=0.2), member("Seven")]
+        planned = replay(a, b)["fighters"]
+        focus = replay([member("Haze"), member("Wraith")], b)["fighters"]
+        self.assertGreater(planned[3]["damage_taken"], focus[3]["damage_taken"])
+        self.assertLess(planned[2]["damage_taken"], focus[2]["damage_taken"])
+
+    def test_timing_default_leaves_team_fight_unchanged(self):
+        a = [Loadout("Haze", ["Rapid Rounds"], souls=20000, skill=Skill(accuracy=0.3))]
+        b = [Loadout("Seven", ["Extra Spirit"], souls=20000, skill=Skill(accuracy=0.3))]
+        self.assertEqual(team_fight(a, b).to_dict(),
+                         team_fight(a, b, join=[0, None], leave=[None, None], targets=[None, [None]]).to_dict())
+
 
 @unittest.skipUnless(shutil.which("node"), "needs node")
 class TestDetect(unittest.TestCase):
@@ -121,6 +157,9 @@ class TestDetect(unittest.TestCase):
         self.assertEqual(F["hp0"]["2"], 1.0)
         self.assertEqual(F["hp1"]["2"], 0)
         self.assertAlmostEqual(F["dist"], 600 / 39.37, delta=1)
+        self.assertEqual(F["join"], {"1": 0, "2": 0})
+        self.assertGreaterEqual(F["last"]["1"], F["t1"] - F["t0"] - 1)
+        self.assertEqual(set(F["near"]["1"][:5]), {2})   # slot 1's nearest enemy each second
 
 
 if __name__ == "__main__":

@@ -846,17 +846,43 @@ two enemy heroes within 50 m, one flagged in hero combat, one losing health that
 across gaps up to 4 s, kills add victim and killer over their time to kill, fights over 40 s are cut at 2 s lulls.
 Each hero starts at its real health with its items, net worth, ability unlocks and upgrades (the ability buys in the
 item list) at the fight's start, its own hero accuracy from the match, at the median distance to the nearest enemy,
-for the real length (max 45 s), focusing the weakest enemy (team sim, movement off). `team_fight(start_hp=)` is new;
+for the real length (max 45 s), with the real arrival, leaving and targets (see "Real timing" below; team sim, movement off). `team_fight(start_hp=)` is new;
 default fights are unchanged.
 
 **Against the real fights** (`scripts/fight_replay/check_replay.py`, 30 recent Phantom+ matches, 1,894 fights, 8,943
-heroes): the sim has 1.82x the deaths (3,355 vs 1,846; 60% of the real deaths are also deaths in the sim) because
-nobody backs off when low. Health lost per fight correlates 0.89 (sim 1.35x real), per hero 0.35. In the 699 fights
-where only one side lost heroes the sim has more deaths on the same side 329 times, on the other side 180, even 190.
-The HP swing (enemy health lost minus own) correlates only 0.19: who comes out ahead is decided by positioning,
-focus and timing the replay does not know. A retreat rule (a hero hit below 10-30% health leaves the fight alive)
-was tried: deaths fall to 0.15-0.27x real and the side agreement gets worse (54 vs 53 at 10%), so it was dropped.
-Read a changed build against the replay with the real items, which is what the page compares.
+heroes): the first version (everyone there from the start to the end, each team focusing the enemy with the least
+health) had 1.82x the deaths (3,355 vs 1,846; 60% of the real deaths are also deaths in the sim). Health lost per fight
+correlated 0.89 (sim 1.35x real), per hero 0.35. In the 699 fights where only one side lost heroes the sim had more
+deaths on the same side 329 times, on the other side 180, even 190. A retreat rule (a hero hit below 10-30% health
+leaves the fight alive) was tried: deaths fall to 0.15-0.27x real and the side agreement gets worse (54 vs 53 at 10%),
+so it was dropped.
+
+**Real timing (2026-10-25).** Real fights are not everyone-from-the-start: 46% of heroes join after the first second
+(median 5 s in) and 37% of the survivors stop fighting before the fight ends (median 3 s early)
+(`scripts/fight_replay/fit_disengage.py`). Leaving is not a low-health decision: per second of fighting a hero walks
+out alive 1.4-2.1% of the time at every health level (1.5% at 0-10%, 1.5% at 90-100%), while dying climbs from 0.1%
+above half health to 17% below 10%. So the replay now uses the real timing instead of a rule: each hero arrives at its
+first fighting second (`team_fight(join=)`: not targetable and not acting before; a side with nobody there yet waits),
+a hero that lived walks out after its last fighting second (`leave=`; a hero that really died stays to the end), and
+each hero shoots the enemy nearest to it in the real positions that second (`targets=`, `rpDetect` `near`), falling
+back to the team focus when that enemy is out. Same 30-match benchmark, refetched (1,933 fights, 8,936 heroes, 1,791
+real deaths); F1 = deaths in both / mean of the two death counts:
+
+| replay | sim/real deaths | F1 | HP lost corr per hero | one-sided fights same/other side | HP swing corr |
+|---|---|---|---|---|---|
+| everyone from the start, focus weakest (old) | 1.76 | 0.423 | 0.34 | 326 / 135 | 0.13 |
+| + real arrival | 1.48 | 0.451 | 0.43 | 319 / 142 | 0.20 |
+| + survivors leave at their real time | 1.31 | 0.469 | 0.45 | 304 / 130 | 0.20 |
+| + shoot the real nearest enemy (**site**) | **1.04** | **0.469** | **0.51** | 292 / 140 | 0.19 |
+| real nearest only, no timing | 1.42 | 0.432 | 0.44 | 326 / 159 | 0.12 |
+| site, leaving at the fitted flat 1.6%/s instead of real times | 0.87 | 0.400 | 0.42 | 261 / 116 | 0.20 |
+
+The site version gets the death count right and best follows who loses health; the side agreement stays where it
+was (0.68-0.71 of the one-sided fights the sim calls, within noise). The flat leave rate does worse than the real
+leave times, so it is not used (a replay knows when each player left). Still missing: who comes out ahead is decided
+by positioning, cover and timing the replay does not know (HP swing correlation 0.19), and half the real deaths are
+still a different hero in the sim. Read a changed build against the replay with the real items, which is what the
+page compares.
 
 ## Known gaps (not yet modeled)
 

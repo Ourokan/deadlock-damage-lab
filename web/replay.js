@@ -96,9 +96,9 @@ function rpDetect(paths, team, deaths) {
       }
     }
     for (const P of pieces) {
-      const first = {};
-      for (const e of P) for (const s of e.g) first[s] ??= e.t;
-      fights.push({ t0: P[0].t, t1: P[P.length - 1].t, first });
+      const first = {}, last = {};
+      for (const e of P) for (const s of e.g) { first[s] ??= e.t; last[s] = e.t; }
+      fights.push({ t0: P[0].t, t1: P[P.length - 1].t, first, last });
     }
   }
   fights.sort((a, b) => a.t0 - b.t0);
@@ -118,15 +118,21 @@ function rpDetect(paths, team, deaths) {
     }
     const drop = Math.max(...players.map((s) => hp0[s] - Math.min(...paths[s].hp.slice(F.t0, after + 1)) / 100));
     if (F.t1 - F.t0 + 1 < RP.MIN_LEN || (!dd.length && drop < RP.MIN_DROP)) continue;
-    // distance: every second, each living hero to its nearest living enemy in the fight
-    const ds = [];
+    // distance: every second, each living hero to its nearest living enemy in the fight (who it shoots in the replay)
+    const ds = [], near = Object.fromEntries(players.map((s) => [s, []]));
     for (let t = F.t0; t <= F.t1; t++) for (const a of players) {
-      if (!alive(a, t)) continue;
-      const near = Math.min(...players.filter((b) => team[b] !== team[a] && alive(b, t)).map((b) => dist(a, b, t)));
-      if (isFinite(near)) ds.push(near);
+      let best = null, bd = Infinity;
+      if (alive(a, t)) for (const b of players) {
+        if (team[b] === team[a] || !alive(b, t)) continue;
+        const x = dist(a, b, t);
+        if (x < bd) { bd = x; best = b; }
+      }
+      near[a].push(best);
+      if (isFinite(bd)) ds.push(bd);
     }
     ds.sort((a, b) => a - b);
     out.push({ t0: F.t0, t1: F.t1, players, hp0, hp1, deaths: dd, join: Object.fromEntries(players.map((s) => [s, F.first[s] - F.t0])),
+      last: Object.fromEntries(players.map((s) => [s, F.last[s] - F.t0])), near,
       dist: ds.length ? ds[Math.floor(ds.length / 2)] : 15 });
   }
   return out;
@@ -186,10 +192,14 @@ function rpTeams() {
   return [known.filter((s) => pl(s).team === tm), known.filter((s) => pl(s).team !== tm)];
 }
 
-function rpMember(s, items) {
+// timing as in the real fight: arrives when it first fought, shoots its nearest enemy each second, and a hero that
+// lived walks out after its last second of fighting (one that died stays to the end)
+function rpMember(s, items, foes) {
   const p = pl(s), F = R.f;
   const m = { hero: p.hero, items, souls: netWorthAt(p, F.t0), hp: F.hp0[s],
-    abilities: p.items.filter((x) => !S.items[x.id] && x.t <= F.t0).map((x) => x.id) };
+    abilities: p.items.filter((x) => !S.items[x.id] && x.t <= F.t0).map((x) => x.id),
+    join: F.join[s], targets: (F.near[s] || []).map((x) => (foes.includes(x) ? foes.indexOf(x) : null)) };
+  if (!F.deaths.some((d) => d.slot === s)) m.leave = F.last[s] + 1;
   if (p.aim) { m.accuracy = p.aim.accuracy; m.headshot = p.aim.headshot; }
   return m;
 }
@@ -197,8 +207,8 @@ function rpMember(s, items) {
 // edit: items per slot (R.edit), or null for everyone's real items; slots missing from it keep their real items
 function rpReq(edit) {
   const [a, b] = rpTeams(), F = R.f;
-  const m = (s) => rpMember(s, edit?.[s] || itemsAt(pl(s), F.t0));
-  return { a: a.map(m), b: b.map(m), distance: Math.max(3, F.dist), max_time: Math.min(RP.MAX_TIME, Math.max(4, F.t1 - F.t0 + 1)), focus: "focus" };
+  const m = (foes) => (s) => rpMember(s, edit?.[s] || itemsAt(pl(s), F.t0), foes);
+  return { a: a.map(m(b)), b: b.map(m(a)), distance: Math.max(3, F.dist), max_time: Math.min(RP.MAX_TIME, Math.max(4, F.t1 - F.t0 + 1)), focus: "focus" };
 }
 const rpChanged = () => R.f && R.f.players.some((s) => R.edit[s] && R.edit[s].join() !== itemsAt(pl(s), R.f.t0).join());
 
@@ -229,7 +239,9 @@ function rpMap(F) {
 function rpCard(s) {
   const p = pl(s), F = R.f, items = R.edit[s] || [];
   const real = itemsAt(p, F.t0), changed = items.join() !== real.join();
-  const late = F.join[s] >= 3 ? `<span>Joined</span><span>${F.join[s]} s in</span>` : "";
+  const len = F.t1 - F.t0 + 1, lived = !F.deaths.some((d) => d.slot === s);
+  const late = (F.join[s] >= 1 ? `<span>Joined</span><span>${F.join[s]} s in</span>` : "")
+    + (lived && F.last[s] + 1 < len ? `<span>Walked out</span><span>${F.last[s] + 1} s in</span>` : "");
   const tiles = items.map((id) => {
     const it = S.items[id];
     return it ? `<button class="it x${real.includes(id) ? "" : " new"}" data-slot="${it.slot}" data-rdrop="${id}" data-s="${s}" title="Remove ${esc(it.name)}">${esc(it.name)}</button>` : "";
@@ -247,13 +259,12 @@ function rpRender() {
   const F = R.f;
   if (!F) { $("#r-fight").innerHTML = ""; return; }
   const [a, b] = rpTeams(), skipped = F.players.filter((s) => !rpKnown(s));
-  const late = F.players.filter((s) => F.join[s] >= 3);
   $("#r-fight").innerHTML = `<h2>Fight at ${clock(F.t0)}, ${F.t1 - F.t0 + 1} s</h2>
     <div class="r-top">${rpMap(F)}<div class="stack"><p class="hint">Everyone starts at the health they had when the fight began, with the items, souls and ability
       upgrades they had then, their own hero accuracy from this match, ${fmt(F.dist)} m apart (the median distance to the nearest enemy during the fight).
-      The sim runs ${F.t1 - F.t0 + 1 > RP.MAX_TIME ? `the first ${RP.MAX_TIME} s` : `the same ${fmt(rpReq(null).max_time)} s`} and each team focuses the enemy with the least health.${late.length ? ` Not modeled: ${rpHeroes(late)} joined late in the real fight, the sim has everyone there from the start.` : ""}${skipped.length ? ` Left out (not in the sim yet): ${rpHeroes(skipped)}.` : ""}</p>
+      The sim runs ${F.t1 - F.t0 + 1 > RP.MAX_TIME ? `the first ${RP.MAX_TIME} s` : `the same ${fmt(rpReq(null).max_time)} s`} with the real timing: each hero joins when it first fought, shoots whichever enemy was nearest to it that second, and one that lived walks out after its last second of fighting (one that died stays to the end).${skipped.length ? ` Left out (not in the sim yet): ${rpHeroes(skipped)}.` : ""}</p>
       <p class="hint">Change any hero's items: tap an item to remove it, type to add one. The replay reruns after each change.</p>
-      <p class="fine">How close it gets (checked 2026-10-25, sim/validation/README.md "Fight replay"): over 1,894 fights from 30 Phantom+ matches the sim had 1.8 times as many deaths as really happened (nobody backs off when low), and in fights where only one side lost heroes it had more deaths on that same side 329 times and on the other side 180 times. So read the changed items against the sim with the real items, not against the real fight.</p>
+      <p class="fine">How close it gets (checked 2026-10-25, sim/validation/README.md "Fight replay"): over 1,933 fights from 30 Phantom+ matches the sim had about as many deaths as really happened (1.04 times) and the same hero died in about half of the real deaths, and in fights where only one side lost heroes it had more deaths on that same side 292 times and on the other side 140 times. So read the changed items against the sim with the real items, not against the real fight.</p>
       <div class="row"><button class="run" id="r-swaps" type="button">Find the best single swap for ${esc(heroName(pl(R.focus).hero))}</button></div></div></div>
     <h3>Team ${TEAM[pl(R.focus).team]}</h3><div class="cards">${a.map(rpCard).join("")}</div>
     <h3>Team ${TEAM[1 - pl(R.focus).team]}</h3><div class="cards">${b.map(rpCard).join("")}</div>`;

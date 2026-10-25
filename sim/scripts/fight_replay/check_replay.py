@@ -5,7 +5,10 @@ own detection (detect.cjs, needs node), replays each with everyone's real items,
 starting health and distance, and compares with what really happened: deaths, health lost, and which side came out
 ahead.
 
-usage: python3 -I check_replay.py <repo dir> <metadata dir> [n_fetch=0]
+usage: python3 -I check_replay.py <repo dir> <metadata dir> [n_fetch=0] [mode=site]
+mode: site (what the page sends: real arrival, survivors leave after their last fighting second, each hero shoots its
+nearest enemy), all0 (everyone from the start to the end, focus the weakest: the first version), join (arrival only),
+leave (arrival and leaving, focus the weakest), hazard (as site but leaving at the fitted flat rate, not real times)
 """
 import concurrent.futures as cf
 import json
@@ -24,6 +27,8 @@ from deadsim.data import game  # noqa: E402
 API = "https://api.deadlock-api.com/v1/matches"
 UA = {"User-Agent": "deadlock-build-sim/0.1 (research)"}
 HERE = os.path.dirname(os.path.abspath(__file__))
+RNG = __import__("random").Random(7)
+LEAVE_RATE = 0.016   # real early leaves per hero-second of fighting, flat across health (fit_disengage.py)
 
 
 def fetch(out, n):
@@ -48,6 +53,7 @@ def corr(x, y):
 
 def main():
     meta = sys.argv[2]
+    mode = sys.argv[4] if len(sys.argv) > 4 else "site"
     os.makedirs(meta, exist_ok=True)
     if len(sys.argv) > 3 and int(sys.argv[3]):
         fetch(meta, int(sys.argv[3]))
@@ -96,7 +102,19 @@ def main():
             B = [s for s in ok if s not in A]
             if not A or not B:
                 continue
-            req = dict(a=[member(s, F) for s in A], b=[member(s, F) for s in B], distance=max(3, F["dist"]),
+            dead = {d["slot"] for d in F["deaths"]}
+            mem = {s: member(s, F) for s in A + B}
+            for s in A + B:   # timing, as replay.js rpMember in mode "site"
+                foes = B if s in A else A
+                if mode in ("site", "join", "leave", "hazard"):
+                    mem[s]["join"] = F["join"][str(s)]
+                if mode in ("site", "leave") and s not in dead:
+                    mem[s]["leave"] = F["last"][str(s)] + 1
+                if mode == "hazard":   # fitted flat early-leave rate (fit_disengage.py) instead of the real leave times
+                    mem[s]["leave"] = mem[s]["join"] + RNG.expovariate(LEAVE_RATE)
+                if mode in ("site", "hazard"):
+                    mem[s]["targets"] = [foes.index(x) if x in foes else None for x in F["near"][str(s)]]
+            req = dict(a=[mem[s] for s in A], b=[mem[s] for s in B], distance=max(3, F["dist"]),
                        max_time=min(45, max(4, F["t1"] - F["t0"] + 1)))
             r = json.loads(bridge.replay(json.dumps(req)))
             rows = dict(zip(A + B, r["fighters"]))
@@ -120,7 +138,8 @@ def main():
                 T["other_side"] += (sa - sb) * (ra - rb) < 0
     print(json.dumps(T))
     print(f"sim deaths / real {T['sim_deaths'] / max(1, T['real_deaths']):.2f}; real deaths the sim also has "
-          f"{T['both_dead'] / max(1, T['real_deaths']):.2f}")
+          f"{T['both_dead'] / max(1, T['real_deaths']):.2f}; sim deaths that are real {T['both_dead'] / max(1, T['sim_deaths']):.2f}; "
+          f"F1 {2 * T['both_dead'] / max(1, T['sim_deaths'] + T['real_deaths']):.3f}")
     print(f"fights where only one side lost heroes: sim kills more on the same side {T['same_side']}, on the other "
           f"{T['other_side']}, even {T['one_sided'] - T['same_side'] - T['other_side']}")
     print(f"health lost real / sim {sum(x[0] for x in lost) / sum(x[1] for x in lost):.2f}; correlation per fight "

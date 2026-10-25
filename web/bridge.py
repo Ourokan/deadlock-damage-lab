@@ -127,13 +127,14 @@ def _real_abilities(hero, events):
 def replay(req_json):
     """A real fight replayed in the team sim (web/replay.js). {"a": [member], "b": [member], "distance": m,
     "max_time": s, "focus": "focus"}; member = {"hero", "items", "souls", "accuracy"?, "headshot"?, "hp"? (share of
-    max health at the fight's start), "abilities"? (ability ids bought so far, in order)}.
+    max health at the fight's start), "abilities"? (ability ids bought so far, in order), "join"? / "leave"? (seconds it
+    arrives / walks out alive), "targets"? (index of the enemy in the other list it shoots, per second)}.
     Returns deadsim.team.TeamResult.to_dict() plus each hero's start health in "start_hp"."""
     from deadsim import Loadout
     from deadsim.team import team_fight
     q = json.loads(req_json)
     G = game()
-    sides, start = [], []
+    sides, start, join, leave, targets = [], [], [], [], []
     for side in ("a", "b"):
         team = []
         for m in q.get(side, [])[:6]:
@@ -151,9 +152,14 @@ def replay(req_json):
             team.append(Loadout(hero.name, [_item(G, x).name for x in m.get("items", [])], souls=m.get("souls"),
                                 skill=skill, tiers=tiers, unlocked=unlocked))
             start.append(m.get("hp"))
+            join.append(m.get("join"))
+            leave.append(m.get("leave"))
+            targets.append(m.get("targets"))
         sides.append(team)
     r = team_fight(sides[0], sides[1], distance=float(q.get("distance") or 15.0),
-                   max_time=float(q.get("max_time") or 20.0), focus=q.get("focus") or "focus", start_hp=start)
+                   max_time=float(q.get("max_time") or 20.0), focus=q.get("focus") or "focus", start_hp=start,
+                   join=join if any(x for x in join) else None, leave=leave if any(x is not None for x in leave) else None,
+                   targets=targets if any(targets) else None)
     out = r.to_dict()
     for row, frac in zip(out["fighters"], start):
         # as team_fight sets it: at least 1 HP
