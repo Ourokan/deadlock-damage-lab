@@ -154,6 +154,24 @@ class Precast(unittest.TestCase):
         self.assertEqual(kc.casts, 0)
         self.assertEqual(kc.ready_at, 5.0)
 
+    def test_refused_precast_restores_the_ability(self):
+        e, f, kc = self.paradox()
+        kc.precast_at = -2.0
+        kc.impl.should_cast = lambda c: False   # its rule turns it down before the fight
+        M.precast(f)
+        self.assertEqual(kc.casts, 0)
+        self.assertEqual((kc.ready_at, kc.held_until), (0.0, 0.0))   # waits for the first chance in the fight
+
+    def test_damage_before_the_start_books_in_slice_0(self):
+        e, f, kc = self.paradox()
+        g = make_fighter(e, Loadout("Abrams", [], souls=27000))
+        f.enemy, g.enemy = g, f
+        e.t = -0.4
+        e.damage(f, g, 100.0, "spirit", "Kinetic Carbine", is_ability=True)
+        e.t = 0.0
+        self.assertEqual(set(f.dmg_by_2s), {0})
+        self.assertAlmostEqual(f.dmg_exp["Kinetic Carbine"], f.dmg_out["Kinetic Carbine"])   # P(going) at t<0 is 1
+
     def test_carbine_opener_lands_early(self):
         engine.PROFILE_SOURCES = True
         try:
@@ -191,6 +209,28 @@ class MeleeOpener(unittest.TestCase):
         off, on = self.duels(False), self.duels(True)
         self.assertEqual(sum(t < 1.0 for t in off), 0)   # the steady rate's first melee comes at 2.5 s
         self.assertGreater(sum(t < 1.0 for t in on), 3)
+
+    def test_opener_is_paid_back_by_later_melee(self):
+        def ticks(opener):
+            mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(15000))
+            e = Engine(distance=8, max_time=60, rng=random.Random(3), mech=mech)
+            a = make_fighter(e, Loadout("Bebop", ["Spirit Strike"], souls=15000, skill=hero_default_skill("Bebop")))
+            b = make_fighter(e, Loadout("Abrams", [], souls=15000))
+            a.enemy, b.enemy = b, a
+            hits = []
+            orig = e.melee_hit
+            e.melee_hit = lambda f, heavy, w=1.0: hits.append(w) or orig(f, heavy, w)
+            if opener:
+                e.melee_open(a, False)
+            for k in range(12):
+                e.t = 2.5 + 5 * k
+                e.melee_tick(a)
+            return hits, a.counters.get("melee_debt", 0.0)
+        base, _ = ticks(False)
+        hits, debt = ticks(True)
+        self.assertEqual(hits[0], 1.0)            # the opener is one full hit
+        self.assertLess(debt, 1e-9)
+        self.assertAlmostEqual(sum(hits), sum(base))   # ... that the later ticks pay back in full
 
     def test_no_item_no_opener(self):
         mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(15000))
