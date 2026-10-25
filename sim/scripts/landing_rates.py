@@ -66,7 +66,7 @@ def real_key(name, classes):
     (e.g. citadel_ability_shiv_dagger_dot) -> their ability class."""
     if name.startswith("citadel_weapon") or "_primary_weapon" in name:
         return "GUN"
-    if "ability_melee_" in name:
+    if "ability_melee_" in name or name == "ability_baba_bench_melee":   # Baba's melee while on her bench
         return "MELEE"
     best = max((c for c in classes if name == c or name.startswith(c + "_")), key=len, default=None)
     if best is None and COPY_ULT in classes and name not in ENEMY_BOOKED and "ability_" in name:

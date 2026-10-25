@@ -4385,6 +4385,93 @@
    "notes": "New hero from the October hotfix: no replays or guides yet, so slot order is a placeholder until the patterns are refit.",
    "sources": [],
    "imbue": null
+  },
+  "88": {
+   "name": "Baba",
+   "order": [
+    "ability_baba_hexing_brew",
+    "ability_baba_bubbling_brew",
+    "ability_baba_bench_run",
+    "ability_baba_ultimate_2"
+   ],
+   "ult_after": [
+    "ability_baba_bubbling_brew",
+    "ability_baba_bench_run",
+    "ability_baba_hexing_brew"
+   ],
+   "prefight": null,
+   "guide_order": [],
+   "guide_ult_after": [],
+   "engage": null,
+   "engage_share": null,
+   "start_distance_m": null,
+   "ult": "lockdown",
+   "holds": [],
+   "range": "close",
+   "confidence": "medium",
+   "notes": "Added 2026-10-25 from Phantom+ replays (Oct 22-25): Baba's Brew is thrown first (pre-brewed: damage 1.0 s after its cooldown starts), then Threadsap, Granny Long Legs, and Feed The Birds last (median 10 s in), after Threadsap in 85% of fights with it.",
+   "sources": [
+    "Deadlock API demo extracts"
+   ],
+   "replay": {
+    "matches": 31,
+    "fights": 868,
+    "abilities": {
+     "Threadsap": {
+      "cast_share": 0.713,
+      "first_share": 0.276,
+      "pre_share": 0.156,
+      "median_first_cast_s": 0.42,
+      "ult_after_share": 0.851
+     },
+     "Granny Long Legs": {
+      "cast_share": 0.538,
+      "first_share": 0.13,
+      "pre_share": 0.101,
+      "median_first_cast_s": 2.17,
+      "ult_after_share": 0.682
+     },
+     "Baba's Brew": {
+      "cast_share": 0.607,
+      "first_share": 0.326,
+      "pre_share": 0.224,
+      "median_first_cast_s": 0.98,
+      "ult_after_share": 0.785
+     },
+     "Feed The Birds": {
+      "cast_share": 0.225,
+      "first_share": 0.014,
+      "pre_share": 0.006,
+      "median_first_cast_s": 10.31,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Baba's Brew",
+       "Threadsap",
+       "Granny Long Legs"
+      ],
+      0.137
+     ],
+     [
+      [
+       "Baba's Brew",
+       "Threadsap"
+      ],
+      0.082
+     ],
+     [
+      [
+       "Threadsap",
+       "Granny Long Legs",
+       "Baba's Brew"
+      ],
+      0.068
+     ]
+    ]
+   }
   }
  }
 }
