@@ -45,11 +45,15 @@ function fakeMatch() {
   const heroes = read("heroes.json").filter((h) => fs.existsSync(path.join(WEB, "data/damage/heroes", `${h.id}.json`))).slice(0, 12);
   if (heroes.length < 2) throw new Error("web/data/damage has fewer than 2 heroes: run web/build.py first");
   const duration = 1800;
+  // the last player is a hero the sim doesn't have yet when there is one (a new hero in real matches): the page
+  // still names it and leaves it out of the sims
+  const known = new Set(read("heroes.json").map((h) => String(h.id)));
+  const NEW_HERO = Object.keys(read("hero_names.json")).find((id) => !known.has(id));
   const players = heroes.map((h, k) => {
     const d = read(`damage/heroes/${h.id}.json`);
     const items = (d.budgets["27000"] || Object.values(d.budgets)[0]).popular.items;
     return {
-      player_slot: k + 1, account_id: 1000 + k, hero_id: h.id, team: `Team${k % 2}`, assigned_lane: [1, 4, 6][Math.floor(k / 2) % 3],
+      player_slot: k + 1, account_id: 1000 + k, hero_id: NEW_HERO && k === heroes.length - 1 ? Number(NEW_HERO) : h.id, team: `Team${k % 2}`, assigned_lane: [1, 4, 6][Math.floor(k / 2) % 3],
       kills: 5, deaths: 4, assists: 8, net_worth: 30000 + 500 * k,
       items: items.map((id, i) => ({ item_id: id, game_time_s: 120 + i * 120, sold_time_s: 0 })),
       stats: [300, 600, 900, 1200, 1500].map((t) => ({ time_stamp_s: t, net_worth: Math.round((30000 * t) / duration) })),
@@ -220,6 +224,9 @@ async function matchTab(page, where) {
     await page.fill("#m-id", String(MATCH_ID));
     await page.click("#m-load");
     await page.waitForSelector("#m-pick:not([hidden])", { timeout: STEP_MS });
+    // every hero has its name, also one the sim doesn't have yet
+    const unnamed = await page.$eval("#tab-match", (e) => (e.textContent.match(/\bHero \d+/) || [])[0]);
+    if (unnamed) throw new Error(`a hero shows as "${unnamed}"`);
     await page.click("#m-go");
     await page.waitForFunction(() => /Best single swaps/.test($("#m-out").textContent) || $("#m-out .err"), null, { timeout: SIM_LOAD_MS });
   });
@@ -231,6 +238,9 @@ async function matchTab(page, where) {
     if (!(await page.$("#r-fight .r-map polyline"))) throw new Error("no fight map");
     const real = await page.$eval("#r-out .r-sum", (e) => e.textContent);
     if (!/Real fight/.test(real)) throw new Error(`no real outcome: ${real}`);
+    // the map's 10 m scale sits inside the drawing, not cut off below it
+    const clip = await page.$eval("#r-fight .r-map", (svg) => { const a = svg.getBoundingClientRect(), b = svg.querySelector("text.r-scale").getBoundingClientRect(); return b.bottom > a.bottom + 1 || b.top < a.top; });
+    if (clip) throw new Error("the map's 10 m scale is cut off");
     // drop an item: the replay reruns with the changed items next to the real ones
     await page.click("#r-fight .r-card.me [data-rdrop]");
     await page.waitForFunction(() => /Changed: end/.test($("#r-out").textContent) || $("#r-out .err"), null, { timeout: STEP_MS });
@@ -273,6 +283,12 @@ async function run(browser, base, where, contextOpts, missing) {
   const context = await browser.newContext(contextOpts);
   const page = await watch(context, where, base, missing);
   await page.goto(base + "#test", { waitUntil: "load" });
+  await step(page, where, "every tab in the header", async () => {
+    // all tab links show on screen: none hidden past the edge of the header
+    const off = await page.$$eval("#tabs a", (as) => as.filter((a) => { const r = a.getBoundingClientRect(), n = a.parentElement.getBoundingClientRect();
+      return !r.width || r.right > Math.min(innerWidth, n.right) + 1 || r.bottom > n.bottom + 1; }).map((a) => a.textContent));
+    if (off.length) throw new Error(`tabs out of view: ${off.join(", ")}`);
+  });
   const sim = await testTab(page, where);
   if (sim) {
     await makerTab(page, where);

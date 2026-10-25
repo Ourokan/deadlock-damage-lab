@@ -189,6 +189,11 @@ def main():
         heroes = [{"id": h["id"], "name": h["name"]} for h in json.load(fh)["heroes"]]
     with open(os.path.join(data, "heroes.json"), "w") as fh:
         json.dump(sorted(heroes, key=lambda h: h["name"]), fh)
+    # every playable hero's name, sim or not, so a real match with a hero the sim doesn't have yet still names it
+    with open(os.path.join(ROOT, "data/game/raw/heroes.json")) as fh:
+        names = {h["id"]: h["name"] for h in json.load(fh) if h.get("player_selectable") and not h.get("disabled")}
+    with open(os.path.join(data, "hero_names.json"), "w") as fh:
+        json.dump(names, fh)
     counts = {k: copy_out(os.path.join(ROOT, src), os.path.join(data, k))
               for k, src in [("damage", "damage/out"), ("overall", "damage/out/overall"), ("path", "damage/out/path"), ("duel", "search/out"), ("tank", "survival/out")]}
     for name, key in (("order", "buy_order"), ("skill", "ability_order")):
