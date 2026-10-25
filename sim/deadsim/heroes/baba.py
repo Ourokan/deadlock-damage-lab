@@ -89,6 +89,9 @@ class GrannyLongLegs(AbilityImpl):
 class BabasBrew(AbilityImpl):
     kind = "skillshot"
 
+    def start(self, c):
+        c.state["thrown"] = False
+
     def cast(self, c):
         brew = 0.0 if c.state.get("thrown") else c.raw("FireLockTime", 4.5)
         c.state["thrown"] = True

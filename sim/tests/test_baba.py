@@ -51,6 +51,14 @@ class BabaCase(unittest.TestCase):
         self.e.melee_hit(self.f, True)
         self.assertGreater(self.f.dmg_out.get("Granny Long Legs", 0), 0)
 
+    def test_first_brew_is_prebrewed(self):
+        br = self.ab["ability_baba_hexing_brew"]
+        br.cast()
+        self.run_queue(br.ctx.raw("FireLockTime") - 0.5)        # a brewed throw would not land yet
+        first = self.f.dmg_out.get("Baba's Brew", 0)
+        self.assertGreater(first, 0)                             # the first throw needs no brewing
+        self.assertTrue(br.scratch["thrown"])
+
     def test_feed_the_birds_hexes(self):
         self.ab["ability_baba_ultimate_2"].cast()
         self.run_queue(5.5)
