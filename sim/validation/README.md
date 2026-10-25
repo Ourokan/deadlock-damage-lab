@@ -838,6 +838,26 @@ sources, median hold 3.3 s. The per-source timing distance to real (half the sum
 to their in-full fits and worsens their audit (Graves 0.060 -> 0.101, Nurse Harrow 0.013 -> 0.086: the uncorrected
 fight-length booking happens to suit them); a refit of those three under the fight-length booking is the fix.
 
+## Fight replay (2026-10-25)
+
+The Real match tab replays a fight from a real match (`web/replay.js`, `bridge.replay`). Fights come from the
+match's `match_paths` (1 s positions, health %, combat flags) and `death_details` in `/v1/matches/{id}/metadata`:
+two enemy heroes within 50 m, one flagged in hero combat, one losing health that second; groups chain into a fight
+across gaps up to 4 s, kills add victim and killer over their time to kill, fights over 40 s are cut at 2 s lulls.
+Each hero starts at its real health with its items, net worth, ability unlocks and upgrades (the ability buys in the
+item list) at the fight's start, its own hero accuracy from the match, at the median distance to the nearest enemy,
+for the real length (max 45 s), focusing the weakest enemy (team sim, movement off). `team_fight(start_hp=)` is new;
+default fights are unchanged.
+
+**Against the real fights** (`scripts/fight_replay/check_replay.py`, 30 recent Phantom+ matches, 1,894 fights, 8,943
+heroes): the sim has 1.82x the deaths (3,355 vs 1,846; 60% of the real deaths are also deaths in the sim) because
+nobody backs off when low. Health lost per fight correlates 0.89 (sim 1.35x real), per hero 0.35. In the 699 fights
+where only one side lost heroes the sim has more deaths on the same side 329 times, on the other side 180, even 190.
+The HP swing (enemy health lost minus own) correlates only 0.19: who comes out ahead is decided by positioning,
+focus and timing the replay does not know. A retreat rule (a hero hit below 10-30% health leaves the fight alive)
+was tried: deaths fall to 0.15-0.27x real and the side agreement gets worse (54 vs 53 at 10%), so it was dropped.
+Read a changed build against the replay with the real items, which is what the page compares.
+
 ## Known gaps (not yet modeled)
 
 - **Melee movement:** melee is in fights and its rate follows the build (see "Melee" above). Melee Charge's lunge

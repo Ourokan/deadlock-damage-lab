@@ -29,6 +29,12 @@ Static site, no server. Open `index.html` through any static host (or `python3 -
   each side gets the items it held then and its net worth, the player keeps their hero accuracy from that match, and
   the sim runs their build against the target's build next to the damage-search builds they could afford, plus
   one-for-one swaps of an owned item for an equal or cheaper item from those builds.
+  **Replay a fight** (`replay.js`): the page also reads `/v1/matches/{id}/metadata` for `match_paths` (1 s positions,
+  health %, combat flags) and `death_details`, finds the match's fights (`rpDetect`), and replays a picked one in the
+  team sim (`bridge.replay`): every hero at its real starting health, items, net worth, ability upgrades and match
+  accuracy, at the fight's median distance, for its real length. Any hero's items can be changed; the page shows the
+  real fight, the replay with real items and the replay with changed items, and can search single swaps for one hero.
+  How close the replay gets to real fights: `sim/validation/README.md` "Fight replay".
 - **Team fight**: up to three heroes a side (each starts with its popular real build) fight in the live sim
   (`bridge.team`, `team.js`). Shows damage, damage taken, heals and shields given to teammates, kills.
 - **What changed** (`data/changes.json` from `pipeline/changes.py`): one block per rerun, newest first, with why it

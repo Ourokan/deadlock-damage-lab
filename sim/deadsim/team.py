@@ -466,8 +466,10 @@ class TeamResult:
 # API
 # ---------------------------------------------------------------------------------------------------------------
 def team_fight(team_a, team_b, distance=15.0, max_time=40.0, focus="focus", huddle=HUDDLE, aoe_share=AOE_SHARE,
-               rng=None, log=False, mechanics=_UNSET, allies=True):
+               rng=None, log=False, mechanics=_UNSET, allies=True, start_hp=None):
     """team_a, team_b: lists of Loadout (1-6 each). Returns TeamResult.
+    start_hp: health each hero starts at as a share of its max (team_a then team_b; None = full), for replaying a
+    real fight that began with heroes already hurt.
     allies=False turns everything that reaches teammates off (duel item handlers, no ally abilities, huddle 0), so
     a fight with and without it isolates what items give teammates (scripts/team/team_value.py)."""
     if not allies:
@@ -488,6 +490,9 @@ def team_fight(team_a, team_b, distance=15.0, max_time=40.0, focus="focus", hudd
                 _team_items(f, lo)
             fs.append(f)
         sides.append(fs)
+    for f, frac in zip(sides[0] + sides[1], start_hp or ()):
+        if frac is not None:
+            f.hp = max(1.0, min(1.0, float(frac)) * f.max_hp)
     for f in sides[0] + sides[1] if allies else ():
         for st in f.abilities:
             _share_ability(st)
