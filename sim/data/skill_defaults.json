@@ -698,6 +698,24 @@
    "median_distance_m": 15.8,
    "source": "400 matches, badge >= [0, 0], players with >= 300 hero-aimed shots"
   },
+  "87": {
+   "name": "Nurse Harrow",
+   "n": 307,
+   "accuracy": {
+    "p25": 0.2044,
+    "p50": 0.2542,
+    "p75": 0.3076,
+    "p90": 0.3545
+   },
+   "headshot": {
+    "p25": 0.1872,
+    "p50": 0.2311,
+    "p75": 0.2777,
+    "p90": 0.3182
+   },
+   "median_distance_m": 18.9,
+   "source": "400 matches, badge >= [0, 0], players with >= 300 hero-aimed shots"
+  },
   "88": {
    "name": "Baba",
    "n": 241,

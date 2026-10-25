@@ -880,10 +880,12 @@
   },
   "Nurse Harrow": {
    "Leech Therapy": {
-    "landing": 1.81
+    "landing": 1.49,
+    "class": "ability_nurse_leech_therapy"
    },
    "Lurking Terrors": {
-    "landing": 1.37
+    "landing": 0.64,
+    "class": "ability_nurse_fear"
    }
   },
   "Violet": {
