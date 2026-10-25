@@ -164,7 +164,8 @@ function rpList() {
     <th>${TEAM[0]}</th><th>${TEAM[1]}</th><th>Deaths</th><th></th></tr></thead><tbody>${fs.map((F) => {
       const i = R.fights.indexOf(F), dead = F.deaths.map((d) => esc(heroName(pl(d.slot).hero))).join(", ");
       return `<tr class="${R.f === F ? "pop" : ""}"><td>${clock(F.t0)}</td><td class="n">${F.t1 - F.t0 + 1} s</td><td>${rpHeroes(rpSide(F, 0))}</td><td>${rpHeroes(rpSide(F, 1))}</td>
-        <td>${dead || "none"}</td><td><button class="chip-btn" data-rf="${i}">${R.f === F ? "Picked" : "Replay"}</button></td></tr>`;
+        <td>${dead || "none"}</td><td>${[0, 1].every((tm) => rpSide(F, tm).some(rpKnown)) ? `<button class="chip-btn" data-rf="${i}">${R.f === F ? "Picked" : "Replay"}</button>`
+          : '<span class="hint" title="Every hero on one side is not in the sim yet">Can\'t replay</span>'}</td></tr>`;
     }).join("")}</tbody></table></div>` : `<p class="hint">No fights ${R.kills ? "with a kill " : ""}with ${who || "this player"} were found. Untick the boxes to see every fight.</p>`;
 }
 
