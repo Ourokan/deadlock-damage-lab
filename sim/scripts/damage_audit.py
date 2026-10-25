@@ -70,7 +70,7 @@ def skill_of(p):
     sk = _sk[hid]
     c = p["custom"]
     shots, hits = c.get(SHOTS, 0), c.get(HITS, 0)
-    if shots >= 300 and not gun_calibrated(hid):   # Danny's API shots are a partial count: keep the replay fit
+    if L.own_aim(p) and not gun_calibrated(hid):   # Danny's API shots are a partial count: keep the replay fit
         sk = dataclasses.replace(sk, accuracy=hits / shots, headshot=c.get(HEADS, 0) / max(1, hits))
     return sk
 

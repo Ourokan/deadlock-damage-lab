@@ -150,6 +150,21 @@ class GunCalibration(unittest.TestCase):
         sk = L.skill_of({"hero_id": G.hero("Deadman Danny").id, "custom": {acc.SHOTS: 400, acc.HITS: 200}})
         self.assertEqual(sk.accuracy, gun_calibration()[str(G.hero("Deadman Danny").id)]["accuracy"]["p50"])
 
+    def test_slow_gun_thresholds(self):
+        """Apollo's slow gun lands ~70 hero hits a match: his players count from his own (hits, shots) limits, others
+        keep MIN_HITS / MIN_SHOTS."""
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+        import landing_rates as L
+        apollo, haze = G.hero("Apollo").id, G.hero("Haze").id
+        hits, shots = L.SLOW_GUNS[apollo]
+        self.assertLess(hits, L.MIN_HITS)
+        p = {"hero_id": apollo, "custom": {acc.SHOTS: shots, acc.HITS: hits}}
+        self.assertTrue(L.gun_known(p))
+        self.assertTrue(L.own_aim(p))
+        self.assertAlmostEqual(L.skill_of(p).accuracy, hits / shots)
+        self.assertFalse(L.gun_known({"hero_id": haze, "custom": {acc.SHOTS: shots, acc.HITS: hits}}))
+        self.assertFalse(L.own_aim({"hero_id": haze, "custom": {acc.SHOTS: shots, acc.HITS: hits}}))
+
     def test_player_skill_uses_the_replay_fit_without_a_lookup(self):
         """No per-player gun stats exist for these heroes: player_skill returns the replay median, never calls the
         API, and reports zero matches (callers must not divide by it)."""

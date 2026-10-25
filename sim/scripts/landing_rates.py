@@ -56,7 +56,14 @@ SHIV_DEFER = "citadel_ability_shiv_defer_damage"
 # damage the game books under the enemy's ability (deferred damage hitting its owner): not one of this hero's sources
 ENEMY_BOOKED = {SHIV_DEFER, "ability_nurse_adrenaline_rush"}
 COPY_ULT = "ability_magician_copyult"   # Sinclair: the copied ultimate is booked under the enemy hero's own class
-MIN_HITS = 150
+MIN_HITS = 150       # API enemy-hero hits for a player's real aim to count (gun_known)
+MIN_SHOTS = 300      # shots for the player's own accuracy (else the hero default)
+# Slow guns land far fewer hero hits a match: Apollo (0.38 s cycle) has a median 300 shots / 69 hits per Phantom+
+# match vs 1360 / 334 over all heroes, so MIN_HITS kept 6 of 111 Apollo players and his ability timing, landing and
+# audit rested on them. Per hero (min hits, min shots), about MIN_HITS / MIN_SHOTS x the hero's median shots share
+# (~0.25), floored for a usable accuracy (40 hits: +-15% relative). Others with the same gap (The Doorman, Violet,
+# Kelvin, Solomon) need their own landing refit before they join.
+SLOW_GUNS = {77: (40, 150)}
 FIGHT_TIME = 20.0
 FRACS = (0.3, 0.6, 0.9)
 
@@ -108,10 +115,20 @@ def current_landing(hero_id):
     return _landing[hero_id, mech]
 
 
+def gun_limits(hero_id):
+    """(min API hero hits, min shots) for a player's real gun data (SLOW_GUNS: fewer for a slow gun)."""
+    return SLOW_GUNS.get(hero_id, (MIN_HITS, MIN_SHOTS))
+
+
 def gun_known(p):
     """Enough real gun data to fit against: API hero hits, or a hero whose gun records none but has a replay-fitted
     accuracy (Graves, Deadman Danny: data/gun_calibration.json)."""
-    return p["custom"].get(HITS, 0) >= MIN_HITS or gun_calibrated(p["hero_id"])
+    return p["custom"].get(HITS, 0) >= gun_limits(p["hero_id"])[0] or gun_calibrated(p["hero_id"])
+
+
+def own_aim(p):
+    """Enough shots for the player's own accuracy and headshot rate."""
+    return p["custom"].get(SHOTS, 0) >= gun_limits(p["hero_id"])[1]
 
 
 def skill_of(p):
@@ -121,7 +138,7 @@ def skill_of(p):
     cal = gun_calibration().get(str(p["hero_id"])) if gun_calibrated(p["hero_id"]) else None
     if cal:   # the match stats' shots/hits for this gun are missing or partial
         sk = Skill(accuracy=cal["accuracy"]["p50"], headshot=cal["headshot"]["p50"], melee_rate=rate)
-    elif shots < 300:
+    elif not own_aim(p):
         sk = Skill(melee_rate=rate)
     else:
         sk = Skill(accuracy=hits / shots, headshot=c.get(HEADS, 0) / max(1, hits), melee_rate=rate)
