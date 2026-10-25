@@ -40,11 +40,15 @@ for hid in G.heroes:
 print("fight patterns ok:", len(G.heroes), "heroes")
 
 # every hero both ways in the survival fight the overall, counter and survival searches run (its immortal refill sits
-# in items_fx without an item; Violet crashed on it and rerun 73 lost every overall job, 2026-10-25)
+# in items_fx without an item; Violet crashed on it and rerun 73 lost every overall job, 2026-10-25), bare and with
+# every lifesteal item on both sides: lifesteal heals pass engine.heal's origin=, and Nurse Harrow's Wretched Vapors
+# heal hook didn't take it, which failed rerun 78's publish (2026-10-25)
+_LS = ["Spirit Lifesteal", "Bullet Lifesteal", "Melee Lifesteal"]
 for hid in G.heroes:
     _n = G.hero(hid).name
     for _a, _b in ((_n, "Abrams"), ("Abrams", _n)):
-        assert survive(_a, [], 20000, _b, [], max_time=10.0)["time_alive"] > 0, (_a, _b)
+        for _it in ([], _LS):
+            assert survive(_a, _it, 20000, _b, _it, max_time=10.0)["time_alive"] > 0, (_a, _b, _it)
 print("every hero in a survival fight ok")
 
 # overall score movement weights (sim/data/movement_value.json): none = 1, duplicates count once, stacks are capped,
