@@ -90,8 +90,31 @@ class TestTerrors(NurseCase):
         self.assertTrue(self.g.mods.active("disarm"))
         self.assertGreater(self.f.dmg_out.get("Lurking Terrors", 0.0), 0)
 
+    def test_stun_breaks_channel(self):
+        lt = self.ab["ability_nurse_fear"]
+        c = lt.ctx
+        lt.cast()
+        self.run_until(c.raw("AbilityCastDelay") + 0.5)
+        self.f.mods.add("stun", 1, 0.5, "test_stun")
+        dealt = self.f.dmg_out.get("Lurking Terrors", 0.0)
+        self.run_until(c.raw("AbilityCastDelay") + 3.0)
+        self.assertAlmostEqual(self.f.dmg_out.get("Lurking Terrors", 0.0), dealt, delta=c.val("DPS") * 0.2)
+        self.assertLess(self.f.gun_locked_until, c.raw("AbilityCastDelay") + 1.0)
+
     def test_needles_never_cast(self):
         self.assertFalse(self.ab["ability_nurse_healing_needles"].try_cast())
+
+
+class TestCrashBooking(unittest.TestCase):
+    """The game books the crash under the enemy's ability_nurse_adrenaline_rush: not Sinclair's copied ult."""
+
+    def test_crash_maps_to_the_nurse_class(self):
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+        import landing_rates as L
+        from deadsim import game
+        classes = [ab.class_name for ab in game().hero("Sinclair").abilities]
+        self.assertEqual(L.real_key("ability_nurse_adrenaline_rush", classes), "ability_nurse_adrenaline_rush")
+        self.assertEqual(L.sim_key(nurse.CRASH_SRC, {}, game()), "ability_nurse_adrenaline_rush")
 
 
 if __name__ == "__main__":
