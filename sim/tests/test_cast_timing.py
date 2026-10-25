@@ -133,6 +133,19 @@ class Precast(unittest.TestCase):
             ab.start()
         return e, f, next(ab for ab in f.abilities if ab.ab.name == "Kinetic Carbine")
 
+    def test_holds_on_due_time_floor_at_the_hit_lag(self):
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts", "cast_timing"))
+        import fit_cast_timing as FCT
+        n = len(FCT.GRID)
+        sim = {"cast_by": [1.0] * n, "hit_lag_s": 2.5}            # casts on sight, hits 2.5 s later
+        real = {"cast_by": [0.0] * 4 + [0.5] * (n - 4),          # real casts: half by 2 s
+                "due_by": [0.4] + [0.6] * (n - 1)}               # but 40% of the damage opens the fight
+        q = FCT.holds(real, sim)
+        self.assertEqual(q[:8], [-2.5] * 8)                        # cast 2.5 s before t=0, the hit at 0
+        self.assertTrue(all(h is None for h in q[12:]))           # 60% landed by 20 s
+        del sim["hit_lag_s"]                                       # no damage lag: the old cast-curve holds
+        self.assertTrue(all(h is None or h >= 0 for h in FCT.holds(real, sim)))
+
     def test_carbine_has_precast_holds(self):
         q = M.cast_holds()[f"{game().hero('Paradox').id}:citadel_ability_chrono_kinetic_carbine"]
         self.assertLess(min(h for h in q if h is not None), -1.0)   # real openers land with the fight's first hit
