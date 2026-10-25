@@ -368,6 +368,7 @@ function rpSwapsHTML() {
     const s = Number(t.dataset.s ?? t.dataset.rreset);
     if (t.dataset.rreset) R.edit[s] = itemsAt(pl(s), R.f.t0);
     else R.edit[s] = R.edit[s].filter((i) => i !== Number(t.dataset.rdrop));
+    R.swaps = null;   // its gains were measured from the real items; "Try it" keeps the list to pick from
     rpRender(); rpRun();
   });
   box.addEventListener("change", (e) => {
@@ -378,6 +379,7 @@ function rpSwapsHTML() {
     if (id == null || R.edit[s].includes(id)) { inp.value = ""; return; }
     if (R.edit[s].length >= 12) { inp.value = ""; inp.placeholder = "12 items is the most a hero can hold"; return; }
     R.edit[s] = [...R.edit[s], id];
+    R.swaps = null;
     rpRender(); rpRun();
   });
   $("#r-out").addEventListener("click", (e) => {
