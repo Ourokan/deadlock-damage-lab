@@ -26,8 +26,6 @@ from functools import lru_cache
 PATTERNS = os.path.join(os.path.dirname(__file__), "..", "data", "fight_patterns.json")
 SETUP_WAIT = 4.0      # s the ultimate waits for its setup before it is cast anyway
 LOW_HP = 0.3          # target (finish it) or caster (use it now) below this health share: no waiting
-ULT_WAIT = True       # False: ultimates don't wait for their setup (scripts/cast_timing/fit_cast_timing.py measures
-                      # the sim's own timing without the wait, since a held first cast skips it)
 
 
 @lru_cache(maxsize=1)
@@ -66,9 +64,9 @@ class Plan:
 
     def allows(self, st):
         """Extra gate on top of the ability's own should_cast."""
-        if not st.ab.ultimate or not self.after or not ULT_WAIT:
+        if not st.ab.ultimate or not self.after:
             return True
-        if st.timed and not st.casts:
+        if st.held_opener():
             return True   # a first cast held to real cast timing (mechanics.cast_timing) already has the combo in it
         f = self.f
         if any(a.casts for a in self.after) or f.e.t >= SETUP_WAIT:

@@ -597,6 +597,7 @@ def team_fight(team_a, team_b, distance=15.0, max_time=40.0, focus="focus", hudd
     for f, frac in zip(sides[0] + sides[1], start_hp or ()):
         if frac is not None:
             f.hp = max(1.0, min(1.0, float(frac)) * f.max_hp)
+            f.entry_set = True
     for f in sides[0] + sides[1] if allies else ():
         for st in f.abilities:
             _share_ability(st)

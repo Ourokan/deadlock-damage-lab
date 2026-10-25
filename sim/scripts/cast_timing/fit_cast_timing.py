@@ -207,19 +207,19 @@ def real(fights_dir, casts_dir, workers):
 
 # ---- sim side ------------------------------------------------------------------------------------------------
 def sim_job(args):
-    j, timing, ult_wait = args
+    j, timing, probe = args
     import damage_audit as A
-    from deadsim import engine, patterns
+    from deadsim import abilities, engine
     import dataclasses
     A.PROFILE = True
     engine.PROFILE_SOURCES = True
     A.MECH = dataclasses.replace(A.MECH, cast_timing=timing)
-    patterns.ULT_WAIT = ult_wait
+    abilities.PROBE_HELD = probe
     hid, d, _ = A.sim_player(j)
     return hid, {k: v for k, v in d.items() if k.startswith(("_cu:", "_cn:", "_fu:", "_fc:", "_lg:"))}
 
 
-def sim_curves(n, workers, timing, ult_wait=True, hero=None):
+def sim_curves(n, workers, timing, probe=False, hero=None):
     """{"hero id:ability class": {"duels", "cast_by", "hit_by" on GRID (first cast / first hit)}} from the audit's
     duels (hero: that hero id's players only, all of them)."""
     from deadsim import game
@@ -235,7 +235,7 @@ def sim_curves(n, workers, timing, ult_wait=True, hero=None):
         n = len(jobs)
     tot = collections.defaultdict(collections.Counter)
     with ProcessPoolExecutor(workers) as ex:
-        for hid, d in ex.map(sim_job, [(j, timing, ult_wait) for j in jobs[:n]], chunksize=8):
+        for hid, d in ex.map(sim_job, [(j, timing, probe) for j in jobs[:n]], chunksize=8):
             for k, v in d.items():
                 kind, cls, b = k.split(":")
                 tot[f"{hid}:{cls}"][kind, int(b)] += v
@@ -317,10 +317,14 @@ def fit(n, workers, write, hero=None):
     if hid is not None:
         real_rows = {k: v for k, v in real_rows.items() if k.startswith(f"{hid}:")}
     sim0 = sim_curves(n, workers, False, hero=hid)
-    # ultimates that wait for their setup (patterns.Plan): their timing without the wait, which a held first cast
-    # skips (one run for all of them: with the wait off, an early ult would delay the other abilities' timing)
-    ults = {f"{hh.id}:{hh.abilities[3].class_name}" for hh in G.heroes.values() if len(hh.abilities) > 3}
-    sim0u = sim_curves(n, workers, False, ult_wait=False, hero=hid)
+    # abilities whose gate a held first cast skips (an ultimate's setup wait, patterns.Plan; Slam Fire's last shell):
+    # their timing with every first cast acting as held (abilities.PROBE_HELD), only for them (an early ult would
+    # move the other abilities' timing)
+    from deadsim.abilities import REGISTRY, load_heroes
+    load_heroes()
+    ults = {f"{hh.id}:{a.class_name}" for hh in G.heroes.values() for i, a in enumerate(hh.abilities)
+            if i == 3 or getattr(REGISTRY.get(a.class_name), "held_opens", False)}
+    sim0u = sim_curves(n, workers, False, probe=True, hero=hid)
     h = int(HORIZON / 0.5)
 
     def on_sight(sm):

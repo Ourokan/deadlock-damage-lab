@@ -900,33 +900,33 @@
     "landing": 0.88,
     "real_share": 0.0518,
     "sim_share": 0.0419,
-    "length_corr": 0.655
+    "length_corr": 0.584
    },
    "Boot Kick": {
     "class": "ability_werewolf_kickflip",
     "landing": 1.05,
     "real_share": 0.0885,
     "sim_share": 0.0715,
-    "length_corr": 0.83
+    "length_corr": 0.775
    },
    "Entangling Bola": {
     "class": "ability_werewolf_netshot",
     "landing": 1.27,
     "real_share": 0.0452,
     "sim_share": 0.0365,
-    "length_corr": 0.836
+    "length_corr": 0.831
    },
    "Go For The Throat": {
     "landing": 0.5,
-    "length_corr": 1.998
+    "length_corr": 2.508
    },
    "Mauling Leap": {
     "landing": 0.38,
-    "length_corr": 3.446
+    "length_corr": 3.811
    },
    "Tail Whack": {
     "landing": 0.82,
-    "length_corr": 1.97
+    "length_corr": 1.885
    }
   },
   "Celeste": {
@@ -935,28 +935,28 @@
     "landing": 0.7,
     "real_share": 0.2206,
     "sim_share": 0.2404,
-    "length_corr": 1.564
+    "length_corr": 1.562
    },
    "Dazzling Trick": {
     "class": "ability_unicorn_prismaticguard",
     "landing": 0.71,
     "real_share": 0.037,
     "sim_share": 0.04,
-    "length_corr": 0.723
+    "length_corr": 1.499
    },
    "Radiant Daggers": {
     "class": "ability_unicorn_luminousstrike",
     "landing": 0.54,
     "real_share": 0.1766,
     "sim_share": 0.1928,
-    "length_corr": 0.944
+    "length_corr": 0.947
    },
    "Shining Wonder": {
     "class": "ability_unicorn_dazzlingorb",
     "landing": 0.47,
     "real_share": 0.1848,
     "sim_share": 0.1613,
-    "length_corr": 2.957
+    "length_corr": 4.102
    }
   },
   "Rat King": {
@@ -965,28 +965,28 @@
     "landing": 0.551,
     "real_share": 0.35,
     "sim_share": 0.3585,
-    "length_corr": 1.266
+    "length_corr": 1.275
    },
    "Rat Swarm": {
     "class": "ability_ratking_ratnibble",
     "landing": 0.53,
     "real_share": 0.0914,
     "sim_share": 0.0936,
-    "length_corr": 1.274
+    "length_corr": 1.292
    },
    "Royal Pestments": {
     "class": "ability_ratking_ratarmor",
     "landing": 0.751,
     "real_share": 0.0325,
     "sim_share": 0.0336,
-    "length_corr": 1.061
+    "length_corr": 1.512
    },
    "Rule, Ratannia!": {
     "class": "ability_ratking_standard_bearer",
     "landing": 0.294,
     "real_share": 0.0952,
     "sim_share": 0.0974,
-    "length_corr": 2.206
+    "length_corr": 2.051
    }
   },
   "Solomon": {
