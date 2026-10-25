@@ -232,6 +232,20 @@ class MeleeOpener(unittest.TestCase):
         self.assertLess(debt, 1e-9)
         self.assertAlmostEqual(sum(hits), sum(base))   # ... that the later ticks pay back in full
 
+    def test_parried_opener_owes_nothing(self):
+        mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(15000))
+        e = Engine(distance=8, max_time=60, rng=random.Random(3), mech=mech)
+        a = make_fighter(e, Loadout("Bebop", ["Melee Charge"], souls=15000, skill=hero_default_skill("Bebop")))
+        b = make_fighter(e, Loadout("Abrams", [], souls=15000))
+        a.enemy, b.enemy = b, a
+        orig = M.parry_check
+        M.parry_check = lambda *args: 0.0
+        try:
+            e.melee_open(a, True)
+        finally:
+            M.parry_check = orig
+        self.assertEqual(a.counters.get("melee_debt"), 0.0)
+
     def test_no_item_no_opener(self):
         mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(15000))
         e = Engine(mech=mech, rng=random.Random(1))

@@ -1123,11 +1123,12 @@ class Engine:
             return
         if not heavy:
             heavy = f.acc("melee_heavy").take(f.skill.heavy_share, 1) > 0
-        self.melee_hit(f, heavy, 1.0)
-        f.counters["melee_debt"] = f.counters.get("melee_debt", 0.0) + 1.0
+        landed = self.melee_hit(f, heavy, 1.0)
+        f.counters["melee_debt"] = f.counters.get("melee_debt", 0.0) + landed   # a parried opener owes nothing
 
     def melee_hit(self, f: Fighter, heavy: bool, w: float = 1.0):
-        """Land one basic melee (weight w = expected fraction of a hit) and stop the gun for its swing."""
+        """Land one basic melee (weight w = expected fraction of a hit) and stop the gun for its swing. Returns the
+        share of it that landed (a parried heavy lands less or nothing)."""
         t = self.t
         st = f.st
         light = st.hero.base.get("light_melee_damage", 0.0)
@@ -1141,12 +1142,15 @@ class Engine:
         f.counters["melee_heavy"] = heavy
         f.counters["melee_weight"] = w
         f.gun_locked_until = max(f.gun_locked_until, t + (MELEE_HEAVY_TIME if heavy else MELEE_LIGHT_TIME) * w)
+        landed = 1.0
         if heavy and self.mech is not None and self.mech.parry:
             from .mechanics import parry_check
-            raw *= parry_check(self, f, f.enemy, raw, w)
+            landed = parry_check(self, f, f.enemy, raw, w)
+            raw *= landed
             if raw <= 0:
-                return
+                return 0.0
         self.damage(f, f.enemy, raw, "melee", "melee", hits=1)
+        return landed
 
     def regen_tick(self):
         if self.over:

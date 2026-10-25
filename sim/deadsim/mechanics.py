@@ -198,11 +198,8 @@ def melee_holds():
     (data/melee_timing.json)."""
     global _MELEE_T
     if _MELEE_T is None:
-        try:
-            with open(os.path.join(os.path.dirname(__file__), "..", "data", "melee_timing.json")) as fh:
-                _MELEE_T = json.load(fh)["items"]
-        except (OSError, ValueError, KeyError):
-            _MELEE_T = {}
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "melee_timing.json")) as fh:
+            _MELEE_T = json.load(fh)["items"]
     return _MELEE_T
 
 
