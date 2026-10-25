@@ -4281,6 +4281,89 @@
     "replay_order": 0.828
    }
   },
+  "86": {
+   "name": "Violet",
+   "order": [],
+   "ult_after": [],
+   "prefight": null,
+   "guide_order": [],
+   "guide_ult_after": [],
+   "engage": null,
+   "engage_share": null,
+   "start_distance_m": null,
+   "ult": "zone",
+   "holds": [],
+   "range": "mid",
+   "confidence": "medium",
+   "notes": "Added 2026-10-25 from Phantom+ replays (Oct 22-25): Still Life opens (lock-on sketch, stun on completion), Living Ink empowers the next 3 shots, Abstract Landscape traps the target, Flow State comes last. No ability precedes the ultimate in >= 60% of fights (Living Ink 55%, Still Life 51%), so ult_after is empty. Casts are cooldown starts that match the game time (Living Ink hits cut the other cooldowns, which moves their starts back and is no cast).",
+   "sources": [
+    "Deadlock API demo extracts"
+   ],
+   "replay": {
+    "matches": 32,
+    "fights": 939,
+    "abilities": {
+     "Living Ink": {
+      "cast_share": 0.668,
+      "first_share": 0.316,
+      "pre_share": 0.224,
+      "median_first_cast_s": 2.17,
+      "ult_after_share": 0.554
+     },
+     "Flow State": {
+      "cast_share": 0.459,
+      "first_share": 0.102,
+      "pre_share": 0.072,
+      "median_first_cast_s": 5.61,
+      "ult_after_share": 0.333
+     },
+     "Still Life": {
+      "cast_share": 0.614,
+      "first_share": 0.279,
+      "pre_share": 0.016,
+      "median_first_cast_s": 0.97,
+      "ult_after_share": 0.508
+     },
+     "Abstract Landscape": {
+      "cast_share": 0.208,
+      "first_share": 0.063,
+      "pre_share": 0.039,
+      "median_first_cast_s": 4.16,
+      "ult_after_share": null
+     }
+    },
+    "top_openers": [
+     [
+      [
+       "Living Ink",
+       "Still Life",
+       "Flow State"
+      ],
+      0.087
+     ],
+     [
+      [
+       "Still Life",
+       "Living Ink",
+       "Flow State"
+      ],
+      0.084
+     ],
+     [
+      [
+       "Still Life",
+       "Living Ink"
+      ],
+      0.077
+     ]
+    ]
+   },
+   "fit_error": {
+    "slot_order": 0.393,
+    "replay_order": 0.473
+   },
+   "dropped": "the replay combo (Still Life > Living Ink > Abstract Landscape > Flow State) fits the real damage mix worse than slot order in the sim (mean |log landing| 0.39 -> 0.47, Phantom+ sample, mechanics on); slot order kept"
+  },
   "87": {
    "name": "Nurse Harrow",
    "order": [

@@ -150,7 +150,7 @@ async function rpLoad(id) {
     R.paths = d.paths; R.deaths = d.deaths;
     const team = Object.fromEntries(M.match.players.map((p) => [p.slot, p.team]));
     R.fights = rpDetect(d.paths, team, d.deaths);
-    rpStatus(R.fights.length ? `${R.fights.length} fights found. Pick one to replay it.` : "No fights between heroes were found in this match's position data.", !R.fights.length);
+    if (!R.fights.length) rpStatus("No fights between heroes were found in this match's position data.", true);
     rpList();
   } catch (e) {
     if (R.id === id) rpStatus(e.message || "Couldn't load the match's position data.", true);
@@ -166,6 +166,7 @@ function rpList() {
   const fs = R.fights.filter((F) => (!R.only || M.a == null || F.players.includes(M.a)) && (!R.kills || F.deaths.length));
   const who = M.a != null ? esc(heroName(pl(M.a).hero)) : "";
   $("#r-only-who").textContent = who ? heroName(pl(M.a).hero) : "the player";
+  if (R.fights.length) rpStatus(`${fs.length === R.fights.length ? plural(fs.length, "fight", "fights") : `${fs.length} of the match's ${plural(R.fights.length, "fight", "fights")} shown`}.${fs.length ? " Pick one to replay it." : ""}`);
   $("#r-list").innerHTML = fs.length ? `<div class="scroll"><table class="r-fights"><thead><tr><th>When</th><th class="n">Length</th>
     <th>${TEAM[0]}</th><th>${TEAM[1]}</th><th>Deaths</th><th></th></tr></thead><tbody>${fs.map((F) => {
       const i = R.fights.indexOf(F), dead = F.deaths.map((d) => esc(heroName(pl(d.slot).hero))).join(", ");
@@ -232,7 +233,7 @@ function rpMap(F) {
       + (died ? `<path d="M${ex - 4},${ey - 4}l8,8m0,-8l-8,8"/>` : "")
       + `<text x="${Number(sx) + 6}" y="${Number(sy) - 6}">${esc(heroName(pl(s).hero))}</text></g>`;
   }).join("");
-  return `<svg class="r-map" viewBox="-10 -10 320 320" role="img" aria-label="Where each hero moved during the fight">${lines}
+  return `<svg class="r-map" viewBox="-10 -10 320 332" role="img" aria-label="Where each hero moved during the fight">${lines}
     <line class="r-scale" x1="0" y1="312" x2="${(10 / span) * 300}" y2="312"/><text class="r-scale" x="${(10 / span) * 300 + 4}" y="316">10 m</text></svg>`;
 }
 

@@ -72,7 +72,8 @@ function netWorthAt(p, t) {
   return p.net_worth;
 }
 const clock = (s) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, "0")}`;
-const heroName = (id) => S.heroById[id]?.name || `Hero ${id}`;
+// heroes the sim doesn't have yet (a new hero in real matches) still get their name, from data/hero_names.json
+const heroName = (id) => S.heroById[id]?.name || M.names?.[id] || `Hero ${id}`;
 const pl = (slot) => M.match.players.find((p) => p.slot === slot);
 const label = (p) => `${heroName(p.hero)} · ${TEAM[p.team]} · ${p.kda.join("/")} · ${fmt(p.net_worth / 1000, 1)}k`;
 
@@ -112,7 +113,7 @@ async function loadMatch(e) {
   mStatus("Loading the match from the Deadlock API…");
   $("#m-load").disabled = true;
   try {
-    M.match = await fetchMatch(id);
+    [M.match, M.names] = await Promise.all([fetchMatch(id), load("data/hero_names.json")]);
     const known = M.match.players.filter((p) => S.heroById[p.hero]);
     if (!known.length) throw new Error("None of this match's heroes are in the sim yet.");
     M.a = known[0].slot; M.d = defaultTarget(known[0]); M.t = M.match.duration;

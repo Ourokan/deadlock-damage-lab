@@ -1022,6 +1022,28 @@
    "Borrowed Decree": {
     "landing": 0.23
    }
+  },
+  "Violet": {
+   "Living Ink": {
+    "class": "ability_artist_homingbrush",
+    "landing": 0.68,
+    "length_corr": 0.955
+   },
+   "Flow State": {
+    "class": "ability_artist_rollingprojectile",
+    "landing": 0.47,
+    "length_corr": 0.781
+   },
+   "Still Life": {
+    "class": "ability_artist_tether",
+    "landing": 0.75,
+    "length_corr": 0.851
+   },
+   "Abstract Landscape": {
+    "class": "ability_artist_bamboogrove",
+    "landing": 1.18,
+    "length_corr": 0.821
+   }
   }
  }
 }

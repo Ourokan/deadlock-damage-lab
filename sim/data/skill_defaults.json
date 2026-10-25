@@ -680,6 +680,24 @@
    },
    "median_distance_m": 19.0
   },
+  "86": {
+   "name": "Violet",
+   "n": 53,
+   "accuracy": {
+    "p25": 0.2262,
+    "p50": 0.2714,
+    "p75": 0.3183,
+    "p90": 0.3621
+   },
+   "headshot": {
+    "p25": 0.1776,
+    "p50": 0.2111,
+    "p75": 0.2655,
+    "p90": 0.2905
+   },
+   "median_distance_m": 15.8,
+   "source": "400 matches, badge >= [0, 0], players with >= 300 hero-aimed shots"
+  },
   "88": {
    "name": "88",
    "n": 241,
