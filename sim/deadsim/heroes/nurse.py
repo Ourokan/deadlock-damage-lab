@@ -139,7 +139,7 @@ class WretchedVapors(AbilityImpl):
         c.me.items_fx.append(_Specters(self))
         f, heal = c.me, c.me.heal
 
-        def specter_heal(amount, source="heal", kind="regen"):
+        def specter_heal(amount, source="heal", kind="regen", origin=None):
             # healing removes specters first (counted as healing done), the rest heals as usual
             st = self.s.scratch
             if st["pending"] > 0 and f.alive and amount > 0:
@@ -153,8 +153,8 @@ class WretchedVapors(AbilityImpl):
                     amount *= 1.0 - used / eff
                     if amount <= 0:
                         return used
-                    return used + heal(amount, source, kind)
-            return heal(amount, source, kind)
+                    return used + heal(amount, source, kind, origin)
+            return heal(amount, source, kind, origin)
         f.heal = specter_heal
 
     def cast(self, c):

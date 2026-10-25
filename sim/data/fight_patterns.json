@@ -1,5 +1,5 @@
 {
- "_doc": "Per-hero fight behaviour (deadsim.patterns). order: cast priority once the fight is on (abilities not listed follow in slot order). ult_after: the ultimate waits until one of these setup abilities was cast this fight (or SETUP_WAIT s pass). prefight: ability used before the fight starts (its impl's prefight hook runs at t=0). order and ult_after come from 158 Phantom+ replays (Oct 2026, Deadlock API demo extracts, 'replay' block): a fight is a run of hero-vs-hero damage with gaps under 8 s and at least 300 damage; order ranks abilities cast in >= 10% of fights by which one usually comes first; ult_after lists abilities cast before the ultimate in >= 60% of fights with an ultimate. engage_share / start_distance_m: real match_paths (300 matches): share of fight starts during ability movement, median distance to the nearest enemy when the fight starts. guide_* and the other research fields (engage, ult, holds, range, notes, sources, confidence) come from web guides, kept for reference. A combo is used only when it fits the real damage mix (scripts/landing_rates.py, mechanics on) within 0.05 of slot order's mean |log landing factor| (fit_error); otherwise order is empty and 'dropped' says why. Mo & Krill's burrow opener stays on (Tyler).",
+ "_doc": "Per-hero fight behaviour (deadsim.patterns). order: cast priority once the fight is on (abilities not listed follow in slot order). ult_after: the ultimate waits until one of these setup abilities was cast this fight (or SETUP_WAIT s pass). prefight: ability used before the fight starts (its impl's prefight hook runs at t=0). order and ult_after come from 158 Phantom+ replays (Oct 2026, Deadlock API demo extracts, 'replay' block): a fight is a run of hero-vs-hero damage with gaps under 8 s and at least 300 damage; order ranks abilities cast in >= 10% of fights by which one usually comes first; ult_after lists abilities cast before the ultimate in >= 60% of fights with an ultimate. engage_share / start_distance_m: real match_paths (300 matches): share of fight starts during ability movement, median distance to the nearest enemy when the fight starts. guide_* and the other research fields (engage, ult, holds, range, notes, sources, confidence) come from web guides, kept for reference. A combo is used only when it fits the real damage mix (scripts/landing_rates.py, mechanics on) within 0.05 of slot order's mean |log landing factor| (fit_error); otherwise order is empty and 'dropped' says why. Mo & Krill's burrow opener stays on (Tyler). Since cast timing (2026-10-25) a dropped combo comes back on when scripts/fight_patterns/combo_check.py, with 20+ audit players with gun data, gives the replay variant an ability log error and a damage mix distance no worse than slot order and a timing error at least 0.03 better (a margin beyond run-to-run noise); 'combo_check' records the numbers. Sinclair (20 players, timing 0.429 -> 0.418, log error 0.146 -> 0.141; an earlier run gave 0.373 -> 0.362) and Apollo (6 players) don't pass, so both keep slot order.",
  "heroes": {
   "1": {
    "name": "Infernus",
@@ -2751,7 +2751,20 @@
     "ability_magician_copyult"
    ],
    "replay_ult_after": [],
-   "dropped": "the replay combo fits the real damage mix worse than slot order in the sim (mean |log landing| 1.86 -> 1.97), which points at a gap in this hero's ability model; slot order kept"
+   "combo_check": {
+    "players": 20,
+    "slot_order": {
+     "ability_log_err": 0.146,
+     "mix_distance": 0.024,
+     "timing_error": 0.429
+    },
+    "replay_order": {
+     "ability_log_err": 0.141,
+     "mix_distance": 0.024,
+     "timing_error": 0.418
+    }
+   },
+   "dropped": "under cast timing the replay combo (Spectral Assistant > Vexing Bolt > Rabbit Hex) can't be told apart from slot order: combo_check on 20 gun-known players gives timing 0.429 -> 0.418, ability log error 0.146 -> 0.141, mix 0.024 -> 0.024 (the rule needs 0.03 on timing; the timing error moved ~0.05 between runs); slot order kept"
   },
   "63": {
    "name": "Mina",
@@ -3654,7 +3667,20 @@
     "ability_fencer_throwblade",
     "ability_fencer_lunge"
    ],
-   "dropped": "the replay combo fits the real damage mix worse than slot order in the sim (mean |log landing| 0.68 -> 0.78), which points at a gap in this hero's ability model; slot order kept"
+   "dropped": "too few players to judge under cast timing: combo_check gives the replay combo ability log error 0.642 -> 0.533 and mix 0.201 -> 0.176 on 6 audit players with gun data (20+ needed); Apollo's abilities also have no cast_timing rows yet, so they land at t=0 (real 3-5 s in); slot order kept",
+   "combo_check": {
+    "players": 6,
+    "slot_order": {
+     "ability_log_err": 0.642,
+     "mix_distance": 0.201,
+     "timing_error": 1.191
+    },
+    "replay_order": {
+     "ability_log_err": 0.533,
+     "mix_distance": 0.176,
+     "timing_error": 1.191
+    }
+   }
   },
   "78": {
    "name": "Deadman Danny",

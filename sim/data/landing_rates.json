@@ -415,19 +415,19 @@
   "Yamato": {
    "Power Slash": {
     "class": "citadel_ability_power_slash",
-    "landing": 0.24,
+    "landing": 0.28,
     "real_share": 0.1412,
     "sim_share": 0.296
    },
    "Flying Slash": {
     "class": "citadel_ability_flying_strike",
-    "landing": 0.53,
+    "landing": 0.59,
     "real_share": 0.1371,
     "sim_share": 0.1335
    },
    "Crimson Slash": {
     "class": "citadel_ability_healing_slash",
-    "landing": 0.38,
+    "landing": 0.43,
     "real_share": 0.1132,
     "sim_share": 0.1648
    }
@@ -541,21 +541,25 @@
   "Sinclair": {
    "Vexing Bolt": {
     "class": "ability_magician_magicbolt",
-    "landing": 0.81,
+    "landing": 0.73,
     "real_share": 0.3224,
     "sim_share": 0.2952
    },
    "Spectral Assistant": {
     "class": "ability_magician_cloneturret",
-    "landing": 0.46,
+    "landing": 0.45,
     "real_share": 0.2117,
     "sim_share": 0.3091
    },
    "Audience Participation": {
     "class": "ability_magician_copyult",
-    "landing": 1.16,
+    "landing": 0.79,
     "real_share": 0.0,
     "sim_share": 0.2239
+   },
+   "Rabbit Hex": {
+    "landing": 0.5,
+    "class": "ability_magician_animalhexarea"
    }
   },
   "Mina": {

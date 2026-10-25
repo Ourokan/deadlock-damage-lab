@@ -330,9 +330,34 @@ Sources, scripts in `scripts/fight_patterns/`:
 Check against the real damage mix (`fit_check.py`, mechanics on): a replay combo is used only when the sim's damage
 mix with it fits the real damage matrix within 0.05 of slot order (mean |log landing factor|). Haze, Yamato,
 Sinclair and Apollo fit worse with their real order, which points at gaps in those ability models, so they keep slot
-order for now. The ultimate stops waiting for its setup when no setup ability is off cooldown, when either side is
+order (re-checked under cast timing in "Yamato, Sinclair, Apollo" below). The ultimate stops waiting for its setup when no setup ability is off cooldown, when either side is
 below 30% health, or after 4 s. Landing factors were refit for every hero whose fights changed
 (`scripts/refit_landing_heroes.py`). `tests/test_patterns.py` pins a few duels with patterns on.
+
+**Yamato, Sinclair, Apollo (2026-10-25, on top of cast timing #86/#90).** `scripts/fight_patterns/combo_check.py`
+runs the damage audit's duels per pattern variant and compares the sim's casts with the fight_patterns replays (cast
+share weighted by the real chance the fight still goes on, first-cast share, median first cast) plus the audit mix.
+- Yamato: Shadow Transformation is not held by cast timing (it is not cast on sight) and came at 1.2 s in 90% of
+  fights; it now waits until all the other unlocked abilities are on cooldown: 7.3 s in 36% (replays 9 s, 26%).
+  It also casts below 35% health, and 16 s into the fight at the latest (a slow or silenced kit never gets all three
+  on cooldown; 12 s cast it in 41% of fights, 16 s gives 36% at 7.3 s with mix 0.019).
+  combo_check's survival weight is clamped to [0, 1] and starts at t = 0 for precasts (first-cast shares had gone
+  outside [0, 1]).
+- Sinclair: Rabbit Hex's damage amp on his own hits is booked under Rabbit Hex (`engine.BOOKED_AMPS`; the mod tag
+  carries the caster), as the damage matrix lists ~5% of his damage under it though it deals none itself.
+- Acceptance rule under cast timing (fight_patterns.json `_doc`): a replay combo is on when combo_check, with 20+
+  audit players with gun data, gives it an ability log error and mix distance no worse than slot order and a timing
+  error at least 0.03 better. Sinclair's combo is within noise (20 players: timing 0.429 -> 0.418, log error
+  0.146 -> 0.141; the timing error moves ~0.05 between runs) and Apollo's has 6 players and no cast_timing rows (his abilities land at t=0, real 3-5 s in), so
+  both keep slot order; the Rabbit Hex booking and the Sinclair refit stay.
+- Haze: a Bullet Dance hold on Fixation stacks helped before cast timing, but now compounds with its held cast
+  (cast share 0.16 vs real 0.23), so Haze is unchanged.
+Refit for Yamato and Sinclair: `refit_landing_heroes.py --iterate 3 --sample validation/phantom_sample.jsonl.gz`, then
+`length_factors.py --write --refit --no-cast-timing --hero X`, then `length_factors.py --write --hero X` (keep mode).
+Damage mix distance (audit) main (with #91) -> this: Yamato 0.080 -> 0.020, Sinclair 0.027 -> 0.024, Apollo 0.201
+(unchanged), Haze 0.043 -> 0.044; other heroes 0.0432 -> 0.0430.
+Also fixed: Nurse Harrow's specter heal hook didn't take engine.heal's `origin` (#93), so a lifesteal heal during
+Wretched Vapors crashed the duel (103 audit duels on main).
 
 Mo & Krill: Mo is underground when 26% of all fights start, 36% after laning (47% have a Burrow cast in the 10 s
 before the first hit), 9-24% in lane. So "most fights" holds for committed mid-game engages more than for lane
