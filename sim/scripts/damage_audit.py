@@ -132,7 +132,7 @@ def sim_player(job, both=False):
                 if key in ("GUN", "MELEE"):
                     continue
                 if key in first:
-                    out[f"_fu:{key}:{min(40, int(first[key] / 0.5))}"] += 1
+                    out[f"_fu:{key}:{min(40, int(max(0.0, first[key]) / 0.5))}"] += 1
                 else:
                     out[f"_fc:{key}:{min(40, int(r.time / 0.5))}"] += 1
             for (k, b), v in r.a_src_2s.items():
@@ -141,9 +141,12 @@ def sim_player(job, both=False):
             # the 0.5 s bucket, "_cn" duel over in the bucket without a cast
             for cls in r.a_castable:
                 if cls in r.a_cast_first:
-                    out[f"_cu:{cls}:{min(40, int(r.a_cast_first[cls] / 0.5))}"] += 1
+                    out[f"_cu:{cls}:{min(40, int(max(0.0, r.a_cast_first[cls]) / 0.5))}"] += 1
                 else:
                     out[f"_cn:{cls}:{min(40, int(r.time / 0.5))}"] += 1
+                if cls in r.a_cast_first and cls in first and first[cls] >= r.a_cast_first[cls]:
+                    # "_lg" first hit after the first cast, 0.25 s buckets (charge-up, fuse, travel)
+                    out[f"_lg:{cls}:{min(40, int((first[cls] - r.a_cast_first[cls]) / 0.25))}"] += 1
         for o, hd, exp in ((out, held, True), (out_u, held_u, False)) if both else ((out, held, True),):
             d = sim_sources(r, lambda k: L.sim_key(k, names, G), exp)
             o.update(d)

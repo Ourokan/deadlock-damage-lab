@@ -211,7 +211,34 @@ def hold_first_casts(f):
         else:
             u = rng.random()
         h = q[min(len(q) - 1, int(u * len(q)))]
-        ab.held_until = f.e.t + (math.inf if h is None else h)
+        ab.held_until = f.e.t + (math.inf if h is None else max(0.0, h))
+        ab.precast_at = f.e.t + h if h is not None and h < 0 else None
+
+
+def precast(f):
+    """Mechanics.cast_timing, after both fighters' fight start: an ability drawn with a negative hold (its real damage
+    lands at the fight's first hit or within PRE_S of it, but the sim's cast takes longer to land: a Kinetic Carbine
+    charge, a Sticky Bomb fuse, a Concussive Combustion wind-up) is cast that long before t = 0, so its charge-up and
+    gun lock fall before the fight and its hit opens it, as in the real fights the hold comes from
+    (scripts/cast_timing/fit_cast_timing.py, due times). The cast's own rule still decides (try_cast); one it turns
+    down waits for the first chance in the fight."""
+    t0 = f.e.t
+    for ab in f.abilities:
+        at = getattr(ab, "precast_at", None)
+        if at is None:
+            continue
+        ab.precast_at = None
+        if ab.ready_at > t0:
+            continue   # on cooldown at the start (spent before the fight): nothing to precast
+        ready, held = ab.ready_at, ab.held_until
+        ab.ready_at = ab.held_until = at   # ready then, not only from t = 0
+        f.e.t = at
+        try:
+            cast = ab.try_cast()
+        finally:
+            f.e.t = t0
+        if not cast:
+            ab.ready_at, ab.held_until = ready, held
 
 
 DEFAULT = Mechanics()   # None turns the new mechanics off for every Engine built without an explicit value

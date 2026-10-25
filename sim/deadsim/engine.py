@@ -533,7 +533,7 @@ class Engine:
                 t0 = self.t if t is None else t
                 return sum(self.length_w(t0 + h) for h in q) / len(q)
         from .mechanics import LENGTH_STEP
-        x = (self.t if t is None else t) / LENGTH_STEP
+        x = max(0.0, self.t if t is None else t) / LENGTH_STEP
         k = int(x)
         if k >= len(c) - 1:
             return c[-1]
@@ -707,7 +707,7 @@ class Engine:
             src.dmg_out[name] = src.dmg_out.get(name, 0.0) + part
             dst.dmg_in[name] = dst.dmg_in.get(name, 0.0) + part
             src.dmg_exp[name] = src.dmg_exp.get(name, 0.0) + part * w
-        k = int(self.t // 2)
+        k = int(max(0.0, self.t) // 2)   # a precast's hit before the fight start (mechanics.precast) books in slice 0
         src.dmg_by_2s[k] = src.dmg_by_2s.get(k, 0.0) + amt
         if amt > 0 and PROFILE_SOURCES:
             src.dmg_first.setdefault(source, self.t)
@@ -1018,6 +1018,10 @@ class Engine:
                 hold_first_casts(f)
         for f in (a, b):
             fight_start(f)
+        if self.length and self.mech is not None and getattr(self.mech, "cast_timing", False):
+            from .mechanics import precast
+            for f in (a, b):
+                precast(f)
         self.at(0.0, self.gun_tick, a)
         if not one_way:
             self.at(0.0, self.gun_tick, b)
