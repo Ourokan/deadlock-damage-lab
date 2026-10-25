@@ -19,7 +19,7 @@ from deadsim.fight import make_fighter  # noqa: E402
 
 
 def pair(hero, seed=1, mech=None):
-    mech = mech or dataclasses.replace(M.DEFAULT, fight_length=M.real_length(27000))
+    mech = mech or dataclasses.replace(M.DEFAULT, fight_length=M.real_length(27000), entry_hp=True)
     e = Engine(distance=10, mech=mech, rng=random.Random(seed))
     f = make_fighter(e, Loadout(hero, [], souls=27000))
     g = make_fighter(e, Loadout("Abrams", [], souls=27000))

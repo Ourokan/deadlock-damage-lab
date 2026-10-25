@@ -26,7 +26,10 @@ Each row keeps its fitted factor (landing) and gets length_corr; deadsim.accurac
 keep the fit as it is. After a refit (landing_rates.py, refit_landing_heroes.py, item_landing.py: they fit with
 every hit in full and keep the old length_corr) rerun this.
 
-usage: python3 length_factors.py [workers] [--sample PATH] [--rounds 3] [--write] [--hero NAME] [--refit]   (~1 min a round on 4 cores)
+--entry (after Mechanics.entry_hp, on factors already kept for cast timing): target = the current corrections in held
+duels at full health; rounds scale them until the duels at real entry health give that again. --target-holds PATH:
+the target run uses that cast_timing.json (the one before the refit), so abilities newly held keep their level.
+usage: python3 length_factors.py [workers] [--sample PATH] [--rounds 3] [--write] [--hero NAME] [--refit] [--entry]   (~1 min a round on 4 cores)
 --hero: only that hero's players and ability rows (a newly added hero); item factors are left as they are.
 After refit_landing_heroes.py for a hero: --refit --no-cast-timing --hero NAME (the corrections as before cast
 timing), then --hero NAME in keep mode once (the file's cast_timing_kept mark covers the other rows and stays). Keep
@@ -34,6 +37,7 @@ mode scales the current corrections, so a second keep run on the same rows would
 --refit run listed the hero in meta cast_timing_pending_heroes.
 """
 import collections
+import dataclasses
 import gzip
 import json
 import os
@@ -150,11 +154,28 @@ def main():
     if keep and only is not None and "cast_timing_kept" in abil["meta"] and hero_name not in pending:
         sys.exit(f"length_factors: {hero_name}'s rows are already scaled for cast timing; a second keep run would "
                  f"compound them. Run --refit --no-cast-timing --hero first.")
-    if keep and "cast_timing_kept" in abil["meta"] and only is None:
+    entry_only = keep and "--entry" in sys.argv
+    if entry_only:
+        # --entry: factors already kept for cast timing (and refit since, #91); keep the levels they give now in
+        # duels at full health, so Mechanics.entry_hp moves when health-gated damage lands, not how much
+        # (--target-holds PATH: the target run holds first casts as that cast_timing.json did, e.g. the one before
+        # a refit that added holds, so newly held abilities keep their level too)
+        import deadsim.mechanics as M
+        ACC.LENGTH_CORR = True
+        entry = A.MECH.entry_hp
+        A.MECH = dataclasses.replace(A.MECH, entry_hp=False)
+        holds = M._CAST
+        if "--target-holds" in sys.argv:
+            with open(sys.argv[sys.argv.index("--target-holds") + 1]) as fh:
+                M._CAST = json.load(fh)["sources"]
+        target_ab, _, target_it, _, _ = run(jobs, workers)
+        M._CAST = holds
+        A.MECH = dataclasses.replace(A.MECH, entry_hp=entry)
+    elif keep and "cast_timing_kept" in abil["meta"] and only is None:
         # the target run would cast on sight with corrections already scaled for held casts: rerunning compounds
         sys.exit("length_factors: these factors are already scaled for cast timing (meta cast_timing_kept). Start "
                  "from the factors before it (git: the commit before the cast-timing refit) or use --refit.")
-    if keep:
+    if keep and not entry_only:
         # Mechanics.cast_timing: keep each source's expected level (source / gun over real fight lengths) as the
         # current corrections give it in duels that cast on sight, so held first casts change when in a fight the
         # damage lands, not how much of it the fitted factors give: target = that run, rounds scale the current
@@ -218,8 +239,13 @@ def main():
         else:
             abil["meta"].pop(PENDING, None)
     for d in () if only is not None else (abil, items):
-        d["meta"].pop("cast_timing_kept", None)
-        if keep:
+        kept = d["meta"].pop("cast_timing_kept", None)
+        if entry_only:
+            d["meta"]["entry_hp_kept"] = ("length_corr scaled so held first casts and Mechanics.entry_hp (as "
+                                          "configured in the run) keep the expected levels of a target run at full "
+                                          "health with the previous holds (length_factors.py --entry --target-holds)")
+            d["meta"]["cast_timing_kept"] = kept
+        elif keep:
             d["meta"]["cast_timing_kept"] = ("length_corr scaled so held first casts (Mechanics.cast_timing) keep the "
                                              "expected levels of cast-on-sight duels; rerun from the factors before")
     if write:

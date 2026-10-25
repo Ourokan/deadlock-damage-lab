@@ -120,8 +120,10 @@ class Mechanics:
     # start_hp) starts short of full by a deficit drawn from the real Phantom+ entry health spread at hero combat
     # start (data/sustain.json entry_deficit_q, scripts/sustain/fit_sustain.py; about half the fights start full).
     # Health-gated abilities (Killing Blow, Assassinate, Close The Deal, Lethal Venom) then meet their threshold as
-    # early as in real fights. Draws like cast_timing (phase or rng; deterministic fights start full)
-    entry_hp: bool = True
+    # early as in real fights. Draws like cast_timing (phase or rng; deterministic fights start full). Off by default:
+    # with it on (factors kept with length_factors.py --entry) execute timing matches real, but sim_vs_win per item
+    # fell 0.239 -> 0.216 and the audit 0.0314 -> 0.0330 (validation/README.md "Fight entry health")
+    entry_hp: bool = False
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut

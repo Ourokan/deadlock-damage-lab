@@ -6,6 +6,7 @@
   "use": "deadsim realistic mode scales an item's own damage by min(1, landing)",
   "length": "fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x length_corr (the sim's source/gun in full / the same expected over real fight lengths, scripts/fight_length/length_factors.py, phantom_sample.jsonl.gz, 3 rounds)",
   "heroes": "per-hero factors from the damage audit's hero x item rows (phantom_sample.jsonl.gz, >= 20 holders): current factor x (real/sim)^(n/(n+20)), capped 0.25-1; replace the pooled factor for that hero (scripts/item_landing_heroes.py)",
+  "entry_hp_kept": "length_corr scaled so held first casts and Mechanics.entry_hp (as configured in the run) keep the expected levels of a target run at full health with the previous holds (length_factors.py --entry --target-holds)",
   "cast_timing_kept": "length_corr scaled so held first casts (Mechanics.cast_timing) keep the expected levels of cast-on-sight duels; rerun from the factors before"
  },
  "items": {
@@ -15,7 +16,7 @@
    "real_per_gun": 0.2478,
    "sim_per_gun": 0.6764,
    "landing": 0.366,
-   "length_corr": 0.981
+   "length_corr": 0.99
   },
   "upgrade_escalating_exposure": {
    "name": "Escalating Exposure",
@@ -23,7 +24,7 @@
    "real_per_gun": 0.8663,
    "sim_per_gun": 1.6014,
    "landing": 0.541,
-   "length_corr": 1.486
+   "length_corr": 1.494
   },
   "upgrade_mystic_reverb": {
    "name": "Mystic Reverb",
@@ -31,7 +32,7 @@
    "real_per_gun": 1.3033,
    "sim_per_gun": 2.4026,
    "landing": 0.542,
-   "length_corr": 2.231
+   "length_corr": 2.287
   },
   "upgrade_toxic_bullets": {
    "name": "Toxic Bullets",
@@ -39,7 +40,7 @@
    "real_per_gun": 0.5309,
    "sim_per_gun": 0.8573,
    "landing": 0.619,
-   "length_corr": 1.347
+   "length_corr": 1.35
   },
   "upgrade_focus_lens": {
    "name": "Focus Lens",
@@ -47,7 +48,7 @@
    "real_per_gun": 0.9568,
    "sim_per_gun": 1.4797,
    "landing": 0.647,
-   "length_corr": 1.122
+   "length_corr": 1.088
   },
   "upgrade_discord": {
    "name": "Scourge",
@@ -55,7 +56,7 @@
    "real_per_gun": 2.0362,
    "sim_per_gun": 3.1126,
    "landing": 0.654,
-   "length_corr": 1.161
+   "length_corr": 1.129
   },
   "upgrade_targeted_silence": {
    "name": "Silence Wave",
@@ -63,7 +64,7 @@
    "real_per_gun": 0.2088,
    "sim_per_gun": 0.3027,
    "landing": 0.69,
-   "length_corr": 0.558
+   "length_corr": 0.549
   },
   "upgrade_capacitor": {
    "name": "Capacitor",
@@ -71,7 +72,7 @@
    "real_per_gun": 0.6964,
    "sim_per_gun": 0.9745,
    "landing": 0.715,
-   "length_corr": 0.835
+   "length_corr": 0.836
   },
   "upgrade_crackshot": {
    "name": "Mystic Shot",
@@ -79,7 +80,7 @@
    "real_per_gun": 0.3848,
    "sim_per_gun": 0.5143,
    "landing": 0.748,
-   "length_corr": 1.14
+   "length_corr": 1.143
   },
   "upgrade_weapon_backstabber": {
    "name": "Stalker",
@@ -87,7 +88,7 @@
    "real_per_gun": 0.2189,
    "sim_per_gun": 0.2903,
    "landing": 0.754,
-   "length_corr": 1.098
+   "length_corr": 1.081
   },
   "upgrade_ethereal_bullets": {
    "name": "Mercurial Magnum",
@@ -95,7 +96,7 @@
    "real_per_gun": 0.2954,
    "sim_per_gun": 0.3581,
    "landing": 0.825,
-   "length_corr": 1.179
+   "length_corr": 1.176
   },
   "upgrade_thermal_detonator": {
    "name": "Alchemical Fire",
@@ -103,7 +104,7 @@
    "real_per_gun": 0.8742,
    "sim_per_gun": 1.0484,
    "landing": 0.834,
-   "length_corr": 0.933
+   "length_corr": 0.919
   },
   "upgrade_headhunter": {
    "name": "Headhunter",
@@ -111,7 +112,7 @@
    "real_per_gun": 0.4398,
    "sim_per_gun": 0.524,
    "landing": 0.839,
-   "length_corr": 0.954
+   "length_corr": 0.952
   },
   "upgrade_ricochet": {
    "name": "Ricochet",
@@ -119,7 +120,7 @@
    "real_per_gun": 0.1562,
    "sim_per_gun": 0.178,
    "landing": 0.878,
-   "length_corr": 1.024
+   "length_corr": 1.045
   },
   "upgrade_chain_lightning": {
    "name": "Tesla Bullets",
@@ -127,7 +128,7 @@
    "real_per_gun": 0.4798,
    "sim_per_gun": 0.5378,
    "landing": 0.892,
-   "length_corr": 0.983
+   "length_corr": 0.988
   },
   "upgrade_tech_damage_pulse": {
    "name": "Torment Pulse",
@@ -135,7 +136,7 @@
    "real_per_gun": 1.3578,
    "sim_per_gun": 1.5121,
    "landing": 0.898,
-   "length_corr": 1.279
+   "length_corr": 1.275
   },
   "upgrade_split_shot": {
    "name": "Split Shot",
@@ -143,7 +144,7 @@
    "real_per_gun": 0.257,
    "sim_per_gun": 0.2805,
    "landing": 0.916,
-   "length_corr": 0.421
+   "length_corr": 0.416
   },
   "upgrade_cold_front": {
    "name": "Cold Front",
@@ -151,7 +152,7 @@
    "real_per_gun": 0.447,
    "sim_per_gun": 0.485,
    "landing": 0.922,
-   "length_corr": 0.556
+   "length_corr": 0.55
   },
   "upgrade_express_shot": {
    "name": "Express Shot",
@@ -159,7 +160,7 @@
    "real_per_gun": 0.6723,
    "sim_per_gun": 0.6639,
    "landing": 1.013,
-   "length_corr": 0.968
+   "length_corr": 0.959
   },
   "upgrade_acolytes_glove": {
    "name": "Spirit Strike",
@@ -175,7 +176,7 @@
    "real_per_gun": 0.2149,
    "sim_per_gun": 0.1973,
    "landing": 1.09,
-   "length_corr": 0.874
+   "length_corr": 0.865
   },
   "upgrade_quick_silver": {
    "name": "Quicksilver Reload",
@@ -183,7 +184,7 @@
    "real_per_gun": 0.1712,
    "sim_per_gun": 0.1546,
    "landing": 1.107,
-   "length_corr": 0.845
+   "length_corr": 0.848
   },
   "upgrade_spirit_burn": {
    "name": "Spirit Burn",
@@ -191,7 +192,7 @@
    "real_per_gun": 0.7543,
    "sim_per_gun": 0.6775,
    "landing": 1.113,
-   "length_corr": 1.484
+   "length_corr": 1.468
   },
   "upgrade_rupture": {
    "name": "Decay",
@@ -199,7 +200,7 @@
    "real_per_gun": 1.5357,
    "sim_per_gun": 1.3166,
    "landing": 1.166,
-   "length_corr": 1.2
+   "length_corr": 1.219
   },
   "upgrade_ultimate_burst": {
    "name": "Lightning Scroll",
@@ -207,7 +208,7 @@
    "real_per_gun": 0.3686,
    "sim_per_gun": 0.3058,
    "landing": 1.205,
-   "length_corr": 0.846
+   "length_corr": 0.855
   },
   "upgrade_spirit_snatch": {
    "name": "Spirit Snatch",
@@ -215,7 +216,7 @@
    "real_per_gun": 0.3666,
    "sim_per_gun": 0.3022,
    "landing": 1.213,
-   "length_corr": 1.029
+   "length_corr": 1.028
   },
   "upgrade_magic_burst": {
    "name": "Mystic Burst",
@@ -223,7 +224,7 @@
    "real_per_gun": 0.2838,
    "sim_per_gun": 0.2325,
    "landing": 1.22,
-   "length_corr": 0.951
+   "length_corr": 0.947
   },
   "upgrade_magic_shock": {
    "name": "Tankbuster",
@@ -239,7 +240,7 @@
    "real_per_gun": 0.311,
    "sim_per_gun": 0.2112,
    "landing": 1.473,
-   "length_corr": 0.475
+   "length_corr": 0.478
   },
   "upgrade_arctic_blast": {
    "name": "Arctic Blast",
@@ -255,7 +256,7 @@
    "real_per_gun": 0.0628,
    "sim_per_gun": 0.042,
    "landing": 1.497,
-   "length_corr": 1.1
+   "length_corr": 0.963
   },
   "upgrade_critshot": {
    "name": "Lucky Shot",
@@ -263,7 +264,7 @@
    "real_per_gun": 0.3966,
    "sim_per_gun": 0.228,
    "landing": 1.739,
-   "length_corr": 0.948
+   "length_corr": 0.944
   },
   "upgrade_melee_charge": {
    "name": "Melee Charge",
@@ -271,7 +272,7 @@
    "real_per_gun": 0.2404,
    "sim_per_gun": 0.1069,
    "landing": 2.249,
-   "length_corr": 0.913
+   "length_corr": 0.91
   },
   "upgrade_crushing_fists": {
    "name": "Crushing Fists",
@@ -279,7 +280,7 @@
    "real_per_gun": 0.3039,
    "sim_per_gun": 0.0997,
    "landing": 3.05,
-   "length_corr": 0.948
+   "length_corr": 0.903
   },
   "upgrade_return_fire": {
    "name": "Return Fire",
@@ -287,7 +288,7 @@
    "real_per_gun": 0.4389,
    "sim_per_gun": 0.1169,
    "landing": 3.754,
-   "length_corr": 0.592
+   "length_corr": 0.618
   }
  },
  "heroes": {

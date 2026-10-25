@@ -1132,36 +1132,44 @@ Left: health-gated executes (Killing Blow, Assassinate, Close The Deal, Lethal V
 fight-entry health (sim duels start full); resource gates (Slam Fire rage, Pain Battery, Djinn's Mark stacks) still
 land 2-7 s later than real.
 
-### Fight entry health, Pain Battery and Slam Fire on real timing
+### Fight entry health (opt-in), Pain Battery and Slam Fire on real timing
 
-Health-gated abilities (Killing Blow, Assassinate, Close The Deal, Lethal Venom, Soul Exchange) waited for the target
-to drop below their threshold from full health, while real fights start with the target already short (sustain.json
-entry_deficit_q: about half start full, a quarter 15%+ short). Resource-gated ones started empty.
+Health-gated abilities (Killing Blow, Assassinate, Close The Deal, Lethal Venom) wait for the target to drop below
+their threshold from full health, while real fights start with the target already short (sustain.json
+entry_deficit_q: about half start full, a quarter 15%+ short); Slam Fire waited for the last shell, Pain Battery
+started empty.
 
-- `Mechanics.entry_hp` (on, with fight_length): a fighter whose start health wasn't set (`Fighter.entry_set`;
-  survive's start_hp sets it, so the overall search keeps its own entry health for the build) starts short by a
-  deficit drawn from the real spread for its net worth (phase or rng draw like cast_timing; deterministic fights
-  start full).
-- Pain Battery starts charged by the health Victor is missing at the start (damage taken before the fight).
-- Slam Fire: a first cast held to real cast timing opens with it whatever the clip (`AbilityState.held_opener`; the
-  ultimate setup skip uses it too). `fit_cast_timing.py` measures these with `abilities.PROBE_HELD` (every first cast
-  acts as held) in place of #92's ULT_WAIT pass; abilities marked `held_opens` and ultimates take that run.
-  New holds: Slam Fire, Storm Cloud, Dazzling Trick, Royal Pestments (118).
-- `length_factors.py` keep mode: the target run has entry_hp off too. A first refit with the target at entry health
-  doubled health-gated damage (the fitted landing factors already priced in the missing low-health casts: Vindicta's
-  Assassinate share 0.11 -> 0.40, real 0.16; sim_vs_win per item 0.236 -> 0.218), so entry health moves when they
-  land, not how much they give.
+- `Mechanics.entry_hp` (**off by default**, with fight_length): a fighter whose start health wasn't set
+  (`Fighter.entry_set`; survive's start_hp sets it, so the overall search keeps its own entry health for the build)
+  starts short by a deficit drawn from the real spread for its net worth (phase or rng draw like cast_timing).
+  With it on, Pain Battery starts charged by the health Victor is missing.
+- Slam Fire (on): a first cast held to real cast timing opens with it whatever the clip
+  (`AbilityState.held_opener`; the ultimate setup skip from #92 uses it too). `fit_cast_timing.py` measures such
+  abilities with `abilities.PROBE_HELD` (every first cast acts as held) in place of #92's ULT_WAIT pass; ultimates and
+  abilities marked `held_opens` take that run.
+- `length_factors.py --entry [--target-holds PATH]`: on factors already kept for cast timing (and refit since, #91,
+  #78), target = the current corrections in duels at full health with the previous cast_timing.json; rounds scale
+  them until the duels as configured give that again. Without it a refit doubled health-gated damage (the landing
+  factors already priced in the missing low-health casts: Assassinate share 0.11 -> 0.40, real 0.16) and newly held
+  abilities lost their level (Storm Cloud 0.21 -> 0.04, real 0.20).
 
-Results (main after the 09-29 hotfix rerun -> this; that rerun refreshed team values and win edges, so main's
-sim_vs_win is lower than #92's): opener timing mean time real - sim -0.52 -> -0.30 s, sources > 0.5 s late 101 ->
-89 of 220, median |shift| 0.80 -> 0.67 s (Assassinate mean first hit 9.5 -> 6.0 s, real 7.4; Lethal Venom 12.2 ->
-6.8, real 6.3; Close The Deal 8.5 -> 5.6, real 6.2; Killing Blow 11.0 -> 9.6, real 6.9; Slam Fire 6.0 -> 3.2, real
-3.3; Pain Battery 7.7 -> 6.1, real 5.0); damage audit mix 0.0375 -> 0.0378; sim_vs_win at 27k (correlation, higher
-is better) all 0.164 -> 0.163, damage items 0.035 -> 0.034, edges clear of noise 0.266 -> 0.260, per item 0.236 ->
-0.214 (Seven 0.02 -> 0.22 with Storm Cloud held; Silver 0.17 -> 0.07, 0.12 without the Slam Fire opener; per-hero
-values move +-0.1 by noise).
+Results on main after #78/#95 (sim_vs_win is a correlation: higher is better):
 
-Left: Djinn's Mark (stacks build in the fight, real first pop 9.8 s vs sim 12.6 s); Killing Blow still ~3 s late.
+| | main | this (default) | with entry_hp on |
+|---|---|---|---|
+| damage audit mix | 0.0314 | 0.0317 | 0.0330 |
+| sim_vs_win all / damage items | 0.164 / 0.042 | 0.162 / 0.040 | 0.164 / 0.037 |
+| clear of noise / per item | 0.267 / 0.239 | 0.264 / 0.234 | 0.259 / 0.216 |
+| opener timing sources > 0.5 s late (of 222), mean real - sim | 103, -0.47 s | 103, -0.49 s | 83, -0.25 s |
+
+Mean first hit real / main / entry_hp on: Slam Fire 3.3 / 6.0 / 3.2 (3.3 by default); Assassinate 7.4 / 9.6 / 5.9;
+Lethal Venom 6.3 / 12.0 / 6.8; Close The Deal 6.2 / 8.6 / 5.6; Killing Blow 6.9 / 11.1 / 9.6; Pain Battery 5.0 / 7.6
+/ 6.0; Soul Exchange 4.3 / 4.4 / 2.5 (too early). Entry health puts the executes on real timing but lowers the
+per-item win match (Silver, Vindicta, Sinclair lose most; Seven gains), so it stays opt-in: to use it, set
+entry_hp=True and rerun `length_factors.py 4 --write --entry --target-holds <cast_timing.json before>`.
+
+Left: Djinn's Mark (stacks build in the fight, real first pop 9.8 s vs sim 12.6 s); with entry_hp, Killing Blow is
+still ~3 s late and Soul Exchange ~2 s early.
 
 ## Tankbuster minimum damage (2026-10-25)
 
