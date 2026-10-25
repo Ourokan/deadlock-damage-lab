@@ -334,8 +334,9 @@ async function rpFindSwaps() {
       const res = await simCall("replay", rpReq({ [s]: real.map((i) => (i === o ? c : i)) }));
       out.push({ out: o, in: c, gain: rpSwing(res) - base, kills: rpDead(res, "B") - rpDead(R.base.res, "B"), deaths: rpDead(res, "A") - rpDead(R.base.res, "A") });
     }
+    if (run !== R.run) return;   // an edit or a new fight came in during the last run
     R.swaps = { slot: s, rows: out.sort((x, y) => y.gain - x.gain), tried: todo.length, total };
-    if (run === R.run) rpResult();
+    rpResult();
   } catch (e) {
     if (run === R.run) $("#r-out").insertAdjacentHTML("beforeend", `<p class="err">The sim failed: ${esc(e.message)}</p>`);
   } finally {
