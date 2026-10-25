@@ -626,7 +626,7 @@ class BloodTribute(FX):
 @handler("upgrade_non_player_bonus_sacrifice")
 class CultistSacrifice(FX):
     def on_start(self, f):
-        if f.skill.use_actives:   # long buff (160 s) assumed up before the fight
+        if f.skill.use_actives and not getattr(self, "unused", False):   # long buff (160 s) assumed up before the fight
             d = 1e9
             self.buff("weapon_pct", self.v("BaseAttackDamagePercent") / 100, d)
             self.buff("max_health", self.v("BonusHealth"), d)

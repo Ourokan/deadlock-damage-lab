@@ -276,6 +276,23 @@ def item_landing():
             if r["landing"] < 1.0 and r["holders"] >= ITEM_LANDING_MIN_HOLDERS}
 
 
+ITEM_USE_PATH = os.path.join(HERE, "..", "data", "item_use.json")
+ITEM_USE = True   # False: every non-damage active used whenever ready (scripts/item_use/fit_item_use.py fits with this)
+
+
+def item_use():
+    """{item name: real use share} for non-damage active items real Phantom+ holders use in fewer fights than the sim
+    (data/item_use.json, scripts/item_use/fit_item_use.py; factors < 1 only). Realistic mode leaves the item unused
+    in 1 - share of the fights that have a fight_phase (engine.unused_items)."""
+    if not ITEM_USE:
+        return {}
+    try:
+        rows = json.load(open(ITEM_USE_PATH))["items"]
+    except (OSError, ValueError, KeyError):
+        return {}
+    return {n: r["factor"] for n, r in rows.items() if r["factor"] < 1.0}
+
+
 def item_length_corr():
     """{item name: length_corr}: item_landing's factors (or 1 for an item left uncut) x this for fights that book
     damage over real fight lengths (data/item_landing.json, scripts/fight_length/length_factors.py)."""
@@ -325,7 +342,8 @@ def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_ove
     melee_rates_by_items). melee_rate_override (landed melees per second) and heavy_share (0-1) replace the
     data defaults with the user's own numbers. badge (match rank, e.g. 111 = Eternus 1) sets rank-dependent
     habits: how fast Dispel Magic is used on a DoT (dot_cleanse_delay). Targets always walk out of ground
-    zones (zone_exit_s). counterplay=True also applies real-data item damage factors (item_landing)."""
+    zones (zone_exit_s). counterplay=True also applies real-data item damage factors (item_landing) and real
+    use shares of non-damage active items (item_use)."""
     d = json.load(open(DEFAULTS))
     h = game().hero(hero)
     row = _aim_row(d, h)
@@ -353,6 +371,7 @@ def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_ove
     if counterplay:   # realistic mode: item damage calibrated to real matches
         sk.item_landing = item_landing()
         sk.item_length_corr = item_length_corr()
+        sk.item_use = item_use()
     return sk
 
 
