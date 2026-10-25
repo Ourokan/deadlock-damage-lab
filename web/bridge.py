@@ -66,26 +66,42 @@ def breakdown(req_json):
 
     loss: damage lost by each mark when the item is removed. share: the build's damage above the no-item hero split
     across items in proportion to their positive loss, so base + shares = total. sources: change in each damage
-    source (30 s) the item causes; direct: damage booked under the item's own name (its procs)."""
+    source (30 s) the item causes; direct: damage booked under the item's own name (its procs). heals: change in
+    each heal source over 30 s (damage_test's heals: what the hero would heal if hurt, lifesteal keyed by the damage
+    it came from). q["alts"] = {item id: other item id}: also runs the build with the item swapped for that one
+    ("alt": its damage and heals), the site's "instead of the popular pick" comparison."""
     q = json.loads(req_json)
     hero, items, kw = _setup(q)
+    G = game()
     names = [i.name for i in items]
     full = damage_test(hero.name, names, **kw)
     base = damage_test(hero.name, [], **kw)
     marks = list(full["damage"])
-    out = {"total": full["damage"], "base": base["damage"], "sources": full["sources"], "items": []}
+    out = {"total": full["damage"], "base": base["damage"], "sources": full["sources"], "heals": full["heals"],
+           "items": []}
+
+    def diff(a, b):
+        d = {k: round(v - b.get(k, 0.0), 1) for k, v in a.items()}
+        d.update({k: round(-v, 1) for k, v in b.items() if k not in a})
+        return {k: v for k, v in sorted(d.items(), key=lambda x: -abs(x[1])) if abs(v) >= 1}
+
+    alts = {int(k): v for k, v in (q.get("alts") or {}).items()}
     for it in items:
-        r = damage_test(hero.name, [n for n in names if n != it.name], **kw)
-        delta = {k: round(v - r["sources"].get(k, 0.0), 1) for k, v in full["sources"].items()}
-        for k, v in r["sources"].items():
-            if k not in full["sources"]:
-                delta[k] = round(-v, 1)
-        out["items"].append({
+        rest = [n for n in names if n != it.name]
+        r = damage_test(hero.name, rest, **kw)
+        x = {
             "id": it.id, "name": it.name, "cost": it.cost,
             "loss": {m: round(full["damage"][m] - r["damage"][m], 1) for m in marks},
             "direct": round(sum(v for k, v in full["sources"].items() if k == it.name or k.startswith(it.name + " ")), 1),
-            "sources": {k: v for k, v in sorted(delta.items(), key=lambda x: -abs(x[1])) if abs(v) >= 1},
-        })
+            "sources": diff(full["sources"], r["sources"]),
+            "heals": diff(full["heals"], r["heals"]),
+        }
+        if alts.get(it.id) is not None:
+            a = _item(G, alts[it.id])
+            ra = damage_test(hero.name, rest + [a.name], **kw)
+            x["alt"] = {"id": a.id, "name": a.name, "cost": a.cost, "damage": ra["damage"],
+                        "heal": round(sum(ra["heals"].values()), 1), "heals": diff(full["heals"], ra["heals"])}
+        out["items"].append(x)
     for m in marks:
         extra = full["damage"][m] - base["damage"][m]
         pos = sum(max(0.0, x["loss"][m]) for x in out["items"])

@@ -14,11 +14,43 @@ Assumptions:
 - Shocking Reanimation: on lethal damage Victor is invulnerable and can't act for RespawnDelay, then revives
   with RespawnHealthPercent and hits Damage + stun if the target is within Radius. T1: +BonusFireRate and
   BonusDamagePerBullet spirit damage per bullet hit (6 + 0.06 x spirit), only while the ult is on cooldown.
+  Carried over from earlier fights (CARRY_COOLDOWN): in real Phantom+ games the ult is still on cooldown at the
+  start of 11% of Victor's lane fights and ~30-50% later (data/victor_revive.json, scripts/mechanics/victor_revive.py:
+  seconds since his last revive at each fight start). Fights that book damage over real fight lengths and have an
+  rng or a fight phase draw that time: with it under the cooldown the duel starts with the ult on cooldown for the
+  rest (no revive, the T1 bonus on). Other fights (dummy page, deterministic) start with it ready.
 """
+import json
+import os
+import zlib
+
 from deadsim.abilities import AbilityImpl, register
 
 JUMPSTART_HP = 0.6       # cast Jumpstart below this health fraction
 SELF_TAG = "victor_self"
+CARRY_COOLDOWN = True
+_carry = None
+
+
+def carried_cooldown(c, s):
+    """Seconds of Shocking Reanimation's cooldown left from an earlier fight when this one starts (0 = ready)."""
+    global _carry
+    f, e = c.me, c.engine
+    if not CARRY_COOLDOWN or getattr(e, "length", None) is None:
+        return 0.0
+    if f.skill.fight_phase is not None:
+        r = (f.skill.fight_phase + zlib.crc32(f"victor_revive|{f.name}".encode()) / 2 ** 32) % 1.0
+    elif e.rng is not None:
+        r = e.rng.random()
+    else:
+        return 0.0
+    if _carry is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "..", "data", "victor_revive.json")) as fh:
+            _carry = json.load(fh)["phases"]
+    souls = f.st.souls
+    qs = _carry["lane" if souls < 10000 else "mid" if souls <= 27000 else "late"]
+    since = qs[min(len(qs) - 1, int(r * len(qs)))]
+    return 0.0 if since is None else max(0.0, s.cooldown() - since)
 
 
 def find(c, class_name):
@@ -164,6 +196,10 @@ class ShockingReanimation(AbilityImpl):
     def start(self, c):
         c.me.items_fx.append(_Revive(self.s))
         c.state["cd_until"] = -1.0
+        left = carried_cooldown(c, self.s) if self.s.unlocked else 0.0
+        if left > 0:
+            self.s.ready_at = c.now + left
+            c.state["cd_until"] = self.s.ready_at
         if c.tier >= 1:
             c.me.stat_hooks.append(
                 lambda f: {"fire_rate": c.raw("BonusFireRate") / 100} if c.now < c.state["cd_until"] else {})

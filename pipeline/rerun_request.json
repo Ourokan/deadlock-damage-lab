@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-25T17:56:00Z",
- "reason": "Timing (#92): held first casts of combo ultimates (Lash's Death Slam) skip the setup wait, precasts go earliest first with a free gun; cast timing and item factors refit"
+ "requested_at": "2026-10-25T18:45:00Z",
+ "reason": "Hero calibration (#91): Victor ult cooldown carried over from earlier fights, Bebop Grapple Arm damage, ability factors refit to the damage audit for 11 heroes"
 }

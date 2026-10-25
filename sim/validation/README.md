@@ -1165,3 +1165,39 @@ later than real (sim resists are lower or replay damage leaves out barrier hits;
 
 Left: Paradox (3.3x under) and Bebop (2.1x) Tankbuster; both trigger right in the sim (Kinetic Carbine, Sticky Bomb),
 but have few qualifying hits per duel. Grey Talon / Pocket / Mina are 0.88-0.93 (fine).
+
+## Heroes furthest from real damage: refit to the audit, Victor's ult, Bebop's hook (2026-10-25)
+
+Damage audit on main after cast timing (#86) and the timing follow-ups (#90, #92): player-weighted mix distance 0.0378. Many heroes' ability factors
+came from the old all-rank sample (Deadman Danny's Close The Deal real share 0.043 there vs 0.098 in Phantom+).
+
+- **Refit straight to the audit.** `length_factors.py` can't redo a refit hero's length_corr once the factors are
+  scaled for cast timing (keep mode refuses; `--refit` targets the in-full ratio of duels with held casts, which is
+  not what the landing fit saw: held-out 0.040 -> 0.063). So, per hero: `refit_landing_heroes.py --iterate 2
+  --sample phantom` (in-full landing, the dummy page), then 3 rounds of audit + `scripts/ability_corr_heroes.py
+  --hero H --write` (length_corr x (real/sim)^(n/(n+20)) per ability, from the audit's sources), then audit +
+  `item_landing_heroes.py --hero H --write` (new `--hero`: refits that hero's item rows, keeps everyone else's;
+  without it the script replaced the whole "heroes" block).
+- **Held-out check.** Fit on even match ids, audit the odd ones, then the reverse. Kept only heroes better both
+  ways (checked again after #90): Venator, Infernus, Victor, Silver, Seven, Vyper, Paige, Mirage, Ivy, Kelvin, plus
+  Bebop (needs a row for the new hook; one half better, one worse). Rem was better before #90, not after. Worse in one direction (left as they were): Shiv, Baba, Billy, Celeste, Warden, Violet;
+  worse or flat held-out: Paradox, Vindicta, Danny, Drifter, McGinnis, Lash, Grey Talon, Dynamo, Lady Geist, Viscous.
+  Haze, Yamato, Sinclair and Apollo were left to the fight-combo PR (#78).
+- **Victor (`heroes/frank.py`, `data/victor_revive.json`, `scripts/mechanics/victor_revive.py`).** Real ult damage
+  is 53% the T1 per-bullet bonus ("while on cooldown") and 47% the revive blast. In 59 Phantom+ replays (4.6
+  revives a match) the ult is still on cooldown at the start of 11% of his lane fights and 30-50% later; the sim
+  always started with it ready. Fights with fight_length and an rng or fight phase now draw the seconds since his
+  last revive (20 bins per phase) and start with the rest of the cooldown left.
+- **Bebop (`heroes/bebop.py`).** Grapple Arm deals 0.7 x light melee damage on hit (raw ability data: Damage 0 with
+  an ELightMeleeDamage stat_scale 0.7, dropped by `data/game/abilities.json`). Replays: one hit on 42% of casts,
+  median 51 before 8 min and 96 at 30-40 min, ~1 s after the cast. The sim dealt 0 (real 4.6% of his damage).
+  Other zero-base scaled properties the normalizer drops (Kelvin Ice Path ExplodeDamage, Magnetic Flux GrabDamage,
+  Setup Bishop PulseDamage...) are a possible follow-up.
+
+Results (full Phantom+ sample, on main after #92): mix 0.0378 -> 0.0331; Vyper 0.076 -> 0.018, Mirage 0.110 ->
+0.026, Victor 0.059 -> 0.018 (ult share 0.023 -> 0.056, real 0.058), Paige 0.066 -> 0.017, Seven 0.050 -> 0.026,
+Infernus 0.043 -> 0.021, Bebop 0.023 -> 0.021. sim_vs_win at 27k flat (checked on main after #90: all pairs
+0.167 -> 0.166, per item 0.235 -> 0.238, damage items 0.040 -> 0.038). `damage_audit.py` writes to
+`$AUDIT_OUT.json/.md` when set.
+Left: Paradox Kinetic Carbine hit count (real often partly charged, ~3.7 hits per 1000 gun dmg vs sim 2.0) and
+Bebop Sticky / Uppercut hit counts (both drive Tankbuster procs).

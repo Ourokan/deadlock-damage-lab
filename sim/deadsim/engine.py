@@ -278,6 +278,11 @@ class Fighter:
         # expected over real fight lengths (Engine.length_w; = dmg_out / healed when Mechanics.fight_length is off)
         self.dmg_exp = {}
         self.healed_exp = 0.0
+        # heal source (lifesteal: "spirit_lifesteal|<damage source it came from>") -> health healed (heal_exp:
+        # expected over real fight lengths like healed_exp) / healed before the max health cap (heal_raw: what a
+        # full-health hero hitting a training dummy would have healed; the site's item breakdown)
+        self.heal_exp = {}
+        self.heal_raw = {}
         self.dmg_by_2s = {}         # 2 s slice of the fight -> damage dealt in full (damage profile checks)
         self.dmg_first = {}         # source -> time of its first hit, when PROFILE_SOURCES (opener timing checks)
         self.dmg_src_2s = {}        # (source, 2 s slice) -> damage in full, when PROFILE_SOURCES
@@ -399,17 +404,24 @@ class Fighter:
         return self.alive and not (self.mods.active("stun") or self.mods.active("item_silence"))
 
     # ---- healing / barrier -----------------------------------------------------------------------
-    def heal(self, amount, source="heal", kind="regen"):
+    def heal(self, amount, source="heal", kind="regen", origin=None):
+        """origin: the damage source a lifesteal heal came from (bookkeeping only, heal_exp / heal_raw)."""
         if not self.alive or amount <= 0:
             return 0.0
         # regen is amped by regen amp; heals the fighter casts on itself (abilities, lifesteal, items) by outgoing
         # healing amp (Healing Booster). healbane etc. are negative heal_received.
         amp = self.st.heal_amp if kind == "regen" else self.st.heal_amp_cast
         mult = 1.0 + amp + self.stat("heal_received")
-        amt = min(self.max_hp - self.hp, amount * max(0.0, mult))
+        raw = amount * max(0.0, mult)
+        amt = min(self.max_hp - self.hp, raw)
         self.hp += amt
         self.healed += amt
-        self.healed_exp += amt * self.e.length_w()
+        w = self.e.length_w()
+        self.healed_exp += amt * w
+        key = f"{source}|{origin}" if origin else source
+        self.heal_raw[key] = self.heal_raw.get(key, 0.0) + raw
+        if amt > 0:
+            self.heal_exp[key] = self.heal_exp.get(key, 0.0) + amt * w
         if kind != "lifesteal" and source not in NOT_HEALS:
             for fx in self.items_fx:
                 f = getattr(fx, "on_healed", None)
@@ -742,11 +754,11 @@ class Engine:
             if kind == "bullet":
                 ls = src.st.bullet_lifesteal + src.stat("bullet_lifesteal")
                 if ls:
-                    src.heal(amt * ls, "bullet_lifesteal", "lifesteal")
+                    src.heal(amt * ls, "bullet_lifesteal", "lifesteal", origin=book or source)
             elif kind == "spirit":
                 ls = src.st.spirit_lifesteal + src.stat("spirit_lifesteal")
                 if ls:
-                    src.heal(amt * ls, "spirit_lifesteal", "lifesteal")
+                    src.heal(amt * ls, "spirit_lifesteal", "lifesteal", origin=book or source)
         # hooks
         if procs:
             for fx in src.items_fx:
