@@ -276,3 +276,62 @@ assert open(TV.OUT).read() == open(_out).read()   # a missing part keeps the las
 TV.OUT = _out
 shutil.rmtree(_tmp)
 print("team value parts ok:", len(_parts))
+
+# a rerun's publish lays files built by the run's (older) code over main: the committed game data must be what main's
+# normalize_game.py makes of its own raw dump (run 67 put back a data/game without Violet and Baba on 2026-10-25)
+import subprocess  # noqa: E402
+import publish_guard as PG  # noqa: E402
+_tmp = tempfile.mkdtemp()
+shutil.copytree(os.path.join(ROOT, "data", "game"), os.path.join(_tmp, "data", "game"))
+shutil.copytree(os.path.join(ROOT, "data", "scripts"), os.path.join(_tmp, "data", "scripts"))
+shutil.copytree(os.path.join(ROOT, "sim", "deadsim", "heroes"), os.path.join(_tmp, "sim", "deadsim", "heroes"))
+PG.rebuild_game(_tmp)
+for _f in ("heroes.json", "abilities.json", "weapons.json", "shop_items.json"):
+    assert open(os.path.join(_tmp, "data", "game", _f)).read() == open(os.path.join(ROOT, "data", "game", _f)).read(), \
+        f"data/game/{_f} isn't what normalize_game.py makes of data/game/raw: rebuild it (pipeline/publish_guard.py)"
+shutil.rmtree(_tmp)
+print("game data matches the normalizer ok")
+
+
+# publish_guard.keep_newer and check_patch.request_in on a scratch repo: main refit a fit while the run ran, and a
+# rerun request merged after the run took its code
+def _git(*a):
+    return subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a], cwd=_tmp, check=True,
+                          capture_output=True, text=True).stdout.strip()
+
+
+def _put(path, text):
+    os.makedirs(os.path.dirname(os.path.join(_tmp, path)), exist_ok=True)
+    open(os.path.join(_tmp, path), "w").write(text)
+
+
+_tmp = tempfile.mkdtemp()
+_git("init", "-q")
+for _p in ("fit.json", "code/fit.py", "other.json", "agg/a.json", "pipeline/rerun_request.json"):
+    _put(_p, "v1")
+_git("add", "-A")
+_git("commit", "-qm", "start")
+_built = _git("rev-parse", "HEAD")
+_put("fit.json", "main refit")
+_put("agg/a.json", "v1 ")   # its producer didn't change, but the file did
+_put("pipeline/rerun_request.json", "v2")
+_git("commit", "-qam", "main moves on")
+_put("other.json", "last run")
+_git("commit", "-qam", "Rerun searches (phantom): forced")   # a rerun's own results don't count as main's refit
+_guard = {"fit.json": ["code"], "other.json": ["code"], "agg": ["code"]}
+for _p, _t in (("fit.json", "run"), ("other.json", "run"), ("agg/a.json", "run"), ("agg/new.json", "run")):
+    _put(_p, _t)   # the run's artifact laid over main
+_kept = PG.keep_newer(_built, _tmp, _guard)
+assert set(_kept) == {"fit.json", "agg"}, _kept
+assert open(os.path.join(_tmp, "fit.json")).read() == "main refit" and open(os.path.join(_tmp, "agg/a.json")).read() == "v1 "
+assert not os.path.exists(os.path.join(_tmp, "agg/new.json"))
+assert open(os.path.join(_tmp, "other.json")).read() == "run"   # unchanged on main: the run's copy is published
+assert set(PG.keep_newer("0" * 40, _tmp, {"other.json": []})) == {"other.json"}   # unknown commit: keep main's
+assert PG.changed_since(_git("rev-parse", "HEAD"), ["fit.json"], _tmp) == []
+_req = CP.REQUEST
+CP.REQUEST = os.path.join(_tmp, "pipeline", "rerun_request.json")
+assert CP.request_in(_built, _tmp) is False and CP.request_in(_git("rev-parse", "HEAD"), _tmp) is True
+assert CP.request_in("0" * 40, _tmp) is None
+CP.REQUEST = _req
+shutil.rmtree(_tmp)
+print("publish guard ok")
