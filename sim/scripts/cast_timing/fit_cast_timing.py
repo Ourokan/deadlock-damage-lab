@@ -296,6 +296,13 @@ def holds(real, sim):
     return out
 
 
+NOTE = ("QBINS equal-probability holds (s) before an ability's first cast in a fight (None: not cast in that fight), "
+        "only for abilities the sim casts on sight (Mechanics.cast_timing). Damage abilities: the real due time (when "
+        "the first cast's damage lands, Kaplan-Meier, fight end censors) less the sim's median cast and cast -> hit "
+        "time; a negative value is a precast, cast that long before t = 0 (mechanics.precast). Others: the real first "
+        "cast less the sim's median cast time.")
+
+
 def fit(n, workers, write):
     from deadsim import game
     G = game()
@@ -313,9 +320,7 @@ def fit(n, workers, write):
             continue   # the sim already waits for something (a health gate, stacks, range): its timing is its own
         out[key] = holds(r, sm)
     res = {"source": json.load(open(REAL))["source"] + "; sim: damage audit duels, holds off",
-           "note": "QBINS equal-probability holds (s) before an ability's first cast in a fight (None: not cast in "
-                   "that fight): the real first cast (Kaplan-Meier, fight end censors) less the sim's own median "
-                   "cast time; only abilities the sim casts on sight (Mechanics.cast_timing)",
+           "note": NOTE,
            "horizon_s": HORIZON, "sources": out}
     print(f"{len(out)} abilities held")
     if not write:
