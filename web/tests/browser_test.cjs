@@ -2,7 +2,7 @@
 //
 // Serves web/ (after `python3 web/build.py --pyodide DIR`) on localhost, opens it in headless Chromium at desktop and
 // phone size and goes through every tab: the live sim loads in Pyodide, the damage test, item breakdown, build maker,
-// real match (a made-up match served in place of the Deadlock API), team fight and every precomputed tab with its
+// real match (a made-up match served in place of the Deadlock API) and its fight replay, team fight and every precomputed tab with its
 // Test button. Fails on any page or worker error (JS or Python), console error, local file that 404s, request to an
 // unexpected host, error box left showing, or (on the phone) a page wider than the screen.
 "use strict";
@@ -59,18 +59,39 @@ function fakeMatch() {
   return [{ match_id: MATCH_ID, duration_s: duration, players }];
 }
 
+// the same match in the single-match shape with match_paths and death_details, for the fight replay: players 1
+// (Amber) and 2 (Sapphire) fight 15 m apart from 600 s to 612 s and player 2 dies; everyone else stands far off
+function fakeReplay() {
+  const m = fakeMatch()[0], n = m.duration_s + 1;
+  const paths = m.players.map((p) => {
+    const k = p.player_slot, x = Array(n).fill(1000 + 1200 * k), y = Array(n).fill(0), hp = Array(n).fill(100), c = Array(n).fill(0);
+    if (k <= 2) {
+      for (let t = 600; t <= 612; t++) {
+        x[t] = 8000 + (k === 2 ? 600 : 0); y[t] = 16000; c[t] = 1;
+        hp[t] = k === 2 ? Math.max(0, 100 - 9 * (t - 599)) : 100 - Math.floor((t - 599) / 3) * 4;
+      }
+      for (let t = 613; t < n; t++) hp[t] = k === 2 && t < 630 ? 0 : hp[612] || 100;
+    }
+    return { player_slot: String(k), x_min: "0", x_max: "16383", y_min: "0", y_max: "16383", x_pos: x, y_pos: y, health: hp, combat_type: c };
+  });
+  const players = m.players.map((p) => ({ ...p, death_details: p.player_slot === 2 ? [{ game_time_s: 612, killer_player_slot: 1, time_to_kill_s: 10 }] : [] }));
+  return { match_info: { ...m, players, match_paths: { interval_s: 1, x_resolution: 16383, y_resolution: 16383, paths } } };
+}
+
 // ---------- checks ----------
 const failures = [];
 function fail(where, msg) { failures.push(`[${where}] ${msg}`); console.log(`  FAIL ${msg}`); }
 
 async function watch(context, where, base, missing) {
-  const origin = new URL(base).origin, match = JSON.stringify(fakeMatch());
+  const origin = new URL(base).origin, match = JSON.stringify(fakeMatch()), single = JSON.stringify(fakeReplay());
   await context.route("**/*", (route) => {
     const u = new URL(route.request().url());
     if (u.origin === origin) return route.continue();
     if (FONT_HOSTS.includes(u.hostname)) return route.abort();
     if (u.hostname === API_HOST && u.pathname === "/v1/matches/metadata")
       return route.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: match });
+    if (u.hostname === API_HOST && u.pathname === `/v1/matches/${MATCH_ID}/metadata`)
+      return route.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: single });
     fail(where, `request to an unexpected host: ${u.href}`);
     return route.abort();
   });
@@ -201,6 +222,20 @@ async function matchTab(page, where) {
     await page.waitForSelector("#m-pick:not([hidden])", { timeout: STEP_MS });
     await page.click("#m-go");
     await page.waitForFunction(() => /Best single swaps/.test($("#m-out").textContent) || $("#m-out .err"), null, { timeout: SIM_LOAD_MS });
+  });
+  await step(page, where, "fight replay", async () => {
+    // the made-up match has one fight, player 1 against player 2 (the default player), and player 2 dies
+    await page.waitForSelector("#r-list [data-rf]", { timeout: STEP_MS });
+    await page.click("#r-list [data-rf]");
+    await page.waitForSelector("#r-out .r-table", { timeout: SIM_LOAD_MS });
+    if (!(await page.$("#r-fight .r-map polyline"))) throw new Error("no fight map");
+    const real = await page.$eval("#r-out .r-sum", (e) => e.textContent);
+    if (!/Real fight/.test(real)) throw new Error(`no real outcome: ${real}`);
+    // drop an item: the replay reruns with the changed items next to the real ones
+    await page.click("#r-fight .r-card.me [data-rdrop]");
+    await page.waitForFunction(() => /Changed: end/.test($("#r-out").textContent) || $("#r-out .err"), null, { timeout: STEP_MS });
+    await page.click("#r-swaps");
+    await page.waitForFunction(() => /Best single swaps for/.test($("#r-out").textContent) || $("#r-out .err"), null, { timeout: SIM_LOAD_MS });
   });
 }
 

@@ -116,6 +116,57 @@ def team(req_json):
     return json.dumps(r.to_dict())
 
 
+def _real_abilities(hero, events):
+    """(tiers, unlocked) from a real match's ability purchases so far: the first time an ability id appears unlocks
+    it, each later time buys its next upgrade (the match metadata lists ability buys among the items)."""
+    ids = [a.id for a in hero.abilities]
+    n = [sum(1 for e in events if int(e) == i) for i in ids]
+    return [max(0, min(3, k - 1)) for k in n], [k > 0 for k in n]
+
+
+def replay(req_json):
+    """A real fight replayed in the team sim (web/replay.js). {"a": [member], "b": [member], "distance": m,
+    "max_time": s, "focus": "focus"}; member = {"hero", "items", "souls", "accuracy"?, "headshot"?, "hp"? (share of
+    max health at the fight's start), "abilities"? (ability ids bought so far, in order), "join"? / "leave"? (seconds it
+    arrives / walks out alive), "targets"? (index of the enemy in the other list it shoots, per second)}.
+    Returns deadsim.team.TeamResult.to_dict() plus each hero's start health in "start_hp"."""
+    from deadsim import Loadout
+    from deadsim.team import team_fight
+    q = json.loads(req_json)
+    G = game()
+    sides, start, join, leave, targets = [], [], [], [], []
+    for side in ("a", "b"):
+        team = []
+        for m in q.get(side, [])[:6]:
+            hero = G.hero(m["hero"])
+            skill = hero_default_skill(hero.name, m.get("aim") or "p50")
+            if m.get("accuracy") is not None:
+                skill.accuracy = float(m["accuracy"])
+            if m.get("headshot") is not None:
+                skill.headshot = float(m["headshot"])
+            tiers = unlocked = None
+            if m.get("abilities"):
+                tiers, unlocked = _real_abilities(hero, m["abilities"])
+                if not any(unlocked):
+                    tiers = unlocked = None
+            team.append(Loadout(hero.name, [_item(G, x).name for x in m.get("items", [])], souls=m.get("souls"),
+                                skill=skill, tiers=tiers, unlocked=unlocked))
+            start.append(m.get("hp"))
+            join.append(m.get("join"))
+            leave.append(m.get("leave"))
+            targets.append(m.get("targets"))
+        sides.append(team)
+    r = team_fight(sides[0], sides[1], distance=float(q.get("distance") or 15.0),
+                   max_time=float(q.get("max_time") or 20.0), focus=q.get("focus") or "focus", start_hp=start,
+                   join=join if any(x for x in join) else None, leave=leave if any(x is not None for x in leave) else None,
+                   targets=targets if any(targets) else None)
+    out = r.to_dict()
+    for row, frac in zip(out["fighters"], start):
+        # as team_fight sets it: at least 1 HP
+        row["start_hp"] = round(row["max_hp"] if frac is None else max(1.0, min(1.0, float(frac)) * row["max_hp"]), 1)
+    return json.dumps(out)
+
+
 # ---------- build maker (web/maker.js) ----------
 class _Refill:
     """Both sides refill on lethal damage, so a fight always runs its full length; the first lethal moment is the

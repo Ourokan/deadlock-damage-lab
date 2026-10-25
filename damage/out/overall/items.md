@@ -152,7 +152,7 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 |---|---:|---:|---:|
 | Escalating Exposure | 21 | 37 | 10 |
 | Mystic Shot | 17 | 33 | 5 |
-| Focus Lens | 17 | 36 | 0 |
+| Focus Lens | 16 | 36 | 0 |
 | Alchemical Fire | 20 | 21 | 0 |
 | Superior Duration | 13 | 25 | 16 |
 | Decay | 13 | 38 | 0 |
@@ -160,13 +160,13 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Diviner's Kevlar | 22 | 3 | 1 |
 | Spirit Burn | 17 | 0 | 17 |
 | Heroic Aura | 20 | 0 | 2 |
-| Boundless Spirit | 5 | 24 | 18 |
-| Bullet Resist Shredder | 15 | 4 | 8 |
+| Boundless Spirit | 5 | 25 | 18 |
 | Torment Pulse | 15 | 6 | 5 |
 | Toxic Bullets | 5 | 34 | 6 |
+| Bullet Resist Shredder | 14 | 4 | 8 |
 | Enchanter's Emblem | 12 | 7 | 10 |
-| Mystic Reverb | 15 | 5 | 3 |
 | Stalker | 14 | 5 | 5 |
+| Mystic Reverb | 15 | 4 | 3 |
 | Spirit Snatch | 7 | 13 | 7 |
 | Titanic Magazine | 7 | 13 | 7 |
 | Spirit Lifesteal | 13 | 0 | 0 |
@@ -178,6 +178,6 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 12476 | 13067 | 9543 |
-| spirit | 20895 | 29562 | 19638 |
-| vitality | 9943 | 876 | 12286 |
+| weapon | 12495 | 13067 | 9543 |
+| spirit | 20705 | 29562 | 19638 |
+| vitality | 10095 | 876 | 12286 |

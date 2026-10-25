@@ -204,7 +204,7 @@
   <section id="tab-match" class="tab" hidden>
     <div class="intro">
       <h1>Would another build have hit harder?</h1>
-      <p>Paste a match ID. The page loads every player's items from the Deadlock API, puts one player's build against an enemy's build at any point in the match, and tests which builds would have dealt more damage.</p>
+      <p>Paste a match ID. The page loads every player's items from the Deadlock API, puts one player's build against an enemy's build at any point in the match, and tests which builds would have dealt more damage. Below that, replay any fight from the match with different items.</p>
     </div>
     <form class="filters" id="m-form">
       <label class="f"><span>Match ID</span><input id="m-id" inputmode="numeric" autocomplete="off" placeholder="e.g. 117564612"></label>
@@ -222,6 +222,20 @@
       <button class="run" id="m-go" type="button">Test what would have dealt more</button>
     </div>
     <div id="m-out"></div>
+    <!-- Fight replay (replay.js): the match's fights from its position paths, replayed in the team sim -->
+    <div id="r-box" class="stack r-box" hidden>
+      <div class="intro">
+        <h2>Replay a fight</h2>
+        <p>Every fight in the match, found from where each hero stood and how much health they had second by second. Pick one and the sim replays it with everyone's real items, souls, ability upgrades, aim, starting health and fighting distance. Then change anyone's items and see how the fight would have gone.</p>
+      </div>
+      <div class="row"><label class="check"><input id="r-only" type="checkbox" checked> Only fights with <span id="r-only-who">the player</span></label>
+        <label class="check"><input id="r-kills" type="checkbox"> Only fights with a kill</label></div>
+      <p class="hint" id="r-status"></p>
+      <div id="r-list"></div>
+      <div id="r-fight" class="stack"></div>
+      <div id="r-out"></div>
+      <datalist id="r-items"></datalist>
+    </div>
   </section>
 
   <!-- Overall search: damage dealt before dying, counterplay on -->
@@ -356,6 +370,7 @@
 <script src="aim.js"></script>
 <script src="app.js"></script>
 <script src="match.js"></script>
+<script src="replay.js"></script>
 <script src="team.js"></script>
 <script src="maker.js"></script>
 </body>

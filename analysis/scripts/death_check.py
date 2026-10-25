@@ -71,7 +71,7 @@ def main():
     for r in rows:
         by_hero[r["hero"]].append(r)
     pairs = []
-    for hero, b, name, gain, edge, se, pd_pop, pd in sim:
+    for hero, b, name, gain, edge, se, pd_pop, pd, *_ in sim:
         i = names.get(name)
         rs = by_hero.get(hero)
         if i is None or not rs:

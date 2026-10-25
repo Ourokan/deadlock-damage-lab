@@ -308,12 +308,87 @@ class TeamEngine(Engine):
         self.huddle = huddle
         self.aoe_share = aoe_share
         self.teams = ([], [])
+        self.pending = set()   # heroes not in the fight yet (join time still ahead)
+        self.left = set()      # heroes that walked out of the fight alive
+        self.plans = {}        # hero -> enemy index to shoot each second (replays: the real nearest enemy)
+
+    # ---- arrivals and departures (replays of real fights) ----------------------------------------------------------
+    def _side_done(self, side):
+        return not any(x.alive or x in self.pending for x in side)
+
+    def arrive(self, f):
+        if self.over or f not in self.pending:
+            return
+        self.pending.discard(f)
+        f.alive = True
+        f.enemy = None
+        self.retarget()
+        fight_start(f)
+        self._start_ticks(f)
+
+    def depart(self, f):
+        """f leaves alive: out of reach for both sides until the end, with the health it has."""
+        if self.over or not f.alive:
+            return
+        f.alive = False
+        self.left.add(f)
+        if self._side_done(f.allies):
+            self.over = True
+            return
+        self.retarget()
+
+    def plan_tick(self):
+        """Each second, heroes with a target plan turn to that second's planned enemy (if it is in the fight)."""
+        if self.over:
+            return
+        for f in self.plans:
+            if f.alive:
+                g = self.pick_target(f)
+                if g is not None:
+                    f.enemy = g
+        self.after(1.0, self.plan_tick)
+
+    def _start_ticks(self, f):
+        self.after(0.0, self.gun_tick, f)
+        self.after(0.0, self.think, f)
+        if f.skill.melee_rate > 0:
+            self.after(0.5 / max(f.skill.melee_rate, MELEE_MIN_RATE), self.melee_tick, f)
+
+    def _no_foe(self, f):
+        """True (and f waits) while nobody on the other side is in the fight: everyone there is yet to arrive."""
+        if f.enemy is not None and f.enemy.alive:
+            return False
+        self.retarget()
+        return f.enemy is None or not f.enemy.alive
+
+    def gun_tick(self, f):
+        if f.alive and not self.over and self._no_foe(f):
+            self.after(0.1, self.gun_tick, f)
+            return
+        super().gun_tick(f)
+
+    def think(self, f):
+        if f.alive and not self.over and self._no_foe(f):
+            self.after(0.1, self.think, f)
+            return
+        super().think(f)
+
+    def melee_tick(self, f):
+        if f.alive and not self.over and self._no_foe(f):
+            self.after(0.5, self.melee_tick, f)
+            return
+        super().melee_tick(f)
 
     # ---- targeting ----------------------------------------------------------------------------------------------
     def pick_target(self, f):
         foes = [e for e in f.foes if e.alive]
         if not foes:
             return None
+        plan = self.plans.get(f)
+        if plan:
+            i = plan[min(len(plan) - 1, int(self.t))]
+            if i is not None and 0 <= i < len(f.foes) and f.foes[i].alive:
+                return f.foes[i]
         if self.focus == "spread" and f.counters.get("lane") is not None:
             lane = f.foes[f.counters["lane"] % len(f.foes)]
             if lane.alive:
@@ -326,18 +401,21 @@ class TeamEngine(Engine):
             if not f.alive:
                 continue
             if f.enemy is None or not f.enemy.alive:
-                if self.focus == "focus":
+                if self.focus == "focus" and f not in self.plans:
                     side = id(f.foes)
                     if side not in picks:
                         picks[side] = self.pick_target(f)
-                    f.enemy = picks[side]
+                    pick = picks[side]
                 else:
-                    f.enemy = self.pick_target(f)
+                    pick = self.pick_target(f)
+                # nobody on the other side in the fight (all yet to arrive or gone): keep a stand-in target, which
+                # takes no damage while it is out, so effects aimed at f.enemy have one
+                f.enemy = pick or f.enemy or f.foes[0]
 
     def on_death(self, dead, killer):
         if killer is not None and killer is not dead:
             killer.counters["kills"] = killer.counters.get("kills", 0) + 1
-        if not any(x.alive for x in dead.allies):
+        if self._side_done(dead.allies):
             self.over = True
             return
         self.retarget()
@@ -374,7 +452,10 @@ class TeamEngine(Engine):
         return amt
 
     # ---- run ------------------------------------------------------------------------------------------------------
-    def run_team(self, team_a, team_b):
+    def run_team(self, team_a, team_b, join=None, leave=None, targets=None):
+        """join / leave: seconds each hero (team_a then team_b) enters / walks out of the fight (None = from the start /
+        until the end). targets: per hero, the index of the enemy (in the other team's list) to shoot in each second, or
+        None (that second, or the whole hero: the team's focus rule)."""
         self.teams = (team_a, team_b)
         self.fighters = list(team_a) + list(team_b)
         for mine, theirs in ((team_a, team_b), (team_b, team_a)):
@@ -382,7 +463,21 @@ class TeamEngine(Engine):
                 f.allies, f.foes = mine, theirs
                 f.counters["lane"] = i
                 f.enemy = None
+        for f, plan in zip(self.fighters, targets or ()):
+            if plan and any(i is not None for i in plan):
+                self.plans[f] = list(plan)
+        for f, t in zip(self.fighters, join or ()):
+            if t is not None and t > 0:
+                f.alive = False
+                self.pending.add(f)
+                self.at(float(t), self.arrive, f)
+        for f, t in zip(self.fighters, leave or ()):
+            if t is not None:
+                self.at(max(0.0, float(t)), self.depart, f)
         self.retarget()
+        for f in self.fighters:
+            if f.enemy is None:   # yet to arrive: a stand-in until then
+                f.enemy = next((e for e in f.foes if e.alive), f.foes[0])
         for f in self.fighters:
             for fx in f.items_fx:
                 g = getattr(fx, "on_start", None)
@@ -396,13 +491,14 @@ class TeamEngine(Engine):
             for ab in f.abilities:
                 ab.start()
         for f in self.fighters:
-            fight_start(f)
+            if f not in self.pending:
+                fight_start(f)
         for f in self.fighters:
-            self.at(0.0, self.gun_tick, f)
-            self.at(0.0, self.think, f)
-            if f.skill.melee_rate > 0:
-                self.at(0.5 / max(f.skill.melee_rate, MELEE_MIN_RATE), self.melee_tick, f)
+            if f not in self.pending:
+                self._start_ticks(f)
         self.at(0.0, self.regen_tick)
+        if self.plans:
+            self.at(1.0, self.plan_tick)
         while self.q and not self.over:
             t, _, fn, args = heapq.heappop(self.q)
             if t > self.max_time:
@@ -410,17 +506,19 @@ class TeamEngine(Engine):
                 break
             self.t = t
             fn(*args)
-        alive_a = any(f.alive for f in team_a)
-        alive_b = any(f.alive for f in team_b)
+        out = self.pending | self.left
+        alive_a = any(f.alive or f in out for f in team_a)
+        alive_b = any(f.alive or f in out for f in team_b)
         winner = "A" if alive_a and not alive_b else "B" if alive_b and not alive_a else None
-        return TeamResult(winner, self.t, [_row(f, "A") for f in team_a] + [_row(f, "B") for f in team_b])
+        rows = [_row(f, "A", out) for f in team_a] + [_row(f, "B", out) for f in team_b]
+        return TeamResult(winner, self.t, rows)
 
 
-def _row(f, team):
+def _row(f, team, out=()):
     sup = f.counters.get("support", {})
     bar = f.counters.get("barrier_given", {})
     return {
-        "name": f.name, "team": team, "hero": f.st.hero.name, "alive": f.alive,
+        "name": f.name, "team": team, "hero": f.st.hero.name, "alive": f.alive or f in out,
         "hp": round(f.hp, 1), "max_hp": round(f.max_hp, 1), "death_time": f.death_time,
         "damage": sum(f.dmg_out.values()), "damage_by_source": dict(f.dmg_out),
         "damage_taken": sum(f.dmg_in.values()), "healed": f.healed,
@@ -466,8 +564,16 @@ class TeamResult:
 # API
 # ---------------------------------------------------------------------------------------------------------------
 def team_fight(team_a, team_b, distance=15.0, max_time=40.0, focus="focus", huddle=HUDDLE, aoe_share=AOE_SHARE,
-               rng=None, log=False, mechanics=_UNSET, allies=True):
+               rng=None, log=False, mechanics=_UNSET, allies=True, start_hp=None, join=None, leave=None,
+               targets=None):
     """team_a, team_b: lists of Loadout (1-6 each). Returns TeamResult.
+    start_hp: health each hero starts at as a share of its max (team_a then team_b; None = full), for replaying a
+    real fight that began with heroes already hurt. TeamResult.hp_lost and team_item_value's swing still count from
+    max health, so with start_hp take health lost as start health minus end health (bridge.replay reports start_hp).
+    join / leave: seconds each hero (same order) arrives / walks out alive (None = from the start / until the end); a
+    hero not in the fight can't be hit, a side with nobody in it waits, and the fight ends when one side has nobody
+    left to come. Heroes that left or never arrived count as alive. targets: per hero, the enemy index (in the other
+    team's list) it shoots each second (None = the focus rule), e.g. the real nearest enemy in a replay.
     allies=False turns everything that reaches teammates off (duel item handlers, no ally abilities, huddle 0), so
     a fight with and without it isolates what items give teammates (scripts/team/team_value.py)."""
     if not allies:
@@ -488,10 +594,13 @@ def team_fight(team_a, team_b, distance=15.0, max_time=40.0, focus="focus", hudd
                 _team_items(f, lo)
             fs.append(f)
         sides.append(fs)
+    for f, frac in zip(sides[0] + sides[1], start_hp or ()):
+        if frac is not None:
+            f.hp = max(1.0, min(1.0, float(frac)) * f.max_hp)
     for f in sides[0] + sides[1] if allies else ():
         for st in f.abilities:
             _share_ability(st)
-    return e.run_team(*sides)
+    return e.run_team(*sides, join=join, leave=leave, targets=targets)
 
 
 def _team_items(f, lo):

@@ -140,9 +140,9 @@ def fighters(a, b, **kw):
     seen = {}
     orig = T.TeamEngine.run_team
 
-    def spy(self, ta, tb):
+    def spy(self, ta, tb, **kw):
         seen["a"], seen["b"] = ta, tb
-        return orig(self, ta, tb)
+        return orig(self, ta, tb, **kw)
     T.TeamEngine.run_team = spy
     try:
         team_fight(a, b, **kw)
