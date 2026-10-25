@@ -2,7 +2,8 @@
 
 Per (hero, item) edge from the item_win_edge cache (analysis/work/item_win_edge, built by item_win_edge.py):
 same matched stratum (hero, 5-min purchase bin, team lead, own souls vs team), vs buyers of other
-same-slot same-tier items, brackets Ritualist+ (badge//10 >= 7). Raw per-hero edges are shrunk toward the item's all-hero edge (see TAU). Then, for every hero and budget of the
+same-slot same-tier items, brackets Ritualist+ (badge//10 >= 7). Raw per-hero edges are shrunk toward the item's all-hero edge,
+lowered for items the hero seldom buys (see TAU and SHARE_KNEE). Then, for every hero and budget of the
 Phantom+ overall builds (damage/out/overall), lists recommended items whose real edge is clearly negative,
 and strong-edge items the sim never picks.
 
@@ -34,6 +35,18 @@ Z = 1.96
 # per-hero edges around it: method of moments over (hero, item) cells with >= 300 matched buyers gave
 # 1.2-1.8 points (rare items have a few dozen buyers per hero, raw edges of +-30 points are noise).
 TAU = 0.015
+# Rare picks (2026-10-25): an item a hero seldom buys does worse on that hero than the item's all-hero edge says,
+# and its true edge varies more. Below SHARE_KNEE of the hero's buyers of same-slot same-tier items, the prior is
+# the all-hero edge + beta x decades below the knee and tau^2 grows by tau2_rare per decade (rarity_fit, refitted on
+# every rebuild; written to the edge file's meta). 09-30 to 10-14 Ritualist+: beta -1.5 points per decade, tau 1.2
+# points at common picks, 2.7 at 0.3% share. Checked on two disjoint halves of the players (by account): positive
+# edges at < 0.5% share in one half averaged -2.4 +- 2.3 in the other (the old shrinkage made them +4.0), negative
+# rare edges held (-4.2 -> -7.5); with the rare-pick prior every share bin matches the other half, error vs the other
+# half 1.15/1.17 -> 1.09/1.13 points. Binomial se is honest: the halves disagree no more than it says, so a rare
+# item bought by the same few players is not extra noise. Sim vs real (sim_vs_win.py, 27k): edges clear of noise
+# r 0.181 -> 0.187; over all pairs 0.154 -> 0.136, since the sim rates off-meta picks higher than real games do.
+SHARE_KNEE = 0.03
+SHARE_FLOOR = 1e-4
 STRONG = 0.015
 
 
@@ -58,7 +71,8 @@ def last_day(files=None):
     return days[-1] if days else None
 
 
-def hero_edges(ev):
+def hero_edges(ev, fit=None):
+    """(hero -> item -> edge dict, rarity fit). fit: reuse a rarity_fit() result instead of fitting on ev."""
     tot = defaultdict(lambda: [0, 0])   # (slot, tier, hero, tb, lead, rel)
     for (it, *s), (n, w) in ev.items():
         x = ITEMS[it]
@@ -84,30 +98,72 @@ def hero_edges(ev):
         pool[it][0] += a[0]
         pool[it][1] += a[1]
         pool[it][2] += a[2]
-    heroes = defaultdict(dict)
+    group = defaultdict(int)   # (hero, slot, tier) -> buyers, for each item's share of its hero's slot/tier buys
+    for (hero, it), a in acc.items():
+        group[(hero, ITEMS[it]["slot"], ITEMS[it]["tier"])] += a[3]
+    cells = []
     for (hero, it), (num, den, var, n, w) in acc.items():
         if not den:
             continue
-        raw, se = num / den, math.sqrt(var) / den
-        prior, prior_var = pool[it][0] / pool[it][1], pool[it][2] / pool[it][1] ** 2
-        k = TAU ** 2 / (TAU ** 2 + se ** 2)
+        share = n / group[(hero, ITEMS[it]["slot"], ITEMS[it]["tier"])]
+        cells.append({"hero": hero, "item": it, "raw": num / den, "raw_se": math.sqrt(var) / den,
+                      "prior0": pool[it][0] / pool[it][1], "prior_var": pool[it][2] / pool[it][1] ** 2,
+                      "n": int(den), "buyers": n, "share": share,
+                      "rare": max(0.0, math.log10(SHARE_KNEE / max(share, SHARE_FLOOR)))})
+    fit = fit or rarity_fit(cells)
+    heroes = defaultdict(dict)
+    for c in cells:
+        raw, se = c["raw"], c["raw_se"]
+        prior = c["prior0"] + fit["beta"] * c["rare"]
+        tau2 = fit["tau2"] + fit["tau2_rare"] * c["rare"]
+        k = tau2 / (tau2 + se ** 2)
         # posterior variance with the prior's own sampling noise (rare items: k ~ 0, so the prior's se dominates)
-        heroes[hero][it] = {"edge": prior + k * (raw - prior), "se": math.sqrt(k * se ** 2 + (1 - k) ** 2 * prior_var),
-                            "raw": raw, "raw_se": se, "prior": prior, "n": int(den), "buyers": n}
-    return heroes
+        heroes[c["hero"]][c["item"]] = {
+            "edge": prior + k * (raw - prior), "se": math.sqrt(k * se ** 2 + (1 - k) ** 2 * c["prior_var"]),
+            "raw": raw, "raw_se": se, "prior": prior, "n": c["n"], "buyers": c["buyers"], "share": c["share"]}
+    return heroes, fit
+
+
+def rarity_fit(cells):
+    """Rare-pick prior: beta (edge per decade of share below SHARE_KNEE, weighted least squares of raw - all-hero
+    edge) and tau^2 = tau2 + tau2_rare x decades (method of moments on the squared residuals beyond the binomial
+    variance), iterated with each other's weights."""
+    tau2, tau2_rare, beta = TAU ** 2, 0.0, 0.0
+    for _ in range(4):
+        w = [1 / (c["raw_se"] ** 2 + tau2 + tau2_rare * c["rare"]) for c in cells]
+        sxx = sum(wi * c["rare"] ** 2 for wi, c in zip(w, cells))
+        beta = sum(wi * c["rare"] * (c["raw"] - c["prior0"]) for wi, c in zip(w, cells)) / sxx if sxx else 0.0
+        y = [(c["raw"] - c["prior0"] - beta * c["rare"]) ** 2 - c["raw_se"] ** 2 for c in cells]
+        w2 = [wi * wi for wi in w]
+        s0 = sum(w2)
+        s1 = sum(wi * c["rare"] for wi, c in zip(w2, cells))
+        s2 = sum(wi * c["rare"] ** 2 for wi, c in zip(w2, cells))
+        t0 = sum(wi * yi for wi, yi in zip(w2, y))
+        t1 = sum(wi * c["rare"] * yi for wi, c, yi in zip(w2, cells, y))
+        det = s0 * s2 - s1 * s1
+        if det <= 0:
+            break
+        tau2 = max((0.5 * TAU) ** 2, (s2 * t0 - s1 * t1) / det)
+        tau2_rare = max(0.0, (s0 * t1 - s1 * t0) / det)
+    return {"beta": beta, "tau2": tau2, "tau2_rare": tau2_rare}
 
 
 def sig(e, sign):
     return e and (e["edge"] - Z * e["se"] > 0 if sign > 0 else e["edge"] + Z * e["se"] < 0)
 
 
-def write_edges(heroes, path=EDGE_PATH, **meta):
+def write_edges(heroes, path=EDGE_PATH, fit=None, **meta):
     """hero_item_edge.json: hero id -> item id -> [edge, se, matched buyers, raw edge], in win-rate points."""
     hero_out = {str(h): {str(i): [round(100 * e["edge"], 2), round(100 * e["se"], 2), e["n"],
                                     round(100 * e["raw"], 2)]
                          for i, e in sorted(v.items())} for h, v in sorted(heroes.items())}
     m = {"brackets": "Ritualist+", "unit": "win-rate points vs same-slot same-tier items",
          "fields": ["edge (shrunk)", "se", "matched buyers", "raw edge"], "tau": TAU}
+    if fit:
+        m["rare_pick"] = {"knee_share": SHARE_KNEE, "beta_per_decade": round(100 * fit["beta"], 3),
+                          "tau": round(100 * math.sqrt(fit["tau2"]), 3),
+                          "tau2_per_decade": round(1e4 * fit["tau2_rare"], 3)}
+        m["tau"] = round(math.sqrt(fit["tau2"]), 5)
     m.update(meta)
     with open(path + ".tmp", "w") as f:
         json.dump({"meta": m, "heroes": hero_out}, f, separators=(",", ":"))
@@ -130,9 +186,9 @@ def main():
     if a.report_only:
         heroes = read_edges()
     else:
-        heroes = hero_edges(load())
+        heroes, fit = hero_edges(load())
         patch = json.load(open(f"{REPO}/data/patch.json"))
-        write_edges(heroes, patch=patch["patch"], matches_through=last_day(),
+        write_edges(heroes, fit=fit, patch=patch["patch"], matches_through=last_day(),
                     note="from the shared-folder cache; patch reruns refresh it from their own builds")
     report(heroes)
 
@@ -182,7 +238,7 @@ def report(heroes):
     pp = lambda v: f"{100 * v:+.1f}"
     L = ["# Recommended builds vs real win edge", "",
          "Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, "
-         "vs other same-slot same-tier items, shrunk toward the item's all-hero edge) for every item in the Phantom+ \"Best overall\" builds. "
+         "vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ \"Best overall\" builds. "
          f"Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.", "",
          f"Edges: patch {em.get('patch')}, matches {em.get('matches_from', '?')} to {em.get('matches_through')}"
          + (f", {em['matches']:,} Ritualist+ matches" if em.get("matches") else "")

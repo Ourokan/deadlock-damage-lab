@@ -88,7 +88,8 @@ def main():
                 f"in {len(paths)} of {len(days)} days of builds, {a.min_matches:,} needed.")
         return
     used = [os.path.basename(p).split(".")[0] for p in paths]
-    B.write_edges(B.hero_edges(B.load(paths)), B.EDGE_PATH, patch=state["patch"], matches_from=used[0],
+    heroes, fit = B.hero_edges(B.load(paths))
+    B.write_edges(heroes, B.EDGE_PATH, fit=fit, patch=state["patch"], matches_from=used[0],
                   matches_through=used[-1], matches=n, refreshed=datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                   note="refreshed by the patch rerun from its player builds (pipeline/refresh_win_edge.py)")
     summary(f"Win edge: refreshed from {n:,} Ritualist+ matches, {used[0]} to {used[-1]} (patch {state['patch']}); "

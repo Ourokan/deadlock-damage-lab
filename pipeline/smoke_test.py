@@ -131,6 +131,12 @@ _m = json.load(open(RW.B.EDGE_PATH))
 assert _m["meta"]["patch"] == RW.P.load()["patch"] and _m["meta"]["matches"] == 2, _m["meta"]
 sys.argv = _argv
 shutil.rmtree(_tmp)
+# rare-pick prior (build_win_check.rarity_fit): items seldom bought that lose more give a negative slope per decade
+_cells = [{"raw": -0.01 * r + 0.002 * (k % 3 - 1), "raw_se": 0.005, "prior0": 0.0, "rare": r}
+          for k in range(60) for r in (0.0, 0.5, 1.0, 2.0)]
+_fit = RW.B.rarity_fit(_cells)
+assert abs(_fit["beta"] + 0.01) < 1e-3 and _fit["tau2"] > 0, _fit
+assert RW.B.rarity_fit([]) == {"beta": 0.0, "tau2": RW.B.TAU ** 2, "tau2_rare": 0.0}
 print("win edge refresh ok")
 
 # the counter items the Phantom+ rerun scores (counters/scripts/sim_counters.py) are all still in the shop

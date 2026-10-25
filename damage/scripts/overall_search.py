@@ -90,7 +90,8 @@ enemies.
 
 Real win edge (Tyler 2026-10-24, "blend win edge into score"): the score is also multiplied by
 exp(WIN_K x the sum of the held items' real win edges on this hero) / the popular build's (win_value). Edge = win-rate
-points vs other same-slot same-tier items, Ritualist+, matched and shrunk toward the item's all-hero edge
+points vs other same-slot same-tier items, Ritualist+, matched and shrunk toward the item's all-hero edge (lower for
+items the hero seldom buys, build_win_check.rarity_fit)
 (analysis/out/hero_item_edge.json; each patch rerun refreshes it from the new patch's builds with
 pipeline/refresh_win_edge.py, keeping the last one when there are too few matches yet). The 1v1 score alone
 ranked items almost unrelated to real wins (r 0.05 over 16 heroes): Decay was in 119 of ~200 best builds while
@@ -145,6 +146,12 @@ WIN_EDGE = os.path.join(ROOT, "..", "analysis", "out", "hero_item_edge.json")
 # the sim value Decay adds over a typical spirit item (~0.3-0.5 of the popular build's score at 27k)
 WIN_K = 0.05
 WIN_CAP = 4.0   # points
+# losses need a narrower band than gains (one-sided 90%, not 95%): the band guards against the search chasing noisy
+# gains, and rare picks' losses hold up on independent players while their honest, wider band
+# (build_win_check.rarity_fit) would let Decay and co. back in at 1.96. 8 heroes at 27k with the rare-pick prior:
+# 1.96 both ways let 13 items under -2 points into builds (was 9), counting every loss cost 14% damage before dying,
+# 1.28 kept both (9 items, -0.5% damage) and dropped the rare gains (Heroic Aura, Diviner's Kevlar on Abrams/Lash).
+WIN_NEG_Z = 1.28
 _win = None
 
 
@@ -300,10 +307,11 @@ def team_value(items, souls):
 
 
 def win_value(items, hero):
-    """exp(WIN_K x sum of the held items' real per-hero win edges, in points). Only edges clear of their 95% band
-    count, each capped at +-WIN_CAP (the search maximises, so it would chase noisy edges of rare items); movement
-    items are left out (their real value is already in movement_value). A warning is printed when the edges' patch
-    differs from data/patch.json (the rerun kept the last snapshot)."""
+    """exp(WIN_K x sum of the held items' real per-hero win edges, in points). Only positive edges clear of their 95%
+    band count (losses: one-sided 90%, WIN_NEG_Z), each capped at +-WIN_CAP (the search maximises, so it
+    would chase noisy edges of rare items); movement items are left out (their real value is already in
+    movement_value). A warning is printed when the edges' patch differs from data/patch.json (the rerun kept the last
+    snapshot)."""
     global _win
     if _win is None:
         with open(WIN_EDGE) as f:
@@ -316,7 +324,7 @@ def win_value(items, hero):
         movement_value((), None)   # loads _move
         moving = _move[2] | {i for row in _move[3].values() for i in row}
         _win = {int(h): {int(i): max(-WIN_CAP, min(WIN_CAP, v[0])) for i, v in row.items()
-                         if int(i) not in moving and abs(v[0]) > 1.96 * v[1]}
+                         if int(i) not in moving and (v[0] > 1.96 * v[1] or v[0] < -WIN_NEG_Z * v[1])}
                 for h, row in d["heroes"].items()}
     row = _win.get(int(hero), {})
     return math.exp(WIN_K * sum(row.get(i, 0.0) for i in set(items)))
