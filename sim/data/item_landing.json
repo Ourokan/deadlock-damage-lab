@@ -4,7 +4,8 @@
   "formula": "(real item dmg / real gun dmg) / (sim item dmg / sim gun dmg), item holders only, gun damage while the item was owned",
   "sample": "phantom_sample.jsonl.gz",
   "use": "deadsim realistic mode scales an item's own damage by min(1, landing)",
-  "length": "fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x length_corr (the sim's source/gun in full / the same expected over real fight lengths, scripts/fight_length/length_factors.py, phantom_sample.jsonl.gz, 3 rounds)"
+  "length": "fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x length_corr (the sim's source/gun in full / the same expected over real fight lengths, scripts/fight_length/length_factors.py, phantom_sample.jsonl.gz, 3 rounds)",
+  "heroes": "per-hero factors from the damage audit's hero x item rows (phantom_sample.jsonl.gz, >= 20 holders): current factor x (real/sim)^(n/(n+20)), capped 0.25-1; replace the pooled factor for that hero (scripts/item_landing_heroes.py)"
  },
  "items": {
   "upgrade_siphon_bullets": {
@@ -286,6 +287,668 @@
    "sim_per_gun": 0.1169,
    "landing": 3.754,
    "length_corr": 0.595
+  }
+ },
+ "heroes": {
+  "Abrams": {
+   "Spirit Snatch": {
+    "holders": 39,
+    "real_over_sim": 0.874,
+    "landing": 0.915
+   },
+   "Spirit Strike": {
+    "holders": 24,
+    "real_over_sim": 0.904,
+    "landing": 0.946
+   },
+   "Stalker": {
+    "holders": 108,
+    "real_over_sim": 0.957,
+    "landing": 0.727
+   }
+  },
+  "Baba": {
+   "Alchemical Fire": {
+    "holders": 20,
+    "real_over_sim": 0.794,
+    "landing": 0.743
+   },
+   "Escalating Exposure": {
+    "holders": 22,
+    "real_over_sim": 1.142,
+    "landing": 0.58
+   },
+   "Spirit Strike": {
+    "holders": 114,
+    "real_over_sim": 0.706,
+    "landing": 0.744
+   },
+   "Torment Pulse": {
+    "holders": 138,
+    "real_over_sim": 2.137,
+    "landing": 1.0
+   }
+  },
+  "Bebop": {
+   "Capacitor": {
+    "holders": 31,
+    "real_over_sim": 0.827,
+    "landing": 0.637
+   },
+   "Headhunter": {
+    "holders": 140,
+    "real_over_sim": 0.809,
+    "landing": 0.697
+   },
+   "Headshot Booster": {
+    "holders": 83,
+    "real_over_sim": 0.934,
+    "landing": 0.946
+   },
+   "Mystic Burst": {
+    "holders": 110,
+    "real_over_sim": 0.763,
+    "landing": 0.795
+   },
+   "Mystic Reverb": {
+    "holders": 24,
+    "real_over_sim": 0.792,
+    "landing": 0.477
+   },
+   "Siphon Bullets": {
+    "holders": 48,
+    "real_over_sim": 0.914,
+    "landing": 0.343
+   },
+   "Stalker": {
+    "holders": 120,
+    "real_over_sim": 0.677,
+    "landing": 0.54
+   },
+   "Tankbuster": {
+    "holders": 43,
+    "real_over_sim": 0.466,
+    "landing": 0.594
+   },
+   "Tesla Bullets": {
+    "holders": 33,
+    "real_over_sim": 1.239,
+    "landing": 1.0
+   }
+  },
+  "Billy": {
+   "Spirit Strike": {
+    "holders": 24,
+    "real_over_sim": 0.855,
+    "landing": 0.918
+   },
+   "Stalker": {
+    "holders": 63,
+    "real_over_sim": 0.885,
+    "landing": 0.687
+   }
+  },
+  "Calico": {
+   "Cold Front": {
+    "holders": 101,
+    "real_over_sim": 1.063,
+    "landing": 0.97
+   },
+   "Mystic Shot": {
+    "holders": 30,
+    "real_over_sim": 0.422,
+    "landing": 0.446
+   },
+   "Spirit Snatch": {
+    "holders": 107,
+    "real_over_sim": 0.996,
+    "landing": 0.997
+   },
+   "Stalker": {
+    "holders": 109,
+    "real_over_sim": 0.8,
+    "landing": 0.624
+   },
+   "Torment Pulse": {
+    "holders": 42,
+    "real_over_sim": 0.82,
+    "landing": 0.785
+   }
+  },
+  "Celeste": {
+   "Escalating Exposure": {
+    "holders": 30,
+    "real_over_sim": 1.381,
+    "landing": 0.657
+   },
+   "Torment Pulse": {
+    "holders": 74,
+    "real_over_sim": 1.271,
+    "landing": 1.0
+   }
+  },
+  "Deadman Danny": {
+   "Cold Front": {
+    "holders": 46,
+    "real_over_sim": 0.526,
+    "landing": 0.589
+   },
+   "Express Shot": {
+    "holders": 183,
+    "real_over_sim": 0.68,
+    "landing": 0.706
+   },
+   "Mystic Burst": {
+    "holders": 207,
+    "real_over_sim": 0.769,
+    "landing": 0.787
+   },
+   "Mystic Shot": {
+    "holders": 54,
+    "real_over_sim": 0.884,
+    "landing": 0.684
+   },
+   "Tankbuster": {
+    "holders": 310,
+    "real_over_sim": 0.693,
+    "landing": 0.709
+   },
+   "Toxic Bullets": {
+    "holders": 144,
+    "real_over_sim": 1.872,
+    "landing": 1.0
+   }
+  },
+  "Drifter": {
+   "Stalker": {
+    "holders": 177,
+    "real_over_sim": 1.474,
+    "landing": 1.0
+   },
+   "Toxic Bullets": {
+    "holders": 25,
+    "real_over_sim": 0.716,
+    "landing": 0.514
+   }
+  },
+  "Graves": {
+   "Capacitor": {
+    "holders": 66,
+    "real_over_sim": 0.807,
+    "landing": 0.607
+   },
+   "Escalating Exposure": {
+    "holders": 30,
+    "real_over_sim": 0.676,
+    "landing": 0.428
+   },
+   "Mystic Shot": {
+    "holders": 68,
+    "real_over_sim": 0.918,
+    "landing": 0.7
+   },
+   "Siphon Bullets": {
+    "holders": 47,
+    "real_over_sim": 0.656,
+    "landing": 0.272
+   },
+   "Tesla Bullets": {
+    "holders": 105,
+    "real_over_sim": 0.888,
+    "landing": 0.807
+   },
+   "Torment Pulse": {
+    "holders": 79,
+    "real_over_sim": 0.571,
+    "landing": 0.574
+   },
+   "Toxic Bullets": {
+    "holders": 122,
+    "real_over_sim": 0.737,
+    "landing": 0.476
+   }
+  },
+  "Grey Talon": {
+   "Mystic Reverb": {
+    "holders": 22,
+    "real_over_sim": 0.725,
+    "landing": 0.458
+   },
+   "Mystic Shot": {
+    "holders": 49,
+    "real_over_sim": 1.46,
+    "landing": 0.979
+   },
+   "Tankbuster": {
+    "holders": 90,
+    "real_over_sim": 0.911,
+    "landing": 0.927
+   }
+  },
+  "Haze": {
+   "Capacitor": {
+    "holders": 69,
+    "real_over_sim": 1.136,
+    "landing": 0.789
+   },
+   "Quicksilver Reload": {
+    "holders": 24,
+    "real_over_sim": 0.768,
+    "landing": 0.866
+   },
+   "Ricochet": {
+    "holders": 207,
+    "real_over_sim": 1.112,
+    "landing": 0.967
+   },
+   "Siphon Bullets": {
+    "holders": 63,
+    "real_over_sim": 0.988,
+    "landing": 0.363
+   },
+   "Tesla Bullets": {
+    "holders": 47,
+    "real_over_sim": 1.337,
+    "landing": 1.0
+   },
+   "Toxic Bullets": {
+    "holders": 28,
+    "real_over_sim": 1.056,
+    "landing": 0.639
+   }
+  },
+  "Holliday": {
+   "Headhunter": {
+    "holders": 25,
+    "real_over_sim": 1.134,
+    "landing": 0.9
+   }
+  },
+  "Infernus": {
+   "Escalating Exposure": {
+    "holders": 103,
+    "real_over_sim": 0.864,
+    "landing": 0.479
+   },
+   "Quicksilver Reload": {
+    "holders": 30,
+    "real_over_sim": 0.551,
+    "landing": 0.699
+   },
+   "Ricochet": {
+    "holders": 66,
+    "real_over_sim": 0.697,
+    "landing": 0.666
+   },
+   "Toxic Bullets": {
+    "holders": 130,
+    "real_over_sim": 1.022,
+    "landing": 0.631
+   }
+  },
+  "Ivy": {
+   "Capacitor": {
+    "holders": 62,
+    "real_over_sim": 0.945,
+    "landing": 0.685
+   },
+   "Siphon Bullets": {
+    "holders": 27,
+    "real_over_sim": 0.959,
+    "landing": 0.357
+   },
+   "Tesla Bullets": {
+    "holders": 71,
+    "real_over_sim": 1.21,
+    "landing": 1.0
+   }
+  },
+  "Lash": {
+   "Cold Front": {
+    "holders": 71,
+    "real_over_sim": 1.325,
+    "landing": 1.0
+   },
+   "Headhunter": {
+    "holders": 141,
+    "real_over_sim": 0.984,
+    "landing": 0.827
+   },
+   "Mystic Shot": {
+    "holders": 122,
+    "real_over_sim": 0.918,
+    "landing": 0.695
+   }
+  },
+  "McGinnis": {
+   "Escalating Exposure": {
+    "holders": 29,
+    "real_over_sim": 0.796,
+    "landing": 0.473
+   }
+  },
+  "Mina": {
+   "Mystic Burst": {
+    "holders": 192,
+    "real_over_sim": 0.761,
+    "landing": 0.781
+   },
+   "Quicksilver Reload": {
+    "holders": 198,
+    "real_over_sim": 0.846,
+    "landing": 0.859
+   },
+   "Tankbuster": {
+    "holders": 196,
+    "real_over_sim": 0.93,
+    "landing": 0.936
+   },
+   "Toxic Bullets": {
+    "holders": 99,
+    "real_over_sim": 1.258,
+    "landing": 0.749
+   }
+  },
+  "Mirage": {
+   "Ricochet": {
+    "holders": 33,
+    "real_over_sim": 0.684,
+    "landing": 0.693
+   },
+   "Toxic Bullets": {
+    "holders": 42,
+    "real_over_sim": 1.075,
+    "landing": 0.65
+   }
+  },
+  "Mo & Krill": {
+   "Cold Front": {
+    "holders": 120,
+    "real_over_sim": 1.28,
+    "landing": 1.0
+   },
+   "Escalating Exposure": {
+    "holders": 24,
+    "real_over_sim": 0.951,
+    "landing": 0.526
+   },
+   "Rebuttal": {
+    "holders": 22,
+    "real_over_sim": 0.777,
+    "landing": 0.876
+   },
+   "Scourge": {
+    "holders": 50,
+    "real_over_sim": 0.885,
+    "landing": 0.599
+   },
+   "Torment Pulse": {
+    "holders": 161,
+    "real_over_sim": 1.216,
+    "landing": 1.0
+   }
+  },
+  "Nurse Harrow": {
+   "Decay": {
+    "holders": 41,
+    "real_over_sim": 0.878,
+    "landing": 0.916
+   },
+   "Quicksilver Reload": {
+    "holders": 89,
+    "real_over_sim": 0.881,
+    "landing": 0.902
+   },
+   "Ricochet": {
+    "holders": 130,
+    "real_over_sim": 0.649,
+    "landing": 0.604
+   },
+   "Toxic Bullets": {
+    "holders": 84,
+    "real_over_sim": 1.144,
+    "landing": 0.69
+   }
+  },
+  "Paradox": {
+   "Express Shot": {
+    "holders": 143,
+    "real_over_sim": 0.374,
+    "landing": 0.422
+   },
+   "Headhunter": {
+    "holders": 41,
+    "real_over_sim": 1.056,
+    "landing": 0.87
+   },
+   "Mystic Reverb": {
+    "holders": 86,
+    "real_over_sim": 1.204,
+    "landing": 0.63
+   },
+   "Mystic Shot": {
+    "holders": 62,
+    "real_over_sim": 1.801,
+    "landing": 1.0
+   }
+  },
+  "Pocket": {
+   "Cold Front": {
+    "holders": 59,
+    "real_over_sim": 0.537,
+    "landing": 0.58
+   },
+   "Mystic Burst": {
+    "holders": 112,
+    "real_over_sim": 0.761,
+    "landing": 0.793
+   },
+   "Spirit Burn": {
+    "holders": 95,
+    "real_over_sim": 0.84,
+    "landing": 0.866
+   },
+   "Tankbuster": {
+    "holders": 110,
+    "real_over_sim": 0.713,
+    "landing": 0.751
+   }
+  },
+  "Rat King": {
+   "Siphon Bullets": {
+    "holders": 218,
+    "real_over_sim": 0.708,
+    "landing": 0.267
+   }
+  },
+  "Seven": {
+   "Escalating Exposure": {
+    "holders": 82,
+    "real_over_sim": 1.061,
+    "landing": 0.567
+   },
+   "Toxic Bullets": {
+    "holders": 30,
+    "real_over_sim": 0.54,
+    "landing": 0.428
+   }
+  },
+  "Shiv": {
+   "Cold Front": {
+    "holders": 21,
+    "real_over_sim": 1.747,
+    "landing": 1.0
+   },
+   "Spirit Strike": {
+    "holders": 38,
+    "real_over_sim": 0.585,
+    "landing": 0.704
+   },
+   "Torment Pulse": {
+    "holders": 50,
+    "real_over_sim": 1.752,
+    "landing": 1.0
+   }
+  },
+  "Silver": {
+   "Cold Front": {
+    "holders": 36,
+    "real_over_sim": 1.018,
+    "landing": 0.933
+   },
+   "Stalker": {
+    "holders": 94,
+    "real_over_sim": 0.858,
+    "landing": 0.665
+   }
+  },
+  "Solomon": {
+   "Tankbuster": {
+    "holders": 26,
+    "real_over_sim": 0.941,
+    "landing": 0.966
+   }
+  },
+  "Venator": {
+   "Ricochet": {
+    "holders": 36,
+    "real_over_sim": 0.565,
+    "landing": 0.608
+   },
+   "Siphon Bullets": {
+    "holders": 77,
+    "real_over_sim": 1.676,
+    "landing": 0.551
+   }
+  },
+  "Victor": {
+   "Escalating Exposure": {
+    "holders": 102,
+    "real_over_sim": 1.168,
+    "landing": 0.616
+   },
+   "Torment Pulse": {
+    "holders": 79,
+    "real_over_sim": 0.858,
+    "landing": 0.795
+   }
+  },
+  "Vindicta": {
+   "Mystic Burst": {
+    "holders": 25,
+    "real_over_sim": 0.839,
+    "landing": 0.907
+   },
+   "Quicksilver Reload": {
+    "holders": 82,
+    "real_over_sim": 0.65,
+    "landing": 0.707
+   }
+  },
+  "Viscous": {
+   "Mystic Burst": {
+    "holders": 20,
+    "real_over_sim": 0.71,
+    "landing": 0.843
+   }
+  },
+  "Vyper": {
+   "Mercurial Magnum": {
+    "holders": 58,
+    "real_over_sim": 0.932,
+    "landing": 0.783
+   },
+   "Quicksilver Reload": {
+    "holders": 31,
+    "real_over_sim": 0.434,
+    "landing": 0.602
+   },
+   "Split Shot": {
+    "holders": 69,
+    "real_over_sim": 1.325,
+    "landing": 1.0
+   },
+   "Tesla Bullets": {
+    "holders": 36,
+    "real_over_sim": 1.042,
+    "landing": 0.916
+   }
+  },
+  "Warden": {
+   "Mercurial Magnum": {
+    "holders": 30,
+    "real_over_sim": 0.854,
+    "landing": 0.75
+   },
+   "Quicksilver Reload": {
+    "holders": 25,
+    "real_over_sim": 0.358,
+    "landing": 0.565
+   }
+  },
+  "Wraith": {
+   "Capacitor": {
+    "holders": 125,
+    "real_over_sim": 1.098,
+    "landing": 0.775
+   },
+   "Mercurial Magnum": {
+    "holders": 181,
+    "real_over_sim": 1.081,
+    "landing": 0.885
+   },
+   "Quicksilver Reload": {
+    "holders": 279,
+    "real_over_sim": 0.85,
+    "landing": 0.859
+   },
+   "Ricochet": {
+    "holders": 185,
+    "real_over_sim": 0.734,
+    "landing": 0.664
+   },
+   "Split Shot": {
+    "holders": 63,
+    "real_over_sim": 0.878,
+    "landing": 0.83
+   },
+   "Tesla Bullets": {
+    "holders": 201,
+    "real_over_sim": 1.037,
+    "landing": 0.922
+   },
+   "Toxic Bullets": {
+    "holders": 94,
+    "real_over_sim": 0.747,
+    "landing": 0.487
+   }
+  },
+  "Yamato": {
+   "Mystic Shot": {
+    "holders": 35,
+    "real_over_sim": 0.605,
+    "landing": 0.543
+   },
+   "Spirit Snatch": {
+    "holders": 41,
+    "real_over_sim": 0.656,
+    "landing": 0.753
+   },
+   "Spirit Strike": {
+    "holders": 48,
+    "real_over_sim": 0.616,
+    "landing": 0.71
+   },
+   "Stalker": {
+    "holders": 104,
+    "real_over_sim": 0.686,
+    "landing": 0.55
+   },
+   "Torment Pulse": {
+    "holders": 32,
+    "real_over_sim": 0.635,
+    "landing": 0.679
+   }
   }
  }
 }
