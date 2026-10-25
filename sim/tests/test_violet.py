@@ -71,10 +71,11 @@ class TestLivingInk(VioletCase):
         survival or overall search's enemy crashed every fight on it (rerun 73, 2026-10-25)."""
         import types
         li = self.ab["ability_artist_homingbrush"]
-        self.f.items_fx.append(types.SimpleNamespace(item=None, ready_at=5.0))
-        self.f.items_fx.append(types.SimpleNamespace(ready_at=5.0))
+        none, missing = types.SimpleNamespace(item=None, ready_at=5.0), types.SimpleNamespace(ready_at=5.0)
+        self.f.items_fx += [none, missing]
         self.e.t = 1.0
         artist.cut_cooldowns(li.ctx, 1.5)
+        self.assertEqual((none.ready_at, missing.ready_at), (5.0, 5.0))
 
     def test_survival_fight_with_violet_as_enemy(self):
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "survival"))
