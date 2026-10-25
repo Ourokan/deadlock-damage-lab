@@ -53,6 +53,24 @@ class MysticBurstCharge(unittest.TestCase):
         hp_at_release = hp - (a.dmg_out["big"] - big_before)
         self.assertAlmostEqual(a.dmg_out["Tankbuster"] - before, 0.25 * (40.0 + hp_at_release * 0.075), places=4)
 
+    def test_tankbuster_minimum_is_before_the_targets_resist(self):
+        """Tankbuster's 165 minimum checks the hit before the target's resist (replays: its trigger share ramps from
+        80 to 165 dealt damage); Mystic Burst's 80 checks the damage dealt (a step at 80 dealt)."""
+        e = Engine()
+        a, b = pair(e, "Infernus", ["Tankbuster", "Mystic Burst"], souls=9000)
+        b.st.spirit_resist = [0.4]
+        e.damage(a, b, 120, "spirit", "small", is_ability=True)          # 120 before resist, 72 dealt
+        self.assertNotIn("Tankbuster", a.dmg_out)
+        self.assertNotIn("Mystic Burst", a.dmg_out)
+        e.damage(a, b, 200, "spirit", "big", is_ability=True)            # 200 before resist, 120 dealt
+        self.assertGreater(a.dmg_out.get("Tankbuster", 0.0), 0.0)
+        self.assertGreater(a.dmg_out.get("Mystic Burst", 0.0), 0.0)
+        e.t = 14.0
+        before = dict(a.dmg_out)
+        e.damage(a, b, 170, "spirit", "mid", is_ability=True)            # 170 before resist, 102 dealt
+        self.assertGreater(a.dmg_out["Tankbuster"], before["Tankbuster"])
+        self.assertGreater(a.dmg_out["Mystic Burst"], before["Mystic Burst"])
+
 
 class Booking(unittest.TestCase):
     def test_express_shot_proc_booked_under_item(self):

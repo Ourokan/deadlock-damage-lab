@@ -249,6 +249,9 @@ class Hit:
     # the ability landing factor x reach availability in amount: they stand for hits that land less often, so a
     # per-hit threshold (Mystic Burst's MinimumDamage) checks amount / landing, the size of a hit when it lands
     landing: float = 1.0
+    # the hit's damage / landing before the target's resists and damage-taken amps (Tankbuster's MinimumDamage
+    # checks this: in replays its trigger share ramps from 80 to 165 dealt damage, as resists vary)
+    pre_mit: float = 0.0
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -651,6 +654,7 @@ class Engine:
             land *= av
         if is_item and src.skill.item_landing:
             amt *= src.skill.item_landing.get(source, 1.0)
+        pre_mit = amt / land
         if pure:
             pass
         elif kind == "spirit":
@@ -684,7 +688,7 @@ class Engine:
                 if amt <= 0:
                     return 0.0
         hit = Hit(kind, source, 0.0, raw, is_ability, ability, headshots, hits, is_dot, is_item, is_ult, weapon_proc,
-                  landing=land)
+                  landing=land, pre_mit=pre_mit)
         booked = self.booking(src, dst, amt, kind, book or source, pure)
         if src.skill.item_landing and (book or len(booked) > 1):
             # damage booked under an item (Express Shot's proc shot, Escalating Exposure's amp) gets that item's

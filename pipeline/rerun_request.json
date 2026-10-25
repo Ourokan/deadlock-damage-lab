@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-25T15:28:00Z",
- "reason": "Cast timing (#86): each ability's first cast held to real Phantom+ cast times; also carries the Violet enemy fix requested at 15:30"
+ "requested_at": "2026-10-25T16:21:00Z",
+ "reason": "Tankbuster (#89): its 165 minimum damage is checked before the target's resists, so 100-165 dealt hits (Scorn, Rend, Powder Keg, Rake) now release it"
 }

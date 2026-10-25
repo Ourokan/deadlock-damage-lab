@@ -1083,3 +1083,31 @@ of noise 0.282 -> 0.275. Precast alone: 0.215 / audit 0.0389.
 
 Left: gated abilities keep their own timing (Lash's Death Slam waits ~4 s for its combo, real 62% of its damage in
 the first 2 s); precasts that fail their range rule (half of Sticky Bomb's) wait for the fight.
+
+## Tankbuster minimum damage (2026-10-25)
+
+Follow-up of cast timing (its audit loss was mostly Tankbuster on spirit heroes). In 260 Phantom+ replays (every
+hero-vs-hero DamageEvent, `analysis/work/replay_damage` in the project folder) Tankbuster releases on ~93% of ability
+hits big enough, with small releases (mean 75-170 per release): Flog 1226 of 1381 hits, Kinetic Carbine 952 of 1005,
+Scorn 929 of 1122. By the damage the hit dealt, its trigger share ramps from 0.26 at 80-100 to 0.63 at 120-140 and
+0.92 at 165+: the 165 MinimumDamage is checked before the target's resists (which vary). Mystic Burst's 80 is a step
+at 80 dealt (0.21 at 60-80, 0.57 at 80-100), so it checks the damage dealt. The sim checked Tankbuster after resists,
+so hits of 100-165 dealt never released it: Mo & Krill's Scorn, Drifter's Rend, Holliday's Powder Keg, Mina's Rake.
+
+**Change:** `Hit.pre_mit` (the hit / landing before the target's resists and damage-taken amps); Tankbuster checks it.
+The sim's trigger share by damage dealt now ramps too (0.10 at 80-100, 0.42 at 120-140, 0.94 at 165+), a little
+later than real (sim resists are lower or replay damage leaves out barrier hits; not fitted).
+
+**Results** (main after cast timing):
+- Tankbuster hero x item error (holder-weighted |ln real/sim|) 0.353 -> 0.245 (Mo & Krill 2.37 -> 1.08, Holliday
+  1.89 -> 1.11, Drifter 2.26 -> 1.63, Lash 1.17 -> 1.02); pooled holders real/sim 1.36 -> 1.16. All hero x item rows
+  0.223 -> 0.212. Same on each half of the sample (even / odd match ids: 0.232 -> 0.224, 0.231 -> 0.216).
+- Whole-match damage mix 0.0377 -> 0.0387: Mo & Krill (0.025 -> 0.045), Lash, Holliday. Their items were already over
+  in the whole-match mix while Tankbuster was 1.9-2.4x under in the holders-only table: the mix compares the whole
+  match (early game without the item) with duels at 30/60/90%, which overweights mid-game items.
+- sim_vs_win at 27k: all pairs 0.205 -> 0.204, per item 0.302 -> 0.300, damage items 0.026 -> 0.024: flat.
+- A per-hero factor refit (`item_landing_heroes.py`) on top no longer helps held-out data on this main (mix and
+  hero x item worse on both halves), so the factors are unchanged.
+
+Left: Paradox (3.3x under) and Bebop (2.1x) Tankbuster; both trigger right in the sim (Kinetic Carbine, Sticky Bomb),
+but have few qualifying hits per duel. Grey Talon / Pocket / Mina are 0.88-0.93 (fine).
