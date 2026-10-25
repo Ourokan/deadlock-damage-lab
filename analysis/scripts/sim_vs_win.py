@@ -7,11 +7,14 @@ it is compared with), as score gain per 1000 souls of the item. Compared with th
 movement items (their real value is in movement_value already) are skipped.
 
 Prints Pearson / Spearman over every (hero, item) pair, over items that deal damage (kill_weight.json rows) and
-per-item mean sim gain vs mean edge, with the overall score's KILL_WEIGHT as set (--no-kill to turn it off).
+per-item mean sim gain vs mean edge, with the overall score's KILL_WEIGHT and DEATH_COST as set (--no-kill to turn the
+kill weight off, --death to turn the opt-in death cost on, --bounty for DEATH_BOUNTY). Rows in --out also carry the popular build's and the
+item build's sim death chance (overall_search.death_chance), for analysis/scripts/death_check.py.
 Earlier ad hoc check: Pearson 0.05 over 16 heroes x 27k/37k (build_win_check.md). This script, all heroes at 27k
 (2026-10-24): all pairs 0.10 without the kill weight, 0.14 with it.
 
-usage: python3 analysis/scripts/sim_vs_win.py [--budgets 27000] [--heroes all] [--workers 4] [--no-kill] [--out FILE]
+usage: python3 analysis/scripts/sim_vs_win.py [--budgets 27000] [--heroes all] [--workers 4] [--no-kill] [--death]
+       [--bounty 1] [--out FILE]
 """
 import argparse
 import json
@@ -31,15 +34,18 @@ EDGE = os.path.join(ROOT, "analysis", "out", "hero_item_edge.json")
 KILL = os.path.join(ROOT, "sim", "data", "kill_weight.json")
 
 
-def setup(kill):
+def setup(kill, death=False, bounty=None):
     O.WIN_K = 0.0
     O.KILL_WEIGHT = kill
+    O.DEATH_COST = death
+    if bounty is not None:
+        O.DEATH_BOUNTY = bounty
     O._phases()
 
 
 def job(args):
-    hero, b, kill = args
-    setup(kill)
+    hero, b, kill, death, bounty = args
+    setup(kill, death, bounty)
     with open(EDGE) as f:
         edges = json.load(f)["heroes"].get(str(hero), {})
     O.movement_value(())
@@ -48,6 +54,7 @@ def job(args):
     ev = GP.make_evaluator(hero, b, pools)
     pop = S.popular_build(hero, GP.item_budget(b), pools)
     base = ev.run(pop)
+    pd_pop = ev.pd_pop["F"]
     g = S.G()
     out = []
     for i, e in edges.items():
@@ -57,8 +64,9 @@ def job(args):
         it = g.items[i]
         if it.cost > GP.item_budget(b):
             continue
-        sc = ev.run(GP.with_item(pop, i))
-        out.append((hero, b, it.name, (sc - base) / it.cost * 1000, e[0], e[1]))
+        d = ev.run(GP.with_item(pop, i), detail=True)
+        sc = d["score"]
+        out.append((hero, b, it.name, (sc - base) / it.cost * 1000, e[0], e[1], pd_pop, d["death_chance"]))
     return out
 
 
@@ -87,18 +95,21 @@ def main():
     ap.add_argument("--heroes", default="")
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--no-kill", action="store_true")
+    ap.add_argument("--death", action="store_true", help="turn the opt-in death cost on")
+    ap.add_argument("--bounty", type=float, default=None, help="overall_search.DEATH_BOUNTY")
     ap.add_argument("--out", default="")
     a = ap.parse_args()
     g = S.G()
     heroes = [g.hero(int(h) if h.isdigit() else h).id for h in a.heroes.split(",") if h] or sorted(g.heroes)
-    jobs = [(h, int(b), not a.no_kill) for b in a.budgets.split(",") for h in heroes]
+    jobs = [(h, int(b), not a.no_kill, a.death, a.bounty) for b in a.budgets.split(",") for h in heroes]
     rows = []
     with Pool(a.workers) as p:
         for r in p.imap_unordered(job, jobs):
             rows += r
     with open(KILL) as f:
         dmg_items = set(json.load(f)["items"])
-    print(f"kill weight {'off' if a.no_kill else 'on'}; {len(rows)} (hero, item) pairs")
+    print(f"kill weight {'off' if a.no_kill else 'on'}, death cost {'on' if a.death else 'off'}"
+          f"{'' if a.bounty is None else f' (bounty {a.bounty:g})'}; {len(rows)} (hero, item) pairs")
     for label, rs in (("all items", rows), ("damage items", [r for r in rows if r[2] in dmg_items]),
                       ("edges clear of noise", [r for r in rows if abs(r[4]) > 1.96 * r[5]])):
         x, y = [r[3] for r in rs], [r[4] for r in rs]

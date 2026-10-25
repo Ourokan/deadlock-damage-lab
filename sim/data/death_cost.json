@@ -1,0 +1,395 @@
+{
+ "source": "600 Phantom+ matches' death details (fetch_deaths.py) and 260 of their replays (sim/scripts/fight_length raw), scripts/death_cost/fit_death_cost.py",
+ "respawn_s": [
+  [
+   1250.0,
+   8.0
+  ],
+  [
+   3750.0,
+   10.6
+  ],
+  [
+   6250.0,
+   15.9
+  ],
+  [
+   8750.0,
+   22.2
+  ],
+  [
+   11250.0,
+   27.3
+  ],
+  [
+   13750.0,
+   32.7
+  ],
+  [
+   16250.0,
+   37.5
+  ],
+  [
+   18750.0,
+   43.3
+  ],
+  [
+   21250.0,
+   49.6
+  ],
+  [
+   23750.0,
+   55.8
+  ],
+  [
+   26250.0,
+   61.7
+  ],
+  [
+   28750.0,
+   66.1
+  ],
+  [
+   31250.0,
+   70.4
+  ],
+  [
+   33750.0,
+   74.0
+  ],
+  [
+   36250.0,
+   77.2
+  ],
+  [
+   38750.0,
+   80.2
+  ],
+  [
+   41250.0,
+   81.4
+  ],
+  [
+   43750.0,
+   83.1
+  ],
+  [
+   46250.0,
+   84.8
+  ],
+  [
+   48750.0,
+   85.6
+  ],
+  [
+   51250.0,
+   85.6
+  ],
+  [
+   53750.0,
+   86.1
+  ],
+  [
+   56250.0,
+   86.1
+  ],
+  [
+   58750.0,
+   86.7
+  ],
+  [
+   61250.0,
+   86.7
+  ]
+ ],
+ "souls": [
+  {
+   "nw": 0,
+   "soul_rate": 13.16,
+   "bounty": 582,
+   "windows": 2400
+  },
+  {
+   "nw": 5000,
+   "soul_rate": 17.6,
+   "bounty": 741,
+   "windows": 2039
+  },
+  {
+   "nw": 10000,
+   "soul_rate": 19.85,
+   "bounty": 949,
+   "windows": 1905
+  },
+  {
+   "nw": 18000,
+   "soul_rate": 22.87,
+   "bounty": 1376,
+   "windows": 1554
+  },
+  {
+   "nw": 27000,
+   "soul_rate": 23.61,
+   "bounty": 1719,
+   "windows": 639
+  },
+  {
+   "nw": 37000,
+   "soul_rate": 25.41,
+   "bounty": 1555,
+   "windows": 173
+  }
+ ],
+ "phases": {
+  "lane": {
+   "engagements": 39853,
+   "deaths": 5818,
+   "deaths_per_engagement": 0.146,
+   "alive_s_per_engagement": 56.6,
+   "respawn_to_engagement_s": 65.3,
+   "wait_to_engagement_s": 54.0,
+   "walk_back_s": 11.3
+  },
+  "mid": {
+   "engagements": 29801,
+   "deaths": 7817,
+   "deaths_per_engagement": 0.2623,
+   "alive_s_per_engagement": 75.9,
+   "respawn_to_engagement_s": 73.9,
+   "wait_to_engagement_s": 69.1,
+   "walk_back_s": 4.8
+  },
+  "late": {
+   "engagements": 17941,
+   "deaths": 4019,
+   "deaths_per_engagement": 0.224,
+   "alive_s_per_engagement": 64.4,
+   "respawn_to_engagement_s": 58.6,
+   "wait_to_engagement_s": 58.1,
+   "walk_back_s": 0.5
+  }
+ },
+ "heroes": {
+  "72": {
+   "ratio": 1.184,
+   "deaths": 256,
+   "engagements": 1014
+  },
+  "63": {
+   "ratio": 0.819,
+   "deaths": 466,
+   "engagements": 2812
+  },
+  "17": {
+   "ratio": 0.926,
+   "deaths": 188,
+   "engagements": 1046
+  },
+  "1": {
+   "ratio": 1.092,
+   "deaths": 461,
+   "engagements": 2077
+  },
+  "78": {
+   "ratio": 1.117,
+   "deaths": 977,
+   "engagements": 4303
+  },
+  "85": {
+   "ratio": 0.965,
+   "deaths": 346,
+   "engagements": 1817
+  },
+  "15": {
+   "ratio": 1.076,
+   "deaths": 772,
+   "engagements": 3516
+  },
+  "79": {
+   "ratio": 0.987,
+   "deaths": 113,
+   "engagements": 569
+  },
+  "84": {
+   "ratio": 0.933,
+   "deaths": 997,
+   "engagements": 5327
+  },
+  "18": {
+   "ratio": 0.924,
+   "deaths": 550,
+   "engagements": 2956
+  },
+  "31": {
+   "ratio": 0.963,
+   "deaths": 563,
+   "engagements": 2908
+  },
+  "64": {
+   "ratio": 1.285,
+   "deaths": 639,
+   "engagements": 2391
+  },
+  "10": {
+   "ratio": 1.039,
+   "deaths": 415,
+   "engagements": 1974
+  },
+  "13": {
+   "ratio": 0.984,
+   "deaths": 744,
+   "engagements": 3730
+  },
+  "50": {
+   "ratio": 0.847,
+   "deaths": 241,
+   "engagements": 1443
+  },
+  "12": {
+   "ratio": 0.912,
+   "deaths": 228,
+   "engagements": 1244
+  },
+  "19": {
+   "ratio": 1.045,
+   "deaths": 509,
+   "engagements": 2410
+  },
+  "7": {
+   "ratio": 0.865,
+   "deaths": 603,
+   "engagements": 3480
+  },
+  "8": {
+   "ratio": 1.089,
+   "deaths": 151,
+   "engagements": 666
+  },
+  "27": {
+   "ratio": 1.165,
+   "deaths": 566,
+   "engagements": 2392
+  },
+  "87": {
+   "ratio": 1.072,
+   "deaths": 1098,
+   "engagements": 5328
+  },
+  "86": {
+   "ratio": 0.923,
+   "deaths": 925,
+   "engagements": 4992
+  },
+  "3": {
+   "ratio": 1.099,
+   "deaths": 288,
+   "engagements": 1288
+  },
+  "76": {
+   "ratio": 1.133,
+   "deaths": 452,
+   "engagements": 1936
+  },
+  "58": {
+   "ratio": 0.86,
+   "deaths": 205,
+   "engagements": 1234
+  },
+  "67": {
+   "ratio": 1.09,
+   "deaths": 274,
+   "engagements": 1257
+  },
+  "88": {
+   "ratio": 0.963,
+   "deaths": 349,
+   "engagements": 1810
+  },
+  "11": {
+   "ratio": 0.997,
+   "deaths": 188,
+   "engagements": 937
+  },
+  "14": {
+   "ratio": 0.847,
+   "deaths": 265,
+   "engagements": 1593
+  },
+  "25": {
+   "ratio": 1.098,
+   "deaths": 91,
+   "engagements": 388
+  },
+  "6": {
+   "ratio": 1.117,
+   "deaths": 353,
+   "engagements": 1539
+  },
+  "16": {
+   "ratio": 0.981,
+   "deaths": 344,
+   "engagements": 1739
+  },
+  "80": {
+   "ratio": 1.076,
+   "deaths": 338,
+   "engagements": 1521
+  },
+  "66": {
+   "ratio": 0.995,
+   "deaths": 339,
+   "engagements": 1670
+  },
+  "81": {
+   "ratio": 0.894,
+   "deaths": 378,
+   "engagements": 2083
+  },
+  "2": {
+   "ratio": 0.913,
+   "deaths": 207,
+   "engagements": 1156
+  },
+  "77": {
+   "ratio": 0.998,
+   "deaths": 242,
+   "engagements": 1197
+  },
+  "65": {
+   "ratio": 0.957,
+   "deaths": 574,
+   "engagements": 2967
+  },
+  "20": {
+   "ratio": 0.894,
+   "deaths": 294,
+   "engagements": 1652
+  },
+  "4": {
+   "ratio": 1.125,
+   "deaths": 223,
+   "engagements": 946
+  },
+  "52": {
+   "ratio": 1.024,
+   "deaths": 106,
+   "engagements": 516
+  },
+  "69": {
+   "ratio": 0.999,
+   "deaths": 102,
+   "engagements": 507
+  },
+  "60": {
+   "ratio": 0.918,
+   "deaths": 105,
+   "engagements": 595
+  },
+  "35": {
+   "ratio": 0.971,
+   "deaths": 129,
+   "engagements": 669
+  }
+ },
+ "note": "respawn_s: [net worth, mean respawn s]; souls: per net worth bin (lower bound) own soul gain per s and the killing team's net worth gain per death; phases: engagement = a fighter's pair fights merged within 5 s; heroes: deaths per engagement / the pool's at the same phase mix, shrunk"
+}
