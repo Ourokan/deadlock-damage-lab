@@ -1071,8 +1071,8 @@ in the sim.
 - `Mechanics.melee_timing` (on): a melee item holder (Spirit Strike, Spirit Snatch, Melee Charge, Crushing Fists)
   lands one full melee hit at a time drawn from the real holders' first proc (`data/melee_timing.json`,
   `scripts/fight_length/melee_timing.py`, pooled over heroes: 11-19% by 1 s, 64-76% by 20 s), heavy for Melee Charge /
-  Crushing Fists; later melee ticks pay it back (`counters["melee_debt"]`), so the melee per fight stays the fitted
-  rate. Before, the first melee came at 2.5 s as a fraction of a hit, and holders' procs waited for the weights to
+  Crushing Fists; later melee ticks that land pay it back (`counters["melee_debt"]`), so a long fight keeps the fitted
+  rate and a short one gets up to one hit more (audit pooled melee share 2.43 -> 2.57, real 2.67). Before, the first melee came at 2.5 s as a fraction of a hit, and holders' procs waited for the weights to
   add up.
 
 Results (main with cast timing -> this, refit in the same order as above): opener timing sources > 0.5 s late

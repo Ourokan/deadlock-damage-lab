@@ -113,7 +113,8 @@ class Mechanics:
     # melee item holders' opening melee (2026-10-25): with fight_length, a fighter holding a melee item (Spirit Strike,
     # Spirit Snatch, Melee Charge, Crushing Fists) lands one full melee hit at a time drawn from the real holders'
     # first proc (data/melee_timing.json, scripts/fight_length/melee_timing.py); the steady melee rate then pays it
-    # back (the fitted melee damage per fight stays). Draws like cast_timing (phase or rng; deterministic fights skip)
+    # back (a long fight keeps the fitted melee; a short one up to one hit more, as real openers add). Draws like
+    # cast_timing (phase or rng; deterministic fights skip)
     melee_timing: bool = True
 
 
