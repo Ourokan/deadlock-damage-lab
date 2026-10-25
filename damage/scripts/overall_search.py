@@ -85,6 +85,19 @@ with it (Metal Skin -5.8, Rebuttal -2.2), and real holders of tank items barely 
 holders vs others at equal hero, net worth and length are 0.90-1.07 where the sim's death chance says 0.48-0.75
 (analysis/scripts/death_check.py: log sim vs log real ratio r -0.04 over 1158 hero x item pairs). Real players
 spend extra survivability on fighting more, not on dying less.
+Real death rate (2026-10-25, follow-up): 74k Phantom+ matches' stat timelines (sim/scripts/fight_rate/, every ~3-5
+min per player) show where it goes. At the same hero, net worth and game time, +10% max health = +5-7% damage taken
+per minute (more or longer fights) and -5% deaths, but about the same damage dealt per minute. Across items, the
+extra damage taken doesn't track real wins (r -0.04), holders' deaths per minute do (r -0.32; kills + assists
++0.39, and the sim already ranks items like those, r 0.62). So the score is multiplied by death_rate_value: the
+death_value share with d = the hero's real deaths per engagement x the held items' real holder / non-holder death
+ratios (sim/data/fight_rate.json at the budget's net worth, |z| >= 3, movement items left out; Cheat Death 0.67,
+Restorative Locket 0.91, Spirit Resilience ~0.92, Metal Skin 1.04, Rebuttal 1.07). sim_vs_win at 27k: all pairs
+0.133 -> 0.168, per item 0.209 -> 0.265, edges clear of noise 0.181 -> 0.229 (37k: 0.146 -> 0.174, 0.219 ->
+0.264); Cheat Death's mean gain rank 119 -> 52
+of 141, Rebuttal 25 -> 110, Metal Skin 82 -> 92. An "HP budget" fight rate (fight_value: fights per minute = max
+health ^ the real damage-taken elasticity / sim health lost per fight) ranks items less like real wins in every
+variant (0.133 -> 0.095-0.125) and stays OFF (FIGHT_RATE).
 Not counted: vision, souls from farming (Monster Rounds), objective damage, debuffs from area items on the other
 enemies.
 
@@ -178,6 +191,35 @@ DEATH_EPS = 0.01       # floor of the sim death chance in the ratio (a popular b
 _death = None
 
 
+# Fight rate (2026-10-25): real tank-item holders die about as often as non-holders (analysis/scripts/death_check.py)
+# but take more damage per minute: their extra health goes into taking more fights. Phantom+ stat timelines (sim/
+# scripts/fight_rate/fit_fight_rate.py) at the same hero, net worth and game time: damage taken per minute rises with
+# max health (elasticity ~0.7), damage dealt per HP of it barely moves. So a build's fights per minute = health it can
+# spend per minute (max health ^ hp_elasticity) / health it loses per fight (sim: expected damage taken - healed over
+# real fight lengths, LOSS_FLOOR x max health at least), relative to the popular build's, clamped to FIGHT_CLAMP.
+# Tried 2026-10-25 and left OFF: it ranks items less like real wins (sim_vs_win all pairs 0.133 -> 0.095-0.125 over
+# exponent variants): real holders' extra damage taken per minute doesn't track wins (r -0.04 over items), their
+# deaths do. See death_rate_value.
+FIGHT_RATE = False
+FIGHT_RATE_PATH = os.path.join(ROOT, "..", "sim", "data", "fight_rate.json")
+LOSS_FLOOR = 0.1
+FIGHT_CLAMP = (0.67, 1.5)
+_rate = None
+
+# Real death rate (2026-10-25): the same timelines give each item's real deaths per minute, holders / non-holders
+# at the same hero, net worth and game time (fight_rate.json items[budget], intervals at 0.75-1.35x the budget).
+# Most tank items barely move it (Extra Health 1.0, Rebuttal 1.07, Metal Skin 1.0); Cheat Death 0.67, Restorative
+# Locket 0.91, Spirit Resilience 0.91 do. Score x the share of the game spent fighting (c + d_pop L) / (c + d L),
+# like death_value but with d = d_pop x the product of the held items' real ratios (|z| >= DEATH_RATE_Z, each and
+# the product clamped to DEATH_RATE_CLAMP), not the sim death chance (which doesn't track real deaths, death_check).
+# Movement items are left out: movement_value already counts their deaths (escape). An association at equal net
+# worth, not a controlled effect: players who die less may also pick certain items.
+DEATH_RATE = True
+DEATH_RATE_Z = 3.0
+DEATH_RATE_CLAMP = (0.5, 1.5)
+_drate = {}
+
+
 def death_data():
     global _death
     if _death is None:
@@ -227,6 +269,60 @@ def death_value(pd, pd_pop, hero, souls):
     d = d_pop * (pd + DEATH_EPS) / (pd_pop + DEATH_EPS)
     c, L = row["alive_s_per_engagement"], death_seconds(souls)
     return (c + d_pop * L) / (c + d * L)
+
+
+def fight_rate_data():
+    global _rate
+    if _rate is None:
+        with open(FIGHT_RATE_PATH) as f:
+            _rate = json.load(f)
+    return _rate
+
+
+def death_rates(souls):
+    """{item id: real deaths-per-minute ratio of holders} for the fit budget nearest souls (|z| >= DEATH_RATE_Z,
+    movement items left out)."""
+    d = fight_rate_data()["items"]
+    b = min(d, key=lambda k: abs(math.log(int(k) / souls)))
+    if b not in _drate:
+        movement_value(())   # loads _move
+        moving = _move[2] | {i for row in _move[3].values() for i in row}
+        lo, hi = DEATH_RATE_CLAMP
+        by_name = {it.name: i for i, it in S.G().items.items()}
+        _drate[b] = {by_name[n]: max(lo, min(hi, e["deaths"][0])) for n, e in d[b]["items"].items()
+                     if n in by_name and by_name[n] not in moving and abs(e["deaths"][1]) >= DEATH_RATE_Z}
+    return _drate[b]
+
+
+def death_rate_value(items, hero, souls):
+    """(c + d_pop L) / (c + d L): c = real alive seconds per engagement, L = death_seconds, d_pop = the hero's real
+    deaths per engagement, d = d_pop x the product of the held items' real death ratios (death_rates). Divided by
+    the popular build's in the score. 1 when DEATH_RATE is off."""
+    if not DEATH_RATE:
+        return 1.0
+    rates = death_rates(souls)
+    ratio = 1.0
+    for i in set(items):
+        ratio *= rates.get(i, 1.0)
+    lo, hi = DEATH_RATE_CLAMP
+    ratio = max(lo, min(hi, ratio))
+    dd = death_data()
+    row = dd["phases"][game_phase(souls)]
+    d_pop = row["deaths_per_engagement"] * dd["heroes"].get(str(hero), {}).get("ratio", 1.0)
+    c, L = row["alive_s_per_engagement"], death_seconds(souls)
+    return (c + d_pop * L) / (c + d_pop * ratio * L)
+
+
+def fight_value(loss, loss_pop, hp, hp_pop, souls):
+    """Fights per minute of a build relative to the popular build's: (hp / hp_pop) ^ e x loss_pop / loss, loss = mean
+    health lost per fight (floored at LOSS_FLOOR x max health), e = the real elasticity of damage taken per minute to
+    max health in the build's game phase. 1 when FIGHT_RATE is off."""
+    if not FIGHT_RATE or loss_pop <= 0:   # lane fights carry no health lost (the lane test scores staying in lane)
+        return 1.0
+    e = fight_rate_data()["hp_elasticity"][game_phase(souls)]
+    lo, hi = FIGHT_CLAMP
+    v = (hp / hp_pop) ** e * max(loss_pop, LOSS_FLOOR * hp_pop) / max(loss, LOSS_FLOOR * hp)
+    return max(lo, min(hi, v))
 
 
 def kill_weights():
@@ -396,7 +492,8 @@ def fight(h, items, oh, oitems, souls, phase=None, start_hp=None):
     r = survive(h, items, souls, oh, oitems, max_time=MAX_TIME, focus=FOCUS, skill=sk, enemy_skill=esk,
                 start_hp=start_hp, extra_targets=near("extra", RICOCHET_RADIUS, souls),
                 fight_length=real_length(souls) if FIGHT_LENGTH else None)
-    return net_damage(r) + area_damage(r, souls), r["time_alive"], r["survived"], death_chance(r, souls)
+    return (net_damage(r) + area_damage(r, souls), r["time_alive"], r["survived"], death_chance(r, souls),
+            r["damage_taken_exp"] - r["healing_exp"])
 
 
 # Laning phase (Tyler, 2026-10-21: "in laning phase regen and other sources of healing can be more valuable than pure
@@ -580,12 +677,14 @@ class Evaluator:
         self.deficit = entry_deficit(hero, pop, budget)
         self.pop = pop
         self.map_pop = map_time(hero, pop, budget, pop)
-        self.pd_pop = {}
+        self.pd_pop, self.loss_pop = {}, {}
+        self.hp_pop = build_stats(hero, pop, budget)["max_hp"]
         for pool in ("S", "F", "F2"):
             rows = self._rows(pop, pool)
             self.pd_pop[pool] = self._death(rows)
+            self.loss_pop[pool] = self._loss(rows)
             self.norm[pool] = max(1.0, self._mean(rows, 2)) * movement_value(pop, hero) \
-                * self._map(pop) * win_value(pop, hero) * team_value(pop, budget)
+                * self._map(pop) * win_value(pop, hero) * team_value(pop, budget) * death_rate_value(pop, hero, budget)
 
     def _rows(self, items, pool):
         key = (tuple(sorted(items)), pool)
@@ -595,7 +694,8 @@ class Evaluator:
             for k, (oh, oitems, w) in enumerate(self.pools[pool]):
                 d, t, alive, *pd = self.fight(self.h, key[0], oh, oitems, self.souls, phase=PHASES[oh],
                                               start_hp=start)
-                rows.append((oh, w, d, t, alive, pd[0] if pd else 0.0))   # lane fights: no death chance
+                # lane fights: no death chance or health lost
+                rows.append((oh, w, d, t, alive, pd[0] if pd else 0.0, pd[1] if len(pd) > 1 else 0.0))
                 self.fights += 1
             self.cache[key] = rows
         return self.cache[key]
@@ -608,6 +708,11 @@ class Evaluator:
         """Mean sim death chance over the enemies (rows without one: 0)."""
         tw = sum(r[1] for r in rows)
         return sum(r[1] * (r[5] if len(r) > 5 else 0.0) for r in rows) / tw
+
+    def _loss(self, rows):
+        """Mean health lost per fight over the enemies (rows without one: 0)."""
+        tw = sum(r[1] for r in rows)
+        return sum(r[1] * (r[6] if len(r) > 6 else 0.0) for r in rows) / tw
 
     @staticmethod
     def _mean(rows, k):
@@ -623,7 +728,11 @@ class Evaluator:
         team = team_value(items, self.souls)
         pd = self._death(rows)
         death = death_value(pd, self.pd_pop[pool], self.h, self.souls)
-        score = dmg * move * mt * win * team * death / self.norm[pool]
+        loss = self._loss(rows)
+        rate = fight_value(loss, self.loss_pop[pool], build_stats(self.h, items, self.souls)["max_hp"], self.hp_pop,
+                           self.souls)
+        drate = death_rate_value(items, self.h, self.souls)
+        score = dmg * move * mt * win * team * death * rate * drate / self.norm[pool]
         if not detail:
             return score
         t = self._mean(rows, 3)
@@ -640,6 +749,9 @@ class Evaluator:
             "team_value": round(team, 4),  # ally items' value to teammates (team_value), same
             "death_chance": round(pd, 4),  # sim chance a fight is a real death (death_chance), mean over enemies
             "death_value": round(death, 4),  # share of the game fighting vs the popular build (death_value)
+            "hp_lost_per_fight": round(loss, 1),  # expected damage taken - healed over real fight lengths
+            "fight_rate": round(rate, 4),  # fights per minute vs the popular build (fight_value)
+            "death_rate_value": round(drate, 4),  # real holders' deaths (death_rate_value), before the popular's
             "matchups": {str(r[0]): [round(r[2]), round(r[3], 2)] for r in rows},
         }
 

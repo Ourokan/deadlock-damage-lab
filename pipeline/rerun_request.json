@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-25T09:30:00Z",
- "reason": "Healing Tempo: heals give its fire rate and move speed buff (was unmodeled)"
+ "requested_at": "2026-10-25T10:50:00Z",
+ "reason": "Real death rate: items' real holder deaths per minute count in the overall score (Cheat Death up, Rebuttal/Metal Skin down)"
 }
