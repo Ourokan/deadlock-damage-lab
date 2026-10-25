@@ -36,6 +36,10 @@ from __future__ import annotations
 from .build import combine_resist
 
 REGISTRY = {}
+# scripts/cast_timing/fit_cast_timing.py's probe: every first cast acts as one held to real cast timing
+# (AbilityState.held_opener), to measure the sim's own timing of abilities that only wait for a gate a held first
+# cast skips (an ultimate's setup, Slam Fire's last shell)
+PROBE_HELD = False
 
 
 def register(*class_names):
@@ -475,6 +479,11 @@ class AbilityState:
         self.ready_at = self.f.e.t
         if self.unlocked:
             self.impl.start(self.ctx)
+
+    def held_opener(self):
+        """The next cast is the first one and is held to real cast timing (mechanics.cast_timing): gates a real
+        opener doesn't wait for (an ultimate's setup, Slam Fire's last shell) let it go."""
+        return (self.timed or PROBE_HELD) and not self.casts
 
     def _recharge(self):
         t = self.f.e.t

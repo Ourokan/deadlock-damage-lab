@@ -1,7 +1,8 @@
 """Silver (hero_werewolf).
 
 Human form:
-- Slam Fire: cast when the clip is down to its last shell (it reloads instantly, and refilling the clip mid-reload
+- Slam Fire: cast when the clip is down to its last shell, or at once for a first cast held to real cast timing
+  (it reloads instantly, and refilling the clip mid-reload
   isn't modeled). The next MaxShots trigger pulls within AbilityDuration get +BonusFireRate% fire rate (T1: +15%
   weapon damage). Each pull that hits adds CurrentHealthDamagePercentage% of the target's current health as bullet
   damage, times (1 + AccuracyPercentage/100) for the accuracy penalty. T3: if all MaxShots pulls hit, +7% current
@@ -138,6 +139,7 @@ class WolfSlot(AbilityImpl):
 @register("ability_werewolf_unloadgun")
 class SlamFire(WolfSlot):
     kind = "self"
+    held_opens = True   # a held first cast skips its gate (fit_cast_timing.py measures it with PROBE_HELD)
     WOLF = "ability_werewolf_frenzy"
 
     def start(self, c):
@@ -145,7 +147,8 @@ class SlamFire(WolfSlot):
         c.state.update(shots=0, until=-1.0, armed=False, landed=0)
 
     def base_ok(self, c):
-        return c.foe.alive and c.me.clip == 1 and c.me.reload_until <= c.now
+        # a first cast held to real cast timing (mechanics.cast_timing) opens with it whatever the clip
+        return c.foe.alive and (c.me.clip == 1 or self.s.held_opener()) and c.me.reload_until <= c.now
 
     def base_cast(self, c):
         st = c.state

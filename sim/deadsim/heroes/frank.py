@@ -3,7 +3,7 @@
 Assumptions:
 - Self-damage (Jumpstart, Aura of Suffering) is spirit damage to himself (his spirit resist applies), can't kill
   Victor and is not counted as damage dealt. It charges the Pain Battery like any other damage.
-- Pain Battery: starts empty; full after taking StoredDamageHealthPercentRequired % of max health
+- Pain Battery: with Mechanics.entry_hp, starts charged by the health Victor is missing at the fight start; full after taking StoredDamageHealthPercentRequired % of max health
   (generation x (1 + cooldown reduction), per the ETechCooldown tag on BatteryGenerationPercent). 7 bolts hit
   the target once (Damage, once per target).
 - Jumpstart: TotalHealthRegen is healed over AbilityDuration, decaying linearly. Cast when below
@@ -76,7 +76,11 @@ class PainBattery(AbilityImpl):
     kind = "target"
 
     def start(self, c):
+        # with Mechanics.entry_hp: damage taken before the fight (its chip damage, survive's start_hp) has charged it
         c.state["stored"] = 0.0
+        mech = c.engine.mech
+        if mech is not None and getattr(mech, "entry_hp", False):
+            self.charge(c, max(0.0, c.me.max_hp - c.me.hp))
 
     def charge(self, c, amount):
         gen = c.raw("BatteryGenerationPercent", 100) / 100 * (1.0 + c.me.st.cdr)

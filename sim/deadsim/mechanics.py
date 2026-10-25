@@ -116,6 +116,14 @@ class Mechanics:
     # back (a long fight keeps the fitted melee; a short one up to one hit more, as real openers add). Draws like
     # cast_timing (phase or rng; deterministic fights skip)
     melee_timing: bool = True
+    # fight entry health (2026-10-25): with fight_length, a fighter whose start health wasn't set (survive's
+    # start_hp) starts short of full by a deficit drawn from the real Phantom+ entry health spread at hero combat
+    # start (data/sustain.json entry_deficit_q, scripts/sustain/fit_sustain.py; about half the fights start full).
+    # Health-gated abilities (Killing Blow, Assassinate, Close The Deal, Lethal Venom) then meet their threshold as
+    # early as in real fights. Draws like cast_timing (phase or rng; deterministic fights start full). Off by default:
+    # with it on (factors kept with length_factors.py --entry) execute timing matches real, but sim_vs_win per item
+    # fell 0.239 -> 0.216 and the audit 0.0314 -> 0.0330 (validation/README.md "Fight entry health")
+    entry_hp: bool = False
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
@@ -250,6 +258,36 @@ def hold_first_casts(f):
         ab.held_until = f.e.t + (math.inf if h is None else max(0.0, h))
         ab.timed = True
         ab.precast_at = f.e.t + h if h is not None and h < 0 else None
+
+
+_ENTRY = None
+
+
+def entry_deficits(souls):
+    """Real entry health deficits (share of max health, ENTRY quantiles) at net worth souls."""
+    global _ENTRY
+    if _ENTRY is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "sustain.json")) as fh:
+            _ENTRY = json.load(fh)["entry_deficit_q"]
+    ph = next((n for hi, n in LENGTH_PHASES if souls < hi), "late")
+    return _ENTRY[ph]
+
+
+def entry_health(f):
+    """Mechanics.entry_hp at the fight start: a fighter at full health whose start wasn't set (f.entry_set) starts
+    short by a deficit drawn from the real entry health spread for its net worth."""
+    if f.entry_set or f.hp < f.max_hp:
+        return
+    phase = f.skill.fight_phase
+    rng = f.e.rng
+    if phase is None and rng is None:
+        return
+    q = entry_deficits(f.st.souls)
+    if phase is not None:
+        u = (phase + zlib.crc32(f"entry_hp|{f.name}".encode()) / 2 ** 32) % 1.0
+    else:
+        u = rng.random()
+    f.hp = max(1.0, f.max_hp * (1.0 - q[min(len(q) - 1, int(u * len(q)))]))
 
 
 def precast(f):
