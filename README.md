@@ -4,7 +4,7 @@ A combat simulator for Deadlock item builds, and a web page for testing them. Pi
 target (a training dummy with your own HP and resists, or an enemy hero with items) and see how much damage the
 build really does over 5, 15 and 30 seconds, at real ranked aim.
 
-Live site: https://tylernodell.github.io/deadlock-damage-lab/ (deployed from `main` by `.github/workflows/pages.yml`).
+Live site: https://ourokan.github.io/deadlock-damage-lab/ (deployed from `main` by `.github/workflows/pages.yml`).
 
 ## What's here
 
