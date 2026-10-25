@@ -117,5 +117,20 @@ class TestCrashBooking(unittest.TestCase):
         self.assertEqual(L.sim_key(nurse.CRASH_SRC, {}, game()), "ability_nurse_adrenaline_rush")
 
 
+class TestAimRows(unittest.TestCase):
+    """Every hero has its own population aim (skill_defaults.json) or a replay gun calibration (Graves, Danny), so no
+    hero silently falls back to the all-hero default aim and fight distance."""
+
+    def test_no_hero_on_the_all_hero_default(self):
+        import json
+        from deadsim import game
+        from deadsim.accuracy import DEFAULTS, gun_calibration
+        rows = json.load(open(DEFAULTS))["heroes"]
+        G = game()
+        heroes = G.heroes.values() if isinstance(G.heroes, dict) else G.heroes
+        missing = [h.name for h in heroes if str(h.id) not in rows and str(h.id) not in gun_calibration()]
+        self.assertEqual(missing, [])
+
+
 if __name__ == "__main__":
     unittest.main()
