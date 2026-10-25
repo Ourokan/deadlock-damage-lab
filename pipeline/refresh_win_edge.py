@@ -88,11 +88,13 @@ def main():
                 f"in {len(paths)} of {len(days)} days of builds, {a.min_matches:,} needed.")
         return
     used = [os.path.basename(p).split(".")[0] for p in paths]
-    B.write_edges(B.hero_edges(B.load(paths)), B.EDGE_PATH, patch=state["patch"], matches_from=used[0],
+    heroes, fit = B.hero_edges(B.load(paths))
+    B.write_edges(heroes, B.EDGE_PATH, fit=fit, patch=state["patch"], matches_from=used[0],
                   matches_through=used[-1], matches=n, refreshed=datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                   note="refreshed by the patch rerun from its player builds (pipeline/refresh_win_edge.py)")
     summary(f"Win edge: refreshed from {n:,} Ritualist+ matches, {used[0]} to {used[-1]} (patch {state['patch']}); "
-            f"was {kept}.")
+            f"was {kept}. Rare-pick prior: {100 * fit['beta']:+.2f} points per decade below "
+            f"{100 * B.SHARE_KNEE:g}% share, tau {100 * fit['tau2'] ** 0.5:.2f} points + {1e4 * fit['tau2_rare']:.2f} pt^2 per decade.")
 
 
 if __name__ == "__main__":
