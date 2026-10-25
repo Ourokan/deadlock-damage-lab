@@ -5,7 +5,10 @@ name: Rerun searches after a patch
 # pipeline/tiers.json order (Phantom and up first, the standard; then Ascendant+, Eternus+, all ranks). Each tier runs
 # across 16 machines, commits its results to main and redeploys the site before the next starts
 # (rerun-tier.yml). Tiers not in "enabled" are skipped and keep their last results. Nothing is committed for a
-# tier unless its searches finish (pipeline/check_results.py).
+# tier unless its searches finish (pipeline/check_results.py). The real item win edge the overall search blends in
+# is rebuilt from the same builds (pipeline/refresh_win_edge.py), or kept from the last run when there are too few,
+# and the ally item team values are refit on the patch's popular builds (sim/scripts/team/team_value.py, no API),
+# both side by side (jobs win_edge and team, merged by fits) before the tiers start.
 
 # A merged change to pipeline/rerun_request.json also forces a rerun, so Claude (which can't press Run workflow)
 # can start one when asked.
@@ -26,6 +29,11 @@ on:
         type: boolean
         default: false
 
+# One rerun at a time; a newer one waits. GitHub keeps one waiting run per group (the newest), so however many reruns
+# are requested while one runs, the next run carries them all. (Cancelling the running one for a newer request starved
+# the site on 2026-10-24: merges ~40 min apart cancelled every ~60 min rerun.) A scheduled check can replace a waiting
+# forced rerun: the check then reruns itself when the request is newer than the results (check_patch.py, "rerun
+# requested").
 concurrency:
   group: patch-rerun
   cancel-in-progress: false
@@ -135,10 +143,113 @@ jobs:
             search/work/item_usage*.json
             search/work/tier_caps*.json
 
-  tier_phantom:
+  # the two fits the overall search reads, side by side once the pools are built (they used to run one after the
+  # other in the data job, ~20 min): the real item win edge, and the team value refit split over 7 machines
+  win_edge:
     needs: [detect, data]
+    if: needs.data.outputs.complete == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: game
+          path: data
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/cache/restore@v4
+        with:
+          path: data/builds/player_builds
+          key: player-builds-${{ needs.detect.outputs.patch_start }}-${{ github.run_id }}
+          restore-keys: player-builds-${{ needs.detect.outputs.patch_start }}-
+      - name: Real item win edge from the patch's builds (keeps the last snapshot when there are too few matches)
+        continue-on-error: true   # the overall search then blends the last snapshot, as when there are too few
+        run: python3 pipeline/refresh_win_edge.py data/builds/player_builds --workers 3
+      - uses: actions/upload-artifact@v4
+        with:
+          name: edge
+          path: analysis/out/hero_item_edge.json
+
+  team:
+    needs: [detect, data]
+    if: needs.data.outputs.complete == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        part: [0, 1, 2, 3, 4, 5, 6]   # one ally item each (the 7 of team_value.ALLY_ITEMS; --of below matches)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: game
+          path: data
+      - uses: actions/download-artifact@v4
+        with:
+          name: inputs
+          path: .
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Ally item team values from 3v3 fights of the patch's popular builds (part ${{ matrix.part }} of 7)
+        continue-on-error: true   # a missing part keeps the last fit (fits job)
+        working-directory: sim
+        run: |
+          mkdir -p work/team_parts
+          python3 scripts/team/team_value.py --workers 4 --require-pools --part ${{ matrix.part }} --of 7 \
+            --part-out work/team_parts/part_${{ matrix.part }}.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: team-part-${{ matrix.part }}
+          path: sim/work/team_parts
+
+  fits:
+    needs: [detect, data, win_edge, team]
+    # runs when a fit failed too: that one keeps its last committed values
+    if: ${{ !cancelled() && needs.data.outputs.complete == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: game
+          path: data
+      - uses: actions/download-artifact@v4
+        continue-on-error: true   # no edge artifact: the last snapshot (in the checkout) stays
+        with:
+          name: edge
+          path: analysis/out
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: team-part-*
+          path: sim/work/team_parts
+          merge-multiple: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Merge the team value parts (keeps the last fit when a part failed)
+        continue-on-error: true   # team_value.json is only written when every part is there
+        working-directory: sim
+        run: |
+          python3 scripts/team/team_value.py --merge work/team_parts || {
+            echo "Ally item team values: refit failed, the overall search uses the last fit (sim/data/team_value.json)." >> "$GITHUB_STEP_SUMMARY"
+            exit 1; }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fits
+          path: |
+            analysis/out/hero_item_edge.json
+            sim/data/team_value.json
+
+  tier_phantom:
+    needs: [detect, data, fits]
     # runs after the tier before it whether that ran, failed or was switched off
-    if: ${{ !cancelled() && needs.data.outputs.complete == 'true' && contains(fromJSON(needs.data.outputs.tiers || '[]'), 'phantom') }}
+    if: ${{ !cancelled() && needs.data.outputs.complete == 'true' && needs.fits.result == 'success' && contains(fromJSON(needs.data.outputs.tiers || '[]'), 'phantom') }}
     permissions:
       contents: write
       pages: write
@@ -149,11 +260,11 @@ jobs:
       reason: ${{ needs.detect.outputs.reason }}
 
   tier_ascendant:
-    needs: [detect, data, tier_phantom]
+    needs: [detect, data, fits, tier_phantom]
     # runs after the tier before it whether that ran, failed or was switched off, but not when the standard tier
     # (Phantom+) failed: its publish carries the new game data, and a later tier committing it first would leave
     # Phantom+ on the old patch's results with the patch marked as done
-    if: ${{ !cancelled() && needs.data.outputs.complete == 'true' && needs.tier_phantom.result != 'failure' && contains(fromJSON(needs.data.outputs.tiers || '[]'), 'ascendant') }}
+    if: ${{ !cancelled() && needs.data.outputs.complete == 'true' && needs.fits.result == 'success' && needs.tier_phantom.result != 'failure' && contains(fromJSON(needs.data.outputs.tiers || '[]'), 'ascendant') }}
     permissions:
       contents: write
       pages: write
@@ -164,11 +275,11 @@ jobs:
       reason: ${{ needs.detect.outputs.reason }}
 
   tier_eternus:
-    needs: [detect, data, tier_phantom, tier_ascendant]
+    needs: [detect, data, fits, tier_phantom, tier_ascendant]
     # runs after the tier before it whether that ran, failed or was switched off, but not when the standard tier
     # (Phantom+) failed: its publish carries the new game data, and a later tier committing it first would leave
     # Phantom+ on the old patch's results with the patch marked as done
-    if: ${{ !cancelled() && needs.data.outputs.complete == 'true' && needs.tier_phantom.result != 'failure' && contains(fromJSON(needs.data.outputs.tiers || '[]'), 'eternus') }}
+    if: ${{ !cancelled() && needs.data.outputs.complete == 'true' && needs.fits.result == 'success' && needs.tier_phantom.result != 'failure' && contains(fromJSON(needs.data.outputs.tiers || '[]'), 'eternus') }}
     permissions:
       contents: write
       pages: write
@@ -179,11 +290,11 @@ jobs:
       reason: ${{ needs.detect.outputs.reason }}
 
   tier_all:
-    needs: [detect, data, tier_phantom, tier_eternus]
+    needs: [detect, data, fits, tier_phantom, tier_eternus]
     # runs after the tier before it whether that ran, failed or was switched off, but not when the standard tier
     # (Phantom+) failed: its publish carries the new game data, and a later tier committing it first would leave
     # Phantom+ on the old patch's results with the patch marked as done
-    if: ${{ !cancelled() && needs.data.outputs.complete == 'true' && needs.tier_phantom.result != 'failure' && contains(fromJSON(needs.data.outputs.tiers || '[]'), 'all') }}
+    if: ${{ !cancelled() && needs.data.outputs.complete == 'true' && needs.fits.result == 'success' && needs.tier_phantom.result != 'failure' && contains(fromJSON(needs.data.outputs.tiers || '[]'), 'all') }}
     permissions:
       contents: write
       pages: write

@@ -1,0 +1,257 @@
+{
+ "meta": {
+  "source": "260 Phantom+ replays (sim/scripts/fight_length/fetch_fights.py)",
+  "window_s": 10.0,
+  "in_fight_s": 0.0,
+  "tau": 0.213,
+  "formula": "share of the item's damage followed by the victim's death within window_s / the same share of the holder's other damage in the same match; shrunk toward 1 (in_fight_s > 0: only hits with another source from the same attacker on the victim within it)",
+  "use": "damage/scripts/overall_search.py: each item's own damage x weight in the overall score"
+ },
+ "items": {
+  "Decay": {
+   "weight": 0.404,
+   "raw": 0.389,
+   "se": 0.034,
+   "holders": 75,
+   "damage": 217320
+  },
+  "Return Fire": {
+   "weight": 0.543,
+   "raw": 0.469,
+   "se": 0.086,
+   "holders": 44,
+   "damage": 93988
+  },
+  "Ricochet": {
+   "weight": 0.585,
+   "raw": 0.577,
+   "se": 0.03,
+   "holders": 337,
+   "damage": 329761
+  },
+  "Headshot Booster": {
+   "weight": 0.688,
+   "raw": 0.683,
+   "se": 0.027,
+   "holders": 228,
+   "damage": 120527
+  },
+  "Tankbuster": {
+   "weight": 0.696,
+   "raw": 0.696,
+   "se": 0.009,
+   "holders": 941,
+   "damage": 2808565
+  },
+  "Mystic Reverb": {
+   "weight": 0.707,
+   "raw": 0.699,
+   "se": 0.037,
+   "holders": 115,
+   "damage": 402395
+  },
+  "Alchemical Fire": {
+   "weight": 0.812,
+   "raw": 0.783,
+   "se": 0.083,
+   "holders": 58,
+   "damage": 164613
+  },
+  "Mystic Burst": {
+   "weight": 0.821,
+   "raw": 0.82,
+   "se": 0.009,
+   "holders": 940,
+   "damage": 675468
+  },
+  "Stalker": {
+   "weight": 0.85,
+   "raw": 0.85,
+   "se": 0.009,
+   "holders": 381,
+   "damage": 615722
+  },
+  "Spirit Burn": {
+   "weight": 0.855,
+   "raw": 0.853,
+   "se": 0.021,
+   "holders": 432,
+   "damage": 589013
+  },
+  "Arctic Blast": {
+   "weight": 0.882,
+   "raw": 0.877,
+   "se": 0.043,
+   "holders": 95,
+   "damage": 210288
+  },
+  "Lightning Scroll": {
+   "weight": 0.921,
+   "raw": 0.896,
+   "se": 0.121,
+   "holders": 28,
+   "damage": 17958
+  },
+  "Scourge": {
+   "weight": 0.928,
+   "raw": 0.924,
+   "se": 0.047,
+   "holders": 91,
+   "damage": 225899
+  },
+  "Quicksilver Reload": {
+   "weight": 0.927,
+   "raw": 0.927,
+   "se": 0.011,
+   "holders": 547,
+   "damage": 477203
+  },
+  "Tesla Bullets": {
+   "weight": 0.953,
+   "raw": 0.952,
+   "se": 0.013,
+   "holders": 293,
+   "damage": 673904
+  },
+  "Torment Pulse": {
+   "weight": 0.961,
+   "raw": 0.961,
+   "se": 0.01,
+   "holders": 462,
+   "damage": 1751344
+  },
+  "Cold Front": {
+   "weight": 0.97,
+   "raw": 0.969,
+   "se": 0.025,
+   "holders": 295,
+   "damage": 392134
+  },
+  "Capacitor": {
+   "weight": 0.989,
+   "raw": 0.989,
+   "se": 0.017,
+   "holders": 197,
+   "damage": 888811
+  },
+  "Spirit Strike": {
+   "weight": 1.024,
+   "raw": 1.025,
+   "se": 0.023,
+   "holders": 406,
+   "damage": 180905
+  },
+  "Silence Wave": {
+   "weight": 1.035,
+   "raw": 1.041,
+   "se": 0.087,
+   "holders": 19,
+   "damage": 17882
+  },
+  "Mystic Shot": {
+   "weight": 1.048,
+   "raw": 1.049,
+   "se": 0.018,
+   "holders": 301,
+   "damage": 563664
+  },
+  "Split Shot": {
+   "weight": 1.053,
+   "raw": 1.055,
+   "se": 0.033,
+   "holders": 84,
+   "damage": 247963
+  },
+  "Phantom Strike": {
+   "weight": 1.05,
+   "raw": 1.055,
+   "se": 0.063,
+   "holders": 75,
+   "damage": 53234
+  },
+  "Mercurial Magnum": {
+   "weight": 1.064,
+   "raw": 1.064,
+   "se": 0.015,
+   "holders": 184,
+   "damage": 419094
+  },
+  "Toxic Bullets": {
+   "weight": 1.071,
+   "raw": 1.072,
+   "se": 0.023,
+   "holders": 385,
+   "damage": 945154
+  },
+  "Lucky Shot": {
+   "weight": 1.124,
+   "raw": 1.127,
+   "se": 0.034,
+   "holders": 107,
+   "damage": 249843
+  },
+  "Express Shot": {
+   "weight": 1.127,
+   "raw": 1.129,
+   "se": 0.03,
+   "holders": 252,
+   "damage": 779488
+  },
+  "Crushing Fists": {
+   "weight": 1.135,
+   "raw": 1.142,
+   "se": 0.046,
+   "holders": 84,
+   "damage": 61209
+  },
+  "Spirit Snatch": {
+   "weight": 1.144,
+   "raw": 1.144,
+   "se": 0.015,
+   "holders": 429,
+   "damage": 657489
+  },
+  "Melee Charge": {
+   "weight": 1.143,
+   "raw": 1.145,
+   "se": 0.02,
+   "holders": 209,
+   "damage": 201185
+  },
+  "Headhunter": {
+   "weight": 1.156,
+   "raw": 1.158,
+   "se": 0.024,
+   "holders": 179,
+   "damage": 402596
+  },
+  "Escalating Exposure": {
+   "weight": 1.169,
+   "raw": 1.17,
+   "se": 0.02,
+   "holders": 358,
+   "damage": 803748
+  },
+  "Siphon Bullets": {
+   "weight": 1.198,
+   "raw": 1.201,
+   "se": 0.026,
+   "holders": 289,
+   "damage": 419914
+  },
+  "Rebuttal": {
+   "weight": 1.191,
+   "raw": 1.24,
+   "se": 0.109,
+   "holders": 79,
+   "damage": 35302
+  },
+  "Focus Lens": {
+   "weight": 1.245,
+   "raw": 1.365,
+   "se": 0.149,
+   "holders": 22,
+   "damage": 34186
+  }
+ }
+}

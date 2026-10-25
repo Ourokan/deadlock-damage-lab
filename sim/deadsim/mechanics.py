@@ -21,18 +21,34 @@ Settings fitted to real ranked matches (validation/README.md, "New mechanics"):
   damage stays at the fitted rate. Missed parries (as common as successes in real games) cost nothing here.
 - Counterspell: when the enemy casts an aimed ability (skillshot / target / aoe) and Counterspell is ready, the
   holder times a spell parry with Skill.spell_parry_rate; for SpellParryDuration it blocks the damage, DoTs and
-  debuffs of that cast (and of any other enemy ability or item hit). Real holders' ability damage taken drops ~0-3%
-  after buying it (same-player before/after vs teammates), so the default is low.
-- Summons (Mechanics.summons): McGinnis turrets have health (TurretBaseHealth + boons, 35% spirit resist) and the
-  enemy spends Skill.summon_focus of its trigger pulls on a living turret, at SUMMON_ACC_MULT x its hero accuracy
-  (turrets stand still). A dead turret stops shooting. Damage to summons is not hero damage (`FightResult.*_summon`).
+  debuffs of that cast (and of any other enemy ability or item hit). Ultimates use Skill.spell_parry_rate_ult when
+  set. Real holders' ability damage taken drops ~0-3% after buying it (same-player before/after vs teammates), and
+  in-match vs teammates it moves no more than their gun damage, Lash's Death Slam included (validation/README.md
+  "Cleanses"), so the rates are low (scripts/fit_counterspell.py).
+- Summons (Mechanics.summons): McGinnis turrets and Graves' zombies, ghouls, Deadheads and gravestone have health
+  (from the data, + boons) and the enemy spends a share of its trigger pulls on each living kind, at acc_mult x its
+  hero accuracy. Shares and accuracy multipliers per kind are in data/summon_targeting.json: the shares are fitted
+  so the sim's share of enemy gun damage that hits summons instead of the owner matches Phantom+ replays
+  (scripts/summons/). Skill.summon_focus overrides every kind's share. Non-gun damage the owner takes (area
+  abilities, items, melee) also hits every living summon: x its kind's splash share, fitted the same way (in the replays
+  60-70% of what enemies deal to zombies and turrets is not gun damage). A kind with break_p (the gravestone) is
+  broken by the enemy break_s after it lands with that probability, as an expected value (real share of gravestones that took
+  hero damage and were destroyed by a hero; real median time to break). A dead summon stops attacking. Damage to
+  summons is not hero damage (`FightResult.*_summon`). A summon lives at most life_other_s (real median life of
+  summons no hero killed). Every other hero summon (Sinclair's Assistant, Grey Talon's
+  owl, Solomon's pieces, Rat King's rats and banner, Medicinal Specter) has no health in the replays: it can't be shot.
 - Other enemies (Mechanics.extra_targets): expected number of other enemy heroes close to the target. Ricochet
   bounces and Split Shot pellets that hit them are booked apart (`FightResult.*_splash`), they never kill anyone.
   Real Ricochet damage is 15% of its holders' gun damage, which is 0.23 bounces per hit, so a fair team-fight
   value is about 0.25, not 1-2.
-- Split Shot also hits the main target: during the active each landed shot lands SPLIT_PRIMARY_HIT more copies
-  (fit: real Split Shot damage is 27% of its holders' gun damage; the tooltip's "each target hit once per
-  multishot" would allow at most 1, so the game's rule is looser than it reads).
+- Split Shot also hits the main target: during the active each landed gun bullet lands SPLIT_PRIMARY_HIT more
+  copies, which proc on-hit items like bullets (Mercurial Magnum's bonus rides on them in replays). Other nearby
+  enemies take SPLIT_SECONDARY_COVER x Mechanics.extra_targets copies per landed bullet. Both from Phantom+ replays
+  (scripts/mechanics/split_shot_replays.py, 614 activations of Vyper, Wraith, Yamato, Paige): in the 5 s after an
+  activation the main target takes 0.73 Split Shot hits per gun bullet landed on it (Vyper 0.76, Wraith 0.59), the
+  others 0.29 of that, with ~0.29 other enemies within 13 m (real_nearby). Side copies are capped at one per landed
+  bullet (each target is hit once per fan), so a team fight's 4-5 living enemies don't run past the fit.
+  The active waits until the holder can shoot a target that can be hurt (not into Vyper's own petrify).
 - Movement (Mechanics.movement): fighters hold their distance (the step 2 calibration) until one is losing and below
   Skill.flee_hp; he stops shooting and runs, the other chases and keeps shooting. Speed = hero max_move_speed +
   move speed items and buffs, times (1 - slows x (1 - slow resist)); stunned / immobilized = 0. Both dash
@@ -60,14 +76,14 @@ from .data import GAME
 from .items_fx import BuildUp, FX, CC_KEYS, _basic_melee
 
 
-SUMMON_ACC_MULT = 2.5       # accuracy on a turret vs on a hero (it stands still), capped at SUMMON_ACC_MAX: assumption
-SUMMON_ACC_MAX = 0.9
-SPLIT_PRIMARY_HIT = 2.8     # Split Shot copies landing on the main target per landed shot (fit to real, see README)
-SPLIT_SECONDARY_COVER = 0.5  # share of nearby enemies inside the 45 degree fan (assumption)
+SUMMON_ACC_MAX = 0.9        # cap on accuracy against a summon (acc_mult x hero accuracy)
+SPLIT_PRIMARY_HIT = 0.73    # Split Shot copies landing on the main target per landed gun bullet (replays)
+SPLIT_SECONDARY_COVER = 0.73  # copies on other enemies per landed gun bullet per nearby enemy (replays)
 WARP_AWAY = 0.3             # share of Warp Stone's teleport range that ends up as extra gap when running (fit)
 MELEE_REACH = 6.0           # beyond this gap (+ start distance) rotation melees don't land
 FLEE_RECOVER = 0.25         # stop running once health is this much above flee_hp (heals)
 SPRINT_DELAY = 2.0          # a runner sprints (hero sprint_speed + Sprint Boots) after this long (assumption)
+PARRIED_CAST_SPAN = 3.5     # s after its cast delay that a spell-parried cast's own effects stay blocked
 CHASE_PROB = 0.85           # share of runs the other side chases (full speed, dashing); else he stands and shoots (fit)
 
 
@@ -79,6 +95,14 @@ class Mechanics:
     range_drift: bool = True     # distance spreads around the start distance (Engine.p_within etc., fight_range.json)
     extra_targets: float = 0.0   # expected other enemy heroes near the target (multi-target items)
     escape_dist: float = 40.0    # gap (m) at which a runner is out of the fight
+    # survival curve of real fight length (real_length(souls)): P(still trading at k x LENGTH_STEP s | nobody
+    # died). None = the fight's damage counts in full until a death or max_time (dmg_exp = dmg_out)
+    fight_length: tuple | None = None
+    # with fight_length: the hits of each source the sim casts on sight are booked as if its first use came after the
+    # real hold (opener_holds, data/opener_timing.json): real players often open later or on cooldown from a fight
+    # before. Off by default: with it on, length_factors.py must be rerun (the corrections move toward 1) and the
+    # overall search's builds did not get better (validation/README.md "Opener timing")
+    opener_timing: bool = False
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
@@ -96,7 +120,121 @@ def drift_params():
     return _DRIFT
 
 
+LENGTH_STEP = 0.5   # s between fight_length points (data/fight_length.json step_s)
+LENGTH_PHASES = ((10000, "lane"), (27000, "mid"))   # net worth bounds as overall_search.game_phase; above: "late"
+_LENGTH = None
+
+
+def real_length(souls=None):
+    """Real Phantom+ fight length as a Mechanics.fight_length curve (data/fight_length.json,
+    scripts/fight_length/fit_length.py): P(two enemy heroes are still trading t s after their first hit | neither
+    died), at t = 0, LENGTH_STEP, ...; for the game phase of net worth souls (lane < 10k, late > 27k), all fights
+    when souls is None. Median ~7.5 s, mean ~9 s to 30 s; only ~16% of real fights end in a death."""
+    global _LENGTH
+    if _LENGTH is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "fight_length.json")) as fh:
+            a = json.load(fh)
+        assert abs(a["step_s"] - LENGTH_STEP) < 1e-9
+        _LENGTH = {k: tuple(v["survival"]) for k, v in a["phases"].items()}
+    if souls is None:
+        return _LENGTH["all"]
+    ph = next((n for hi, n in LENGTH_PHASES if souls < hi), "late")
+    return _LENGTH.get(ph, _LENGTH["all"])
+
+
+_OPENER = None
+
+
+def opener_holds(hero, items):
+    """{damage source name: hold values (s)} for a fighter (Mechanics.opener_timing): its abilities' and items' real
+    hold before their first use in a fight (data/opener_timing.json, scripts/fight_length/opener_timing.py), items
+    pooled over heroes for a hero without a row. Only sources the sim casts on sight have one: in real Phantom+
+    fights they land a median ~3 s later (on cooldown from the fight before, or held), the sim's at ~0.5 s."""
+    global _OPENER
+    if _OPENER is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "opener_timing.json")) as fh:
+            _OPENER = json.load(fh)
+    src, pooled = _OPENER["sources"], _OPENER["items_pooled"]
+    out = {}
+    for ab in hero.abilities:
+        q = src.get(f"{hero.id}:{ab.class_name}")
+        if q:
+            out[ab.name] = tuple(q)
+    for it in items:
+        q = src.get(f"{hero.id}:{it.class_name}") or pooled.get(it.class_name)
+        if q:
+            out[it.name] = tuple(q)
+    return out
+
+
 DEFAULT = Mechanics()   # None turns the new mechanics off for every Engine built without an explicit value
+
+RICOCHET_RADIUS = 13.0   # m: Ricochet's bounce radius, the reach used for a duel's extra_targets
+_NEAR = None
+
+
+_AREA = None
+_AREA_PHASE = None
+
+
+def area_extra(name, souls=None):
+    """Extra hits on other heroes per hit on the main target for an area item, from Phantom+ replay damage events
+    (data/area_hits.json, scripts/team/area_hits.py), or None when the item has no fit. A duel's damage of the item
+    x this is what it also deals to the other enemies in a real fight. With souls: at that net worth (early fights
+    are lane trades, late ones team fights; one replay-fitted curve for every area item, linear in ln net worth
+    between its bins, flat outside); without: pooled over whole matches."""
+    global _AREA, _AREA_PHASE
+    if _AREA is None:
+        fn = os.path.join(os.path.dirname(__file__), "..", "data", "area_hits.json")
+        _AREA = {}
+        if os.path.exists(fn):
+            with open(fn) as fh:
+                a = json.load(fh)
+            _AREA = {k: v["extra_per_main"] for k, v in a["items"].items()}
+            _AREA_PHASE = a.get("phase")
+    x = _AREA.get(name)
+    if x is None or souls is None or not _AREA_PHASE:
+        return x
+    pts = [(math.log(b["net_worth"]), b["fit"]) for b in _AREA_PHASE["bins"]]
+    v = math.log(max(souls, 1.0))
+    if v <= pts[0][0]:
+        return x * max(0.0, pts[0][1])
+    for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+        if v <= x1:
+            return x * max(0.0, y0 + (y1 - y0) * (v - x0) / (x1 - x0))
+    return x * pts[-1][1]
+
+
+def real_nearby(kind, radius, souls):
+    """Real mean count in a Phantom+ fight second (data/team_value.json positions, scripts/team/fit_team.py): kind
+    "extra" = other enemies within radius m of the target, "extra_self" = of the holder, "allies" = teammates within
+    radius m, "any_ally" = share of seconds with a teammate within radius m. Linear in the radius, log-linear in net
+    worth between budget bins. real_nearby("extra", RICOCHET_RADIUS, souls) is a duel's Mechanics.extra_targets."""
+    global _NEAR
+    if _NEAR is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "team_value.json")) as fh:
+            _NEAR = json.load(fh)["positions"]
+    pos = _NEAR
+    radii = pos["radii_m"]
+
+    def at(row):
+        tab = row[kind]
+        r = max(radii[0], min(radii[-1], radius))
+        hi = next(x for x in radii if x >= r)
+        lo = max(x for x in radii if x <= r)
+        if hi == lo:
+            return tab[str(lo)]
+        return tab[str(lo)] + (tab[str(hi)] - tab[str(lo)]) * (r - lo) / (hi - lo)
+
+    bins = sorted(int(b) for b in pos["budgets"] if b != "all")
+    s = max(bins[0], min(bins[-1], souls))
+    hi = next(b for b in bins if b >= s)
+    lo = max(b for b in bins if b <= s)
+    if hi == lo:
+        return at(pos["budgets"][str(lo)])
+    w = math.log(s / lo) / math.log(hi / lo)
+    return at(pos["budgets"][str(lo)]) * (1 - w) + at(pos["budgets"][str(hi)]) * w
+
 
 
 _RAW = None
@@ -153,6 +291,8 @@ def _splash(f, amount, kind, source):
         amt *= 1.0 - combine_resist(e.st.spirit_resist, f.st.spirit_shred)
     d = f.counters.setdefault("splash", {})
     d[source] = d.get(source, 0.0) + amt
+    d = f.counters.setdefault("splash_exp", {})
+    d[source] = d.get(source, 0.0) + amt * f.e.length_w(src=f, source=source)
     return amt
 
 
@@ -206,11 +346,29 @@ def spell_blocked(eng, src, dst, ability=None):
 # ---------------------------------------------------------------------------------------------------------------
 # Summons
 # ---------------------------------------------------------------------------------------------------------------
+_TARGETING = None
+
+
+def summon_targeting():
+    """{kind: {"focus": share of trigger pulls, "acc_mult": accuracy vs on a hero}} from data/summon_targeting.json."""
+    global _TARGETING
+    if _TARGETING is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "summon_targeting.json")) as fh:
+            _TARGETING = json.load(fh)["kinds"]
+    return _TARGETING
+
+
 class Summon:
-    def __init__(self, owner, name, hp, spirit_resist=0.0, bullet_resist=0.0, until=math.inf):
+    def __init__(self, owner, name, hp, spirit_resist=0.0, bullet_resist=0.0, until=math.inf, kind="turret",
+                 on_death=None):
         self.owner, self.name, self.hp = owner, name, hp
         self.bullet_resist, self.spirit_resist = bullet_resist, spirit_resist
         self.until = until
+        self.kind = kind
+        t = summon_targeting().get(kind, {})
+        self.focus, self.acc_mult, self.splash = t.get("focus", 0.0), t.get("acc_mult", 1.0), t.get("splash", 0.0)
+        self.on_death = on_death
+        self.weight = 1.0   # expected share of fights it is still standing in (see _break)
         self.alive = True
 
     def hurt(self, amount, kind="bullet"):
@@ -220,36 +378,106 @@ class Summon:
         if self.hp <= 0:
             self.alive = False
             self.owner.e.note(f"{self.name} of {self.owner.name} destroyed")
+            if self.on_death:
+                self.on_death()
         return amt
 
 
-def add_summon(owner, name, hp, spirit_resist=0.0, bullet_resist=0.0, life=math.inf, delay=0.0):
+def add_summon(owner, name, hp, spirit_resist=0.0, bullet_resist=0.0, life=math.inf, delay=0.0, kind="turret",
+               on_death=None):
     """A summon the enemy can shoot, or None if summons are off. Give it to Engine.dot as guard= so its damage
-    stops when it dies."""
+    stops when it dies. kind picks its row in data/summon_targeting.json; on_death runs if it is killed. Its life
+    is capped at the row's life_other_s: the median real life of summons no enemy hero killed (troopers, other
+    heroes, left behind), which a 1v1 doesn't have."""
     m = owner.e.mech
     if m is None or not m.summons:
         return None
-    s = Summon(owner, name, hp, spirit_resist, bullet_resist, owner.e.t + delay + life)
+    life = min(life, summon_targeting().get(kind, {}).get("life_other_s", math.inf))
+    s = Summon(owner, name, hp, spirit_resist, bullet_resist, owner.e.t + delay + life, kind, on_death)
     owner.counters.setdefault("summons", []).append(s)
+    row = summon_targeting().get(kind, {})
+    if row.get("break_p"):
+        owner.e.after(delay + row["break_s"], _break, s, row["break_p"])
     return s
 
 
-def live_summon(f):
+def _break(s, p):
+    """The enemy walks up and breaks summon s (melee) with probability p: Graves' gravestone, which bullets can't hurt.
+    One break per fight can't be drawn as a deterministic Bernoulli (Accum would always fire for p >= 0.5), so it is
+    an expected value: s.weight drops to 1 - p, and whatever the summon still does is scaled by it (necro.py: the
+    aura and the damage of zombies spawned after it). FightResult.*_summons_out counts only real deaths, not breaks."""
+    f = s.owner.enemy
+    if f is not None and f.alive and alive(s) and s.alive:
+        d = f.counters.setdefault("summon_dmg", {})   # not in summon_dmg_kind: that is the gun / splash fit
+        d[s.name] = d.get(s.name, 0.0) + s.hp * p
+        s.weight *= 1.0 - p
+
+
+def alive(s):
+    """True for a summon still standing (or no summon: summons off)."""
+    return s is None or (s.alive and s.until > s.owner.e.t)
+
+
+def live_summons(f):
+    """The first (oldest) living summon of each kind f has out, in spawn order: the one the enemy shoots."""
     t = f.e.t
+    out, seen = [], set()
     for s in f.counters.get("summons", ()):
-        if s.alive and s.until > t:
+        if s.alive and s.until > t and s.kind not in seen:
+            seen.add(s.kind)
+            out.append(s)
+    return out
+
+
+def live_summon(f):
+    s = live_summons(f)
+    return s[0] if s else None
+
+
+def pick_summon(f, e):
+    """The enemy summon f spends this trigger pull on, or None (shoot the hero)."""
+    for s in live_summons(e):
+        if s.bullet_resist >= 1.0:   # bullets can't hurt it (Graves' gravestone)
+            continue
+        focus = s.focus if f.skill.summon_focus is None else f.skill.summon_focus
+        if focus > 0 and f.acc("summon_focus:" + s.kind).take(focus):
             return s
     return None
 
 
+def note_hit_while_summoned(src, dst, amount, source):
+    """dst took amount of hero damage while it has summons out. Books it per kind as [gun, other] (the fit compares
+    it with damage to the summons) and splashes non-gun damage (area abilities, items, melee) onto every living
+    summon: amount x its kind's splash share (fitted to replays against the damage all of a kind's summons take,
+    see data/summon_targeting.json). Gun pulls go to one summon at a time (pick_summon: the oldest of each kind)."""
+    d = dst.counters.setdefault("hit_while_summon", {})
+    gun = source == "gun"
+    for s in live_summons(dst):
+        row = d.setdefault(s.kind, [0.0, 0.0])
+        row[0 if gun else 1] += amount
+    if gun:
+        return
+    t = dst.e.t
+    for s in list(dst.counters.get("summons", ())):
+        if s.alive and s.until > t and s.splash > 0:
+            _book(src, s, s.hurt(amount * s.splash, "pure"), 1)
+
+
+def _book(f, s, amt, i):
+    d = f.counters.setdefault("summon_dmg", {})
+    d[s.name] = d.get(s.name, 0.0) + amt
+    k = f.counters.setdefault("summon_dmg_kind", {}).setdefault(s.kind, [0.0, 0.0])
+    k[i] += amt
+
+
 def shoot_summon(eng, f, s, n_bullets):
     """f spends this trigger pull on enemy summon s. Returns True (the pull is used)."""
-    hits = f.acc("summon_hit").take(min(SUMMON_ACC_MAX, f.skill.accuracy * SUMMON_ACC_MULT), n_bullets)
+    # out of the gun's range (Graves' tether) the pull misses, as in Engine.fire: bullet_damage is the in-range hit
+    hits = f.acc("summon_hit").take(min(1.0, min(SUMMON_ACC_MAX, f.skill.accuracy * s.acc_mult) * eng.hit_reach(f.st)),
+                                      n_bullets)
     if hits:
         per, _ = eng.bullet_damage(f)
-        amt = s.hurt(per * hits, "bullet")
-        d = f.counters.setdefault("summon_dmg", {})
-        d[s.name] = d.get(s.name, 0.0) + amt
+        _book(f, s, s.hurt(per * hits, "bullet"), 0)
     return True
 
 
@@ -325,6 +553,9 @@ class Mover:
             v = max(v, dash)
         return max(0.0, v)
 
+    def melee_reach(self, f, heavy):
+        return melee_reach(f, heavy)
+
     def try_dash(self, f):
         if f.counters["stamina"] >= 1 and self.e.t >= f.counters["dash_until"] and f.alive \
                 and not f.mods.active("stun") and not f.mods.active("immobilize"):
@@ -394,6 +625,16 @@ class Mover:
         e.after(self.DT, self.tick)
 
 
+def melee_reach(f, heavy):
+    """Gap beyond the start distance a rotation melee still lands from. Items with MeleeDistanceScale make heavy
+    melees lunge that % farther (game data: Melee Charge 50, Crushing Fists 60, Runed Gauntlets 150; the largest
+    held counts), so a chaser lands them on a runner sooner."""
+    if not heavy:
+        return MELEE_REACH
+    return MELEE_REACH * (1.0 + max((fx.item.p("MeleeDistanceScale", 0.0) for fx in f.items_fx
+                                      if getattr(fx, "item", None) is not None), default=0.0) / 100)
+
+
 def melee_reachable(eng):
     mv = getattr(eng, "mover", None)
     return mv is None or eng.distance <= mv.start + MELEE_REACH
@@ -447,14 +688,24 @@ class Counterspell(FX):
     """Spell parry timed against an enemy aimed cast (Skill.spell_parry_rate) when off cooldown; see module doc."""
 
     def on_enemy_cast(self, f, ab):
+        sp = f.counters.get("spell_parry")
+        if sp and sp[1] is ab:   # a recast of the parried ability is a new cast: only the parry window covers it
+            sp[2] = min(sp[2], sp[0])
         if not self.ready() or not f.alive or f.mods.active("stun") or ab.impl.kind not in ("skillshot", "target", "aoe"):
             return
-        if not f.acc("spell_parry").take(f.skill.spell_parry_rate):
+        sk = f.skill
+        if ab.ab.ultimate and sk.spell_parry_rate_ult is not None:
+            if not f.acc("spell_parry_ult").take(sk.spell_parry_rate_ult):
+                return
+        elif not f.acc("spell_parry").take(sk.spell_parry_rate):
             return
         self.use()
         win = self.item.p("SpellParryDuration", 0.8)
         lead = ab.ctx.raw("AbilityCastDelay")
-        f.counters["spell_parry"] = [self.now + win, ab, self.now + lead + win, self]
+        # a parried cast is negated whole: its own later effects (Death Slam's slam 2.6 s after the grab, delayed
+        # detonations, DoT ticks) stay blocked for PARRIED_CAST_SPAN after its cast delay; other casts only inside
+        # the SpellParryDuration window
+        f.counters["spell_parry"] = [self.now + win, ab, self.now + lead + PARRIED_CAST_SPAN, self]
         self.done = False
 
     def success(self, f):
@@ -481,38 +732,49 @@ class Ricochet(FX):
             _splash(f, hit.raw * k * self.item.p("RicochetDamagePercent", 65) / 100, "bullet", self.name)
 
 
+def _take(acc, p, n):
+    """acc.take for an expected count p per trial that can be above 1."""
+    whole = int(p)
+    return whole * n + acc.take(p - whole, n)
+
+
 @mech_handler("upgrade_split_shot", need="any")
 class SplitShot(FX):
-    """Active for BonusShotsDuration: every trigger pull also throws a fan of BulletSplitShot bullets; each target is
-    hit at most once per fan. The main target takes SPLIT_PRIMARY_HIT more copies of each landed shot; other
-    nearby heroes (Mechanics.extra_targets) are hit at accuracy x SPLIT_SECONDARY_COVER and each such shot adds a
-    WeaponDamagePerStack% weapon damage stack (MaxStacks, WeaponDamageBonusDuration). Booked as Split Shot."""
+    """Active for BonusShotsDuration: every trigger pull also throws a fan of BulletSplitShot bullets. Each landed gun
+    bullet lands SPLIT_PRIMARY_HIT copies on the main target (on-hit items proc on them) and SPLIT_SECONDARY_COVER x
+    nearby enemies (Mechanics.extra_targets) copies on others; each side hit adds a WeaponDamagePerStack% weapon
+    damage stack (MaxStacks, WeaponDamageBonusDuration). Booked as Split Shot."""
 
     def try_active(self, f):
-        if not self.ready() or f.e.distance > 35:
+        if not self.ready() or f.e.distance > 35 or not f.can_shoot() or f.clip <= 0:
+            return False
+        e = f.enemy
+        if e.mods.active("invulnerable") or e.mods.active("bullet_immune"):
             return False
         self.use()
         self.until = self.now + self.item.p("BonusShotsDuration", 5)
         return True
 
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind != "bullet" or hit.source != "gun" or self.now >= getattr(self, "until", -1):
+        if hit.kind != "bullet" or hit.source != "gun" or not hit.hits or self.now >= getattr(self, "until", -1):
             return
-        st = f.st
-        n = st.pellets * st.burst_count
-        k = f.acc("split_main").take(f.skill.accuracy * (1.0 - t.stat("evasion")), n)
         per = f.counters.get("bullet_per", 0.0)
-        if k and per:
-            f.e.damage(f, t, per * k * SPLIT_PRIMARY_HIT, "bullet", self.name, is_item=True, procs=False, hits=k)
+        if not per:
+            return
+        k = _take(f.acc("split_main"), SPLIT_PRIMARY_HIT, hit.hits)
+        if k:
+            f.e.damage(f, t, per * k, "bullet", self.name, is_item=True, hits=k)
         x = nearby_enemies(f)
-        if x > 0 and per:
-            k2 = f.acc("split_side").take(min(1.0, f.skill.accuracy * SPLIT_SECONDARY_COVER * x), 1)
+        if x > 0:
+            k2 = f.acc("split_side").take(min(1.0, SPLIT_SECONDARY_COVER * x), hit.hits)
             if k2:
-                _splash(f, per * n * f.skill.accuracy, "bullet", self.name)
-                j = f.counters.get("split_stack", 0)
-                f.counters["split_stack"] = j + 1
-                self.buff("weapon_pct", self.item.p("WeaponDamagePerStack", 8) / 100,
-                          self.item.p("WeaponDamageBonusDuration", 12), tag=("split", j % int(self.item.p("MaxStacks", 5))))
+                _splash(f, per * k2, "bullet", self.name)
+                for _ in range(k2):
+                    j = f.counters.get("split_stack", 0)
+                    f.counters["split_stack"] = j + 1
+                    self.buff("weapon_pct", self.item.p("WeaponDamagePerStack", 8) / 100,
+                              self.item.p("WeaponDamageBonusDuration", 12),
+                              tag=("split", j % int(self.item.p("MaxStacks", 5))))
 
 
 # -- movement items ---------------------------------------------------------------------------------------------

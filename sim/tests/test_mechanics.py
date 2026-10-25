@@ -155,6 +155,103 @@ class Items(unittest.TestCase):
         sk = hero_default_skill("Abrams", melee_rate_override=0.8, heavy_share=0.5)
         self.assertEqual((sk.melee_rate, sk.heavy_share), (0.8, 0.5))
         self.assertGreater(hero_default_skill("Abrams").melee_rate, 0.1)
+        self.assertIsNone(sk.melee_item_mult)   # the user's own rate is not scaled by the build
+
+    def test_melee_rate_follows_melee_items(self):
+        from deadsim.accuracy import hero_default_skill, melee_rate
+        from dataclasses import replace
+        from deadsim.accuracy import melee_rates_by_items
+        sk = hero_default_skill("Haze")
+        r0, r1, r2 = melee_rates_by_items("Haze")
+        self.assertLess(r0, r1)
+        self.assertLess(r1, r2)
+        self.assertAlmostEqual(r0, melee_rate("Haze"), delta=0.3 * melee_rate("Haze"))  # most Haze players: none
+        e = Engine(distance=10)
+        rates = [make_fighter(e, Loadout("Haze", its, souls=20000, skill=sk)).skill.melee_rate
+                 for its in ([], ["Melee Charge"], ["Melee Charge", "Lifestrike"], ["Melee Charge", "Lifestrike",
+                                                                                    "Spirit Snatch"])]
+        for got, want in zip(rates, [r0, r1, r2, r2]):
+            self.assertAlmostEqual(got, want, places=3)
+        self.assertEqual(sk.melee_rate, melee_rate("Haze"))   # the Skill itself keeps the average
+        # a caller's own melee_rate is scaled, not replaced: 0 stays 0
+        f = make_fighter(e, Loadout("Haze", ["Melee Charge"], souls=20000, skill=replace(sk, melee_rate=0.0)))
+        self.assertEqual(f.skill.melee_rate, 0.0)
+
+    def test_melee_build_rates_keep_hero_average(self):
+        # the hero's real mix of builds (data/melee_items.json "mix") still averages to its fitted rate
+        import json
+        from deadsim.accuracy import MELEE_ITEMS_FILE, melee_rate, melee_rates_by_items
+        rows = json.load(open(MELEE_ITEMS_FILE))["heroes"]
+        for hero in ("Abrams", "Haze", "Drifter", "Bebop"):
+            mix = rows[str(G.hero(hero).id)]["mix"]
+            by = melee_rates_by_items(hero)
+            avg = sum(mix[g] * r for g, r in zip(("0", "1", "2+"), by))
+            self.assertAlmostEqual(avg, melee_rate(hero), delta=0.002 + 0.01 * melee_rate(hero))
+
+    def test_melee_build_rates_missing_data(self):
+        import deadsim.accuracy as A
+        old = A.MELEE_ITEMS_FILE
+        A.MELEE_ITEMS_FILE = os.path.join(os.path.dirname(old), "no_such_file.json")
+        try:
+            self.assertIsNone(A.melee_rates_by_items("Haze"))
+            self.assertIsNone(A.hero_default_skill("Haze").melee_item_mult)
+        finally:
+            A.MELEE_ITEMS_FILE = old
+        # a hero missing from the fit keeps the flat rate
+        rows = A._melee_items()["heroes"]
+        hid = str(G.hero("Haze").id)
+        row = rows.pop(hid)
+        try:
+            self.assertIsNone(A.melee_item_mults("Haze"))
+        finally:
+            rows[hid] = row
+
+    def test_team_fight_uses_build_melee_rate(self):
+        from deadsim.accuracy import hero_default_skill
+        from deadsim.team import TeamEngine
+        from deadsim.accuracy import melee_rates_by_items
+        sk = hero_default_skill("Haze")
+        f = make_fighter(TeamEngine(distance=10), Loadout("Haze", ["Melee Charge", "Lifestrike"], souls=20000, skill=sk))
+        self.assertAlmostEqual(f.skill.melee_rate, melee_rates_by_items("Haze")[2], places=3)
+
+    def test_web_melee_rate_override(self):
+        import json
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "web"))
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "damage"))
+        import bridge
+        from deadsim.accuracy import melee_rates_by_items
+        q = {"hero": "Haze", "items": ["Melee Charge"], "souls": 15000}
+        hero, items, kw = bridge._setup(dict(q, melee_rate=0))
+        self.assertEqual((kw["skill"].melee_rate, kw["skill"].melee_item_mult), (0.0, None))
+        self.assertEqual(bridge._melee_rate(kw["skill"], items), 0.0)
+        hero, items, kw = bridge._setup(q)
+        self.assertAlmostEqual(bridge._melee_rate(kw["skill"], items), melee_rates_by_items("Haze")[1], places=3)
+        self.assertIn("melee_rate", json.loads(bridge.run(json.dumps(dict(q, melee_rate=0.25))))["used"])
+
+    def test_melee_charge_heavy_lunge_reach(self):
+        from deadsim.mechanics import MELEE_REACH, melee_reach
+        e = Engine(distance=3)
+        a = make_fighter(e, Loadout("Abrams", ["Melee Charge"], souls=9000))
+        b = make_fighter(e, Loadout("Abrams", [], souls=9000))
+        self.assertAlmostEqual(melee_reach(a, True), MELEE_REACH * 1.5)   # MeleeDistanceScale 50%
+        self.assertAlmostEqual(melee_reach(a, False), MELEE_REACH)
+        self.assertAlmostEqual(melee_reach(b, True), MELEE_REACH)
+        c = make_fighter(e, Loadout("Abrams", ["Melee Charge", "Runed Gauntlets"], souls=20000))
+        self.assertAlmostEqual(melee_reach(c, True), MELEE_REACH * 2.5)   # Runed Gauntlets 150%, the largest held
+
+    def test_melee_charge_heavy_lands_from_farther_in_fight(self):
+        # chase gap of 8 m beyond the start distance: past light reach (6 m), inside Melee Charge heavy reach (9 m)
+        from types import SimpleNamespace
+        from deadsim.mechanics import melee_reach
+        for items, heavy, lands in ((["Melee Charge"], 1.0, True), ([], 1.0, False), (["Melee Charge"], 0.0, False)):
+            e = Engine(distance=11)
+            sk = Skill(accuracy=0.0, use_abilities=False, use_actives=False, melee_rate=1.0, heavy_share=heavy)
+            a = make_fighter(e, Loadout("Abrams", items, souls=9000, skill=sk))
+            b = make_fighter(e, Loadout("Haze", [], souls=9000))
+            a.enemy, b.enemy = b, a
+            e.mover = SimpleNamespace(start=3.0, melee_reach=melee_reach)
+            e.melee_tick(a)
+            self.assertEqual(a.dmg_out.get("melee", 0) > 0, lands, (items, heavy))
 
     def test_runed_gauntlets_heavy_melee_cuts_cooldowns(self):
         e = Engine(distance=3)
@@ -196,6 +293,57 @@ class Items(unittest.TestCase):
         self.assertNotIn("Mystic Burst", a.dmg_out)
         e.damage(a, b, 120, "spirit", "big", is_ability=True)
         self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 40.0, places=6)
+
+    def test_capacitor_shock_still_procs_after_its_active(self):
+        # the 40 s active cooldown used to switch the passive shock off too
+        from deadsim.engine import Hit
+        e = Engine(distance=10)
+        a = make_fighter(e, Loadout("Wraith", ["Capacitor"], souls=9000, skill=Skill(use_actives=True)))
+        b = make_fighter(e, Loadout("Abrams", [], souls=9000))
+        a.enemy, b.enemy = b, a
+        fx = next(x for x in a.items_fx if x.item.name == "Capacitor")
+        self.assertTrue(fx.try_active(a))
+        before = a.dmg_out.get("Capacitor", 0.0)
+        for i in range(100):   # t = 1 .. 25.75 s: inside the active's 40 s cooldown
+            e.t = 1.0 + i * 0.25
+            fx.on_damage_dealt(a, b, Hit("bullet", "gun", 50, 50, hits=1))
+        self.assertLess(e.t, fx.ready_at)
+        self.assertGreater(a.dmg_out.get("Capacitor", 0.0) - before, 0.0)
+
+    def test_siphon_bullets_takes_current_health(self):
+        from deadsim.engine import Hit
+        e = Engine(distance=10)
+        a = make_fighter(e, Loadout("Wraith", ["Siphon Bullets"], souls=9000))
+        b = make_fighter(e, Loadout("Abrams", [], souls=9000))
+        a.enemy, b.enemy = b, a
+        b.hp = b.max_hp * 0.5   # hurt: lowering the cap alone would not touch its health
+        hp = b.hp
+        fx = next(x for x in a.items_fx if x.item.name == "Siphon Bullets")
+        fx.on_damage_dealt(a, b, Hit("bullet", "gun", 50, 50, hits=1))
+        self.assertGreater(a.dmg_out.get("Siphon Bullets", 0.0), 0.0)
+        self.assertAlmostEqual(hp - b.hp, a.dmg_out["Siphon Bullets"], places=6)
+        # a real-data factor scales the steal as a whole: health taken = the heal = the cap drop
+        e2 = Engine(distance=10)
+        a2 = make_fighter(e2, Loadout("Wraith", ["Siphon Bullets"], souls=9000,
+                                      skill=Skill(item_landing={"Siphon Bullets": 0.5})))
+        b2 = make_fighter(e2, Loadout("Abrams", [], souls=9000))
+        a2.enemy, b2.enemy = b2, a2
+        b2.hp = b2.max_hp * 0.5
+        cap = b2.max_hp
+        fx2 = next(x for x in a2.items_fx if x.item.name == "Siphon Bullets")
+        fx2.on_damage_dealt(a2, b2, Hit("bullet", "gun", 50, 50, hits=1))
+        self.assertAlmostEqual(a2.dmg_out["Siphon Bullets"], a.dmg_out["Siphon Bullets"] * 0.5, places=6)
+        self.assertAlmostEqual(cap - b2.max_hp, a2.dmg_out["Siphon Bullets"], places=6)
+
+    def test_ability_sub_source_uses_its_ability_landing_factor(self):
+        e = Engine()
+        sk = Skill(ability_landing={"Setup Bishop": 0.5})
+        a = make_fighter(e, Loadout("Solomon", [], souls=9000, skill=sk))
+        b = make_fighter(e, Loadout("Abrams", [], souls=9000))
+        a.enemy, b.enemy = b, a
+        ab = next(s for s in a.abilities if s.ab.name == "Setup Bishop")
+        e.damage(a, b, 100, "spirit", "Setup Bishop squares", is_ability=True, ability=ab, ignore_resist=True)
+        self.assertAlmostEqual(a.dmg_out["Setup Bishop squares"], 50.0, places=6)
 
     def test_hunters_aura_doubles_in_1v1(self):
         e = Engine(distance=10)

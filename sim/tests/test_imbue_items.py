@@ -1,6 +1,7 @@
 """Imbue item effects checked against replay measurements. Run from sim/:
     python3 -m unittest discover -s tests
 """
+import heapq
 import os
 import sys
 import unittest
@@ -39,6 +40,25 @@ class TestMercurialMagnum(unittest.TestCase):
         self.assertLessEqual(got, f.st.bullet_damage * pct * 3 * 1.5)
         self.assertLess(got / 3, 10)        # per bullet, Wraith: real median 4 (was ~40 with the flat value)
 
+    def test_bullet_bonus_outlasts_the_clip(self):
+        """Replays: 82% of a Vyper holder's gun hits after the first proc carry the bonus; it lasts the 12 s buff,
+        not one clip (his clip lasts 1.7 s)."""
+        e, f, g = pair(["Mercurial Magnum"], hero="Vyper")
+        fx = next(x for x in f.items_fx if x.name == "Mercurial Magnum")
+        ab = next(s for s in f.abilities if any(i.name == "Mercurial Magnum" for i in s.imbues))
+        fx.on_cast(f, ab)
+        for x in f.items_fx:
+            if hasattr(x, "on_reload"):
+                x.on_reload(f)
+        self.assertTrue(f.mods.active("mercurial"))
+        e.t = 11.0
+        self.assertTrue(f.mods.active("mercurial"))
+        n0 = f.dmg_out.get("Mercurial Magnum", 0.0)
+        e.damage(f, g, f.st.bullet_damage, "bullet", "gun", hits=1)
+        self.assertGreater(f.dmg_out.get("Mercurial Magnum", 0.0), n0)     # a bullet after the reload still gets it
+        e.t = 12.5
+        self.assertFalse(f.mods.active("mercurial"))
+
 
 class TestMysticReverb(unittest.TestCase):
     def test_imbued_lifesteal_heals_on_the_hit(self):
@@ -49,6 +69,45 @@ class TestMysticReverb(unittest.TestCase):
         amt = e.damage(f, g, 200, "spirit", ab.ab.name, is_ability=True, ability=ab)
         ls = f.st.spirit_lifesteal + 0.22
         self.assertAlmostEqual(f.hp - before, amt * ls, delta=amt * 0.02)
+
+    def _echo(self, hits, target_hp=None):
+        e, f, g = pair(["Mystic Reverb"], hero="Paradox")
+        if target_hp is not None:
+            g.hp = target_hp
+        ab = next(s for s in f.abilities if any(i.name == "Mystic Reverb" for i in s.imbues))
+        for raw in hits:
+            e.damage(f, g, raw, "spirit", ab.ab.name, is_ability=True, ability=ab)
+        hp = g.hp
+        e.t = 0.0
+        while e.q and e.t < 3.5:
+            t, _, fn, args = heapq.heappop(e.q)
+            e.t = t
+            if getattr(fn, "__name__", "") == "echo":
+                fn(*args)
+        return f.dmg_out.get("Mystic Reverb", 0.0), hp
+
+    def test_echo_adds_current_health_bonus(self):
+        """MaxHealthDamage is the tooltip's "Current Health Bonus Damage": the echo is 50% of the hit + 10% of the
+        target's current health (it used to be read as a cap)."""
+        full, hp_full = self._echo([200])
+        low, hp_low = self._echo([200], target_hp=1000.0)
+        # the 200-damage hit lands the same way on both; only the echo's 10% of current health differs (after resist)
+        d = hp_full - hp_low
+        self.assertGreater(full - low, 0.05 * d)
+        self.assertLessEqual(full - low, 0.1 * d + 1)
+
+    def test_small_hits_build_up_to_the_minimum(self):
+        """Ticks under MinimumDamage (100) add up until they reach it, so DoT and multi-hit imbues trigger too."""
+        self.assertGreater(self._echo([40, 40, 40])[0], 0.0)
+        self.assertEqual(self._echo([40])[0], 0.0)
+
+    def test_build_up_expires(self):
+        e, f, g = pair(["Mystic Reverb"], hero="Paradox")
+        ab = next(s for s in f.abilities if any(i.name == "Mystic Reverb" for i in s.imbues))
+        e.damage(f, g, 60, "spirit", ab.ab.name, is_ability=True, ability=ab)
+        e.t = 10.0   # past DelayDuration: the next 60 starts a new build-up
+        e.damage(f, g, 60, "spirit", ab.ab.name, is_ability=True, ability=ab)
+        self.assertTrue(f.items_fx[[type(x).__name__ for x in f.items_fx].index("MysticReverb")].ready())
 
 
 if __name__ == "__main__":

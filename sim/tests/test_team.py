@@ -21,10 +21,11 @@ def lo(hero, items=(), **kw):
 # duel results pinned from main before team fights (Engine.on_death and the cast notice must not change them),
 # with hero fight patterns off (they change cast order on purpose; see tests/test_patterns.py):
 # (hero, items, enemy, items, winner, time, damage dealt, damage taken)
-DUELS = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift, all hero range checks)
+DUELS = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift, all hero range checks); Abrams vs Seven
+            # re-pinned 2026-10-24 for Split Shot's replay fit
     ("Haze", ["Rapid Rounds", "Toxic Bullets", "Restorative Locket"], "Infernus",
-     ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Infernus (B)", 26.225, 2378.6, 2246.3),
-    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 25.0, 1709.3, 3194.0),
+     ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Infernus (B)", 26.225, 2378.6, 2245.8),
+    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 25.6, 1729.6, 3181.2),
     ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1745.9, 1347.1),
 ]
 
@@ -95,6 +96,13 @@ class TestSupport(unittest.TestCase):
         r = team_fight(a, b)
         self.assertGreater(r.team("A")[1]["barrier_given"], 0)
 
+    def test_allies_off_turns_off_support(self):
+        # team_fight(allies=False) is the baseline team_value.py measures ally items against
+        a = [lo("Haze"), lo("Dynamo", ["Healing Nova"])]
+        b = [lo("Haze", ["Rapid Rounds"]), lo("Wraith", ["Rapid Rounds"])]
+        r = team_fight(a, b, allies=False)
+        self.assertEqual(r.team("A")[1]["healing_given"], 0)
+
     def test_item_value(self):
         a = [lo("Haze"), lo("Dynamo", ["Healing Nova"])]
         b = [lo("Haze", ["Rapid Rounds"]), lo("Wraith", ["Rapid Rounds"])]
@@ -132,9 +140,9 @@ def fighters(a, b, **kw):
     seen = {}
     orig = T.TeamEngine.run_team
 
-    def spy(self, ta, tb):
+    def spy(self, ta, tb, **kw):
         seen["a"], seen["b"] = ta, tb
-        return orig(self, ta, tb)
+        return orig(self, ta, tb, **kw)
     T.TeamEngine.run_team = spy
     try:
         team_fight(a, b, **kw)
@@ -158,6 +166,14 @@ class TestSupportMore(unittest.TestCase):
         with_ = team_fight(a, self.b, max_time=8, huddle=1.0)
         without = team_fight([a[0], lo("Abrams")], self.b, max_time=8, huddle=1.0)
         self.assertGreater(with_.team("A")[0]["damage"], without.team("A")[0]["damage"])
+
+    def test_heroic_aura_passive_resist_on_teammate(self):
+        b = [lo("Haze", ["Rapid Rounds"]), lo("Wraith", ["Rapid Rounds"])]
+        took = []
+        for items in ([], ["Heroic Aura"]):
+            r = team_fight([lo("Abrams"), lo("Dynamo", items)], b, max_time=3.0, focus="spread")
+            took.append(r.team("A")[0]["damage_taken"])   # Abrams: the aura's resist, not the item's own
+        self.assertLess(took[1], took[0])
 
     def test_hunters_aura_shreds_every_enemy(self):
         guns = dict(use_abilities=False, use_actives=False)

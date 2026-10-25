@@ -89,6 +89,7 @@ class AudienceParticipation(AbilityImpl):
             return
         ab = copy.copy(foe_ult.ab)
         ab.name = f"{self.s.ab.name} ({ab.name})"
+        ab.landing_key = self.s.ab.name   # real games book it under the copied hero's class; fitted as one source
         cp = AbilityState(c.me, ab, tier=c.tier, unlocked=True)
         cp.start()
         until = c.now + c.dur("CopiedUltWindow", 9.0)

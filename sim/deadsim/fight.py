@@ -17,7 +17,7 @@ from functools import lru_cache
 from .abilities import AbilityState, load_heroes
 from .build import NET_WORTH_OFFSET, compute_stats
 from .data import game, DATA_DIR
-from .engine import Engine, Fighter, Skill, _UNSET
+from .engine import MELEE_ITEMS, Engine, Fighter, Skill, _UNSET
 from . import items_fx, patterns
 
 # median number of ability events (unlock or upgrade) by net worth, from 200k current-patch ranked rows
@@ -146,6 +146,14 @@ def _default_imbue_target(hero, unlocked):
     return best if best is not None else 0
 
 
+def melee_build_mult(skill, items):
+    """Skill.melee_item_mult entry for this build's count of melee items (1 when unset)."""
+    m = skill.melee_item_mult
+    if not m:
+        return 1.0
+    return m[min(len(m) - 1, sum(1 for it in items if it.class_name in MELEE_ITEMS))]
+
+
 def make_fighter(engine, lo: Loadout, name=None):
     load_heroes()
     hero, items = lo.resolve()
@@ -153,6 +161,18 @@ def make_fighter(engine, lo: Loadout, name=None):
     skill = lo.skill
     if engine.mech is not None and skill.ability_landing_mech:
         skill = dataclasses.replace(skill, ability_landing=skill.ability_landing_mech)
+    # damage booked over real fight lengths: the factors with that part taken out (hits land at the corrected
+    # rate, so these move the fight itself, unlike the booking)
+    if engine.length:
+        c = skill.ability_length_corr
+        if c and skill.ability_landing:
+            skill = dataclasses.replace(skill, ability_landing={k: v * c.get(k, 1.0) for k, v in skill.ability_landing.items()})
+        c = skill.item_length_corr
+        if c and skill.item_landing:
+            il = skill.item_landing
+            skill = dataclasses.replace(skill, item_landing={k: il.get(k, 1.0) * c.get(k, 1.0) for k in set(il) | set(c)})
+    if skill.melee_item_mult:
+        skill = dataclasses.replace(skill, melee_rate=skill.melee_rate * melee_build_mult(skill, items))
     f = Fighter(engine, name or lo.name or hero.name, st, skill)
     if lo.ability_order:
         tiers, unlocked = abilities_for_order(hero, lo.ability_order, st.souls)
@@ -182,6 +202,11 @@ def make_fighter(engine, lo: Loadout, name=None):
     if engine.mech is not None:
         from . import mechanics
         mechanics.attach(f, items)
+        if engine.length and getattr(engine.mech, "opener_timing", False):
+            # only sources whose landing factor has a length correction: the correction (length_factors.py) keeps
+            # their level as fitted, the hold only moves where in a fight the damage counts
+            corr = set(skill.ability_length_corr) | set(skill.item_length_corr)
+            f.opener_hold = {k: q for k, q in mechanics.opener_holds(hero, items).items() if k in corr}
     return f
 
 
@@ -203,5 +228,6 @@ def time_to_kill(attacker: Loadout, defender: Loadout, distance=15.0, max_time=6
     fb = make_fighter(e, defender, "defender")
     # a dummy stands still: it doesn't run away, parry or time Counterspell
     fb.skill = Skill(accuracy=0.0, headshot=0.0, use_abilities=False, use_actives=defender.skill.use_actives,
-                     flee_hp=0.0, parry_rate=0.0, spell_parry_rate=0.0)
+                     flee_hp=0.0, parry_rate=0.0, spell_parry_rate=0.0,
+                     spell_parry_rate_ult=0.0)
     return e.run(fa, fb, one_way=True)

@@ -8,6 +8,10 @@ hit the investment spikes and keep agency through the whole game. The best overa
   (10k/18k/27k/37k/50k). Each stage is scored with the overall test
   (overall_search.Evaluator: damage dealt before dying vs the 41 typical real builds of the rank bracket, enemy fights
   back, counterplay on), relative to that net worth's most popular real build (1.0 = popular).
+  The laning phase is scored differently (Tyler, 2026-10-21: in lane, regen and other healing can beat pure health):
+  3k and 6k use the lane test (overall_search.lane_fight: up to 5 short 1v1 trades with health carried over and
+  regen, out-of-combat regen and Fortitude healing in the gaps, backing under 25% health), 10k is half lane, half
+  fight (LANE).
 - Each stage keeps the previous stage's items. Upgrading a held component is free (the game credits it). Selling
   refunds half the cost, so the lost half stays spent for the rest of the game, and a sale must beat the best
   keep-everything build at that stage by SELL_MARGIN per item sold ("sell only when it clearly pays").
@@ -54,6 +58,16 @@ PROPOSALS_F = 3
 TOP_SCAN = 30           # candidates rescanned while filling, after one full scan
 SLOTS = ("weapon", "vitality", "spirit")
 STAGES = EARLY_BUDGETS + BUDGETS   # 3k and 6k: the early game, pools from build_pool.EARLY_BUDGETS
+LANE = {3000: 1.0, 6000: 1.0, 10000: 0.5}   # weight of the lane test (overall_search.lane_fight) per stage
+
+
+def make_evaluator(hero, b, pools):
+    w = LANE.get(b, 0.0)
+    if w >= 1:
+        return O.LaneEvaluator(hero, b, pools)
+    if w > 0:
+        return O.MixEvaluator(hero, b, pools, w)
+    return O.Evaluator(hero, b, pools)
 
 
 def jobs_dir(bracket):
@@ -88,7 +102,7 @@ class Ctx:
     def evaluator(self, b):
         if b not in self.ev:
             self.pools[b] = S.load_pools(b)
-            self.ev[b] = O.Evaluator(self.hero, b, self.pools[b])
+            self.ev[b] = make_evaluator(self.hero, b, self.pools[b])
             self.cand[b] = S.candidates(item_budget(b), self.pools[b]["usage"])
         return self.ev[b]
 
@@ -397,8 +411,10 @@ def path_job(args):
         pop = ctx.popular(b)
         d["popular"] = {"items": sorted(pop)} | {k: v for k, v in ctx.ev[b].run(pop, "F", detail=True).items()
                                                   if k != "matchups"}
-        job = overall_job(bracket, hero, b)
-        if job:   # the best build for this net worth alone, rescored on the current sim
+        # the best build for this net worth alone, rescored on the current sim; not on lane stages, where the overall
+        # search's build was picked for the 30 s fight and the comparison would mislead
+        job = overall_job(bracket, hero, b) if not LANE.get(b) else None
+        if job:
             bi = job["builds"][0]["items"]
             d["best_alone"] = {"items": bi} | {k: v for k, v in ctx.ev[b].run(bi, "F", detail=True).items()
                                                 if k != "matchups"}

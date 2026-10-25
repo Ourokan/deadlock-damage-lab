@@ -1,0 +1,25 @@
+{
+ "min_badge": 91,
+ "real_matches": 1500,
+ "real_paired_windows": 5041,
+ "real_ratio": 0.849,
+ "real_ratio_90ci": [
+  0.806,
+  0.894
+ ],
+ "sim_pairs": 400,
+ "sim_seeds": 8,
+ "reaction_s": 3.0,
+ "sim_ratio_by_share": {
+  "0.0": 1.007,
+  "0.25": 0.857,
+  "0.5": 0.698,
+  "0.75": 0.527,
+  "1.0": 0.349
+ },
+ "fitted_share": 0.263,
+ "fitted_share_90ci": [
+  0.188,
+  0.331
+ ]
+}

@@ -1,0 +1,223 @@
+{
+ "source": "400 Phantom+ replays (sim/scripts/sustain/fit_sustain.py)",
+ "pickup_hp_per_min": {
+  "lane": 150.6,
+  "mid": 113.7,
+  "late": 115.0
+ },
+ "farm_heal_hp_per_min": {
+  "Radiant Regeneration": {
+   "lane": 388.0,
+   "mid": 388.0,
+   "late": 475.3
+  },
+  "Mystic Regeneration": {
+   "lane": 83.8,
+   "mid": 57.0,
+   "late": 69.8
+  },
+  "Restorative Shot": {
+   "lane": 82.5,
+   "mid": 49.5,
+   "late": 42.3
+  },
+  "Healing Rite": {
+   "lane": 81.2,
+   "mid": 67.0,
+   "late": 34.5
+  },
+  "Spirit Lifesteal": {
+   "lane": 153.3,
+   "mid": 153.3,
+   "late": 184.4
+  },
+  "Bullet Lifesteal": {
+   "lane": 166.9,
+   "mid": 166.9,
+   "late": 189.2
+  }
+ },
+ "entry_hp": {
+  "lane": 0.845,
+  "mid": 0.914,
+  "late": 0.929
+ },
+ "gap_s": {
+  "lane": 20,
+  "mid": 25,
+  "late": 24
+ },
+ "entry_deficit_q": {
+  "lane": [
+   0.65,
+   0.5,
+   0.41,
+   0.35,
+   0.29,
+   0.24,
+   0.2,
+   0.16,
+   0.12,
+   0.08,
+   0.05,
+   0.03,
+   0.01,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "mid": [
+   0.55,
+   0.37,
+   0.27,
+   0.2,
+   0.14,
+   0.09,
+   0.05,
+   0.02,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "late": [
+   0.55,
+   0.34,
+   0.23,
+   0.14,
+   0.08,
+   0.04,
+   0.01,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ]
+ },
+ "combat_share": {
+  "lane": 0.341,
+  "mid": 0.304,
+  "late": 0.331
+ },
+ "fountain_hp_per_min": {
+  "lane": 37.5,
+  "mid": 102.5,
+  "late": 169.2
+ },
+ "fountain_pass": 0.1287,
+ "field_heal_hp_per_min": {
+  "Healing Booster": {
+   "mid": 107.5,
+   "late": 88.8
+  },
+  "Radiant Regeneration": {
+   "mid": 388.0,
+   "late": 475.3
+  },
+  "Restorative Shot": {
+   "mid": 49.5,
+   "late": 42.3
+  },
+  "Extra Regen": {
+   "mid": 108.2,
+   "late": 85.2
+  },
+  "Fortitude": {
+   "mid": 323.3,
+   "late": 304.2
+  },
+  "Spirit Lifesteal": {
+   "mid": 153.3,
+   "late": 184.4
+  },
+  "Bullet Lifesteal": {
+   "mid": 166.9,
+   "late": 189.2
+  },
+  "Mystic Regeneration": {
+   "mid": 57.0,
+   "late": 0.0
+  },
+  "Healing Rite": {
+   "mid": 67.0,
+   "late": 0.0
+  }
+ },
+ "fountain_saved_hp_per_min": {
+  "Healing Booster": {
+   "mid": 16.0,
+   "late": 11.5
+  },
+  "Radiant Regeneration": {
+   "mid": 24.4,
+   "late": 42.3
+  },
+  "Restorative Shot": {
+   "mid": 0.8,
+   "late": 11.5
+  },
+  "Extra Regen": {
+   "mid": 17.7,
+   "late": 0.0
+  },
+  "Fortitude": {
+   "mid": 58.5,
+   "late": 58.8
+  },
+  "Spirit Lifesteal": {
+   "mid": 10.2,
+   "late": 18.3
+  },
+  "Bullet Lifesteal": {
+   "mid": 14.3,
+   "late": 20.7
+  },
+  "Mystic Regeneration": {
+   "mid": 8.8,
+   "late": 0.0
+  },
+  "Healing Rite": {
+   "mid": 13.2,
+   "late": 0.0
+  }
+ },
+ "trip_deficit": 0.26,
+ "heal_trips_per_min": {
+  "mid": 0.194,
+  "late": 0.194
+ },
+ "healbane_prevented_per_combat_s": 3.33,
+ "healbane_landing": 0.516,
+ "healbane_landing_real": 3.33,
+ "entry_heal_scale": {
+  "mid": 0.75,
+  "late": 0.15,
+  "lane": 0.75
+ },
+ "fortitude_heal_scale": {
+  "mid": 0.6,
+  "late": 1.95,
+  "lane": 0.6
+ }
+}

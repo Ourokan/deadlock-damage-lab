@@ -13,13 +13,18 @@ Assumptions:
 - Slither: movement only. T3 barrier CombatBarrier (180 + spirit scaling, via c.val) for BuffDuration,
   on every slide, which is assumed to be used whenever the T3 cooldown is ready.
 - Petrifying Bola: assumed direct hit: Damage + PetrifyDamage, then the target is stunned and immune to damage
-  for PetrifyDuration. Vyper stops shooting meanwhile (would be wasted). Thrown out to BOLA_RANGE.
+  for PetrifyDuration. Vyper stops shooting meanwhile (would be wasted). Thrown out to BOLA_RANGE, once the target
+  is below BOLA_CAST_HP or BOLA_MAX_WAIT s in (a target healed or shielded back up): in Phantom+ replays the bola lands a median 4.1 s into a fight (quartiles 0.7 / 9.9 s),
+  the sim with this gate 4.4 s (1.3 / 9.6 s); thrown at once (0.7 s every duel) it petrified the target, and
+  stopped Vyper's gun, right inside Split Shot's window.
 """
 from deadsim.abilities import AbilityImpl, register
 
 DAGGER_RANGE = 30.0          # m (no range in data)
 BOLA_RANGE = 25.0            # m (no range in data)
 VENOM_CAST_HP = 0.75         # cast Lethal Venom once the target is below this health fraction
+BOLA_CAST_HP = 0.9           # throw Petrifying Bola once the target is below this (fits real timing, see docstring)
+BOLA_MAX_WAIT = 10.0         # s into the fight after which it is thrown anyway (real third quartile 9.9 s)
 
 
 def venom_damage(c, ab_ctx, target):
@@ -128,7 +133,7 @@ class PetrifyingBola(AbilityImpl):
         return c.reach(BOLA_RANGE)
 
     def should_cast(self, c):
-        return self.in_range(c) and c.foe.hp_frac > 0.15
+        return self.in_range(c) and c.foe.hp_frac > 0.15 and (c.foe.hp_frac <= BOLA_CAST_HP or c.now >= BOLA_MAX_WAIT)
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay") + c.dist / 25.0   # bola flight ~25 m/s

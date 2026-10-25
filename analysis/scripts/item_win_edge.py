@@ -30,10 +30,12 @@ from collections import defaultdict
 from multiprocessing import Pool
 
 ROOT = "/mnt/project-files"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DATA = f"{ROOT}/data/builds/player_builds"
 WORK = f"{ROOT}/analysis/work/item_win_edge"
 OUT = f"{ROOT}/analysis/out"
-ITEMS = {x["id"]: x for x in json.load(open(f"{ROOT}/data/game/shop_items.json"))}
+# the repo's game data is the current patch's (the patch rerun pulls it before reading new builds)
+ITEMS = {x["id"]: x for x in json.load(open(f"{REPO}/data/game/shop_items.json"))}
 COST = {i: x["cost"] for i, x in ITEMS.items()}
 TIER = {i: x["tier"] for i, x in ITEMS.items()}
 SLOT = {i: x["slot"] for i, x in ITEMS.items()}
@@ -78,11 +80,13 @@ def process(path):
     ev = defaultdict(lambda: [0, 0])     # (item, hero, tb, lead, rel, br) -> [n, wins]
     side = defaultdict(lambda: [0, 0, 0, 0])  # item -> [n, sum buy_s, sum lead, sum rel]
     n_match = n_players = 0
+    by_br = [0] * len(BRACKETS)
     for rows in matches.values():
         rows = list(rows.values())
         if len(rows) != 12 or sum(r["won"] for r in rows) != 6:
             continue
         n_match += 1
+        by_br[bracket(rows[0]["badge"])] += 1   # badge is the match's average badge, the same on every row
         n_players += 12
         maxb = max((b for r in rows for _, b, _ in r["purchases"]), default=0)
         nb = maxb // BIN + 1
@@ -115,7 +119,7 @@ def process(path):
                 s[1] += b
                 s[2] += lead
                 s[3] += rel
-    return {"file": os.path.basename(path), "matches": n_match, "players": n_players,
+    return {"file": os.path.basename(path), "matches": n_match, "players": n_players, "matches_by_bracket": by_br,
             "events": [list(k) + v for k, v in ev.items()],
             "side": [[k] + v for k, v in side.items()]}
 

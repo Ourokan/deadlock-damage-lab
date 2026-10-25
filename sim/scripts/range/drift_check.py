@@ -19,7 +19,7 @@ def run(drift, jobs, workers):
     M.DEFAULT = M.Mechanics(range_drift=drift)
     sim = collections.defaultdict(collections.Counter)
     with ProcessPoolExecutor(workers) as ex:
-        for hid, d, n in ex.map(L.sim_player, jobs, chunksize=8):
+        for hid, d, n, _ in ex.map(L.sim_player, jobs, chunksize=8):
             for k, v in d.items():
                 if not k.startswith("_"):
                     sim[hid][k] += v

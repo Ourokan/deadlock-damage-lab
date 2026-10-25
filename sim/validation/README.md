@@ -1,7 +1,8 @@
 # Combat model validation
 
 How far the step 2 fight model (`deadsim`) can be trusted, checked against hand calculations and 400 real
-ranked matches (badge 60+, current patch, 2026-10-13; `matches_sample.jsonl.gz`, 4,800 player-matches).
+ranked matches (badge 60+, current patch, 2026-10-13; `matches_sample.jsonl.gz`, 4,800 player-matches), and since
+2026-10-24 against 600 Phantom+ matches (`phantom_sample.jsonl.gz`, see "Damage mix audit against Phantom+").
 
 ## What it is checked against
 
@@ -87,32 +88,112 @@ Spirit Strike, Lifestrike, Melee Lifesteal. `accuracy.hero_default_skill` loads 
 with `hero_default_skill(hero, melee_rate_override=0.5, heavy_share=0.4)` (or `Skill(melee_rate=..., heavy_share=...)`).
 `Skill.combo_melee` (on by default) adds Abrams' charge into heavy melee combo on top of the rate.
 
+### Melee follows the build
+
+The fitted rate is the hero's average player, but players who buy melee items melee more. `scripts/melee_items_fit.py`
+replays every player's real build (30/60/90% of the match) at the hero's average rate and compares real melee/gun
+damage with the sim's, grouped by how many melee items the player held (Melee Charge, Crushing Fists, Lifestrike,
+Melee Lifesteal, Spirit Snatch, Spirit Strike, Rebuttal). The sim already gives those items their per-hit damage, so
+what is left is how often the player lands melees. Fit with hero fixed effects (within-hero comparison), 3,600
+player-matches, `data/melee_items.json`:
+
+| Melee items held | Gun heroes (rate < 0.08) | Melee heroes (Abrams, Billy, Drifter, Shiv, Calico, Yamato, Venator, Silver, Apollo) |
+|---|---|---|
+| 0 | 1 | 1 |
+| 1 | 1.86x (90% CI 1.49-2.12), **used 1.49x** | 1.07x (0.86-1.41), **used 1x** |
+| 2+ | 3.80x (2.53-4.80, 40 players), **used 2.53x** | 1.51x (1.19-2.02), **used 1.19x** |
+
+This compares players who chose melee items with players who didn't, so part of the gap is selection: players who
+like to melee buy the items. Fights therefore use each multiplier's 90% lower bound, never below 1 ("used" in the
+JSON). That is a conservative middle between "the item changes nothing about how you play" and "you play like
+today's holders", and it keeps the thinnest group (gun heroes with 2+ items) from driving build search.
+
+`accuracy.melee_rates_by_items(hero)` turns this into three rates per hero, scaled so the hero's real mix of builds
+still averages to its fitted rate (Haze 0.013 / 0.019 / 0.032 hits/s, Abrams 0.256 / 0.256 / 0.304).
+`hero_default_skill` stores the multipliers in `Skill.melee_item_mult` and `fight.make_fighter` (duels and team
+fights) scales `melee_rate` by the one that matches the build (so a caller's own `melee_rate`, 0 included, is scaled,
+never replaced; heroes missing from the fit keep the flat rate), so adding Lifestrike to a build also makes its holder melee more. A user-set
+`melee_rate_override` turns this off. `melee_items_fit.py --check` reruns with the used rates: real/sim per group is
+then 0.93-1.15 (the conservative bound leaves gun heroes with 2+ items 15% under real); with the average rate it
+was up to 1.9x off.
+
+Items with MeleeDistanceScale lunge heavy melees that much farther (game data: Melee Charge 50%, Crushing Fists 60%,
+Runed Gauntlets 150%; the largest held counts): with movement on,
+a chaser lands heavies on a runner from that much farther (`mechanics.melee_reach`). Lifestrike's slow was
+already in the movement model.
+
 `scripts/melee_value.py` measures what melee is worth on real builds: real mid/late-game snapshots of each
 hero against real enemies from the same match, 30 s duels. It compares the hero's real melee rate vs none,
 and each melee item vs a same-cost non-melee item on the same cases (`melee_value.json`). The HP margin is
-(my HP left − enemy HP left) as a fraction of max HP.
+(my HP left − enemy HP left) as a fraction of max HP. Rerun 2026-10-24 with build-based melee rates:
 
-| Hero | Win rate from melee | Lifestrike vs Bullet Resilience | Spirit Snatch vs Bullet Resilience | Crushing Fists vs Leech |
-|---|---|---|---|---|
-| Abrams | +27 pts | +0.20 | +0.21 | −0.03 |
-| Billy | +30 pts | +0.20 | +0.13 | −0.03 |
-| Drifter | +22 pts | +0.11 | +0.05 | −0.13 |
-| Calico | +16 pts | +0.09 | +0.06 | −0.11 |
-| Yamato / Apollo | +12 pts | +0.05 / +0.03 | +0.13 / +0.08 | ≈0 |
-| Gun heroes (Infernus, Haze, Shiv, Venator, Silver) | 0-3 pts | −0.05 to +0.07 | −0.08 to +0.02 | −0.04 to −0.25 |
+| Hero | Win rate from melee | Lifestrike vs Bullet Resilience | Spirit Snatch vs Bullet Resilience | Crushing Fists vs Leech | Melee Charge vs Swift Striker |
+|---|---|---|---|---|---|
+| Abrams | +19 pts | +0.23 | +0.22 | −0.03 | +0.03 |
+| Billy | +13 pts | +0.21 | +0.21 | −0.01 | +0.08 |
+| Drifter | +24 pts | +0.12 | +0.07 | −0.20 | +0.01 |
+| Calico | +19 pts | +0.07 | +0.07 | −0.14 | +0.04 |
+| Shiv | +8 pts | +0.08 | +0.04 | −0.15 | 0.00 |
+| Yamato / Apollo / Silver | +9 / +12 / +6 pts | +0.06 / +0.04 / +0.06 | +0.14 / +0.08 / +0.03 | ≈0 | +0.01 to +0.04 |
+| Gun heroes (Infernus, Haze, Venator) | 0-5 pts | −0.03 to +0.10 | −0.09 to +0.05 | −0.09 to −0.27 | −0.08 to +0.04 |
 
-Melee Charge, Melee Lifesteal and Spirit Strike come out within ±0.07 of their comparison item for every hero.
-These rates are what today's average player does on each hero; a player who builds for melee probably melees
-more, which these numbers don't capture.
+Compared with the average-rate version, melee items gained up to ~0.07 of HP margin on most melee heroes (Billy's
+Melee Charge +0.03 → +0.08, Spirit Snatch +0.13 → +0.21) and stay behind for gun heroes. Melee Lifesteal and Spirit
+Strike stay within ±0.09 of their comparison item. Heavy share (30%) is still an assumption: the API counts parries but not light vs heavy melees.
 
 ## Cleanses
 
 Dispel Magic (added 2026-10-14 during step 3): its active purges enemy debuffs and DoTs (`Fighter.dispel`) and heals
-250. The AI fires it at once when silenced/disarmed, and against a DoT (>= 2 s left) only below 50% HP: in real matches
-Decay deals the same damage to Dispel holders as to their teammates (ratio 1.00, 90% CI 0.75-1.30, 600 matches,
-`damage/scripts/decay_vs_dispel.py`). Hero ability DoTs that schedule
-their own ticks instead of using `Engine.dot`/`CastCtx.dot` are not purged. 13-17% of ranked players hold it from
+250. The AI fires it at once when silenced/disarmed. Against a DoT (>= 2 s left) it fires on only
+`Skill.dot_cleanse_share` of DoT episodes (drawn once while some enemy DoT runs and Dispel is ready), `Skill.dot_cleanse_delay` after it lands (reaction: 1.5 s Eternus,
+3 s below). Fit (2026-10-24, `scripts/fit_dispel.py`, `validation/dispel/`): in real matches Dispel holders take 85%
+of their teammates' Decay damage at Phantom+ (1500 matches, 90% CI 0.81-0.89), 87% at all ranks, 91% at Eternus+
+(175 matches, CI 0.77-1.07), from `damage/scripts/decay_vs_dispel.py` with the right-aligned damage-matrix read (the
+first run read arrays from the start and got 1.00). Real (Decay, Dispel) holder item snapshots from the same matches,
+dueled with and without Dispel (the holder can't die, like a fixed real window), give that ratio at share 0.26
+(Phantom+, CI 0.19-0.33) and 0.16 (all ranks); Eternus+ (0.13, CI 0.00-0.34) is too thin and uses the Phantom+ share.
+Cleansing every DoT at the old rank timings gave 0.35
+(3 s) and 0.26 (1.5 s). A share, not a longer delay, so short DoTs (burns, Toxic Bullets) can still be cleansed. Which
+DoTs get cleansed is a deterministic Bernoulli started at `Skill.fight_phase`, so the overall score's spread fight
+phases cleanse the first DoT in exactly that share of fights. 13-17% of ranked players hold it from
 27k souls up, so DoT builds (Decay, Toxic Bullets, burn abilities) were overvalued before.
+
+Per enemy source (2026-10-24, `counters/scripts/cleanse_real.py`, Phantom+, 2200 matches with a Dispel holder, 5400
+Infernus windows): the same pairing for every enemy damage source, ratio = holders / teammates without Dispel.
+Holders get shot more by Infernus (gun 1.16, Napalm 1.17), so read each source against those: **Afterburn 0.73
+(0.63 of Napalm)**, **Toxic Bullets 0.70 (0.61 of Infernus' gun; 0.68 of gun from every dealer)**, Escalating
+Exposure 0.72, Decay 0.80 of gun, Crow Familiar 0.86 and Fire Scarabs 0.87 of their owners' gun, Flame Dash's ground
+trail 1.03 (not purged). Holders die 21% less to Infernus (kills per window 0.79) and 11% less to anyone. So players
+spend Dispel on the DoTs an enemy's gun keeps re-applying, and much less on Decay. Model since then:
+- Hero DoTs that tick on their own (Afterburn, Crow Familiar's bleed, Fire Scarabs) register with
+  `CastCtx.dot_track` and stop on a purge (`dot_live`); before, Dispel could not touch them, so it had no value
+  against Infernus (counter sim: -0.03 extra vs Infernus at 27k, +0.24 after).
+- Build-up DoTs (Afterburn and Toxic Bullets, `buildup=True`) draw with `Skill.dot_cleanse_share_buildup`, fitted
+  by `scripts/fit_dispel_buildup.py` to Afterburn / Napalm (`validation/dispel/buildup_fit_91.json`): the fit sits
+  at its ceiling, 1.0. Even cleansing every one, the 30 s fixed-window duel removes only 25% of Afterburn (real 37%):
+  Infernus re-ignites within seconds and Dispel has a 45 s cooldown, while a real 3-minute window holds several
+  short fights (a 13 s duel removes 30%). So 1.0 is a lower bound, not a measured share, and Dispel's value
+  against Infernus (+0.24 extra in the counter sim) is the most this model can give, still short of real. Other
+  DoTs keep `dot_cleanse_share` (Decay fit). Only Phantom+ is measured, so every badge uses it.
+- Toxic Bullets check (same duel design, 300 real (Toxic holder, Dispel holder) snapshot pairs, Toxic damage per
+  gun damage, Dispel holder vs the same build without Dispel): 0.98 at the Decay share it had before, 0.92 at the
+  build-up share of 1.0; real 0.68. So moving it to the build-up share goes toward real and still falls short. A
+  Toxic Bullets build loses about 6% of its Toxic damage against Dispel holders (13-17% of players from 27k up).
+- Dispel purges Afterburn's build-up meter too.
+
+Counterspell, same pairing (`cleanse_real.py Counterspell`, 2200 matches, 62k windows): ability damage taken 0.965
+for non-ultimates and 0.98 for ultimates vs gun damage 0.96 (Counterspell can't block guns): no measurable block.
+Against Lash, the hero that triggers it most (x2.1): Death Slam 1.00 (CI 0.95-1.06), Ground Strike 1.00, Flog 1.00,
+and holders die to Lash as often (1.03). A few slow-detonation abilities do drop (Sticky Bomb 0.82, Gloom Bombs 0.73,
+Affliction 0.79 of gun), too few casts to move the total. `Skill.spell_parry_rate_ult` (new, ultimates) and
+`spell_parry_rate` are fitted by `scripts/fit_counterspell.py` (`validation/counterspell/fit_91.json`, set by
+`accuracy.spell_parry_rates` in `hero_default_skill`): both are 0 (was a hand-set 0.05), the grid floor: the real
+targets (1.004 non-ult, 1.025 ult, against gun) sit above what a zero rate gives, so the fit clips there and its
+"CI" is that clip, not a tight bound. The data says no measurable block, and Counterspell is worth its +50 HP and
+spirit power. A parried cast stays blocked for
+`mechanics.PARRIED_CAST_SPAN` (3.5 s), so a rate set by hand can block Death Slam, whose slam lands 2.6 s after the
+grab (it never could before). So the sim's
+verdict that Counterspell is the weakest defensive item per soul matches real Phantom+ play (win edge -0.8 points).
 
 ## New mechanics: parry, summons, nearby enemies, movement (2026-10-15)
 
@@ -131,8 +212,8 @@ Spirit Resilience (-8% for 30% spirit resist), so before/after effects of defens
 | Parry | defender parries `Skill.parry_rate` of incoming heavy melees: attacker stunned 2.75 s, +25% damage taken | team Parry Success vs enemy melee hits (800 teams) | 5% of hero melees parried (90% CI 2.7-7.5%); 75% of parries are vs troopers | 15% of heavies = 5% of melees |
 | Rebuttal | on parry: heal + return the parried damage, +30% damage 6 s; holders parry 1.9x | parries per 3 min, holders 0.88 vs 0.47 | 0.06% of hero damage, 45 dmg per 3 min held | 0.02% (underrated ~3x) |
 | Counterspell | spell parry timed vs `spell_parry_rate` of enemy aimed casts, blocks that cast for 0.8 s | same-player before/after buying, vs teammates | ability damage taken -4.6% (CI -6.4..-2.6); +50 HP alone explains ~4% (Extra Health -8%) | -2% (rate 0.05) |
-| Turrets | McGinnis turrets have HP (100 + 9/boon, 35% spirit resist); enemy spends `summon_focus` (0.8) of shots on them at 2.5x accuracy | not fittable (see below) | | turret damage -15%, landing 0.06 -> 0.14 |
-| Split Shot | during the active each landed shot adds 2.8 copies on the main target (+ nearby enemies) | Split Shot dmg / gun dmg of holders | 0.271 | 0.266 |
+| Turrets | McGinnis turrets have HP (100 + 9/boon, 35% spirit resist); the enemy shoots them (see "Targetable summons" for the fit, 2026-10-24) | replays | | turret damage -15%, landing 0.06 -> 0.14 |
+| Split Shot | during the active each landed gun bullet adds 0.73 copies on the main target and 0.73 x nearby enemies (at most 1) on others (replays; 2.8 x accuracy before 2026-10-24, see "Vyper") | Split Shot dmg / gun dmg of holders | 0.271 | 0.266 |
 | Ricochet | bounces 65% of each gun hit to `Mechanics.extra_targets` nearby enemies (booked as splash) | Ricochet dmg / gun dmg of holders | 0.150 = 0.23 bounces per hit | `extra_targets=0.23` gives 0.145 |
 | Escape | below `flee_hp` (0.15) and losing, a fighter stops shooting and runs (sprint after 2 s, dashes); the other chases 85% of the time; escape at 40 m | isolated 1v1s where one side drops below 25% HP (11,720 episodes) | 20% escape, 80% die (of decided) | 21% / 79% |
 
@@ -161,15 +242,69 @@ only its barrier. Warp Stone's full 11 m teleport gave +23; only 30% of it count
 What the new mechanics change on real build pairs (1,138 duels, `impact.txt`): 11% of duels now end in an escape
 (no winner), 86% of results are unchanged, 1% flip winner; speed unchanged (~12 ms per 30 s duel).
 
-Limits: parry misses (as frequent as successes) cost nothing; light melees are never parried. Turret focus and
-accuracy are assumptions: McGinnis' sim gun share stays ~3% vs 26% real even with every shot on turrets, so her gap
-is elsewhere (Heavy Barrage locking the gun at fight start, the fresh-cooldown bias). Sinclair's Assistant and
-Graves' summons still can't be shot. Nearby enemies only feed Ricochet and Split Shot (AoE abilities already carry
+Limits: parry misses (as frequent as successes) cost nothing; light melees are never parried. McGinnis' sim gun
+share stayed ~3% vs 26% real even with every shot on turrets, so her gap is elsewhere (Heavy Barrage locking the gun
+at fight start, the fresh-cooldown bias). Summon targeting is now fitted to replays (next section). Nearby enemies only feed Ricochet and Split Shot (AoE abilities already carry
 team-fight hits in their landing factors); splash damage never kills anyone and is reported apart
 (`FightResult.a_splash`). Hero mobility abilities (grapples, teleports, flight) are not modeled; only items, base
 speed, sprint and stamina. Fighters hold their distance unless someone runs, so melee gap-closing is still unvalued.
 Ability slows are applied generically from SlowPercent-type properties at spirit accuracy. Real escape episodes are
 "no teammate and exactly one enemy within 25 m", which is closer to a 1v1 than a team fight but not the same.
+
+## Targetable summons (2026-10-24)
+
+Which summons can be hurt, and how much enemies go for them, from 160 Phantom+ replays (Oct 20-24, Deadlock API demo
+queries; `scripts/summons/fetch_summons.py` pulls each summon entity's spawn, despawn and health plus every hit on it,
+`summon_stats.py` -> `validation/summons/summon_stats.json`). A summon counts as killed when the hits on it add up to
+its health (the extracts leave `victim_health_new` empty).
+
+Only these summons have health in the replays: Graves' zombies and Ghouls (`CNPC_NecroSkele`, 212 HP at 0-5 min to
+~430 late = 180 + 8/boon), Deadheads (24 -> 62 HP = 20 + 1.3/boon), the Borrowed Decree gravestone (100 HP) and
+McGinnis' Mini Turrets (131 -> 406 HP). Sinclair's Spectral Assistant, Medicinal Specter, Rat King's banner, The Cube
+and Nurse Harrow's leeches sit at 1 HP and never take hero damage; Solomon's pieces, Grey Talon's owl model and the
+Goo Ball have none; Rat King's rats (100 HP) and Rem's Helpers are never hit. Vindicta's crow is a projectile, not an
+entity with health. So Graves and McGinnis are the only heroes whose summons the sim lets the enemy shoot.
+
+| Summon (n, matches) | Real life (s, median) | Killed by an enemy hero (all / of those a hero hit) | Gun share | Non-gun ratio |
+|---|---|---|---|---|
+| McGinnis turret (8,199, 43) | 10.5 | 29% / 71% | 0.57 | 0.60 |
+| Graves zombie / Ghoul (16,616, 99) | 9.3 | 28% / 58% | 0.67 | 1.15 |
+| Deadhead (21,541, 99) | 8.6 | 40% / 90% | 0.50 | 0.14 |
+| Gravestone (1,171, 99) | 17.8 | 20% / 83% (median 11 s after landing) | 0 (bullets never hurt it) | 0.05 |
+
+Gun share = enemy gun damage on summons of that kind / (that + enemy gun damage on the owner), while one is alive.
+Non-gun ratio = enemy non-gun damage (abilities, items, melee) on them / non-gun damage on the owner in the same
+windows: 63% of what turrets take and 72% of what zombies take is area damage, not aimed shots.
+
+Model (`deadsim/mechanics.py`, `data/summon_targeting.json`, refit with `scripts/summons/fit_targeting.py`):
+- Each summon has its data health (+ boons). The enemy spends `focus` of its trigger pulls on the oldest living
+  summon of each kind, at `acc_mult` x its hero accuracy (assumption: stationary turret 2.5x, walking zombies 2x,
+  small flying Deadheads 1x). `focus` is fitted so the sim's gun share matches the real one, over duels of every
+  sample McGinnis and Graves player against a real enemy build: turret 0.48, zombie 0.53, Deadhead 0.69.
+- Non-gun damage the owner takes also lands on every living summon x its kind's `splash`, fitted the same way
+  against the damage all summons of a kind take (turret 0.29, zombie 0.48, Deadhead 0.03, gravestone 0.05). Area
+  damage is most of what zombies take in the replays.
+- The gravestone can't be shot. Besides splash the enemy breaks it 11 s after it lands, 83% of the time (the real
+  rate among gravestones a hero hit), as an expected value: from then on zombie spawns and the aura are scaled by
+  0.17 (a single deterministic draw would break it in every fight). Once it is gone no more zombies spawn and the aura stops: in the replays zombie
+  spawns drop from 0.46/s to 0.14/s after a gravestone breaks.
+- A summon lives at most the real median life of those no hero killed (`life_other_s`: turret 12.8 s, zombie 10.5 s,
+  Deadhead 11.1 s, gravestone 18.6 s): troopers and other heroes kill them in real games. Zombies used to live a fixed
+  4.5 s (`ZOMBIE_LIFE`, still the value with mechanics off).
+- `Skill.summon_focus` (default None) overrides every kind's share; `FightResult.*_summon_kind`,
+  `*_hit_while_summon` and `*_summons_out` report what the fit compares.
+
+Fit result (sim vs real): gun share turret 0.57 / 0.57, zombie 0.67 / 0.67, Deadhead 0.47 / 0.50; non-gun ratio within
+0.01 for all four. Kill shares in the sim (of all summons spawned in a duel) are turret 61%, zombie 39%, Deadhead 32%
+against 71% / 58% / 90% of real ones a hero hit (the gravestone's break is the expected value above). The sim spreads area damage evenly over every
+summon, while real damage piles onto a few (a real Deadhead that gets hit at all almost always dies at 50 HP).
+
+Effect on the 252 Graves and 90 McGinnis sample duels (real builds, 30 s): Graves' damage per second -1% (275 -> 271),
+win share 69% -> 75% (zombies now live up to 10.5 s instead of 4.5 s and soak shots); McGinnis -18% (65 -> 53), 7% ->
+6%. McGinnis' landing factors were not refit: her sim damage mix with mechanics on already matches (turret 45% of her
+damage vs 44% real). Graves has no landing factors (his gun
+records no accuracy in the data), and his ability mix moved: Borrowed Decree 30% -> 39% (real 29%), Jar of Dead 29%
+-> 24% (real 23%), Grasping Hands 28% -> 24% (real 11%); his gun stays at 4% vs 18% real.
 
 ## Hero fight patterns (2026-10-16)
 
@@ -303,22 +438,473 @@ mean +35, sd 200 over 12 paths). Melee keeps its fitted per-second rate; escapes
   +24 -> +80, Sharpshooter +316 -> +320, Long Range +197 -> +154, Point Blank +316 -> +296. Close/long range bonuses use
   the joint expectation with falloff (`Engine.band_corr`): paid where the target actually is, not at the average falloff.
 
+## Damage mix audit against Phantom+ (2026-10-24)
+
+`scripts/damage_audit.py` checks the model as the searches use it (fitted landing factors, item factors,
+counterplay, mechanics, melee by build) against a fresh sample: 600 Phantom+ ranked matches of the last 5 days
+(`phantom_sample.jsonl.gz`, from `scripts/fetch_validation.py --api 91 5`, 5,115 player-matches). Each player's real
+build and real aim duel a real enemy at 30/60/90% of the match; the damage mix (gun / abilities / items / melee) and
+every source are compared with the damage matrix. It fits nothing. Output: `damage_audit.md` / `damage_audit.json`.
+The sample now also keeps each source's cumulative damage at every damage-matrix sample (`damage_series`), so item
+damage can be divided by the gun damage dealt while the item was owned.
+
+Found and fixed:
+- **Nurse Harrow** (347 player-matches, 3rd most played) had no landing factors and no melee rate: she is newer than
+  the 2026-10-13 sample. Fitted on the Phantom+ sample (Leech Therapy 1.81 / 1.37 with mechanics, Lurking Terrors
+  1.37 / 1.18, melee 0.03 hits/s). Mix distance 0.15 -> 0.09.
+- **Silver's wolf form** (Go For The Throat, Mauling Leap, Tail Whack) had no landing factors: the game books them
+  under their own classes (`ability_werewolf_frenzy`...), which the fit never matched (`landing_rates.ALIASES`). Fitted
+  0.5 / 0.47 / 0.8. Mix distance 0.10 -> 0.02.
+- **Sinclair's Audience Participation**: the game books the copied ultimate under the enemy hero's class, so the fit
+  found no real damage and stored 0.0 (applied as 0.05), and the engine then skipped the factor because the copy is
+  named "Audience Participation (X)". Real classes of other heroes now map to it (`landing_rates.COPY_ULT`) and the
+  copy uses its factor (`Ability.landing_key`). Small sample (20), still 0.05 off.
+- **Ability sub-sources skipped their landing factor**: the fit pools "Setup Bishop squares", "Ira Domini (blessed)",
+  "Serrated Knives (rage)", "Mini Turret (wall)"... with their ability, but the engine applied the factor only to the
+  exact ability name. With mechanics on, refits had pushed Setup Bishop to 0.02 and Ira Domini to 0.03 to make up for
+  it. The engine now falls back to the ability's factor (`engine.damage`); Solomon, Venator, Celeste and Sinclair were
+  refit from scratch on the Phantom+ sample. Celeste's Shining Wonder was 1.5 (clipped from 1.9) and is 0.5 now: real
+  Phantom+ players get 0.4x of what the sim gave it.
+- **Capacitor's shock** never fired for 40 s after its active: both shared one cooldown timer. Real/sim was 4.7, now
+  0.99 (Ivy 0.105 -> 0.018, Wraith 0.061 -> 0.012).
+- **Siphon Bullets** only lowered the target's max health, so a hurt target lost nothing. The game books the stolen
+  health as damage (0.24 per gun damage for holders); the sim now deals it (item factor 0.38).
+- **Melee Charge** damage was counted as melee by the fit (`sim_key` matched "melee" before item names).
+- **Item factors** (`data/item_landing.json`) were biased low for items bought late: real item damage was divided by
+  the whole match's gun damage, while the sim divided by gun damage of the duels holding the item. They also fought
+  with abilities always landing, so on-ability procs fired too often. Refit with gun damage while owned and the
+  searches' ability factors (`python3 scripts/item_landing.py 4 --sample validation/phantom_sample.jsonl.gz`; ability
+  refits: `python3 scripts/refit_landing_heroes.py --sample validation/phantom_sample.jsonl.gz HERO ...`). Applied factors that changed: Scourge 0.63 -> 1,
+  Lightning Scroll 0.71 -> 1, Quicksilver 0.86 -> 1, Phantom Strike 0.89 -> 1, Tesla Bullets 0.92 -> 1, Mystic Shot
+  0.75 -> 0.91, Headhunter 0.75 -> 0.92, Mercurial Magnum 0.83 -> 0.89, Focus Lens 0.32 -> 0.59 (min holders 40 -> 30
+  to keep it; 36 holders, low confidence), Stalker 1 -> 0.77, Capacitor 1 -> 0.95, Siphon Bullets 1 -> 0.38.
+
+Result: the player-weighted mix distance went 0.069 -> 0.051, and no item with 30+ holders is now overrated by more
+than 2% except Silence Wave (25 holders, 0.71). What is left in the table is mostly bookkeeping or team fights, not
+1v1 damage:
+- the game books amp bonuses under the item (Escalating Exposure, Express Shot, Rabbit Hex's amp; Melee Charge and
+  Crushing Fists probably their melee bonus too), the sim under the hit. This is why Shiv, Paige, Kelvin, Seven, Victor
+  and McGinnis show a lower item share in the sim;
+- items and abilities that hit several heroes in team fights come out above 1 and are left alone: Mystic Reverb 3.9,
+  Return Fire 3.9, Tankbuster 2.0, Arctic Blast 1.9, Ricochet (0 in a 1v1). Paradox (0.14) and Mo & Krill (0.12)
+  are mostly this.
+- Graves and Deadman Danny joined the audit on 2026-10-24 once their guns were calibrated from replays (next section).
+
+### Area items' hits on other heroes (2026-10-24)
+
+Mo & Krill's items were all 1.5-2.6x under real (holders only: Torment Pulse 1.87, Tankbuster 2.07, Cold Front 1.65).
+Torment Pulse's uptime on the main target is right (real 45% of its pulses land on the fight's main target, sim
+47% at his 10 m duel distance), so the gap is the other heroes. In 110 Phantom+ replays (every hero-vs-hero
+DamageEvent, kept in the project folder analysis/work/replay_damage; `scripts/team/area_hits.py`) a fight's main
+target is the hero who took most of the attacker's gun damage, and per item other / main = damage on every other hero
+/ damage on the main target. Single-target gun procs (Toxic Bullets, Mystic Shot) give 0.44 from target switching
+alone; an area item's extra hits per main hit is its other / main minus that:
+
+| Item | other / main | extra hits per main hit | position count used before |
+|---|---|---|---|
+| Mystic Reverb | 1.24 | 0.80 | 0.41 |
+| Alchemical Fire | 1.20 | 0.76 | 0.20 |
+| Scourge | 0.95 | 0.51 | 0.07 |
+| Torment Pulse | 0.89 | 0.45 | 0.06 |
+| Capacitor | 0.74 | 0.30 | 0.20 |
+| Arctic Blast | 0.71 | 0.27 | 0.21 |
+| Cold Front | 0.67 | 0.24 | 0.07 |
+| Tesla Bullets | 0.50 | 0.06 | 0.14 |
+
+The position count (team_value.json "positions": other enemies within the radius at 1 s samples, at 27k) misses most
+of it for items around the holder: most position fight seconds are approach and poke at 15-20 m, while these items
+fire in the brawl. Torment Pulse's other / main is about the same for every holder (Mo & Krill 0.85, Celeste 1.05,
+Graves 0.90, Victor 0.77), so one pooled value per item. `data/area_hits.json` (`mechanics.area_extra`) now gives
+the overall search's area items their extra damage (position count as fallback) and the audit adds the same to the
+sim's item damage. Item factors refit: Mystic Reverb 1.08 -> 0.60, Scourge 1.06 -> 0.70, Capacitor 0.90 -> 0.69,
+Torment Pulse 1.33 -> 0.92, Alchemical Fire 1.61 -> 0.92, Cold Front 1.10 -> 0.89, Tesla Bullets 0.96 -> 0.90,
+Arctic Blast 1.76 -> 1.38 (unused); every area item's holders-only real / sim is now 1.00-1.03 except Arctic Blast
+1.41. In the search (at 27k), an item's value is its duel damage x factor x (1 + extra): Torment Pulse 1.06 -> 1.33
+of its duel damage, Alchemical Fire 1.20 -> 1.61, Arctic Blast 1.21 -> 1.27, Cold Front 1.07 -> 1.10, Scourge
+1.07 -> 1.06, Tesla Bullets 1.09 -> 0.95, Capacitor 1.08 -> 0.90, Mystic Reverb 1.41 -> 1.08 (the sim's echo on the
+main target is too strong). Mo & Krill distance 0.100 -> 0.071;
+Victor 0.047 -> 0.065 and Graves 0.091 -> 0.097 (their per-hero Torment Pulse share is now over real, the
+whole-match vs mid-game duel bias); player-weighted 0.0446 -> 0.0445. The patch rerun does not refit area_hits.json
+(it needs replay queries): rerun area_hits.py on fresh replays after a big patch, then item_landing.py, since the item factors were fitted with these extra hits in the sim.
+The extra hits were first one pooled value per item, the same at every net worth; by fight start time they grew
+later in the match (Cold Front 0.14 at 0-15 min vs 0.38 at 25+), so early Cold Front or Capacitor builds were
+over-valued.
+
+### Extra hits by game phase (2026-10-24)
+
+150 more Phantom+ replays (matches of the validation sample where area items are bought before 20 min; 260 in all,
+kept in analysis/work/replay_damage) and each fight's net worth (the match's mean player net worth at the fight's
+start, from the sample's per-player stats). Too few area items are bought early to fit each item per phase, so one
+phase curve for every area item: per net worth bin (own baseline), every area item's extra damage / what its pooled
+extra_per_main predicts, made non-decreasing (pool adjacent violators), linear in ln net worth between bins, flat
+outside. `mechanics.area_extra(name, souls)` = pooled value x curve; overall_search.area_damage passes the build's
+souls, so the overall search, game paths (3k-50k stages) and lane fights use it. The audit still uses the pooled
+value (it compares whole matches).
+
+| fight net worth | 7.5k | 12.6k | 17.4k | 22.4k | 28.5k | 35.6k | 47.4k |
+|---|---|---|---|---|---|---|---|
+| observed / pooled | 0.21 | 0.72 | 0.93 | 1.24 | 1.07 | 1.11 | 1.15 |
+| fit (95% band) | 0.21 (-0.17-0.58) | 0.72 (0.44-0.96) | 0.93 (0.68-1.10) | 1.12 (1.02-1.18) | 1.12 | 1.12 | 1.15 (1.09-1.45) |
+
+The lowest bin is the weak point: its band includes 0 (no extra hits in lane) and reaches ~0.6, so 3k-7k builds' area value (0.21x pooled) is a soft estimate; everything from 12.6k up is clear of 0. A straight line in ln net worth fit worse (it put 0.57 at 7.5k): extra hits are low in lane, rise to ~1.1x by 22k
+and stay. Pooled values with 260 replays: Mystic Reverb 0.99, Alchemical Fire 0.94, Scourge 0.62, Torment Pulse
+0.48, Capacitor 0.26, Cold Front 0.19, Arctic Blast 0.18, Tesla Bullets 0.07 (110 replays: 0.80 / 0.76 / 0.51 /
+0.45 / 0.30 / 0.24 / 0.27 / 0.06). Item factors refit with them (item_landing.py on phantom_sample): Mystic Reverb
+0.60 -> 0.54, Alchemical Fire 0.92 -> 0.83, Scourge 0.70 -> 0.65, Capacitor 0.69 -> 0.72, Cold Front 0.89 -> 0.92,
+others within 0.02; audit player-weighted distance 0.0445 -> 0.0446. Effect on an item's value in the overall fight
+(vs no items, Abrams target): at 6k Cold Front (Kelvin) +0.30 -> +0.22, Capacitor (Seven) +0.57 -> +0.39, Torment
+Pulse (Mo & Krill) +0.85 -> +0.69, Alchemical Fire (Infernus) +5.6 -> +3.5; at 10k 5-25% less; at 18k about the
+same; at 27k+ slightly more. Rerun with fresh replays after a big patch: `python3 -I scripts/team/area_hits.py
+<replay dirs> --write`, then `python3 scripts/item_landing.py 4 --sample validation/phantom_sample.jsonl.gz`
+(its default sample is the old all-rank one).
+
+## Guns with no hero accuracy: Graves and Deadman Danny (2026-10-24)
+
+The match stats record no hero accuracy for Graves (The Teacher is a tether: Shots and Hits are always 0) and only
+a partial count for Danny (Chimera Peace Bringer is a charged shot; the API counts about half the replay's hits), so
+both fell back to the all-hero 26% and were left out of every fit. `scripts/gun_calib/` measures them in Phantom+
+replays instead (Deadlock API demo queries, 70 matches of Oct 20-24 with one of them, 817 player-matches):
+
+1. `fetch_guns.py` pulls one row per trigger pull (every weapon table's `m_nShotNumber` step), every hero-vs-hero
+   `DamageEvent` and the API's final and per-3-min stats (`python3 -I fetch_guns.py WORK 70 4`; WORK holds the
+   replay list `with_demo.json`, e.g. the summons one).
+2. `gun_stats.py` counts per player shots, gun hits on enemy heroes (the hero's weapon ability id), headshots
+   (`crit_damage` > 0), and shots inside fight windows (within W s of any damage between the player and an enemy
+   hero). Gun damage is also taken back to base damage with the player's weapon power at that minute. Per-player
+   rows: `validation/gun_calib/gun_stats.json.gz`.
+3. `fit_guns.py` maps replay numbers onto the API's scale with the 395 reference players (one-bullet guns whose
+   replay hits match the API's within 20%): API hero-aimed shots = 0.97 x replay shots in 4 s fight windows, with a
+   per-player spread of 13% (the same ratio, 0.9-1.25, on all 29 reference heroes). Applied to Graves and Danny this
+   gives their hero accuracy (`python3 scripts/gun_calib/fit_guns.py gun_stats.json validation/phantom_sample.jsonl.gz
+   --write` -> `data/gun_calibration.json`, read by `hero_default_skill` / `default_distance` / `player_skill`).
+
+| | accuracy p25 / p50 / p75 | headshots | base damage per hit | fight distance |
+|---|---|---|---|---|
+| Graves | 0.42 / 0.46 / 0.51 | none (the gun can't headshot) | 4.6 (sim 3.6 x 1.25, like any hero's hit) | 11.2 m |
+| Deadman Danny | 0.24 / 0.28 / 0.34 | none recorded | 49.4 = 2.64 x an ordinary hit of his 15-damage bullet | 14.3 m |
+
+- **Danny's charged shot:** every hit lands 2.64x the base damage of an ordinary hit (weapon power, headshots and
+  resists out), and he fires about one shot a second while the data's gun fires four. The sim keeps the gun's base
+  damage per second and fires 2.64x bigger shots 2.64x less often (`build.gun_quirks`, `charge_factor`), so on-hit
+  procs fire as often as real hits. Each shot spends 2.64 rounds (clip 14 -> 5; replays show about 6 shots between
+  reloads), so reload downtime stays the data gun's. Any headshot bonus is inside the factor.
+- **Graves' tether** only attaches within MaxRange 20 m (the gun's own data). Beyond it a shot misses: no hit and no
+  on-hit procs (`Engine.gun_reach` takes the out-of-range share of the distance spread off the hit chance; real
+  Phantom+ Graves deal 2% of their bullet damage beyond 20 m). Inside it the tether has no distance falloff
+  (`"falloff": false`, `Stats.gun_falloff`), see "Graves' hit damage" below. The fit's accuracy counts all his shots
+  inside fights, so the out-of-range cut is taken relative to the fit distance (`Engine.hit_reach`, see "Mystic Shot
+  and Torment Pulse by hero" below).
+- **Patches:** the file records the gun it was fitted on (`fit_weapon`). If a patch changes either gun, the old fit
+  keeps running and `build.gun_quirks` warns once per hero. Patch reruns can't refit, because that needs live
+  replay queries: rerun `fetch_guns.py`, `gun_stats.py` and `fit_guns.py --write` by hand, then
+  `refit_landing_heroes.py` for both heroes.
+- **Cross-check:** a second, independent estimate (gun base damage per second of fighting over the gun's damage per
+  second, scaled on the references) gives 0.51 for Graves and 0.27 for Danny, close to the shot-based 0.46 / 0.28.
+  It is not used for the fit: its scale runs 0.5-2.3 between reference heroes (how much of a fight each spends
+  shooting), against 0.9-1.25 for the shot count.
+- **Landing factors** for both were refit on the Phantom+ sample with the calibrated gun as the anchor (Graves had
+  none, so his abilities landed 100%): Graves Jar of Dead 0.23 / 0.25 with mechanics, Grasping Hands 0.09 / 0.10,
+  Borrowed Decree 0.24 / 0.15; Danny Strix Salvo 0.44 / 0.40 (was 0.67 / 0.02), Chimera Mk1 0.33 / 0.29, Jettison Fuel
+  0.47 / 0.40, Close The Deal 0.14 / 0.13.
+
+Result on the Phantom+ audit: Graves' gun share 4% -> 18% (real 20%), mix distance 0.37 -> 0.18; Danny's gun share
+25% -> 20% (real 16%), mix distance 0.37 -> 0.12 (audit table; Graves 0.16 there). Graves' damage items came out
+about 2x real (fixed below); Danny's Express Shot and Tankbuster are the bookkeeping and team-fight cases above. The damage audit, ability fit and item fit now
+include both heroes (`landing_rates.gun_known`).
+
+### Graves' hit damage (2026-10-24)
+
+Graves' on-hit items (Capacitor, Tesla Bullets, Mystic Shot, Siphon Bullets) dealt 0.42-0.51x real in the audit, as
+a share of his gun damage. In the replays their proc rate per gun hit matches the sim's (Tesla 0.13 vs 0.14 per hit,
+Capacitor about 0.2 like other heroes), so the hits themselves were off: the sim's Graves hit dealt 0.60x the real
+one, while the other one-bullet guns sat at 0.8-1.6x (median 1.07; `scripts/gun_calib/hit_damage.py`,
+`validation/gun_calib/hit_damage.json`). So he needed about 1.7x the real number of hits for his gun damage, and every
+extra hit could proc. Two causes, both in the tether:
+
+- the data's distance falloff (from 7.6 m, 50% by 17 m) cut the average hit to 0.64x at his 11.2 m spread. Real
+  Graves hits show no such loss: their base damage per hit is 1.28x the data's, about the same as other heroes
+  (1.25x), and 54% of his bullet damage lands at 10-20 m. The tether now has no falloff;
+- shots beyond 20 m were 0-damage hits that still procced. They now miss.
+
+Result: Graves' hit 0.60x -> 0.92x real. After refitting his landing factors (Jar of Dead 0.28 / 0.30 with mechanics,
+Grasping Hands 0.11 / 0.12, Borrowed Decree 0.29 / 0.18), the Phantom+ audit gives: gun share 0.18 -> 0.20 (real 0.20),
+items 0.43 -> 0.37 (real 0.27), mix distance 0.16 -> 0.10. Real/sim went from 0.51 to 0.73 for Capacitor, 0.46 to 0.70
+for Tesla Bullets, 0.42 to 0.52 for Mystic Shot and 0.45 to 0.59 for Siphon Bullets. Pooled over all holders, Tesla
+Bullets is now 0.98 and Capacitor 0.94. Build-up items (Toxic Bullets) scale their build-up by the landed hit's falloff
+(`Engine.hit_falloff`, 1 on the tether): Toxic Bullets 0.95. Still high: Mystic Shot and Torment Pulse (about 0.55).
+
+### Mystic Shot and Torment Pulse by hero (2026-10-24)
+
+The audit's per-hero source table compares the whole real match (the early game without the item included) with
+duels at 30/60/90% of it, so an item bought mid-game looks overrated there: Mystic Shot and Torment Pulse read about
+0.5x on Graves. `damage_audit.py` now also writes **items by hero, holders only** (real gun damage between buy and
+sell, at least 20 holders; `hero_items` in the json), which doesn't have that bias. Pooled over every hero neither
+item is overrated (Mystic Shot 0.96, Torment Pulse 1.24). Per hero:
+
+- **Graves** (0.61 / 0.63 holders only) came from a double cut. His fitted accuracy already counts the real shots
+  he fires beyond the tether as misses, and the sim also took the out-of-range share off his hit chance. Now the hit
+  chance is scaled by reach / reach at the fit distance (`Engine.hit_reach`, `Stats.gun_fit_m` = the calibration's
+  median distance), so a fight at the fitted distance keeps the fitted accuracy. Landing factors refit (with
+  mechanics: Jar of Dead 0.38, Grasping Hands 0.15, Borrowed Decree 0.23). Result: Torment Pulse 0.77, Mystic Shot 0.80,
+  Tesla Bullets 0.83, Capacitor 0.73, mix distance 0.10 -> 0.08, gun share still 0.20 (real 0.20).
+- **Paradox's Mystic Shot** is 2.6x under. In the replays, 73% of his Mystic Shot procs on heroes land together with
+  a Kinetic Carbine hit, so the Carbine now procs it (`Hit.weapon_proc`). That barely moves the ratio, because his
+  gun share is too high to begin with (0.34 vs 0.24 real), which deflates every item per gun damage. That is the
+  Paradox mix gap, not Mystic Shot.
+- **Calico and Yamato's Mystic Shot** (0.41 / 0.57, 30-35 holders) remain high. Their mixes match closely (distance
+  0.03 / 0.02), and Mystic Shot is under 3% of their damage. Not fixed.
+- **Torment Pulse** is under on melee-range heroes: Shiv 2.0, Mo & Krill 1.8, Celeste 1.45. That is team fights,
+  since the 9 m pulse hits every enemy nearby and a duel has one.
+- Found on the way: **Deadman Danny's Toxic Bullets** built up from his charged shot as if it were an uncharged one.
+  Build-up now scales with the shot (`Stats.gun_charge`): 88x -> 3.7x under. The rest is probably his ability
+  bullets building it up in the game.
+
+### Paradox's gun share, charge-up items and item bookkeeping (2026-10-24)
+
+Paradox had the worst mix in the audit (distance 0.14): gun 0.34 of his damage vs 0.24 real, items 0.10 vs 0.23.
+His gun hit itself is about right after the early game (sim 27 vs real 25 per hit after 20% of the match, replays);
+the gap came from five places, all checked in the 70 Phantom+ replays (`gun_calib`):
+
+- **Time Wall** gave +30-65% weapon damage for its whole duration. Only ~3% more of his gun hits land well above his
+  local median than for heroes without such a buff, so the bonus now reaches 10% of its uptime
+  (`TIMEWALL_SHOOT_THROUGH`).
+- **Kinetic Carbine** was ~0.55x its real hit late in the match and made up for it with a landing factor of 2.4,
+  clipped to 1.5 in fights. A real Carbine hit is 10-17x his gun hit at every stage (96 at 0-5 min, ~470 at
+  20-30 min), so its weapon scaling also follows the per-level bullet damage. It also charges for MaxChargeDuration
+  (2.5 s, was 1 s): the gap from his previous gun shot to a mid-fight Carbine hit is mostly 2.5-6 s. Landing factor
+  now 0.93 (mechanics 0.80).
+- **Mystic Burst and Tankbuster** "charge up over time": each ability hit over the threshold releases what has
+  charged since the last release, up to the full amount at 14 s (Mystic Burst median 2 after <1 s, 20 after 7 s,
+  39 after 14 s+; Tankbuster 7 / 75 / 188), with releases 0.2-2 s apart on the same victim. The sim fired a full
+  proc on a 14 s cooldown, so multi-hit abilities (Pulse Grenade's 5 pulses) got one proc where the game gives one
+  plus a trickle. Item factors: Tankbuster 1.89 -> 1.44, Mystic Burst 1.52 -> 1.22.
+- **Express Shot and Escalating Exposure** are booked under the item in the game's records (an Express Shot proc
+  shot, 1-2 hits for one-bullet guns, the whole doubled burst for Paradox) and were booked under the gun / the
+  ability in the sim, which inflated the sim's gun share for every holder and hid the items. `Engine.damage(book=)`
+  and `Engine.booking` now book them the game's way. In the default mode only the label changes; in realistic mode
+  (counterplay, the searches) the booked part gets the item's factor like an item's own damage, which cuts
+  Escalating Exposure's amp to 0.54x (the sim's amp is ~2x what the game books). Express Shot fits 1.02 (pooled,
+  Paradox 0.40), and factors above 1 are not applied, so it is unchanged.
+  Landing factors refit for the holders (Paradox, Shiv, Paige, Viscous, Yamato, Kelvin, Victor, Seven, McGinnis,
+  Infernus). Deadman Danny keeps his previous factors: the refit halved them and made his audit mix worse
+  (distance 0.06 -> 0.09).
+
+Result (on top of the Mystic Reverb fix, #59): Paradox gun 0.33 -> 0.27 (real 0.24), items 0.11 -> 0.24 (0.23),
+distance 0.14 -> 0.06; Shiv gun 0.33 -> 0.29 (0.27), distance 0.12 -> 0.04; Paige 0.09 -> 0.04; player-weighted
+mix distance 0.053 -> 0.045. Over a whole match
+Paradox's hit is still 1.5x real in `hit_damage.json` because the duels sample later points of the match.
+
+Still off then: **Vyper** (gun 0.55 vs 0.46), fixed below. **Nurse Harrow** (0.35 vs 0.29) is Lurking Terrors 1.5x
+under. **Warden** is the other way (0.46 vs 0.52): Last Stand is overrated (0.66).
+
+### Vyper: Mercurial Magnum, Split Shot, Petrifying Bola (2026-10-24)
+
+Vyper's gun share was 0.55 (real 0.46) with Split Shot 2.8x and Mercurial Magnum 2.1x under real. Every hero-vs-hero
+damage event of 84 Phantom+ replays (45 with a Vyper, the rest Mercurial or Split Shot holders;
+`scripts/mechanics/split_shot_replays.py`, numbers in `mechanics/split_shot_replays.json`) showed three causes:
+
+- **Mercurial Magnum's bullet bonus lasts its 12 s buff**, not until the next reload. 82% of a Vyper holder's gun
+  hits after his first proc carry it (Wraith 79%, Warden 93%, McGinnis 93%), and Vyper empties a clip in 1.7 s, so the
+  sim's "until reload" gave him 24%. With the 14 s charge and 12 s buff, ~86% is what the item allows.
+  Mercurial procs also ride on Split Shot pellets (17% of Vyper's Mercurial damage) and Ricochet bounces.
+- **Split Shot per landed bullet:** in the 5 s after an activation (614 activations: Vyper, Wraith, Yamato, Paige)
+  the main target takes 0.73 Split Shot hits per gun bullet landed on it (Vyper 0.76, Wraith 0.59), other heroes
+  0.29 of that. The sim gave 2.8 x accuracy copies per landed shot on the main target, a fudge for real players spending
+  more of their gun damage inside the window, and its side hits needed accuracy x 0.5 x nearby per trigger pull.
+  Now: SPLIT_PRIMARY_HIT 0.73 copies per landed bullet (they proc on-hit items, as real pellets do) and
+  SPLIT_SECONDARY_COVER 0.73 x nearby enemies on others (at most one per bullet, for team fights), with ~0.29 other enemies within 13 m of the target
+  (`mechanics.real_nearby`, the PR #57 position counts, now shared with the overall search). The active waits until
+  the holder can shoot a target that can be hurt. Pooled over all 170 holders Split Shot is now 1.00x real (was 1.25).
+- **Petrifying Bola went out at 0.7 s in every duel**, petrifying the target (and stopping Vyper's gun) for 2-3 s
+  right inside Split Shot's window: the sim's Vyper landed 18% of his gun damage in Split Shot windows, real 41%.
+  Real bolas land a median 4.1 s into a fight (quartiles 0.7 / 9.9 s); with a target health gate (BOLA_CAST_HP 0.9)
+  the sim's median is 4.4 s (1.3 / 9.6 s). It is thrown anyway BOLA_MAX_WAIT (10 s) in, for a target healed back up.
+
+The audit now fights with the real nearby-enemy count (`Mechanics.extra_targets = real_nearby("extra", 13 m)`, as
+the overall search does) and counts Ricochet / Split Shot hits on those enemies, since the real damage matrix has
+every enemy hero: pooled Ricochet goes from 0 (nothing to bounce to) to 0.88x real. Item factors refit
+(`item_landing.py --sample phantom_sample.jsonl.gz`): Mercurial Magnum 0.90 -> 0.83, Ricochet now 0.88, Split Shot
+0.92 (was 1.24, unused). Vyper's landing factors stay: a Phantom+ refit (`refit_landing_heroes.py`) cut Lethal Venom to
+0.57 and made his audit mix worse (0.070 -> 0.087).
+
+Result: Vyper distance 0.092 -> 0.067 (gun 0.52, Split Shot holders 1.64x real, was 2.84; Mercurial 1.21x, was
+2.15), Haze 0.062 -> 0.044, Warden 0.084 -> 0.076; player-weighted 0.0450 -> 0.0446. Counting
+Ricochet raises Wraith (0.012 -> 0.025), Mirage and Nurse Harrow a little: their per-hero Ricochet share is now above
+real, the whole-match vs 30/60/90% duel bias for a mid-game item (holders-only Ricochet is 0.88). Vyper's remaining
+Split Shot gap is the window share: real fights put 41% of his gun damage in its 5 s, the sim's 20 s duels 27%
+(all holders 33%; Vyper 18% before the Bola fix).
+
+## Fight length (2026-10-24)
+
+Real fights are shorter than the sim's duels, and they mostly end without a death. `Mechanics.fight_length` (off by
+default; on in the damage audit, the landing corrections and the overall search) books every hit also x P(a real
+fight is still going at its time).
+
+**Real data** (`scripts/fight_length/fetch_fights.py` -> project folder `analysis/work/fight_length/raw`,
+`fit_length.py` -> `data/fight_length.json`): every hero-vs-hero DamageEvent with the victim's health after the hit,
+from the 260 Phantom+ replays of the validation sample. A fight = damage between two enemy heroes, either way, with
+no gap over 5 s, at least 4 hits and damage both ways (what a duel stands for; 67% of all hero damage). Of 66.7k
+fights 16% end in a death (a hit to 0 health); median length 6.6 s. The sim already ends a duel at a death, so the
+curve is the Kaplan-Meier survival of the disengage time with deaths censored: S(5 s) 0.69, S(10) 0.33, S(20) 0.06,
+median 7.5 s, mean 9.0 s to 30 s. By game phase (fight net worth = the two heroes' mean; lane < 10k, late > 27k)
+it barely moves: mean 8.5 / 9.4 / 9.4 s. Per hero (the hero's fights, either side) means run 0.78-1.38x the pool; not
+used (a pair's length is both heroes'). The gap sets the scale: 3 s gives mean 6.9 s, 8 s 11.6 s; counting
+one-way runs too (91% of hero damage) 7.0 s. 5 s is about a reload plus a reposition.
+
+**Sim:** `Engine.length_w(t)` interpolates the phase curve (`mechanics.real_length(souls)`); `Fighter.dmg_exp`,
+`healed_exp`, the splash and `FightResult.a_exp` carry the expected values, `dmg_out` stays the fight's own (items
+and abilities that read it are unchanged), and the booking alone leaves the fight as it was (to a death or max_time). The landing corrections below do move
+the fight: abilities and items land at the corrected rate, so kill times, `time_alive` and `survived` shift with them.
+A single
+random cut was not used for the same reason as the range spread (whole casts would swing results). The disengage is
+taken as independent of the fight's path (real players back off more when losing: not modeled).
+
+**Landing factors:** the ability (`landing_rates_mech.json`) and item (`item_landing.json`) factors were fitted with
+every hit of a 20 s duel in full, so they had absorbed the average effect of shorter fights. `length_factors.py`
+gives each row a `length_corr` = (sim source / gun in full) / (the same expected), from the audit's duels, iterated
+3 rounds (fighting with the corrections moves kill times and procs). `accuracy.ability_length_corr` /
+`item_length_corr` apply them only to fights with `fight_length` (`make_fighter`), so the dummy page and the other
+full-booking fights keep the fit as it is. Median ability correction ~0.7: under real lengths an opener counts for
+more of a fight, so the same real share needs a lower factor (Vyper Lethal Venom, a ramping DoT, x1.97; Silver's
+Boot Kick x0.48). Items: Toxic Bullets x1.5, Escalating Exposure x1.3 (stacks build late), Split Shot x0.58, Cold
+Front x0.50 (fight openers). Rerun it after any landing refit (`item_landing.py` keeps the old corrections).
+
+**Also fixed:** Mystic Burst / Tankbuster's MinimumDamage and Witchmail's DamageThreshold checked the hit after the
+ability landing factor and reach availability, which stand for hits landing less often, not smaller hits; low-factor
+abilities (The Doorman, Rem) never procced them. They now check `amount / Hit.landing`. Alone (full booking):
+Tankbuster holders' real/sim 1.44 -> 1.10, Mystic Burst 1.22 -> 1.09, per-hero item median |ln| 0.268 -> 0.242, The
+Doorman 0.167 -> 0.102.
+
+**Checks** (600-match Phantom+ audit, `scripts/damage_audit.py`; `--no-length` books in full):
+- Damage over time into a fight (`scripts/fight_length/profile_check.py`), share of fight damage per 2 s:
+  real 0.32 / 0.20 / 0.15 / 0.11 / 0.07 / 0.05; sim expected 0.31 / 0.24 / 0.13 / 0.11 / 0.08 / 0.05; sim in full
+  0.16 / 0.14 / 0.09 / 0.10 / 0.10 / 0.09. Not fitted: the rate per fight still going (opener = 1) is real 1.00 /
+  0.70 / 0.64 / 0.60 / 0.59, sim 1.00 / 0.88 / 0.58 / 0.64 / 0.66 (the sim's opener lasts a little longer).
+- Damage mix, player-weighted distance 0.0446 (main) -> 0.0448 (min-damage fix) -> 0.0403 (fight length), hero mean
+  0.0527 -> 0.0511 -> 0.0501; holders-only items pooled median |ln real/sim| 0.08 throughout (the corrections keep
+  them); per-hero items 0.268 -> 0.242 -> 0.260 (the corrections are pooled over heroes, a hero who opens with an
+  item more than most moves away: Rem's Tankbuster). Most improved: Nurse Harrow 0.088 -> 0.013, Mo & Krill 0.085
+  -> 0.047, Graves 0.098 -> 0.060, Lash 0.034 -> 0.016; most worse: Rem 0.039 -> 0.100 (Tankbuster, Decay), Calico
+  0.030 -> 0.059, Yamato 0.059 -> 0.081.
+- Vyper's gun share inside Split Shot windows (after the first use): real 0.41, sim in full 0.27, expected 0.53 (the
+  sim opens every fight with it; real players don't always).
+- Overall search (`damage/scripts/overall_search.py`, `FIGHT_LENGTH`), 8 heroes at 27k, with vs without: builds drop
+  late sustain (Healing Nova, Restorative Locket, Escalating Resilience on 3-4 of 8) for fight openers and team items
+  (Heroic Aura, Alchemical Fire, Toxic Bullets); the best builds' time alive falls ~2-8 s. Mean real win edge of the
+  picked items (analysis/out/hero_item_edge.json) 1.14 -> 1.34 points. The first run picked Silence Wave on 5 of 8
+  (real edge about -1.6 on every hero): it had no real-data cut (26 holders, threshold 30) and its silence landed in
+  full at the opening. The threshold is now 25 and an item active's stun / silence / disarm is x its fitted factor
+  (`DamageActive.cc`, realistic mode): 2 of 8 after. Decay still shows up on 2.
+
+## Opener timing (2026-10-24)
+
+With real fight lengths (above), Vyper's gun share inside Split Shot windows was 0.53 expected vs 0.41 real: the sim
+starts every fight with every cooldown ready and casts each opener as soon as its rule allows. This measures when real
+Phantom+ players' damage abilities and items land inside a fight (`scripts/fight_length/opener_timing.py`, table in
+`validation/opener_timing.md`, real rows in `opener_timing_real.json.gz`; the fights of `fit_length.py`).
+
+**Real:** half of the openers are still on cooldown from an earlier fight: the median source is ready (no hit in its
+base cooldown before) at 68% of fight starts. Vyper's Split Shot is ready at 54%, is used in 51% of his fights (64%
+when ready), and its first hit comes a median ~1 s in when ready; its fight damage by 2 s slice is 0.43 / 0.34 / 0.14 /
+0.05, the sim's (expected) 0.65 / 0.23 / 0.11 / 0.00. Over 232 hero sources the sim puts clearly more of the damage in
+the first 2 s (by 0.15+) for 69 (casts on sight: Abrams Seismic Impact, Haze Bullet Dance, Paradoxical Swap,
+Quicksilver Reload on every holder, Wraith Card Trick, ...) and clearly less for 66 (its cast rules wait too long:
+Calico Spirit Strike / Mystic Shot procs, Victor Pain Battery, Silver Slam Fire, Bebop Spirit Strike, Lash Death Slam,
+Vyper Lethal Venom). The gun is the mirror: real 0.33 of a hero's gun damage in
+the first 2 s, sim 0.23 (casts lock the gun at the start).
+
+**Model** (`Mechanics.opener_timing`, needs `fight_length`; **off by default**): for each source the sim casts on sight
+(70%+ of its first hits in the first second), `data/opener_timing.json` holds 20 equal-probability values of the real
+hold before its first use (Kaplan-Meier first use given a use by 20 s, less the sim's own median first hit); items are
+also pooled over heroes. Its hits are booked x the mean over those values h of P(fight still going at t + h), as if
+it had opened h later; only sources with a length correction get one (the correction keeps the level). 122 hero
+sources, median hold 3.3 s. The per-source timing distance to real (half the summed 2 s slice gaps) goes 0.26 -> 0.16
+(85 of 122 closer; a pooled scale on the holds does no better, 0.167 at x0.9).
+
+**With it on** (length corrections rerun, `length_factors.py`):
+- The corrections lose most of their fudge: ability median 0.74 -> 0.99 (median |ln| 0.36 -> 0.26), Split Shot 0.48
+  -> 0.76, Mystic Burst 0.74 -> 0.98, Tankbuster 0.69 -> 0.89, Cold Front 0.50 -> 0.71, Quicksilver Reload 0.56 -> 0.81.
+- Audit: player-weighted mix 0.0403 -> 0.0399, hero mean 0.0500 -> 0.0491 (Abrams 0.043 -> 0.017, Pocket 0.060 ->
+  0.047; Venator 0.034 -> 0.047, Apollo, Nurse Harrow 0.013 -> 0.022), but pooled items 0.063 -> 0.082 and per-hero
+  items 0.257 -> 0.274 (the 3-round corrections leave items 2-4% off; Vyper's Split Shot holders real/sim 1.31 ->
+  1.42 under the pooled correction).
+- Overall search, 12 heroes at 27k: every best build changes, the mean real win edge of the picked items stays
+  (1.26 -> 1.24 points) and Decay, which loses in real matches on every hero, comes in on 4 of 12 (Haze, Dynamo,
+  Mo & Krill, Lady Geist); Vyper picks Silence Wave. So it stays off until the holds also move the fight itself
+  (casts later in the fight path, not only in the booking) or the search's item values are rechecked with it.
+
+**Found on the way:** `length_factors.py` skips ability rows without a "class" (rows added by
+`refit_landing_heroes.py`: Graves, Nurse Harrow, Silver), so they have no length correction. Giving them one pins them
+to their in-full fits and worsens their audit (Graves 0.060 -> 0.101, Nurse Harrow 0.013 -> 0.086: the uncorrected
+fight-length booking happens to suit them); a refit of those three under the fight-length booking is the fix.
+
+## Fight replay (2026-10-25)
+
+The Real match tab replays a fight from a real match (`web/replay.js`, `bridge.replay`). Fights come from the
+match's `match_paths` (1 s positions, health %, combat flags) and `death_details` in `/v1/matches/{id}/metadata`:
+two enemy heroes within 50 m, one flagged in hero combat, one losing health that second; groups chain into a fight
+across gaps up to 4 s, kills add victim and killer over their time to kill, fights over 40 s are cut at 2 s lulls.
+Each hero starts at its real health with its items, net worth, ability unlocks and upgrades (the ability buys in the
+item list) at the fight's start, its own hero accuracy from the match, at the median distance to the nearest enemy,
+for the real length (max 45 s), with the real arrival, leaving and targets (see "Real timing" below; team sim, movement off). `team_fight(start_hp=)` is new;
+default fights are unchanged.
+
+**Against the real fights** (`scripts/fight_replay/check_replay.py`, 30 recent Phantom+ matches, 1,894 fights, 8,943
+heroes): the first version (everyone there from the start to the end, each team focusing the enemy with the least
+health) had 1.82x the deaths (3,355 vs 1,846; 60% of the real deaths are also deaths in the sim). Health lost per fight
+correlated 0.89 (sim 1.35x real), per hero 0.35. In the 699 fights where only one side lost heroes the sim had more
+deaths on the same side 329 times, on the other side 180, even 190. A retreat rule (a hero hit below 10-30% health
+leaves the fight alive) was tried: deaths fall to 0.15-0.27x real and the side agreement gets worse (54 vs 53 at 10%),
+so it was dropped.
+
+**Real timing (2026-10-25).** Real fights are not everyone-from-the-start: 46% of heroes join after the first second
+(median 5 s in) and 37% of the survivors stop fighting before the fight ends (median 3 s early)
+(`scripts/fight_replay/fit_disengage.py`). Leaving is not a low-health decision: per second of fighting a hero walks
+out alive 1.4-2.1% of the time at every health level (1.5% at 0-10%, 1.5% at 90-100%), while dying climbs from 0.1%
+above half health to 17% below 10%. So the replay now uses the real timing instead of a rule: each hero arrives at its
+first fighting second (`team_fight(join=)`: not targetable and not acting before; a side with nobody there yet waits),
+a hero that lived walks out after its last fighting second (`leave=`; a hero that really died stays to the end), and
+each hero shoots the enemy nearest to it in the real positions that second (`targets=`, `rpDetect` `near`), falling
+back to the team focus when that enemy is out. Same 30-match benchmark, refetched (1,933 fights, 8,936 heroes, 1,791
+real deaths); F1 = deaths in both / mean of the two death counts:
+
+| replay | sim/real deaths | F1 | HP lost corr per hero | one-sided fights same/other side | HP swing corr |
+|---|---|---|---|---|---|
+| everyone from the start, focus weakest (old) | 1.76 | 0.423 | 0.34 | 326 / 135 | 0.13 |
+| + real arrival | 1.48 | 0.451 | 0.43 | 319 / 142 | 0.20 |
+| + survivors leave at their real time | 1.31 | 0.469 | 0.45 | 304 / 130 | 0.20 |
+| + shoot the real nearest enemy (**site**) | **1.04** | **0.469** | **0.51** | 292 / 140 | 0.19 |
+| real nearest only, no timing | 1.42 | 0.432 | 0.44 | 326 / 159 | 0.12 |
+| site, leaving at the fitted flat 1.6%/s instead of real times | 0.87 | 0.400 | 0.42 | 261 / 116 | 0.20 |
+
+The site version gets the death count right and best follows who loses health; the side agreement stays where it
+was (0.68-0.71 of the one-sided fights the sim calls, within noise). The flat leave rate does worse than the real
+leave times, so it is not used (a replay knows when each player left). The arrival, leave and target inputs come from the same real fights the replay is scored on: that is the point of a replay (it repeats the players' real decisions and asks what the items change), but it is not a test of predicting those decisions. Modes: `check_replay.py ... 0 <site|all0|join|leave|nearonly|hazard>`. Still missing: who comes out ahead is decided
+by positioning, cover and timing the replay does not know (HP swing correlation 0.19), and half the real deaths are
+still a different hero in the sim. Read a changed build against the replay with the real items, which is what the
+page compares.
+
 ## Known gaps (not yet modeled)
 
-- **Melee movement:** melee is now in fights (see "Melee" above), but distance stays fixed (even with movement on, unless someone runs), so gap-closing
-  (Melee Charge's lunge, Lifestrike's slow) has no value.
+- **Melee movement:** melee is in fights and its rate follows the build (see "Melee" above). Melee Charge's lunge
+  and Lifestrike's slow only count in chases (movement on); there is no positioning AI that dives in to melee, and
+  the light/heavy split (30% heavy) is an assumption.
 - **Distance:** the fight distance spreads around the hero's median (see "Range spread") as an average, not a path: there is no positioning AI (kiting to stay at range, diving with a gap closer), and ability effects inside a cast still check the median distance. Hero range checks follow the spread: cast gates through `CastCtx.within` (engage margin + walk-in) or `CastCtx.reach` (hard reach; self buffs keep the median check, since the expected wait only scales damage), in-effect radii (Frank's revive blast, Kelvin's heal, Unicorn's barrier pop, Gigawatt's storm, Ghost's tether) scale damage, heals and stun/silence durations by `CastCtx.p_in` with no cutoff at the median (the tether breaks only at p = 0), Haze's Fixation bonus and McGinnis' turret falloff average over the spread. Still at the median: melee reach (Drifter's bonus melee, Billy's Bashdown melee), Drifter's vision check (a self buff) and Paige's distance amp (scales with distance travelled). Short-range ultimates use per-hero "approach" constants to be cast.
-- **Summons can't be shot** (fixed for McGinnis turrets with `mechanics.summons`, see above): McGinnis turrets keep full uptime, so her gun share is 2% vs 26% real. Still the
-  worst-matched hero.
-- **Paradox Kinetic Carbine** damage formula is a low-confidence reading of the data (landing 2.95).
+- **Summons:** Graves' and McGinnis' summons can be shot and splashed (see "Targetable summons"); real enemies also
+  hit them with area abilities aimed elsewhere, which the sim folds into the splash share. Accuracy on summons is an
+  assumption. McGinnis is still the worst-matched hero (gun share 2% vs 26% real), for reasons other than turret uptime.
+- **Paradox Kinetic Carbine** damage follows real hits (see "Paradox's gun share"); the charge is always full.
 - **Bebop Hyper Beam** dominates any 20 s duel that starts with it ready (landing 0.06); the model matches the
   data, the gap is the fresh-cooldown bias above. (Haze Bullet Dance: fixed 2026-10-21, see "Haze duels" below.)
 - **Multi-target items** (Ricochet, Split Shot) do nothing in a 1v1 without mechanics; see above. Deadman Danny's charged primary fire is
-  modeled as a plain gun.
-- **Attribution:** the game books amp bonuses (Escalating Exposure, Express Shot, Siphon Bullets) under the item;
-  the sim books them under the hit's source. This affects only the item-share comparison.
+  modeled as a plain gun with fewer, bigger shots (see "Guns with no hero accuracy"); charge timing and its
+  explosion radius are not.
+- **Attribution:** the game books amp bonuses under the item. Express Shot and Escalating Exposure are booked the
+  same way now; Siphon Bullets, Rabbit Hex's amp and Pulse Grenade's stacking amp (~2.5% of Paradox's gun damage
+  in replays) are still booked under the hit's source. This affects only the item-share comparison.
 - **TTK:** sim 1v1 duels between real builds take a median 19 s (28 s with landing factors) vs 13 s for real
-  deaths, which are mostly team fights with several attackers.
+  deaths, which are mostly team fights with several attackers. Real fights between two heroes mostly end in a
+  disengage (see "Fight length"); the searches that use `fight_length` weigh late damage down instead of cutting.
 
 ## Speed
 

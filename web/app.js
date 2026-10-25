@@ -19,9 +19,9 @@ const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v
 const S = {
   whenReady: null, readyNow: null,
   items: {}, byName: {}, heroes: [], heroById: {},
-  A: { hero: 13, souls: 27000, aim: "p75", items: [], label: null, order: null },   // order: ability ids (API format), null = popular
+  A: { hero: 13, souls: 27000, aim: "p75", items: [], label: null, order: null, preset: null },   // order: ability ids (API format), null = popular; preset: renderPresets key while the build is untouched
   D: { mode: "plain", hero: 6, souls: null, items: [] },
-  dmgCache: {}, last: null, pins: [], engine: null, ready: false, runId: 0, pending: {},
+  dmgCache: {}, last: null, prev: null, pins: [], engine: null, ready: false, runId: 0, pending: {}, running: false, again: false, autoT: 0,
 };
 
 S.whenReady = new Promise((res) => (S.readyNow = res));
@@ -45,7 +45,7 @@ function tile(id, opts = {}) {
   const it = S.items[id];
   if (!it) return "";
   const dot = it.effect_modeled ? "" : ' <span class="dot stats" title="Only its always-on stats are modeled"></span>';
-  const cls = ["it", opts.remove ? "x" : "", opts.owned ? "owned" : "", opts.static ? "static" : ""].join(" ");
+  const cls = ["it", opts.cls || "", opts.remove ? "x" : "", opts.owned ? "owned" : "", opts.static ? "static" : ""].join(" ");
   const tag = opts.static ? "span" : "button";
   return `<${tag} class="${cls}" data-slot="${it.slot}" data-id="${id}" title="${esc(it.name)} · ${fmt(it.cost)} souls${it.effect_modeled ? "" : " · stats only"}">`
     + `${esc(it.name)}${dot}${opts.cost ? ` <span class="c">${fmt(it.cost / 1000, 1)}k</span>` : ""}</${tag}>`;
@@ -80,11 +80,20 @@ function wireShop(prefix, getBuild, onChange) {
   const toggle = (e) => {
     const b = e.target.closest(".it"); if (!b) return;
     const id = Number(b.dataset.id), build = getBuild(), i = build.indexOf(id);
-    if (i >= 0) build.splice(i, 1); else if (build.length < 12) build.push(id);
+    if (i >= 0) build.splice(i, 1);
+    else if (build.length < 12) build.push(id);
+    else { fullNote(prefix); return; }
     onChange();
   };
   $(`#${prefix}-shop`).addEventListener("click", toggle);
   $(`#${prefix}-build`).addEventListener("click", toggle);
+}
+
+function fullNote(prefix) {
+  const el = $(prefix === "a" ? "#a-budget" : "#d-build");
+  $$(".full-note").forEach((x) => x.remove());
+  el.insertAdjacentHTML("afterend", '<p class="hint full-note">12 items is the most a hero can hold. Remove one first.</p>');
+  const n = el.nextElementSibling; setTimeout(() => n.remove(), 2500); // a no-op when a newer note already replaced it
 }
 
 // ---------- attacker ----------
@@ -105,7 +114,7 @@ function renderAttacker() {
   $("#a-abil").innerHTML = A.order
     ? `Abilities level in the recommended order from Raw damage builds. <button class="chip-btn" id="a-abil-pop">Use the popular order</button>`
     : "Abilities level in the most played real order.";
-  if (A.order) $("#a-abil-pop").onclick = () => { A.order = null; A.label = null; renderAttacker(); };
+  if (A.order) $("#a-abil-pop").onclick = () => { A.order = null; A.label = null; renderAttacker(); autoRun(0); };
 }
 
 async function renderPresets() {
@@ -118,10 +127,23 @@ async function renderPresets() {
     + Object.entries(OBJ).map(([k, l]) => btn(k, `Most dmg ${l}`)).join("");
   box.onclick = (e) => {
     const k = e.target.dataset?.k; if (!k) return;
-    const items = k === "popular" ? b.popular.items : b.objectives[k].builds[0].items;
-    Object.assign(S.A, { items: [...items], souls: Number(bk), label: k === "popular" ? "Popular" : `Most dmg ${OBJ[k]}` });
-    renderAttacker(); syncDummyHint();
+    applyPreset(d, k, Number(bk)); renderAttacker(); syncDummyHint(); autoRun(0);
   };
+}
+function applyPreset(d, k, bk) {
+  const b = d.budgets[String(bk)], items = k === "popular" ? b.popular.items : b.objectives[k].builds[0].items;
+  Object.assign(S.A, { items: [...items], souls: bk, preset: k, order: null, label: k === "popular" ? "Popular" : `Most dmg ${OBJ[k]}` });
+}
+// After a hero or net worth change, an untouched preset build follows to the new hero and budget (Haze's items on
+// Abrams is never what a first-time visitor means); a hand-made build stays as it is.
+async function followPreset() {
+  const k = S.A.preset; if (!k) return;
+  const hero = S.A.hero, d = await damageHero(hero);
+  if (S.A.hero !== hero || S.A.preset !== k) return;
+  if (!d) { S.A.preset = S.A.label = null; return; } // no precomputed builds for this hero: keep the items, drop the stale name
+  const souls = S.A.souls, bk = nearestBudget(Object.keys(d.budgets), souls);
+  applyPreset(d, k, Number(bk)); S.A.souls = souls;
+  renderAttacker();
 }
 
 async function syncDummyHint() {
@@ -130,7 +152,7 @@ async function syncDummyHint() {
   const bk = nearestBudget(Object.keys(d.budgets), S.A.souls);
   const hp = d.budgets[bk].dummy_hp;
   $("#d-hp-hint").innerHTML = `The precomputed searches use ${fmt(hp)} HP at ${fmt(bk / 1000)}k: the median max HP of real builds at that net worth. <button class="chip-btn" id="use-hp">Use ${fmt(hp)}</button>`;
-  $("#use-hp").onclick = () => { $("#d-hp").value = hp; };
+  $("#use-hp").onclick = () => { $("#d-hp").value = hp; autoRun(0); };
 }
 
 // ---------- personal aim (aim.js) ----------
@@ -175,7 +197,7 @@ async function pullAim() {
     msg.textContent = `${who.name ? `Steam player "${who.name}": ` : ""}${pct(r.accuracy, 1)} accuracy and ${pct(r.headshot, 1)} headshots over ${fmt(r.shots)} shots at heroes in the last ${r.matches} matches`
       + (r.scope === "hero" ? ` on ${heroName}` : ` (all heroes; fewer than 3 recent ${heroName} matches)`) + (r.distance ? `, median hit distance ${fmt(r.distance, 1)} m.` : ".")
       + (r.failed && r.matches < 10 ? ` ${r.failed} more could not be read (the API may be busy), so try again for a fuller sample.` : "");
-    saveAim(); renderAimHint();
+    saveAim(); renderAimHint(); autoRun(0);
   } catch (e) {
     msg.textContent = e.message;
   } finally { btn.disabled = false; }
@@ -198,15 +220,15 @@ let ZONE_EXIT_S = 2.0;
 
 function request() {
   const A = S.A, D = S.D, num = (s) => { const v = parseFloat($(s).value); return isFinite(v) ? v : null; };
-  const req = { hero: A.hero, items: A.items, souls: A.souls, aim: A.aim === "custom" ? "p50" : A.aim };
+  const req = { hero: A.hero, items: [...A.items], souls: A.souls, aim: A.aim === "custom" ? "p50" : A.aim };
   if (A.order) req.ability_order = A.order;
-  if (A.aim === "custom") { const pc = (sel) => { const v = num(sel); return v == null ? null : v / 100; }; req.accuracy = pc("#a-acc"); req.headshot = pc("#a-hs"); req.distance = num("#a-dist"); }
+  if (A.aim === "custom") { const pc = (sel) => { const v = num(sel); return v == null ? null : v / 100; }; req.accuracy = pc("#a-acc"); req.headshot = pc("#a-hs"); req.distance = num("#a-dist"); req.melee_rate = num("#a-mel"); }
   const immortal = $("#d-immortal").checked, zone_exit_s = $("#d-walk").checked ? ZONE_EXIT_S : null;
   if (D.mode === "plain") {
     req.dummy = { hero: "Haze", items: [], hp: num("#d-hp"), immortal, zone_exit_s,
       bullet_resist: (num("#d-br") || 0) / 100, spirit_resist: (num("#d-sr") || 0) / 100, melee_resist: (num("#d-mr") || 0) / 100 };
   } else {
-    req.dummy = { hero: D.hero, items: D.items, souls: num("#d-souls"), immortal, zone_exit_s };
+    req.dummy = { hero: D.hero, items: [...D.items], souls: num("#d-souls"), immortal, zone_exit_s };
   }
   return req;
 }
@@ -250,23 +272,82 @@ function simCall(type, req) {
   }));
 }
 
+// Every change to the attacker or target reruns the test (a run takes well under a second), so the result never
+// shows a setup that is no longer on screen. Changes that land while a run is going queue one more run.
+function autoRun(ms = 350) {
+  clearTimeout(S.autoT);
+  if (S.ready) { S.autoT = setTimeout(runTest, ms); renderResbar(true); }
+}
+
 function runTest() {
   if (!S.ready) return;
+  clearTimeout(S.autoT);
+  if (S.running) { S.again = true; return; }
+  const err = checkInputs();
+  showErr(err);
+  // the result on screen no longer matches the form: dim it until a run succeeds
+  $("#results").classList.toggle("stale", !!err);
+  if (err) { renderResbar(); return; }
   const req = request(), url = shareURL(), id = ++S.runId;
-  $("#run").disabled = true; $("#run").textContent = "Running…"; showErr("");
+  S.running = true;
+  $("#run").disabled = true; $("#run").textContent = "Running…"; renderResbar(true);
   S.pending[id] = (m) => {
+    S.running = false;
     $("#run").disabled = false; $("#run").textContent = "Run damage test";
-    if (m.type === "error") { showErr("That run failed: " + lastLine(m.message)); return; }
-    S.last = { req, res: m.result, label: S.A.label || `${S.heroById[S.A.hero].name} build`, ms: m.ms };
-    renderResult();
-    try { history.replaceState(null, "", url); } catch { /* sandboxed embed */ }
+    if (m.type === "error") showErr("That run failed: " + lastLine(m.message));
+    else {
+      if (S.last?.res.timeline) S.prev = S.last;
+      S.last = { req, res: m.result, label: S.A.label || `${S.heroById[S.A.hero].name} build`, ms: m.ms };
+      renderResult();
+      try { history.replaceState(null, "", url); } catch { /* sandboxed embed */ }
+    }
+    if (S.again) { S.again = false; runTest(); } else renderResbar();
   };
   S.engine.postMessage({ type: "run", id, req });
 }
 
+// plain-language problems with the typed numbers, shown instead of running (the sim would fail or mislead)
+function checkInputs() {
+  const v = (s) => $(s).value.trim(), n = (s) => parseFloat(v(s));
+  if (S.D.mode === "plain") {
+    if (!(n("#d-hp") >= 1)) return "Give the dummy a max HP of at least 1.";
+    for (const [s, l] of [["#d-br", "Bullet"], ["#d-sr", "Spirit"], ["#d-mr", "Melee"]])
+      if (v(s) && !(n(s) >= -100 && n(s) <= 95)) return `${l} resist must be between -100% and 95%.`;
+  }
+  if (S.A.aim === "custom") {
+    if (!(n("#a-acc") > 0 && n("#a-acc") <= 100)) return "Hero accuracy must be above 0% and at most 100%.";
+    if (!(n("#a-hs") >= 0 && n("#a-hs") <= 100)) return "Headshot % must be between 0 and 100.";
+  }
+  return "";
+}
+
+// A bar pinned to the bottom of the screen while the result is out of view: the 15 s number, how it moved, and a
+// jump to the result. On phones the result sits far below the item shop.
+let resultInView = true;
+function renderResbar(busy = false) {
+  const bar = $("#resbar"), L = S.last;
+  bar.hidden = resultInView || !L || $("#tab-test").hidden;
+  if (bar.hidden) return;
+  const d = L.res.damage["15s"], dl = delta("15s", true);
+  const stale = $("#results").classList.contains("stale");
+  $("#resbar-v").textContent = busy || S.running ? "Running…" : stale ? "–" : fmt(d);
+  $("#resbar-d").innerHTML = busy || S.running ? "" : stale ? '<span class="dl down">fix the input above</span>' : dl;
+}
+
+// change against the previous live run, when the setup differs
+function delta(k, short = false) {
+  const L = S.last, P = S.prev;
+  if (!L?.res.timeline || !P || JSON.stringify(P.req) === JSON.stringify(L.req)) return "";
+  const a = L.res.damage[k], b = P.res.damage[k];
+  if (!(b > 0)) return "";
+  const r = a / b - 1;
+  if (Math.abs(r) < 0.005) return `<span class="dl">${short ? "no change" : "same as last run"}</span>`;
+  return `<span class="dl ${r > 0 ? "up" : "down"}">${r > 0 ? "▲" : "▼"} ${short ? signed(r) : `${fmt(Math.abs(a - b))} (${signed(r)}) vs last run`}</span>`;
+}
+
 // ---------- share links ----------
 // The test setup lives in the query string (the hash is the tab), so a link reopens the same test.
-const SHARE_NUM = { acc: "#a-acc", hs: "#a-hs", dist: "#a-dist", hp: "#d-hp", br: "#d-br", sr: "#d-sr", mr: "#d-mr", es: "#d-souls" };
+const SHARE_NUM = { acc: "#a-acc", hs: "#a-hs", dist: "#a-dist", mel: "#a-mel", hp: "#d-hp", br: "#d-br", sr: "#d-sr", mr: "#d-mr", es: "#d-souls" };
 const AIMS = ["p25", "p50", "p75", "p90", "custom"];
 
 function shareURL(hash = location.hash) {
@@ -275,7 +356,7 @@ function shareURL(hash = location.hash) {
   if (A.items.length) p.set("i", A.items.join("."));
   if (A.order) p.set("ao", A.order.join("."));
   p.set("aim", A.aim);
-  if (A.aim === "custom") for (const k of ["acc", "hs", "dist"]) p.set(k, val(k)); // blanks too, so the recipient's saved aim can't fill them
+  if (A.aim === "custom") for (const k of ["acc", "hs", "dist", "mel"]) p.set(k, val(k)); // blanks too, so the recipient's saved aim can't fill them
   if (D.mode === "plain") {
     for (const k of ["hp", "br", "sr", "mr"]) if (val(k) && (k === "hp" || Number(val(k)) !== 0)) p.set(k, val(k));
   } else {
@@ -336,7 +417,7 @@ function renderResult() {
   const L = S.last; if (!L) return;
   const r = L.res, cost = r.used?.item_cost ?? L.req.items.reduce((s, i) => s + S.items[i].cost, 0);
   const per1k = cost > 0 ? r.damage["15s"] / (cost / 1000) : null;
-  const mark = (k, l) => `<div class="mk"><span class="l">Damage by ${l}</span><span class="v">${fmt(r.damage[k])}</span><span class="s">${fmt(r.dps[k])} DPS</span></div>`;
+  const mark = (k, l) => `<div class="mk"><span class="l">Damage by ${l}</span><span class="v">${fmt(r.damage[k])}</span><span class="s">${fmt(r.dps[k])} DPS</span>${delta(k)}</div>`;
   $("#marks").innerHTML = mark("5s", "5 s") + mark("15s", "15 s") + mark("30s", "30 s")
     + `<div class="mk eff"><span class="l">15 s damage per 1k souls</span><span class="v">${fmt(per1k)}</span><span class="s">${r.kill_time ? `kills in ${fmt(r.kill_time, 1)} s` : `${fmt(cost)} souls in items`}</span></div>`;
   $("#pin").disabled = !r.timeline;
@@ -346,7 +427,7 @@ function renderResult() {
   drawSources(r.sources, r.damage["30s"]);
   const u = r.used;
   $("#used").textContent = u
-    ? `${u.hero} at ${fmt(r.attacker_souls)} souls · aim ${pct(u.accuracy, 1)} hero accuracy, ${pct(u.headshot, 1)} headshots · ${fmt(u.distance, 1)} m · target ${fmt(r.dummy_max_hp)} max HP · ${targetLabel(L.req)}${L.ms ? ` · ran in ${fmt(L.ms)} ms` : ""}`
+    ? `${u.hero} at ${fmt(r.attacker_souls)} souls · aim ${pct(u.accuracy, 1)} hero accuracy, ${pct(u.headshot, 1)} headshots · ${fmt(u.distance, 1)} m · ${u.melee_rate != null ? `${fmt(u.melee_rate, 3)} melee hits/s · ` : ""}target ${L.req.dummy?.hero === "Haze" && !L.req.dummy.items.length ? targetLabel(L.req) : `${targetLabel(L.req)}, ${fmt(r.dummy_max_hp)} max HP`}${L.ms ? ` · ran in ${fmt(L.ms)} ms` : ""}`
     : L.note || "";
 }
 
@@ -354,7 +435,7 @@ function drawSources(src, total) {
   const rows = Object.entries(src || {}).filter(([, v]) => v > 0);
   const max = Math.max(1, ...rows.map(([, v]) => v));
   $("#sources").innerHTML = rows.length ? `<div class="src">${rows.map(([k, v]) =>
-    `<span class="n" title="${esc(k)}">${esc(k)}</span><span><i class="b ${k === "gun" ? "gun" : k === "melee" ? "melee" : ""}" style="display:block;width:${(v / max) * 100}%"></i></span><span class="p">${fmt(v)}<br>${pct(v / total)}</span>`).join("")}</div>`
+    `<span class="n" title="${esc(k)}">${esc(k[0].toUpperCase() + k.slice(1))}</span><span><i class="b ${k === "gun" ? "gun" : k === "melee" ? "melee" : ""}" style="display:block;width:${(v / max) * 100}%"></i></span><span class="p">${fmt(v)}<br>${pct(v / total)}</span>`).join("")}</div>`
     : '<p class="hint">No damage dealt.</p>';
 }
 
@@ -415,7 +496,7 @@ const testBtn = (hero, budget, items, label, order = null) => `<button class="ch
 function onTest(e) {
   const b = e.target.closest("[data-test]"); if (!b) return;
   const t = JSON.parse(b.dataset.test);
-  Object.assign(S.A, { hero: t.hero, souls: t.budget, items: t.items, label: t.label, order: t.order || null });
+  Object.assign(S.A, { hero: t.hero, souls: t.budget, items: t.items, label: t.label, order: t.order || null, preset: null });
   location.hash = "test";
   renderAttacker(); renderPresets(); syncDummyHint(); runTest();
 }
@@ -545,12 +626,22 @@ async function renderOverallTab() {
     <span>Dummy damage by 15 s</span><span>${fmt(x.dummy_15s)}</span></div>${testBtn(Number(id), bk, x.items, title)}</div>`;
   const row = (x, label) => `<tr><td>${label}</td><td>${bdTiles(ctx(x))}</td><td class="n">${fmt(x.cost)}</td><td class="n">${fmt(x.F.damage_before_death)}</td><td class="n">${fmt(x.F.time_alive_s, 1)} s</td><td class="n">${pct(x.F.survived_30s)}</td><td>${testBtn(Number(id), bk, x.items, label)}</td></tr>`;
   const loss = d ? Object.entries(d.best_item_removal_loss).filter(([i]) => S.items[i]).sort((a, b) => b[1] - a[1]) : [];
-  out.innerHTML = `<p class="hint">Damage before dying is averaged over all 41 heroes' typical real builds in this rank bracket, at its aim.${stale} Tap any item to see what it adds to the build's damage.</p>
+  const weAll = await load("data/win_edge.json"), we = weAll?.heroes?.[id] || {}, weMeta = weAll?.meta || {};
+  const weStale = weMeta.patch && meta[br]?.patch && weMeta.patch !== meta[br].patch ? ` These win edges are from patch ${esc(weMeta.patch)}, older than these builds (patch ${esc(meta[br].patch)}): the new patch didn't have enough games yet. They refresh with the next rerun that has.` : "";
+  const edgeTxt = (i) => { const e = we[i]; if (!e) return "–"; const cls = e[0] - 1.96 * e[1] > 0 ? "good" : e[0] + 1.96 * e[1] < 0 ? "bad" : ""; return `<span class="${cls}" title="±${fmt(1.96 * e[1], 1)} (95%)">${e[0] > 0 ? "+" : ""}${fmt(e[0], 1)}</span>`; };
+  const inBest = new Set(b.best.items.map(String));
+  const strong = Object.entries(we).filter(([i, e]) => !inBest.has(i) && S.items[i] && S.items[i].tier <= 4 && e[0] >= 1.5 && e[0] - 1.96 * e[1] > 0 && S.items[i].cost <= Number(bk) / 2)
+    .sort((a, c) => c[1][0] - a[1][0]).slice(0, 6);
+  const losing = b.best.items.filter((i) => we[i] && we[i][0] + 1.96 * we[i][1] < 0);
+  out.innerHTML = `<p class="hint">Damage before dying is averaged over all 41 heroes' typical real builds in this rank bracket, at its aim, minus the healing the enemy gets back during the fight. Fights start at the health real players bring into a fight; builds that heal more between fights arrive fuller. The score also counts each item's real win edge on this hero (about 5% per point of win rate, see the card below), since a 1v1 can't see team auras or area hits.${stale} Tap any item to see what it adds to the build's damage.</p>
     <div class="cards">${card("Best overall build", b.best, true)}${card("Popular real build", b.popular, false)}${b.damage_best ? card("Best raw damage build", b.damage_best, true) : ""}</div>
     ${d ? `<div class="scroll"><table><thead><tr><th>Build</th><th>Items</th><th class="n">Cost</th><th class="n">Damage before dying</th><th class="n">Time alive</th><th class="n">Survives 30 s</th><th></th></tr></thead>
     <tbody>${d.builds.map((x, i) => row(x, `#${i + 1}`)).join("")}</tbody></table></div>
-    <div class="cards"><div class="card"><h3>What each best-build item adds</h3><p class="hint">Share of the build's damage before dying lost if that item is removed (1.0 = the popular build's total).</p>
-      <div class="kv">${loss.map(([i, v]) => `<span>${tile(i, { static: true })}</span><span>${fmt(v, 3)}</span>`).join("")}</div></div></div>` : ""}`;
+    <div class="cards"><div class="card"><h3>What each best-build item adds</h3><p class="hint">Share of the build's damage before dying lost if that item is removed (1.0 = the popular build's total), and the item's real win edge on this hero.</p>
+      <div class="kv kv3"><span></span><span>Sim</span><span title="Win-rate points vs other items of the same slot and tier">Real win</span>${loss.map(([i, v]) => `<span>${tile(i, { static: true })}</span><span>${fmt(v, 3)}</span><span>${edgeTxt(i)}</span>`).join("")}</div></div>
+    ${Object.keys(we).length ? `<div class="card"><h3>Checked against real games</h3><p class="hint">Real win edge: how much more often players on this hero win when they buy the item instead of another item of the same slot and tier, matched on game time, team lead and own souls (Ritualist and up, points of win rate, shrunk toward the item's edge on all heroes). Green and red are clear of the 95% noise band. Damage in a 1v1 can't see team auras, vision or objectives, so a red sim pick is worth a second look. ${weMeta.matches ? `${Number(weMeta.matches).toLocaleString()} matches, ${esc(weMeta.matches_from)} to ` : "Matches through "}${esc(weMeta.matches_through || "?")}, refreshed after each patch.${weStale}</p>
+      ${losing.length ? `<p><b>Picked here but losing real games:</b></p>${tiles(losing, { static: true })}` : `<p class="hint">No item in the best build loses real games on this hero.</p>`}
+      ${strong.length ? `<p style="margin-top:8px"><b>Winning real games but not in this build:</b></p><div class="kv">${strong.map(([i, e]) => `<span>${tile(i, { static: true })}</span><span class="good">+${fmt(e[0], 1)}</span>`).join("")}</div>` : ""}</div>` : ""}</div>` : ""}`;
 }
 
 // full game build paths (damage/scripts/game_path.py): one build from 0 souls to 50k, stage scores, buy order with spikes
@@ -564,6 +655,20 @@ function invBars(inv) {
     return `<div class="inv-row" data-slot="${sl}" title="${SLOT_NAME[sl]}: ${fmt(v.spent)} souls in items, ${next}"><span>${SLOT_NAME[sl]}</span>`
       + `<span class="inv-bar"><i style="width:${w}%"></i><b style="left:${Math.min(99, 4800 / top * 100)}%"></b></span><span>+${fmt(v.bonus)}%</span></div>`;
   }).join("")}</div>`;
+}
+
+// stage stats: the laning stages are scored over a lane of short trades (regen pays off between them), 10k half lane
+function pathStats(st) {
+  const o = st.overall, p = st.popular, lane = o.mode === "lane" ? o : o.lane, pl = o.mode === "lane" ? p : p.lane;
+  const fight = `<span>Damage before dying</span><span><b>${fmt(o.damage_before_death)}</b> <span class="hint">pop. ${fmt(p.damage_before_death)}</span></span>
+      <span>Time alive</span><span>${fmt(o.time_alive_s, 1)} s <span class="hint">pop. ${fmt(p.time_alive_s, 1)}</span></span>${o.entry_hp ? `
+      <span title="Health this build brings into a fight: the real average for the popular build, more for builds that heal more between fights (regen, heal pickups with Healing Booster, Radiant Regeneration...)">Health at fight start</span><span>${fmt(o.entry_hp)} <span class="hint">pop. ${fmt(p.entry_hp)}</span></span>` : ""}`;
+  if (!lane) return fight;
+  const ls = `<span title="Damage dealt over up to ${lane.trades} short 1v1 trades minus the enemy's healing in them. Both sides carry health between trades and heal in the gaps (regen, out-of-combat regen, Fortitude, heal pickups, Radiant Regeneration, Restorative Shot on creeps; Healbane cuts the enemy's). An enemy forced to back frees the rest of the lane">Lane damage (${lane.trades} trades)</span><span><b>${fmt(lane.damage_before_death)}</b> <span class="hint">pop. ${fmt(pl?.damage_before_death)}</span></span>
+      <span title="Share of the lane's trades played before backing (under 25% health) or dying">Lane played</span><span>${pct(lane.lane_share)} <span class="hint">pop. ${pct(pl?.lane_share)}</span></span>`;
+  return o.mode === "lane" ? ls : `${ls}
+      <span title="Half of this stage's score is the lane, half the 30 s fight">Fight score</span><span>${signed(o.fight_score - 1)}</span>
+      ${fight}`;
 }
 
 async function renderPathTab() {
@@ -587,8 +692,7 @@ async function renderPathTab() {
     return `<div class="card stage"><h3><span>${fmt(st.budget / 1000)}k</span><span class="${sc >= 1 ? "up" : "down"}">${signed(sc - 1)}</span></h3>
       ${bdTiles(ctx)}
       <p class="hint">${k ? `New: ${fresh.map((i) => esc(name(i))).join(", ") || "nothing"}.` : "Opening build."}${st.sold?.length ? ` Sold: ${st.sold.map((i) => esc(name(i))).join(", ")}.` : ""}${sc === weakest ? " Weakest stage of the path." : ""}</p>
-      <div class="kv"><span>Damage before dying</span><span><b>${fmt(st.overall.damage_before_death)}</b> <span class="hint">pop. ${fmt(st.popular.damage_before_death)}</span></span>
-      <span>Time alive</span><span>${fmt(st.overall.time_alive_s, 1)} s <span class="hint">pop. ${fmt(st.popular.time_alive_s, 1)}</span></span>
+      <div class="kv">${pathStats(st)}
       ${alone ? `<span title="The best overall build for this net worth alone, free to use items a path would have to sell">vs best for ${fmt(st.budget / 1000)}k alone</span><span>${pct(alone.score ? sc / alone.score : null)}</span>` : ""}
       <span>Item souls</span><span>${fmt(st.cost)} / ${fmt(st.item_budget)}</span>
       ${st.lost_to_sales ? `<span title="Half of each sold item's cost, spent for the rest of the game">Lost to sales</span><span>${fmt(st.lost_to_sales)}</span>` : ""}</div>
@@ -608,7 +712,7 @@ async function renderPathTab() {
       + `<td class="n">${fmt(s.paid)}</td><td>${s.spikes.map(spikeTag).join("")}</td></tr>`;
   }).join("");
   const lin = d.lineages.map((x) => `<tr class="${x.start === d.start ? "pop" : ""}"><td>${esc(START_LABEL[x.start] || x.start)}</td>${x.stage_scores.map((v) => `<td class="n ${v >= 1 ? "up" : "down"}">${signed(v - 1)}</td>`).join("")}<td class="n"><b>${fmt(x.path_score, 3)}</b></td></tr>`).join("");
-  out.innerHTML = `<p class="hint">Each stage's score is its damage before dying compared with the most popular real build at that net worth (+0% = popular). Starts from ${esc(START_LABEL[d.start] || d.start)}.${stale} Tap any item to see what it adds.</p>
+  out.innerHTML = `<p class="hint">Each stage's score is its damage compared with the most popular real build at that net worth (+0% = popular): over a lane of short trades at 3k and 6k (so regen and healing between trades count), half lane and half the 30 s fight at 10k, the 30 s fight after that. Starts from ${esc(START_LABEL[d.start] || d.start)}.${stale} Tap any item to see what it adds.</p>
     <div class="stages">${cards}</div>
     <div class="card" style="margin-top:16px"><h3>Buy order and investment spikes</h3>
     <p class="hint">Each step buys the piece with the most fight value per soul against the next stage's enemies; two pieces that only cross a slot threshold together are valued as a pair, so spikes are hit as early as the souls allow. Net worth is when you can afford it at the share of souls real players hold in items. Spike tags are the slot bonus reached (weapon damage %, max health %, flat spirit).</p>
@@ -727,17 +831,140 @@ function renderSheet() {
     <p class="fine" style="margin-top:12px">Measured live with the current sim against this build's dummy, so totals can differ a little from the table.</p>`;
 }
 
+// counter items (counters/scripts/sim_counters.py): per enemy hero, the sim value of each defensive item next to
+// real players' buy trigger and win edge (counters/scripts/report.py, triggers.py)
+async function renderCounterTab() {
+  const out = $("#k-out"), idx = await load("data/counters/index.json");
+  if (!idx) { out.innerHTML = '<p class="empty">No counter-item results yet.</p>'; return; }
+  const keys = Object.keys(idx.budgets);
+  if ($("#k-budget").options.length !== keys.length) fillBudgetSelect($("#k-budget"), keys, $("#k-budget").value);
+  const bk = $("#k-budget").value, b = idx.budgets[bk], e = $("#k-enemy").value, me = $("#k-hero").value;
+  const ei = b.enemies.indexOf(e), hd = me ? (await load(`data/counters/heroes/${me}.json`))?.[bk] : null;
+  if (ei < 0 || (me && !hd)) { out.innerHTML = '<p class="empty">No counter-item results for this pick yet.</p>'; return; }
+  const real = idx.real?.items || {}, ename = idx.heroes[e];
+  const rows = idx.items.map((it) => {
+    const s = b.items[it.name], r = real[it.name];
+    let vs, avg, lift, held = false;
+    if (me) {
+      const h = hd.items[it.name];
+      if (!h) held = true;
+      else {
+        vs = h.vs[ei];
+        avg = h.vs.reduce((a, x, i) => a + (x || 0) * (b.weights[b.enemies[i]] || 0), 0) / b.enemies.reduce((a, x) => a + (b.weights[x] || 0), 0);
+        lift = vs == null ? null : vs - avg;
+      }
+    } else {
+      const m = b.enemy[e]?.[it.name];
+      if (m) { [vs, lift] = m; avg = s.mean_vs; }
+    }
+    return { it, vs, avg, lift, held, per: me ? hd.items[it.name]?.per_1000 : s.per_1000, trig: r?.hero_lift?.[e], edge: r?.win_edge, rate: r?.buy_rate };
+  }).filter((x) => x.held || x.vs != null).sort((a, b) => (b.vs ?? -9) - (a.vs ?? -9));
+  const cls = (v, eps = 0.005) => (v > eps ? "up" : v < -eps ? "down" : "");
+  const row = (x) => x.held ? `<tr><td>${tile(x.it.id, { static: true })}</td><td class="n">${fmt(x.it.cost)}</td><td colspan="4" class="hint">Already in this hero's popular build.</td><td class="n">${x.trig ? "×" + fmt(x.trig, 2) : "–"}</td><td class="n">${x.edge == null ? "–" : (x.edge > 0 ? "+" : "") + fmt(x.edge * 100, 1)}</td></tr>`
+    : `<tr><td>${tile(x.it.id, { static: true })}</td><td class="n">${fmt(x.it.cost)}</td><td class="n ${cls(x.vs)}"><b>${signed(x.vs)}</b></td><td class="n">${signed(x.avg)}</td>`
+      + `<td class="n ${cls(x.lift)}">${x.lift == null ? "–" : signed(x.lift)}</td><td class="n">${x.per == null ? "–" : signed(x.per)}</td>`
+      + `<td class="n ${x.trig > 1.1 ? "up" : x.trig < 0.9 ? "down" : ""}">${x.trig ? "×" + fmt(x.trig, 2) : "–"}</td>`
+      + `<td class="n ${cls(x.edge, 0.002)}">${x.edge == null ? "–" : (x.edge > 0 ? "+" : "") + fmt(x.edge * 100, 1)}</td></tr>`;
+  const who = me ? esc(idx.heroes[me]) : "the average hero (weighted by how often each reaches this net worth)";
+  out.innerHTML = `<p class="hint">Sim values are for ${who} in ${esc(idx.bracket === "phantom" ? "Phantom and up" : idx.bracket)} games at ${fmt(bk / 1000)}k souls, with the item added on top of the popular build (built ${esc(idx.built.slice(0, 10))}). <b>Vs ${esc(ename)}</b> is how much more damage the build deals before dying in that matchup, as a share of the popular build's average over all matchups; <b>vs average</b> is the same over all enemies; <b>extra vs ${esc(ename)}</b> is the difference, so a high number means the item is a real counter to ${esc(ename)} rather than just good. Real-player columns come from ${fmt(idx.real?.matches || 0)} ranked matches of the patch the analysis ran on, all ranks: <b>overall per 1k souls</b> is the overall score gain per 1,000 souls, which also counts the item's real win edge on this hero (like the Best overall builds tab), so items real buyers lose with (Metal Skin, Return Fire) rank low there even when the sim likes them; <b>bought more</b> is how much more often players buy it in the 5 minutes after facing ${esc(ename)}; <b>win edge</b> is the buyers' win rate against same-price defensive alternatives, in points.</p>
+    <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Cost</th><th class="n">Vs ${esc(ename)}</th><th class="n">Vs average</th><th class="n">Extra vs ${esc(ename)}</th><th class="n" title="Overall score gain per 1,000 souls, including the real win edge">Overall per 1k souls</th><th class="n" title="Real players: buy rate with this hero on the enemy team / without">Bought more</th><th class="n" title="Real players: win rate of buyers minus same-price defensive alternatives, percentage points">Win edge</th></tr></thead>
+    <tbody>${rows.map(row).join("")}</tbody></table></div>
+    <p class="fine">The sim adds the item for free, so every item looks good on a fragile hero; compare items with each other and read the extra column for counters. Real win edges are observational (being focused or out-played isn't captured).</p>`;
+}
+
+// what each rerun changed in the best builds, and why (pipeline/changes.py -> data/changes.json)
+const TIER_LABEL = { phantom: "Phantom+", ascendant: "Ascendant+", eternus: "Eternus+", all: "All ranks" };
+const REPO = "https://github.com/TylerNodell/deadlock-damage-lab";
+function causeLine(c) {
+  if (c.kind === "model") {
+    const ref = c.pr ? ` (<a href="${REPO}/pull/${c.pr}" target="_blank" rel="noopener">#${c.pr}</a>)` : c.sha ? ` (<a href="${REPO}/commit/${esc(c.sha)}" target="_blank" rel="noopener">${esc(c.sha)}</a>)` : "";
+    return `<li><span class="tag">Model</span> ${esc(c.title)}${ref}</li>`;
+  }
+  const tag = { patch: "Game patch", hotfix: "Hotfix", builds: "Player builds", request: "Rerun note", standard: "Rank" }[c.kind] || c.kind;
+  const text = c.link ? `<a href="${esc(c.link)}" target="_blank" rel="noopener">${esc(c.text)}</a>` : esc(c.text);
+  return `<li><span class="tag">${esc(tag)}</span> ${text}</li>`;
+}
+async function renderChangesTab() {
+  const out = $("#c-out"), d = await load("data/changes.json");
+  if (!d || !d.entries?.length) { out.innerHTML = '<p class="empty">No reruns recorded yet. The next rerun after a patch or model change will show up here.</p>'; return; }
+  const hero = $("#c-hero").value, kind = $("#c-kind").value, metric = kind === "overall" ? "Damage before dying" : "Dummy damage by 15 s";
+  const html = d.entries.map((e, i) => {
+    const all = e.rows.filter((r) => r.kind === kind), rows = all.filter((r) => !hero || String(r.hero) === hero);
+    const changed = all.filter((r) => r.in.length || r.out.length), total = Math.round(e.summary.builds / 2);
+    const when = new Date(e.date), date = isNaN(when) ? esc(e.date) : when.toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+    const head = `${date} · ${esc(TIER_LABEL[e.tier] || e.tier)} · patch ${esc(e.patch || "?")} · <b>${changed.length}</b> of ${total} best builds changed`
+      + (changed.length ? ` across ${new Set(changed.map((r) => r.hero)).size} heroes` : "");
+    const causes = e.causes.length ? e.causes.map(causeLine).join("") : `<li><span class="tag">Rerun</span> ${esc(e.reason || "rerun")}</li>`;
+    const row = (r) => {
+      const ch = r.old > 0 ? r.new / r.old - 1 : 0;
+      return `<tr><td>${esc(r.name || S.heroById[r.hero]?.name || r.hero)}</td><td class="n">${fmt(r.souls / 1000)}k</td>
+        <td><div class="build mini">${r.out.map((x) => tile(x, { static: true, cls: "gone" })).join("") || '<span class="fine">–</span>'}</div></td>
+        <td><div class="build mini">${r.in.map((x) => tile(x, { static: true, cls: "new" })).join("") || '<span class="fine">same items</span>'}</div></td>
+        <td class="n">${fmt(r.old)} → <b>${fmt(r.new)}</b> <span class="${ch > 0.005 ? "up" : ch < -0.005 ? "down" : ""}">${signed(ch)}</span></td>
+        <td>${testBtn(r.hero, r.souls, [...r.kept, ...r.in], "After rerun")}</td></tr>`;
+    };
+    const table = rows.length ? `<div class="scroll"><table><thead><tr><th>Hero</th><th class="n">Net worth</th><th>Out</th><th>In</th><th class="n">${metric}</th><th></th></tr></thead><tbody>${rows.map(row).join("")}</tbody></table></div>`
+      : `<p class="fine">${hero ? "No change for this hero in this run." : "No best build changed in this run."}</p>`;
+    return `<details class="chg"${i === 0 ? " open" : ""}><summary>${head}</summary><div class="chg-b"><h3>Why it ran</h3><ul class="causes">${causes}</ul>${table}</div></details>`;
+  }).join("");
+  out.innerHTML = `<p class="hint">${d.entries.length} reruns, newest first. Numbers are for the rerun's rank bracket. Some runs change many builds at once: when several builds score within a hair of each other, a small model change can reorder them.</p>${html}`;
+}
+
 // ---------- tabs ----------
 function showTab() {
   const t = (location.hash || "#test").slice(1).split("/")[0];
-  const tab = ["test", "maker", "match", "overall", "path", "damage", "duel", "tank", "team"].includes(t) ? t : "test";
+  const tab = ["test", "maker", "match", "overall", "path", "damage", "duel", "tank", "counter", "team", "changes"].includes(t) ? t : "test";
   $$(".tab").forEach((s) => (s.hidden = s.id !== "tab-" + tab));
+  renderResbar();
   $$("#tabs a").forEach((a) => (a.dataset.tab === tab ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current")));
   if (tab === "overall") renderOverallTab();
   if (tab === "path") renderPathTab();
   if (tab === "damage") renderDamageTab();
   if (tab === "duel") renderDuelTab();
   if (tab === "tank") renderTankTab();
+  if (tab === "counter") renderCounterTab();
+  if (tab === "changes") renderChangesTab();
+}
+
+// ---------- phones ----------
+// Tables with a text column (builds, buy orders, ability tiers) become stacked cards on narrow screens (app.css table.cards-sm): each number cell gets its
+// column name to show above it, and the label, item and button cells take a full row.
+function stackTables() {
+  for (const t of $$("table")) {
+    // rows are marked one by one: a renderer can swap a table's rows (or its whole innerHTML) without replacing it
+    const rows = [...(t.tBodies[0]?.rows || [])].filter((r) => !r.dataset.stk);
+    if (!rows.length || !t.tHead || !t.querySelector("tbody td:not(.n)") || !t.querySelector("tbody td.n")) continue;
+    const heads = [...(t.tHead.rows[0]?.cells || [])].map((c) => c.textContent.trim());
+    for (const r of rows) {
+      let col = 0;   // header column of each cell, counting colspans
+      for (const c of r.cells) {
+        if (c.colSpan > 1 || !c.classList.contains("n")) c.classList.add("wide");
+        else if (heads[col]) c.dataset.label = heads[col];
+        col += c.colSpan;
+      }
+      r.dataset.stk = "1";
+    }
+    t.classList.add("cards-sm");
+  }
+}
+// Long tab intros fold to three lines on phones, with a button to read the rest.
+function clampIntros() {
+  for (const p of $$(".intro p")) {
+    if (p.textContent.length < 220 || p.nextElementSibling?.classList.contains("more")) continue;
+    p.classList.add("clamp");
+    p.insertAdjacentHTML("afterend", `<button class="more" type="button">Read more</button>`);
+    p.nextElementSibling.onclick = (e) => { const open = p.classList.toggle("clamp"); e.target.textContent = open ? "Read more" : "Show less"; };
+  }
+}
+function phoneLayout() {
+  clampIntros();
+  let queued = false;
+  new MutationObserver(() => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => { queued = false; stackTables(); });
+  }).observe(document.body, { childList: true, subtree: true });
+  stackTables();
 }
 
 // ---------- boot ----------
@@ -753,6 +980,9 @@ async function boot() {
   const tank = await load("data/tank/index.json");
   fillHeroSelect($("#t-hero"), tank ? Object.keys(tank.heroes) : []);
   for (const s of ["#g-hero", "#u-hero", "#o-hero", "#p-hero"]) $(s).value = 13;
+  $("#c-hero").innerHTML = '<option value="">All heroes</option>' + opts;
+  fillHeroSelect($("#k-enemy")); $("#k-enemy").value = 13;
+  $("#k-hero").innerHTML = '<option value="">Any hero (average)</option>' + $("#k-enemy").innerHTML;
   load("data/patch.json").then((p) => {
     if (!p) return;
     $("#patch").textContent = p.patch;
@@ -766,36 +996,43 @@ async function boot() {
   restoreAim(); // before the link, so a shared link's aim wins over the numbers saved in this browser
   if (readShare()) $("#share-note").hidden = false;
   else if (b) {
-    S.A.items = [...b.popular.items]; S.A.label = "Popular";
+    S.A.items = [...b.popular.items]; S.A.label = "Popular"; S.A.preset = "popular";
     S.last = { req: { items: S.A.items }, label: "Popular", note: "Precomputed result for this build (same sim, standard dummy). The live sim takes over when it finishes loading.",
       res: { damage: { "5s": b.popular.damage.burst_5s, "15s": b.popular.damage.fight_15s, "30s": b.popular.damage.sustained_30s },
         dps: { "5s": b.popular.dps.burst_5s, "15s": b.popular.dps.fight_15s, "30s": b.popular.dps.sustained_30s }, sources: b.popular.sources_30s } };
   }
   renderAttacker(); renderTarget(); renderPresets(); syncDummyHint(); renderResult();
 
-  $("#a-hero").onchange = (e) => { S.A.hero = Number(e.target.value); S.A.label = null; S.A.order = null; renderAttacker(); renderPresets(); syncDummyHint(); renderAimHint(); };
-  $("#a-souls").onchange = (e) => { S.A.souls = Number(e.target.value) || 0; renderAttacker(); renderPresets(); syncDummyHint(); };
+  $("#a-hero").onchange = async (e) => { S.A.hero = Number(e.target.value); if (!S.A.preset) S.A.label = null; S.A.order = null; renderAttacker(); renderPresets(); syncDummyHint(); renderAimHint(); await followPreset(); autoRun(0); };
+  $("#a-souls").onchange = async (e) => { S.A.souls = Number(e.target.value) || 0; renderAttacker(); renderPresets(); syncDummyHint(); await followPreset(); autoRun(0); };
   $("#a-aim").onchange = (e) => { S.A.aim = e.target.value; renderAttacker(); renderAimHint(); };
   renderAimHint();
   for (const sel of Object.values(AIM_FIELDS)) $(sel).addEventListener("change", () => { saveAim(); renderAimHint(); });
   $("#a-pull").onclick = pullAim;
   $("#a-steam").addEventListener("keydown", (e) => { if (e.key === "Enter") pullAim(); });
-  wireShop("a", () => S.A.items, () => { S.A.label = null; renderAttacker(); });
-  wireShop("d", () => S.D.items, renderTarget);
-  $("#d-mode").onclick = (e) => { if (e.target.dataset.v) { S.D.mode = e.target.dataset.v; renderTarget(); } };
+  wireShop("a", () => S.A.items, () => { S.A.label = null; S.A.preset = null; renderAttacker(); autoRun(); });
+  wireShop("d", () => S.D.items, () => { renderTarget(); autoRun(); });
+  $("#d-mode").onclick = (e) => { if (e.target.dataset.v && e.target.dataset.v !== S.D.mode) { S.D.mode = e.target.dataset.v; renderTarget(); autoRun(0); } };
   $("#d-heroname").onchange = (e) => { S.D.hero = Number(e.target.value); };
+  // typed numbers, checkboxes and selects rerun the test (hero and net worth rerun from their own handlers above,
+  // after the build follows them)
+  const AUTO_SKIP = new Set(["a-hero", "a-souls", "a-q", "d-q", "a-steam"]);
+  $("#tab-test").addEventListener("change", (e) => { if (e.target.matches("input, select") && !AUTO_SKIP.has(e.target.id)) autoRun(0); });
+  $("#tab-test").addEventListener("input", (e) => { if (e.target.matches('input[type="number"]') && !AUTO_SKIP.has(e.target.id)) autoRun(600); });
+  new IntersectionObserver(([en]) => { resultInView = en.isIntersecting; renderResbar(); }).observe($("#results"));
+  $("#resbar").onclick = () => $("#results").scrollIntoView({ behavior: "smooth", block: "start" });
   $("#run").onclick = runTest;
   $("#share").onclick = copyShare;
   $("#pin").onclick = () => {
     if (!S.last?.res.timeline) return;
     if (S.pins.length >= 5) S.pins.shift();
-    S.pins.push(S.last); S.last = null;
+    S.pins.push(S.last); S.prev = S.last; S.last = null;
     renderCompare(); drawTimeline(); $("#pin").disabled = true;
   };
   $("#cmp").onclick = (e) => {
     const drop = e.target.dataset.drop, ld = e.target.dataset.load;
     if (drop != null) { S.pins.splice(Number(drop), 1); renderCompare(); drawTimeline(); }
-    if (ld != null) { const p = S.pins[Number(ld)]; Object.assign(S.A, { hero: p.req.hero, souls: p.req.souls, items: [...p.req.items], label: p.label, order: p.req.ability_order || null }); renderAttacker(); renderPresets(); }
+    if (ld != null) { const p = S.pins[Number(ld)]; Object.assign(S.A, { hero: p.req.hero, souls: p.req.souls, items: [...p.req.items], label: p.label, order: p.req.ability_order || null, preset: null }); renderAttacker(); renderPresets(); autoRun(0); }
   };
   $("#g-obj").innerHTML = Object.entries(OBJ_LONG).map(([k, l]) => `<button data-v="${k}" class="${k === gObj ? "on" : ""}">${l.split(" (")[0]}</button>`).join("");
   $("#g-obj").onclick = (e) => { if (!e.target.dataset.v) return; gObj = e.target.dataset.v; $$("#g-obj button").forEach((x) => x.classList.toggle("on", x === e.target)); renderDamageTab(); };
@@ -803,8 +1040,10 @@ async function boot() {
   $("#u-hero").onchange = renderDuelTab; $("#u-budget").onchange = renderDuelTab; $("#u-bracket").onchange = renderDuelTab;
   $("#t-hero").onchange = renderTankTab; $("#t-budget").onchange = renderTankTab;
   $("#p-hero").onchange = renderPathTab; $("#p-rank").onchange = renderPathTab;
+  $("#k-enemy").onchange = renderCounterTab; $("#k-hero").onchange = renderCounterTab; $("#k-budget").onchange = renderCounterTab;
+  $("#c-hero").onchange = renderChangesTab; $("#c-kind").onchange = renderChangesTab;
   $("#o-hero").onchange = renderOverallTab; $("#o-budget").onchange = renderOverallTab; $("#o-rank").onchange = renderOverallTab;
-  for (const s of ["#g-out", "#g-skill", "#g-order", "#u-out", "#t-out", "#o-out", "#p-out"]) $(s).addEventListener("click", onTest);
+  for (const s of ["#g-out", "#g-skill", "#g-order", "#u-out", "#t-out", "#o-out", "#p-out", "#c-out"]) $(s).addEventListener("click", onTest);
   document.addEventListener("click", (e) => {
     const t = e.target.closest(".build.tap .it");
     if (t) openBreakdown(JSON.parse(t.closest(".build").dataset.bd), t.dataset.id);
@@ -815,6 +1054,7 @@ async function boot() {
   $("#sh-marks").onclick = (e) => { if (e.target.dataset.v) { BD.mark = e.target.dataset.v; renderSheet(); } };
   $("#sh-body").addEventListener("click", (e) => { const r = e.target.closest(".bd-row[data-id]"); if (r) { BD.item = Number(r.dataset.id); renderSheet(); } });
   window.addEventListener("hashchange", showTab);
+  phoneLayout();
   showTab();
   startEngine();
 }

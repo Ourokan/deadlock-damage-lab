@@ -20,8 +20,9 @@ old x (real ratio / sim ratio). For abilities whose damage scales linearly with 
 result in one pass; for the rest (Bullet Dance, whose factor shortens the channel, and Fixation, whose stacks the
 channel's bullets build) it converges over 2-3 runs.
 
-usage: python3 scripts/landing_rates.py [max_players] [workers] [--fit-melee] [--iterate] [--hero NAME ...]
+usage: python3 scripts/landing_rates.py [max_players] [workers] [--fit-melee] [--iterate] [--sample PATH] [--hero NAME ...]
 With --hero it runs only those heroes and prints real vs sim damage shares without writing any files.
+--sample replaces validation/matches_sample.jsonl.gz (e.g. a Phantom+ sample from fetch_validation.py --api 91 5).
 """
 import collections
 import gzip
@@ -36,10 +37,22 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 sys.path.insert(0, ROOT)
 from deadsim import Loadout, Skill, duel, game  # noqa: E402
 from deadsim.abilities import load_heroes  # noqa: E402
-from deadsim.accuracy import HEADS, HITS, SHOTS, ability_landing, default_distance  # noqa: E402
+from deadsim.accuracy import HEADS, HITS, SHOTS, ability_landing, default_distance, gun_calibrated, gun_calibration  # noqa: E402
 import deadsim.mechanics as MECH  # noqa: E402
 
 CATEGORY = {"Bullet", "Ability", "Melee", "Misc"}   # per-damage-type totals in the matrix, not sources
+SAMPLE = os.path.join(ROOT, "validation", "matches_sample.jsonl.gz")
+# Sim damage labels that are not an ability name of the hero, mapped to the class the damage matrix books them under.
+# Silver's Lycan Curse swaps her three basic abilities for wolf ones; each wolf ability gets its own landing factor
+# under its sim label (the engine looks factors up by damage source name).
+ALIASES = {
+    "Go For The Throat": "ability_werewolf_frenzy",
+    "Mauling Leap": "ability_werewolf_maulingleap",
+    "Tail Whack": "ability_werewolf_cripplingslash",
+    "Bloodletting (deferred)": "citadel_ability_shiv_defer_damage",   # an enemy Shiv's deferred damage
+}
+SHIV_DEFER = "citadel_ability_shiv_defer_damage"
+COPY_ULT = "ability_magician_copyult"   # Sinclair: the copied ultimate is booked under the enemy hero's own class
 MIN_HITS = 150
 FIGHT_TIME = 20.0
 FRACS = (0.3, 0.6, 0.9)
@@ -53,6 +66,8 @@ def real_key(name, classes):
     if "ability_melee_" in name:
         return "MELEE"
     best = max((c for c in classes if name == c or name.startswith(c + "_")), key=len, default=None)
+    if best is None and COPY_ULT in classes and name != SHIV_DEFER and "ability_" in name:
+        return COPY_ULT   # another hero's ability class in Sinclair's damage: the ultimate she copied
     return best or name
 
 
@@ -60,12 +75,14 @@ def sim_key(name, names, G):
     """Normalize a sim damage source: ability names (or labels starting with one) -> ability class."""
     if name == "gun":
         return "GUN"
+    if name.lower() in G.items_by_name:   # before melee: "Melee Charge" is an item
+        return G.items_by_name[name.lower()].class_name
     if name.lower().startswith("melee"):
         return "MELEE"
     if name in names:
         return names[name]
-    if name.lower() in G.items_by_name:
-        return G.items_by_name[name.lower()].class_name
+    if name in ALIASES:
+        return ALIASES[name]
     best = max((n for n in names if name.startswith(n)), key=len, default=None)
     return names[best] if best else name
 
@@ -88,11 +105,20 @@ def current_landing(hero_id):
     return _landing[hero_id, mech]
 
 
+def gun_known(p):
+    """Enough real gun data to fit against: API hero hits, or a hero whose gun records none but has a replay-fitted
+    accuracy (Graves, Deadman Danny: data/gun_calibration.json)."""
+    return p["custom"].get(HITS, 0) >= MIN_HITS or gun_calibrated(p["hero_id"])
+
+
 def skill_of(p):
     c = p["custom"]
     shots, hits = c.get(SHOTS, 0), c.get(HITS, 0)
     rate = MELEE.get(p["hero_id"], MELEE_START)
-    if shots < 300:
+    cal = gun_calibration().get(str(p["hero_id"])) if gun_calibrated(p["hero_id"]) else None
+    if cal:   # the match stats' shots/hits for this gun are missing or partial
+        sk = Skill(accuracy=cal["accuracy"]["p50"], headshot=cal["headshot"]["p50"], melee_rate=rate)
+    elif shots < 300:
         sk = Skill(melee_rate=rate)
     else:
         sk = Skill(accuracy=hits / shots, headshot=c.get(HEADS, 0) / max(1, hits), melee_rate=rate)
@@ -108,6 +134,45 @@ def build_at(p, t):
     return items, snaps[-1]["net_worth"]
 
 
+def real_gun_series(m, p):
+    """Cumulative real gun damage to enemy heroes as a function of match time (piecewise linear between the damage
+    matrix samples, 0 at 0 s), or None for a sample without damage_series."""
+    times, ser = m.get("damage_times"), p.get("damage_series")
+    if not times or not ser:
+        return None
+    classes = [ab.class_name for ab in game().hero(p["hero_id"]).abilities]
+    cum = [0.0] * len(times)
+    for k, arr in ser.items():
+        if k not in CATEGORY and real_key(k, classes) == "GUN":
+            cum = [a + b for a, b in zip(cum, arr)]
+    xs, ys = [0.0] + list(times), [0.0] + cum
+
+    def at(t):
+        if t >= xs[-1]:
+            return ys[-1]
+        for i in range(1, len(xs)):
+            if t <= xs[i]:
+                f = (t - xs[i - 1]) / max(1e-9, xs[i] - xs[i - 1])
+                return ys[i - 1] + f * (ys[i] - ys[i - 1])
+        return ys[-1]
+    return at
+
+
+def held_gun(m, p):
+    """{item class: real gun damage to enemy heroes while the player owned the item}: the fair denominator for an
+    item's damage per gun damage (match-total gun damage dilutes items bought late). None without damage_series."""
+    gun = real_gun_series(m, p)
+    if gun is None:
+        return None
+    G = game()
+    out = collections.Counter()
+    for i, bt, st, _ in p["items"]:
+        if i in G.items:
+            end = st if st and st > bt else m["duration_s"]
+            out[G.items[i].class_name] += max(0.0, gun(end) - gun(bt))
+    return out
+
+
 def sim_player(job):
     m, slot = job
     G = game()
@@ -118,6 +183,7 @@ def sim_player(job):
     names = {ab.name: ab.class_name for ab in h.abilities}
     rnd = random.Random(m["match_id"] * 31 + slot)
     out = collections.Counter()
+    held = collections.defaultdict(lambda: [0.0, 0.0])   # item class -> [item dmg, gun dmg] of the duels holding it
     fights = 0
     for frac in FRACS:
         t = m["duration_s"] * frac
@@ -133,14 +199,24 @@ def sim_player(job):
             out["_err:" + type(e).__name__ + ":" + str(e)[:80]] += 1
             continue
         fights += 1
+        d = collections.Counter()
         for k, v in r.a_dmg.items():
-            out[sim_key(k, names, G)] += v
-    return me["hero_id"], dict(out), fights
+            d[sim_key(k, names, G)] += v
+        out.update(d)
+        for i in items:
+            c = G.items[i].class_name
+            held[c][0] += d.get(c, 0.0)
+            held[c][1] += d.get("GUN", 0.0)
+    return me["hero_id"], dict(out), fights, dict(held)
 
 
 def main():
     args = sys.argv[1:]
-    global ITERATE
+    global ITERATE, SAMPLE
+    if "--sample" in args:
+        i = args.index("--sample")
+        SAMPLE = args[i + 1]
+        args = args[:i] + args[i + 2:]
     fit_melee = "--fit-melee" in args
     ITERATE = "--iterate" in args
     args = [a for a in args if a not in ("--fit-melee", "--iterate")]
@@ -155,10 +231,10 @@ def main():
     load_heroes()
     real = collections.defaultdict(collections.Counter)
     jobs = []
-    for line in gzip.open(os.path.join(ROOT, "validation", "matches_sample.jsonl.gz")):
+    for line in gzip.open(SAMPLE):
         m = json.loads(line)
         for p in m["players"]:
-            if p["hero_id"] not in G.heroes or p["custom"].get(HITS, 0) < MIN_HITS or (only and p["hero_id"] not in only):
+            if p["hero_id"] not in G.heroes or not gun_known(p) or (only and p["hero_id"] not in only):
                 continue
             classes = [ab.class_name for ab in G.hero(p["hero_id"]).abilities]
             for k, v in p["damage_sources"].items():
@@ -171,7 +247,7 @@ def main():
     errs = collections.Counter()
     t0 = time.time()
     with ProcessPoolExecutor(workers) as ex:
-        for i, (hid, d, n) in enumerate(ex.map(sim_player, jobs, chunksize=8)):
+        for i, (hid, d, n, _) in enumerate(ex.map(sim_player, jobs, chunksize=8)):
             for k, v in d.items():
                 (errs if k.startswith("_") else sim[hid])[k] += v
             if i % 500 == 0 and not only:
@@ -188,14 +264,17 @@ def main():
             "sim": {k: round(v / st, 4) for k, v in s.most_common(12)},
         }
         rows = {}
-        for ab in h.abilities:
-            ra, sa = r.get(ab.class_name, 0), s.get(ab.class_name, 0)
+        srcs = [(ab.name, ab.class_name) for ab in h.abilities]
+        srcs += [(lab, cls) for lab, cls in ALIASES.items() if cls not in {c for _, c in srcs} and s.get(cls, 0) > 0
+                 and cls != SHIV_DEFER]
+        for ab_name, ab_class in srcs:
+            ra, sa = r.get(ab_class, 0), s.get(ab_class, 0)
             if sa <= 0 or r["GUN"] <= 0 or s["GUN"] <= 0:
                 continue
             lr = (ra / r["GUN"]) / (sa / s["GUN"])
             if ITERATE:
-                lr *= current_landing(hid).get(ab.name, 1.0)
-            rows[ab.name] = {"class": ab.class_name, "landing": round(lr, 3),
+                lr *= current_landing(hid).get(ab_name, 1.0)
+            rows[ab_name] = {"class": ab_class, "landing": round(lr, 3),
                              "real_share": round(ra / rt, 4), "sim_share": round(sa / st, 4)}
         landing[h.name] = rows
     if fit_melee:

@@ -23,7 +23,9 @@
       <a href="#damage" data-tab="damage">Raw damage builds</a>
       <a href="#duel" data-tab="duel">Duel builds</a>
       <a href="#tank" data-tab="tank">Tank builds</a>
+      <a href="#counter" data-tab="counter">Counter items</a>
       <a href="#team" data-tab="team">Team fight</a>
+      <a href="#changes" data-tab="changes">What changed</a>
     </nav>
     <span class="engine" id="engine" data-state="loading">Loading sim</span>
   </div>
@@ -49,7 +51,7 @@
             <select id="a-aim">
               <option value="p25">25th pct ranked</option>
               <option value="p50">Median ranked</option>
-              <option value="p75" selected>75th pct ranked (Phantom+, standard)</option>
+              <option value="p75" selected>75th pct ranked (Phantom+)</option>
               <option value="p90">90th pct ranked</option>
               <option value="custom">My own numbers</option>
             </select></label>
@@ -58,6 +60,7 @@
           <label class="f"><span>Hero accuracy %</span><input id="a-acc" type="number" min="0" max="100" step="0.5" value="26"></label>
           <label class="f"><span>Headshot % of hits</span><input id="a-hs" type="number" min="0" max="100" step="0.5" value="15.7"></label>
           <label class="f" title="The fight moves around this distance like real fights do (about half to twice it)"><span>Typical fight distance (m)</span><input id="a-dist" type="number" min="1" max="60" step="0.5" placeholder="hero default"></label>
+          <label class="f" title="Landed melee hits per second of fight, light and heavy. Blank: what real players on this hero land with this many melee items"><span>Melee hits per second</span><input id="a-mel" type="number" min="0" max="2" step="0.01" placeholder="from build"></label>
           <p class="hint" id="a-aim-hint">Hero-only numbers, like Statlocker's "accuracy vs heroes".</p>
           <div class="aim-load">
             <input id="a-steam" type="text" placeholder="Steam profile link, Steam ID or name" autocomplete="off" spellcheck="false">
@@ -111,6 +114,7 @@
         <label class="check"><input id="d-immortal" type="checkbox" checked> Refill HP instead of dying, so damage keeps counting for 30 s</label>
         <label class="check"><input id="d-walk" type="checkbox" checked> Walk out of Alchemical Fire after 2 s, unless stunned, rooted or slowed (slows keep it in for their share)</label>
         <button class="run" id="run" disabled>Run damage test</button>
+        <p class="hint">The result updates by itself whenever you change the build or the target.</p>
         <p class="hint" id="share-note" hidden>Loaded from a shared link. The test runs as soon as the sim is ready.</p>
         <p class="err" id="err" hidden></p>
       </div>
@@ -134,13 +138,14 @@
       </div>
       <p class="fine" id="used"></p>
     </div>
+    <button class="resbar" id="resbar" type="button" hidden><span class="l">15 s damage</span> <b id="resbar-v"></b> <span id="resbar-d"></span> <span class="go">See result ↓</span></button>
   </section>
 
   <!-- Build maker (maker.js) -->
   <section id="tab-maker" class="tab" hidden>
     <div class="intro">
       <h1>Build it against the team you're facing</h1>
-      <p>Start from nothing and add items. On the right, pick up to five enemies: each plays what Phantom+ players of that hero hold most at about your net worth. Every change fights you against each of them in the live sim, both sides shooting and casting for 15 s. Hover an item to preview it; suggestions weigh damage, survival and the utility a 1v1 fight can't show.</p>
+      <p>Start from nothing and add items, then pick up to five enemies: each plays what Phantom+ players of that hero hold most at about your net worth. Every change fights you against each of them in the live sim, both sides shooting and casting for 15 s. Hover an item to preview it (on a phone, tap to buy); suggestions weigh damage, survival and the utility a 1v1 fight can't show.</p>
     </div>
     <div class="mk-grid">
       <div class="panel mk-buildp">
@@ -199,7 +204,7 @@
   <section id="tab-match" class="tab" hidden>
     <div class="intro">
       <h1>Would another build have hit harder?</h1>
-      <p>Paste a match ID. The page loads every player's items from the Deadlock API, puts one player's build against an enemy's build at any point in the match, and tests which builds would have dealt more damage.</p>
+      <p>Paste a match ID. The page loads every player's items from the Deadlock API, puts one player's build against an enemy's build at any point in the match, and tests which builds would have dealt more damage. Below that, replay any fight from the match with different items.</p>
     </div>
     <form class="filters" id="m-form">
       <label class="f"><span>Match ID</span><input id="m-id" inputmode="numeric" autocomplete="off" placeholder="e.g. 117564612"></label>
@@ -217,6 +222,20 @@
       <button class="run" id="m-go" type="button">Test what would have dealt more</button>
     </div>
     <div id="m-out"></div>
+    <!-- Fight replay (replay.js): the match's fights from its position paths, replayed in the team sim -->
+    <div id="r-box" class="stack r-box" hidden>
+      <div class="intro">
+        <h2>Replay a fight</h2>
+        <p>Every fight in the match, found from where each hero stood and how much health they had second by second. Pick one and the sim replays it with everyone's real items, souls, ability upgrades, aim, starting health and fighting distance. Then change anyone's items and see how the fight would have gone.</p>
+      </div>
+      <div class="row"><label class="check"><input id="r-only" type="checkbox" checked> Only fights with <span id="r-only-who">the player</span></label>
+        <label class="check"><input id="r-kills" type="checkbox"> Only fights with a kill</label></div>
+      <p class="hint" id="r-status"></p>
+      <div id="r-list"></div>
+      <div id="r-fight" class="stack"></div>
+      <div id="r-out"></div>
+      <datalist id="r-items"></datalist>
+    </div>
   </section>
 
   <!-- Overall search: damage dealt before dying, counterplay on -->
@@ -287,6 +306,20 @@
     <div id="t-out"></div>
   </section>
 
+  <!-- Counter items (counters/scripts/sim_counters.py + the real-match analysis in counters/) -->
+  <section id="tab-counter" class="tab" hidden>
+    <div class="intro">
+      <h1>Counter items</h1>
+      <p>Which defensive item helps most against a given enemy hero. Each hero's most popular real build gets the item added on top and is scored with the overall test: damage dealt before dying against the enemy's typical real build at the same net worth, with sustain, movement, parries and counterplay on. Next to the sim value: how much more often real players buy the item when that hero is on the enemy team, and whether buyers win more than players who bought another defensive item of the same price at the same time.</p>
+    </div>
+    <div class="filters">
+      <label class="f"><span>Enemy hero</span><select id="k-enemy"></select></label>
+      <label class="f"><span>Your hero</span><select id="k-hero"></select></label>
+      <label class="f"><span>Net worth</span><select id="k-budget"></select></label>
+    </div>
+    <div id="k-out"></div>
+  </section>
+
   <section id="tab-team" class="tab" hidden>
     <div class="intro">
       <h1>Team fights</h1>
@@ -304,6 +337,19 @@
     <button class="run" id="tf-run" disabled>Run team fight</button>
     <p class="err" id="tf-err" hidden></p>
     <div id="tf-out"></div>
+  </section>
+
+  <!-- What each rerun changed in the recommended builds, and why (pipeline/changes.py -> data/changes.json) -->
+  <section id="tab-changes" class="tab" hidden>
+    <div class="intro">
+      <h1>What changed</h1>
+      <p>Every time the searches rerun (after a game patch or hotfix, newer real player builds, or a change to the combat model), the recommended builds can move. Each run below lists why it ran and, for every hero and net worth, the items that left and joined the best build and how its number moved: damage before dying for the best overall build, dummy damage by 15 s for the best raw damage build. Builds whose items stayed the same are listed only when their number moved 5% or more.</p>
+    </div>
+    <div class="filters">
+      <label class="f"><span>Hero</span><select id="c-hero"></select></label>
+      <label class="f"><span>Build</span><select id="c-kind"><option value="overall">Best overall</option><option value="damage">Best raw damage</option></select></label>
+    </div>
+    <div id="c-out"></div>
   </section>
 
   <datalist id="souls-list"><option value="10000"><option value="18000"><option value="27000"><option value="37000"><option value="50000"></datalist>
@@ -324,6 +370,7 @@
 <script src="aim.js"></script>
 <script src="app.js"></script>
 <script src="match.js"></script>
+<script src="replay.js"></script>
 <script src="team.js"></script>
 <script src="maker.js"></script>
 </body>

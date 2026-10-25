@@ -7,6 +7,7 @@ Each handler is a small class keyed by the item's class_name. Hooks the engine c
     on_damage_taken(f, attacker, hit)   after f takes damage
     reduce_incoming(f, attacker, amount, kind, is_dot) -> amount
     on_lethal(f, attacker) -> bool      return True if death was prevented
+    on_kill(f, target)                  f killed target (or an immortal target refilled, engine.kill_hooks)
     on_cast(f, ability_state)           f cast an ability
     on_enemy_cast(f, ability_state)     the enemy cast an ability
     on_cc(f, key)                       f just received stun / silence / disarm / immobilize
@@ -163,8 +164,9 @@ class BuildUp(FX):
     scale = 1.4  # wiki fit, see above
 
     def per_hit(self, f):
-        base = (f.st.weapon or {}).get("bullet_damage", 0.0) or 1.0
-        return self.item.p(self.per_prop) * self.scale * base * f.e.spread_mean(f.st.falloff)
+        # a charged shot (Danny) is gun_charge base bullets' worth of damage, and builds up as much
+        base = ((f.st.weapon or {}).get("bullet_damage", 0.0) or 1.0) * f.st.gun_charge
+        return self.item.p(self.per_prop) * self.scale * base * f.e.hit_falloff(f.st)
 
     def __init__(self, item, f):
         super().__init__(item, f)
@@ -289,20 +291,25 @@ class ToxicBullets(BuildUp):
     def proc(self, f, t):
         d = self.dur("DotDuration", 4)
         pct = self.v("DotHealthPercent") / 100
-        f.e.dot(f, t, pct * t.max_hp, d, self.name, kind="spirit", tick=self.item.p("TickRate", 0.5), is_item=True)
+        f.e.dot(f, t, pct * t.max_hp, d, self.name, kind="spirit", tick=self.item.p("TickRate", 0.5), is_item=True,
+                buildup=True)
         self.debuff(t, "heal_received", self.item.p("HealAmpReceivePenaltyPercent") / 100, d)
 
 
 @handler("upgrade_chain_lightning", "upgrade_capacitor")
 class TeslaBullets(FX):
+    # the shock has its own 0.2 s proc timer: Capacitor's 40 s active cooldown (ready_at) must not switch it off
+    # (it did until 2026-10-24: sim Capacitor shock damage per gun damage was 1/4.6 of real Phantom+ holders)
+    proc_at = 0.0
+
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind != "bullet" or not hit.hits or hit.is_ability or not self.ready():
+        if hit.kind != "bullet" or not hit.hits or hit.is_ability or self.now < self.proc_at:
             return
         # proc chance is per shot, not per pellet (shotguns): chance that at least one of the shots that hit procs
         p = 1.0 - (1.0 - self.item.p("ProcChance") / 100) ** shots_hit(f, hit)
         n = f.acc(self.item.class_name).take(p, 1)
         if n:
-            self.ready_at = self.now + self.item.p("ProcCooldown", 0.2)
+            self.proc_at = self.now + self.item.p("ProcCooldown", 0.2)
             self.spirit(t, self.v("DamagePerChain"))
 
     def try_active(self, f):  # Capacitor's projectile
@@ -339,6 +346,7 @@ class ExpressShot(FX):
             self.use()
             ctx["extra_pct"] += self.v("ProcBaseAttackDamagePercent") / 100
             ctx["pellet_mult"] *= 2
+            ctx["book"] = self.name   # the game books the whole proc shot under the item (replays: ~2x a gun hit)
             f.clip = max(0, f.clip - int(self.item.p("ProcAmmoConsumed", 2)) + 1)
 
 
@@ -391,14 +399,16 @@ class MysticShot(FX):
     """Real fights don't open with the proc ready: 62% of Mystic Shot damage lands on creeps and troopers, so the
     cooldown is usually part spent when a hero fight starts. Starting it ready made the sim give 0.45 x gun damage
     vs 0.32 real (126 holders, damage matrix over the held window). The cooldown starts at a random point of its
-    cycle (half-way when the engine is deterministic), which gives 0.31."""
+    cycle (half-way when the engine is deterministic), which gives 0.31. Kinetic Carbine also procs it
+    (Hit.weapon_proc)."""
 
     def on_start(self, f):
         rng = f.e.rng
         self.ready_at = self.now + self.cd() * (rng.random() if rng is not None else 0.5)
 
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind == "bullet" and hit.hits and not hit.is_ability and self.ready():
+        gun_hit = (hit.kind == "bullet" and hit.hits and not hit.is_ability) or hit.weapon_proc
+        if gun_hit and self.ready():
             self.use()
             self.spirit(t, self.v("ProcBonusMagicDamage"))
 
@@ -479,10 +489,16 @@ class SiphonBullets(FX):
         if hit.kind == "bullet" and hit.hits and not hit.is_ability and self.ready():
             self.ready_at = self.now + self.item.p("ProcCooldown", 1.2)
             amt = t.max_hp_base * self.item.p("HealthStealPctHero") / 100
+            # realistic mode: the real-data factor scales the whole steal (cap drop, health taken, heal) alike, so the
+            # damage below is not marked is_item (that would scale only the health taken)
+            amt *= (f.skill.item_landing or {}).get(self.name, 1.0)
             d = self.dur("StealDuration", 17)
             k = f.counters.get("siphon", 0) + 1
             f.counters["siphon"] = k
             t.mods.add("max_health", -amt, d, ("siphon", k))
+            # the stolen health is taken from current health too: the game books it as Siphon Bullets damage
+            # (real Phantom+ holders: 0.24 Siphon damage per gun damage, sim was 0 while it only lowered the cap)
+            f.e.damage(f, t, amt, "spirit", self.name, procs=False, pure=True)
             t.hp = min(t.hp, t.max_hp)
             f.mods.add("max_health", amt, d, ("siphon", k))
             f.heal(amt, self.name)
@@ -610,7 +626,7 @@ class BloodTribute(FX):
 @handler("upgrade_non_player_bonus_sacrifice")
 class CultistSacrifice(FX):
     def on_start(self, f):
-        if f.skill.use_actives:   # long buff (160 s) assumed up before the fight
+        if f.skill.use_actives and not getattr(self, "unused", False):   # long buff (160 s) assumed up before the fight
             d = 1e9
             self.buff("weapon_pct", self.v("BaseAttackDamagePercent") / 100, d)
             self.buff("max_health", self.v("BonusHealth"), d)
@@ -914,29 +930,76 @@ class ReactiveBarrier(FX):
 
 @handler("upgrade_reduce_debuff_duration")
 class DispelMagic(FX):
-    """Active: purge enemy debuffs and DoTs and heal HealOnActivate. Used at once against an enemy silence or
-    disarm. Against a DoT with >= 2 s left: after Skill.dot_cleanse_delay seconds of it (default 1.5 s, a tick or
-    two, how high-rank players use it), or with dot_cleanse_delay=None only once below DOT_PANIC_HP of max health
-    (average ranked play: Decay deals the same damage to Dispel holders as to their teammates,
-    damage/work/decay_vs_dispel.json ratio 1.00, 90% CI 0.75-1.30). The +2 m/s move speed does nothing at fixed
-    distance. Assumption: BuffDuration (3 s) is the move-speed buff, not debuff immunity."""
+    """Active: purge enemy debuffs and DoTs and heal HealOnActivate. Used at once against an enemy silence or disarm.
+    Against a DoT with >= 2 s left: only on Skill.dot_cleanse_share of DoT episodes (real players mostly let Decay
+    run: on cooldown, saved for a stun, not noticed; accuracy.dot_cleanse_share), and then after
+    Skill.dot_cleanse_delay seconds of it (reaction time), or with dot_cleanse_delay=None only once below
+    DOT_PANIC_HP of max health. An episode is a stretch with some enemy DoT running, drawn once when it starts while
+    Dispel is ready (overlapping DoTs share the draw; the cooldown is simulated too, and the fit uses this same
+    code). The draw is an engine.Accum: random when the engine has an rng (fit_dispel.py), else deterministic,
+    started at Skill.fight_phase, so over the overall score's spread phases the first DoT is cleansed in exactly
+    that share of fights. Without a phase (single duels, the duel-score search) it starts at a hash of both
+    fighters' items, so across an opponent pool the first DoT is still cleansed in about that share of fights. The
+    +2 m/s move speed does nothing at fixed distance. Assumption: BuffDuration (3 s) is the move-speed buff, not
+    debuff immunity."""
     DOT_PANIC_HP = 0.5
+    DOT_MIN_LEFT = 2.0   # s: a DoT about to run out is not worth the cooldown
 
     def __init__(self, item, f):
         super().__init__(item, f)
         self.dot_seen = None
+        self.dot_go = False
+        self.dot_pick = {}
+        self.dot_buildup_drawn = False
+
+    def _draw(self, f, kind):
+        """Spend Dispel on this DoT episode? kind "buildup": Skill.dot_cleanse_share_buildup, else dot_cleanse_share
+        (None = always). One Accum per kind, both started at the same phase."""
+        sk = f.skill
+        share = sk.dot_cleanse_share_buildup if kind == "buildup" else sk.dot_cleanse_share
+        if share is None:
+            return True
+        pick = self.dot_pick.get(kind)
+        if pick is None:
+            from .engine import Accum
+            phase = sk.fight_phase
+            pick = self.dot_pick[kind] = Accum(f.e.rng, self.loadout_phase(f) if phase is None else phase)
+        return pick.take(share) > 0
+
+    @staticmethod
+    def loadout_phase(f):
+        """Stable 0-1 phase from both fighters' item ids and max health (stat-only items have no handler but change
+        health), integers only, so it is the same in every process."""
+        x = 0
+        for g in (f, f.enemy):
+            if g is None:
+                continue
+            for i in sorted(fx.item.id for fx in g.items_fx if getattr(fx, "item", None) is not None) + [
+                    int(round(g.max_hp_base * 10))]:
+                x = (x * 1000003 + i) % (1 << 61)
+        return (((x * 11400714819323198485) % (1 << 64)) >> 11) / (1 << 53)   # Fibonacci hash, high bits
 
     def try_active(self, f):
         if not self.ready() or not f.skill.use_actives:
             return False
         cc = f.afflicted(min_left=1e9, keys=("silence", "disarm"))
-        dot = f.afflicted(min_left=2.0, keys=())
+        dot = f.afflicted(min_left=self.DOT_MIN_LEFT, keys=())
         if not dot:
             self.dot_seen = None
-        elif self.dot_seen is None:
-            self.dot_seen = self.now
+        else:
+            buildup = f.buildup_dot(self.DOT_MIN_LEFT)
+            if self.dot_seen is None:
+                self.dot_seen = self.now
+                self.dot_go = self._draw(f, "buildup" if buildup else "other")
+                self.dot_buildup_drawn = buildup
+            elif buildup and not self.dot_go and not self.dot_buildup_drawn:
+                # a build-up DoT (Afterburn, Toxic Bullets) joined a running episode: its own draw
+                self.dot_buildup_drawn = True
+                self.dot_go = self._draw(f, "buildup")
         delay = f.skill.dot_cleanse_delay
-        if delay is None:
+        if not self.dot_go:
+            use_on_dot = False
+        elif delay is None:
             use_on_dot = dot and f.hp_frac < self.DOT_PANIC_HP
         else:
             use_on_dot = dot and self.now - self.dot_seen >= delay
@@ -951,7 +1014,16 @@ class DispelMagic(FX):
 
 @handler("upgrade_healbuff")
 class HealingTempo(FX):
-    pass
+    """A heal of at least MinimumHealAmount the holder gets from its abilities or items (not regen or the passive
+    lifesteals, Fighter.heal) grants BonusFireRate and BonusMoveSpeed for BuffDuration, at most once per
+    AbilityCooldown. Ally heals (team fights) are not counted."""
+    def on_healed(self, f, amt):
+        if amt < self.item.p("MinimumHealAmount", 1.0) or not self.ready():
+            return
+        self.use()
+        d = self.dur("BuffDuration", 7)
+        self.buff("fire_rate", self.item.p("BonusFireRate") / 100, d, tag="tempo")
+        self.buff("move_speed", self.item.p("BonusMoveSpeed"), d, tag="tempo")
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -959,21 +1031,35 @@ class HealingTempo(FX):
 # ---------------------------------------------------------------------------------------------------
 @handler("upgrade_magic_burst", "upgrade_magic_shock")
 class MysticBurst(FX):
+    """Charges up over AbilityChargeUpTime and each qualifying ability hit releases what has charged, not a full proc
+    on a cooldown: in replays (70 Phantom+ matches, hero victims) a release's damage grows linearly with the time
+    since the last one, up to the full amount at 14 s (Mystic Burst median 2 after <1 s, 20 after 7 s, 39 after 14+;
+    Tankbuster 7 / 75 / 188), and releases on the same victim come 0.2-2 s apart, so ReProcLockoutTime is not a
+    lockout between releases. Full charge at the fight's start. Hits in the same tick share one charge (the first
+    takes it); the total released doesn't depend on their order, except Tankbuster's current-health term."""
+
+    def __init__(self, item, f):
+        super().__init__(item, f)
+        self.charged_at = -1e9
+
     def on_start(self, f):
-        self.ready_at = 0.0  # charged before the fight
+        self.charged_at = -1e9
 
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind != "spirit" or not hit.is_ability or hit.is_dot or not self.ready():
+        if hit.kind != "spirit" or not hit.is_ability or hit.is_dot:
             return
-        if hit.amount < self.item.p("MinimumDamage", 80):
+        if hit.amount / max(1e-6, hit.landing) < self.item.p("MinimumDamage", 80):
             return
-        self.use("AbilityChargeUpTime")
+        charge = min(1.0, (self.now - self.charged_at) / max(1e-6, self.cd("AbilityChargeUpTime")))
+        self.charged_at = self.now
+        if charge <= 0:
+            return
         dmg = self.v("Damage")
         if self.item.class_name == "upgrade_magic_shock":   # Tankbuster: + % current health, ignores resist
             dmg += t.hp * self.item.p("CurrentHealthDamage") / 100
-            f.e.damage(f, t, dmg, "spirit", self.name, ignore_resist=True, is_item=True, procs=False)
+            f.e.damage(f, t, dmg * charge, "spirit", self.name, ignore_resist=True, is_item=True, procs=False)
         else:
-            f.e.damage(f, t, dmg, "spirit", self.name, is_item=True, procs=False)
+            f.e.damage(f, t, dmg * charge, "spirit", self.name, is_item=True, procs=False)
 
 
 @handler("upgrade_magic_vulnerability")
@@ -1021,7 +1107,8 @@ class SpiritBurn(FX):
 
 
 class ImbueCharge(FX):
-    """Quicksilver Reload / Mercurial Magnum: imbued ability cast while charged -> bonus damage, fire rate, reload."""
+    """Quicksilver Reload / Mercurial Magnum: imbued ability cast while charged -> bonus damage, fire rate, reload.
+    Mercurial's per-bullet bonus lasts BuffDuration (12 s) with the fire rate."""
 
     def on_start(self, f):
         self.ready_at = 0.0
@@ -1039,7 +1126,9 @@ class ImbueCharge(FX):
         self.buff("fire_rate", self.item.p("BonusFireRate") / 100, d)
         f.clip = f.st.clip
         if self.item.class_name == "upgrade_ethereal_bullets":
-            self.buff("mercurial", 1, 1e9)
+            # the bullet bonus lasts the buff, not one clip: in Phantom+ replays 82% of a Vyper holder's gun hits after
+            # the first proc carry it (Wraith 79%, Warden 93%) while his clip lasts 1.7 s
+            self.buff("mercurial", 1, d)
 
     def on_damage_dealt(self, f, t, hit):
         if self.pending is not None and hit.ability is self.pending and hit.kind == "spirit":
@@ -1051,8 +1140,6 @@ class ImbueCharge(FX):
             pct = self.v("BulletsBonusMagicDamage") / 100
             self.spirit(t, f.st.bullet_damage * pct * hit.hits, procs=False)
 
-    def on_reload(self, f):
-        f.mods.d.pop("mercurial", None)
 
 
 HANDLERS["upgrade_quick_silver"] = ImbueCharge
@@ -1069,20 +1156,39 @@ class SurgeOfPower(FX):
 
 @handler("upgrade_mystic_reverb")
 class MysticReverb(FX):
+    """Imbued ability damage builds up while the item is ready; once it reaches MinimumDamage the item goes on cooldown
+    and DelayDuration later the echo deals TechDamagePercent% of that damage plus MaxHealthDamage% of the target's
+    current health (the tooltip's "Current Health Bonus Damage", not a cap). Build-up is per target and lasts
+    DelayDuration; DoT ticks of the imbued ability count, so a damage-over-time imbue (Flame Dash) triggers it too."""
+
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind != "spirit" or hit.ability is None or self.item not in hit.ability.imbues or hit.is_dot:
+        if hit.kind != "spirit" or hit.ability is None or self.item not in hit.ability.imbues:
             return
         # imbued lifesteal on this hit (engine.damage applies lifesteal before these hooks, so a short spirit_lifesteal
         # mod here would only reach the next hit)
-        f.heal(hit.amount * self.item.p("ImbueAbilityLifesteal") / 100, "spirit_lifesteal", "lifesteal")
-        if not self.ready() or hit.amount < self.item.p("MinimumDamage", 0):
+        if not hit.is_dot:   # DoT ticks build up the echo (below) but keep the old no-lifesteal rule
+            f.heal(hit.amount * self.item.p("ImbueAbilityLifesteal") / 100, "spirit_lifesteal", "lifesteal")
+        if not self.ready():
             return
+        # the threshold counts damage dealt (after resist) on this target within DelayDuration; the echo repeats the raw
+        # damage (it is mitigated again)
+        builds = f.counters.setdefault("reverb_build", {})
+        t0, dealt, acc = builds.get(id(t), (f.e.t, 0.0, 0.0))
+        if f.e.t - t0 > self.dur("DelayDuration", 3):
+            t0, dealt, acc = f.e.t, 0.0, 0.0
+        dealt, acc = dealt + hit.amount, acc + hit.raw
+        if dealt < self.item.p("MinimumDamage", 0):
+            builds[id(t)] = (t0, dealt, acc)
+            return
+        builds.clear()
         self.use()
-        amt = hit.raw * self.item.p("TechDamagePercent") / 100
-        cap = self.item.p("MaxHealthDamage")
-        if cap:
-            amt = min(amt, t.max_hp * cap / 100) if amt > t.max_hp * cap / 100 else amt
-        f.e.after(self.dur("DelayDuration", 3), lambda: self.spirit(t, amt, procs=False))
+        base = acc * self.item.p("TechDamagePercent") / 100
+        pct = self.item.p("MaxHealthDamage", 0) / 100
+
+        def echo():
+            if t.alive:
+                self.spirit(t, base + pct * max(0.0, t.hp), procs=False)
+        f.e.after(self.dur("DelayDuration", 3), echo)
 
 
 @handler("upgrade_bulletshredimbue")
@@ -1132,9 +1238,19 @@ class Suppressor(FX):
 
 @handler("upgrade_healbane")
 class Healbane(FX):
+    """Spirit damage cuts the target's healing; a target that dies under it heals the holder HealOnKill. In
+    realistic mode the cut is scaled by Skill.item_landing["Healbane"] (real heal prevented per fight second / the
+    sim's, sim/scripts/sustain/fit_healbane.py)."""
+
     def on_damage_dealt(self, f, t, hit):
         if hit.kind == "spirit":
-            self.debuff(t, "heal_received", self.item.p("HealAmpReceivePenaltyPercent") / 100, self.dur("AbilityDuration", 8))
+            k = f.skill.item_landing.get(self.name, 1.0) if f.skill.item_landing else 1.0
+            self.debuff(t, "heal_received", k * self.item.p("HealAmpReceivePenaltyPercent") / 100,
+                        self.dur("AbilityDuration", 8))
+
+    def on_kill(self, f, t):
+        if t.mods.get("heal_received", (self.item.class_name, "heal_received")) is not None:
+            f.heal(self.item.p("HealOnKill"), self.name, "item")
 
 
 @handler("upgrade_bullet_resist_shredder")
@@ -1178,6 +1294,18 @@ class DamageActive(FX):
     def extra(self, f, t):
         pass
 
+    def cc(self, d):
+        """CC duration d x the item's real-data factor in realistic mode (Skill.item_landing; under fight_length
+        without its length_corr, a booking correction that says nothing about how often the cast lands): the
+        factor stands for casts that miss or come late, and a miss misses its stun / silence / disarm too."""
+        sk = self.f.skill
+        fac = (sk.item_landing or {}).get(self.name)
+        if fac is None:
+            return d
+        if self.f.e.length:
+            fac /= (sk.item_length_corr or {}).get(self.name, 1.0)
+        return d * min(1.0, fac)
+
     def try_active(self, f):
         r = self.item.p(self.radius_prop) or self.item.p("AbilityCastRange") or 15
         if not self.ready() or not self.ready_in(r):
@@ -1198,7 +1326,7 @@ class ColdFront(DamageActive):
 @handler("upgrade_arctic_blast")
 class ArcticBlast(DamageActive):
     def extra(self, f, t):
-        self.debuff(t, "stun", 1, self.dur("FreezeDuration", 1))
+        self.debuff(t, "stun", 1, self.cc(self.dur("FreezeDuration", 1)))
 
 
 @handler("upgrade_targeted_silence")
@@ -1206,7 +1334,7 @@ class SilenceWave(DamageActive):
     radius_prop = "AbilityCastRange"
 
     def extra(self, f, t):
-        self.debuff(t, "silence", 1, self.dur("AbilityDuration", 3))
+        self.debuff(t, "silence", 1, self.cc(self.dur("AbilityDuration", 3)))
 
 
 @handler("upgrade_phantom_strike")
@@ -1215,7 +1343,7 @@ class PhantomStrike(DamageActive):
     dmg_prop = "ImpactDamage"
 
     def extra(self, f, t):
-        self.debuff(t, "disarm", 1, self.dur("SlowDuration", 3))
+        self.debuff(t, "disarm", 1, self.cc(self.dur("SlowDuration", 3)))
 
 
 @handler("upgrade_target_stun")

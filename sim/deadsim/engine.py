@@ -18,12 +18,14 @@ from __future__ import annotations
 import heapq
 import itertools
 import math
+import zlib
 from dataclasses import dataclass, field
 
 from .build import Stats, combine_resist, stack_cdr
 from .patterns import fight_start
 
 INF = float("inf")
+PROFILE_SOURCES = False  # also book damage by source and 2 s slice (Fighter.dmg_src_2s; scripts/fight_length/opener_timing.py)
 # Melee rotation (assumptions; the API has no light/heavy split): share of landed melees that are heavy, and how
 # long each melee stops the gun.
 HEAVY_SHARE = 0.3
@@ -32,12 +34,18 @@ MELEE_HEAVY_TIME = 1.1
 # Below MELEE_MIN_RATE hits/s a melee event fires every 1/MELEE_MIN_RATE s with a fractional weight (expected
 # damage), so rare meleers still melee within a short fight.
 MELEE_MIN_RATE = 0.2
+# items bought for melee: holders melee more often than the hero's average player (data/melee_items.json,
+# Skill.melee_item_mult)
+MELEE_ITEMS = frozenset({"upgrade_melee_charge", "upgrade_crushing_fists", "upgrade_boxing_glove",
+                         "upgrade_lifestrike_gauntlets", "upgrade_spirit_snatch", "upgrade_acolytes_glove",
+                         "upgrade_melee_rebuttal"})
 # range spread (deadsim.mechanics range_drift): 7-point Gauss-Hermite nodes (weight e^-x^2) with weights normalized to
 # sum 1; a standard normal value is sqrt(2) x
 _GH = ((-2.6519613568, 0.000548268858), (-1.6735516288, 0.0307571239), (-0.8162878829, 0.240123178),
        (0.0, 0.457142857), (0.8162878829, 0.240123178), (1.6735516288, 0.0307571239), (2.6519613568, 0.000548268858))
 REACH_P_FLOOR = 0.01    # waiting for drift to bring a far target in reach: tau / max(p, floor)
 GUN_POLL = 0.1          # longest a locked gun sleeps before re-checking the lock
+GUN_REACH_FLOOR = 0.05  # bullet_damage: smallest in-range share an in-range hit is scaled up by
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -123,6 +131,32 @@ def long_cooldowns_spent(f):
             fx.ready_at = max(fx.ready_at, c - FIGHT_GAP)
 
 
+def unused_items(f):
+    """Mark the active items this fighter leaves unused in this fight (fx.unused, read by on_start effects such as
+    Cultist Sacrifice's pre-fight buff): an item with real use share u (Skill.item_use) is unused when a quasi-random
+    draw from the fight phase is >= u, so over the overall score's spread enemy pool it is used in a share u of the
+    fights. The draw is shifted by a hash of the item and the fighter, so two items, or the same item on both sides
+    (whose phases differ by 0.5), are not left unused in the same fights. The cooldown is blocked afterwards
+    (block_unused), once on_start effects have set their own ready times."""
+    use = f.skill.item_use
+    if not use:
+        return
+    for fx in f.items_fx:
+        it = getattr(fx, "item", None)
+        u = use.get(it.name) if it is not None else None
+        if u is None or u >= 1.0:
+            continue
+        r = (f.skill.fight_phase + zlib.crc32(f"{it.name}|{f.name}".encode()) / 2 ** 32) % 1.0
+        if r >= u:
+            fx.unused = True
+
+
+def block_unused(f):
+    for fx in f.items_fx:
+        if getattr(fx, "unused", False):
+            fx.ready_at = math.inf
+
+
 @dataclass
 class Skill:
     accuracy: float = 0.26      # fraction of bullets that hit the target hero (ranked median, data/skill_defaults.json)
@@ -134,6 +168,11 @@ class Skill:
     ability_landing: dict = field(default_factory=dict)
     # the same fitted with deadsim.mechanics on (data/landing_rates_mech.json); used instead when mechanics are on
     ability_landing_mech: dict = field(default_factory=dict)
+    # for fights that book damage over real fight lengths (Mechanics.fight_length) the factors are x these (the fits
+    # counted every hit of a 20 s duel in full; scripts/fight_length/length_factors.py): abilities, and items in
+    # realistic mode (item_landing set; an item without a factor gets the correction alone)
+    ability_length_corr: dict = field(default_factory=dict)
+    item_length_corr: dict = field(default_factory=dict)
     use_abilities: bool = True
     use_actives: bool = True
     melee: bool = False         # deprecated, use melee_rate
@@ -141,12 +180,21 @@ class Skill:
     # damage (data/melee_rates.json, loaded by accuracy.hero_default_skill); 0 = no melee.
     melee_rate: float = 0.0
     heavy_share: float = HEAVY_SHARE  # share of rotation melees that are heavy
+    # multiplier on melee_rate by melee items in the build (0, 1, 2+ of MELEE_ITEMS), applied at fight start, since
+    # players who buy melee items melee more (accuracy.melee_item_mults). None = melee_rate as is.
+    melee_item_mult: tuple | None = None
     # follow an ability that sets up a free hit with a guaranteed heavy melee (Abrams: Shoulder Charge hit). These
     # come on top of melee_rate; the fitted rates already account for them.
     combo_melee: bool = True
     # seconds an enemy DoT (Decay etc.) runs before Dispel Magic cleanses it: about two 1 s ticks, as high-rank
-    # players do (Tyler, Eternus). None = cleanse a DoT only below 50% health (what average ranked data shows).
+    # players do (Tyler, Eternus). None = cleanse a DoT only below 50% health.
     dot_cleanse_delay: float | None = 1.5
+    # share of enemy DoTs Dispel Magic is spent on at all (accuracy.dot_cleanse_share, fitted to real Decay damage
+    # on Dispel holders); the rest run out. None = every one.
+    dot_cleanse_share: float | None = None
+    # the same for build-up DoTs (Afterburn, Toxic Bullets: re-applied by the enemy's gun), which real holders
+    # cleanse far more often (accuracy.dot_cleanse_share_buildup). None = every one.
+    dot_cleanse_share_buildup: float | None = None
     engage_margin: float = 5.0  # meters a player will close to land an ability that is just out of reach
     # meters beyond engage_margin a player walks in (shooting on the way) before casting a short-range ability; the
     # walk costs gap / move speed seconds of delay. Range items only shorten that walk, so they never decide
@@ -154,8 +202,14 @@ class Skill:
     walk_in: float = 5.0
     # Used only with deadsim.mechanics on (see that module for the fits):
     parry_rate: float = 0.15       # share of incoming heavy melees parried
-    spell_parry_rate: float = 0.05  # Counterspell: share of enemy aimed casts a spell parry is timed against
-    summon_focus: float = 0.8      # share of trigger pulls spent on a living enemy turret (assumption)
+    # Counterspell: share of enemy aimed non-ultimate casts a spell parry is timed against (hero_default_skill sets
+    # the real-data fit, accuracy.spell_parry_rates: 0)
+    spell_parry_rate: float = 0.05
+    # the same for enemy ultimates (telegraphed, the cast players buy Counterspell for); None = spell_parry_rate
+    spell_parry_rate_ult: float | None = None
+    # share of trigger pulls spent on a living enemy summon; None = the per-kind share fitted to Phantom+ replays
+    # (data/summon_targeting.json)
+    summon_focus: float | None = None
     flee_hp: float = 0.15          # run when below this health share and losing (fit, deadsim.mechanics)
     # Counterplay (off by default; accuracy.hero_default_skill(counterplay=True) turns it on):
     # seconds THIS fighter stays inside an avoidable ground zone (Alchemical Fire) before walking out.
@@ -168,6 +222,10 @@ class Skill:
     # per-item damage factor keyed by item name, fitted from real damage (data/item_landing.json, factors < 1
     # only): procs spent on creeps, charges used outside fights. Multiplies damage booked under that item.
     item_landing: dict = field(default_factory=dict)
+    # per-item real use share of non-damage actives (data/item_use.json, scripts/item_use/fit_item_use.py: real
+    # Phantom+ holders cast Disarming Hex / Metal Skin / Unstoppable... in ~30-60% of their fights, the sim on sight
+    # in all). With a fight_phase the item sits unused in 1 - share of the fights (unused_items).
+    item_use: dict = field(default_factory=dict)
     # per-hero fight pattern (data/fight_patterns.json, deadsim.patterns): combo cast order, setup before the
     # ultimate, abilities used before the fight (Mo & Krill arrive under Burrow). False = cast in slot order.
     fight_pattern: bool = True
@@ -187,6 +245,10 @@ class Hit:
     is_dot: bool = False
     is_item: bool = False
     is_ult: bool = False
+    weapon_proc: bool = False   # an ability hit that counts as a gun hit for Mystic Shot (Kinetic Carbine)
+    # the ability landing factor x reach availability in amount: they stand for hits that land less often, so a
+    # per-hit threshold (Mystic Burst's MinimumDamage) checks amount / landing, the size of a hit when it lands
+    landing: float = 1.0
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -209,6 +271,14 @@ class Fighter:
         self.dmg_out = {}           # source -> damage dealt
         self.dmg_in = {}
         self.healed = 0.0
+        # expected over real fight lengths (Engine.length_w; = dmg_out / healed when Mechanics.fight_length is off)
+        self.dmg_exp = {}
+        self.healed_exp = 0.0
+        self.dmg_by_2s = {}         # 2 s slice of the fight -> damage dealt in full (damage profile checks)
+        self.dmg_first = {}         # source -> time of its first hit, when PROFILE_SOURCES (opener timing checks)
+        self.dmg_src_2s = {}        # (source, 2 s slice) -> damage in full, when PROFILE_SOURCES
+        self.opener_hold = {}       # source name -> real hold values (s) before its first use (Mechanics.opener_timing)
+        self._hold_cache = {}
         self.items_fx = []
         self.abilities = []         # AbilityState
         self.plan = None            # deadsim.patterns.Plan (hero fight pattern), None = slot order
@@ -228,6 +298,17 @@ class Fighter:
         self.headshots_hit = 0
 
     # ---- helpers -----------------------------------------------------------------------------------
+    def hold_of(self, source):
+        """The opener hold of a damage source, also for an ability's sub-source ("Setup Bishop squares")."""
+        q = self._hold_cache.get(source, False)
+        if q is False:
+            q = self.opener_hold.get(source)
+            if q is None:
+                best = max((n for n in self.opener_hold if source.startswith(n + " ")), key=len, default=None)
+                q = self.opener_hold[best] if best else None
+            self._hold_cache[source] = q
+        return q
+
     def acc(self, key, phase=0.5):
         a = self.misc_acc.get(key)
         if a is None:
@@ -247,6 +328,13 @@ class Fighter:
         return any(self.mods.get(k, tg) is not None for k, tg in self.counters.get("debuffs", ())
                    if keys is None or k in keys)
 
+    def buildup_dot(self, min_left=0.0):
+        """True if a running enemy DoT with at least min_left seconds left is a build-up DoT (re-applied by the
+        enemy's gun: Afterburn, Toxic Bullets), which Dispel holders cleanse far more often than others."""
+        t = self.e.t
+        bu = self.counters.get("buildup_dots", ())
+        return any(end - t >= min_left for tag, end in self.counters.get("dot_until", {}).items() if tag in bu)
+
     def dispel(self):
         """Purge enemy debuffs and DoTs (Engine.dot ticks stop; ad-hoc item DoTs check dispel_epoch)."""
         for k, tg in self.counters.pop("debuffs", set()):
@@ -254,6 +342,7 @@ class Fighter:
         for k in [k for k in self.counters if isinstance(k, tuple) and k[0] == "dot"]:
             del self.counters[k]
         self.counters.pop("dot_until", None)
+        self.counters.pop("buildup_dots", None)
         self.counters["dispel_epoch"] = self.counters.get("dispel_epoch", 0) + 1
 
     @property
@@ -315,6 +404,12 @@ class Fighter:
         amt = min(self.max_hp - self.hp, amount * max(0.0, mult))
         self.hp += amt
         self.healed += amt
+        self.healed_exp += amt * self.e.length_w()
+        if kind != "lifesteal" and source not in NOT_HEALS:
+            for fx in self.items_fx:
+                f = getattr(fx, "on_healed", None)
+                if f:
+                    f(self, amt)
         return amt
 
     def add_barrier(self, amount, duration):
@@ -324,6 +419,22 @@ class Fighter:
         now = self.e.t
         self.barriers = [b for b in self.barriers if b[1] > now and b[0] > 0]
         return sum(b[0] for b in self.barriers)
+
+
+# heal sources that are regen in game, not a heal (Healing Tempo's "does not apply on innate Regen or passive Bullet/Spirit
+# Lifesteals"; the lifesteals have kind "lifesteal")
+NOT_HEALS = frozenset({"regen", "Fortitude"})
+
+
+def kill_hooks(killer, dead):
+    """killer's on-kill item effects (Healbane's heal). Also called when an immortal target refills instead of
+    dying (survival / overall score), which counts as a kill there."""
+    if killer is None or not killer.alive:
+        return
+    for fx in killer.items_fx:
+        f = getattr(fx, "on_kill", None)
+        if f:
+            f(killer, dead)
 
 
 # ---------------------------------------------------------------------------------------------------
@@ -345,6 +456,22 @@ class FightResult:
     b_splash: dict = field(default_factory=dict)
     a_summon: dict = field(default_factory=dict)   # damage to enemy summons (mechanics.summons)
     b_summon: dict = field(default_factory=dict)
+    # per summon kind, [gun, other]: damage to the enemy's summons, and damage taken while one's own summons were out
+    a_summon_kind: dict = field(default_factory=dict)
+    b_summon_kind: dict = field(default_factory=dict)
+    a_hit_while_summon: dict = field(default_factory=dict)
+    b_hit_while_summon: dict = field(default_factory=dict)
+    a_summons_out: dict = field(default_factory=dict)   # kind -> [summons spawned, killed by the enemy]
+    b_summons_out: dict = field(default_factory=dict)
+    # damage expected over real fight lengths (Mechanics.fight_length): each hit x P(the fight still goes on then);
+    # the same as a_dmg / a_splash when it is off
+    a_exp: dict = field(default_factory=dict)
+    b_exp: dict = field(default_factory=dict)
+    a_splash_exp: dict = field(default_factory=dict)
+    b_splash_exp: dict = field(default_factory=dict)
+    a_by_2s: dict = field(default_factory=dict)    # 2 s slice -> damage dealt in full (Fighter.dmg_by_2s)
+    a_first: dict = field(default_factory=dict)    # source -> time of its first hit (Fighter.dmg_first)
+    a_src_2s: dict = field(default_factory=dict)   # (source, 2 s slice) -> damage in full (PROFILE_SOURCES)
 
     def summary(self):
         def top(d):
@@ -383,6 +510,30 @@ class Engine:
         if mech is not None and getattr(mech, "range_drift", False):
             from .mechanics import drift_params
             self.spread, self.spread_tau = drift_params()
+        # fight length: real fights mostly end in a disengage, not a death (data/fight_length.json). With
+        # Mechanics.fight_length (a survival curve) the fight still runs to a death or max_time, and every hit is
+        # also booked x P(the two are still trading at its time | nobody died) in Fighter.dmg_exp: the damage
+        # expected over real fight lengths, without a random cut that would swing results by whole casts.
+        self.length = getattr(mech, "fight_length", None) if mech is not None else None
+
+    def length_w(self, t=None, src=None, source=None):
+        """P(a real fight is still going at t s, default now | nobody died): 1 without Mechanics.fight_length. With
+        src / source and an opener hold for it (Fighter.opener_hold, Mechanics.opener_timing): the mean over the
+        real hold values h of P(still going at t + h), as if the source's first use had come h later."""
+        c = self.length
+        if not c:
+            return 1.0
+        if src is not None and src.opener_hold:
+            q = src.hold_of(source)
+            if q:
+                t0 = self.t if t is None else t
+                return sum(self.length_w(t0 + h) for h in q) / len(q)
+        from .mechanics import LENGTH_STEP
+        x = (self.t if t is None else t) / LENGTH_STEP
+        k = int(x)
+        if k >= len(c) - 1:
+            return c[-1]
+        return c[k] + (c[k + 1] - c[k]) * (x - k)
 
     # ---- range spread -------------------------------------------------------------------------------
     def p_within(self, r):
@@ -453,21 +604,47 @@ class Engine:
             self.log.append(f"{self.t:6.2f} {msg}")
 
     # ---- damage -------------------------------------------------------------------------------------
+    @staticmethod
+    def booking(src, dst, amt, kind, name, pure):
+        """[(name, damage)] as the game's damage records split a hit: Escalating Exposure's spirit amp is booked
+        under the item (replays and the API's damage matrix list it as its own source), the rest under name."""
+        if kind != "spirit" or pure:
+            return ((name, amt),)
+        expo = dst.mods.get("spirit_amp_taken", ("expo", src.name))
+        if not expo:
+            return ((name, amt),)
+        part = amt * expo / (1.0 + dst.stat("spirit_amp_taken"))
+        return ((name, amt - part), ("Escalating Exposure", part))
+
     def damage(self, src: Fighter, dst: Fighter, raw: float, kind: str, source: str, *,
                ignore_resist=False, is_ability=False, ability=None, is_dot=False, is_item=False,
-               headshots=0, hits=0, procs=True, is_ult=False, nonlethal=False, pure=False, landed=False):
+               headshots=0, hits=0, procs=True, is_ult=False, nonlethal=False, pure=False, landed=False,
+               weapon_proc=False, book=None):
         """pure=True: raw is already final damage (e.g. Focus Lens re-dealing stored damage), so no outgoing or
         target amps, no resists and no target-side reducers (all already counted in raw). The realistic-mode item
         landing factor still applies on purpose: for Focus Lens it is the real/sim ratio of the item's own damage,
         i.e. how much less real players fit into the silence window. landed=True: the ability already applied its
-        landing factor some other way (Bullet Dance shortens its channel), so it is not applied again here."""
+        landing factor some other way (Bullet Dance shortens its channel), so it is not applied again here.
+        book: the name the damage is recorded under (dmg_out/dmg_in) when it isn't source, as the game books it: an
+        Express Shot proc shot is "Express Shot", not gun. Only the bookkeeping changes; hooks still see source."""
         if self.over or not dst.alive or raw <= 0:
             return 0.0
         amt = raw if pure else raw * src.st.outgoing_mult * (1.0 - src.stat("outgoing_penalty")) * (1.0 + src.stat("damage_amp"))
+        land = 1.0
         if is_ability and src.skill.ability_landing and not landed:
-            amt *= src.skill.ability_landing.get(source, 1.0)
+            # a sub-source of an ability ("Setup Bishop squares", "Ira Domini (blessed)") uses its ability's factor,
+            # as landing_rates.py fits one factor per ability over all of its sources; an ability can also name the
+            # factor it uses (Sinclair's copied ultimate uses Audience Participation's)
+            fac = src.skill.ability_landing.get(source)
+            if fac is None and ability is not None:
+                fac = src.skill.ability_landing.get(getattr(ability.ab, "landing_key", None) or ability.ab.name)
+            if fac is not None:
+                amt *= fac
+                land *= fac
         if is_ability and ability is not None:
-            amt *= ability.scratch.get("_avail", 1.0)   # expected wait for the target to be in reach (spread)
+            av = ability.scratch.get("_avail", 1.0)   # expected wait for the target to be in reach (spread)
+            amt *= av
+            land *= av
         if is_item and src.skill.item_landing:
             amt *= src.skill.item_landing.get(source, 1.0)
         if pure:
@@ -502,7 +679,14 @@ class Engine:
                 amt = f(dst, src, amt, kind, is_dot)
                 if amt <= 0:
                     return 0.0
-        hit = Hit(kind, source, 0.0, raw, is_ability, ability, headshots, hits, is_dot, is_item, is_ult)
+        hit = Hit(kind, source, 0.0, raw, is_ability, ability, headshots, hits, is_dot, is_item, is_ult, weapon_proc,
+                  landing=land)
+        booked = self.booking(src, dst, amt, kind, book or source, pure)
+        if src.skill.item_landing and (book or len(booked) > 1):
+            # damage booked under an item (Express Shot's proc shot, Escalating Exposure's amp) gets that item's
+            # realistic-mode factor, like an item's own damage above
+            booked = tuple((n, v if n == source else v * src.skill.item_landing.get(n, 1.0)) for n, v in booked)
+            amt = sum(v for _, v in booked)
         # barrier then health
         left = amt
         for b in dst.barriers:
@@ -514,8 +698,20 @@ class Engine:
             left = min(left, max(0.0, dst.hp - 1.0))
         dst.hp -= left
         hit.amount = amt
-        src.dmg_out[source] = src.dmg_out.get(source, 0.0) + amt
-        dst.dmg_in[source] = dst.dmg_in.get(source, 0.0) + amt
+        w = self.length_w(src=src, source=source)
+        for name, part in booked:
+            src.dmg_out[name] = src.dmg_out.get(name, 0.0) + part
+            dst.dmg_in[name] = dst.dmg_in.get(name, 0.0) + part
+            src.dmg_exp[name] = src.dmg_exp.get(name, 0.0) + part * w
+        k = int(self.t // 2)
+        src.dmg_by_2s[k] = src.dmg_by_2s.get(k, 0.0) + amt
+        if amt > 0 and PROFILE_SOURCES:
+            src.dmg_first.setdefault(source, self.t)
+            for name, part in booked:
+                src.dmg_src_2s[name, k] = src.dmg_src_2s.get((name, k), 0.0) + part
+        if "summons" in dst.counters and amt > 0:
+            from .mechanics import note_hit_while_summoned
+            note_hit_while_summoned(src, dst, amt, source)
         if dst.hp <= 0 and dst.mods.active("death_immune"):
             dst.hp = 1.0
         if dst.hp <= 0:
@@ -530,6 +726,7 @@ class Engine:
                 dst.alive = False
                 dst.death_time = self.t
                 self.note(f"{dst.name} dies to {source}")
+                kill_hooks(src, dst)
                 self.on_death(dst, src)
         # lifesteal
         if src.alive and amt > 0:
@@ -575,6 +772,7 @@ class Engine:
         if duration <= 0 or dps <= 0:
             return
         guard = kw.pop("guard", None)   # a summon: its DoT stops when it dies
+        buildup = kw.pop("buildup", False)   # re-applied by the enemy's gun (Fighter.buildup_dot)
         if self.mech is not None and (kw.get("is_ability") or kw.get("is_item")) and "spell_parry" in dst.counters:
             from .mechanics import spell_blocked
             if spell_blocked(self, src, dst, kw.get("ability")):
@@ -584,11 +782,14 @@ class Engine:
         token = object()
         dst.counters[key] = token
         dst.counters.setdefault("dot_until", {})[tag] = self.t + duration
+        if buildup:
+            dst.counters.setdefault("buildup_dots", set()).add(tag)
         n = max(1, int(round(duration / tick)))
         per = dps * duration / n
 
         def tick_fn(i):
-            if dst.counters.get(key) is not token or not dst.alive or (guard is not None and not guard.alive):
+            if dst.counters.get(key) is not token or not dst.alive or (
+                    guard is not None and not (guard.alive and guard.until > self.t)):
                 return
             self.damage(src, dst, per, kind, source, is_dot=True, **kw)
             if i + 1 < n:
@@ -606,14 +807,65 @@ class Engine:
         key = (id(st), d)
         fc = self._fall.get(key)
         if fc is None:   # E[falloff] and E[falloff x crit] over the spread (headshots get the joint one)
-            fall = self.spread_mean(st.falloff, d)
-            fc = self._fall[key] = (fall, self.spread_mean(lambda x: st.falloff(x) * st.crit_mult(x), d) / max(fall, 1e-9))
+            mean = self.fine_mean if st.gun_range_m is not None else self.spread_mean   # range edge: a step
+            fall = mean(st.falloff, d)
+            fc = self._fall[key] = (fall, mean(lambda x: st.falloff(x) * st.crit_mult(x), d) / max(fall, 1e-9))
         for fx in f.items_fx:   # close/long range bonuses pay where falloff is high/low, not at its average
             g = getattr(fx, "range_band", None)
             if g:
                 r, bonus, close = g()
                 pct += bonus * self.band_corr(st, r, close, d)
-        return st.bullet_damage * (1.0 + pct) * fc[0], fc[1]
+        # per in-range hit; floored so a nearly-out-of-range fight doesn't land rare 1000x hits (it then loses a little)
+        return st.bullet_damage * (1.0 + pct) * fc[0] / max(self.gun_reach(st), GUN_REACH_FLOOR), fc[1]
+
+    def hit_falloff(self, st):
+        """E[falloff] of a hit that lands: over the distance spread, and for a range-cut gun only inside its range
+        (the shots outside miss, see gun_reach). Per-hit effects scaled by falloff (build-up) use this."""
+        if st.gun_range_m is None:
+            return self.spread_mean(st.falloff)
+        if self.spread <= 0:
+            return st.falloff(self.distance)
+        return self.fine_mean(st.falloff) / max(self.gun_reach(st), GUN_REACH_FLOOR)
+
+    def hit_reach(self, st):
+        """Hit-chance factor for a range-cut gun: gun_reach now over gun_reach at the distance its accuracy was fitted
+        at (gun_fit_m). The fitted accuracy already counts the real out-of-range shots as misses, so a fight at that
+        distance keeps it; a closer one lands more of its shots, a further one fewer."""
+        r = self.gun_reach(st)
+        if st.gun_range_m is None or st.gun_fit_m is None or self.spread <= 0:
+            return r
+        key = (id(st), "reach_fit")
+        ref = self._fall.get(key)
+        if ref is None:
+            ref = self._fall[key] = max(self.fine_mean(lambda x: float(x <= st.gun_range_m), st.gun_fit_m), 1e-9)
+        return r / ref
+
+    def gun_reach(self, st):
+        """Share of the fight's distance spread inside the gun's range (Graves' tether: gun_range_m), else 1. Out of
+        range the gun neither hits nor procs (replays: 2% of Graves' bullet damage lands beyond 20 m), so fire() takes
+        it off the hit chance and bullet_damage() is the in-range hit's damage."""
+        r = st.gun_range_m
+        if r is None:
+            return 1.0
+        if self.spread <= 0:
+            return 1.0 if self.distance <= r else 0.0
+        key = (id(st), self._dkey(), "reach")
+        p = self._fall.get(key)
+        if p is None:
+            p = self._fall[key] = max(self.fine_mean(lambda x: float(x <= r)), 1e-9)
+        return p
+
+    def fine_mean(self, fn, d=None):
+        """spread_mean on a fine grid, for functions with a step (a range edge) that 7 Gauss-Hermite nodes miss."""
+        from .mechanics import DRIFT_MAX, DRIFT_MIN
+        d = self._dkey() if d is None else d
+        num = den = 0.0
+        for i in range(161):
+            z = -4.0 + i * 0.05
+            w = math.exp(-0.5 * z * z)
+            num += w * fn(min(DRIFT_MAX, max(DRIFT_MIN, d * math.exp(self.spread * z))))
+            den += w
+        return num / den
 
     def _dkey(self):
         """Distance for the spread caches: exact at the fight's starting distance (the usual fight), else 0.25 m
@@ -710,12 +962,12 @@ class Engine:
                 g(ab.ctx, ctx)
         n_bullets = int(st.pellets * st.burst_count * ctx["pellet_mult"])
         if self.mech is not None and self.mech.summons and "summons" in e.counters:
-            from .mechanics import live_summon, shoot_summon
-            s = live_summon(e)
-            if s is not None and f.acc("summon_focus").take(f.skill.summon_focus):
+            from .mechanics import pick_summon, shoot_summon
+            s = pick_summon(f, e)
+            if s is not None:
                 shoot_summon(self, f, s, n_bullets)
                 return
-        p_hit = f.skill.accuracy * (1.0 - e.stat("evasion"))
+        p_hit = min(1.0, f.skill.accuracy * (1.0 - e.stat("evasion")) * self.hit_reach(st))
         hits = f.hit_acc.take(p_hit, n_bullets)
         if hits <= 0:
             return
@@ -733,9 +985,10 @@ class Engine:
             ign_hits = f.acc("armor_piercer").take(frac_ign, hits)
             if ign_hits:
                 share = ign_hits / hits
-                self.damage(f, e, raw * share, "bullet", "gun", ignore_resist=True, headshots=0, hits=ign_hits, procs=False)
+                self.damage(f, e, raw * share, "bullet", "gun", ignore_resist=True, headshots=0, hits=ign_hits, procs=False,
+                            book=ctx.get("book"))
                 raw *= (1 - share)
-        self.damage(f, e, raw, "bullet", "gun", headshots=heads, hits=hits)
+        self.damage(f, e, raw, "bullet", "gun", headshots=heads, hits=hits, book=ctx.get("book"))
         for kind_src in ctx["bonus_spirit"]:
             amount, name = kind_src
             self.damage(f, e, amount * hits, "spirit", name, is_item=True)
@@ -745,12 +998,15 @@ class Engine:
         a.enemy, b.enemy = b, a
         self.fighters = [a, b]
         for f in (a, b):
+            if f.skill.fight_phase is not None:
+                unused_items(f)
             for fx in f.items_fx:
                 g = getattr(fx, "on_start", None)
                 if g:
                     g(f)
             if f.skill.fight_phase is not None:
                 long_cooldowns_spent(f)
+                block_unused(f)
             for ab in f.abilities:
                 ab.start()
         for f in (a, b):
@@ -780,11 +1036,21 @@ class Engine:
             winner = b.name
         elif not b.alive and a.alive:
             winner = a.name
-        r = FightResult(winner, self.t, a.hp, b.hp, a.dmg_out, b.dmg_out, a.name, b.name, self.log)
+        r = FightResult(winner, self.t, a.hp, b.hp, a.dmg_out, b.dmg_out, a.name, b.name, self.log,
+                        a_exp=a.dmg_exp, b_exp=b.dmg_exp, a_by_2s=a.dmg_by_2s, a_first=a.dmg_first, a_src_2s=a.dmg_src_2s)
         if self.mech is not None:
             r.escaped = self.escaped
             r.a_splash, r.b_splash = a.counters.get("splash", {}), b.counters.get("splash", {})
+            r.a_splash_exp, r.b_splash_exp = a.counters.get("splash_exp", {}), b.counters.get("splash_exp", {})
             r.a_summon, r.b_summon = a.counters.get("summon_dmg", {}), b.counters.get("summon_dmg", {})
+            r.a_summon_kind, r.b_summon_kind = a.counters.get("summon_dmg_kind", {}), b.counters.get("summon_dmg_kind", {})
+            r.a_hit_while_summon = a.counters.get("hit_while_summon", {})
+            r.b_hit_while_summon = b.counters.get("hit_while_summon", {})
+            for f, out in ((a, r.a_summons_out), (b, r.b_summons_out)):
+                for x in f.counters.get("summons", ()):
+                    row = out.setdefault(x.kind, [0, 0])
+                    row[0] += 1
+                    row[1] += not x.alive
         return r
 
     # ---- melee ------------------------------------------------------------------------------------
@@ -804,7 +1070,8 @@ class Engine:
             # parried heavies don't land: swing more often so landed melee stays at the fitted rate
             rate /= max(0.5, 1.0 - f.enemy.skill.parry_rate * f.skill.heavy_share)
         interval = 1.0 / max(rate, MELEE_MIN_RATE)
-        if self.mover is None or f.counters.get("fleeing") is not True and self.distance <= self.mover.start + 6.0:
+        if self.mover is None or f.counters.get("fleeing") is not True and self.distance <= self.mover.start + \
+                self.mover.melee_reach(f, heavy):
             self.melee_hit(f, heavy, min(1.0, rate * interval))
         self.after(interval, self.melee_tick, f)
 

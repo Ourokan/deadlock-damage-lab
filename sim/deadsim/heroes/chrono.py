@@ -4,20 +4,28 @@ Assumptions:
 - Pulse Grenade: lands at spirit_accuracy; the time-slowed target stays inside for every pulse
   (one at landing, then every PulseInterval during AbilityDuration). Each pulse deals PulseDamage and adds a
   stack of DamageAmplificationPerStack% damage taken (from Paradox; 1v1 so damage_taken_amp), DebuffDuration.
-- Time Wall: placed between the fighters, Paradox shoots through it for its whole duration: +FriendlyBullet-
-  DamageBonus% weapon damage. Blocking enemy bullets/projectiles is NOT modeled (no engine hook for a partial
+- Time Wall: +FriendlyBulletDamageBonus% weapon damage for bullets Paradox shoots through it, scaled by
+  TIMEWALL_SHOOT_THROUGH. Shooting through it for its whole duration gave the sim's Paradox hit 1.6x the real one
+  (others 0.8-1.4x) and a gun share of 0.34 vs 0.24 real. In replays, only ~3% more of Paradox's gun hits on heroes
+  land 1.3x+ above his local median than for heroes without such a buff (9.3% vs 5.8-7.0% for Wraith/Haze), so the
+  +30-65% bonus reaches few hits. Blocking enemy bullets/projectiles is NOT modeled (no engine hook for a partial
   block). T2 silence lands on the target (wall dropped on them).
 - Kinetic Carbine: spirit damage = MaxBonusBulletDamage + (EWeaponPower scale)% of the weapon damage, read as
-  5 + 125 x (1 + weapon bonus), T3 scale 180 (low confidence: the data's EWeaponPower meaning is unclear). Charged for
-  CARBINE_CHARGE seconds (no shooting), always a full charge, landing at spirit_accuracy; HeadshotBonus% at
-  the caster's headshot rate. Time-stop = stun for MaxSlowDuration.
+  5 + 125 x (bullet damage / level-1 bullet damage) x (1 + weapon bonus), T3 scale 180. In replays (70 Phantom+
+  matches) a Carbine hit is 10-17x Paradox's gun hit at every stage of the match (96 at 0-5 min, ~470 at 20-30 min):
+  it grows with the per-level bullet damage too. Without that growth the late hit was ~0.55x real and the
+  landing factor (capped at 1.5) could not make it up. Charged for MaxChargeDuration x CARBINE_CHARGE seconds
+  (no shooting): in replays the gap from Paradox's previous gun shot to a mid-fight Carbine hit is mostly 2.5-6 s.
+  Always a full charge, landing at spirit_accuracy; HeadshotBonus% at the caster's headshot rate. Time-stop = stun for MaxSlowDuration. The hit procs Mystic Shot like a gun hit (replays:
+  73% of Paradox's Mystic Shot procs on heroes land with a Kinetic Carbine hit).
 - Paradoxical Swap: the projectile lands at spirit_accuracy; SwapDamage (+T3 MaxHealthDamage% of max health)
   on arrival. Both heroes are in transit for MinSwapTime: Paradox can't shoot, the target is stunned. T1 barrier
   = CombatBarrier (200 + 1.5 x spirit power).
 """
 from deadsim.abilities import AbilityImpl, register
 
-CARBINE_CHARGE = 1.0
+CARBINE_CHARGE = 1.0   # share of MaxChargeDuration spent charging (replays, see above)
+TIMEWALL_SHOOT_THROUGH = 0.1   # share of the wall's uptime Paradox's hits get the bonus (replays, see above)
 
 
 @register("citadel_ability_chrono_pulse_grenade")
@@ -64,7 +72,8 @@ class TimeWall(AbilityImpl):
         delay = c.raw("AbilityCastDelay") + c.raw("TimeWallFormationTime")
         c.lock_gun(c.raw("AbilityCastDelay"))
         d = c.dur("AbilityDuration")
-        c.after(delay, c.buff, "weapon_pct", c.raw("FriendlyBulletDamageBonus") / 100, d, "timewall")
+        c.after(delay, c.buff, "weapon_pct", c.raw("FriendlyBulletDamageBonus") / 100 * TIMEWALL_SHOOT_THROUGH, d,
+                "timewall")
         c.after(delay, c.buff, "weapon_pct_timewall", 1, d, "timewall_marker")
         if c.tier >= 2:
             c.debuff("silence", 1, c.dur("DebuffDuration"), delay=delay)
@@ -78,16 +87,19 @@ class KineticCarbine(AbilityImpl):
         return c.reach(40)
 
     def cast(self, c):
-        c.lock_gun(CARBINE_CHARGE)
-        c.after(CARBINE_CHARGE, self.shoot, c)
+        charge = c.raw("MaxChargeDuration", 2.5) * CARBINE_CHARGE
+        c.lock_gun(charge)
+        c.after(charge, self.shoot, c)
 
     def shoot(self, c):
         if not c.me.alive or not c.foe.alive:
             return
-        dmg = c.raw("MaxBonusBulletDamage") + c.scale("MaxBonusBulletDamage") * (1 + c.me.weapon_pct())
+        st = c.me.st
+        growth = st.bullet_damage / max(1e-6, st.gun_charge * st.hero.weapon.get("bullet_damage", 1.0))
+        dmg = c.raw("MaxBonusBulletDamage") + c.scale("MaxBonusBulletDamage") * growth * (1 + c.me.weapon_pct())
         dmg *= 1 + c.me.skill.headshot * c.raw("HeadshotBonus") / 100
         if c.me.acc("carbine").take(c.me.skill.spirit_accuracy):
-            c.spirit_hit(dmg, hit_chance=1.0)
+            c.spirit_hit(dmg, hit_chance=1.0, weapon_proc=True)
             c.debuff("stun", 1, c.dur("MaxSlowDuration"))
 
 

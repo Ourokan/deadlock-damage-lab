@@ -53,6 +53,11 @@ def build_zip(path):
             z.write(f, os.path.relpath(f, ROOT))
         for f in glob.glob(os.path.join(ROOT, "sim/data/*.json")):
             z.write(f, os.path.relpath(f, ROOT))
+        # fitted Dispel Magic shares and Counterspell rates, read by accuracy.hero_default_skill (no fallback, so
+        # they must ship)
+        for f in glob.glob(os.path.join(ROOT, "sim/validation/dispel/*fit_*.json")) + \
+                glob.glob(os.path.join(ROOT, "sim/validation/counterspell/fit_*.json")):
+            z.write(f, os.path.relpath(f, ROOT))
         for name in ["abilities.json", "heroes.json", "shop_items.json", "weapons.json", "raw/items.json"]:
             z.write(os.path.join(ROOT, "data/game", name), "data/game/" + name)
         for fn, body in slim_ability_orders().items():
@@ -108,6 +113,57 @@ def maker_data():
                   separators=(",", ":"))
 
 
+def counters_data():
+    """data/counters/index.json and heroes/<id>.json for the Counter items tab: the sim values from
+    counters/out/sim.json (counters/scripts/export_sim.py) and the real-match buy triggers and win edges from
+    counters/out/report.json + triggers.json (counters/scripts/report.py, triggers.py). Returns heroes written."""
+    src = os.path.join(ROOT, "counters/out/sim.json")
+    if not os.path.exists(src):
+        return 0
+    with open(src) as fh:
+        sim = json.load(fh)
+    real = {}
+    rep_p, trig_p = os.path.join(ROOT, "counters/out/report.json"), os.path.join(ROOT, "counters/out/triggers.json")
+    if os.path.exists(rep_p) and os.path.exists(trig_p):
+        with open(rep_p) as fh:
+            rep = json.load(fh)
+        with open(trig_p) as fh:
+            trig = json.load(fh)
+        ids = {v: k for k, v in sim["heroes"].items()}
+        for n, r in rep["items"].items():
+            we = r.get("win_edge", {}).get("all_own_position") or [None]
+            real[n] = {"buy_rate": r.get("buy_rate"), "buy_minute": r.get("buy_minute", {}).get("median"),
+                       "win_edge": we[0],
+                       "hero_lift": {ids[t["name"]]: round(t["rate_ratio"], 3) for t in trig.get(n, [])
+                                     if t["kind"] == "hero" and t["name"] in ids}}
+        real = {"matches": rep.get("matches"), "items": real}
+    out = os.path.join(WEB, "data", "counters")
+    os.makedirs(os.path.join(out, "heroes"), exist_ok=True)
+    idx = {k: sim[k] for k in ("bracket", "built", "items", "heroes")}
+    idx["real"] = real
+    idx["budgets"] = {b: {k: d[k] for k in ("enemies", "weights", "items", "enemy")} for b, d in sim["budgets"].items()}
+    with open(os.path.join(out, "index.json"), "w") as fh:
+        json.dump(idx, fh, separators=(",", ":"))
+    heroes = sorted({h for d in sim["budgets"].values() for h in d["hero"]})
+    for h in heroes:
+        with open(os.path.join(out, "heroes", f"{h}.json"), "w") as fh:
+            json.dump({b: d["hero"][h] for b, d in sim["budgets"].items() if h in d["hero"]}, fh, separators=(",", ":"))
+    return len(heroes)
+
+
+def win_edge_data(data):
+    """data/win_edge.json: real per-hero item win edge (refreshed from Ritualist+ matches by each patch rerun,
+    pipeline/refresh_win_edge.py), hero id -> item id -> [edge, se] in win-rate points, for the overall tab."""
+    path = os.path.join(ROOT, "analysis/out/hero_item_edge.json")
+    if not os.path.exists(path):
+        return
+    with open(path) as fh:
+        d = json.load(fh)
+    heroes = {h: {i: [round(v[0], 2), round(v[1], 2)] for i, v in items.items()} for h, items in d["heroes"].items()}
+    with open(os.path.join(data, "win_edge.json"), "w") as fh:
+        json.dump({"meta": d["meta"], "heroes": heroes}, fh, separators=(",", ":"))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--pyodide", help="folder with an extracted pyodide-core release (copied to vendor/pyodide)")
@@ -116,7 +172,19 @@ def main():
     os.makedirs(data, exist_ok=True)
     shutil.copy(os.path.join(ROOT, "search/out/items.json"), os.path.join(data, "items.json"))
     shutil.copy(os.path.join(ROOT, "data/patch.json"), os.path.join(data, "patch.json"))
-    shutil.copy(os.path.join(ROOT, "sim/data/skill_defaults.json"), os.path.join(data, "skill_defaults.json"))  # ranked aim spread
+    if os.path.exists(os.path.join(ROOT, "data/changes.json")):   # pipeline/changes.py: what each rerun changed
+        shutil.copy(os.path.join(ROOT, "data/changes.json"), os.path.join(data, "changes.json"))
+    # ranked aim spread; Graves and Danny (no hero accuracy in match stats) get their replay-fitted rows
+    with open(os.path.join(ROOT, "sim/data/skill_defaults.json")) as fh:
+        aim = json.load(fh)
+    cal = os.path.join(ROOT, "sim/data/gun_calibration.json")
+    if os.path.exists(cal):
+        with open(cal) as fh:
+            for hid, row in json.load(fh)["heroes"].items():
+                aim["heroes"].setdefault(hid, row)
+    with open(os.path.join(data, "skill_defaults.json"), "w") as fh:
+        json.dump(aim, fh)
+    win_edge_data(data)
     with open(os.path.join(ROOT, "damage/out/index.json")) as fh:
         heroes = [{"id": h["id"], "name": h["name"]} for h in json.load(fh)["heroes"]]
     with open(os.path.join(data, "heroes.json"), "w") as fh:
@@ -133,6 +201,7 @@ def main():
                 json.dump(d, fh, separators=(",", ":"))
         counts[key] = len(files)
     maker_data()
+    counts["counters"] = counters_data()
     os.makedirs(os.path.join(WEB, "py"), exist_ok=True)
     build_zip(os.path.join(WEB, "py", "sim.zip"))
     if a.pyodide:

@@ -14,6 +14,7 @@ print(r.summary())                     # winner, time, HP left, damage by source
 sk, info = player_skill(<steam account id>, hero="Haze")      # a real player's aim from their recent matches
 Skill(accuracy=0.3, headshot=0.2)                               # or manual
 hero_default_skill("Abrams", melee_rate_override=0.5, heavy_share=0.4)  # own melee frequency (landed hits/s)
+# by default the melee rate follows the build: more melee items -> more melees (data/melee_items.json)
 compute_stats("Haze", items, souls=15000)                       # static stats only
 from deadsim.mechanics import Mechanics                         # parry, shootable turrets, escape/chase, nearby enemies
 r = duel(me, foe, mechanics=Mechanics(extra_targets=0.25))     # on by default (mechanics=None for the old model); r.escaped, r.a_splash, r.b_summon

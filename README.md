@@ -14,7 +14,7 @@ Live site: https://tylernodell.github.io/deadlock-damage-lab/ (deployed from `ma
 | `damage/` | Damage test against a configurable dummy (`dummy.py`) and the search for the most damaging builds per hero and net worth (`out/`). |
 | `search/` | 1v1 duel build search against real player builds, per rank bracket (`out/`). |
 | `survival/` | Tank builds that survive longest while keeping their damage (`out/`). |
-| `counters/` | Counter-item analysis from real matches. |
+| `counters/` | Counter items: real-match buy triggers and win edges, and their value in the sim per enemy hero. |
 | `data/` | Game data (`game/`) and the scripts that pull it and real player builds from the Deadlock API. |
 | `web/` | The static site. The damage test runs the real Python sim in the browser with Pyodide. |
 
@@ -47,14 +47,16 @@ queries an hour, so 14 days take ~3 hours and a fetch that runs out of time cont
 the opponent pools, then reruns the searches one rank tier at a time (`.github/workflows/rerun-tier.yml`), in the
 order of `pipeline/tiers.json`: Phantom and up first, then Ascendant and up, Eternus and up, and all ranks. Phantom
 and up is the standard (`build_pool.PRIMARY`): its tier runs the damage, item buy order, ability order, survival, duel, overall and full game path
-searches; the later tiers run the duel, overall and full game path searches in their bracket. Each tier runs on 16 machines
-(`pipeline/run_shard.py --tier`), checks it finished (`pipeline/check_results.py --tier`), commits the new `out/`
+searches and the counter-item values (`counters/scripts/sim_counters.py`); the later tiers run the duel, overall and full game path searches in their bracket. Each tier runs on 16 machines
+(`pipeline/run_shard.py --tier`; jobs are split by hero and budget using each job's time in the last rerun,
+`pipeline/unit_costs.json`, so the machines finish together), checks it finished (`pipeline/check_results.py --tier`), commits the new `out/`
 folders, game data and `data/patch.json` to `main` and redeploys the site before the next tier starts, so the
 standard results show up first. Only tiers listed in `enabled` run (for now just Phantom and up); the others keep
 their last published results, and the site says which run they come from. If a tier fails, nothing is committed for
 it and the site keeps its previous results. The site footer shows the patch and when the results were built.
 
-Not rerun automatically: the counter-item analysis (`counters/`), and the sim's fitted inputs in `sim/data/`
+Not rerun automatically: the real-match half of the counter-item analysis (`counters/` buy triggers and win
+edges, patch 09-29-2026), and the sim's fitted inputs in `sim/data/`
 (aim percentiles, ability landing and melee rates), which keep their 09-29-2026 fit until refitted by hand. A new
 hero's abilities fall back to a generic reading of their game data until they are coded in `sim/deadsim/heroes/`.
 

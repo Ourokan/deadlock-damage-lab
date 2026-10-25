@@ -27,7 +27,7 @@ class Witchmail(FX):
     (internal cooldown AbilityCooldown)."""
 
     def on_damage_taken(self, f, src, hit):
-        if hit.kind != "spirit" or hit.amount < self.item.p("DamageThreshold", 75) or not self.ready():
+        if hit.kind != "spirit" or hit.amount / max(1e-6, hit.landing) < self.item.p("DamageThreshold", 75) or not self.ready():
             return
         cooling = [ab for ab in f.abilities if ab.ready_at > self.now]
         if not cooling:

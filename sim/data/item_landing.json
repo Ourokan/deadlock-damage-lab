@@ -1,219 +1,291 @@
 {
  "meta": {
-  "source": "3628 player-matches x 3 duels (20 s), real builds both sides",
-  "formula": "(real item dmg / real gun dmg) / (sim item dmg / sim gun dmg), item holders only",
-  "use": "deadsim realistic mode scales an item's own damage by min(1, landing)"
+  "source": "5623 player-matches x 3 duels (20 s), real builds both sides",
+  "formula": "(real item dmg / real gun dmg) / (sim item dmg / sim gun dmg), item holders only, gun damage while the item was owned",
+  "sample": "phantom_sample.jsonl.gz",
+  "use": "deadsim realistic mode scales an item's own damage by min(1, landing)",
+  "length": "fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x length_corr (the sim's source/gun in full / the same expected over real fight lengths, scripts/fight_length/length_factors.py, phantom_sample.jsonl.gz, 3 rounds)"
  },
  "items": {
-  "upgrade_focus_lens": {
-   "name": "Focus Lens",
-   "holders": 43,
-   "real_per_gun": 0.2741,
-   "sim_per_gun": 0.8579,
-   "landing": 0.319
+  "upgrade_siphon_bullets": {
+   "name": "Siphon Bullets",
+   "holders": 520,
+   "real_per_gun": 0.2478,
+   "sim_per_gun": 0.6764,
+   "landing": 0.366,
+   "length_corr": 0.987
   },
-  "upgrade_toxic_bullets": {
-   "name": "Toxic Bullets",
-   "holders": 342,
-   "real_per_gun": 0.2684,
-   "sim_per_gun": 0.5207,
-   "landing": 0.515
-  },
-  "upgrade_discord": {
-   "name": "Scourge",
-   "holders": 116,
-   "real_per_gun": 0.3584,
-   "sim_per_gun": 0.5653,
-   "landing": 0.634
-  },
-  "upgrade_targeted_silence": {
-   "name": "Silence Wave",
-   "holders": 31,
-   "real_per_gun": 0.1074,
-   "sim_per_gun": 0.1662,
-   "landing": 0.646
-  },
-  "upgrade_ultimate_burst": {
-   "name": "Lightning Scroll",
-   "holders": 54,
-   "real_per_gun": 0.0994,
-   "sim_per_gun": 0.1395,
-   "landing": 0.713
-  },
-  "upgrade_headhunter": {
-   "name": "Headhunter",
-   "holders": 334,
-   "real_per_gun": 0.275,
-   "sim_per_gun": 0.3676,
-   "landing": 0.748
-  },
-  "upgrade_crackshot": {
-   "name": "Mystic Shot",
-   "holders": 311,
-   "real_per_gun": 0.209,
-   "sim_per_gun": 0.2779,
-   "landing": 0.752
-  },
-  "upgrade_ethereal_bullets": {
-   "name": "Mercurial Magnum",
-   "holders": 311,
-   "real_per_gun": 0.1223,
-   "sim_per_gun": 0.1476,
-   "landing": 0.828
-  },
-  "upgrade_quick_silver": {
-   "name": "Quicksilver Reload",
-   "holders": 821,
-   "real_per_gun": 0.0831,
-   "sim_per_gun": 0.0966,
-   "landing": 0.861
-  },
-  "upgrade_phantom_strike": {
-   "name": "Phantom Strike",
-   "holders": 139,
-   "real_per_gun": 0.0907,
-   "sim_per_gun": 0.1018,
-   "landing": 0.891
-  },
-  "upgrade_chain_lightning": {
-   "name": "Tesla Bullets",
-   "holders": 319,
-   "real_per_gun": 0.1739,
-   "sim_per_gun": 0.1889,
-   "landing": 0.921
-  },
-  "upgrade_rupture": {
-   "name": "Decay",
-   "holders": 45,
-   "real_per_gun": 0.6915,
-   "sim_per_gun": 0.7214,
-   "landing": 0.959
-  },
-  "upgrade_spirit_snatch": {
-   "name": "Spirit Snatch",
-   "holders": 551,
-   "real_per_gun": 0.2493,
-   "sim_per_gun": 0.2559,
-   "landing": 0.974
-  },
-  "upgrade_spirit_burn": {
-   "name": "Spirit Burn",
-   "holders": 554,
-   "real_per_gun": 0.212,
-   "sim_per_gun": 0.1884,
-   "landing": 1.125
-  },
-  "upgrade_split_shot": {
-   "name": "Split Shot",
-   "holders": 82,
-   "real_per_gun": 0.217,
-   "sim_per_gun": 0.1919,
-   "landing": 1.131
-  },
-  "upgrade_acolytes_glove": {
-   "name": "Spirit Strike",
-   "holders": 567,
-   "real_per_gun": 0.0621,
-   "sim_per_gun": 0.0533,
-   "landing": 1.166
-  },
-  "upgrade_headshot_booster": {
-   "name": "Headshot Booster",
-   "holders": 392,
-   "real_per_gun": 0.0669,
-   "sim_per_gun": 0.0491,
-   "landing": 1.362
-  },
-  "upgrade_weapon_backstabber": {
-   "name": "Stalker",
-   "holders": 549,
-   "real_per_gun": 0.1715,
-   "sim_per_gun": 0.1182,
-   "landing": 1.451
-  },
-  "upgrade_magic_shock": {
-   "name": "Tankbuster",
-   "holders": 997,
-   "real_per_gun": 0.5044,
-   "sim_per_gun": 0.3362,
-   "landing": 1.5
-  },
-  "upgrade_arctic_blast": {
-   "name": "Arctic Blast",
-   "holders": 176,
-   "real_per_gun": 0.4966,
-   "sim_per_gun": 0.3279,
-   "landing": 1.514
-  },
-  "upgrade_thermal_detonator": {
-   "name": "Alchemical Fire",
-   "holders": 55,
-   "real_per_gun": 0.3813,
-   "sim_per_gun": 0.2501,
-   "landing": 1.525
-  },
-  "upgrade_return_fire": {
-   "name": "Return Fire",
-   "holders": 68,
-   "real_per_gun": 0.2441,
-   "sim_per_gun": 0.1532,
-   "landing": 1.593
-  },
-  "upgrade_cold_front": {
-   "name": "Cold Front",
-   "holders": 401,
-   "real_per_gun": 0.2862,
-   "sim_per_gun": 0.1708,
-   "landing": 1.676
-  },
-  "upgrade_magic_burst": {
-   "name": "Mystic Burst",
-   "holders": 1100,
-   "real_per_gun": 0.1119,
-   "sim_per_gun": 0.0659,
-   "landing": 1.698
-  },
-  "upgrade_critshot": {
-   "name": "Lucky Shot",
-   "holders": 167,
-   "real_per_gun": 0.1312,
-   "sim_per_gun": 0.0722,
-   "landing": 1.818
-  },
-  "upgrade_crushing_fists": {
-   "name": "Crushing Fists",
-   "holders": 175,
-   "real_per_gun": 0.0927,
-   "sim_per_gun": 0.0455,
-   "landing": 2.037
-  },
-  "upgrade_melee_rebuttal": {
-   "name": "Rebuttal",
-   "holders": 172,
-   "real_per_gun": 0.0474,
-   "sim_per_gun": 0.0197,
-   "landing": 2.41
-  },
-  "upgrade_tech_damage_pulse": {
-   "name": "Torment Pulse",
-   "holders": 350,
-   "real_per_gun": 0.9022,
-   "sim_per_gun": 0.3329,
-   "landing": 2.71
-  },
-  "upgrade_capacitor": {
-   "name": "Capacitor",
-   "holders": 205,
-   "real_per_gun": 0.3854,
-   "sim_per_gun": 0.1154,
-   "landing": 3.339
+  "upgrade_escalating_exposure": {
+   "name": "Escalating Exposure",
+   "holders": 510,
+   "real_per_gun": 0.8663,
+   "sim_per_gun": 1.6014,
+   "landing": 0.541,
+   "length_corr": 1.318
   },
   "upgrade_mystic_reverb": {
    "name": "Mystic Reverb",
-   "holders": 210,
-   "real_per_gun": 0.4478,
-   "sim_per_gun": 0.1254,
-   "landing": 3.571
+   "holders": 196,
+   "real_per_gun": 1.3033,
+   "sim_per_gun": 2.4026,
+   "landing": 0.542,
+   "length_corr": 0.93
+  },
+  "upgrade_toxic_bullets": {
+   "name": "Toxic Bullets",
+   "holders": 845,
+   "real_per_gun": 0.5309,
+   "sim_per_gun": 0.8573,
+   "landing": 0.619,
+   "length_corr": 1.49
+  },
+  "upgrade_focus_lens": {
+   "name": "Focus Lens",
+   "holders": 36,
+   "real_per_gun": 0.9568,
+   "sim_per_gun": 1.4797,
+   "landing": 0.647,
+   "length_corr": 0.97
+  },
+  "upgrade_discord": {
+   "name": "Scourge",
+   "holders": 104,
+   "real_per_gun": 2.0362,
+   "sim_per_gun": 3.1126,
+   "landing": 0.654,
+   "length_corr": 0.918
+  },
+  "upgrade_targeted_silence": {
+   "name": "Silence Wave",
+   "holders": 26,
+   "real_per_gun": 0.2088,
+   "sim_per_gun": 0.3027,
+   "landing": 0.69,
+   "length_corr": 0.488
+  },
+  "upgrade_capacitor": {
+   "name": "Capacitor",
+   "holders": 374,
+   "real_per_gun": 0.6964,
+   "sim_per_gun": 0.9745,
+   "landing": 0.715,
+   "length_corr": 0.824
+  },
+  "upgrade_crackshot": {
+   "name": "Mystic Shot",
+   "holders": 493,
+   "real_per_gun": 0.3848,
+   "sim_per_gun": 0.5143,
+   "landing": 0.748,
+   "length_corr": 1.064
+  },
+  "upgrade_weapon_backstabber": {
+   "name": "Stalker",
+   "holders": 790,
+   "real_per_gun": 0.2189,
+   "sim_per_gun": 0.2903,
+   "landing": 0.754,
+   "length_corr": 1.069
+  },
+  "upgrade_ethereal_bullets": {
+   "name": "Mercurial Magnum",
+   "holders": 339,
+   "real_per_gun": 0.2954,
+   "sim_per_gun": 0.3581,
+   "landing": 0.825,
+   "length_corr": 0.785
+  },
+  "upgrade_thermal_detonator": {
+   "name": "Alchemical Fire",
+   "holders": 68,
+   "real_per_gun": 0.8742,
+   "sim_per_gun": 1.0484,
+   "landing": 0.834,
+   "length_corr": 0.749
+  },
+  "upgrade_headhunter": {
+   "name": "Headhunter",
+   "holders": 407,
+   "real_per_gun": 0.4398,
+   "sim_per_gun": 0.524,
+   "landing": 0.839,
+   "length_corr": 0.873
+  },
+  "upgrade_ricochet": {
+   "name": "Ricochet",
+   "holders": 693,
+   "real_per_gun": 0.1562,
+   "sim_per_gun": 0.178,
+   "landing": 0.878,
+   "length_corr": 0.963
+  },
+  "upgrade_chain_lightning": {
+   "name": "Tesla Bullets",
+   "holders": 509,
+   "real_per_gun": 0.4798,
+   "sim_per_gun": 0.5378,
+   "landing": 0.892,
+   "length_corr": 0.996
+  },
+  "upgrade_tech_damage_pulse": {
+   "name": "Torment Pulse",
+   "holders": 569,
+   "real_per_gun": 1.3578,
+   "sim_per_gun": 1.5121,
+   "landing": 0.898,
+   "length_corr": 1.074
+  },
+  "upgrade_split_shot": {
+   "name": "Split Shot",
+   "holders": 169,
+   "real_per_gun": 0.257,
+   "sim_per_gun": 0.2805,
+   "landing": 0.916,
+   "length_corr": 0.48
+  },
+  "upgrade_cold_front": {
+   "name": "Cold Front",
+   "holders": 505,
+   "real_per_gun": 0.447,
+   "sim_per_gun": 0.485,
+   "landing": 0.922,
+   "length_corr": 0.5
+  },
+  "upgrade_express_shot": {
+   "name": "Express Shot",
+   "holders": 542,
+   "real_per_gun": 0.6723,
+   "sim_per_gun": 0.6639,
+   "landing": 1.013,
+   "length_corr": 0.843
+  },
+  "upgrade_acolytes_glove": {
+   "name": "Spirit Strike",
+   "holders": 557,
+   "real_per_gun": 0.2338,
+   "sim_per_gun": 0.218,
+   "landing": 1.073,
+   "length_corr": 0.907
+  },
+  "upgrade_headshot_booster": {
+   "name": "Headshot Booster",
+   "holders": 367,
+   "real_per_gun": 0.2149,
+   "sim_per_gun": 0.1973,
+   "landing": 1.09,
+   "length_corr": 0.87
+  },
+  "upgrade_quick_silver": {
+   "name": "Quicksilver Reload",
+   "holders": 1104,
+   "real_per_gun": 0.1712,
+   "sim_per_gun": 0.1546,
+   "landing": 1.107,
+   "length_corr": 0.556
+  },
+  "upgrade_spirit_burn": {
+   "name": "Spirit Burn",
+   "holders": 556,
+   "real_per_gun": 0.7543,
+   "sim_per_gun": 0.6775,
+   "landing": 1.113,
+   "length_corr": 1.216
+  },
+  "upgrade_rupture": {
+   "name": "Decay",
+   "holders": 105,
+   "real_per_gun": 1.5357,
+   "sim_per_gun": 1.3166,
+   "landing": 1.166,
+   "length_corr": 0.928
+  },
+  "upgrade_ultimate_burst": {
+   "name": "Lightning Scroll",
+   "holders": 32,
+   "real_per_gun": 0.3686,
+   "sim_per_gun": 0.3058,
+   "landing": 1.205,
+   "length_corr": 0.688
+  },
+  "upgrade_spirit_snatch": {
+   "name": "Spirit Snatch",
+   "holders": 707,
+   "real_per_gun": 0.3666,
+   "sim_per_gun": 0.3022,
+   "landing": 1.213,
+   "length_corr": 0.92
+  },
+  "upgrade_magic_burst": {
+   "name": "Mystic Burst",
+   "holders": 1453,
+   "real_per_gun": 0.2838,
+   "sim_per_gun": 0.2325,
+   "landing": 1.22,
+   "length_corr": 0.743
+  },
+  "upgrade_magic_shock": {
+   "name": "Tankbuster",
+   "holders": 1492,
+   "real_per_gun": 1.0366,
+   "sim_per_gun": 0.7296,
+   "landing": 1.421,
+   "length_corr": 0.686
+  },
+  "upgrade_phantom_strike": {
+   "name": "Phantom Strike",
+   "holders": 123,
+   "real_per_gun": 0.311,
+   "sim_per_gun": 0.2112,
+   "landing": 1.473,
+   "length_corr": 0.49
+  },
+  "upgrade_arctic_blast": {
+   "name": "Arctic Blast",
+   "holders": 170,
+   "real_per_gun": 1.3273,
+   "sim_per_gun": 0.8918,
+   "landing": 1.488,
+   "length_corr": 0.482
+  },
+  "upgrade_melee_rebuttal": {
+   "name": "Rebuttal",
+   "holders": 209,
+   "real_per_gun": 0.0628,
+   "sim_per_gun": 0.042,
+   "landing": 1.497,
+   "length_corr": 1.044
+  },
+  "upgrade_critshot": {
+   "name": "Lucky Shot",
+   "holders": 200,
+   "real_per_gun": 0.3966,
+   "sim_per_gun": 0.228,
+   "landing": 1.739,
+   "length_corr": 0.934
+  },
+  "upgrade_melee_charge": {
+   "name": "Melee Charge",
+   "holders": 376,
+   "real_per_gun": 0.2404,
+   "sim_per_gun": 0.1069,
+   "landing": 2.249,
+   "length_corr": 0.994
+  },
+  "upgrade_crushing_fists": {
+   "name": "Crushing Fists",
+   "holders": 142,
+   "real_per_gun": 0.3039,
+   "sim_per_gun": 0.0997,
+   "landing": 3.05,
+   "length_corr": 1.044
+  },
+  "upgrade_return_fire": {
+   "name": "Return Fire",
+   "holders": 92,
+   "real_per_gun": 0.4389,
+   "sim_per_gun": 0.1169,
+   "landing": 3.754,
+   "length_corr": 0.595
   }
  }
 }

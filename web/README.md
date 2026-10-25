@@ -5,7 +5,11 @@ Static site, no server. Open `index.html` through any static host (or `python3 -
 - **Damage test** (main feature): pick a hero, net worth, aim (ranked percentile or your own accuracy and headshot
   numbers) and items; set the target as a training dummy (HP, bullet/spirit/melee resist) or an enemy hero with
   items; run. Shows damage and DPS at 5/15/30 s, 15 s damage per 1,000 item souls, damage by source, a damage
-  timeline and kill time. "Keep for comparison" pins up to 5 runs on the same chart and table. The whole setup
+  timeline and kill time. Every change to the build or target reruns the test by itself (debounced; a run takes well under a second) and
+  each number shows how it moved against the previous run; while the result is scrolled out of view a bar pinned to the
+  bottom shows the 15 s damage and its change. An untouched preset build (Popular, Most dmg) follows a hero or net
+  worth change; a hand-made build stays. Bad numbers (no HP, resist outside -100..95%) show a message instead of
+  running. "Keep for comparison" pins up to 5 runs on the same chart and table. The whole setup
   is kept in the address bar after each run (and "Copy link" copies it), so a link reopens and reruns the same test.
   "My own numbers" takes accuracy, headshot rate and fight distance, or loads them from a player's last 10 matches
   (`aim.js`: Steam link, ID or name -> Deadlock API match metadata, hero-only "Enemy Hero Accuracy" stats, the same
@@ -25,10 +29,31 @@ Static site, no server. Open `index.html` through any static host (or `python3 -
   each side gets the items it held then and its net worth, the player keeps their hero accuracy from that match, and
   the sim runs their build against the target's build next to the damage-search builds they could afford, plus
   one-for-one swaps of an owned item for an equal or cheaper item from those builds.
+  **Replay a fight** (`replay.js`): the page also reads `/v1/matches/{id}/metadata` for `match_paths` (1 s positions,
+  health %, combat flags) and `death_details`, finds the match's fights (`rpDetect`), and replays a picked one in the
+  team sim (`bridge.replay`): every hero at its real starting health, items, net worth, ability upgrades and match
+  accuracy, at the fight's median distance, for its real length. Any hero's items can be changed; the page shows the
+  real fight, the replay with real items and the replay with changed items, and can search single swaps for one hero.
+  How close the replay gets to real fights: `sim/validation/README.md` "Fight replay".
 - **Team fight**: up to three heroes a side (each starts with its popular real build) fight in the live sim
   (`bridge.team`, `team.js`). Shows damage, damage taken, heals and shields given to teammates, kills.
+- **What changed** (`data/changes.json` from `pipeline/changes.py`): one block per rerun, newest first, with why it
+  ran (game patch or hotfix from `data/patch.json`, model PRs merged since the tier's last rerun, the rerun request
+  note, newer player builds) and, per hero and net worth, the items that left and joined the best overall and best
+  raw damage builds and how their number moved. The rerun workflow appends an entry before committing results;
+  `python3 pipeline/changes.py backfill` rebuilds every entry from git history.
 - **Best damage builds** (`damage/out`, with the item buy order and the ability upgrade order for the best builds), **Duel builds** (`search/out`, shows whichever rank brackets exist) and
   **Tank builds** (`survival/out`). Every build has a Test button that loads it into the damage test.
+- **Counter items** (`counters/out/sim.json` + the real-match tables in `counters/out`): per enemy hero, what each
+  defensive item adds to a hero's popular build in the overall test, next to how much more real players buy it
+  against that hero and its real win edge.
+
+## Phones
+Under 640 px the tabs sit in a 3x3 grid, long intros fold to three lines, and every table with a text column turns
+into stacked cards (`stackTables()` in `app.js` labels each number with its column). Touch screens get 36 px+ controls
+and 16 px inputs (no iOS zoom on focus). On touch screens the Build maker's suggestions run on the page's sim worker
+instead of a second Pyodide instance, which would cost another ~15 MB download and enough memory to make mobile
+browsers reload the tab.
 
 ## How the damage test runs in the browser
 The real Python sim runs live in the browser with Pyodide (CPython compiled to WebAssembly), inside a Web Worker.
@@ -41,3 +66,11 @@ precomputed numbers exactly (Haze popular 27k: 1,126 / 2,445 / 3,934 both ways).
 `python3 build.py` after the sim or any search output changes (copies JSON into `data/`, rebuilds `py/sim.zip`,
 writes `artifact.html`). Add `--pyodide <dir>` with an extracted `pyodide-core-0.26.4.tar.bz2` from the Pyodide
 GitHub release to refresh `vendor/pyodide`.
+
+## Browser test
+`node web/tests/browser_test.cjs` (after `build.py --pyodide`, needs `npm install --prefix web/tests`) serves this folder and
+goes through every tab in headless Chromium at desktop and phone size: the live sim loads, the damage test, item
+breakdown, build maker, real match (a made-up match stands in for the Deadlock API), team fight and each precomputed
+tab's Test button. It fails on page or worker errors (JS or Python), console errors, files that 404, requests to
+other hosts, error boxes left showing and pages wider than the phone screen. Runs as the `browser` job of the PR
+tests and before every Pages deploy. `--shots DIR` saves a screenshot after each step.

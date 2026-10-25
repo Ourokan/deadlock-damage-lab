@@ -1,0 +1,165 @@
+"""Replay-calibrated guns (data/gun_calibration.json): Danny's charged shot, Graves' tether range and their aim.
+Run: python3 -m unittest discover -s tests -v (from sim/)."""
+import os
+import sys
+import unittest
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+from deadsim import Loadout, Skill, compute_stats, duel, game  # noqa: E402
+from deadsim.mechanics import Mechanics  # noqa: E402
+from unittest import mock  # noqa: E402
+
+import deadsim.accuracy as acc  # noqa: E402
+from deadsim.accuracy import default_distance, gun_calibrated, gun_calibration, hero_default_skill  # noqa: E402
+from deadsim.build import gun_quirks  # noqa: E402
+
+G = game()
+
+
+class GunCalibration(unittest.TestCase):
+    def test_danny_charged_shot_keeps_damage_per_second(self):
+        h = G.hero("Deadman Danny")
+        cf, _, _ = gun_quirks(h.id)
+        self.assertGreater(cf, 1.5)
+        st = compute_stats(h.name, souls=0)
+        self.assertAlmostEqual(st.bullet_damage, h.weapon["bullet_damage"] * cf)
+        self.assertAlmostEqual(st.cycle_time, h.weapon["cycle_time"] * cf)
+        self.assertAlmostEqual(st.bullet_damage / st.cycle_time, h.weapon["bullet_damage"] / h.weapon["cycle_time"])
+        self.assertEqual(st.clip, max(1, round(h.weapon["clip_size"] / cf)))   # a clip lasts as long as the data's
+
+    def test_graves_tether_range(self):
+        st = compute_stats("Graves", souls=0)
+        r = gun_calibration()[str(G.hero("Graves").id)]["tether_range_m"]
+        self.assertEqual(st.gun_range_m, r)
+        self.assertGreater(st.falloff(r - 0.1), 0.0)
+        self.assertEqual(st.falloff(r + 0.1), 0.0)
+        self.assertIsNone(compute_stats("Haze", souls=0).gun_range_m)
+
+    def test_graves_tether_has_no_falloff(self):
+        """Replays: with the data's falloff (50% by 17 m) the sim's Graves hit dealt 0.6x the real one, other heroes
+        0.8-1.6x (scripts/gun_calib/hit_damage.py), so the tether keeps full damage inside its range."""
+        st = compute_stats("Graves", souls=0)
+        self.assertFalse(st.gun_falloff)
+        self.assertEqual(st.falloff(15.0), 1.0)
+        haze = compute_stats("Haze", souls=0)
+        self.assertTrue(haze.gun_falloff)
+        self.assertLess(haze.falloff(60.0), 1.0)
+
+    def test_out_of_range_tether_shots_miss(self):
+        """Beyond the tether the shot misses (no hit, no on-hit procs); in range a hit keeps its full damage."""
+        from deadsim.engine import Engine
+        st = compute_stats("Graves", souls=0)
+        near, far = Engine(distance=5.0), Engine(distance=40.0)
+        self.assertGreater(near.gun_reach(st), 0.9)
+        self.assertLess(far.gun_reach(st), 0.25)   # the spread still brings some of a 40 m fight inside 20 m
+        haze = compute_stats("Haze", souls=0)
+        self.assertEqual(far.gun_reach(haze), 1.0)
+        f = mock.Mock(st=st, items_fx=[], weapon_pct=lambda: 0.0)
+        self.assertAlmostEqual(far.bullet_damage(f)[0], st.bullet_damage, places=6)
+
+    def test_hit_falloff_is_the_landed_hits(self):
+        """Build-up per hit (Toxic Bullets) follows the hit's falloff: 1 for Graves' tether, the spread mean else."""
+        from deadsim.engine import Engine
+        e = Engine(distance=11.2)
+        self.assertAlmostEqual(e.hit_falloff(compute_stats("Graves", souls=0)), 1.0, places=6)
+        haze = compute_stats("Haze", souls=0)
+        self.assertEqual(e.hit_falloff(haze), e.spread_mean(haze.falloff))
+
+    def test_far_reach_does_not_make_huge_hits(self):
+        from deadsim.engine import GUN_REACH_FLOOR, Engine
+        st = compute_stats("Graves", souls=0)
+        e = Engine(distance=200.0)
+        self.assertLess(e.gun_reach(st), GUN_REACH_FLOOR)
+        f = mock.Mock(st=st, items_fx=[], weapon_pct=lambda: 0.0)
+        self.assertLessEqual(e.bullet_damage(f)[0], st.bullet_damage)
+
+    def test_graves_on_hit_items_dont_proc_beyond_tether(self):
+        """No spread (range_drift off): at 30 m Graves' gun lands no hits, so Tesla Bullets never procs."""
+        aim = Skill(accuracy=0.5, headshot=0.0, use_abilities=False, use_actives=False)
+        fixed = Mechanics(range_drift=False)
+        for dist, expect in ((10.0, True), (30.0, False)):
+            r = duel(Loadout("Graves", ["Tesla Bullets"], souls=8000, skill=aim),
+                     Loadout("Haze", [], souls=8000, skill=aim), distance=dist, max_time=15.0, mechanics=fixed)
+            self.assertEqual(r.a_dmg.get("Tesla Bullets", 0) > 0, expect, (dist, dict(r.a_dmg)))
+
+    def test_hit_chance_is_relative_to_the_fit_distance(self):
+        """Graves' fitted accuracy already counts his real out-of-range misses: at the fit distance the hit chance
+        is the fitted one, closer it rises, further it falls."""
+        from deadsim.engine import Engine
+        st = compute_stats("Graves", souls=0)
+        d0 = st.gun_fit_m
+        self.assertAlmostEqual(Engine(distance=d0).hit_reach(st), 1.0, places=6)
+        self.assertGreater(Engine(distance=d0 / 2).hit_reach(st), 1.0)
+        self.assertLess(Engine(distance=d0 * 2).hit_reach(st), 1.0)
+        self.assertEqual(Engine(distance=d0).hit_reach(compute_stats("Haze", souls=0)), 1.0)
+
+    def test_danny_charged_shot_builds_up_like_its_size(self):
+        from deadsim.items_fx import BuildUp
+        st = compute_stats("Deadman Danny", souls=0)
+        self.assertGreater(st.gun_charge, 1.5)
+        fx = BuildUp.__new__(BuildUp)
+        fx.item = G.item("Toxic Bullets")
+        f = mock.Mock(st=st)
+        f.e.hit_falloff = lambda s: 1.0
+        per = fx.per_hit(f)
+        self.assertAlmostEqual(per, fx.item.p("BuildUpPerShot") * BuildUp.scale * st.weapon["bullet_damage"] * st.gun_charge)
+
+    def test_calibrated_aim_is_the_default(self):
+        for name in ("Graves", "Deadman Danny"):
+            h = G.hero(name)
+            self.assertTrue(gun_calibrated(h.id))
+            row = gun_calibration()[str(h.id)]
+            sk = hero_default_skill(name)
+            self.assertEqual(sk.accuracy, row["accuracy"]["p50"])
+            self.assertEqual(sk.headshot, 0.0)
+            self.assertEqual(default_distance(name), row["median_distance_m"])
+        self.assertFalse(gun_calibrated(G.hero("Haze").id))
+
+    def test_graves_duel_beyond_tether_has_no_gun_damage(self):
+        aim = Skill(accuracy=0.5, headshot=0.0, use_abilities=False, use_actives=False)
+        fixed = Mechanics(range_drift=False)
+        for dist, expect_gun in ((10.0, True), (30.0, False)):
+            r = duel(Loadout("Graves", [], souls=5000, skill=aim), Loadout("Haze", [], souls=5000, skill=aim),
+                     distance=dist, max_time=10.0, mechanics=fixed)
+            gun = sum(v for k, v in r.a_dmg.items() if k in ("gun", "Gun", "GUN") or "weapon" in k.lower())
+            self.assertEqual(gun > 0, expect_gun, (dist, dict(r.a_dmg)))
+
+    def test_gun_drift_warns_instead_of_failing(self):
+        """A patch that moves either gun keeps the old fit running (patch reruns can't refit: that needs live replay
+        queries) but warns once per hero, naming the refit (scripts/gun_calib)."""
+        import warnings
+        import deadsim.build as B
+        h = G.hero("Deadman Danny")
+        with mock.patch.dict(h.weapon, {"bullet_damage": h.weapon["bullet_damage"] + 1}), \
+                mock.patch.object(B, "_warned", set()), warnings.catch_warnings(record=True) as got:
+            warnings.simplefilter("always")
+            cf, _, _ = B.gun_quirks(h.id)
+            B.gun_quirks(h.id)
+        self.assertEqual(cf, gun_calibration()[str(h.id)]["charge_factor"])
+        self.assertEqual(len([x for x in got if "gun_calib" in str(x.message)]), 1)
+
+    def test_calibrated_players_are_fitted(self):
+        """landing_rates.gun_known keeps Graves/Danny players (no API hero hits) in the ability, item and audit fits."""
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+        import landing_rates as L
+        no_hits = {acc.HITS: 0}
+        self.assertTrue(L.gun_known({"hero_id": G.hero("Graves").id, "custom": no_hits}))
+        self.assertFalse(L.gun_known({"hero_id": G.hero("Haze").id, "custom": no_hits}))
+        self.assertTrue(L.gun_known({"hero_id": G.hero("Haze").id, "custom": {acc.HITS: L.MIN_HITS}}))
+        sk = L.skill_of({"hero_id": G.hero("Deadman Danny").id, "custom": {acc.SHOTS: 400, acc.HITS: 200}})
+        self.assertEqual(sk.accuracy, gun_calibration()[str(G.hero("Deadman Danny").id)]["accuracy"]["p50"])
+
+    def test_player_skill_uses_the_replay_fit_without_a_lookup(self):
+        """No per-player gun stats exist for these heroes: player_skill returns the replay median, never calls the
+        API, and reports zero matches (callers must not divide by it)."""
+        with mock.patch.object(acc, "_get", side_effect=AssertionError("no API call expected")):
+            sk, info = acc.player_skill(1, hero="Graves")
+        row = gun_calibration()[str(G.hero("Graves").id)]
+        self.assertEqual((sk.accuracy, sk.headshot), (row["accuracy"]["p50"], 0.0))
+        self.assertEqual(info["matches"], 0)
+        self.assertEqual(info["median_distance_m"], row["median_distance_m"])
+
+
+if __name__ == "__main__":
+    unittest.main()

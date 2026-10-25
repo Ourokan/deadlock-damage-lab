@@ -46,11 +46,12 @@ class FlameDash(AbilityImpl):
 @register("ability_afterburn")
 class Afterburn(AbilityImpl):
     """Passive: bullet hits build up a burn (8.1% per hit, 15.4% per headshot). While burning, hits extend
-    the burn by 0.5 s (1 s on headshots) up to BurnDuration. Damage ticks every 0.5 s."""
+    the burn by 0.5 s (1 s on headshots) up to BurnDuration. Damage ticks every 0.5 s. Dispel Magic purges the
+    burn and the build-up."""
     kind = "passive"
 
     def start(self, c):
-        c.state.update(meter=0.0, last=-99.0, burn_until=-1.0, ticking=False)
+        c.state.update(meter=0.0, last=-99.0, burn_until=-1.0, ticking=False, epoch=0)
 
     def on_damage_dealt(self, c, target, hit):
         if hit.kind != "bullet" or not hit.hits or hit.source == self.s.ab.name:
@@ -58,9 +59,12 @@ class Afterburn(AbilityImpl):
         st = c.state
         now = c.now
         body = hit.hits - hit.headshots
+        if not c.dot_live(st["epoch"]):   # Dispel Magic purged the burn and the build-up
+            st.update(meter=0.0, burn_until=-1.0, epoch=c.foe.counters.get("dispel_epoch", 0))
         if now < st["burn_until"]:
             ext = body * c.raw("RefillDuration", 0.5) + hit.headshots * c.raw("RefillDurationCrit", 1.0)
             st["burn_until"] = min(now + c.dur("BurnDuration"), st["burn_until"] + ext)
+            c.dot_track("afterburn", st["burn_until"], buildup=True)
             return
         if now - st["last"] > c.raw("BuildUpDuration", 17):
             st["meter"] = 0.0
@@ -69,13 +73,14 @@ class Afterburn(AbilityImpl):
         if st["meter"] >= 100:
             st["meter"] = 0.0
             st["burn_until"] = now + c.dur("BurnDurationBase", 3.0)
+            st["epoch"] = c.dot_track("afterburn", st["burn_until"], buildup=True)
             if not st["ticking"]:
                 st["ticking"] = True
                 c.after(c.raw("TickRate", 0.5), self.tick, c)
 
     def tick(self, c):
         st = c.state
-        if c.now > st["burn_until"] + 1e-9 or not c.foe.alive or not c.me.alive:
+        if c.now > st["burn_until"] + 1e-9 or not c.foe.alive or not c.me.alive or not c.dot_live(st["epoch"]):
             st["ticking"] = False
             return
         tick = c.raw("TickRate", 0.5)

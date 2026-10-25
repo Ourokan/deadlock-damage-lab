@@ -199,9 +199,10 @@ class CastCtx:
         return self.engine.p_within(r)
 
     # effects --------------------------------------------------------------------------------------
-    def spirit_hit(self, amount, *, delay=0.0, name=None, hit_chance=None, ignore_resist=False, nonlethal=False):
+    def spirit_hit(self, amount, *, delay=0.0, name=None, hit_chance=None, ignore_resist=False, nonlethal=False,
+                   weapon_proc=False):
         """Instant spirit damage to the enemy (after delay). hit_chance defaults to caster's spirit_accuracy for
-        skillshots and 1.0 otherwise."""
+        skillshots and 1.0 otherwise. weapon_proc: the hit also procs Mystic Shot like a gun hit."""
         f, e = self.me, self.foe
         name = name or self.s.ab.name
         if hit_chance is None:
@@ -211,7 +212,8 @@ class CastCtx:
         def go():
             if f.alive or self.s.impl.post_mortem:
                 f.e.damage(f, e, amount, "spirit", name, is_ability=True, ability=self.s,
-                           is_ult=self.s.ab.ultimate, ignore_resist=ignore_resist, nonlethal=nonlethal)
+                           is_ult=self.s.ab.ultimate, ignore_resist=ignore_resist, nonlethal=nonlethal,
+                           weapon_proc=weapon_proc)
         if delay > 0:
             f.e.after(delay, go)
         else:
@@ -244,14 +246,15 @@ class CastCtx:
     def gun_volley(self, n_bullets, per_bullet=None, *, name=None, accuracy=None, headshots=True, procs=True,
                    extra_pct=0.0, kind="bullet", landed=False):
         """Fire n bullets from an ability (e.g. a gun-based ultimate). per_bullet defaults to the hero's
-        current gun bullet (weapon %, falloff included). Accuracy/headshots use the caster's skill. landed=True:
-        the landing factor was applied another way, so the engine does not scale the damage by it."""
+        current gun bullet (weapon %, falloff included; out of the gun's range the bullets miss). Accuracy/headshots use
+        the caster's skill. landed=True: the landing factor was applied another way, so the engine does not scale the
+        damage by it."""
         f, e = self.me, self.foe
         eng = f.e
         base, crit = eng.bullet_damage(f, extra_pct)
         per = base if per_bullet is None else per_bullet
         acc = f.skill.accuracy if accuracy is None else accuracy
-        hits = f.hit_acc.take(acc * (1.0 - e.stat("evasion")), int(n_bullets))
+        hits = f.hit_acc.take(min(1.0, acc * (1.0 - e.stat("evasion")) * eng.hit_reach(f.st)), int(n_bullets))
         if hits <= 0:
             return 0
         heads = f.head_acc.take(f.skill.headshot, hits) if headshots else 0
@@ -296,6 +299,20 @@ class CastCtx:
             self.me.e.after(delay, go)
         else:
             go()
+
+    def dot_track(self, tag, until, buildup=False):
+        """For a DoT whose ticks the ability schedules itself (not via dot): show it to the enemy's Dispel Magic
+        (Fighter.afflicted) until `until`; buildup=True for a DoT the enemy's gun keeps re-applying
+        (Fighter.buildup_dot). Returns the enemy's dispel epoch; ticks stop once dot_live(epoch) is False
+        (Fighter.dispel bumps it)."""
+        e = self.foe
+        e.counters.setdefault("dot_until", {})[tag] = until
+        if buildup:
+            e.counters.setdefault("buildup_dots", set()).add(tag)
+        return e.counters.get("dispel_epoch", 0)
+
+    def dot_live(self, epoch):
+        return self.foe.counters.get("dispel_epoch", 0) == epoch
 
     def buff(self, key, value, duration, tag=None):
         self.me.mods.add(key, value, duration, tag or (self.s.ab.class_name, key))
