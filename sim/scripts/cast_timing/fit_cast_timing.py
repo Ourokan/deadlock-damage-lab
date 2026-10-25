@@ -22,7 +22,9 @@ time. Abilities the sim already gates (a health or stack condition) keep their o
 
 usage: python3 -I fit_cast_timing.py real [--fights DIR] [--casts DIR] [--workers 4]     -> work/cast_timing_real.json
        python3 -I fit_cast_timing.py fit [n=3000] [workers] [--write]   (sim duels with the holds off, then on)
-fit writes data/cast_timing.json and validation/cast_timing.md. Static snapshot: refit after a patch that changes
+       python3 -I fit_cast_timing.py fit [n] [workers] --hero NAME [--write]   (one hero, all its players)
+fit writes data/cast_timing.json and validation/cast_timing.md (--hero: only that hero's rows in both, the others and
+the report's mean gap line stay). Static snapshot: refit after a patch that changes
 cooldowns, and after a hero file changes when an ability is cast. After a refit rerun fight_length/length_factors.py.
 """
 import bisect
@@ -217,9 +219,9 @@ def sim_job(args):
     return hid, {k: v for k, v in d.items() if k.startswith(("_cu:", "_cn:", "_fu:", "_fc:", "_lg:"))}
 
 
-def sim_curves(n, workers, timing, probe=False):
+def sim_curves(n, workers, timing, probe=False, hero=None):
     """{"hero id:ability class": {"duels", "cast_by", "hit_by" on GRID (first cast / first hit)}} from the audit's
-    duels."""
+    duels (hero: that hero id's players only, all of them)."""
     from deadsim import game
     import landing_rates as L
     G = game()
@@ -228,6 +230,9 @@ def sim_curves(n, workers, timing, probe=False):
         m = json.loads(line)
         jobs += [(m, p["slot"]) for p in m["players"] if p["hero_id"] in G.heroes and L.gun_known(p)]
     random.Random(1).shuffle(jobs)
+    if hero is not None:
+        jobs = [j for j in jobs if next(p for p in j[0]["players"] if p["slot"] == j[1])["hero_id"] == hero]
+        n = len(jobs)
     tot = collections.defaultdict(collections.Counter)
     with ProcessPoolExecutor(workers) as ex:
         for hid, d in ex.map(sim_job, [(j, timing, probe) for j in jobs[:n]], chunksize=8):
@@ -304,11 +309,14 @@ NOTE = ("QBINS equal-probability holds (s) before an ability's first cast in a f
         "cast less the sim's median cast time.")
 
 
-def fit(n, workers, write):
+def fit(n, workers, write, hero=None):
     from deadsim import game
     G = game()
+    hid = G.hero(hero).id if hero else None
     real_rows = json.load(open(REAL))["rows"]
-    sim0 = sim_curves(n, workers, False)
+    if hid is not None:
+        real_rows = {k: v for k, v in real_rows.items() if k.startswith(f"{hid}:")}
+    sim0 = sim_curves(n, workers, False, hero=hid)
     # abilities whose gate a held first cast skips (an ultimate's setup wait, patterns.Plan; Slam Fire's last shell):
     # their timing with every first cast acting as held (abilities.PROBE_HELD), only for them (an early ult would
     # move the other abilities' timing)
@@ -316,7 +324,7 @@ def fit(n, workers, write):
     load_heroes()
     ults = {f"{hh.id}:{a.class_name}" for hh in G.heroes.values() for i, a in enumerate(hh.abilities)
             if i == 3 or getattr(REGISTRY.get(a.class_name), "held_opens", False)}
-    sim0u = sim_curves(n, workers, False, probe=True)
+    sim0u = sim_curves(n, workers, False, probe=True, hero=hid)
     h = int(HORIZON / 0.5)
 
     def on_sight(sm):
@@ -334,12 +342,20 @@ def fit(n, workers, write):
            "note": NOTE,
            "horizon_s": HORIZON, "sources": out}
     print(f"{len(out)} abilities held")
+    if hid is not None:   # keep the other heroes' rows
+        old = json.load(open(OUT))
+        old["sources"] = {k: v for k, v in old["sources"].items() if not k.startswith(f"{hid}:")}
+        old["sources"].update(out)
+        old["sources"] = dict(sorted(old["sources"].items()))
+        res = old
     if not write:
+        for k, v in out.items():
+            print(k, v)
         return
     with open(OUT, "w") as fh:
         json.dump(res, fh, indent=1)
         fh.write("\n")
-    sim1 = sim_curves(n, workers, True)
+    sim1 = sim_curves(n, workers, True, hero=hid)
     name = {}
     for hh in G.heroes.values():
         for i, ab in enumerate(hh.abilities):
@@ -362,8 +378,17 @@ def fit(n, workers, write):
         gaps1.append(g1)
         lines.append(f"| {name.get(key, key)} | {r['fights']} | {f4(r['cast_by'])} | {f4(sim0[key]['cast_by'])} | "
                      f"{f4(sim1[key]['cast_by'])} | {'yes' if key in out else ''} |")
-    lines[3:3] = [f"Mean |real - sim| of the curve (0-20 s): before {statistics.mean(gaps0):.3f}, after "
-                  f"{statistics.mean(gaps1):.3f} over {len(gaps0)} abilities.", ""]
+    gap = (f"Mean |real - sim| of the curve (0-20 s): before {statistics.mean(gaps0):.3f}, after "
+           f"{statistics.mean(gaps1):.3f} over {len(gaps0)} abilities.")
+    if hid is not None:   # swap this hero's table rows into the report
+        prefix = f"| {G.hero(hero).name}: "
+        old = open(REPORT).read().rstrip("\n").split("\n")
+        head = [x for x in old if not x.startswith("| ") or x.startswith(("| ability", "|---"))]
+        rows = [x for x in old if x.startswith("| ") and not x.startswith(("| ability", "|---", prefix))]
+        lines = head + sorted(rows + lines[6:])
+        print(hero, gap)
+    else:
+        lines[3:3] = [gap, ""]
     with open(REPORT, "w") as fh:
         fh.write("\n".join(lines) + "\n")
     print(lines[3])
@@ -384,5 +409,6 @@ if __name__ == "__main__":
         real(fd, cd, w)
     else:
         write = "--write" in args
+        hero = opt("--hero", None)
         pos = [a for a in args[1:] if not a.startswith("--")]
-        fit(int(pos[0]) if pos else 3000, int(pos[1]) if len(pos) > 1 else os.cpu_count(), write)
+        fit(int(pos[0]) if pos else 3000, int(pos[1]) if len(pos) > 1 else os.cpu_count(), write, hero)

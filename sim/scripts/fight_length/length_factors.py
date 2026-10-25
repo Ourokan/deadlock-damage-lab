@@ -151,10 +151,11 @@ def main():
     # file's other rows and its mark stay as they are.
     pending = abil["meta"].get(PENDING, [])
     hero_name = G.hero(only).name if only is not None else None
-    if keep and only is not None and "cast_timing_kept" in abil["meta"] and hero_name not in pending:
+    entry_only = keep and "--entry" in sys.argv
+    if keep and only is not None and "cast_timing_kept" in abil["meta"] and hero_name not in pending and \
+            not entry_only:
         sys.exit(f"length_factors: {hero_name}'s rows are already scaled for cast timing; a second keep run would "
                  f"compound them. Run --refit --no-cast-timing --hero first.")
-    entry_only = keep and "--entry" in sys.argv
     if entry_only:
         # --entry: factors already kept for cast timing (and refit since, #91); keep the levels they give now in
         # duels at full health, so Mechanics.entry_hp moves when health-gated damage lands, not how much

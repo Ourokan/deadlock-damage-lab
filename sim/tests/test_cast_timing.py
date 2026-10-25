@@ -34,6 +34,17 @@ class CastHolds(unittest.TestCase):
         self.assertEqual(q[:len(timed)], timed)    # the not-cast values come last
         self.assertLess(len(timed), 12)            # real players cast the ult in well under 60% of fights
 
+    def test_apollo_basic_abilities_are_held(self):
+        """Apollo's slow gun kept his players out of the fit until landing_rates.SLOW_GUNS: his three basic
+        abilities (cast on sight in the sim, 3-5 s in real fights) now have holds; his ult keeps its health gate."""
+        holds = M.cast_holds()
+        h = game().hero("Apollo")
+        for ab in h.abilities[:3]:
+            q = holds[f"{h.id}:{ab.class_name}"]
+            self.assertEqual(len(q), 20)
+            self.assertGreater(sorted(x for x in q if x is not None)[len(q) // 2 - 1], 1.0)
+        self.assertNotIn(ult_key("Apollo"), holds)
+
     def test_hold_moves_the_ready_time(self):
         mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(27000))
         e = Engine(mech=mech, rng=random.Random(1))

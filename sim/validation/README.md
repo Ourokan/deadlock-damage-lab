@@ -1234,3 +1234,29 @@ Infernus 0.043 -> 0.021, Bebop 0.023 -> 0.021. sim_vs_win at 27k flat (checked o
 `$AUDIT_OUT.json/.md` when set.
 Left: Paradox Kinetic Carbine hit count (real often partly charged, ~3.7 hits per 1000 gun dmg vs sim 2.0) and
 Bebop Sticky / Uppercut hit counts (both drive Tankbuster procs).
+
+## Apollo: slow-gun players back in the fits, cast timing rows (2026-10-25)
+
+Apollo had no `data/cast_timing.json` rows and the worst audit mix (0.20). The replays were not the gap: the cast
+timing replays hold 1,366-1,812 Apollo fights per ability. The sim side was: `landing_rates.gun_known` needed 150 API
+hero hits, and Apollo's gun (0.38 s cycle) lands a median 69 a Phantom+ match (300 shots, vs 334 / 1360 over all
+heroes), so 6 of 111 Apollo players were in the audit, the landing fits and the cast timing sim curves (MIN_DUELS
+30 dropped him).
+
+- `landing_rates.SLOW_GUNS` gives a hero its own (min hits, min shots): Apollo (40, 150), about the old limits x his
+  shots share, 92 of 111 players. `own_aim` replaces the hard-coded 300 shots in `skill_of` and the audit. The
+  0.20 was those 6 gun-heavy players: with 92 the mix is 0.06 before any refit (real gun share 0.11, not 0.24).
+  Others with the same gap (The Doorman 5%, Violet 1%, Kelvin 14%, Solomon 31% of players known) need their own
+  refit before they join.
+- `fit_cast_timing.py fit --hero NAME [--write]` fits one hero (all its players) and swaps only its rows into the
+  data file and the report. Apollo: Sigil, Riposte and Flawless Advance held (sim cast all three on sight; real by
+  3 s 0.37 / 0.33 / 0.21), timing curve gap 0.333 -> 0.079; the ult keeps its health gate (not on sight).
+- Then 3 rounds of audit + `ability_corr_heroes.py --hero Apollo --write` and `item_landing_heroes.py --hero Apollo
+  --write`. A landing refit first gave the same end factors (length_corr absorbs it), so it was left out.
+
+Held-out (fit on even match ids, audit odd, and the reverse), Apollo mix distance: 0.065 -> 0.045 and 0.071 ->
+0.048 (cast timing alone: 0.065 / 0.078). Full sample: Apollo 0.06 -> 0.04; player-weighted mix 0.0314 on main
+(6 Apollo players) -> 0.0316 (92), other heroes unchanged. sim_vs_win 27k: all pairs 0.164 -> 0.165, damage items
+0.042 -> 0.044, per item 0.239 -> 0.238; Apollo's own 129 pairs 0.31 -> 0.28 (noise level at that n).
+Left: Melee Charge on Apollo 5x under (real 0.42 of gun damage while held, sim 0.08), Itani Lo Sahn cast in 80% of
+sim duels by 20 s vs 43% real (health gate, duels to the death).
