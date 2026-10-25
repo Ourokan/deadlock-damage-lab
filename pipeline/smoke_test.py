@@ -343,3 +343,30 @@ assert CP.request_in("0" * 40, _tmp) is None
 CP.REQUEST = _req
 shutil.rmtree(_tmp)
 print("publish guard ok")
+
+# the item sheet's swaps (search.item_swaps): same slot first, then closest cost; an alternative that doesn't fit
+# the budget or would drop another item is skipped, and an item with no fitting alternative gets no swap
+class _Ev:
+    def run(self, items, pool, detail=False):
+        return {"score": len(items), "matchups": {}}
+
+
+_n = {it.name: i for i, it in G.items.items()}
+_lim = S.BRACKET, S.caps_for_limit
+S.caps_for_limit = lambda *a: {}
+_best = [_n["Spirit Lifesteal"], _n["Headhunter"]]
+_pop = [_n["Enduring Speed"], _n["Extra Health"], _n["Boundless Spirit"]]
+_sw = S.item_swaps(_Ev(), _best, _pop, S.cost(_best))
+assert G.items[_sw[str(_n["Spirit Lifesteal"])]["alt"]].slot == G.items[_n["Spirit Lifesteal"]].slot, _sw
+assert "matchups" not in _sw[str(_n["Spirit Lifesteal"])]["F"], _sw
+assert all(S.valid([x for x in _best if str(x) != k] + [v["alt"]], S.cost(_best)) for k, v in _sw.items()), _sw
+assert S.item_swaps(_Ev(), _best, [_n["Boundless Spirit"]], S.cost(_best)) == {}   # too dear for either slot
+S.caps_for_limit = _lim[1]
+print("item swaps ok:", len(_sw))
+
+# items.json stats_only (export.item_meta): stat-only passives are, items with effect code or actives are not
+import export as EX  # noqa: E402
+_m = {v["name"]: v for v in EX.item_meta(G).values()}
+assert _m["Spirit Lifesteal"]["stats_only"] and _m["Extra Health"]["stats_only"], (_m["Spirit Lifesteal"], _m["Extra Health"])
+assert not _m["Slowing Hex"]["stats_only"] and not _m["Headhunter"]["stats_only"]
+print("item meta ok")
