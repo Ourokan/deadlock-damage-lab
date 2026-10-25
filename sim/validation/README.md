@@ -879,7 +879,7 @@ real deaths); F1 = deaths in both / mean of the two death counts:
 
 The site version gets the death count right and best follows who loses health; the side agreement stays where it
 was (0.68-0.71 of the one-sided fights the sim calls, within noise). The flat leave rate does worse than the real
-leave times, so it is not used (a replay knows when each player left). Still missing: who comes out ahead is decided
+leave times, so it is not used (a replay knows when each player left). The arrival, leave and target inputs come from the same real fights the replay is scored on: that is the point of a replay (it repeats the players' real decisions and asks what the items change), but it is not a test of predicting those decisions. Modes: `check_replay.py ... 0 <site|all0|join|leave|nearonly|hazard>`. Still missing: who comes out ahead is decided
 by positioning, cover and timing the replay does not know (HP swing correlation 0.19), and half the real deaths are
 still a different hero in the sim. Read a changed build against the replay with the real items, which is what the
 page compares.

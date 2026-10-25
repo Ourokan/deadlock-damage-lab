@@ -8,7 +8,8 @@ ahead.
 usage: python3 -I check_replay.py <repo dir> <metadata dir> [n_fetch=0] [mode=site]
 mode: site (what the page sends: real arrival, survivors leave after their last fighting second, each hero shoots its
 nearest enemy), all0 (everyone from the start to the end, focus the weakest: the first version), join (arrival only),
-leave (arrival and leaving, focus the weakest), hazard (as site but leaving at the fitted flat rate, not real times)
+leave (arrival and leaving, focus the weakest), nearonly (nearest-enemy targets, no timing), hazard (as site but
+everyone, dead or not, leaving at the fitted flat rate instead of the real times)
 """
 import concurrent.futures as cf
 import json
@@ -112,7 +113,7 @@ def main():
                     mem[s]["leave"] = F["last"][str(s)] + 1
                 if mode == "hazard":   # fitted flat early-leave rate (fit_disengage.py) instead of the real leave times
                     mem[s]["leave"] = mem[s]["join"] + RNG.expovariate(LEAVE_RATE)
-                if mode in ("site", "hazard"):
+                if mode in ("site", "hazard", "nearonly"):
                     mem[s]["targets"] = [foes.index(x) if x in foes else None for x in F["near"][str(s)]]
             req = dict(a=[mem[s] for s in A], b=[mem[s] for s in B], distance=max(3, F["dist"]),
                        max_time=min(45, max(4, F["t1"] - F["t0"] + 1)))
