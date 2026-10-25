@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-25T16:21:00Z",
- "reason": "Tankbuster (#89): its 165 minimum damage is checked before the target's resists, so 100-165 dealt hits (Scorn, Rend, Powder Keg, Rake) now release it"
+ "requested_at": "2026-10-25T16:45:00Z",
+ "reason": "Timing (#90): damage abilities held on when their damage lands, charged/fused openers cast before the fight, melee item holders open with a melee proc; also carries the Tankbuster minimum (#89)"
 }
