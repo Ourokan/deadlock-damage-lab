@@ -1064,11 +1064,15 @@ class Engine:
         if f.mods.active("stun") or t < f.gun_locked_until:
             self.at(max(t + 0.1, f.gun_locked_until), self.melee_tick, f)
             return
-        heavy = f.acc("melee_heavy").take(f.skill.heavy_share, 1) > 0
+        share = f.skill.heavy_share
+        hs = f.counters.get("heavy_share")   # (share, until): an ability that turns heavies up (Baba's bench)
+        if hs is not None and t < hs[1]:
+            share = hs[0]
+        heavy = f.acc("melee_heavy").take(share, 1) > 0
         rate = f.skill.melee_rate
         if self.mech is not None and self.mech.parry:
             # parried heavies don't land: swing more often so landed melee stays at the fitted rate
-            rate /= max(0.5, 1.0 - f.enemy.skill.parry_rate * f.skill.heavy_share)
+            rate /= max(0.5, 1.0 - f.enemy.skill.parry_rate * share)
         interval = 1.0 / max(rate, MELEE_MIN_RATE)
         if self.mover is None or f.counters.get("fleeing") is not True and self.distance <= self.mover.start + \
                 self.mover.melee_reach(f, heavy):

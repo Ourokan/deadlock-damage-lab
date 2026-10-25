@@ -940,6 +940,21 @@ data: Phantom+ replays (89 matches, 31 with a Baba, 868 fights) and 151 Baba pla
   Baba refit after it (mix distance 0.027 -> 0.025).
 - Aim: the existing row (old all-rank sample, acc p50 0.16).
 
+## Baba's damage gaps (2026-10-25)
+
+- Granny Long Legs was under (0.06 vs real 0.10). In 89 Phantom+ replays, 672 of Baba's 943 melee hits during it are
+  ground pounds: a heavy bench-melee event on the same tick as the spirit hit, median 131 melee damage vs 62 for a
+  light kick. The sim used the usual 30% heavy split, so `GLL_HEAVY_SHARE` = 0.71 now holds while it is up
+  (Engine.melee_tick reads a `heavy_share` (share, until) counter). Refit: melee rate 0.24 -> 0.18 hits/s (heavies
+  hit harder); landing Granny Long Legs set from the audit (1.10; landing_rates.py's own fit gives 1.62 and
+  overshoots to 0.14 in the audit, whose duels use the searches' skills), the other three refit. Audit (146 Baba
+  players): Granny Long Legs 0.103/0.104, every ability within 0.01, mix distance 0.037.
+- Torment Pulse stays under (real 0.17, sim 0.11): not a Baba model gap. Victims per pulse match other holders in
+  the replays (1.11 both), and in real fights (match_paths, 90 Baba matches) she spends 37% of fight seconds within
+  its 9.5 m against the sim's 31% (1.19x). The rest comes from item factors being one pooled fit over heroes and
+  capped at 1 (`item_landing`). The same check across heroes ranges 0.65x (Abrams, sim too close) to 2.45x
+  (Grey Talon, sim too far): the aim-based median distance is not the real fight distance for close-range items.
+
 ## Known gaps (not yet modeled)
 
 - **Melee movement:** melee is in fights and its rate follows the build (see "Melee" above). Melee Charge's lunge

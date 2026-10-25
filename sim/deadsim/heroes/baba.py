@@ -8,7 +8,8 @@ Assumptions:
   lists ability_baba_bubbling_brew_gun_damage as its own Threadsap source). T3 pull is movement only.
 - Granny Long Legs: a self buff for AbilityDuration: StatusResistancePercent status resist and MeleeResist melee
   resist (T3 adds to both and MeleeLifesteal melee lifesteal). Each heavy melee landed meanwhile is a ground pound
-  that also deals HeavyMeleeSpiritDamage; light kicks only knock back. Move speed / jumps are movement only.
+  that also deals HeavyMeleeSpiritDamage; light kicks only knock back. Meanwhile 71% of her melees are heavy
+  (GLL_HEAVY_SHARE, replays) instead of the usual split. Move speed / jumps are movement only.
   Cast on sight: she runs in on it (the bench is a brawling stance); its melee lands at her fitted melee rate.
 - Baba's Brew: Baba throws the scalding brew (the burn: DamagePerSecond for BurnDuration and SpiritResistReduction
   spirit shred), the damaging one of the three. It is brewed for FireLockTime before the throw, except the first,
@@ -22,6 +23,9 @@ Assumptions:
 from deadsim.abilities import AbilityImpl, register
 
 STOLEN_KEY = "baba_stolen_until"
+# Phantom+ replays: 672 of Baba's 943 melee hits during Granny Long Legs are ground pounds (a heavy melee event on
+# the same tick as the spirit hit), against the usual 30% heavy split
+GLL_HEAVY_SHARE = 0.71
 
 
 @register("ability_baba_bubbling_brew")
@@ -71,6 +75,7 @@ class GrannyLongLegs(AbilityImpl):
     def cast(self, c):
         d = c.dur("AbilityDuration")
         c.state["until"] = c.now + d
+        c.me.counters["heavy_share"] = (GLL_HEAVY_SHARE, c.now + d)
         c.buff("status_resist", c.raw("StatusResistancePercent") / 100, d)
         c.buff("melee_resist", c.raw("MeleeResist") / 100, d)
 
