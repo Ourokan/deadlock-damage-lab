@@ -59,6 +59,22 @@ class BabaCase(unittest.TestCase):
         self.assertGreater(first, 0)                             # the first throw needs no brewing
         self.assertTrue(br.scratch["thrown"])
 
+    def test_repeat_brew_waits_the_brew_time(self):
+        br = self.ab["ability_baba_hexing_brew"]
+        br.cast()
+        self.run_queue(20.0)
+        first = self.f.dmg_out["Baba's Brew"]
+        br.cast()
+        self.run_queue(20.0 + br.ctx.raw("FireLockTime") - 0.5)
+        self.assertAlmostEqual(self.f.dmg_out["Baba's Brew"], first)
+
+    def test_brew_t3_multiplies_burn_and_shred_once(self):
+        f = make_fighter(self.e, Loadout("Baba", [], souls=20000, tiers=[0, 0, 3, 0], unlocked=[True] * 4))
+        br = next(s for s in f.abilities if s.ab.class_name == "ability_baba_hexing_brew")
+        base = self.ab["ability_baba_hexing_brew"].ctx
+        self.assertAlmostEqual(br.ctx.raw("SpiritResistReduction"), base.raw("SpiritResistReduction") * 4 / 3, places=2)
+        self.assertAlmostEqual(br.ctx.raw("DamagePerSecond"), base.raw("DamagePerSecond") * 4 / 3, places=2)
+
     def test_feed_the_birds_hexes(self):
         self.ab["ability_baba_ultimate_2"].cast()
         self.run_queue(5.5)

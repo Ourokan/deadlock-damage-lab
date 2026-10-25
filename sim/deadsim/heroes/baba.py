@@ -12,7 +12,8 @@ Assumptions:
   Cast on sight: she runs in on it (the bench is a brawling stance); its melee lands at her fitted melee rate.
 - Baba's Brew: Baba throws the scalding brew (the burn: DamagePerSecond for BurnDuration and SpiritResistReduction
   spirit shred), the damaging one of the three. It is brewed for FireLockTime before the throw, except the first,
-  assumed brewed before the fight. T3 BrewEffectiveness scales the burn and the shred. Barrier and silence brews
+  assumed brewed before the fight. T3 BrewEffectiveness scales the burn and the shred
+  (the API's EMultiplyBase upgrade, already in raw()). Barrier and silence brews
   are not modeled.
 - Feed The Birds: cast within AbilityCastRange; Baba channels for TimeToMaxStacks (gun stopped, full bread count:
   the landing factor fits real partial counts), then after the mean BarrageStart delay the barrage deals
@@ -97,11 +98,10 @@ class BabasBrew(AbilityImpl):
         c.state["thrown"] = True
         throw = brew + c.raw("AbilityChannelTime")
         c.lock_gun(c.raw("AbilityChannelTime"))
-        eff = 1.0 + c.raw("BrewEffectiveness") / 100
         acc = c.me.skill.spirit_accuracy
         d = c.dur("BurnDuration")
-        c.dot(c.val("DamagePerSecond") * eff, d, delay=throw, hit_chance=acc)
-        c.debuff("spirit_shred", abs(c.raw("SpiritResistReduction")) / 100 * eff * acc, d, delay=throw)
+        c.dot(c.val("DamagePerSecond"), d, delay=throw, hit_chance=acc)
+        c.debuff("spirit_shred", abs(c.raw("SpiritResistReduction")) / 100 * acc, d, delay=throw)
 
 
 @register("ability_baba_ultimate_2")
