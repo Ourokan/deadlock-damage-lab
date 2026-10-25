@@ -37,7 +37,13 @@ class TestReplay(unittest.TestCase):
         full = replay([member("Haze")], [member("Infernus", ["Mystic Burst"])])["fighters"][0]
         hurt = replay([member("Haze", hp=0.3)], [member("Infernus", ["Mystic Burst"])])["fighters"][0]
         self.assertFalse(hurt["alive"])
-        self.assertTrue(full["alive"] is False and full["death_time"] > hurt["death_time"] or full["alive"])
+        self.assertTrue(full["alive"] or full["death_time"] > hurt["death_time"])
+
+    def test_start_health_follows_team_order(self):
+        # start_hp lists team A then team B: hurting the second B hero hurts only that hero
+        r = replay([member("Haze"), member("Abrams")], [member("Infernus"), member("Seven", hp=0.5)])
+        starts = [x["start_hp"] / x["max_hp"] for x in r["fighters"]]
+        self.assertEqual([round(v, 2) for v in starts], [1.0, 1.0, 1.0, 0.5])
 
     def test_start_hp_default_leaves_team_fight_unchanged(self):
         a = [Loadout("Haze", ["Rapid Rounds"], souls=20000, skill=Skill(accuracy=0.3))]
