@@ -205,18 +205,19 @@ def real(fights_dir, casts_dir, workers):
 
 # ---- sim side ------------------------------------------------------------------------------------------------
 def sim_job(args):
-    j, timing = args
+    j, timing, ult_wait = args
     import damage_audit as A
-    from deadsim import engine
+    from deadsim import engine, patterns
     import dataclasses
     A.PROFILE = True
     engine.PROFILE_SOURCES = True
     A.MECH = dataclasses.replace(A.MECH, cast_timing=timing)
+    patterns.ULT_WAIT = ult_wait
     hid, d, _ = A.sim_player(j)
     return hid, {k: v for k, v in d.items() if k.startswith(("_cu:", "_cn:", "_fu:", "_fc:", "_lg:"))}
 
 
-def sim_curves(n, workers, timing):
+def sim_curves(n, workers, timing, ult_wait=True):
     """{"hero id:ability class": {"duels", "cast_by", "hit_by" on GRID (first cast / first hit)}} from the audit's
     duels."""
     from deadsim import game
@@ -229,7 +230,7 @@ def sim_curves(n, workers, timing):
     random.Random(1).shuffle(jobs)
     tot = collections.defaultdict(collections.Counter)
     with ProcessPoolExecutor(workers) as ex:
-        for hid, d in ex.map(sim_job, [(j, timing) for j in jobs[:n]], chunksize=8):
+        for hid, d in ex.map(sim_job, [(j, timing, ult_wait) for j in jobs[:n]], chunksize=8):
             for k, v in d.items():
                 kind, cls, b = k.split(":")
                 tot[f"{hid}:{cls}"][kind, int(b)] += v
@@ -308,15 +309,21 @@ def fit(n, workers, write):
     G = game()
     real_rows = json.load(open(REAL))["rows"]
     sim0 = sim_curves(n, workers, False)
+    # ultimates that wait for their setup (patterns.Plan): their timing without the wait, which a held first cast
+    # skips (one run for all of them: with the wait off, an early ult would delay the other abilities' timing)
+    ults = {f"{hh.id}:{hh.abilities[3].class_name}" for hh in G.heroes.values() if len(hh.abilities) > 3}
+    sim0u = sim_curves(n, workers, False, ult_wait=False)
+    h = int(HORIZON / 0.5)
+
+    def on_sight(sm):
+        return sm and sm["duels"] >= MIN_DUELS and sm["cast_by"][h] >= 0.05 and \
+            sm["cast_by"][2] >= CAST_ON_SIGHT * sm["cast_by"][h]
     out = {}
     for key, r in sorted(real_rows.items()):
         sm = sim0.get(key)
-        if not sm or sm["duels"] < MIN_DUELS:
-            continue
-        h = int(HORIZON / 0.5)
-        if sm["cast_by"][h] < 0.05:
-            continue
-        if sm["cast_by"][2] < CAST_ON_SIGHT * sm["cast_by"][h]:
+        if not on_sight(sm) and key in ults and on_sight(sim0u.get(key)):
+            sm = sim0u[key]
+        if not on_sight(sm):
             continue   # the sim already waits for something (a health gate, stacks, range): its timing is its own
         out[key] = holds(r, sm)
     res = {"source": json.load(open(REAL))["source"] + "; sim: damage audit duels, holds off",
