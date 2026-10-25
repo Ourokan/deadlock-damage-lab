@@ -1038,6 +1038,9 @@ all pairs 0.181 -> 0.205, per item 0.277 -> 0.303, damage items -0.018 -> +0.028
 0.283; damage audit mix 0.0409 -> 0.0428 (pooled items unchanged, 0.083 -> 0.084). The audit loss is mostly
 Tankbuster / Mystic Reverb on spirit heroes: spaced-out casts let the linear charge-up release more per cast, and
 the item corrections are pooled over heroes (Grey Talon Tankbuster share 0.096 -> 0.136, real 0.071).
+On main after the per-hero item factors (#85), refit with `item_landing_heroes.py --write` after the keep run:
+sim_vs_win all pairs 0.178 -> 0.205, per item 0.277 -> 0.302, damage items -0.014 -> +0.026, edges clear of noise
+0.261 -> 0.282; damage audit mix 0.0367 -> 0.0377 (the per-hero factors take back most of the Tankbuster loss).
 
 Holds are `AbilityState.held_until`, not the cooldown: Witchmail / Runed Gauntlets cuts and Refresher's reset see a
 held ability as ready, so they neither waste a cut on it nor release a "not cast" draw. `length_factors.py` keep mode
