@@ -30,6 +30,11 @@ _warned = set()
 # their builds, aim and enemies; other heroes read 1.0-1.04x), 0.97x. Baba: pellets / API pellet hits per replay gun
 # hit (3 / 2.14) = 0.88x per shot; her split-half audit refit got worse both ways at the per-shot fit (1.59 = 1.01x).
 SHOT_SPLIT_PELLETS = {88: 1.40, 64: 2.16}
+# Hit chance x this over the player's API hero accuracy. Silver's accuracy blends two weapons: her 7-pellet rifle and
+# Lycan Claws (one big swing at close range). Aiming both with it put the rifle at 1.26x real damage per shot on the
+# replay players (scripts/gun_calib/shot_damage.py, rifle only, as gun_stats counts) and the claws at 3.8 hits per
+# wolf run vs real 5.7 (werewolf.CLAW_HIT). The rifle lands 0.80x (1.01x real per shot).
+GUN_HIT = {80: 0.80}
 
 
 def gun_quirks(hero_id):
@@ -148,6 +153,7 @@ class Stats:
     gun_falloff: bool = True           # False: no distance falloff inside gun_range_m (Graves' tether)
     gun_charge: float = 1.0            # base bullet damage multiple of one (charged) shot (Danny, gun_quirks)
     gun_fit_m: float | None = None     # fight distance the gun's accuracy was fitted at (its misses beyond range included)
+    hit_mult: float = 1.0              # hit chance x this over the player's gun accuracy (a swapped-in weapon: Lycan Claws)
     reload_time: float = 1.0
     reload_mult: float = 1.0
     bullet_lifesteal: float = 0.0
@@ -302,6 +308,7 @@ def compute_stats(hero, items=(), souls=None, level=None) -> Stats:
     if hero.id in SHOT_SPLIT_PELLETS:
         st.bullet_damage /= st.pellets
     st.cycle_time = w.get("cycle_time", 1.0)
+    st.hit_mult = GUN_HIT.get(hero.id, 1.0)
     charge, st.gun_range_m, st.gun_falloff = gun_quirks(hero.id)
     if st.gun_range_m is not None:
         st.gun_fit_m = (gun_calibration().get(str(hero.id)) or {}).get("median_distance_m")

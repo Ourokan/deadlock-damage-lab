@@ -1970,3 +1970,35 @@ Refresh after a patch: `python3 scripts/fetch_aim_sample.py && python3 scripts/b
 the committed sample: --badge 91 --days 10 --per-day 420, i.e. 70 matches per 4-hour slice; the Ranked filter runs
 after the per-slice limit but every fetched match was Ranked). Matches of 25+ minutes only, the same filter as the
 old sample (fetch_validation.py), so old vs new differ by rank and size, not game length.
+
+## Silver's claws and rifle aim (2026-10-26)
+
+After the wolf form moved to real timing and its abilities to real holds, Silver's wolf hits were still 28% of her
+damage against real 40% (wolf_timing.py's per-pair-fight count). Broken down on the 50 replay players (fight_length
+raw, union of her pair fights, damage to enemy heroes) against the audit duels (expected over real fight lengths):
+
+| | real | sim before | sim now |
+|---|---|---|---|
+| wolf form up, share of fight time | 0.18 | 0.25 | 0.24 |
+| Lycan Claws, share of her damage | 0.158 | 0.099 | 0.155 |
+| rifle, share of her damage | 0.233 | 0.263 | 0.212 |
+| wolf hits (claws + Go For The Throat + Mauling Leap + Tail Whack) | 0.357 | 0.27 | 0.32 |
+| claw hits per wolf run | 5.7 (run 6.8 s) | 3.8 (6.1 s) | 5.9 (5.8 s) |
+| rifle damage per shot, replay players (shot_damage.py, rifle only) | 1 | 1.26 (1.13-1.41) | 1.01 |
+
+The form is up as often as real (more, if anything) and the wolf abilities already matched per source; the claws
+were short and the rifle long. Both aim with the player's API hero accuracy, which is mostly the rifle's pellets
+(0.41): the claws are one large swing at close range and land ~1.5x that per swing in replays, and the rifle's
+pellets land less than the blend says. `Stats.hit_mult` (Engine.fire's hit chance x it): `werewolf.CLAW_HIT` 1.55 for
+the claws, `build.GUN_HIT` {Silver: 0.80} for the rifle. Claw damage per hit already matched (real mean 90, sim 93).
+
+Refit of Silver only (ability_corr_heroes.py 3 rounds, then item_landing_heroes.py): landing x length_corr moved
+little (Slam Fire 0.70 -> 0.75, Entangling Bola 0.93 -> 0.98, Tail Whack 1.17 -> 1.07; items Stalker, Spirit Snatch,
+Cold Front rows), as her gun total stays where it was. Audit, Silver, full sample averaged over 5 draws: mix 0.0204
+-> 0.0174, per-source 0.0209 -> 0.0184. Split-half (main refit the same way as reference, 5 draws per held-out half):
+per-source 0.0378 -> 0.0378 and 0.0435 -> 0.0438, mix 0.0242 -> 0.0240 and 0.0310 -> 0.0282 (the audit pools both
+weapons as gun, so it can't see the split itself; claws alone at 1.6 with the rifle as it was: mix worse on one half).
+sim_vs_win 27k (all heroes, main vs this side by side): all pairs 0.177 -> 0.176, edges clear of noise 0.277 ->
+0.276, per item 0.249 -> 0.248, damage items 0.066 -> 0.066 (flat: only Silver changes).
+The remaining wolf gap is the wolf abilities in fights (real 20% of her pair-fight damage, sim 16%; they match per
+whole match), likely team fights.
