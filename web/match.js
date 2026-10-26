@@ -29,7 +29,7 @@ async function fetchMatch(id) {
 
 const teamNo = (t) => (String(t).endsWith("1") ? 1 : 0);
 // Hero accuracy (shots aimed at enemy heroes) is what the sim takes. Statlocker's headline accuracy is shots_hit over all
-// shots fired, troopers, neutrals and objectives included, so it runs about twice as high; we show it next to ours.
+// shots fired, troopers, neutrals and objectives included, so it usually runs much higher; we show it next to ours.
 const aimFrom = (c, f) => {
   const shots = c["Enemy Hero Accuracy##Shots"], hits = c["Enemy Hero Accuracy##Hits"], hs = c["Enemy Hero Accuracy##Headshots"];
   const all = (f?.shots_hit || 0) + (f?.shots_missed || 0);
