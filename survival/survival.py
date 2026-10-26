@@ -23,7 +23,7 @@ from deadsim import Loadout, Skill  # noqa: E402
 from deadsim.accuracy import default_distance, hero_default_skill  # noqa: E402
 from deadsim.data import game  # noqa: E402
 from deadsim.engine import Engine, kill_hooks  # noqa: E402
-from deadsim.fight import make_fighter  # noqa: E402
+from deadsim.fight import add_pokes, make_fighter  # noqa: E402
 import dataclasses  # noqa: E402
 from deadsim import mechanics  # noqa: E402
 
@@ -75,10 +75,12 @@ def survive(hero, items, souls, enemy, enemy_items, enemy_souls=None, max_time=6
     # movement off: running away would count as surviving, which isn't what this search measures
     mech = dataclasses.replace(mechanics.DEFAULT, movement=False, extra_targets=extra_targets,
                                fight_length=fight_length) if mechanics.DEFAULT else None
-    e = Engine(distance=distance if distance is not None else (_d(hn) + _d(en)) / 2, max_time=max_time, mech=mech)
-    me = make_fighter(e, Loadout(hero, list(items), souls=souls, skill=skill or _sk(hn, aim)), "me")
-    foe = make_fighter(e, Loadout(enemy, list(enemy_items), souls=enemy_souls or souls,
-                                  skill=enemy_skill or _sk(en, enemy_aim)), "enemy")
+    dist = distance if distance is not None else (_d(hn) + _d(en)) / 2
+    e = Engine(distance=dist, max_time=max_time, mech=mech)
+    me_lo = Loadout(hero, list(items), souls=souls, skill=skill or _sk(hn, aim))
+    foe_lo = Loadout(enemy, list(enemy_items), souls=enemy_souls or souls, skill=enemy_skill or _sk(en, enemy_aim))
+    me = make_fighter(e, me_lo, "me")
+    foe = make_fighter(e, foe_lo, "enemy")
     if start_hp is not None:
         me.hp = max(1.0, min(start_hp, me.max_hp))
         me.entry_set = True
@@ -90,6 +92,9 @@ def survive(hero, items, souls, enemy, enemy_items, enemy_souls=None, max_time=6
     foe.st.outgoing_mult *= focus
     max_hp = me.max_hp
     r = e.run(me, foe)
+    if e.length and getattr(mech, "pokes", False):
+        # my poke hits beside the fight (deadsim.fight.add_pokes): damage dealt only, the fight is untouched
+        add_pokes(me.dmg_out, me.dmg_exp, me_lo, foe_lo, dist, None, mech)
     t = me.death_time if me.death_time is not None else max_time
     taken = dict(me.dmg_in)
     return {

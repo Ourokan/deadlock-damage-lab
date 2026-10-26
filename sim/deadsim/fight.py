@@ -8,9 +8,11 @@
 from __future__ import annotations
 
 import bisect
+import heapq
 import dataclasses
 import json
 import os
+import random
 from dataclasses import dataclass, field
 from functools import lru_cache
 
@@ -216,7 +218,57 @@ def duel(a: Loadout, b: Loadout, distance=15.0, max_time=30.0, rng=None, log=Fal
     e = Engine(distance=distance, max_time=max_time, rng=rng, log=log, mech=mechanics)
     fa = make_fighter(e, a, (a.name or game().hero(a.hero).name) + " (A)")
     fb = make_fighter(e, b, (b.name or game().hero(b.hero).name) + " (B)")
-    return e.run(fa, fb)
+    r = e.run(fa, fb)
+    if e.length and getattr(e.mech, "pokes", False):
+        add_pokes(r.a_dmg, r.a_exp, a, b, distance, rng, e.mech)
+        add_pokes(r.b_dmg, r.b_exp, b, a, distance, rng, e.mech)
+    return r
+
+
+POKE_S = 10.0   # s a poke cast's hits and procs (Mystic Reverb's echo, DoTs) get to land
+
+
+def add_pokes(dmg, exp, me: Loadout, foe: Loadout, distance, rng, mech):
+    """Mechanics.pokes: me's real poke hits beside a fight with foe (mechanics.poke_rows, data/ability_pokes.json).
+    A poke is one cast of the ability on foe in a fresh engine (both at full health, cooldowns ready, no gun, no
+    other casts), run POKE_S s; its damage and the item procs riding on it (Tankbuster, Mystic Burst, Mystic Shot,
+    Mystic Reverb's echo) are added x pokes_per_fight to dmg (in full) and exp (expected over real fight lengths:
+    a poke is outside the fight, so in full there too). The cast always lands and its damage counts x the caster's
+    spirit_accuracy (the expected hit: one roll per poke would be all or nothing, and with rng None always the
+    same). The fight itself (health, winner, time) is untouched: in real games the target has the time to heal up
+    before the next fight. Only the damage totals get the pokes, not the fight's time profile (dmg_by_2s,
+    dmg_first, PROFILE_SOURCES tallies), which describe the fight."""
+    from .mechanics import poke_rows
+    hero, _ = me.resolve()
+    land = me.skill.spirit_accuracy
+    me = dataclasses.replace(me, skill=dataclasses.replace(me.skill, spirit_accuracy=1.0))
+    for cls, k in poke_rows(hero).items():
+        e = Engine(distance=distance, max_time=POKE_S, mech=mech,
+                   rng=None if rng is None else random.Random(rng.random()))
+        f, g = make_fighter(e, me, "poker"), make_fighter(e, foe, "target")
+        f.enemy, g.enemy = g, f
+        e.fighters = [f, g]
+        for x in (f, g):
+            for fx in x.items_fx:
+                h = getattr(fx, "on_start", None)
+                if h:
+                    h(x)
+            for ab in x.abilities:
+                ab.start()
+        ab = next((x for x in f.abilities if x.ab.class_name == cls and x.unlocked), None)
+        if ab is None:
+            continue
+        f.counters["poke"] = True   # the impl can tell a poke from a cast in the fight (KineticCarbine)
+        ab.cast()
+        while e.q and not e.over:
+            t, _, fn, args = heapq.heappop(e.q)
+            if t > POKE_S:
+                break
+            e.t = t
+            fn(*args)
+        for name, v in f.dmg_out.items():
+            dmg[name] = dmg.get(name, 0.0) + k * land * v
+            exp[name] = exp.get(name, 0.0) + k * land * v
 
 
 def time_to_kill(attacker: Loadout, defender: Loadout, distance=15.0, max_time=60.0, rng=None, log=False,

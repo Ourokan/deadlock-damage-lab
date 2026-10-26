@@ -18,15 +18,18 @@ Assumptions:
   (no shooting): in replays the gap from Paradox's previous gun shot to a mid-fight Carbine hit is mostly 2.5-6 s.
   Always a full charge, landing at spirit_accuracy; HeadshotBonus% at the caster's headshot rate. Time-stop = stun for MaxSlowDuration. The hit procs Mystic Shot like a gun hit (replays:
   73% of Paradox's Mystic Shot procs on heroes land with a Kinetic Carbine hit). Real hits are ~0.6x this
-  formula and come ~2x as often per gun damage (scripts/mechanics/carbine_replays.py); a 0.6x hit audited worse
-  (Mystic Reverb echoes it), so the hit stays full and landing x length_corr carry the total (validation/README.md
-  "Paradox's Carbine count").
+  formula and come ~2x as often per gun damage (scripts/mechanics/carbine_replays.py): 58% of real Carbine hits are
+  pokes outside any fight, at full charge (median 21.5x his gun hit, the formula's size), and the hits in fights are
+  CARBINE_FIGHT_HIT of that (13.7x, openers alike; scripts/fight_length/ability_pokes.py). So a cast in the duel
+  deals CARBINE_FIGHT_HIT x the formula and the pokes beside it (Mechanics.pokes, fight.add_pokes) the full hit
+  (validation/README.md "Carbine pokes").
 - Paradoxical Swap: the projectile lands at spirit_accuracy; SwapDamage (+T3 MaxHealthDamage% of max health)
   on arrival. Both heroes are in transit for MinSwapTime: Paradox can't shoot, the target is stunned. T1 barrier
   = CombatBarrier (200 + 1.5 x spirit power).
 """
 from deadsim.abilities import AbilityImpl, register
 
+CARBINE_FIGHT_HIT = 0.64   # a Carbine hit in a fight / a poke's (real medians 13.7x / 21.5x his gun hit, see above)
 CARBINE_CHARGE = 1.0   # share of MaxChargeDuration spent charging (replays, see above)
 TIMEWALL_SHOOT_THROUGH = 0.1   # share of the wall's uptime Paradox's hits get the bonus (replays, see above)
 
@@ -101,6 +104,8 @@ class KineticCarbine(AbilityImpl):
         growth = st.bullet_damage / max(1e-6, st.gun_charge * st.hero.weapon.get("bullet_damage", 1.0))
         dmg = c.raw("MaxBonusBulletDamage") + c.scale("MaxBonusBulletDamage") * growth * (1 + c.me.weapon_pct())
         dmg *= 1 + c.me.skill.headshot * c.raw("HeadshotBonus") / 100
+        if c.me.e.length and getattr(c.me.e.mech, "pokes", False) and not c.me.counters.get("poke"):
+            dmg *= CARBINE_FIGHT_HIT
         if c.me.acc("carbine").take(c.me.skill.spirit_accuracy):
             c.spirit_hit(dmg, hit_chance=1.0, weapon_proc=True)
             c.debuff("stun", 1, c.dur("MaxSlowDuration"))

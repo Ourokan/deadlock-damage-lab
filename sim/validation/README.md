@@ -1589,3 +1589,45 @@ Pulse Grenade 1.236 -> 1.680, Kinetic Carbine 1.204 -> 1.437, Paradoxical Swap 1
 pairs 0.171 -> 0.172, damage items 0.054 -> 0.055, per item 0.251. Left: Tankbuster
 1.72x under and melee 0.6x over; the count needs short, Carbine-opened fights in the duel model.
 
+
+## Carbine pokes (2026-10-26)
+
+Follow-up of "Paradox's Carbine count": where real Paradox's extra Carbines per gun damage come from. In the 260
+fight-length replays (`scripts/fight_length/ability_pokes.py`, fit_length.py's fights: gaps < 5 s, 4+ hits both
+ways):
+
+| | real |
+|---|---|
+| Carbine hits outside any fight (pokes: a lone hit, or a target that doesn't answer) | 58% (his gun damage: 44%) |
+| Carbine hits per 1000 gun damage, in fights / in all | 2.78 / 3.73 (sim 1.9) |
+| poke hits per fight of his | 0.55 |
+| median Carbine hit / his median gun hit, in fights / pokes | 13.7x / 21.5x (sim formula 21-29x) |
+| fights opened by a Carbine | 24% (the sim's precast already opens ~25%) |
+| Tankbuster with the Carbine hit, in fights / pokes | 39% / 48% |
+
+So the duel was not missing Carbine-opened fights: it was missing the pokes beside them, which are full-charge hits
+(the formula's size), while hits in fights, openers included, are 0.64x that. New `Mechanics.pokes` (on with
+fight_length): an ability with a used row in `data/ability_pokes.json` lands its real poke hits per fight beside the
+duel (`fight.add_pokes`): one cast on the duel's target in a fresh engine (full health, cooldowns ready, no gun, no
+other casts, 10 s for Mystic Reverb's echo and DoTs), its damage and procs added x pokes_per_fight to the duel's
+damage, the fight itself untouched. `survival.survive` (overall score, sim_vs_win) adds the hero's own pokes too.
+Kinetic Carbine in a fight deals `chrono.CARBINE_FIGHT_HIT` = 0.64 x the formula, a poke the full hit. Only Paradox's
+Carbine is used: it is the one ability whose poke hits are much bigger than its fight hits (Sinclair's Vexing Bolt
+1.5x is next); other abilities with many pokes (Grey Talon Guided Owl, Ivy Air Drop, Lurking Terrors) are in the
+file for later.
+
+Split-half (fit on one half: 3 rounds `ability_corr_heroes.py --hero Paradox`, then 3 rounds of
+`item_landing_heroes.py --hero Paradox` with an ability round between; audit the other half; same recipe for both):
+
+| held-out half | mix, main | mix, pokes | sources, main | sources, pokes | holders' item log error, main | pokes |
+|---|---|---|---|---|---|---|
+| odd | 0.051 | 0.031 | 0.049 | 0.026 | 0.32 | 0.09 |
+| even | 0.044 | 0.035 | 0.045 | 0.037 | 0.43 | 0.14 |
+
+(Two item rounds on main change nothing; the gain is the pokes.) Full sample: Paradox 0.045 -> 0.030, sources
+0.041 -> 0.024; holders-only real/sim Tankbuster 2.08 -> 1.14, Mystic Burst 1.81 -> 1.12, Mystic Shot 1.49 -> 1.24,
+Spirit Burn 2.32 -> 1.00, Mystic Reverb 1.12 -> 0.99. length_corr Kinetic Carbine 1.437 -> 1.052, Pulse Grenade
+1.680 -> 1.724, Swap 2.350 -> 2.344. Paradox's Mystic Reverb row falls to 0.315: a poke's echo hits a full-health
+target (+10% of current health) every time, while real Reverb lands 0.3-0.37 echoes per Carbine hit in pokes and
+fights alike. Player-weighted audit 0.0303 -> 0.0299 on main after #113 (only Paradox moves). sim_vs_win 27k flat: all pairs 0.172 -> 0.171, damage items 0.055 -> 0.054, per item
+0.251 -> 0.251 (Paradox is 1 of 44 heroes and pokes only add his own damage). Left: melee 0.63x over.

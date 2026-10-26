@@ -758,17 +758,22 @@
   "Paradox": {
    "Express Shot": {
     "holders": 143,
+    "real_over_sim": 1.003,
+    "landing": 0.4
+   },
+   "Headhunter": {
+    "holders": 41,
     "real_over_sim": 1.004,
-    "landing": 0.39
+    "landing": 0.84
    },
    "Mystic Reverb": {
     "holders": 86,
-    "real_over_sim": 1.123,
-    "landing": 1.0
+    "real_over_sim": 0.966,
+    "landing": 0.315
    },
    "Mystic Shot": {
     "holders": 62,
-    "real_over_sim": 1.491,
+    "real_over_sim": 1.237,
     "landing": 1.0
    }
   },
