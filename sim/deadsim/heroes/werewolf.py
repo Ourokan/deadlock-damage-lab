@@ -16,6 +16,11 @@ Lycan Curse (ult):
 - Bloodlust: RagePerDamage per point of damage dealt (+LowHealthRageBonus% below LowHealthFraction hp) plus
   RagePercentagePerSecondInCombat% of MaxRage per second (the whole fight counts as combat). At MaxRage it is cast
   at once (the game auto-casts after ReadyDuration). MaxRage, BonusHealth and LowHealthRageBonus scale per boon.
+  Fights on real timing (WOLF_TIMING, with Mechanics.execute_timing): rage and the cooldown carry over from earlier
+  fights, which a duel starting at 0 rage missed (it transformed 7-12 s into nearly every duel, never at the start).
+  Each fight draws its first transform from Phantom+ replays (data/wolf_timing.json, scripts/mechanics/
+  wolf_timing.py): already in wolf form at the start (cast at t=0) in 12% of fights, else at a real time or not at
+  all (on cooldown or held: ~40% of fights by 20 s); later casts follow the rage rule.
 - Transform: +BonusHealth max health (current health goes up too), heal MissingHealthPercentHeal% of missing health,
   T1 +15% bullet/spirit resist, and the gun becomes Lycan Claws (raw weapon data; per-boon bullet damage from
   the hero's ALT_FIRE per-boon value; clip scaled like the rifle's clip items). Each claw hit adds a stack of
@@ -33,6 +38,9 @@ Lycan Curse (ult):
   Human and wolf versions keep separate cooldowns, both scaled by the slot's cooldown reduction.
 """
 import dataclasses
+import json
+import math
+import os
 from functools import lru_cache
 
 from deadsim.abilities import AbilityImpl, CastCtx, register
@@ -40,6 +48,14 @@ from deadsim.data import Ability, _load, _num
 
 WOLF_KEY = "silver_wolf_until"
 CLAWS = "citadel_weapon_werewolf_claws"
+WOLF_TIMING = True
+PLAN_HORIZON = 20.0   # s, the replay holds' horizon (null = not transformed by then)
+
+
+@lru_cache(maxsize=1)
+def wolf_timing():
+    with open(os.path.join(os.path.dirname(__file__), "..", "..", "data", "wolf_timing.json")) as fh:
+        return json.load(fh)
 
 
 @lru_cache(maxsize=1)
@@ -284,8 +300,31 @@ class LycanCurse(AbilityImpl):
             c.state["rage"] += self.max_rage(c) * c.raw("RagePercentagePerSecondInCombat") / 100 * 0.5
         c.after(0.5, self.tick, c)
 
+    def draw_plan(self, c, u):
+        """Mechanics.execute_timing: this fight's first transform from draw u (mechanics.execute_plans): at the start
+        (already in wolf form), at a real time, or not (inf)."""
+        if not WOLF_TIMING:
+            return
+        d = wolf_timing()
+        p0 = d["start_wolf"]
+        if u < p0:
+            c.state["plan_at"] = c.now
+            return
+        q = d["holds"]
+        h = q[min(len(q) - 1, int((u - p0) / (1.0 - p0) * len(q)))]
+        c.state["plan_at"] = math.inf if h is None else c.now + h
+        c.state["plan_end"] = c.now + PLAN_HORIZON   # past the data's horizon, the rage rule again
+
     def should_cast(self, c):
-        return c.foe.alive and not wolf(c) and c.state["rage"] >= self.max_rage(c)
+        if not c.foe.alive or wolf(c):
+            return False
+        at = c.state.get("plan_at")
+        if at is not None and c.now >= c.state.get("plan_end", math.inf):
+            c.state.pop("plan_at")
+            at = None
+        if at is not None:   # first transform on real timing (draw_plan)
+            return c.now >= at
+        return c.state["rage"] >= self.max_rage(c)
 
     def on_damage_dealt(self, c, target, hit):
         st = c.state
@@ -310,6 +349,7 @@ class LycanCurse(AbilityImpl):
         st = c.state
         c.lock_gun(c.raw("AbilityCastDelay"))
         st.update(rage=0.0, stacks=0)
+        st.pop("plan_at", None)
         f.counters[WOLF_KEY] = c.now + c.dur("AbilityDuration")
         bonus = c.val("BonusHealth")
         f.mods.add("max_health", bonus, 1e9, "lycan_hp")
