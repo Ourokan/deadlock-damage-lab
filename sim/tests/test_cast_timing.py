@@ -55,6 +55,8 @@ class CastHolds(unittest.TestCase):
             self.assertEqual(len(rows), held, name)
             self.assertTrue(all(len(holds[k]) == 20 for k in rows))
         self.assertFalse([k for k in holds if k.startswith(f"{game().hero('Kelvin').id}:")])
+        # Violet's ult was "cast" in 98% of real fights while her cooldown cuts counted as casts (real_casts)
+        self.assertGreaterEqual(sum(x is None for x in holds[ult_key("Violet")]), 6)
 
     def test_hold_moves_the_ready_time(self):
         mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(27000))
@@ -167,6 +169,21 @@ class Precast(unittest.TestCase):
         self.assertTrue(all(h is None for h in q[12:]))           # 60% landed by 20 s
         del sim["hit_lag_s"]                                       # no damage lag: the old cast-curve holds
         self.assertTrue(all(h is None or h >= 0 for h in FCT.holds(real, sim)))
+
+    def test_real_casts_drop_cooldown_cuts(self):
+        """Replay cooldown starts: a cast sets the start to the game time (tick / 64 less the replay's offset, which a
+        pause moves) or later (cooldown after the duration); a cooldown cut (Violet's Living Ink hits) moves it back."""
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts", "cast_timing"))
+        import fit_cast_timing as FCT
+        filler = [{"k": "cast", "a": 9, "s": "1", "v": t - 50.0, "tick": int(t * 64)} for t in range(100, 160)]
+        filler += [{"k": "cast", "a": 9, "s": "1", "v": t - 20.0, "tick": int(t * 64)} for t in range(300, 360)]
+        rows = [{"k": "cast", "a": 1, "s": "7", "v": 70.0, "tick": 120 * 64},     # cast at game time 70
+                {"k": "cast", "a": 1, "s": "7", "v": 68.5, "tick": 121 * 64},     # cut 1.5 s a second later
+                {"k": "cast", "a": 1, "s": "8", "v": 85.0, "tick": 130 * 64},     # cast, cooldown starts in 5 s
+                {"k": "cast", "a": 1, "s": "8", "v": 83.5, "tick": 131 * 64},     # cut of that pending start
+                {"k": "cast", "a": 1, "s": "7", "v": 320.0, "tick": 340 * 64}]    # cast after a pause (offset 20)
+        kept = [(r["s"], r["v"]) for r in FCT.real_casts(filler + rows) if r["a"] == 1]
+        self.assertEqual(kept, [("7", 70.0), ("8", 85.0), ("7", 320.0)])
 
     def test_carbine_has_precast_holds(self):
         q = M.cast_holds()[f"{game().hero('Paradox').id}:citadel_ability_chrono_kinetic_carbine"]

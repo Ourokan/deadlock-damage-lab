@@ -164,7 +164,7 @@ class GunCalibration(unittest.TestCase):
         self.assertAlmostEqual(L.skill_of(p).accuracy, hits / shots)
         self.assertFalse(L.gun_known({"hero_id": haze, "custom": {acc.SHOTS: shots, acc.HITS: hits}}))
         self.assertFalse(L.own_aim({"hero_id": haze, "custom": {acc.SHOTS: shots, acc.HITS: hits}}))
-        for name in ("Violet", "The Doorman", "Kelvin", "Solomon"):
+        for name in ("Violet", "The Doorman", "Kelvin", "Solomon", "Rem", "Paige", "Sinclair"):
             self.assertLess(L.gun_limits(G.hero(name).id)[0], L.MIN_HITS, name)
 
     def test_player_skill_uses_the_replay_fit_without_a_lookup(self):
