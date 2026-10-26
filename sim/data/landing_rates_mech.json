@@ -676,24 +676,24 @@
   "Drifter": {
    "Rend": {
     "class": "drifter_blood_blast",
-    "landing": 1.026,
+    "landing": 0.5,
     "real_share": 0.2285,
     "sim_share": 0.2296,
-    "length_corr": 1.374
+    "length_corr": 1.562
    },
    "Stalker's Mark": {
     "class": "drifter_shadow_mark",
-    "landing": 0.488,
+    "landing": 0.28,
     "real_share": 0.1345,
     "sim_share": 0.1352,
-    "length_corr": 1.51
+    "length_corr": 1.571
    },
    "Bloodscent": {
     "class": "ability_drifter_hunger",
-    "landing": 0.672,
+    "landing": 0.57,
     "real_share": 0.0816,
     "sim_share": 0.0822,
-    "length_corr": 1.025
+    "length_corr": 1.136
    }
   },
   "Venator": {
@@ -1063,23 +1063,23 @@
   "Baba": {
    "Threadsap": {
     "class": "ability_baba_bubbling_brew",
-    "landing": 0.21,
-    "length_corr": 2.309
+    "landing": 0.54,
+    "length_corr": 1.916
    },
    "Granny Long Legs": {
     "class": "ability_baba_bench_run",
-    "landing": 0.6,
-    "length_corr": 3.325
+    "landing": 2.43,
+    "length_corr": 1.206
    },
    "Baba's Brew": {
     "class": "ability_baba_hexing_brew",
-    "landing": 0.22,
-    "length_corr": 2.096
+    "landing": 0.35,
+    "length_corr": 1.851
    },
    "Feed The Birds": {
     "class": "ability_baba_ultimate_2",
-    "landing": 0.2,
-    "length_corr": 2.428
+    "landing": 0.32,
+    "length_corr": 2.164
    }
   }
  }

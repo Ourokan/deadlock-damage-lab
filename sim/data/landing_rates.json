@@ -585,13 +585,13 @@
   "Drifter": {
    "Rend": {
     "class": "drifter_blood_blast",
-    "landing": 1.16,
+    "landing": 0.57,
     "real_share": 0.2285,
     "sim_share": 0.1785
    },
    "Stalker's Mark": {
     "class": "drifter_shadow_mark",
-    "landing": 0.53,
+    "landing": 0.33,
     "real_share": 0.1345,
     "sim_share": 0.2637
    },
@@ -917,19 +917,19 @@
   "Baba": {
    "Threadsap": {
     "class": "ability_baba_bubbling_brew",
-    "landing": 0.25
+    "landing": 0.65
    },
    "Granny Long Legs": {
     "class": "ability_baba_bench_run",
-    "landing": 0.81
+    "landing": 3.22
    },
    "Baba's Brew": {
     "class": "ability_baba_hexing_brew",
-    "landing": 0.26
+    "landing": 0.4
    },
    "Feed The Birds": {
     "class": "ability_baba_ultimate_2",
-    "landing": 0.25
+    "landing": 0.39
    }
   }
  }

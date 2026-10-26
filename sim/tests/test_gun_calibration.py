@@ -186,6 +186,30 @@ class GunCalibration(unittest.TestCase):
         mo = G.hero("Mo & Krill")
         self.assertAlmostEqual(compute_stats(mo.name, souls=0).bullet_damage, mo.weapon["bullet_damage"])
 
+    def test_drifter_pellets_share_the_shot(self):
+        # replays: Drifter's 19.5 is the whole 3-pellet shot too (body hits peak at 19-20, never 39 / 58)
+        h = G.hero("Drifter")
+        st = compute_stats(h.name, souls=0)
+        self.assertEqual(st.pellets, 3)
+        self.assertAlmostEqual(st.bullet_damage * st.pellets, h.weapon["bullet_damage"])
+
+    def test_split_shots_land_whole(self):
+        """A split gun's shot lands with all its pellets (replay values sit at the full shot), with the API pellet
+        accuracy x pellets / API pellets per landed shot as its chance."""
+        from deadsim import engine
+        aim = Skill(accuracy=0.3, headshot=0.0, use_abilities=False, use_actives=False)
+        seen, orig = [], engine.Engine.damage
+
+        def spy(self, src, dst, raw, kind, source, *a, **k):
+            if source == "gun" and src.st.hero.name == "Drifter":
+                seen.append(k.get("hits"))
+            return orig(self, src, dst, raw, kind, source, *a, **k)
+        with mock.patch.object(engine.Engine, "damage", spy):
+            duel(Loadout("Drifter", [], souls=3000, skill=aim), Loadout("Haze", [], souls=3000, skill=aim),
+                     distance=8.0, max_time=15.0, mechanics=Mechanics(range_drift=False))
+        self.assertTrue(seen)
+        self.assertTrue(all(n == 3 for n in seen), seen)
+
     def test_threadsap_gun_bonus_once_per_shot(self):
         from deadsim.heroes.baba import STOLEN_KEY, Threadsap
         c = mock.Mock(now=1.0)

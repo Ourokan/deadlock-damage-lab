@@ -21,7 +21,7 @@ import math
 import zlib
 from dataclasses import dataclass, field
 
-from .build import Stats, combine_resist, stack_cdr
+from .build import SHOT_SPLIT_PELLETS, Stats, combine_resist, stack_cdr
 from .patterns import fight_start
 
 INF = float("inf")
@@ -1052,7 +1052,11 @@ class Engine:
                 shoot_summon(self, f, s, n_bullets)
                 return
         p_hit = min(1.0, f.skill.accuracy * (1.0 - e.stat("evasion")) * self.hit_reach(st))
-        hits = f.hit_acc.take(p_hit, n_bullets)
+        per_shot = SHOT_SPLIT_PELLETS.get(st.hero.id)
+        if per_shot:   # the shot lands whole (build.SHOT_SPLIT_PELLETS): pellet accuracy -> shot accuracy
+            hits = f.hit_acc.take(min(1.0, p_hit * st.pellets / per_shot), n_bullets // st.pellets) * st.pellets
+        else:
+            hits = f.hit_acc.take(p_hit, n_bullets)
         if hits <= 0:
             return
         heads = f.head_acc.take(f.skill.headshot, hits)

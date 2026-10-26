@@ -1717,3 +1717,30 @@ same refit as reference:
 Full sample: Baba 0.093 -> 0.031, Torment Pulse holders 1.87 -> 0.98, all heroes 0.0256 -> 0.0243; melee rate
 0.176 -> 0.070. sim_vs_win 27k all pairs 0.166 -> 0.167, edges clear of noise 0.266, per item 0.238. Drifter's
 "3 x 19.5" looks the same in replays (early hits peak at 20, never 39 or 58; gun 1.64x real per shot): not changed.
+
+## Drifter's gun: 19.5 per shot; split shots land whole (2026-10-26)
+
+Drifter's "19.5 x 3" is the whole shot as well: in the first 45 s of 10 Phantom+ replays (pulled with the gun's
+`hits`/`crit_damage` columns) his body hits peak at 19-20 and his heads at 26-27, with nothing near 39 or 58, which two
+or three pellets of 19.5 would give although the API counts 1.87 pellet hits per hitting shot. The sim's gun dealt
+1.63x real per shot. Every other shotgun (Abrams, Calico, Mo & Krill, Shiv, Pocket, Silver, Yamato, Rat King) shows
+volleys of several pellets' worth, so the data is per pellet there. `build.SHOT_SPLIT_PELLETS` gains 64.
+
+Split, the two guns read low instead (Drifter 0.57x, Baba 0.65x real per shot): their replay hits sit at the full
+shot, but the sim drew each pellet on its own with the API's pellet accuracy, landing ~1.2 pellets per hitting shot.
+`SHOT_SPLIT_PELLETS` now maps each hero to the API pellet hits per replay gun hit (Baba 2.14, Drifter 1.87,
+`gun_calib/gun_stats.json.gz`), and `Engine.fire` lands such a shot whole with chance accuracy x pellets / that.
+Gun damage per shot vs real: Drifter 0.89x, Baba 0.96x (single-bullet guns 1.0-1.2x by the same measure; per hitting
+shot 0.94x / 1.11x). Per-shot on-hit items (`items_fx.shots_hit`) and Threadsap's once-per-shot bonus follow.
+
+Refit of Baba and Drifter only (same order as for Baba above). Split-half, old code with the same refit as reference:
+
+| hero | fit -> audit | mix old | mix new | per-source old | per-source new |
+|---|---|---|---|---|---|
+| Drifter | even -> odd | 0.046 | 0.021 | 0.031 | 0.026 |
+| Drifter | odd -> even | 0.033 | 0.020 | 0.031 | 0.022 |
+| Baba | even -> odd | 0.029 | 0.034 | 0.054 | 0.047 |
+| Baba | odd -> even | 0.039 | 0.017 | 0.052 | 0.049 |
+
+Full sample: Drifter 0.045 -> 0.015, Baba 0.031 -> 0.023, all heroes 0.0243 -> 0.0231. sim_vs_win 27k all pairs
+0.167 -> 0.169, edges clear of noise 0.266 -> 0.269, per item 0.238 -> 0.239.
