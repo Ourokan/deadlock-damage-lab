@@ -233,10 +233,15 @@ def add_pokes(dmg, exp, me: Loadout, foe: Loadout, distance, rng, mech):
     A poke is one cast of the ability on foe in a fresh engine (both at full health, cooldowns ready, no gun, no
     other casts), run POKE_S s; its damage and the item procs riding on it (Tankbuster, Mystic Burst, Mystic Shot,
     Mystic Reverb's echo) are added x pokes_per_fight to dmg (in full) and exp (expected over real fight lengths:
-    a poke is outside the fight, so in full there too). The fight itself (health, winner, time) is untouched: in
-    real games the target has the time to heal up before the next fight."""
+    a poke is outside the fight, so in full there too). The cast always lands and its damage counts x the caster's
+    spirit_accuracy (the expected hit: one roll per poke would be all or nothing, and with rng None always the
+    same). The fight itself (health, winner, time) is untouched: in real games the target has the time to heal up
+    before the next fight. Only the damage totals get the pokes, not the fight's time profile (dmg_by_2s,
+    dmg_first, PROFILE_SOURCES tallies), which describe the fight."""
     from .mechanics import poke_rows
     hero, _ = me.resolve()
+    land = me.skill.spirit_accuracy
+    me = dataclasses.replace(me, skill=dataclasses.replace(me.skill, spirit_accuracy=1.0))
     for cls, k in poke_rows(hero).items():
         e = Engine(distance=distance, max_time=POKE_S, mech=mech,
                    rng=None if rng is None else random.Random(rng.random()))
@@ -262,8 +267,8 @@ def add_pokes(dmg, exp, me: Loadout, foe: Loadout, distance, rng, mech):
             e.t = t
             fn(*args)
         for name, v in f.dmg_out.items():
-            dmg[name] = dmg.get(name, 0.0) + k * v
-            exp[name] = exp.get(name, 0.0) + k * v
+            dmg[name] = dmg.get(name, 0.0) + k * land * v
+            exp[name] = exp.get(name, 0.0) + k * land * v
 
 
 def time_to_kill(attacker: Loadout, defender: Loadout, distance=15.0, max_time=60.0, rng=None, log=False,
