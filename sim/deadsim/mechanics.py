@@ -140,6 +140,11 @@ class Mechanics:
     # the slash on a ~55% target or a miss, then the whole cooldown), wait for the execute gate, or not cast (on
     # cooldown). Soul Exchange: held to a real first cast time (or not cast), then its gap gate
     execute_timing: bool = True
+    # ability pokes (2026-10-26): with fight_length, an ability with a used row in data/ability_pokes.json (Paradox's
+    # Kinetic Carbine) also lands its real poke hits per fight beside the duel: pokes_per_fight casts on the duel's
+    # target outside the fight, damage and procs booked in full, the duel's health and cooldowns untouched
+    # (fight.add_pokes; scripts/fight_length/ability_pokes.py, validation/README.md "Carbine pokes")
+    pokes: bool = True
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
@@ -177,6 +182,24 @@ def real_length(souls=None):
         return _LENGTH["all"]
     ph = next((n for hi, n in LENGTH_PHASES if souls < hi), "late")
     return _LENGTH.get(ph, _LENGTH["all"])
+
+
+_POKES = None
+
+
+def poke_rows(hero):
+    """{ability class: real poke hits per fight} for a hero's abilities with a used row in data/ability_pokes.json
+    (Mechanics.pokes): hits outside any fight (no fight_length run of 4+ hits both ways), per fight of the hero."""
+    global _POKES
+    if _POKES is None:
+        fn = os.path.join(os.path.dirname(__file__), "..", "data", "ability_pokes.json")
+        _POKES = {}
+        if os.path.exists(fn):
+            with open(fn) as fh:
+                for r in json.load(fh)["abilities"]:
+                    if r.get("use"):
+                        _POKES.setdefault(r["hero_id"], {})[r["class_name"]] = r["pokes_per_fight"]
+    return _POKES.get(hero.id, {})
 
 
 _OPENER = None
