@@ -143,6 +143,19 @@ class FX:
         """Share of fight time the target is within `meters` (1 / 0 without range spread)."""
         return self.f.e.p_within(meters + 0.5)
 
+    def reach_share(self, meters):
+        """Expected share of an on-cooldown proc that needs the target within `meters` (1 / 0 without range spread):
+        cooldown / (cooldown + the expected wait for the drift to bring the target in), the mean field abilities use
+        (Engine.reach_ready). A per-hit chance of p_within would proc a 6 s cooldown item about every 1 / p hits, on
+        cooldown even for a hero who is that close a few % of the time."""
+        e = self.f.e
+        if e.spread <= 0:
+            return 1.0 if self.in_range(meters) else 0.0
+        st = {}
+        e.reach_ready(st, meters + 0.5, self.f, mean_field=True)
+        cd = max(0.1, self.cd())
+        return cd / (cd + st.get("_reach_delay", 0.0))
+
     def ready_in(self, meters):
         """Gate for an active that needs the target within `meters`: now / never without range spread, after the
         expected wait for the drift to bring the target in with it (Engine.reach_ready)."""
@@ -435,12 +448,15 @@ class RechargingRush(FX):
 @handler("upgrade_weapon_backstabber")
 class Stalker(FX):
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind == "bullet" and hit.hits and self.ready() and \
-                f.acc("stalker_reach").take(self.reach_p(self.item.p("ProcRadius", 8)), 1):
-            self.use()
-            d = self.dur("DebuffDuration", 5)
-            f.e.dot(f, t, self.v("DPS"), d, self.name, tick=self.item.p("TickRate", 0.5), is_item=True)
-            self.debuff(t, "bullet_shred", abs(self.item.p("BulletResistReduction")) / 100, d)
+        if not (hit.kind == "bullet" and hit.hits and self.ready()):
+            return
+        k = self.reach_share(self.item.p("ProcRadius", 8))   # within 8 m: the procs' expected share (reach_share)
+        if k <= 0:
+            return
+        self.use()
+        d = self.dur("DebuffDuration", 5)
+        f.e.dot(f, t, self.v("DPS") * k, d, self.name, tick=self.item.p("TickRate", 0.5), is_item=True)
+        self.debuff(t, "bullet_shred", abs(self.item.p("BulletResistReduction")) / 100 * k, d)
 
 
 @handler("upgrade_bullet_armor_reduction_aura")

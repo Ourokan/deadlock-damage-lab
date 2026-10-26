@@ -1339,6 +1339,43 @@ Left: The Doorman's corrections (x3-4) rest on 38 players; Violet's four real ca
 cast by 20 s in 98% of fights), worth a look in the cast replays; Solomon's Develop Queen corr sits at the 10 cap;
 Rem, Paige, Sinclair also keep under half their players at 150 hits.
 
+## Close-range items on far heroes: Stalker's reach, melee openers (2026-10-26)
+
+Tyler: the site recommended Stalker and Melee Charge to Vindicta, who plays too far away to use them (Phantom+
+builds had Melee Charge at 18k, Stalker at 27k; Grey Talon, McGinnis, Mina, Sinclair... had Spirit Snatch / Stalker
+the same way). Vindicta at 18k, popular build + item: Melee Charge +26% score (melee damage 4 -> 85 per fight),
+Stalker +16%.
+
+- Melee openers. `Mechanics.melee_timing` gave every melee item holder one full opening melee (heavy for Melee
+  Charge) in ~65% of fights, drawn from the holds pooled over real holders. Later melee ticks pay it back, which keeps
+  the fitted rate for heroes who melee often, but Vindicta lands 0.0094 melees/s even with a melee item, so the debt
+  was never paid and the opener was ~6x her real melee. Every hero with real opener rows melees >= 0.036/s with one
+  melee item (Bebop the lowest) and opens about as often as the pool (real by 20 s / pooled 0.45-1.17, no trend with
+  rate). Below `MELEE_OPEN_FULL_RATE` = 0.036 (outside the data) a hero now opens in rate / 0.036 of those fights:
+  Vindicta 26% of them (~17% of all fights, was ~65%), McGinnis 20%, Haze 52%, Infernus 71%; heroes with rows
+  unchanged. Real low-melee heroes almost never
+  buy these items (11 melee item holders among them in the 600-match sample), so their landing can't be checked
+  directly; their absence is the evidence.
+- Stalker procs off cooldown on a bullet hit with the target within 8 m. It took a per-bullet chance p_within(8.5),
+  so a hero 8 m away 7-13% of the time procced it about every 1 / p bullets: on cooldown. Now each proc counts x
+  cooldown / (cooldown + the expected wait for the drift to bring the target within 8 m) (`FX.reach_share`, the mean
+  field abilities use, `Engine.reach_ready`): Vindicta vs typical enemies 0.24-0.35, close heroes 0.55-0.75. Real
+  holders proc it later than the old sim on every hero (opener timing: used by 1 / 3 / 6 s real 0.08-0.30 / 0.32-0.48 /
+  0.46-0.59, sim 0.38-0.81 / 0.65-0.95 / 0.86-1.0), which the old landing factors (pooled 0.754, per hero ~0.63)
+  absorbed. Refit: pooled 0.754 -> 0.946, then `item_landing_heroes.py --item Stalker --write` (new option: refit one
+  item's rows): Abrams 0.66, Bebop 0.89, Billy 0.74, Calico 0.76, Silver 0.69, Yamato 0.63, Drifter 1.0 (cap; real/sim
+  1.30). The 8 Stalker holders on low-melee heroes: real/sim 1.16 -> 0.97.
+
+Results (main -> this): damage audit player-weighted mix 0.0311 -> 0.0313 (0.0317 -> 0.0317 after rebasing on #103, 0.0309 -> 0.0310 on #101),
+pooled Stalker real/sim 1.06 -> 1.11 (Drifter at the cap), items |log real/sim| 0.158 -> 0.164; most of that is Rebuttal 1.26 -> 1.61, whose sim damage is a
+handful of parries per player and flips with any change to a fight (per-hero rows move both ways: Bebop 0.13 -> 0.07,
+Wraith 0.02 -> 0.10 of gun damage); turning the melee cap off leaves it the same. sim_vs_win 27k: all pairs 0.159 ->
+0.168, damage items 0.041 -> 0.063, edges clear of noise 0.264 -> 0.264, per item 0.230 -> 0.237. Mean sim gain per
+1000 souls: Spirit Strike 0.114 -> 0.097, Spirit Snatch 0.084 -> 0.068, Melee Charge 0.070 -> 0.057; on Vindicta
+Melee Charge 0.049 -> 0.009, Spirit Snatch 0.106 -> 0.022 (Stalker is a movement item, not in sim_vs_win). Vindicta's
+overall search: no Stalker or Melee Charge at any budget (18k: Mystic Shot, Headshot Booster, Locket... ; 27k: Focus
+Lens, Toxic Bullets...). Stalker's movement speed value (movement_value.json, pooled over holders) is unchanged.
+
 ## Rem, Paige, Sinclair: just under the hit cutoff; Violet's cast curves were cooldown cuts (2026-10-26)
 
 Rem (median 551 shots / 133 API hero hits a Phantom+ match), Paige (447 / 135) and Sinclair (685 / 141) sit just under
