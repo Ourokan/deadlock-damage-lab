@@ -5,7 +5,7 @@ day and every region's prime time counts, and keeps per player only the hero-onl
 outgoing bullet distance histogram (no account ids: the file is committed). Output lines match validation/matches_sample.jsonl.gz enough for
 build_skill_defaults.py (match_id, badge, players[hero_id, custom]).
 
-usage: python3 scripts/fetch_aim_sample.py [--badge 91] [--days 10] [--per-day 400] [--out validation/aim_sample.jsonl.gz]
+usage: python3 scripts/fetch_aim_sample.py [--badge 91] [--days 10] [--per-day 420] [--out validation/aim_sample.jsonl.gz]
 """
 import argparse
 import gzip
@@ -46,7 +46,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--badge", type=int, default=91)
     ap.add_argument("--days", type=int, default=10)
-    ap.add_argument("--per-day", type=int, default=400)
+    ap.add_argument("--per-day", type=int, default=420)
     ap.add_argument("--out", default=os.path.join(ROOT, "validation", "aim_sample.jsonl.gz"))
     a = ap.parse_args()
     now = int(time.time()) - 3 * 3600

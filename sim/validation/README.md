@@ -1966,4 +1966,7 @@ Mo & Krill +0.007 from his 10.0 -> 9.4 m distance). sim_vs_win 27k all heroes: a
 of noise 0.277 -> 0.271, per item 0.249 -> 0.248. Seven alone is 0.0043 of the drop: his p75 aim 0.266 -> 0.272 tips
 his 27k popular build over a kill threshold, so every gun item's gain jumps ~+0.16 together (Close Quarters, HVR,
 Extended Magazine), a knife-edge rather than a model change; without Seven the change is -0.001.
-Refresh after a patch: `python3 scripts/fetch_aim_sample.py && python3 scripts/build_skill_defaults.py`.
+Refresh after a patch: `python3 scripts/fetch_aim_sample.py && python3 scripts/build_skill_defaults.py` (defaults =
+the committed sample: --badge 91 --days 10 --per-day 420, i.e. 70 matches per 4-hour slice; the Ranked filter runs
+after the per-slice limit but every fetched match was Ranked). Matches of 25+ minutes only, the same filter as the
+old sample (fetch_validation.py), so old vs new differ by rank and size, not game length.
