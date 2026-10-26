@@ -24,8 +24,9 @@ def lo(hero, items=(), **kw):
 DUELS = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift, all hero range checks); Abrams vs Seven
             # re-pinned 2026-10-24 for Split Shot's replay fit
             # re-pinned 2026-10-26 for melee's share of the weapon damage bonus (engine.MELEE_WEAPON_SCALE)
+            # Haze re-pinned 2026-10-26: Bullet Dance bullets proc Toxic Bullets (Hit.gun_bullet)
     ("Haze", ["Rapid Rounds", "Toxic Bullets", "Restorative Locket"], "Infernus",
-     ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Infernus (B)", 26.225, 2400.6, 2245.8),
+     ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Haze (A)", 24.76, 2748.9, 1880.7),
     ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 25.6, 1974.1, 3181.2),
     ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1745.9, 1347.1),
 ]

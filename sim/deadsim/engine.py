@@ -254,13 +254,20 @@ class Hit:
     is_dot: bool = False
     is_item: bool = False
     is_ult: bool = False
-    weapon_proc: bool = False   # an ability hit that counts as a gun hit for Mystic Shot (Kinetic Carbine)
+    # an ability hit that counts as a gun hit for on-hit items: Kinetic Carbine (Mystic Shot), Bullet Dance's bullets
+    weapon_proc: bool = False
     # the ability landing factor x reach availability in amount: they stand for hits that land less often, so a
     # per-hit threshold (Mystic Burst's MinimumDamage) checks amount / landing, the size of a hit when it lands
     landing: float = 1.0
     # the hit's damage / landing before the target's resists and damage-taken amps (Tankbuster's MinimumDamage
     # checks this: in replays its trigger share ramps from 80 to 165 dealt damage, as resists vary)
     pre_mit: float = 0.0
+
+    def gun_bullet(self):
+        """Bullets that proc on-hit items (Lucky Shot, Toxic / Tesla Bullets, Siphon, Ricochet, ...): the gun's, and
+        an ability's that fires the weapon (weapon_proc: Bullet Dance; Phantom+ replays: Haze's on-hit items proc
+        all through it, 1938 Lucky Shot, 3192 Ricochet, 247 Toxic, 133 Tesla events in its windows vs 45 gun hits)."""
+        return self.kind == "bullet" and bool(self.hits) and (not self.is_ability or self.weapon_proc)
 
 
 # ---------------------------------------------------------------------------------------------------

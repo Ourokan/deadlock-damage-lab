@@ -18,7 +18,8 @@ Assumptions:
   perfect accuracy, no headshots, without spending ammo, each bullet getting +WeaponDamageBonus flat damage
   (data: FLAT_BULLET_DAMAGE_POST_SCALE, so not multiplied by weapon damage); Fixation books its stack bonus. She gains EvasionPercent evasion for the duration.
   Its landing factor (data/landing_rates*.json, low because the ult is up in few real fights) shortens the channel
-  rather than scaling its bullets, so the gun lock shrinks with it.
+  rather than scaling its bullets, so the gun lock shrinks with it. Its bullets are the weapon's: they proc on-hit
+  items like gun bullets (Lucky Shot, Ricochet, Toxic / Tesla Bullets, ...; Phantom+ replays, Hit.gun_bullet).
 """
 from deadsim.abilities import AbilityImpl, register
 
@@ -163,6 +164,6 @@ class BulletDance(AbilityImpl):
             return
         base, _ = c.engine.bullet_damage(f)
         per = base + c.raw("WeaponDamageBonus")    # flat bonus is post-scale; Fixation books its own bonus
-        c.gun_volley(f.st.pellets, per, accuracy=1.0, headshots=False, landed=True)
+        c.gun_volley(f.st.pellets, per, accuracy=1.0, headshots=False, landed=True, weapon_proc=True)
         rate = 1.0 + f.fire_rate() + c.raw("BonusFireRate") / 100
         c.after(f.st.cycle_time / max(0.05, rate), self.shoot, c)
