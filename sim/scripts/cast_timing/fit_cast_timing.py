@@ -366,6 +366,8 @@ def fit(n, workers, write, hero=None):
     out = {}
     for key, r in sorted(real_rows.items()):
         sm = sim0.get(key)
+        if getattr(REGISTRY.get(key.split(":", 1)[1]), "draw_plan", None) is not None:
+            continue   # its own real plan (Mechanics.execute_timing): Victor's aura is timed from its hits
         if on_sight(sm):
             pass
         elif key in ults and on_sight(sim0u.get(key), int(PROBE_SIGHT_S / 0.5) if key in late_ok else 2):

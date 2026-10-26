@@ -1,5 +1,5 @@
-"""Bebop's Grapple Arm hit and Victor's Shocking Reanimation carried over from earlier fights
-(deadsim/heroes/bebop.py, frank.py). Run from sim/:
+"""Bebop's Grapple Arm hit, Victor's Shocking Reanimation carried over from earlier fights and his Aura of Suffering
+already on at the fight start (deadsim/heroes/bebop.py, frank.py). Run from sim/:
     python3 -m unittest discover -s tests
 """
 import dataclasses
@@ -51,6 +51,26 @@ class VictorCarry(unittest.TestCase):
         seen = self.starts(mech, True)
         on = sum(1 for v in seen if v > 0) / len(seen)
         self.assertTrue(0.1 < on < 0.8, on)
+
+
+class VictorAura(unittest.TestCase):
+    def aura_at_start(self, mech, rng):
+        """Share of duels with aura damage before a fresh toggle-on could tick (first tick TickRate after it)."""
+        on = 0
+        for i in range(40):
+            r = duel(Loadout("Victor", [], souls=30000), Loadout("Haze", [], souls=30000), distance=4, max_time=0.2,
+                     rng=random.Random(i) if rng else None, mechanics=mech)
+            on += r.a_dmg.get("Aura of Suffering", 0.0) > 0
+        return on / 40
+
+    def test_toggled_on_in_reach_without_rng(self):
+        mech = dataclasses.replace(DEFAULT, fight_length=real_length(30000))
+        self.assertEqual(self.aura_at_start(mech, False), 0.0)
+
+    def test_late_fights_mostly_start_with_it_on(self):
+        mech = dataclasses.replace(DEFAULT, fight_length=real_length(30000))
+        share = self.aura_at_start(mech, True)
+        self.assertTrue(0.5 < share < 0.95, share)   # real late fights: 0.76 (data/aura_timing.json)
 
 
 if __name__ == "__main__":

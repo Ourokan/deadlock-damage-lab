@@ -2075,3 +2075,32 @@ what cooldown reduction buys, not the fitted levels.
 
 Left: Silver's form swaps reset cooldowns (`reset_cooldown` clears the wait), so Boot Kick and Slam Fire still recast
 fast in the sim; charged abilities still spend charges on ready.
+
+## Victor's Aura of Suffering on at the fight start (2026-10-26)
+
+The opener-timing check put Victor's aura damage late: P(first aura hit by 1 s) 0.11 in the sim against 0.46 real,
+damage-weighted mean time 9.0 s against 5.2, 6% of it in the first 2 s against 26%. Its length_corr had grown to 4.83
+to make up the level.
+
+Cause: the aura is a toggle, and its cooldown starts when it is toggled OFF. In the cast-timing replays every aura
+cooldown start sits at the end of a run of aura ticks (3,806 of 3,815 within 0.5 s of a run's last tick), none at a
+run's start, so `fit_cast_timing.py`'s "first cast in the fight" for the aura was its first toggle-off, a median
+~7.5 s in, and the sim held the toggle-on that long. Read from his hits instead (scripts/mechanics/aura_timing.py ->
+data/aura_timing.json, 59 Victors, pair fights after his first aura hit of the match), real Victors keep it on
+between fights: it is already on at the start of 31% of lane fights, 59% mid and 76% late (on for a median 1.7 /
+3.5 / 5.0 s, so partly ramped: the first tick of a carried aura is a median 18 damage against 6 for a fresh one), and
+in the other fights it goes on early (lane / mid / late by 1 s 0.27 / 0.40 / 0.47).
+
+`frank.AURA_TIMING` (on, with Mechanics.execute_timing: fight length, cast timing, an rng or a fight phase):
+AuraOfSuffering.draw_plan draws per fight, by net worth phase, either on at the start with the ramp that far along,
+or a real toggle-on time (or not by 20 s). The aura's cast-timing row is dropped and fit_cast_timing.py skips
+abilities with their own draw_plan. Pre-fight self-damage is not booked. Deterministic fights (dummy page) unchanged.
+
+Refit of Victor only, on main after the recast timing (#138) (ability_corr_heroes.fit on the mean of audit draws
+0-3, 5 rounds): Aura of Suffering length_corr 4.83 -> 1.045, Pain Battery 1.55 -> 1.64, Shocking Reanimation 3.06 ->
+3.49. Victor audit (mean of draws 0-3): mix 0.0097 -> 0.0105, per-source 0.0359 -> 0.0077. Split-half (fit 3 rounds
+on one half's matches, audit the other, draws 0-3; reference: main's model refit the same way): mix 0.0178 -> 0.0145
+and 0.0163 -> 0.0158, per-source 0.0235 -> 0.0184 and 0.0198 -> 0.0181 (better on both halves). opener_timing
+compare: aura first 2 s 0.06 -> 0.20 (real 0.26), mean time 9.0 -> 6.3 s (real 5.2). sim_vs_win 27k (before #138):
+Victor's pairs 0.258 -> 0.250 (damage items 0.230 -> 0.238, clear edges 0.400 -> 0.404); all heroes 0.171, clear
+edges 0.267, per item 0.248, damage items 0.066 (flat against main's 0.170 / 0.266 / 0.244 / 0.066).
