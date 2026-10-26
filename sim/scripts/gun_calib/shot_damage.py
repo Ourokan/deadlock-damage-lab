@@ -20,6 +20,11 @@ the per-shot ratios spread ~9% (sd) around 1.01 beyond sampling noise, with no s
 shots, a known ~13% per-hero spread, gun_calibration memory), Billy/Paige deal more per hit (their weapon buffs: Close
 Quarters, Plot Armor, Opening Rounds), Abrams/Silver are shotguns. Item weapon buffs check out within each hero.
 
+The last column divides by the API's hero-aimed shots instead (what the sim's aim is measured on; one-bullet guns
+only, the API counts pellets). Kelvin/Holliday/Apollo fire ~10% more shots in the 4 s fight windows than the API
+counts as aimed at heroes (other heroes ~3%), so their fight-shot hit rate reads low: per API shot they sit at
+1.02-1.08 like the rest, and the sim's hit rate is not changed (2026-10-26).
+
 usage: python3 shot_damage.py <replay matches.jsonl.gz> [hero,hero|all] [workers]
 The matches file holds gun_stats' matches in fetch_validation.py format; when it does not exist it is fetched from the
 API first (70 matches, ~1.3 MB, a minute). Output: per hero, geometric mean of the per-player sim/real ratios with a
@@ -101,13 +106,15 @@ def main():
         for p in m["players"]:
             if p["hero_id"] in heroes and (m["match_id"], p["hero_id"]) in real and L.gun_known(p):
                 jobs.append((m, p["slot"]))
-    ratios, splits = collections.defaultdict(list), collections.defaultdict(list)
+    ratios, splits, per_api = collections.defaultdict(list), collections.defaultdict(list), collections.defaultdict(list)
     with ProcessPoolExecutor(workers) as ex:
         for (m, slot), s in zip(jobs, ex.map(sim_job, jobs, chunksize=2)):
             hid = next(p["hero_id"] for p in m["players"] if p["slot"] == slot)
             r = real[m["match_id"], hid]
             if s.get("shots") and s.get("dmg"):
                 ratios[hid].append((s["dmg"] / s["shots"]) / (r["gun_damage"] / r["shots_fight4"]))
+                if r["api_shots"]:
+                    per_api[hid].append((s["dmg"] / s["shots"]) / (r["gun_damage"] / r["api_shots"]))
                 if s.get("hits") and r["pellets"]:
                     splits[hid].append(((s["hits"] / s["shots"]) / (r["pellets"] / r["shots_fight4"]),
                                         (s["dmg"] / s["hits"]) / (r["gun_damage"] / r["pellets"])))
@@ -118,9 +125,11 @@ def main():
         lg = [math.log(x) for x in rs]
         mu, se = statistics.mean(lg), statistics.stdev(lg) / math.sqrt(len(lg))
         hit, per = (math.exp(statistics.mean(math.log(x[i]) for x in splits[hid])) if splits[hid] else math.nan for i in (0, 1))
-        rows.append((math.exp(mu), math.exp(mu - 2 * se), math.exp(mu + 2 * se), len(rs), G.heroes[hid].name, hit, per))
-    for g, lo, hi, n, name, hit, per in sorted(rows):
-        print(f"{name:16s} sim/real per shot {g:5.2f}  95% {lo:.2f}-{hi:.2f}  players {n:3d}  hits/shot {hit:5.2f}  per hit {per:5.2f}")
+        api = math.exp(statistics.mean(math.log(x) for x in per_api[hid])) if per_api[hid] else math.nan
+        rows.append((math.exp(mu), math.exp(mu - 2 * se), math.exp(mu + 2 * se), len(rs), G.heroes[hid].name, hit, per, api))
+    for g, lo, hi, n, name, hit, per, api in sorted(rows):
+        print(f"{name:16s} sim/real per shot {g:5.2f}  95% {lo:.2f}-{hi:.2f}  players {n:3d}  hits/shot {hit:5.2f}  per hit {per:5.2f}"
+              f"  per API shot {api:5.2f}")
 
 
 if __name__ == "__main__":
