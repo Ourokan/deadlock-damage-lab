@@ -1412,3 +1412,31 @@ player-weighted mix 0.0315 -> 0.0313.
 Left: the other 46 heroes' holds still rest on the old real curves (biggest moves: Deadman Danny's Rocketeer, Graves'
 ability_necro_gravestone, Ivy's Air Drop, Grey Talon's Guided Arrow); refit hero by hero with a split-half check.
 `fight_patterns/replay_openers.py` filters cuts with one offset per replay, so it drops real casts after a pause.
+
+## The other heroes' cast holds on the fixed real curves (2026-10-26)
+
+After the cast reader fix above, 21 more heroes held a first cast whose real curve moved by more than 0.05 (Deadman
+Danny's Chimera Mk1 0.40, Graves' Borrowed Decree 0.28, Ivy's Air Drop 0.25, Grey Talon, Seven, McGinnis, ...). Each was
+refit on its own (`fit_cast_timing.py fit --hero`, then 3 rounds of audit + `ability_corr_heroes.py` and
+`item_landing_heroes.py`) on the even or odd match ids of the sample and audited on the other half
+(`AUDIT_HEROES=name` audits one hero's players, ~5 s a half). The comparison is with the same refit on the old holds
+("ref"), since a half-sample refit alone moves the mix; main's own factors ("base") were fitted on both halves.
+Kept only where the mix is better on both halves and the per-source gap (half the summed |real - sim| share over all
+sources) is not worse by more than 0.005:
+
+| hero | half audited | base | ref (old holds, refit) | new holds only | new holds + refit |
+|---|---|---|---|---|---|
+| Ivy | even | 0.039 | 0.036 | 0.054 | 0.031 |
+| Ivy | odd | 0.041 | 0.039 | 0.051 | 0.033 |
+| Vindicta | even | 0.069 | 0.023 | 0.077 | 0.023 |
+| Vindicta | odd | 0.055 | 0.022 | 0.065 | 0.024 |
+| Deadman Danny | even | 0.022 | 0.028 | 0.076 | 0.018 |
+| Deadman Danny | odd | 0.025 | 0.028 | 0.081 | 0.026 |
+
+Kept: Ivy and Vindicta (Vindicta's gain is mostly the refit: Assassinate's length_corr 0.21 -> 0.35, Crow Familiar
+1.29 -> 1.62; the new holds are level with the old ones there). Deadman Danny is borderline (mix better than ref
+both ways, per-source 0.021 -> 0.027 on the odd half) and keeps #98's audit fit. The other 18 were mixed or worse
+on the held-out half; "new holds only" is worse for most because their length corrections were fitted to the old
+holds. Full sample: Ivy 0.040 -> 0.030, Vindicta 0.062 -> 0.018; player-weighted mix 0.0313 -> 0.0302.
+sim_vs_win 27k (correlation, higher is better) is flat: all pairs 0.172 -> 0.170, damage items 0.058, per item
+0.244 -> 0.243.
