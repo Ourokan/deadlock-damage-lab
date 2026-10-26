@@ -1250,6 +1250,7 @@ fights. From the 260 replays (`scripts/mechanics/execute_timing.py` -> `data/exe
 - Curves now: Killing Blow 0.04 / 0.05 / 0.12 / 0.36 (quartiles of the casts 4.0 / 7.9 / 13.5 s, real 4.1 / 8.5 /
   13.6), Soul Exchange 0.02 / 0.06 / 0.14 / 0.48 (4.0 / 8.4 / 15.4 s, real 3.7 / 8.6 / 13.7). Mean |real - sim| of the
   0-20 s curve 0.201 -> 0.011 and 0.103 -> 0.021.
+- Damage audit, all heroes on main after #112: mix 0.0303 -> 0.0303 (player-weighted).
 - Damage audit (full sample, both heroes): Shiv mix 0.03 -> 0.03, Geist 0.01 -> 0.02; Killing Blow share 0.034 ->
   0.031 (real 0.056), Soul Exchange 0.089 -> 0.094 (real 0.139). Split-half (plans and levels fitted on one half, the
   other half audited, against main): source distance Shiv 0.051 -> 0.057 / 0.026 -> 0.025, Geist 0.083 -> 0.086 /
