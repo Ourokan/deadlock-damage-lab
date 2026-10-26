@@ -88,6 +88,18 @@ Spirit Strike, Lifestrike, Melee Lifesteal. `accuracy.hero_default_skill` loads 
 with `hero_default_skill(hero, melee_rate_override=0.5, heavy_share=0.4)` (or `Skill(melee_rate=..., heavy_share=...)`).
 `Skill.combo_melee` (on by default) adds Abrams' charge into heavy melee combo on top of the rate.
 
+### Melee rates refit to the audit
+
+`landing_rates.py` fits in its own model (abilities at 100%, no mechanics, the older all-ranks sample), so by
+2026-10-26 some heroes' rates were stale in the model the searches use: in the damage audit Paradox meleed 1.6x his
+real melee/gun damage (0.63x), Bebop 1.3x, while Kelvin, McGinnis and Violet meleed half or less. Hit sizes are not
+the cause: every hero's light melee in the replays is 0.93-1.03x the sim's formula (`scripts/mechanics/melee_scaling.py`).
+`scripts/melee_audit_fit.py` scales a hero's rate by the audit's MELEE real/sim (2 rounds). Split-half (fit on even
+match ids, audit odd, and reverse) kept 11 heroes with a lower mix distance both ways: Paradox (0.030 -> 0.019),
+Bebop, Kelvin, Violet, Paige, Mo & Krill, Nurse Harrow, Lady Geist, Rem, Apollo, McGinnis. Infernus, Calico, Grey
+Talon, Dynamo, Baba, Wraith and Deadman Danny were worse or flat on one half and keep their rates. Those rows carry
+`audit_fit` and a `landing_rates.py --fit-melee` run leaves them alone.
+
 ### Melee follows the build
 
 The fitted rate is the hero's average player, but players who buy melee items melee more. `scripts/melee_items_fit.py`

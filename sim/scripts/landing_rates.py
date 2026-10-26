@@ -307,7 +307,14 @@ def main():
                 out = json.load(open(MELEE_FILE))["heroes"]
             except (OSError, KeyError, ValueError):
                 out = {}
+        try:   # rows refit to the damage audit (scripts/melee_audit_fit.py) stay: this model is not the audit's
+            kept = {k: v for k, v in json.load(open(MELEE_FILE))["heroes"].items() if v.get("audit_fit")}
+        except (OSError, KeyError, ValueError):
+            kept = {}
         for hid in sorted(sim):
+            if str(hid) in kept:
+                out[str(hid)] = kept[str(hid)]
+                continue
             r, s_ = real[hid], sim[hid]
             rate = MELEE.get(hid, MELEE_START)
             if r["GUN"] > 0 and s_["GUN"] > 0 and s_.get("MELEE", 0) > 0:
