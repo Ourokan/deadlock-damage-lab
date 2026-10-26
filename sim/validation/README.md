@@ -100,6 +100,24 @@ Bebop, Kelvin, Violet, Paige, Mo & Krill, Nurse Harrow, Lady Geist, Rem, Apollo,
 Talon, Dynamo, Baba, Wraith and Deadman Danny were worse or flat on one half and keep their rates. Those rows carry
 `audit_fit` and a `landing_rates.py --fit-melee` run leaves them alone.
 
+Stale-fit sweep (2026-10-26): Graves had no melee row at all (sim melee 0, real 2.4% of his damage); fitted to
+0.020/s, his mix distance 0.039 -> 0.023. Viscous (not tried above) passed split-half (0.063 -> 0.042 / 0.081 ->
+0.068 held out) and was refit (0.042 -> 0.024/s, mix 0.066 -> 0.051).
+
+### Stale ability corrections
+
+Most heroes' ability `length_corr` came from `length_factors.py` runs before the later model changes (melee scaling
+#107, real cast reader #108, execute timing #113, Paradox pokes #114, melee rates #117). `scripts/ability_corr_heroes.py
+--split` refit every hero (43) on one half of the sample (even/odd match ids, 3 rounds) and audited the other half,
+both ways, keeping a hero only if the held-out per-source distance fell on both halves and the mix distance rose by at
+most 0.002. Only Haze (sources 0.038 -> 0.021 / 0.039 -> 0.024; Bullet Dance corr 1.92 -> 1.48, it dealt 1.25x real)
+and Mina (0.046 -> 0.032 / 0.026 -> 0.021; Nox Nostra 2.46 -> 2.00) passed; every other hero was worse or mixed on a
+held-out half, so their corrections still fit. Pocket's sources halved both ways but his mix rose 0.005 on one half:
+left as is. With the melee rows above and the four heroes' item factors refit once (`item_landing_heroes.py --hero`),
+the whole audit on main after #116: mix 0.0274 -> 0.0263, per-source 0.0257 -> 0.0239 (Haze 0.044 -> 0.031, Graves
+0.041 -> 0.025, Viscous 0.066 -> 0.051). `analysis/scripts/sim_vs_win.py` 27k all heroes: 0.173 -> 0.172, per item
+0.249 -> 0.248 (flat).
+
 ### Melee follows the build
 
 The fitted rate is the hero's average player, but players who buy melee items melee more. `scripts/melee_items_fit.py`
