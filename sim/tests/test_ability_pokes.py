@@ -44,6 +44,14 @@ class AbilityPokes(unittest.TestCase):
         self.assertGreater(rows[CARBINE], 0.2)
         self.assertEqual(poke_rows(game().hero("Haze")), {})
 
+    def test_used_rows_resolve(self):
+        """Every used row names a real ability of its hero (a patch renaming one would silently drop its pokes)."""
+        import json
+        rows = json.load(open(os.path.join(ROOT, "data", "ability_pokes.json")))["abilities"]
+        G = game()
+        for r in (r for r in rows if r["use"]):
+            self.assertIn(r["class_name"], [a.class_name for a in G.hero(r["hero_id"]).abilities], r)
+
     def test_pokes_leave_the_fight(self):
         off = duel(paradox(), HAZE, distance=15.0, max_time=20.0, rng=random.Random(3), mechanics=mech(False))
         on = duel(paradox(), HAZE, distance=15.0, max_time=20.0, rng=random.Random(3), mechanics=mech(True))
