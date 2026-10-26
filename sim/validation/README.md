@@ -1656,5 +1656,5 @@ mostly lower (Bebop Mystic Reverb 0.56 -> 0.36, Tankbuster on Bebop/Celeste/Rem/
 27k: all pairs 0.175 -> 0.173, damage items 0.054 -> 0.052, edges clear of noise 0.273 -> 0.270, per item 0.251 -> 0.248
 (as flat as PR #85's 0.176 -> 0.173). `AUDIT_NORM=gun` gives the old tables. The per-source ratios (and
 `ability_corr_heroes.py`) stay per gun: they pool every player of a hero, where per gun and per share have the same
-fixed point. `length_factors.py` keeps per gun for its held-item rows. The pooled `item_landing.py` fit is unchanged
+fixed point. Scripts that import the audit's `sim_player` for its held-item rows (`item_landing.py`, `length_factors.py`) keep per gun: only the audit's own run defaults to total. The pooled `item_landing.py` fit is unchanged
 (per gun; refitting it moves pooled factors a lot, see "Per-hero item factors").

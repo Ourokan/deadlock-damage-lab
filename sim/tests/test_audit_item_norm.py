@@ -36,6 +36,20 @@ class AuditItemNorm(unittest.TestCase):
         del p["damage_series"]
         self.assertIsNone(L.held_gun(m, p, gun_only=False))
 
+    def test_importers_keep_gun(self):
+        # item_landing.py and the other scripts that import sim_player: held rows per gun unless asked
+        old = os.environ.pop("AUDIT_NORM", None)
+        try:
+            import importlib
+            import damage_audit
+            self.assertEqual(importlib.reload(damage_audit).ITEM_NORM, "gun")
+            import item_landing
+            self.assertIs(importlib.reload(item_landing).A, sys.modules["damage_audit"])
+            self.assertEqual(item_landing.A.ITEM_NORM, "gun")
+        finally:
+            if old is not None:
+                os.environ["AUDIT_NORM"] = old
+
     def test_length_factors_keeps_gun(self):
         old = os.environ.pop("AUDIT_NORM", None)
         try:

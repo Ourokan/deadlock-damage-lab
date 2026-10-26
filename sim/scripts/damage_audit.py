@@ -53,7 +53,9 @@ HERO_ITEM_MIN = 20   # holders for a per-hero item row
 COUNTERPLAY = True   # item_landing.py fits with this off (items uncut) and everything else as the searches fight
 PROFILE = False      # scripts/fight_length/profile_check.py: also "_by2s:k" / "_alive:k" (damage, duels going)
 LENGTH = True        # damage expected over real fight lengths (mechanics.real_length); --no-length: in full to 20 s
-ITEM_NORM = os.environ.get("AUDIT_NORM", "total")   # items tables: item dmg per "total" dmg while owned, or per "gun"
+# items tables: item dmg per "total" dmg while owned, or per "gun". The audit itself defaults to total (main); scripts
+# that import sim_player for its held rows (item_landing.py, length_factors.py) keep gun, as their factors were fitted
+ITEM_NORM = os.environ.get("AUDIT_NORM", "gun")
 _sk = {}
 
 
@@ -178,7 +180,9 @@ def mix(c, G, classes):
 
 def main():
     args = sys.argv[1:]
-    global BADGE, LENGTH
+    global BADGE, LENGTH, ITEM_NORM
+    os.environ.setdefault("AUDIT_NORM", "total")   # an env var, so spawned workers get it too
+    ITEM_NORM = os.environ["AUDIT_NORM"]
     if "--no-length" in args:
         LENGTH = False
         args.remove("--no-length")
