@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-26T14:45:00Z",
- "reason": "Drifter's gun: 19.5 damage per shot shared by its 3 pellets (was per pellet); Baba's and Drifter's split shots land whole; Baba + Drifter refit"
+ "requested_at": "2026-10-26T15:20:00Z",
+ "reason": "Opening Rounds sees real target health (entry deficit + third-party damage, Mechanics.target_health)"
 }
