@@ -6,7 +6,9 @@ Graves to 1.74 on Shiv in the 2026-10-25 audit). Fight distance does not explain
 hero's real Phantom+ fight distance (match_paths) left the per-hero gaps as wide (validation/README.md "Per-hero item
 factors").
 
-For each hero x item row of validation/damage_audit.json (at least damage_audit.HERO_ITEM_MIN holders):
+For each hero x item row of validation/damage_audit.json (at least damage_audit.HERO_ITEM_MIN holders; real/sim of item
+damage per all the player's damage while owned since 2026-10-26, per gun before: builds that barely shoot read ~1.4x
+under per gun, validation/README.md "Item rows per total damage"):
 
     landing = current factor x (real/sim) ^ (holders / (holders + PRIOR))
 

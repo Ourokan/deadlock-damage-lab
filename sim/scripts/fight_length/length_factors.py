@@ -61,6 +61,7 @@ import deadsim.accuracy as ACC  # noqa: E402
 import damage_audit as A  # noqa: E402
 import landing_rates as L  # noqa: E402
 
+A.ITEM_NORM = "gun"   # held items' [item dmg, gun dmg] ("GUN" below), as these factors were fitted
 ABILITY_FILE = os.path.join(ROOT, "data", "landing_rates_mech.json")
 ITEM_FILE = os.path.join(ROOT, "data", "item_landing.json")
 MIN_HOLDERS = 25

@@ -157,16 +157,16 @@ def build_at(p, t):
     return items, snaps[-1]["net_worth"]
 
 
-def real_gun_series(m, p):
+def real_gun_series(m, p, gun_only=True):
     """Cumulative real gun damage to enemy heroes as a function of match time (piecewise linear between the damage
-    matrix samples, 0 at 0 s), or None for a sample without damage_series."""
+    matrix samples, 0 at 0 s), or None for a sample without damage_series. gun_only=False: every source's damage."""
     times, ser = m.get("damage_times"), p.get("damage_series")
     if not times or not ser:
         return None
     classes = [ab.class_name for ab in game().hero(p["hero_id"]).abilities]
     cum = [0.0] * len(times)
     for k, arr in ser.items():
-        if k not in CATEGORY and real_key(k, classes) == "GUN":
+        if k not in CATEGORY and (not gun_only or real_key(k, classes) == "GUN"):
             cum = [a + b for a, b in zip(cum, arr)]
     xs, ys = [0.0] + list(times), [0.0] + cum
 
@@ -181,10 +181,11 @@ def real_gun_series(m, p):
     return at
 
 
-def held_gun(m, p):
+def held_gun(m, p, gun_only=True):
     """{item class: real gun damage to enemy heroes while the player owned the item}: the fair denominator for an
-    item's damage per gun damage (match-total gun damage dilutes items bought late). None without damage_series."""
-    gun = real_gun_series(m, p)
+    item's damage per gun damage (match-total gun damage dilutes items bought late). None without damage_series.
+    gun_only=False: all of the player's damage to enemy heroes while owned (damage_audit's per-damage rates)."""
+    gun = real_gun_series(m, p, gun_only)
     if gun is None:
         return None
     G = game()

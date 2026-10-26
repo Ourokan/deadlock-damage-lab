@@ -1631,3 +1631,30 @@ Spirit Burn 2.32 -> 1.00, Mystic Reverb 1.12 -> 0.99. length_corr Kinetic Carbin
 target (+10% of current health) every time, while real Reverb lands 0.3-0.37 echoes per Carbine hit in pokes and
 fights alike. Player-weighted audit 0.0303 -> 0.0299 on main after #113 (only Paradox moves). sim_vs_win 27k flat: all pairs 0.172 -> 0.171, damage items 0.055 -> 0.054, per item
 0.251 -> 0.251 (Paradox is 1 of 44 heroes and pokes only add his own damage). Left: melee 0.63x over.
+
+## Item rows per total damage (2026-10-26)
+
+The audit's item tables (and so `item_landing_heroes.py`, which fits on the hero x item rows) divided an item's
+damage by the holder's gun damage while it was owned. The sim follows how much a player shoots only through build
+and aim (per-player real vs sim gun share correlates 0.3-0.8 by hero), so a build that barely shoots gets a sim gun
+denominator that is too big: Bebop's Mystic Reverb holders' real gun share is half the sim's, and Tankbuster, Sticky
+Bomb and Uppercut all read ~1.4x under on those Bebops (PR #110). Divided by all of the holder's damage while owned
+instead, Bebop Tankbuster reads 0.97 (was 1.34), Mystic Burst 1.03 (1.16).
+
+Per total damage the rows are steadier: the even/odd match halves' hero x item ratios agree better (mean |log A -
+log B| 0.105 -> 0.072, correlation 0.91 -> 0.95, 120 shared rows). Fitting the per-hero item factors (two passes of
+`item_landing_heroes.py` from main's factors) on one half and auditing the other:
+
+| fit half -> audit half | per-source gap, per gun fit | per total fit | mix, per gun fit | per total fit |
+|---|---|---|---|---|
+| even -> odd | 0.0361 | 0.0346 | 0.0350 | 0.0347 |
+| odd -> even | 0.0331 | 0.0319 | 0.0295 | 0.0300 |
+
+(per-source gap = player-weighted half the summed absolute share gaps over every source.) Full sample after two
+passes, on main after #114: mix 0.0299 -> 0.0291, per-source gap 0.0291 -> 0.0271; 140 hero x item factors (was 127),
+mostly lower (Bebop Mystic Reverb 0.56 -> 0.36, Tankbuster on Bebop/Celeste/Rem/Solomon now just under 1). sim_vs_win
+27k: all pairs 0.175 -> 0.173, damage items 0.054 -> 0.052, edges clear of noise 0.273 -> 0.270, per item 0.251 -> 0.248
+(as flat as PR #85's 0.176 -> 0.173). `AUDIT_NORM=gun` gives the old tables. The per-source ratios (and
+`ability_corr_heroes.py`) stay per gun: they pool every player of a hero, where per gun and per share have the same
+fixed point. `length_factors.py` keeps per gun for its held-item rows. The pooled `item_landing.py` fit is unchanged
+(per gun; refitting it moves pooled factors a lot, see "Per-hero item factors").
