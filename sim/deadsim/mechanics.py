@@ -153,6 +153,15 @@ class Mechanics:
     # target outside the fight, damage and procs booked in full, the duel's health and cooldowns untouched
     # (fight.add_pokes; scripts/fight_length/ability_pokes.py, validation/README.md "Carbine pokes")
     pokes: bool = True
+    # ability recasts on real timing (2026-10-26): with fight_length, after each cast of a single-charge, non-ultimate
+    # ability the next one also waits a delay past the cooldown drawn from the real Phantom+ recast curve (data/
+    # recast_timing.json: P(recast by t s after ready | fight still going), per ability, pooled for abilities without a
+    # row; abilities the sim already gates keep their own timing; None = not again this fight). The sim recast ~90%
+    # within 0.5 s of ready, real players ~20% (scripts/cast_timing/recast_timing.py). Draws like cast_timing.
+    # Landing corrections were kept at their levels (length_factors.py --entry --target-entry --target-off
+    # MECH.recast_timing), so it moves when ability damage lands and what cooldown items are worth, not how much
+    # the fitted factors give (validation/README.md "Ability recasts on real timing")
+    recast_timing: bool = True
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
@@ -326,6 +335,42 @@ def hold_first_casts(f):
         ab.held_until = f.e.t + (math.inf if h is None else max(0.0, h))
         ab.timed = True
         ab.precast_at = f.e.t + h if h is not None and h < 0 else None
+
+
+_RECAST = None
+
+
+def recast_rows():
+    """data/recast_timing.json: {"sources": {"hero id:ability class": QBINS waits}, "pooled": QBINS, "skip": [keys]}."""
+    global _RECAST
+    if _RECAST is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "recast_timing.json")) as fh:
+            _RECAST = json.load(fh)
+        _RECAST["skip"] = set(_RECAST.get("skip", ()))
+    return _RECAST
+
+
+def recast_wait(ab):
+    """Mechanics.recast_timing, at a cast: the wait (s) past the cooldown before the next cast of ab, drawn from the
+    real recast curve (inf: not again this fight), 0 for charged abilities, ultimates, abilities whose sim timing is
+    its own (skip) and fights without a phase or rng."""
+    f = ab.f
+    phase, rng = f.skill.fight_phase, f.e.rng
+    if phase is None and rng is None:
+        return 0.0
+    if ab.max_charges() > 1 or ab.ab.ultimate:
+        return 0.0
+    rows = recast_rows()
+    key = f"{f.st.hero.id}:{ab.ab.class_name}"
+    if key in rows["skip"]:
+        return 0.0
+    q = rows["sources"].get(key) or rows["pooled"]
+    if phase is not None:
+        u = (phase + zlib.crc32(f"recast|{ab.ab.class_name}|{f.name}|{ab.casts}".encode()) / 2 ** 32) % 1.0
+    else:
+        u = rng.random()
+    h = q[min(len(q) - 1, int(u * len(q)))]
+    return math.inf if h is None else max(0.0, h)
 
 
 _ENTRY = None

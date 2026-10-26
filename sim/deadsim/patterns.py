@@ -81,7 +81,7 @@ def _castable(a):
     if not a.unlocked or a.impl.kind == "passive":
         return False
     a._recharge()
-    return a.charges > 0 and a.f.e.t >= a.ready_at and a.f.e.t >= a.held_until   # a held setup doesn't block it
+    return a.charges > 0 and a.f.e.t >= a.ready_at + a.recast_wait and a.f.e.t >= a.held_until   # a held setup doesn't block it
 
 
 def attach(f, hero_id):
