@@ -2036,3 +2036,42 @@ vs real 0.47; draw 0: 0.028 (from 0.084). Whole audit mean mix on main after #13
 sim_vs_win 27k (all heroes, main vs this side by side): all pairs 0.172 -> 0.170, edges clear of noise 0.268 -> 0.266,
 per item 0.250 -> 0.244, damage items 0.067 -> 0.066 (about flat; McGinnis also moves every hero's fights against her).
 turret_gaps.py reads the summons replays in the shared folder (manual refit, like the other replay fits).
+
+## Ability recasts on real timing (2026-10-26)
+
+The sim recast every ability the moment its cooldown was up (its own rule allowing). `scripts/cast_timing/recast_timing.py
+real` measures what real Phantom+ players do in the 259 cast-timing replays: in each pair fight, every cast whose
+cooldown runs out before the fight ends is a recast chance, ready = the cast + the player's cooldown at that moment
+(the sim's `AbilityState.cooldown()` of the player's real build at that minute), delay = the next cast - ready,
+censored at the fight's end (Kaplan-Meier). Charged abilities and ultimates are left out. 19k chances:
+
+| P(recast by t s after ready, fight still going) | 0.5 s | 1 s | 2 s | 4 s | 8 s |
+|---|---|---|---|---|---|
+| real, pooled | 0.14 | 0.24 | 0.39 | 0.58 | 0.78 |
+| sim before (typical ability) | ~0.9 | ~0.9 | ~0.9 | ~0.95 | ~1.0 |
+
+Per ability in `recast_timing.md` (e.g. Geist Malice real 0.20 / 0.39 / 0.59 / 0.79 / 0.93, Warden Flask 0.17 / 0.33 /
+0.51 / 0.72 / 0.85). `Mechanics.recast_timing` (on): after each cast of a single-charge, non-ultimate ability the next
+one waits a delay past the cooldown drawn from `data/recast_timing.json` (20 equal-probability waits per ability with
+100+ real chances, the chance-weighted pooled curve for the rest; abilities the sim already gates, Victor's Aura of
+Suffering and Pain Battery, Solomon's Setup Bishop, skip). Draws like cast_timing (fight phase hash or rng);
+deterministic fights (the dummy page) are unchanged; a cooldown reset (Refresher) clears the wait. Mean |real - sim|
+of the curves (0-8 s, 40 abilities) 0.344 -> 0.119.
+
+Split-half: waits fitted on even match ids against the odd ids' real curves and the reverse: 0.13 / 0.13 with per-ability
+rows, 0.14 / 0.14 pooled-only, ~0.34 without. The two halves' pooled curves agree within 0.015.
+
+Levels kept: `length_factors.py 4 --entry --target-entry --target-off MECH.recast_timing --write` scales every
+correction so each source gives the expected source / gun it gave with recasts on ready (Geist Malice x1.47, Yamato
+Crimson Slash x1.22, Mina Rake x1.22; items within 0.94-1.13). The change moves when in a fight ability damage lands and
+what cooldown reduction buys, not the fitted levels.
+
+| | main | this |
+|---|---|---|
+| damage audit mix (player-weighted) | 0.0231 | 0.0225 |
+| sim_vs_win 27k all pairs / damage items | 0.172 / 0.068 | 0.174 / 0.069 |
+| edges clear of noise / per item | 0.267 / 0.248 | 0.266 / 0.250 |
+| sim gain per 1000 souls: Compress / Superior / Transcendent Cooldown | 0.019 / 0.021 / 0.013 | 0.014 / 0.017 / 0.011 |
+
+Left: Silver's form swaps reset cooldowns (`reset_cooldown` clears the wait), so Boot Kick and Slam Fire still recast
+fast in the sim; charged abilities still spend charges on ready.

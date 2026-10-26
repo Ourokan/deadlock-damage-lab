@@ -49,7 +49,7 @@ def combo_ready(c):
     for ab in c.me.abilities:
         if ab.unlocked and ab.ab.class_name in ("citadel_ability_uppercut", "citadel_ability_sticky_bomb"):
             ab._recharge()
-            if ab.charges > 0 and c.now >= ab.ready_at and ab.impl.in_range(ab.ctx):
+            if ab.charges > 0 and c.now >= ab.ready_at + ab.recast_wait and ab.impl.in_range(ab.ctx):
                 return True
     return False
 

@@ -37,10 +37,10 @@ class LengthWeight(unittest.TestCase):
         a = Loadout("Haze", ["Headshot Booster", "Monster Rounds"], souls=8000)
         b = Loadout("Abrams", ["Extra Health"], souls=8000)
         full = duel(a, b, max_time=20, rng=random.Random(3))
-        # cast_timing and entry_hp off: held first casts and short entry health do move the fight, the booking alone
-        # does not
+        # cast_timing, recast_timing and entry_hp off: held casts and short entry health do move the fight, the
+        # booking alone does not
         mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(8000), cast_timing=False,
-                                  entry_hp=False)
+                                  recast_timing=False, entry_hp=False)
         exp = duel(a, b, max_time=20, rng=random.Random(3), mechanics=mech)
         self.assertEqual(full.winner, exp.winner)
         self.assertAlmostEqual(full.time, exp.time)
