@@ -1946,3 +1946,24 @@ reference, 5 draws): per-source 0.048 -> 0.043 and 0.047 -> 0.037 (better both h
 0.026 -> 0.028; held-out Tail Whack real/sim 0.76 -> 0.82 and 1.18 -> 1.01.
 sim_vs_win 27k (all heroes, main vs this side by side): all pairs 0.173 -> 0.174, edges clear of noise 0.273 -> 0.273,
 per item 0.243 -> 0.244.
+
+## Aim table rebuilt from Phantom+ (2026-10-26)
+
+`data/skill_defaults.json` (each hero's hero-only gun accuracy and headshot rate p25/p50/p75/p90, median bullet
+distance; the searches' aim and the dummy defaults) came from the 400-match `matches_sample.jsonl.gz` of 13 Oct,
+below Phantom. Now `scripts/fetch_aim_sample.py` pulls final custom stats of 4,200 Phantom+ ranked matches (average
+badge 91-116, 420 a day over 10 days of patch 09-29, six 4-hour slices a day so every region's prime time is in;
+bulk metadata endpoint, ~1.5 min, no SQL quota) into `validation/aim_sample.jsonl.gz` (no account ids), and
+`build_skill_defaults.py` builds from it: 42,523 player-games with >= 300 hero-aimed shots (was 4,486), every hero
+>= 171 (was 26). Graves and Deadman Danny are skipped explicitly (API under-records their guns; aim stays replay-fitted
+in `gun_calibration.json`).
+
+Change vs the old table: all-hero p50 0.2585 -> 0.2623, p75 0.3197 -> 0.3264; per hero p50 mean |change| 1.1 points
+(Shiv +3.3, Violet +2.6, Lady Geist +2.3; Doorman -5.5, old n was 26), headshot rate +0.2 points on average.
+No refit: landing/item/melee fits and the damage audit use each player's own real aim, the table only fills in
+low-shot players and the distance. Damage audit (full phantom_sample, main vs this): mix 0.0233 -> 0.0236 (noise;
+Mo & Krill +0.007 from his 10.0 -> 9.4 m distance). sim_vs_win 27k all heroes: all pairs 0.177 -> 0.171, edges clear
+of noise 0.277 -> 0.271, per item 0.249 -> 0.248. Seven alone is 0.0043 of the drop: his p75 aim 0.266 -> 0.272 tips
+his 27k popular build over a kill threshold, so every gun item's gain jumps ~+0.16 together (Close Quarters, HVR,
+Extended Magazine), a knife-edge rather than a model change; without Seven the change is -0.001.
+Refresh after a patch: `python3 scripts/fetch_aim_sample.py && python3 scripts/build_skill_defaults.py`.

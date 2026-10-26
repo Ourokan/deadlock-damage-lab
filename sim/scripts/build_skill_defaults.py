@@ -1,4 +1,6 @@
-"""Build data/skill_defaults.json (population aim per hero) from validation/matches_sample.jsonl.gz.
+"""Build data/skill_defaults.json (population aim per hero) from validation/aim_sample.jsonl.gz: 4,200 Phantom+
+(average badge >= 91) ranked matches over 10 days, fetched with scripts/fetch_aim_sample.py. Until 2026-10-26 it came
+from the 400-match validation/matches_sample.jsonl.gz (13 Oct, below Phantom), up to ~3 points under Phantom+.
 
 Per hero: hero-only accuracy (Enemy Hero Accuracy Hits/Shots) and headshot rate (Headshots/Hits) percentiles
 across player-matches with >= MIN_SHOTS shots, plus the median fight distance from the bullet-hit histogram
@@ -14,7 +16,7 @@ import statistics
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from deadsim.accuracy import DIST_PREFIX, HEADS, HITS, SHOTS, distance_profile  # noqa: E402
+from deadsim.accuracy import DIST_PREFIX, HEADS, HITS, SHOTS, distance_profile, gun_calibration  # noqa: E402
 from deadsim.data import game  # noqa: E402
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
@@ -41,14 +43,18 @@ def summarize(rows):
 
 def main():
     add = "--add-missing" in sys.argv
-    src = sys.argv[sys.argv.index("--add-missing") + 1] if add else os.path.join(ROOT, "validation", "matches_sample.jsonl.gz")
+    src = sys.argv[sys.argv.index("--add-missing") + 1] if add else os.path.join(ROOT, "validation", "aim_sample.jsonl.gz")
+    # Graves and Danny: the API under-records their guns (0 / ~half the shots), so their aim stays replay-fitted
+    # (data/gun_calibration.json); a row here would override it.
+    skip = set(gun_calibration())
     by_hero, allrows, badges = {}, [], []
     for line in gzip.open(src):
         m = json.loads(line)
-        badges.append(m.get("badge"))
+        b = m.get("badge")
+        badges.append(min(x or 0 for x in b) if isinstance(b, list) else b)
         for p in m["players"]:
             c = p.get("custom") or {}
-            if c.get(SHOTS, 0) < MIN_SHOTS:
+            if c.get(SHOTS, 0) < MIN_SHOTS or str(p["hero_id"]) in skip:
                 continue
             med, _ = distance_profile({k: v for k, v in c.items() if k.startswith(DIST_PREFIX)})
             row = (c[HITS] / c[SHOTS], c.get(HEADS, 0) / max(1, c[HITS]), med)
@@ -56,7 +62,7 @@ def main():
             allrows.append(row)
     G = game()
     names = {h.id: h.name for h in G.heroes.values()} if isinstance(G.heroes, dict) else {h.id: h.name for h in G.heroes}
-    out = {"source": f"{len(badges)} matches, badge >= {min(badges)}, players with >= {MIN_SHOTS} hero-aimed shots",
+    out = {"source": f"{len(badges)} matches, average badge >= {min(badges)}, players with >= {MIN_SHOTS} hero-aimed shots",
            "all": summarize(allrows),
            "heroes": {str(h): dict(name=names.get(h, str(h)), **summarize(rows))
                       for h, rows in sorted(by_hero.items()) if len(rows) >= 15}}
