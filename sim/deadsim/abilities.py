@@ -350,6 +350,7 @@ class AbilityImpl:
     post_mortem = False        # keeps dealing damage after the caster dies (e.g. projectiles in flight)
     modeled = True             # False for GenericAbility so reports can flag it
     spirit_procs = False       # its melee hits proc Mystic Burst / Tankbuster like spirit ability hits (Uppercut)
+    tankbuster_chance = None   # spirit_procs hits release Tankbuster on this share of hits, ignoring its MinimumDamage
 
     def __init__(self, state):
         self.s = state

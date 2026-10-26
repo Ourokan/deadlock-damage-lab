@@ -1061,7 +1061,9 @@ class MysticBurst(FX):
     takes it); the total released doesn't depend on their order, except Tankbuster's current-health term.
     MinimumDamage: Mystic Burst checks the damage dealt (in 260 replays its trigger share steps up at 80 dealt),
     Tankbuster the hit before the target's resists (its share ramps from 80 to 165 dealt as resists vary; checked
-    after resists, hits of 100-165 dealt never triggered: Scorn, Rend, Powder Keg, Rake)."""
+    after resists, hits of 100-165 dealt never triggered: Scorn, Rend, Powder Keg, Rake). A melee hit that procs
+    them (AbilityImpl.spirit_procs) can instead release Tankbuster on a flat share of hits whatever its size
+    (AbilityImpl.tankbuster_chance: Bebop's Uppercut)."""
 
     def __init__(self, item, f):
         super().__init__(item, f)
@@ -1073,15 +1075,19 @@ class MysticBurst(FX):
     def on_damage_dealt(self, f, t, hit):
         if not hit.is_ability or hit.is_dot or (hit.kind != "spirit" and not spirit_procs(hit)):
             return
-        size = hit.pre_mit if self.item.class_name == "upgrade_magic_shock" else hit.amount / max(1e-6, hit.landing)
-        if size < self.item.p("MinimumDamage", 80):
+        tb = self.item.class_name == "upgrade_magic_shock"
+        chance = getattr(hit.ability.impl, "tankbuster_chance", None) if tb and hit.kind != "spirit" else None
+        if chance is not None:
+            if not f.acc("tankbuster_proc").take(chance):
+                return
+        elif (hit.pre_mit if tb else hit.amount / max(1e-6, hit.landing)) < self.item.p("MinimumDamage", 80):
             return
         charge = min(1.0, (self.now - self.charged_at) / max(1e-6, self.cd("AbilityChargeUpTime")))
         self.charged_at = self.now
         if charge <= 0:
             return
         dmg = self.v("Damage")
-        if self.item.class_name == "upgrade_magic_shock":   # Tankbuster: + % current health, ignores resist
+        if tb:   # Tankbuster: + % current health, ignores resist
             dmg += t.hp * self.item.p("CurrentHealthDamage") / 100
             f.e.damage(f, t, dmg * charge, "spirit", self.name, ignore_resist=True, is_item=True, procs=False)
         else:

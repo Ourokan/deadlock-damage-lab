@@ -1,4 +1,4 @@
-"""Melee hits gain MELEE_WEAPON_SCALE of the weapon damage bonus; Uppercut procs Mystic Burst / Tankbuster; ability
+"""Melee hits gain MELEE_WEAPON_SCALE of the weapon damage bonus; Uppercut procs Mystic Burst / Tankbuster (Tankbuster on a flat share of hits); ability
 melee hits proc on-melee items (validation/README.md, 2026-10-26). Run from sim/: python3 -m unittest discover -s tests"""
 import os
 import sys
@@ -41,11 +41,27 @@ class MeleeScaling(unittest.TestCase):
     def test_uppercut_procs_mystic_burst_and_tankbuster_hook_does_not(self):
         for item in ("Mystic Burst", "Tankbuster"):
             for cls, procs in (("citadel_ability_uppercut", True), ("citadel_ability_hook", False)):
-                _, a, b = pair([item])
-                hp = b.hp
+                e, a, b = pair([item])
                 x = fx(a, "upgrade_magic_burst" if item == "Mystic Burst" else "upgrade_magic_shock")
-                x.on_damage_dealt(a, b, melee_hit(a, cls))
+                hp = b.hp
+                for _ in range(10):   # Tankbuster releases on a share of Uppercut hits (bebop.TANKBUSTER_CHANCE)
+                    e.t += 14.0
+                    x.on_damage_dealt(a, b, melee_hit(a, cls))
                 self.assertEqual(b.hp < hp, procs, (item, cls))
+
+    def test_uppercut_releases_tankbuster_on_a_flat_share_of_hits_any_size(self):
+        from deadsim.heroes.bebop import TANKBUSTER_CHANCE
+        for size in (100.0, 300.0):   # below and above the 165 minimum
+            e, a, b = pair(["Tankbuster"])
+            x = fx(a, "upgrade_magic_shock")
+            n = 0
+            for _ in range(200):
+                e.t += 14.0
+                before = a.dmg_out.get("Tankbuster", 0.0)
+                x.on_damage_dealt(a, b, melee_hit(a, "citadel_ability_uppercut", size=size))
+                n += a.dmg_out.get("Tankbuster", 0.0) > before
+                b.hp = b.max_hp
+            self.assertAlmostEqual(n / 200, TANKBUSTER_CHANCE, delta=0.02, msg=size)
 
     def test_ability_melee_procs_spirit_snatch(self):
         _, a, b = pair(["Spirit Snatch"])
