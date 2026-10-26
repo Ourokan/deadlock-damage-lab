@@ -11,6 +11,12 @@ Assumptions:
 - Aura of Suffering: toggled on once the target is in radius and kept on; enemy DPS ramps linearly from MinDPS
   to MaxDPS over AbilityDuration; Victor takes SelfDPS (flat) per second. T2's MinDps key is added by hand
   (data spells it differently).
+  Kept on between fights (AURA_TIMING, with Mechanics.execute_timing): real Phantom+ Victors start 31% of lane fights,
+  59% of mid and 76% of late ones with the aura already on, on for a median 1.7 / 3.5 / 5.0 s (so partly ramped),
+  and toggle it on early in most others (data/aura_timing.json, scripts/mechanics/aura_timing.py, from his aura
+  hits: the ability's cooldown starts at the toggle-OFF, so the cast-timing curve can't time it). Each fight with an
+  rng or a fight phase draws: on at the start with the ramp that far along, or toggled on at a real time (or not
+  by 20 s). The self-damage taken before the fight is not booked. Other fights toggle it on in reach, as before.
 - Shocking Reanimation: on lethal damage Victor is invulnerable and can't act for RespawnDelay, then revives
   with RespawnHealthPercent and hits Damage + stun if the target is within Radius. T1: +BonusFireRate and
   BonusDamagePerBullet spirit damage per bullet hit (6 + 0.06 x spirit), only while the ult is on cooldown.
@@ -21,6 +27,7 @@ Assumptions:
   rest (no revive, the T1 bonus on). Other fights (dummy page, deterministic) start with it ready.
 """
 import json
+import math
 import os
 import zlib
 
@@ -29,7 +36,22 @@ from deadsim.abilities import AbilityImpl, register
 JUMPSTART_HP = 0.6       # cast Jumpstart below this health fraction
 SELF_TAG = "victor_self"
 CARRY_COOLDOWN = True
+AURA_TIMING = True
 _carry = None
+_aura = None
+
+
+def souls_phase(f):
+    souls = f.st.souls
+    return "lane" if souls < 10000 else "mid" if souls <= 27000 else "late"
+
+
+def aura_timing():
+    global _aura
+    if _aura is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "..", "data", "aura_timing.json")) as fh:
+            _aura = json.load(fh)["phases"]
+    return _aura
 
 
 def carried_cooldown(c, s):
@@ -47,8 +69,7 @@ def carried_cooldown(c, s):
     if _carry is None:
         with open(os.path.join(os.path.dirname(__file__), "..", "..", "data", "victor_revive.json")) as fh:
             _carry = json.load(fh)["phases"]
-    souls = f.st.souls
-    qs = _carry["lane" if souls < 10000 else "mid" if souls <= 27000 else "late"]
+    qs = _carry[souls_phase(f)]
     since = qs[min(len(qs) - 1, int(r * len(qs)))]
     return 0.0 if since is None else max(0.0, s.cooldown() - since)
 
@@ -130,6 +151,24 @@ class Jumpstart(AbilityImpl):
 class AuraOfSuffering(AbilityImpl):
     kind = "aoe"
     range_props = ("Radius",)
+
+    def draw_plan(self, c, u):
+        """Mechanics.execute_timing: from draw u (mechanics.execute_plans), the aura is on at the fight start, on for
+        a real time already (the ramp that far along), or toggled on at a real time (inf: not in this fight)."""
+        if not AURA_TIMING:
+            return
+        d = aura_timing()[souls_phase(c.me)]
+        p0 = d["carried"]
+        if u < p0:
+            q = d["on_for"]
+            since = q[min(len(q) - 1, int(u / p0 * len(q)))]
+            c.state["on"] = True
+            c.state["t0"] = c.now - since
+            c.after(0.0, self.tick, c)
+            return
+        q = d["holds"]
+        h = q[min(len(q) - 1, int((u - p0) / (1.0 - p0) * len(q)))]
+        self.s.held_until = c.now + (math.inf if h is None else h)
 
     def should_cast(self, c):
         return not c.state.get("on") and self.in_range(c)
