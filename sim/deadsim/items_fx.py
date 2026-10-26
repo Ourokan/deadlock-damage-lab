@@ -188,7 +188,7 @@ class BuildUp(FX):
         self.immune_until = 0.0
 
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind != "bullet" or not hit.hits or hit.is_ability:
+        if not hit.gun_bullet():
             return
         if self.now < self.immune_until:
             return
@@ -254,7 +254,7 @@ class HollowPoint(FX):
 @handler("upgrade_headshot_booster", "upgrade_headhunter")
 class HeadshotBonus(FX):
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind == "bullet" and hit.headshots and not hit.is_ability and self.ready():
+        if hit.gun_bullet() and hit.headshots and self.ready():
             self.use()
             f.e.damage(f, t, self.v("HeadShotBonusDamage"), "bullet", self.name, procs=False, is_item=True)
             hp = self.v("HealPercentPerHeadshot")
@@ -316,7 +316,7 @@ class TeslaBullets(FX):
     proc_at = 0.0
 
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind != "bullet" or not hit.hits or hit.is_ability or self.now < self.proc_at:
+        if not hit.gun_bullet() or self.now < self.proc_at:
             return
         # proc chance is per shot, not per pellet (shotguns): chance that at least one of the shots that hit procs
         p = 1.0 - (1.0 - self.item.p("ProcChance") / 100) ** shots_hit(f, hit)
@@ -338,11 +338,12 @@ class TeslaBullets(FX):
 @handler("upgrade_critshot")
 class LuckyShot(FX):
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind != "bullet" or not hit.hits or hit.is_ability:
+        if not hit.gun_bullet():
             return
         n = f.acc("lucky").take(self.item.p("ProcChance") / 100, hit.hits)
         if n:
-            per = f.counters.get("bullet_per", 0.0)
+            # an ability's weapon bullets (Bullet Dance: no headshots) carry their own size, not the last gun bullet's
+            per = hit.raw / hit.hits if hit.is_ability else f.counters.get("bullet_per", 0.0)
             f.e.damage(f, t, per * n * self.item.p("CritDamagePercent") / 100, "bullet", self.name, procs=False, is_item=True)
 
 
@@ -502,7 +503,7 @@ class SlowBullets(BuildUp):
 @handler("upgrade_siphon_bullets")
 class SiphonBullets(FX):
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind == "bullet" and hit.hits and not hit.is_ability and self.ready():
+        if hit.gun_bullet() and self.ready():
             self.ready_at = self.now + self.item.p("ProcCooldown", 1.2)
             amt = t.max_hp_base * self.item.p("HealthStealPctHero") / 100
             # realistic mode: the real-data factor scales the whole steal (cap drop, health taken, heal) alike, so the
@@ -736,7 +737,7 @@ class CheatDeath(FX):
 @handler("upgrade_juggernaut")
 class Juggernaut(FX):
     def on_damage_taken(self, f, src, hit):
-        if hit.kind == "bullet" and not hit.is_ability:
+        if hit.kind == "bullet" and (not hit.is_ability or hit.weapon_proc):
             self.debuff(src, "fire_rate_slow", self.item.p("FireRateSlow") / 100, self.dur("FireRateSlowDuration", 4))
 
 
@@ -1166,7 +1167,7 @@ class ImbueCharge(FX):
         if self.pending is not None and hit.ability is self.pending and hit.kind == "spirit":
             self.pending = None
             self.spirit(t, self.v("Damage"), procs=False)
-        if hit.kind == "bullet" and hit.hits and not hit.is_ability and f.mods.active("mercurial"):
+        if hit.gun_bullet() and f.mods.active("mercurial"):
             # "+X% Base Bullet Damage" per bullet (X = 20 + 0.38 x Spirit Power), not flat damage: in replays each
             # proc is ~0.4-0.55 x the hero's base bullet damage (Wraith median 4, Warden 11, Holliday 31).
             pct = self.v("BulletsBonusMagicDamage") / 100

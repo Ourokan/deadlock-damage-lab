@@ -1004,7 +1004,7 @@ class Ricochet(FX):
     """Each gun hit bounces RicochetDamagePercent% to min(RicochetTargets, nearby enemies) other heroes."""
 
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind != "bullet" or hit.source != "gun" or not hit.hits:
+        if not hit.gun_bullet() or (hit.source != "gun" and not hit.weapon_proc):
             return
         n = nearby_enemies(f)
         k = f.acc("ricochet").take(min(1.0, n), 1) if n < 1 else min(int(self.item.p("RicochetTargets", 2)), int(n))
