@@ -199,7 +199,7 @@
    "holders": 105,
    "real_per_gun": 1.5357,
    "sim_per_gun": 1.3166,
-   "landing": 1.166,
+   "landing": 0.967,
    "length_corr": 1.2
   },
   "upgrade_ultimate_burst": {
@@ -233,7 +233,7 @@
    "real_per_gun": 1.0366,
    "sim_per_gun": 0.7296,
    "landing": 1.421,
-   "length_corr": 0.91
+   "length_corr": 1.001
   },
   "upgrade_phantom_strike": {
    "name": "Phantom Strike",
@@ -392,8 +392,8 @@
    },
    "Tankbuster": {
     "holders": 44,
-    "real_over_sim": 0.933,
-    "landing": 0.87
+    "real_over_sim": 1.002,
+    "landing": 0.871
    },
    "Tesla Bullets": {
     "holders": 33,
@@ -463,8 +463,8 @@
    },
    "Tankbuster": {
     "holders": 29,
-    "real_over_sim": 0.945,
-    "landing": 0.928
+    "real_over_sim": 0.947,
+    "landing": 0.899
    },
    "Torment Pulse": {
     "holders": 74,
@@ -495,8 +495,8 @@
    },
    "Tankbuster": {
     "holders": 310,
-    "real_over_sim": 1.005,
-    "landing": 0.675
+    "real_over_sim": 1.009,
+    "landing": 0.681
    },
    "Toxic Bullets": {
     "holders": 144,
@@ -586,8 +586,8 @@
    },
    "Tankbuster": {
     "holders": 90,
-    "real_over_sim": 0.96,
-    "landing": 0.587
+    "real_over_sim": 0.974,
+    "landing": 0.574
    }
   },
   "Haze": {
@@ -635,8 +635,8 @@
    },
    "Tankbuster": {
     "holders": 48,
-    "real_over_sim": 0.98,
-    "landing": 0.954
+    "real_over_sim": 0.973,
+    "landing": 0.936
    }
   },
   "Infernus": {
@@ -727,8 +727,8 @@
    },
    "Tankbuster": {
     "holders": 196,
-    "real_over_sim": 0.983,
-    "landing": 0.743
+    "real_over_sim": 1.007,
+    "landing": 0.748
    },
    "Toxic Bullets": {
     "holders": 99,
@@ -771,6 +771,11 @@
    }
   },
   "Nurse Harrow": {
+   "Decay": {
+    "holders": 41,
+    "real_over_sim": 1.241,
+    "landing": 1.0
+   },
    "Ricochet": {
     "holders": 135,
     "real_over_sim": 0.498,
@@ -814,6 +819,11 @@
     "holders": 38,
     "real_over_sim": 0.905,
     "landing": 0.823
+   },
+   "Tankbuster": {
+    "holders": 146,
+    "real_over_sim": 0.97,
+    "landing": 0.974
    }
   },
   "Pocket": {
@@ -834,8 +844,8 @@
    },
    "Tankbuster": {
     "holders": 110,
-    "real_over_sim": 0.964,
-    "landing": 0.5
+    "real_over_sim": 0.983,
+    "landing": 0.493
    }
   },
   "Rat King": {
@@ -853,8 +863,8 @@
    },
    "Tankbuster": {
     "holders": 21,
-    "real_over_sim": 0.983,
-    "landing": 0.978
+    "real_over_sim": 1.023,
+    "landing": 0.989
    }
   },
   "Seven": {
@@ -877,8 +887,8 @@
    },
    "Decay": {
     "holders": 33,
-    "real_over_sim": 0.896,
-    "landing": 0.823
+    "real_over_sim": 1.112,
+    "landing": 0.879
    },
    "Spirit Strike": {
     "holders": 38,
@@ -913,11 +923,6 @@
     "holders": 48,
     "real_over_sim": 0.946,
     "landing": 0.844
-   },
-   "Tankbuster": {
-    "holders": 82,
-    "real_over_sim": 0.994,
-    "landing": 0.979
    }
   },
   "Venator": {

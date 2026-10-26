@@ -413,6 +413,16 @@ class Fighter:
         return max(0.0, hp) / self.max_hp
 
     @property
+    def item_hp(self):
+        """Health as items dealing damage from this fighter's current health (Tankbuster, Decay) see it: as
+        item_hp_frac, with the third parties' damage at mechanics.CURRENT_HEALTH_ASSIST instead of item_assist."""
+        if not self.item_assist:
+            return self.hp
+        from .mechanics import CURRENT_HEALTH_ASSIST
+        taken = sum(self.dmg_in.values()) - self.item_dmg0
+        return max(0.0, self.hp - self.item_gap * self.max_hp - CURRENT_HEALTH_ASSIST * taken)
+
+    @property
     def gate_frac(self):
         return self.gate_hp / self.max_hp
 

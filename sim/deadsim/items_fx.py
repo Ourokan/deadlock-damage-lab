@@ -1092,7 +1092,7 @@ class MysticBurst(FX):
             return
         dmg = self.v("Damage")
         if tb:   # Tankbuster: + % current health, ignores resist
-            dmg += t.hp * self.item.p("CurrentHealthDamage") / 100
+            dmg += t.item_hp * self.item.p("CurrentHealthDamage") / 100
             f.e.damage(f, t, dmg * charge, "spirit", self.name, ignore_resist=True, is_item=True, procs=False)
         else:
             f.e.damage(f, t, dmg * charge, "spirit", self.name, is_item=True, procs=False)
@@ -1193,9 +1193,15 @@ class SurgeOfPower(FX):
 @handler("upgrade_mystic_reverb")
 class MysticReverb(FX):
     """Imbued ability damage builds up while the item is ready; once it reaches MinimumDamage the item goes on cooldown
-    and DelayDuration later the echo deals TechDamagePercent% of that damage plus MaxHealthDamage% of the target's
-    current health (the tooltip's "Current Health Bonus Damage", not a cap). Build-up is per target and lasts
-    DelayDuration; DoT ticks of the imbued ability count, so a damage-over-time imbue (Flame Dash) triggers it too."""
+    and DelayDuration later the echo deals TechDamagePercent% of that damage. The tooltip adds MaxHealthDamage% of
+    the target's current health ("Current Health Bonus Damage"), but real Phantom+ echoes on heroes don't scale with
+    the target's health (260 replays, 1457 echoes: damage = 0.27 x the trigger + 0.006 x current + 0.007 x max
+    health + 83, median echo / trigger 0.48; scripts/fight_length/target_health.py items). It stays on
+    (CURRENT_HEALTH_BONUS) for now: without it (factors refit, audit real/sim 0.80 -> 1.06) sim_vs_win's damage
+    items fell 0.056 -> 0.038, as Mystic Reverb's real win edge is positive on most heroes (validation/README.md
+    "Target health for Tankbuster and Decay"). Build-up is per target and lasts DelayDuration; DoT ticks of the
+    imbued ability count, so a damage-over-time imbue (Flame Dash) triggers it too."""
+    CURRENT_HEALTH_BONUS = True
 
     def on_damage_dealt(self, f, t, hit):
         if hit.kind != "spirit" or hit.ability is None or self.item not in hit.ability.imbues:
@@ -1220,7 +1226,7 @@ class MysticReverb(FX):
         builds.clear()
         self.use()
         base = acc * self.item.p("TechDamagePercent") / 100
-        pct = self.item.p("MaxHealthDamage", 0) / 100
+        pct = self.item.p("MaxHealthDamage", 0) / 100 if self.CURRENT_HEALTH_BONUS else 0.0
 
         def echo():
             if t.alive:
@@ -1467,7 +1473,7 @@ class Decay(DamageActive):
         epoch = t.counters.get("dispel_epoch", 0)
         t.counters.setdefault("dot_until", {})[self.item.class_name] = f.e.t + d
         for i in range(int(d / tick)):
-            f.e.after(tick * (i + 1), lambda: self.spirit(t, t.hp * pct * tick, procs=False, nonlethal=True, is_dot=True)
+            f.e.after(tick * (i + 1), lambda: self.spirit(t, t.item_hp * pct * tick, procs=False, nonlethal=True, is_dot=True)
                       if t.counters.get("dispel_epoch", 0) == epoch else None)
 
 

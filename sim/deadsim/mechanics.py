@@ -136,9 +136,10 @@ class Mechanics:
     # sees it (Fighter.self_gate_frac; execute gates on Geist don't), health and fight length stay
     gate_assist: bool = True
     # target health for health-conditional items (2026-10-26): with fight_length, a fighter facing an enemy that holds
-    # an item conditioned on its target's health (TARGET_HEALTH_ITEMS: Opening Rounds) is seen by that item short by a
-    # real entry deficit (as entry_gate) and by TARGET_ASSIST x the damage it takes in the duel (the real fight's
-    # third parties, Fighter.item_hp_frac). Health and fight length stay. Sim duels landed 85% of gun damage on
+    # an item conditioned on its target's health (TARGET_HEALTH_ITEMS: Opening Rounds; Tankbuster and Decay, which
+    # deal damage from it) is seen by that item short by a real entry deficit (as entry_gate) and by TARGET_ASSIST x
+    # the damage it takes in the duel (the real fight's third parties, Fighter.item_hp_frac; CURRENT_HEALTH_ASSIST
+    # for Tankbuster and Decay, Fighter.item_hp). Health and fight length stay. Sim duels landed 85% of gun damage on
     # targets above half health, real Phantom+ replays 64% (scripts/fight_length/target_health.py,
     # validation/README.md "Target health")
     target_health: bool = True
@@ -384,11 +385,17 @@ def entry_gate(f):
 
 
 # items conditioned on the target's health (Fighter.item_hp_frac, Mechanics.target_health)
-TARGET_HEALTH_ITEMS = {"upgrade_pristine_emblem"}
+# Tankbuster and Decay deal damage from the target's current health (Fighter.item_hp): real hits land on targets at
+# 0.59 / 0.63 of their health, the sim's duels at 0.71 / 0.74 (scripts/fight_length/target_health.py items)
+TARGET_HEALTH_ITEMS = {"upgrade_pristine_emblem", "upgrade_magic_shock", "upgrade_rupture"}
 # third parties' damage per damage the target takes in the duel, as such items see it: fitted so the duels' gun
 # damage above half target health matches real (scripts/fight_length/target_health.py fit). The raw real ratio in
 # pair fights is 0.71, but a real target losing health that fast also dies or backs off sooner
 TARGET_ASSIST = 0.35
+# the same for the damage of current-health items (Fighter.item_hp): fitted so their hits' mean target health share
+# matches real (target_health.py items: Tankbuster 0.59 / 0.59 per half, real 0.59 / 0.59; Decay 0.65 / 0.65, real
+# 0.64 / 0.62). Opening Rounds' 0.35 piles Tankbuster hits on near-empty targets (mean 0.53)
+CURRENT_HEALTH_ASSIST = 0.15
 TARGET_HEALTH_ALL = False   # target_health.py: every fighter gets the draw (to measure all gun damage)
 
 

@@ -4,6 +4,8 @@
   by that item short by a real entry deficit and by TARGET_ASSIST x the damage it takes (the real fight's third
   parties, Fighter.item_hp_frac); its health, the fight's length and execute gates stay. An immortal enemy's refill
   starts a new life the item sees full.
+- Tankbuster and Decay deal their current-health damage from that health (Fighter.item_hp), with the third parties at
+  CURRENT_HEALTH_ASSIST instead.
 Run: python3 -m unittest discover -s tests -v (from sim/)."""
 import dataclasses
 import os
@@ -87,6 +89,34 @@ class TargetHealth(unittest.TestCase):
         e.damage(f, g, 1000.0, "bullet", "gun", ignore_resist=True)
         self.assertEqual(g.hp, g.max_hp)
         self.assertAlmostEqual(g.item_hp_frac, 1.0)
+
+    def test_current_health_items_see_it(self):
+        for name in ("Tankbuster", "Decay"):
+            e, f, g = pair([name])
+            M.target_health(g)
+            self.assertEqual(g.item_assist, M.TARGET_ASSIST)
+        g.item_gap = 0.1
+        g.hp = 0.7 * g.max_hp
+        g.dmg_in["gun"] = 0.3 * g.max_hp
+        self.assertAlmostEqual(g.item_hp / g.max_hp, 0.7 - 0.1 - M.CURRENT_HEALTH_ASSIST * 0.3)
+        g.item_assist = 0.0   # no draw: the real health
+        self.assertAlmostEqual(g.item_hp, g.hp)
+
+    def test_tankbuster_damage_from_seen_health(self):
+        out = []
+        for gap in (0.0, 0.5):
+            e, f, g = pair(["Tankbuster"])
+            e.fighters = [f, g]
+            g.item_assist, g.item_gap = M.TARGET_ASSIST, gap
+            fx = next(x for x in f.items_fx if x.item.class_name == "upgrade_magic_shock")
+            fx.charged_at = -100.0
+            before = g.hp
+            fx.on_damage_dealt(f, g, type("Hit", (), {"is_ability": True, "is_dot": False, "kind": "spirit", "ability": None,
+                                                     "pre_mit": 500.0, "amount": 500.0, "landing": 1.0})())
+            out.append(before - g.hp)
+        pct = fx.item.p("CurrentHealthDamage") / 100
+        self.assertAlmostEqual(out[0] - out[1], 0.5 * g.max_hp * pct * f.skill.item_landing.get("Tankbuster", 1.0),
+                               delta=1.0)
 
 
 if __name__ == "__main__":

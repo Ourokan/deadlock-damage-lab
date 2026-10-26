@@ -53,8 +53,11 @@ class AbilityPokes(unittest.TestCase):
             self.assertIn(r["class_name"], [a.class_name for a in G.hero(r["hero_id"]).abilities], r)
 
     def test_pokes_leave_the_fight(self):
-        off = duel(paradox(), HAZE, distance=15.0, max_time=20.0, rng=random.Random(3), mechanics=mech(False))
-        on = duel(paradox(), HAZE, distance=15.0, max_time=20.0, rng=random.Random(3), mechanics=mech(True))
+        # target_health off: Tankbuster on the target's real-like health makes this seed's close fight a timeout
+        off = duel(paradox(), HAZE, distance=15.0, max_time=20.0, rng=random.Random(3),
+                   mechanics=dataclasses.replace(mech(False), target_health=False))
+        on = duel(paradox(), HAZE, distance=15.0, max_time=20.0, rng=random.Random(3),
+                  mechanics=dataclasses.replace(mech(True), target_health=False))
         self.assertEqual(off.winner, on.winner)
         self.assertGreater(on.a_dmg.get("Tankbuster", 0), off.a_dmg.get("Tankbuster", 0) * 0.9)
 

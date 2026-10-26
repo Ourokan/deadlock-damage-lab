@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-26T17:30:00Z",
- "reason": "Silver's wolf form on real fight timing (first transform drawn from replays); Silver refit"
+ "requested_at": "2026-10-26T17:35:00Z",
+ "reason": "Tankbuster and Decay deal damage from real-like target health (Mechanics.target_health, CURRENT_HEALTH_ASSIST); their item factors refit"
 }
