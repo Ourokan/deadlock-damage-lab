@@ -162,6 +162,16 @@ def drift_params():
     return _DRIFT
 
 
+def reach_share_at(median_m, reach_m, cooldown_s):
+    """FX.reach_share without a fight: expected share of an on-cooldown proc that needs the target within reach_m,
+    for a hero whose real fight distance is lognormal around median_m (drift_params): cooldown / (cooldown + the
+    expected wait for the drift to bring the target in), Engine.reach_ready's mean field with no walk-in."""
+    from .engine import REACH_P_FLOOR
+    sd, tau = drift_params()
+    p = 0.5 * (1.0 + math.erf(math.log(reach_m / median_m) / (sd * math.sqrt(2.0))))
+    return cooldown_s / (cooldown_s + (1.0 - p) * tau / max(p, REACH_P_FLOOR))
+
+
 LENGTH_STEP = 0.5   # s between fight_length points (data/fight_length.json step_s)
 LENGTH_PHASES = ((10000, "lane"), (27000, "mid"))   # net worth bounds as overall_search.game_phase; above: "late"
 _LENGTH = None

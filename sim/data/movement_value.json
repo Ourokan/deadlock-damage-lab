@@ -39,5 +39,14 @@
  "stack_cap": {
   "2": 1.0775,
   "3": 1.1195
+ },
+ "_close_note": "close_items: movement items whose speed comes from weapon hits within radius_m. Their value above 1 is scaled by the hero's reach share at its real median fight distance / holder_share, the holders' mean (a far hero like Vindicta procs Stalker's speed about a quarter as often as the close heroes who buy it).",
+ "close_items": {
+  "Stalker": {
+   "radius_m": 8.0,
+   "cooldown_s": 6.0,
+   "holder_share": 0.7005,
+   "holders": 60519
+  }
  }
 }
