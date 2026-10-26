@@ -20,8 +20,10 @@ shrinkage, 0.250 at 20, 0.260 at 40, 0.277 at 80; 20 hedges rows near the 20-hol
 
 With --hero NAME (repeatable) only that hero's rows are refit and the other heroes' rows are kept, for a hero whose
 ability factors were just refit (scripts/refit_landing_heroes.py): its old item rows made up for the old abilities.
+With --item NAME (repeatable) only that item's rows are refit, the same way, after a change to how the sim deals that
+item's damage (Stalker's in-range share, 2026-10-26).
 
-usage: python3 scripts/item_landing_heroes.py [--audit PATH] [--prior N] [--hero NAME ...] [--write]
+usage: python3 scripts/item_landing_heroes.py [--audit PATH] [--prior N] [--hero NAME ...] [--item NAME ...] [--write]
 """
 import json
 import math
@@ -35,12 +37,16 @@ from deadsim import accuracy  # noqa: E402
 PRIOR = 20
 
 
-def fit(audit, prior=PRIOR, only=None):
-    """only: refit just these heroes' rows (after refitting their abilities) and keep every other hero's."""
+def fit(audit, prior=PRIOR, only=None, items=None):
+    """only: refit just these heroes' rows (after refitting their abilities) and keep every other hero's.
+    items: refit just these items' rows and keep every other item's."""
     data = json.load(open(accuracy.ITEM_LANDING))
-    heroes = {h: v for h, v in data.get("heroes", {}).items() if only and h not in only}
+    if items:
+        heroes = {h: {k: x for k, x in v.items() if k not in items} for h, v in data.get("heroes", {}).items()}
+    else:
+        heroes = {h: v for h, v in data.get("heroes", {}).items() if only and h not in only}
     for r in audit["hero_items"]:
-        if only and r["hero"] not in only:
+        if only and r["hero"] not in only or items and r["item"] not in items:
             continue
         x = r.get("real_over_sim")
         if not x or x <= 0:
@@ -53,7 +59,7 @@ def fit(audit, prior=PRIOR, only=None):
             continue
         heroes.setdefault(r["hero"], {})[r["item"]] = {"holders": r["holders"], "real_over_sim": x,
                                                        "landing": round(new, 3)}
-    data["heroes"] = {h: dict(sorted(v.items())) for h, v in sorted(heroes.items())}
+    data["heroes"] = {h: dict(sorted(v.items())) for h, v in sorted(heroes.items()) if v}
     data["meta"]["heroes"] = (f"per-hero factors from the damage audit's hero x item rows ({audit['meta']['sample']}, "
                               f">= 20 holders): current factor x (real/sim)^(n/(n+{prior})), capped 0.25-1; replace "
                               "the pooled factor for that hero (scripts/item_landing_heroes.py)")
@@ -69,12 +75,15 @@ def main():
     if "--prior" in args:
         prior = float(args[args.index("--prior") + 1])
     only = {args[i + 1] for i, a in enumerate(args) if a == "--hero"}
-    data = fit(json.load(open(path)), prior, only)
+    items = {args[i + 1] for i, a in enumerate(args) if a == "--item"}
+    data = fit(json.load(open(path)), prior, only, items)
     n = sum(len(v) for v in data["heroes"].values())
     for h, v in data["heroes"].items():
         if only and h not in only:
             continue
         for it, r in v.items():
+            if items and it not in items:
+                continue
             print(f"{h:15s} {it:22s} n={r['holders']:4d} real/sim {r['real_over_sim']:.2f} -> {r['landing']:.3f}")
     print(f"{n} hero x item factors")
     if "--write" in args:

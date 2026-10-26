@@ -218,6 +218,7 @@ def melee_holds():
     return _MELEE_T
 
 
+MELEE_OPEN_FULL_RATE = 0.036   # landed melees/s: Bebop's with one melee item, the lowest of the real opener rows
 HEAVY_OPENERS = frozenset({"upgrade_melee_charge", "upgrade_crushing_fists"})   # proc on a heavy melee
 
 
@@ -234,7 +235,17 @@ def melee_opener(f):
     q = rows[cls]["holds"]
     u = (phase + zlib.crc32(f"melee|{f.name}".encode()) / 2 ** 32) % 1.0 if phase is not None else rng.random()
     h = q[min(len(q) - 1, int(u * len(q)))]
-    return None if h is None else (h, cls in HEAVY_OPENERS)
+    if h is None:
+        return None
+    # The opener moves the hero's own first melee earlier (the steady rate pays it back, Engine.melee_open); it must
+    # not add melee a hero doesn't do. The holds are pooled over real holders, every hero of which melees at least
+    # MELEE_OPEN_FULL_RATE with one melee item and opens about as often as the pool (validation/README.md "Close-range
+    # items on far heroes"). Below that rate, outside the data, a hero opens with one in rate / MELEE_OPEN_FULL_RATE of the
+    # fights: Vindicta (0.0094/s, she fights at ~26 m) opens in ~17% of fights, not the pool's ~65%.
+    k = min(1.0, f.skill.melee_rate / MELEE_OPEN_FULL_RATE)
+    if k < 1.0 and (u * len(q)) % 1.0 >= k:   # u's place inside its hold bin: uniform, independent of the bin
+        return None
+    return h, cls in HEAVY_OPENERS
 
 
 def hold_first_casts(f):
