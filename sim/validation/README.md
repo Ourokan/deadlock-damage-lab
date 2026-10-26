@@ -1844,3 +1844,36 @@ over there, so a fuller Granny Long Legs pushes the ability share further over).
 per-source 0.023 -> 0.024 (0.023 again after rebasing on the target-health change). sim_vs_win 27k (all heroes, side by side): all pairs 0.170 -> 0.170, edges clear of
 noise 0.270 -> 0.270, per item 0.240 -> 0.240. Kept as the more faithful model: the fudge factor that stood in for the timing is mostly
 gone, and her melee items now see her melee where she really lands it.
+
+## Silver's wolf form on real fight timing (2026-10-26)
+
+Survey first (scratch scripts): for every hero ability with a duration, the share of the hero's gun / melee / ability /
+item damage landing inside [cast, cast + AbilityDuration], real Phantom+ pair fights (fight_length + cast_timing
+replays, every damage id named by hashing raw/items.json class names) against the audit duels (expected over real
+fight lengths). For the self buffs the in-window share is close: Wraith Full Auto gun 0.40 real / 0.36 sim, Grey
+Talon Rain of Arrows 0.53 / 0.55, Lady Geist Life Drain 0.39 / 0.33, Rat King Royal Pestments 0.44 / 0.35, Baba
+Granny Long Legs melee 0.74 / 0.78 (after the bunching above). Several sim buffs are up longer than real (Seven Power
+Surge, Solomon, Paige: recasts), which is cast frequency, not bunching. The one large gap was Silver's wolf form.
+
+Read from her hits (Lycan Curse's cooldown starts when the form ends, so its cooldown starts are not casts): a run of
+wolf hits (Lycan Claws, Go For The Throat, Mauling Leap, Tail Whack) broken by a human-form hit or a 6 s gap. In 2383
+pair fights of 50 Silver players: 12% start with her already in wolf form, the form is up 21% of fight time, and wolf
+hits are 40% of her damage (claws 15%, rifle 25%). She transforms in only ~1 in 3 of the other fights (Kaplan-Meier:
+3% by 2 s, 11% by 5 s, 32% by 10 s, 60% by 20 s). The sim started every duel at 0 rage and transformed 7-12 s into
+nearly all of them (by 5 s 2%, by 20 s 95%): wolf form 14% of fight time, wolf hits 25% (claws ~5%), and the wolf
+abilities carried landing x length_corr fudges of 1.25-1.55 while her human abilities were cut to 0.5-0.7.
+
+Rage and the cooldown carry over between fights. `werewolf.LycanCurse.draw_plan` (Mechanics.execute_timing's draw,
+`WOLF_TIMING`) now draws each fight's first transform from data/wolf_timing.json (scripts/mechanics/wolf_timing.py):
+cast at t = 0 (already in wolf form) in 12%, else at a real time or not at all; later casts follow the rage rule.
+Deterministic fights keep the rage rule. Audit duels: wolf form 23.5% of fight time, wolf hits 28%, claws 9%.
+
+Refit of Silver only (her three wolf rows got their `class` so ability_corr_heroes.py fits them; 3 rounds, then
+item_landing_heroes.py): landing x length_corr Slam Fire 0.51 -> 0.61, Boot Kick 0.72 -> 0.86, Entangling Bola 1.06
+-> 1.17, Go For The Throat 1.25 -> 1.15, Mauling Leap 1.45 -> 1.09, Tail Whack 1.55 -> 2.09 (summed |log| 2.09 ->
+1.76). Audit, full sample: mix 0.034 -> 0.019. Split-half (old code refit the same way as reference): one draw per
+duel and 3 duels a player make her wolf shares swing between samples, so held-out runs were averaged over 5 draw
+offsets: mix 0.033 -> 0.020 and 0.032 -> 0.024 (better both halves), per-source 0.037 -> 0.034 and 0.028 -> 0.039.
+sim_vs_win 27k (all heroes, side by side): all pairs 0.172 -> 0.173, edges clear of noise 0.273 -> 0.273, per item
+0.243 -> 0.243. Kept as the more faithful model: the wolf form comes when real players have it, the mix is closer on
+both held-out halves, and four of her six ability fudges moved toward 1.
