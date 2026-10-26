@@ -119,8 +119,11 @@ class RecastWait(unittest.TestCase):
         self.assertAlmostEqual(ab.recast_wait, 2.0)
         e, ab, castable = self.malice_with_wait(math.inf)
         e.t = ab.ready_at + 100.0   # not again this fight: a reset of a ready ability doesn't change that
+        self.assertFalse(castable(ab))
+        self.assertFalse(ab.try_cast())
         ab.reset_cooldown()
         self.assertEqual(ab.recast_wait, math.inf)
+        self.assertFalse(castable(ab))
         ab.reset_cooldown(redraw=False)   # no wait at all (Silver's slots keep theirs per form)
         self.assertEqual(ab.recast_wait, 0.0)
         self.assertTrue(castable(ab))
