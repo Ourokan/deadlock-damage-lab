@@ -30,7 +30,10 @@ outside it. The score is multiplied by each held item's value in sim/data/moveme
 chase (kill participation) x escape (deaths per 10 min) effect of holding it at the same hero, net worth and game
 length (analysis/scripts/kill_participation.py, analysis/out/kill_participation.md), capped for 2 and 3+ items
 at the measured value of holding that many (they overlap). A few items count as movement for one hero only
-(hero_items: Mina imbues Mystic Expansion on Sanguine Retreat for a longer dash, Tyler 2026-10-21).
+(hero_items: Mina imbues Mystic Expansion on Sanguine Retreat for a longer dash, Tyler 2026-10-21). Stalker's speed
+procs only on weapon hits within 8 m (close_items): its gain is scaled by the hero's reach share at its real median
+fight distance over the measured holders' (mostly close heroes), so far heroes like Vindicta (x0.25) get little of it
+(Tyler 2026-10-25: Vindicta was recommended Stalker).
 Sustain (2026-10-22, pro-play top items were mostly healing): the score is NET damage, damage dealt minus the
 healing the enemy got during the fight (healing undoes damage; this is what makes Healbane's anti-heal count), and a
 refill of the immortal enemy counts as a kill (Healbane's kill heal). Fights after the lane no longer start at full
@@ -139,9 +142,9 @@ sys.path.insert(0, os.path.join(ROOT, "..", "survival"))
 
 import search as S  # noqa: E402
 from build_pool import BRACKETS, BUDGETS, PRIMARY  # noqa: E402
-from deadsim.accuracy import hero_default_skill  # noqa: E402
+from deadsim.accuracy import default_distance, hero_default_skill  # noqa: E402
 from deadsim.build import compute_stats  # noqa: E402
-from deadsim.mechanics import LENGTH_STEP, area_extra, real_length, real_nearby  # noqa: E402
+from deadsim.mechanics import LENGTH_STEP, area_extra, reach_share_at, real_length, real_nearby  # noqa: E402
 from survival import survive  # noqa: E402
 
 MAX_TIME = 30.0
@@ -152,6 +155,8 @@ FIGHT_LENGTH = True
 _sk = {}
 MOVE_PATH = os.path.join(ROOT, "..", "sim", "data", "movement_value.json")
 _move = None
+# close_items (Stalker): a hero closer than the measured holders gets at most this multiple of the measured gain
+CLOSE_SCALE_MAX = 1.25
 
 
 WIN_EDGE = os.path.join(ROOT, "..", "analysis", "out", "hero_item_edge.json")
@@ -450,17 +455,29 @@ def movement_value(items, hero=None):
                  {int(k): v for k, v in d.get("stack_cap", {}).items()},
                  {i for i, it in g.items.items() if it.name in moving},
                  {int(h): {by_name[n]: v for n, v in row.items() if n in by_name}
-                  for h, row in d.get("hero_items", {}).items()})
-    vals, caps, moving, hero_vals = _move
+                  for h, row in d.get("hero_items", {}).items()},
+                 {by_name[n]: c for n, c in d.get("close_items", {}).items() if n in by_name})
+    vals, caps, moving, hero_vals, close = _move
     extra = hero_vals.get(hero, {}) if hero is not None else {}
     held = set(items)
     v = 1.0
     for i in held:
-        v *= extra.get(i, vals.get(i, 1.0))
+        x = extra.get(i, vals.get(i, 1.0))
+        if i in close and hero is not None:
+            x = 1.0 + (x - 1.0) * close_scale(close[i], hero)
+        v *= x
     n = len(held & (moving | set(extra)))   # the caps were measured on any movement items held, weighted or not
     if n >= 2 and caps:
         v = min(v, caps[min(n, max(caps))])
     return v
+
+
+def close_scale(c, hero):
+    """A close_items movement item's speed procs on weapon hits within radius_m: the hero's reach share at its real
+    median fight distance / the share of the players its value was measured on (Stalker: Vindicta ~0.25, Abrams
+    ~1.14). Capped so the item stays within the file's 1.25 per-item cap."""
+    k = reach_share_at(default_distance(hero), c["radius_m"] + 0.5, c["cooldown_s"]) / c["holder_share"]
+    return min(k, CLOSE_SCALE_MAX)
 
 
 def jobs_dir(bracket):

@@ -30,6 +30,7 @@ so no movement item scores below a non-movement item. These are associations at 
 length, not a controlled game effect: players' skill and play style still ride along.
 
     python3 scripts/kill_participation.py
+    python3 scripts/kill_participation.py --close-only   # refresh only close_items (CLOSE_MOVEMENT)
 """
 from __future__ import annotations
 
@@ -38,13 +39,14 @@ import gzip
 import json
 import math
 import os
+import sys
 from collections import defaultdict
 
 ROOT = "/mnt/project-files"
 KDA = f"{ROOT}/analysis/work/kill_participation"
 BUILDS = f"{ROOT}/data/builds/player_builds"
 OUT = f"{ROOT}/analysis/out"
-SIM_OUT = f"{ROOT}/sim/data/movement_value.json"
+SIM_OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "sim", "data", "movement_value.json")
 ITEMS = {x["id"]: x for x in json.load(open(f"{ROOT}/data/game/shop_items.json"))}
 HEROES = {h["id"]: h["name"] for h in json.load(open(f"{ROOT}/data/game/heroes.json"))}
 MOVEMENT = ["Sprint Boots", "Extra Stamina", "Enduring Speed", "Arcane Surge", "Kinetic Dash", "Fleetfoot", "Stalker",
@@ -54,6 +56,9 @@ MOVEMENT = ["Sprint Boots", "Extra Stamina", "Enduring Speed", "Arcane Surge", "
 # longer dash); measured on that hero's players and written to movement_value.json "hero_items"
 HERO_MOVEMENT = {63: ["Mystic Expansion"]}
 MOVE_ID = {i: x["name"] for i, x in ITEMS.items() if x["name"] in MOVEMENT}
+# movement items whose speed comes from weapon hits at close range (property = proc radius): a hero who fights far
+# gets the speed less often than the players the value was measured on (close_items)
+CLOSE_MOVEMENT = {"Stalker": "ProcRadius"}
 HERO_MOVE_ID = {i: x["name"] for i, x in ITEMS.items() if any(x["name"] in v for v in HERO_MOVEMENT.values())}
 NW_BIN, DUR_BIN = 2500, 300
 Z_MIN, CAP = 2.0, 1.25
@@ -165,8 +170,49 @@ def pearson(xs, ys):
     return sxy / math.sqrt(sum((x - mx) ** 2 for x in xs) * sum((y - my) ** 2 for y in ys))
 
 
+def close_items(rows):
+    """Per CLOSE_MOVEMENT item: the holders' mean reach share (deadsim.mechanics.reach_share_at at each holder's hero's
+    real median fight distance, accuracy.default_distance). overall_search.movement_value scales the item's value
+    above 1 by a hero's own share / this one."""
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "sim"))
+    from deadsim.accuracy import default_distance
+    from deadsim.mechanics import reach_share_at
+    by_name = {x["name"]: x for x in ITEMS.values()}
+    out = {}
+    for n, prop in CLOSE_MOVEMENT.items():
+        pr = by_name[n]["properties"]
+        radius, cd = pr[prop]["value"], pr["AbilityCooldown"]["value"]
+        hold = defaultdict(int)
+        for r in rows:
+            if n in r["move"]:
+                hold[r["hero"]] += 1
+        tot = sum(hold.values())
+        share = sum(k * reach_share_at(default_distance(h), radius + 0.5, cd) for h, k in hold.items()) / tot
+        out[n] = {"radius_m": radius, "cooldown_s": cd, "holder_share": round(share, 4), "holders": tot}
+    return out
+
+
+def write_close(rows):
+    """Update only close_items in movement_value.json (the other weights stay the measured snapshot)."""
+    with open(SIM_OUT) as f:
+        d = json.load(f)
+    d.update(close_note(), close_items=close_items(rows))
+    with open(SIM_OUT, "w") as f:
+        json.dump(d, f, indent=1)
+
+
+def close_note():
+    return {"_close_note": ("close_items: movement items whose speed comes from weapon hits within radius_m. Their "
+                            "value above 1 is scaled by the hero's reach share at its real median fight distance / "
+                            "holder_share, the holders' mean (a far hero like Vindicta procs Stalker's speed about a "
+                            "quarter as often as the close heroes who buy it).")}
+
+
 def main():
     rows = players()
+    if "--close-only" in sys.argv:
+        write_close(rows)
+        return
     by_hero = defaultdict(list)
     for r in rows:
         by_hero[r["hero"]].append(r)
@@ -241,6 +287,8 @@ def main():
                        "on that hero's players."),
         "hero_items": {h: {n: e["value"] for n, e in row.items() if e["value"] > 1.0} for h, row in hero_items.items()},
         "stack_cap": {str(k): round(min(CAP, max(1.0, stack[k]["chase"] * stack[k]["escape"])), 4) for k in (2, 3)},
+        **close_note(),
+        "close_items": close_items(rows),
     }, open(SIM_OUT, "w"), indent=1)
     write_md(res)
 
