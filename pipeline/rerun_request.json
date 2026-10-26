@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-25T23:10:00Z",
- "reason": "PR #100: Slam Fire opens on real cast timing, held first casts of Dazzling Trick / Royal Pestments, factors kept at their levels; fight entry health is opt-in (off)"
+ "requested_at": "2026-10-26T00:05:00Z",
+ "reason": "PR #103: execute gates see real entry health (Mechanics.entry_gate), Djinn's Mark expiry gaps and held first pop; Mirage, Shiv, Vindicta, Danny, Vyper factors kept at their levels"
 }
