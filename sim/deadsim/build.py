@@ -21,7 +21,15 @@ _warned = set()
 # three pellets) and 14 (8.8 x 1.65 head), with steps at 3 and 6 (one, two pellets) and nothing near 17.6 / 26.4;
 # Mo & Krill's 2.82 x 4 peak at 3, 6, 9, 12 as listed. With 8.8 per pellet the sim's gun dealt 2x real per shot
 # (other heroes 1.0-1.2x) and every Baba ability fit followed it, so Torment Pulse read 2x under in the audit.
-SHOT_SPLIT_PELLETS = {88}
+# Drifter (64, 19.5 x 3): first 45 s of 10 replays, body hits peak at 19-20 and heads at 26-27, nothing near 39 / 58
+# (sim gun 1.63x real per shot). The other shotguns (Abrams, Calico, Mo & Krill, Shiv, Pocket, Silver, Yamato, Rat
+# King) show volleys of several pellets' worth, as listed.
+# These shots land whole (replay values sit at the full shot): Engine.fire lands one with chance pellet accuracy x the
+# value here, all pellets together. Per-pellet draws left Drifter at 0.57x and Baba at 0.65x real per shot. Drifter:
+# fitted so his gun deals real damage per shot on the replay players themselves (scripts/gun_calib/shot_damage.py:
+# their builds, aim and enemies; other heroes read 1.0-1.04x), 0.97x. Baba: pellets / API pellet hits per replay gun
+# hit (3 / 2.14) = 0.88x per shot; her split-half audit refit got worse both ways at the per-shot fit (1.59 = 1.01x).
+SHOT_SPLIT_PELLETS = {88: 1.40, 64: 2.16}
 
 
 def gun_quirks(hero_id):

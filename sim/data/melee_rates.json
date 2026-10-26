@@ -148,8 +148,9 @@
   },
   "64": {
    "name": "Drifter",
-   "rate": 0.1199,
-   "real_melee_share": 0.1021
+   "rate": 0.0948,
+   "real_melee_share": 0.1021,
+   "audit_fit": true
   },
   "65": {
    "name": "Venator",
@@ -228,7 +229,7 @@
   },
   "88": {
    "name": "Baba",
-   "rate": 0.0703,
+   "rate": 0.1068,
    "real_melee_share": 0.1236,
    "audit_fit": true
   },

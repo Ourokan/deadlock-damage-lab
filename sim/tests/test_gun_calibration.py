@@ -186,6 +186,50 @@ class GunCalibration(unittest.TestCase):
         mo = G.hero("Mo & Krill")
         self.assertAlmostEqual(compute_stats(mo.name, souls=0).bullet_damage, mo.weapon["bullet_damage"])
 
+    def test_drifter_pellets_share_the_shot(self):
+        # replays: Drifter's 19.5 is the whole 3-pellet shot too (body hits peak at 19-20, never 39 / 58)
+        h = G.hero("Drifter")
+        st = compute_stats(h.name, souls=0)
+        self.assertEqual(st.pellets, 3)
+        self.assertAlmostEqual(st.bullet_damage * st.pellets, h.weapon["bullet_damage"])
+
+    def _split_duel(self, hero, items=(), accuracy=0.3):
+        """(pellet hits of each landed gun hit, trigger pulls) for `hero` in a 15 s duel."""
+        from deadsim import engine
+        aim = Skill(accuracy=accuracy, headshot=0.2, use_abilities=False, use_actives=False)
+        seen, pulls, dmg, fire = [], [0], engine.Engine.damage, engine.Engine.fire
+
+        def spy(self, src, dst, raw, kind, source, *a, **k):
+            if source == "gun" and src.st.hero.name == hero and k.get("procs", True) is not False:
+                seen.append((k.get("hits"), k.get("headshots")))
+            return dmg(self, src, dst, raw, kind, source, *a, **k)
+
+        def count(self, f):
+            if f.st.hero.name == hero:
+                pulls[0] += 1
+            return fire(self, f)
+        with mock.patch.object(engine.Engine, "damage", spy), mock.patch.object(engine.Engine, "fire", count):
+            duel(Loadout(hero, list(items), souls=3000, skill=aim), Loadout("Haze", [], souls=3000, skill=aim),
+                 distance=8.0, max_time=15.0, mechanics=Mechanics(range_drift=False))
+        return seen, pulls[0]
+
+    def test_split_shots_land_whole(self):
+        """A split gun's shot lands with all its pellets and is a head or a body hit as a whole (replay values sit at
+        the full shot), with chance pellet accuracy x its fitted factor."""
+        from deadsim.build import SHOT_SPLIT_PELLETS
+        for hero in ("Baba", "Drifter"):
+            h = G.hero(hero)
+            seen, pulls = self._split_duel(hero)
+            self.assertTrue(seen, hero)
+            self.assertTrue(all(n == 3 and hd in (0, 3) for n, hd in seen), (hero, seen))
+            self.assertAlmostEqual(len(seen) / pulls, min(1.0, 0.3 * SHOT_SPLIT_PELLETS[h.id]), delta=0.03)
+
+    def test_split_shot_doubled_by_express_shot(self):
+        # Express Shot's pellet_mult 2 fires two whole shots at once (both land at full accuracy)
+        seen, _ = self._split_duel("Drifter", ["Express Shot"], accuracy=1.0)
+        self.assertTrue(all(n % 3 == 0 for n, _ in seen), seen)
+        self.assertIn(6, [n for n, _ in seen])
+
     def test_threadsap_gun_bonus_once_per_shot(self):
         from deadsim.heroes.baba import STOLEN_KEY, Threadsap
         c = mock.Mock(now=1.0)

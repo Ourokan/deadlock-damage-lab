@@ -1739,3 +1739,33 @@ Same measure on main for the other split-pellet guns: Drifter 1.36x (1.27-1.46),
 Drifter PR's whole-shot landing Drifter 0.74x, Baba 0.85x. Shot-count outliers (replay shot steps don't match the
 sim's trigger pulls: charged or alt-fire guns): Paradox 6.7, Venator 3.3, Seven 3.1, Lash 3.0, Sinclair 2.4, Violet
 1.8.
+## Drifter's gun: 19.5 per shot; split shots land whole (2026-10-26)
+
+Drifter's "19.5 x 3" is the whole shot as well: in the first 45 s of 10 Phantom+ replays (pulled with the gun's
+`hits`/`crit_damage` columns) his body hits peak at 19-20 and his heads at 26-27, with nothing near 39 or 58, which two
+or three pellets of 19.5 would give although the API counts 1.87 pellet hits per hitting shot. The sim's gun dealt
+1.63x real per shot. Every other shotgun (Abrams, Calico, Mo & Krill, Shiv, Pocket, Silver, Yamato, Rat King) shows
+volleys of several pellets' worth, so the data is per pellet there. `build.SHOT_SPLIT_PELLETS` gains 64.
+
+Split, the two guns read low instead (Drifter 0.57x, Baba 0.65x real per shot): their replay hits sit at the full
+shot, but the sim drew each pellet on its own with the API's pellet accuracy, landing ~1.2 pellets per hitting shot.
+`SHOT_SPLIT_PELLETS` now maps each hero to a shot-landing factor and `Engine.fire` lands such a shot whole (pellets
+and head or body together) with chance pellet accuracy x that factor. Drifter 2.16: fitted on the replay players
+themselves (`gun_calib/shot_damage.py`), 0.97x real per shot (95% 0.90-1.05; other heroes 1.0-1.04x). Baba 1.40 =
+pellets / API pellet hits per replay gun hit (3 / 2.14), 0.88x per shot: at the per-shot fit (1.59, 1.01x) her
+split-half refit got worse both ways (mix 0.029 -> 0.045 / 0.039 -> 0.029). Per-shot on-hit items
+(`items_fx.shots_hit`) and Threadsap's once-per-shot bonus follow; Express Shot's double shot is two whole shots.
+
+Refit of Baba and Drifter only (same order as for Baba above). Split-half, old code with the same refit as reference:
+
+| hero | fit -> audit | mix old | mix new | per-source old | per-source new |
+|---|---|---|---|---|---|
+| Drifter | even -> odd | 0.046 | 0.026 | 0.031 | 0.019 |
+| Drifter | odd -> even | 0.033 | 0.013 | 0.031 | 0.027 |
+| Baba | even -> odd | 0.029 | 0.034 | 0.054 | 0.047 |
+| Baba | odd -> even | 0.039 | 0.017 | 0.052 | 0.049 |
+
+Full sample: Drifter 0.045 -> 0.021, Baba 0.031 -> 0.023, all heroes 0.0243 -> 0.0233. sim_vs_win 27k all pairs
+0.167 -> 0.170, edges clear of noise 0.266 -> 0.270, per item 0.238 -> 0.240. Baba's Granny Long Legs fits a
+landing x length_corr of 2.9 (2.0 before, 1.8 before Baba's split): the pounds per cast or their damage are short
+of real, not new here (follow-up).
