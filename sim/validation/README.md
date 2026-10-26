@@ -1475,4 +1475,6 @@ Bebop Mystic Burst real/sim 1.53 -> 1.20, Spirit Snatch 1.09 -> 0.96, Spirit Str
 1.00; Tankbuster stays 1.57 (Bebop's spirit builds rarely reach 165 before resists; real Uppercut releases it even at
 84-150 dealt). Split halves (even / odd match ids; the Spirit Snatch / Strike refit fit on one half, audited on the
 other): mix 0.0343 -> 0.0345 and 0.0309 -> 0.0318, hero x item |log real/sim| 0.210 -> 0.208 and 0.207 -> 0.204
-(melee and Mystic Burst / Tankbuster rows 0.256 -> 0.241, 0.248 -> 0.232).
+(melee and Mystic Burst / Tankbuster rows 0.256 -> 0.241, 0.248 -> 0.232). sim_vs_win 27k: all pairs 0.171 -> 0.169, damage items 0.070 -> 0.067, edges clear of noise
+0.265 -> 0.267, per item 0.240 -> 0.241 (flat); mean gain per 1000 souls Spirit Snatch 0.066 -> 0.060, Spirit Strike
+0.094 -> 0.093. On main after #106/#108: audit mix 0.0302 -> 0.0308.
