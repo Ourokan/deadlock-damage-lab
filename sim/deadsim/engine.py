@@ -1052,14 +1052,17 @@ class Engine:
                 shoot_summon(self, f, s, n_bullets)
                 return
         p_hit = min(1.0, f.skill.accuracy * (1.0 - e.stat("evasion")) * self.hit_reach(st))
-        per_shot = SHOT_SPLIT_PELLETS.get(st.hero.id)
-        if per_shot:   # the shot lands whole (build.SHOT_SPLIT_PELLETS): pellet accuracy -> shot accuracy
-            hits = f.hit_acc.take(min(1.0, p_hit * st.pellets / per_shot), n_bullets // st.pellets) * st.pellets
+        shot_acc = SHOT_SPLIT_PELLETS.get(st.hero.id)
+        if shot_acc:   # the shot lands whole (build.SHOT_SPLIT_PELLETS): pellet accuracy -> shot accuracy
+            shots = max(1, round(st.burst_count * ctx["pellet_mult"]))
+            landed = f.hit_acc.take(min(1.0, p_hit * shot_acc), shots)
+            hits = landed * st.pellets
+            heads = f.head_acc.take(f.skill.headshot, landed) * st.pellets   # a whole shot is a head or a body hit
         else:
             hits = f.hit_acc.take(p_hit, n_bullets)
+            heads = f.head_acc.take(f.skill.headshot, hits) if hits > 0 else 0
         if hits <= 0:
             return
-        heads = f.head_acc.take(f.skill.headshot, hits)
         f.bullets_hit += hits
         f.headshots_hit += heads
         per, crit = self.bullet_damage(f, ctx["extra_pct"])

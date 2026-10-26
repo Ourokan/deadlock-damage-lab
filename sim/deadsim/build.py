@@ -24,11 +24,12 @@ _warned = set()
 # Drifter (64, 19.5 x 3): first 45 s of 10 replays, body hits peak at 19-20 and heads at 26-27, nothing near 39 / 58
 # (sim gun 1.63x real per shot). The other shotguns (Abrams, Calico, Mo & Krill, Shiv, Pocket, Silver, Yamato, Rat
 # King) show volleys of several pellets' worth, as listed.
-# Value: API pellet hits per replay gun hit (one event per landed shot, validation/gun_calib/gun_stats.json.gz). These
-# shots land whole (replay values sit at the full shot), so Engine.fire lands a shot with the API pellet accuracy x
-# pellets / this, all pellets together: with the API's per-pellet accuracy alone the sim landed 0.21 shots per shot
-# where Drifter's replays land 0.35 (gun 0.57x real per shot; Baba 0.65x).
-SHOT_SPLIT_PELLETS = {88: 2.14, 64: 1.87}
+# These shots land whole (replay values sit at the full shot): Engine.fire lands one with chance pellet accuracy x the
+# value here, all pellets together. Per-pellet draws left Drifter at 0.57x and Baba at 0.65x real per shot. Drifter:
+# fitted so his gun deals real damage per shot on the replay players themselves (scripts/gun_calib/shot_damage.py:
+# their builds, aim and enemies; other heroes read 1.0-1.04x), 0.97x. Baba: pellets / API pellet hits per replay gun
+# hit (3 / 2.14) = 0.88x per shot; her split-half audit refit got worse both ways at the per-shot fit (1.59 = 1.01x).
+SHOT_SPLIT_PELLETS = {88: 1.40, 64: 2.16}
 
 
 def gun_quirks(hero_id):
