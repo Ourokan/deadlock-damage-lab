@@ -1511,16 +1511,17 @@ def _basic_melee(hit):
 
 def _any_melee(hit):
     """A basic melee or an ability's melee hit (Exploding Uppercut, Grapple Arm, Rend, ...). Phantom+ replays: on-melee
-    items proc on them too (Bebop's Grapple Arm releases Spirit Snatch on 71% of its hits by holders, Uppercut 33%,
-    basic melee 33%; Spirit Strike 34 / 17 / 11%; both on cooldown)."""
+    items proc on them too (Bebop's Grapple Arm releases Spirit Snatch on 72% of its hits by holders, Uppercut 33%,
+    basic melee 27%; Spirit Strike 44 / 17 / 11%; both on cooldown; scripts/mechanics/melee_scaling.py)."""
     return hit.kind == "melee" and not hit.is_item and (hit.source == "melee" or hit.is_ability)
 
 
-def _melee_proc(fx, f, hit=None):
+def _melee_proc(fx, f, hit=None, key=":melee"):
     """Whether a (possibly fractional-weight) melee event triggers this item's on-melee effect. An ability's melee hit
-    weighs its landing factor (the share of the hit its damage stands for)."""
+    weighs its landing factor (the share of the hit its damage stands for). key: a second effect of the same item
+    (Lifestrike's slow) draws from its own accumulator at the same rate."""
     w = f.counters.get("melee_weight", 1.0) if hit is None or hit.source == "melee" else min(1.0, hit.landing)
-    return fx.ready() and f.acc(fx.item.class_name + ":melee").take(w, 1) > 0
+    return fx.ready() and f.acc(fx.item.class_name + key).take(w, 1) > 0
 
 
 @handler("upgrade_melee_charge", "upgrade_crushing_fists")
