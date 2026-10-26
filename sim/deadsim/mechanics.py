@@ -135,6 +135,13 @@ class Mechanics:
     # the pair enemy, scripts/mechanics/execute_timing.py), so the swap's gap opens as in real fights; only the gate
     # sees it (Fighter.self_gate_frac; execute gates on Geist don't), health and fight length stay
     gate_assist: bool = True
+    # target health for health-conditional items (2026-10-26): with fight_length, a fighter facing an enemy that holds
+    # an item conditioned on its target's health (TARGET_HEALTH_ITEMS: Opening Rounds) is seen by that item short by a
+    # real entry deficit (as entry_gate) and by TARGET_ASSIST x the damage it takes in the duel (the real fight's
+    # third parties, Fighter.item_hp_frac). Health and fight length stay. Sim duels landed 85% of gun damage on
+    # targets above half health, real Phantom+ replays 64% (scripts/fight_length/target_health.py,
+    # validation/README.md "Target health")
+    target_health: bool = True
     # Killing Blow and Soul Exchange first casts on real timing (2026-10-26): with cast_timing, each fight draws a
     # plan (data/execute_timing.json). Killing Blow: spent at a real time without an execute (most real first casts:
     # the slash on a ~55% target or a miss, then the whole cooldown), wait for the execute gate, or not cast (on
@@ -373,6 +380,31 @@ def entry_gate(f):
         return
     d = entry_deficit(f)
     f.entry_gap = d or 0.0
+    f.entry_drawn = True
+
+
+# items conditioned on the target's health (Fighter.item_hp_frac, Mechanics.target_health)
+TARGET_HEALTH_ITEMS = {"upgrade_pristine_emblem"}
+# third parties' damage per damage the target takes in the duel, as such items see it: fitted so the duels' gun
+# damage above half target health matches real (scripts/fight_length/target_health.py fit). The raw real ratio in
+# pair fights is 0.71, but a real target losing health that fast also dies or backs off sooner
+TARGET_ASSIST = 0.35
+TARGET_HEALTH_ALL = False   # target_health.py: every fighter gets the draw (to measure all gun damage)
+
+
+def target_health(f):
+    """Mechanics.target_health at the fight start (after entry_gate): against an enemy holding a TARGET_HEALTH_ITEMS
+    item, f's health as those items see it is short by a real entry deficit and TARGET_ASSIST x its damage taken."""
+    e = f.enemy
+    held = e is not None and any(getattr(getattr(fx, "item", None), "class_name", None) in TARGET_HEALTH_ITEMS
+                                 for fx in e.items_fx)
+    if e is None or not (held or TARGET_HEALTH_ALL):
+        return
+    f.item_assist = TARGET_ASSIST
+    if not f.entry_drawn:
+        f.entry_gap = entry_deficit(f) or 0.0
+        f.entry_drawn = True
+    f.item_gap = f.entry_gap
 
 
 EXEC_ROW = "all"   # data/execute_timing.json row (the split-half check uses "even" / "odd")
@@ -398,6 +430,7 @@ def gate_assist(f):
     f.gate_assist = max(own)
     if not f.entry_gap:
         f.entry_gap = entry_deficit(f) or 0.0
+        f.entry_drawn = True
 
 
 def execute_plans(f):

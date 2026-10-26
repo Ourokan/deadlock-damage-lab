@@ -213,7 +213,7 @@ class BuildUp(FX):
 @handler("upgrade_pristine_emblem")
 class OpeningRounds(FX):
     def stat(self, f):
-        return {"weapon_pct": self.item.p("BaseAttackDamagePercentBonus") / 100} if f.enemy and f.enemy.hp_frac > 0.5 else {}
+        return {"weapon_pct": self.item.p("BaseAttackDamagePercentBonus") / 100} if f.enemy and f.enemy.item_hp_frac > 0.5 else {}
 
 
 @handler("upgrade_close_range", "upgrade_close_quarter_combat")

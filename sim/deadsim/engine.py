@@ -285,6 +285,11 @@ class Fighter:
         self.entry_set = False      # start health set by the caller (Mechanics.entry_hp leaves it)
         self.entry_gap = 0.0        # share of max health short at fight entry, seen by execute gates (Mechanics.entry_gate)
         self.gate_assist = 0.0      # third parties' damage per damage taken here, seen by health gates (Mechanics.gate_assist)
+        self.entry_drawn = False    # entry_gap drawn for this fight: target_health doesn't draw again (gate_assist keeps
+        #                             its own redraw after a 0 from entry_gate, as its Geist factors were kept with it)
+        self.item_assist = 0.0      # third parties' damage per damage taken, seen by items conditioned on this fighter's health (Mechanics.target_health)
+        self.item_gap = 0.0         # entry deficit those items see (0 again after a refill: the immortal enemy's next life)
+        self.item_dmg0 = 0.0        # damage taken before that life
         self.mods = Mods(engine)
         self.barriers = []          # [amount, expire]
         self.enemy: Fighter = None
@@ -396,6 +401,15 @@ class Fighter:
         if self.gate_assist:
             hp = max(1e-6, hp - self.gate_assist * sum(self.dmg_in.values()))
         return hp / self.max_hp
+
+    @property
+    def item_hp_frac(self):
+        """Health share as items conditioned on this fighter's health (Opening Rounds) see it: short by the real entry
+        deficit and the real third parties' damage (Mechanics.target_health; hp_frac without it)."""
+        if not self.item_assist:
+            return self.hp_frac
+        hp = self.hp - self.item_gap * self.max_hp - self.item_assist * (sum(self.dmg_in.values()) - self.item_dmg0)
+        return max(0.0, hp) / self.max_hp
 
     @property
     def gate_frac(self):
@@ -804,6 +818,10 @@ class Engine:
                 f = getattr(fx, "on_lethal", None)
                 if f and f(dst, src):
                     saved = True
+                    # an immortal enemy's refill (survive, the dummy): health-conditional items see a new life. Saves that
+                    # leave the target low (Cheat Death at 1 hp) keep what the items saw: the real target is low too
+                    if dst.hp >= dst.max_hp:
+                        dst.item_gap, dst.item_dmg0 = 0.0, sum(dst.dmg_in.values())
                     break
             if not saved:
                 dst.hp = 0.0
@@ -1098,6 +1116,9 @@ class Engine:
             if self.length and self.mech is not None and getattr(self.mech, "gate_assist", False):
                 from .mechanics import gate_assist
                 gate_assist(f)
+            if self.length and self.mech is not None and getattr(self.mech, "target_health", False):
+                from .mechanics import target_health
+                target_health(f)
             if f.skill.fight_phase is not None:
                 unused_items(f)
             for fx in f.items_fx:
