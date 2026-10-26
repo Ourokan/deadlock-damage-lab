@@ -139,6 +139,17 @@ class SilverCase(unittest.TestCase):
         self.assertEqual(self.f.st.hit_mult, werewolf.CLAW_HIT)
         self.assertEqual(self.g.st.hit_mult, 1.0)
 
+    def test_fire_applies_hit_mult(self):
+        import dataclasses
+        hits = []
+        for m in (1.0, werewolf.CLAW_HIT):
+            self.f.st = dataclasses.replace(self.f.st, hit_mult=m, pellets=1, burst_count=1)
+            self.f.bullets_hit, self.f.clip = 0, 10 ** 6
+            for _ in range(200):
+                self.e.fire(self.f)
+            hits.append(self.f.bullets_hit)
+        self.assertAlmostEqual(hits[1] / hits[0], werewolf.CLAW_HIT, delta=0.05)
+
 
 if __name__ == "__main__":
     unittest.main()

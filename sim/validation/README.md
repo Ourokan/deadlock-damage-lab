@@ -1990,7 +1990,8 @@ The form is up as often as real (more, if anything) and the wolf abilities alrea
 were short and the rifle long. Both aim with the player's API hero accuracy, which is mostly the rifle's pellets
 (0.41): the claws are one large swing at close range and land ~1.5x that per swing in replays, and the rifle's
 pellets land less than the blend says. `Stats.hit_mult` (Engine.fire's hit chance x it): `werewolf.CLAW_HIT` 1.55 for
-the claws, `build.GUN_HIT` {Silver: 0.80} for the rifle. Claw damage per hit already matched (real mean 90, sim 93).
+the claws, `build.GUN_HIT` {Silver: 0.80} for the rifle. Claw damage per hit already matched (real mean 90, sim 93). Both are fitted at her
+sample aim (~0.41): hit chance is capped at 1, so above ~0.65 aim (a dummy-page slider) the claws gain less than 1.55x.
 
 Refit of Silver only (ability_corr_heroes.py 3 rounds, then item_landing_heroes.py): landing x length_corr moved
 little (Slam Fire 0.70 -> 0.75, Entangling Bola 0.93 -> 0.98, Tail Whack 1.17 -> 1.07; items Stalker, Spirit Snatch,
