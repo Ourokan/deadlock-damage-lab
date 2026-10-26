@@ -3,7 +3,8 @@
 Reads the bulk metadata endpoint (match store, no SQL rate limit), six 4-hour windows per day so every
 day and every region's prime time counts, and keeps per player only the hero-only gun stats (Enemy Hero Accuracy Shots/Hits/Headshots) and the
 outgoing bullet distance histogram (no account ids: the file is committed). Output lines match validation/matches_sample.jsonl.gz enough for
-build_skill_defaults.py (match_id, badge, players[hero_id, custom]).
+build_skill_defaults.py (match_id, badge, players[hero_id, custom]). Windows count back from now, so each run draws
+a new sample.
 
 usage: python3 scripts/fetch_aim_sample.py [--badge 91] [--days 10] [--per-day 420] [--out validation/aim_sample.jsonl.gz]
 """
@@ -51,7 +52,8 @@ def main():
     a = ap.parse_args()
     now = int(time.time()) - 3 * 3600
     seen, n = set(), 0
-    with gzip.open(a.out, "wt") as f:
+    tmp = a.out + ".part"   # a failed fetch leaves the committed sample untouched
+    with gzip.open(tmp, "wt") as f:
         for d in range(a.days):
             ms = []
             for h in range(6):  # six 4-hour slices per day, so every region's prime time is in
@@ -64,6 +66,7 @@ def main():
                 f.write(json.dumps(slim(m)) + "\n")
                 n += 1
             print(f"day -{d}: {len(ms)} matches, total {n}")
+    os.replace(tmp, a.out)
 
 
 if __name__ == "__main__":
