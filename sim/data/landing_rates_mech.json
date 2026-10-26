@@ -907,29 +907,29 @@
     "landing": 1.05,
     "real_share": 0.0885,
     "sim_share": 0.0715,
-    "length_corr": 0.816
+    "length_corr": 0.822
    },
    "Entangling Bola": {
     "class": "ability_werewolf_netshot",
     "landing": 1.27,
     "real_share": 0.0452,
     "sim_share": 0.0365,
-    "length_corr": 0.921
+    "length_corr": 0.926
    },
    "Go For The Throat": {
     "class": "ability_werewolf_frenzy",
     "landing": 0.5,
-    "length_corr": 2.302
+    "length_corr": 1.517
    },
    "Mauling Leap": {
     "class": "ability_werewolf_maulingleap",
     "landing": 0.38,
-    "length_corr": 2.876
+    "length_corr": 1.558
    },
    "Tail Whack": {
     "class": "ability_werewolf_cripplingslash",
     "landing": 0.82,
-    "length_corr": 2.543
+    "length_corr": 1.17
    }
   },
   "Celeste": {

@@ -34,8 +34,12 @@ Lycan Curse (ult):
               as melee damage, healing LifeStealPercentOnHit% of the damage dealt.
     slot 2 -> Mauling Leap: 1.5x light melee as melee damage, -BulletArmorReduction% bullet resist (modeled as
               bullet shred) and DPS spirit DoT for DebuffDuration. Lands at spirit_accuracy.
-    slot 3 -> Tail Whack: spirit Damage in a 10 m radius + disarm for DisarmDuration.
-  Human and wolf versions keep separate cooldowns, both scaled by the slot's cooldown reduction.
+    slot 3 -> Tail Whack: spirit Damage in a 10 m radius + disarm for DisarmDuration. Replays: 1.20 enemy heroes hit
+              per cast, so TAIL_WHACK_OTHERS x Damage also lands on the others near the target (mechanics._splash).
+  Human and wolf versions keep separate cooldowns, both scaled by the slot's cooldown reduction. The slot's real
+  first-cast hold (Mechanics.cast_timing) is the human ability's and doesn't hold its wolf ability: real wolf runs
+  open with Mauling Leap / Tail Whack / Go For The Throat 0.5 / 0.7 / 1.1 s in (median), while the sim waited
+  out the human holds (the Bola's held Tail Whack to 0.70 casts per transform, a 2.1x length_corr).
 """
 import dataclasses
 import json
@@ -45,11 +49,13 @@ from functools import lru_cache
 
 from deadsim.abilities import AbilityImpl, CastCtx, register
 from deadsim.data import Ability, _load, _num
+from deadsim.mechanics import _splash
 
 WOLF_KEY = "silver_wolf_until"
 CLAWS = "citadel_weapon_werewolf_claws"
 WOLF_TIMING = True
 PLAN_HORIZON = 20.0   # s, the replay holds' horizon (null = not transformed by then)
+TAIL_WHACK_OTHERS = 0.20   # other enemy heroes hit per Tail Whack (replays: 1.20 heroes per cast; Go For The Throat 1.07)
 
 
 @lru_cache(maxsize=1)
@@ -139,12 +145,18 @@ class WolfSlot(AbilityImpl):
     def base_ok(self, c):
         return self.in_range(c)
 
+    def held(self, c):
+        # the slot's real first-cast hold is the human ability's (its own class id in replays); real wolf abilities
+        # open a wolf run at once (median first hit 0.5-1.1 s into it)
+        return not wolf(c)
+
     def cast(self, c):
         st = c.state
         base_cd = c.raw("AbilityCooldown")
         keep = self.s.cooldown() / base_cd if base_cd else 1.0
         if wolf(c):
             st["wolf_ready"] = c.now + alt(c, self.WOLF).raw("AbilityCooldown") * keep
+            self.s.casts -= 1   # not the human ability's first cast (held_opener)
             self.wolf_cast(c)
         else:
             st["base_ready"] = c.now + self.s.cooldown()
@@ -280,6 +292,11 @@ class EntanglingBola(WolfSlot):
         c.lock_gun(d)
         c.spirit_hit(w.val("Damage"), delay=d, name="Tail Whack", hit_chance=1.0)
         c.debuff("disarm", 1, w.dur("DisarmDuration", 2.0), delay=d)
+        c.after(d, self._whack_others, c, w.val("Damage") * TAIL_WHACK_OTHERS)
+
+    def _whack_others(self, c, amount):
+        if c.me.alive:
+            _splash(c.me, amount, "spirit", "Tail Whack")
 
 
 @register("ability_werewolf_transformation")

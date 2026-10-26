@@ -1,8 +1,9 @@
 """Silver's Lycan Curse on real timing (deadsim/heroes/werewolf.py, data/wolf_timing.json): each fight's first
-transform is drawn (already in wolf form, at a real time, or not at all), later casts follow the rage rule. Run from
-sim/:
+transform is drawn (already in wolf form, at a real time, or not at all), later casts follow the rage rule. Wolf
+abilities skip the human slot's first-cast hold; Tail Whack also hits others near the target. Run from sim/:
     python3 -m unittest discover -s tests
 """
+import heapq
 import math
 import os
 import random
@@ -71,6 +72,31 @@ class SilverCase(unittest.TestCase):
                 starts += 1
         self.assertGreater(starts, 0)
         self.assertLess(starts, 30)
+
+    def test_wolf_ability_skips_human_hold(self):
+        bola = next(s for s in self.f.abilities if s.ab.class_name == "ability_werewolf_netshot")
+        bola.held_until = math.inf                  # the Bola's real first-cast hold
+        self.assertFalse(bola.try_cast())
+        self.ult.cast()                             # wolf form: Tail Whack is not held by it
+        self.e.t += 0.5
+        casts = bola.casts
+        self.assertTrue(bola.try_cast())
+        self.assertEqual(bola.casts, casts)         # nor counted as the Bola's first cast
+        self.f.counters[werewolf.WOLF_KEY] = -1.0   # back in human form: the hold stands
+        self.e.t += 30.0
+        self.assertFalse(bola.try_cast())
+
+    def test_tail_whack_hits_others(self):
+        bola = next(s for s in self.f.abilities if s.ab.class_name == "ability_werewolf_netshot")
+        self.ult.cast()
+        self.e.t += 0.5
+        self.assertTrue(bola.try_cast())
+        end = self.e.t + 1.0
+        while self.e.q and self.e.q[0][0] <= end:   # run the cast's delayed hit
+            t, _, fn, args = heapq.heappop(self.e.q)
+            self.e.t = t
+            fn(*args)
+        self.assertGreater(self.f.counters.get("splash", {}).get("Tail Whack", 0.0), 0.0)
 
 
 if __name__ == "__main__":
