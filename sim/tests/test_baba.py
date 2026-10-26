@@ -91,6 +91,9 @@ class BabaCase(unittest.TestCase):
         # the fitted rate is kept on average at the real bench uptime
         u = baba.GLL_UPTIME
         self.assertAlmostEqual(u * on + (1 - u) * off, 0.1 * 0.5)
+        self.e.t = self.f.counters["melee_focus"][2]   # the bench is down: back to the off rate
+        self.e.melee_tick(self.f)
+        self.assertAlmostEqual(landed.pop(), off)
 
     def test_first_brew_is_prebrewed(self):
         br = self.ab["ability_baba_hexing_brew"]

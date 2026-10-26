@@ -1841,6 +1841,6 @@ Granny Long Legs length_corr 1.275 -> 0.818 (effective 1.91 -> 1.23), Spirit Str
 
 Granny Long Legs itself is closer on both held-out halves; the mix is flat (the even -> odd half: Feed The Birds is
 over there, so a fuller Granny Long Legs pushes the ability share further over). Full sample: mix 0.023 -> 0.024,
-per-source 0.023 -> 0.024. sim_vs_win 27k (all heroes, side by side): all pairs 0.170 -> 0.170, edges clear of
+per-source 0.023 -> 0.024 (0.023 again after rebasing on the target-health change). sim_vs_win 27k (all heroes, side by side): all pairs 0.170 -> 0.170, edges clear of
 noise 0.270 -> 0.270, per item 0.240 -> 0.240. Kept as the more faithful model: the fudge factor that stood in for the timing is mostly
 gone, and her melee items now see her melee where she really lands it.
