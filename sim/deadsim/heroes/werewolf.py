@@ -40,11 +40,20 @@ Lycan Curse (ult):
   first-cast hold (Mechanics.cast_timing) is the human ability's and doesn't hold its wolf ability: real wolf runs
   open with Mauling Leap / Tail Whack / Go For The Throat 0.5 / 0.7 / 1.1 s in (median), while the sim waited
   out the human holds (the Bola's held Tail Whack to 0.70 casts per transform, a 2.1x length_corr).
+  WOLF_ABILITY_TIMING (opt-in, off): each transform draws each wolf ability's first cast from real wolf runs
+  (data/wolf_timing.json "abilities"). Cast the moment the form starts and in reach, Go For The Throat / Mauling
+  Leap come 1.52 / 1.38 times per wolf run (real 1.21 / 1.03, cast in 84 / 74% of real runs); with the draws
+  1.32 / 1.06 (Tail Whack 0.92, real 0.99). Refit on it, their landing x length_corr rose 0.76 -> ~0.9 and
+  0.59 -> ~0.75, but Silver's split-half audit got worse (held-out sources +0.003, mix +0.002 on 3 of 4 halves over
+  two draw sets; also with Tail Whack left out), so it stays off. The factors below 1 are mostly real misses:
+  replays hit an enemy hero with 65% of Go For The Throat casts and 46% of Mauling Leaps (Tail Whack 79%,
+  1.20 heroes), and the first hit's size matches the sim's (287 / 192 real, 296 / 175 sim).
 """
 import dataclasses
 import json
 import math
 import os
+import zlib
 from functools import lru_cache
 
 from deadsim.abilities import AbilityImpl, CastCtx, register
@@ -54,6 +63,7 @@ from deadsim.mechanics import _splash
 WOLF_KEY = "silver_wolf_until"
 CLAWS = "citadel_weapon_werewolf_claws"
 WOLF_TIMING = True
+WOLF_ABILITY_TIMING = False   # OPT-IN, with WOLF_TIMING: wolf abilities' first casts per transform on real timing
 PLAN_HORIZON = 20.0   # s, the replay holds' horizon (null = not transformed by then)
 TAIL_WHACK_OTHERS = 0.20   # other enemy heroes hit per Tail Whack (replays: 1.20 heroes per cast; Go For The Throat 1.07)
 
@@ -322,6 +332,7 @@ class LycanCurse(AbilityImpl):
         (already in wolf form), at a real time, or not (inf)."""
         if not WOLF_TIMING:
             return
+        c.state.update(wolf_u=u, wolf_n=0)
         d = wolf_timing()
         p0 = d["start_wolf"]
         if u < p0:
@@ -391,10 +402,23 @@ class LycanCurse(AbilityImpl):
             reload_time=cw.get("reload_duration", 1.5) * orig.reload_mult)
         f.clip = f.st.clip
         st["orig"] = orig
-        for ab in f.abilities:   # wolf abilities start ready
+        for ab in f.abilities:   # wolf abilities start ready, or on real timing (draw_plan's fights)
             if isinstance(ab.impl, WolfSlot):
-                ab.scratch["wolf_ready"] = 0.0
+                ab.scratch["wolf_ready"] = self.wolf_hold(c, ab.impl.WOLF)
+        st["wolf_n"] = st.get("wolf_n", 0) + 1
         c.after(0.25, self.watch, c)
+
+    def wolf_hold(self, c, cls):
+        """When this transform's first cast of wolf ability cls may go out: a draw from the real runs' first casts
+        (wolf_timing.json "abilities": from the run's start; None = not in this run), from the fight's plan draw
+        hashed with the ability and the transform's number, so other draws stay as they were."""
+        q = wolf_timing().get("abilities", {}).get(cls) if WOLF_ABILITY_TIMING else None
+        u = c.state.get("wolf_u")
+        if not q or u is None:
+            return 0.0
+        v = zlib.crc32(f"{u!r}|{cls}|{c.state.get('wolf_n', 0)}".encode()) / 2 ** 32
+        h = q[min(len(q) - 1, int(v * len(q)))]
+        return math.inf if h is None else c.now + h
 
     def watch(self, c):
         f = c.me

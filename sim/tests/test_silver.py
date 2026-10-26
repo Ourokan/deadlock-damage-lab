@@ -98,6 +98,22 @@ class SilverCase(unittest.TestCase):
             fn(*args)
         self.assertGreater(self.f.counters.get("splash", {}).get("Tail Whack", 0.0), 0.0)
 
+    def test_wolf_ability_timing_opt_in(self):
+        c = self.ult.ctx
+        self.ult.impl.draw_plan(c, 0.5)
+        self.ult.cast()                             # off (default): wolf abilities start ready
+        wolves = [s for s in self.f.abilities if isinstance(s.impl, werewolf.WolfSlot)]
+        self.assertTrue(all(s.scratch["wolf_ready"] == 0.0 for s in wolves))
+        werewolf.WOLF_ABILITY_TIMING = True
+        try:
+            q = werewolf.wolf_timing()["abilities"]
+            for s in wolves:                        # on: each first cast at a real run's time, or not this run
+                h = self.ult.impl.wolf_hold(c, s.impl.WOLF)
+                self.assertTrue(h == math.inf or any(abs(h - self.e.t - x) < 1e-9 for x in q[s.impl.WOLF] if x is not None))
+            self.assertEqual(self.ult.impl.wolf_hold(c, "x"), 0.0)
+        finally:
+            werewolf.WOLF_ABILITY_TIMING = False
+
 
 if __name__ == "__main__":
     unittest.main()
