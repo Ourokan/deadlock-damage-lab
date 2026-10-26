@@ -1329,7 +1329,8 @@ Stalker +16%.
   was never paid and the opener was ~6x her real melee. Every hero with real opener rows melees >= 0.036/s with one
   melee item (Bebop the lowest) and opens about as often as the pool (real by 20 s / pooled 0.45-1.17, no trend with
   rate). Below `MELEE_OPEN_FULL_RATE` = 0.036 (outside the data) a hero now opens in rate / 0.036 of those fights:
-  Vindicta 26%, McGinnis 20%, Haze 52%, Infernus 71%; heroes with rows unchanged. Real low-melee heroes almost never
+  Vindicta 26% of them (~17% of all fights, was ~65%), McGinnis 20%, Haze 52%, Infernus 71%; heroes with rows
+  unchanged. Real low-melee heroes almost never
   buy these items (11 melee item holders among them in the 600-match sample), so their landing can't be checked
   directly; their absence is the evidence.
 - Stalker procs off cooldown on a bullet hit with the target within 8 m. It took a per-bullet chance p_within(8.5),

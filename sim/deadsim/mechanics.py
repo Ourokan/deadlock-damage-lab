@@ -241,7 +241,7 @@ def melee_opener(f):
     # not add melee a hero doesn't do. The holds are pooled over real holders, every hero of which melees at least
     # MELEE_OPEN_FULL_RATE with one melee item and opens about as often as the pool (validation/README.md "Close-range
     # items on far heroes"). Below that rate, outside the data, a hero opens with one in rate / MELEE_OPEN_FULL_RATE of the
-    # fights: Vindicta (0.0094/s, she fights at ~26 m) 26%, not 65% with a free heavy melee each time.
+    # fights: Vindicta (0.0094/s, she fights at ~26 m) opens in ~17% of fights, not the pool's ~65%.
     k = min(1.0, f.skill.melee_rate / MELEE_OPEN_FULL_RATE)
     if k < 1.0 and (u * len(q)) % 1.0 >= k:   # u's place inside its hold bin: uniform, independent of the bin
         return None
