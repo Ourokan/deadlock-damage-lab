@@ -28,21 +28,27 @@ async function fetchMatch(id) {
 }
 
 const teamNo = (t) => (String(t).endsWith("1") ? 1 : 0);
-const aimFrom = (c) => {
+// Hero accuracy (shots aimed at enemy heroes) is what the sim takes. Statlocker's headline accuracy is shots_hit over all
+// shots fired, troopers, neutrals and objectives included, so it usually runs much higher; we show it next to ours.
+const aimFrom = (c, f) => {
   const shots = c["Enemy Hero Accuracy##Shots"], hits = c["Enemy Hero Accuracy##Hits"], hs = c["Enemy Hero Accuracy##Headshots"];
-  return shots >= 100 && hits > 0 ? { accuracy: hits / shots, headshot: (hs || 0) / hits, shots } : null;
+  const all = (f?.shots_hit || 0) + (f?.shots_missed || 0);
+  return shots >= 100 && hits > 0 ? { accuracy: hits / shots, headshot: (hs || 0) / hits, shots, all: all ? f.shots_hit / all : null } : null;
 };
-const normPlayer = (p, custom) => ({
+const aimText = (a) => `${pct(a.accuracy, 1)}, ${pct(a.headshot, 1)} heads`;
+const allAimRow = (a) => (a?.all != null
+  ? `<span title="Shots hit over all shots fired, troopers, neutrals and objectives included. The sim uses hero accuracy.">All targets (Statlocker's accuracy)</span><span>${pct(a.all, 1)}</span>` : "");
+const normPlayer = (p, custom, final) => ({
   slot: p.player_slot, account: p.account_id, hero: p.hero_id, team: teamNo(p.team), lane: p.assigned_lane,
   kda: [p.kills, p.deaths, p.assists], net_worth: p.net_worth,
   items: (p.items || []).map((x) => ({ id: x.item_id, t: x.game_time_s, sold: x.sold_time_s || 0 })),
   nw: (p.stats || []).map((s) => [s.time_stamp_s, s.net_worth]),
-  aim: aimFrom(custom || {}),
+  aim: aimFrom(custom || {}, final),
 });
 
 function normBulk(m) {
   return { id: m.match_id, duration: m.duration_s,
-    players: m.players.map((p) => normPlayer(p, p.final_stats?.custom_user_stats)) };
+    players: m.players.map((p) => normPlayer(p, p.final_stats?.custom_user_stats, p.final_stats)) };
 }
 
 function normSingle(d) {
@@ -52,7 +58,7 @@ function normSingle(d) {
     players: mi.players.map((p) => {
       const last = p.stats?.[p.stats.length - 1];
       const custom = Object.fromEntries((last?.custom_user_stats || []).map((c) => [names[c.id] || c.id, c.value]));
-      return normPlayer(p, custom);
+      return normPlayer(p, custom, last);
     }) };
 }
 
@@ -99,7 +105,7 @@ function renderPick() {
     const items = itemsAt(p, M.t), cost = items.reduce((s, i) => s + S.items[i].cost, 0);
     return `<div class="card"><h3>${who}: ${esc(heroName(p.hero))}</h3>${items.length ? tiles(items, { static: true }) : '<p class="hint">No items yet.</p>'}
       <div class="kv"><span>Net worth at ${clock(M.t)}</span><span>${fmt(netWorthAt(p, M.t))}</span><span>Items held</span><span>${fmt(cost)}</span>
-      ${who === "Player" ? `<span>Hero accuracy this match</span><span>${p.aim ? `${pct(p.aim.accuracy, 1)}, ${pct(p.aim.headshot, 1)} heads` : "too few shots"}</span>` : ""}</div></div>`;
+      ${who === "Player" ? `<span>Hero accuracy this match</span><span>${p.aim ? aimText(p.aim) : "too few shots"}</span>${allAimRow(p.aim)}` : ""}</div></div>`;
   };
   $("#m-sides").innerHTML = side(a, "Player") + side(d, "Target");
   $("#m-aim").disabled = !a.aim;
