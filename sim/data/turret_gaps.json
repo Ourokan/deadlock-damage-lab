@@ -1,0 +1,105 @@
+{
+ "source": "43 Phantom+ replays with McGinnis (summons/fetch_summons.py), pair fights (sim/scripts/mechanics/turret_gaps.py)",
+ "note": "per game phase (match time lane < 15 min, late >= 30 min): equal-probability gaps (s) from one own Mini Turret placed in a fight to the next (null = none by 20 s), Kaplan-Meier with the fight's end censoring; wall turrets dropped",
+ "phases": {
+  "lane": {
+   "turrets": 621,
+   "by10_mean": 0.89,
+   "next_by": {
+    "2.0": 0.0122,
+    "4.0": 0.085,
+    "6.0": 0.2184,
+    "10.0": 0.3993,
+    "20.0": 0.8849
+   },
+   "gaps": [
+    3.04,
+    3.89,
+    4.49,
+    5.29,
+    6.1,
+    6.98,
+    8.2,
+    9.47,
+    10.76,
+    12.3,
+    15.15,
+    17.58,
+    18.2,
+    19.18,
+    19.54,
+    19.68,
+    19.83,
+    19.97,
+    null,
+    null
+   ]
+  },
+  "mid": {
+   "turrets": 686,
+   "by10_mean": 1.11,
+   "next_by": {
+    "2.0": 0.0129,
+    "4.0": 0.1989,
+    "6.0": 0.3482,
+    "10.0": 0.5166,
+    "20.0": 0.8946
+   },
+   "gaps": [
+    2.29,
+    2.95,
+    3.36,
+    3.79,
+    4.27,
+    4.92,
+    5.69,
+    6.75,
+    7.95,
+    9.05,
+    10.56,
+    12.0,
+    12.94,
+    13.94,
+    14.71,
+    15.7,
+    17.25,
+    17.72,
+    null,
+    null
+   ]
+  },
+  "late": {
+   "turrets": 431,
+   "by10_mean": 1.13,
+   "next_by": {
+    "2.0": 0.0256,
+    "4.0": 0.2276,
+    "6.0": 0.3775,
+    "10.0": 0.5597,
+    "20.0": 0.8221
+   },
+   "gaps": [
+    1.94,
+    2.73,
+    3.14,
+    3.53,
+    3.98,
+    4.62,
+    5.11,
+    5.96,
+    6.76,
+    8.42,
+    9.63,
+    10.46,
+    11.92,
+    14.12,
+    15.76,
+    17.69,
+    null,
+    null,
+    null,
+    null
+   ]
+  }
+ }
+}

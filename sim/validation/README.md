@@ -2003,3 +2003,36 @@ sim_vs_win 27k (all heroes, main vs this side by side): all pairs 0.177 -> 0.176
 0.276, per item 0.249 -> 0.248, damage items 0.066 -> 0.066 (flat: only Silver changes).
 The remaining wolf gap is the wolf abilities in fights (real 20% of her pair-fight damage, sim 16%; they match per
 whole match), likely team fights.
+
+## McGinnis's Mini Turret (2026-10-26)
+
+McGinnis was second-furthest from real in the audit (mix 0.083): Mini Turret 58% of her sim damage against 47% real,
+her gun 15% against 20%. Per audit phase the gap was largest in the lane (30% of the match: turret 0.65 sim vs 0.45
+real, gun 0.15 vs 0.31). Not her ability order: duels on each player's real unlock and upgrade order (the sample's
+item list carries the ability events) put the turret at 0.59, no better.
+
+Cause: from tier 2 (3 charges, 3 s between charges, most players by 5-8 min) the sim cast every charge on sight, ~2.6
+turrets by 10 s into every duel. Real McGinnis players place far fewer (summons replays, 160 Phantom+ matches, own
+turrets placed from 1 s before a pair fight's first hit, wall turrets dropped: they come in groups a few ticks
+apart): 0.89 by 10 s in the lane (< 15 min), 1.11 mid, 1.13 late, and the gap to the next one is median ~9-11 s,
+2-9% within 2 s (scripts/mechanics/turret_gaps.py -> data/turret_gaps.json).
+
+`forge.TURRET_PACING` (on, with fight_length and cast_timing, in fights with an rng or a fight phase): after each turret
+the next one waits a gap drawn from the real ones for the net worth's phase (mechanics.LENGTH_PHASES), as well as for
+its charge. Sim turrets by 10 s: 1.05 / 1.10 / 1.21 at 30 / 60 / 90% of the match. Deterministic fights (the dummy
+page) keep casting on sight.
+
+Audit, McGinnis, before any refit, on 6 draws (AUDIT_SEED 0-5): mix 0.083 / 0.116 / 0.113 / 0.106 / 0.100 / 0.102 ->
+0.033 / 0.072 / 0.073 / 0.048 / 0.049 / 0.052. Draw 0 (the default) is a lucky one for her: her 49 players x 3 duels
+move the mix by ~0.03 between draws, so the refit averages 4 draws. Heavy Barrage was already over on the other draws
+(0.18-0.25 vs real 0.14) and pacing raised its share further.
+
+Refit of McGinnis only (ability_corr_heroes.fit on the mean of draws 0-3, 3 rounds; then item_landing_heroes.py --hero):
+length_corr Mini Turret 4.01 -> 3.85, Heavy Barrage 9.66 -> 4.44, Spectral Wall 1.66 -> 2.41; Escalating Exposure row
+0.59 -> 0.62. Split-half (fit on draws 0-3 of one half's matches, audit draws 6-9 of the other; reference: pacing with
+the old corrections): per-source 0.102 -> 0.027 and 0.071 -> 0.037, mix 0.056 -> 0.047 and 0.044 -> 0.040. The
+one-draw --split (draw 0 only) refused it (mix +0.004 on one half). Whole sample, draws 6-9: mix 0.032, turret 0.49
+vs real 0.47; draw 0: 0.028 (from 0.084). Whole audit mean mix on main after #135: 0.0259 -> 0.0247.
+sim_vs_win 27k (all heroes, main vs this side by side): all pairs 0.172 -> 0.170, edges clear of noise 0.268 -> 0.266,
+per item 0.250 -> 0.244, damage items 0.067 -> 0.066 (about flat; McGinnis also moves every hero's fights against her).
+turret_gaps.py reads the summons replays in the shared folder (manual refit, like the other replay fits).
