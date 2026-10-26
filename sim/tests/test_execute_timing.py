@@ -4,7 +4,7 @@
   (data/execute_timing.json): spent at a real time without an execute, wait for the execute gate, or not cast; Soul
   Exchange's first cast is held to a real first cast time (or not cast), then its gap gate.
 - Mechanics.gate_assist (on): Soul Exchange's Geist sees her health short by a real entry deficit and by the real
-  third parties' damage per damage she takes (Fighter.gate_hp); her health stays.
+  third parties' damage per damage she takes (Fighter.self_gate_frac); her health stays.
 Run: python3 -m unittest discover -s tests -v (from sim/)."""
 import dataclasses
 import math
@@ -84,6 +84,8 @@ class KillingBlowPlan(unittest.TestCase):
                 fn(*args)
         self.assertTrue(g.alive)
         self.assertLess(g.hp, hp)
+        self.assertNotIn("commit_at", kb.ctx.state)          # a recast waits for the execute
+        self.assertFalse(kb.impl.should_cast(kb.ctx))
 
     def test_engine_run_draws_plans(self):
         seen = set()
@@ -91,14 +93,14 @@ class KillingBlowPlan(unittest.TestCase):
             e, f, g = pair("Shiv", seed=s)
             e.run(f, g)
             kb = ability(f, "Killing Blow")
-            seen.add("commit" if "commit_at" in kb.ctx.state else "never" if kb.held_until == math.inf else "exec")
-        self.assertEqual(seen, {"commit", "never", "exec"})
+            seen.add(kb.ctx.state["plan"])
+        self.assertEqual(seen, {"spent", "none", "exec"})
 
     def test_deterministic_fights_keep_the_gate(self):
         e, f, g = pair("Shiv", rng=False)
         e.run(f, g)
         kb = ability(f, "Killing Blow")
-        self.assertNotIn("commit_at", kb.ctx.state)
+        self.assertNotIn("plan", kb.ctx.state)
         self.assertNotEqual(kb.held_until, math.inf)
 
 
@@ -113,7 +115,19 @@ class SoulExchange(unittest.TestCase):
         f.entry_gap = 0.0
         f.dmg_in["gun"] = 0.1 * f.max_hp
         f.hp -= 0.1 * f.max_hp
-        self.assertAlmostEqual(f.gate_frac, 0.9 - 0.1 * f.gate_assist)
+        self.assertAlmostEqual(f.self_gate_frac, 0.9 - 0.1 * f.gate_assist)
+        self.assertAlmostEqual(f.gate_frac, 0.9)            # execute gates on Geist don't see the assist
+
+    def test_killing_blow_on_geist_ignores_her_assist(self):
+        e, f, g = pair("Shiv", enemy="Lady Geist")
+        M.gate_assist(g)
+        g.entry_gap = 0.0
+        kb = ability(f, "Killing Blow")
+        thr = kb.ctx.raw("EnemyHealthPercent") / 100
+        g.hp = (thr + 0.05) * g.max_hp
+        g.dmg_in["gun"] = 0.9 * g.max_hp
+        self.assertLess(g.self_gate_frac, thr)
+        self.assertFalse(kb.impl.executes(kb.ctx))
 
     def test_swap_on_gate_health(self):
         e, f, g = pair("Lady Geist")

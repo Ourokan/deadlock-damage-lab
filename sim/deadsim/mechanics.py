@@ -133,7 +133,7 @@ class Mechanics:
     # third parties at the health gates (2026-10-26): with fight_length, Soul Exchange's Geist sees her health short
     # by a real entry deficit (as entry_gate) and by the damage the real pair fight's other enemies add (data/execute_timing.json assist: ~1.15x the damage from
     # the pair enemy, scripts/mechanics/execute_timing.py), so the swap's gap opens as in real fights; only the gate
-    # sees it (Fighter.gate_hp), health and fight length stay
+    # sees it (Fighter.self_gate_frac; execute gates on Geist don't), health and fight length stay
     gate_assist: bool = True
     # Killing Blow and Soul Exchange first casts on real timing (2026-10-26): with cast_timing, each fight draws a
     # plan (data/execute_timing.json). Killing Blow: spent at a real time without an execute (most real first casts:

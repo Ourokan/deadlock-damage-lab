@@ -189,8 +189,12 @@ class KillingBlow(AbilityImpl):
         h = q[min(len(q) - 1, int(u * len(q)))]
         if h is not None:
             c.state["commit_at"] = c.now + h
+            c.state["plan"] = "spent"
         elif u >= sum(x is not None for x in q) / len(q) + d["exec_share"]:
             self.s.held_until = math.inf   # on cooldown from an earlier fight
+            c.state["plan"] = "none"
+        else:
+            c.state["plan"] = "exec"
 
     def executes(self, c):
         return c.foe.gate_frac < c.raw("EnemyHealthPercent") / 100
@@ -203,6 +207,7 @@ class KillingBlow(AbilityImpl):
     def cast(self, c):
         delay = max(c.raw("AbilityCastDelay"), c.raw("MinTimeToTarget"))
         c.lock_gun(delay + c.raw("AbilityPostCastDuration"))
+        c.state.pop("commit_at", None)   # the plan is for the first cast: a recast waits for the execute
 
         def go():
             if not (c.me.alive and c.foe.alive):

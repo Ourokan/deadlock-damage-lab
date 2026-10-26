@@ -377,13 +377,18 @@ class Fighter:
     @property
     def gate_hp(self):
         """Health as execute gates (Killing Blow, Assassinate, Close The Deal, Lethal Venom) see it: short by the
-        real entry deficit drawn for the fight (Mechanics.entry_gate; 0 otherwise), and for Soul Exchange's Geist by the
+        real entry deficit drawn for the fight (Mechanics.entry_gate; 0 otherwise)."""
+        return max(1e-6, self.hp - self.entry_gap * self.max_hp)
+
+    @property
+    def self_gate_frac(self):
+        """Health share as a gate on the fighter's own health (Soul Exchange) sees it: gate_hp, also short by the
         damage the real fight's third parties add (Mechanics.gate_assist: gate_assist x the damage taken in the
-        duel)."""
-        hp = self.hp - self.entry_gap * self.max_hp
+        duel). Execute gates on this fighter don't see that part."""
+        hp = self.gate_hp
         if self.gate_assist:
-            hp -= self.gate_assist * sum(self.dmg_in.values())
-        return max(1e-6, hp)
+            hp = max(1e-6, hp - self.gate_assist * sum(self.dmg_in.values()))
+        return hp / self.max_hp
 
     @property
     def gate_frac(self):
