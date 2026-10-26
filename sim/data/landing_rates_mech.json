@@ -73,28 +73,28 @@
     "landing": 0.611,
     "real_share": 0.0632,
     "sim_share": 0.0623,
-    "length_corr": 1.484
+    "length_corr": 1.454
    },
    "Flight": {
     "class": "citadel_ability_hornet_leap",
     "landing": 0.415,
     "real_share": 0.1121,
     "sim_share": 0.1103,
-    "length_corr": 2.659
+    "length_corr": 2.76
    },
    "Crow Familiar": {
     "class": "citadel_ability_hornet_sting",
     "landing": 0.517,
     "real_share": 0.1443,
     "sim_share": 0.1419,
-    "length_corr": 1.43
+    "length_corr": 1.287
    },
    "Assassinate": {
     "class": "citadel_ability_hornet_snipe",
     "landing": 1.534,
     "real_share": 0.1476,
     "sim_share": 0.1419,
-    "length_corr": 1.533
+    "length_corr": 0.208
    }
   },
   "Lady Geist": {
@@ -414,21 +414,21 @@
     "landing": 0.45,
     "real_share": 0.2944,
     "sim_share": 0.3307,
-    "length_corr": 1.958
+    "length_corr": 1.906
    },
    "Slice and Dice": {
     "class": "citadel_ability_shiv_dash",
     "landing": 1.09,
     "real_share": 0.1504,
     "sim_share": 0.167,
-    "length_corr": 1.658
+    "length_corr": 1.733
    },
    "Killing Blow": {
     "class": "citadel_ability_shiv_killing_blow",
     "landing": 0.35,
     "real_share": 0.0584,
     "sim_share": 0.0628,
-    "length_corr": 1.558
+    "length_corr": 0.654
    }
   },
   "Ivy": {
@@ -582,21 +582,21 @@
     "landing": 0.48,
     "real_share": 0.1134,
     "sim_share": 0.1042,
-    "length_corr": 1.288
+    "length_corr": 1.302
    },
    "Dust Devil": {
     "class": "mirage_tornado",
     "landing": 0.45,
     "real_share": 0.0623,
     "sim_share": 0.0574,
-    "length_corr": 1.338
+    "length_corr": 1.384
    },
    "Djinn's Mark": {
     "class": "mirage_sand_phantom",
     "landing": 0.73,
     "real_share": 0.2795,
     "sim_share": 0.2562,
-    "length_corr": 2.544
+    "length_corr": 6.564
    }
   },
   "Vyper": {
@@ -605,21 +605,21 @@
     "landing": 0.23,
     "real_share": 0.0679,
     "sim_share": 0.0756,
-    "length_corr": 1.277
+    "length_corr": 1.264
    },
    "Lethal Venom": {
     "class": "ability_viper_venom",
     "landing": 1.16,
     "real_share": 0.1205,
     "sim_share": 0.1339,
-    "length_corr": 2.097
+    "length_corr": 0.894
    },
    "Petrifying Bola": {
     "class": "ability_viper_petrifybola",
     "landing": 0.29,
     "real_share": 0.0745,
     "sim_share": 0.0825,
-    "length_corr": 0.809
+    "length_corr": 0.762
    }
   },
   "Sinclair": {
@@ -854,28 +854,28 @@
     "landing": 0.25,
     "real_share": 0.1907,
     "sim_share": 0.3335,
-    "length_corr": 1.621
+    "length_corr": 1.571
    },
    "Chimera Mk1": {
     "class": "ability_deadpack_rocketeer",
     "landing": 0.17,
     "real_share": 0.2441,
     "sim_share": 0.1859,
-    "length_corr": 2.028
+    "length_corr": 2.021
    },
    "Jettison Fuel": {
     "class": "ability_deadpack_flamethrower",
     "landing": 0.46,
     "real_share": 0.1663,
     "sim_share": 0.1303,
-    "length_corr": 1.372
+    "length_corr": 1.326
    },
    "Close The Deal": {
     "class": "ability_deadpack_ultimate",
     "landing": 0.34,
     "real_share": 0.0431,
     "sim_share": 0.0276,
-    "length_corr": 1.413
+    "length_corr": 0.811
    }
   },
   "Rem": {

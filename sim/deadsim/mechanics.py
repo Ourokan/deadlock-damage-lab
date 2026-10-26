@@ -124,6 +124,12 @@ class Mechanics:
     # with it on (factors kept with length_factors.py --entry) execute timing matches real, but sim_vs_win per item
     # fell 0.239 -> 0.216 and the audit 0.0314 -> 0.0330 (validation/README.md "Fight entry health")
     entry_hp: bool = False
+    # execute gates on real entry health (2026-10-26): with fight_length and entry_hp off, a fighter whose start health
+    # wasn't set gets the same real entry deficit draw, but only health-gated execute abilities see it
+    # (Fighter.gate_hp: Killing Blow, Assassinate, Close The Deal, Lethal Venom cast and scale on health short by
+    # it), so they land as early as in real fights while every fight keeps its length (validation/README.md
+    # "Execute gates on real entry health")
+    entry_gate: bool = True
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
@@ -273,21 +279,42 @@ def entry_deficits(souls):
     return _ENTRY[ph]
 
 
-def entry_health(f):
-    """Mechanics.entry_hp at the fight start: a fighter at full health whose start wasn't set (f.entry_set) starts
-    short by a deficit drawn from the real entry health spread for its net worth."""
+def entry_deficit(f):
+    """A deficit (share of max health) drawn from the real entry health spread for f's net worth, for a fighter at
+    full health whose start wasn't set (f.entry_set); None when there is none to draw (no phase, no rng)."""
     if f.entry_set or f.hp < f.max_hp:
-        return
+        return None
     phase = f.skill.fight_phase
     rng = f.e.rng
     if phase is None and rng is None:
-        return
+        return None
     q = entry_deficits(f.st.souls)
     if phase is not None:
         u = (phase + zlib.crc32(f"entry_hp|{f.name}".encode()) / 2 ** 32) % 1.0
     else:
         u = rng.random()
-    f.hp = max(1.0, f.max_hp * (1.0 - q[min(len(q) - 1, int(u * len(q)))]))
+    return q[min(len(q) - 1, int(u * len(q)))]
+
+
+def entry_health(f):
+    """Mechanics.entry_hp at the fight start: the fighter starts short by entry_deficit."""
+    d = entry_deficit(f)
+    if d is not None:
+        f.hp = max(1.0, f.max_hp * (1.0 - d))
+
+
+# abilities that cast or scale on the target's health (Fighter.gate_hp)
+EXECUTE_GATES = {"citadel_ability_shiv_killing_blow", "citadel_ability_hornet_snipe", "ability_deadpack_ultimate",
+                 "ability_viper_venom"}
+
+
+def entry_gate(f):
+    """Mechanics.entry_gate at the fight start: the fighter's health stays, execute gates see it short by
+    entry_deficit (Fighter.gate_hp). Drawn only against an enemy with one, so other fights stay as they were."""
+    if f.enemy is None or not any(ab.ab.class_name in EXECUTE_GATES and ab.unlocked for ab in f.enemy.abilities):
+        return
+    d = entry_deficit(f)
+    f.entry_gap = d or 0.0
 
 
 def precast(f):

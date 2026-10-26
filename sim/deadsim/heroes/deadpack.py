@@ -19,7 +19,8 @@ Assumptions:
 - Close The Deal: cast when target is at or below CTD_HP. Grab, rise for RISE_TIME, then fall FALL_TIME taking
   DamagePerMeter over MaxHeight (units -> m) as a DoT, then impact Damage; +BonusDamagePercent when the target is
   below 50%. Both are out of the fight during the flight (target stunned, Danny's gun locked); Danny takes
-  SelfDamagePercent of the damage dealt as spirit self-damage (can't kill him). Stun on landing.
+  SelfDamagePercent of the damage dealt as spirit self-damage (can't kill him). Stun on landing. CTD_HP and the
+  50% bonus check the target's gate health (Mechanics.entry_gate: short by its real entry deficit).
 """
 from deadsim.abilities import AbilityImpl, register
 
@@ -144,7 +145,7 @@ class CloseTheDeal(AbilityImpl):
     kind = "target"
 
     def should_cast(self, c):
-        return self.in_range(c) and c.foe.hp_frac <= CTD_HP
+        return self.in_range(c) and c.foe.gate_frac <= CTD_HP
 
     def cast(self, c):
         f, foe = c.me, c.foe
@@ -155,7 +156,7 @@ class CloseTheDeal(AbilityImpl):
         self_pct = c.raw("SelfDamagePercent") / 100
 
         def mult():
-            low = foe.hp_frac < c.raw("LowHealthEnemyThresholdPct", 50) / 100
+            low = foe.gate_frac < c.raw("LowHealthEnemyThresholdPct", 50) / 100
             return 1.0 + (c.raw("BonusDamagePercent") / 100 if low else 0.0)
 
         def deal(amount):

@@ -1,0 +1,89 @@
+{
+ "source": "260 Phantom+ replays, 923 Mirage fights (scripts/mechanics/djinn_gaps.py)",
+ "note": "P(no next Djinn's Mark within D s of a mark | the fight goes on D s more): the marks expire and pop. Base ProcCooldown; marks replayed on Mirage's real gun hits on that enemy",
+ "proc_cooldown": 2.75,
+ "duration_s": [
+  3.0,
+  4.0,
+  5.0,
+  6.0,
+  7.0,
+  8.0,
+  9.0,
+  10.0,
+  11.0,
+  12.0
+ ],
+ "all": [
+  0.8621,
+  0.6298,
+  0.48,
+  0.3907,
+  0.3221,
+  0.2409,
+  0.1982,
+  0.1364,
+  0.1006,
+  0.0934
+ ],
+ "all_marks": [
+  1392,
+  1283,
+  1125,
+  1016,
+  919,
+  768,
+  656,
+  557,
+  477,
+  396
+ ],
+ "even": [
+  0.8527,
+  0.5992,
+  0.4307,
+  0.3516,
+  0.2867,
+  0.2179,
+  0.1894,
+  0.1198,
+  0.09,
+  0.0733
+ ],
+ "even_marks": [
+  862,
+  791,
+  685,
+  620,
+  558,
+  468,
+  396,
+  334,
+  289,
+  232
+ ],
+ "odd": [
+  0.8774,
+  0.6789,
+  0.5568,
+  0.452,
+  0.3767,
+  0.2767,
+  0.2115,
+  0.1614,
+  0.117,
+  0.122
+ ],
+ "odd_marks": [
+  530,
+  492,
+  440,
+  396,
+  361,
+  300,
+  260,
+  223,
+  188,
+  164
+ ]
+}
