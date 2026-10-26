@@ -118,6 +118,23 @@ class TargetHealth(unittest.TestCase):
         self.assertAlmostEqual(out[0] - out[1], 0.5 * g.max_hp * pct * f.skill.item_landing.get("Tankbuster", 1.0),
                                delta=1.0)
 
+    def test_decay_ticks_from_seen_health(self):
+        import heapq
+        ticks = []
+        for gap in (0.0, 0.5):
+            e, f, g = pair(["Decay"])
+            e.fighters = [f, g]
+            g.item_assist, g.item_gap = M.TARGET_ASSIST, gap
+            fx = next(x for x in f.items_fx if x.item.class_name == "upgrade_rupture")
+            fx.extra(f, g)
+            before = g.hp
+            t, _, fn, args = heapq.heappop(e.q)
+            e.t = t
+            fn(*args)
+            ticks.append(before - g.hp)
+        self.assertGreater(ticks[1], 0)
+        self.assertAlmostEqual(ticks[1] / ticks[0], 0.5, delta=0.01)
+
 
 if __name__ == "__main__":
     unittest.main()
