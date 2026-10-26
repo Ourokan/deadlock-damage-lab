@@ -2075,10 +2075,11 @@ what cooldown reduction buys, not the fitted levels.
 
 Left: Silver's form swaps reset cooldowns (`reset_cooldown` clears the wait), so Boot Kick and Slam Fire still recast
 fast in the sim; charged abilities still spend charges on ready.
+
 ## Victor's Aura of Suffering on at the fight start (2026-10-26)
 
 The opener-timing check put Victor's aura damage late: P(first aura hit by 1 s) 0.11 in the sim against 0.46 real,
-damage-weighted mean time 9.0 s against 5.2, 6% of it in the first 2 s against 26%. Its length_corr had grown to 4.84
+damage-weighted mean time 9.0 s against 5.2, 6% of it in the first 2 s against 26%. Its length_corr had grown to 4.83
 to make up the level.
 
 Cause: the aura is a toggle, and its cooldown starts when it is toggled OFF. In the cast-timing replays every aura
