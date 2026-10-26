@@ -8,7 +8,6 @@ Shares of damage to enemy heroes. Distance = half the summed absolute share gaps
 
 | Hero | n | gun real / sim | abilities | items | melee | distance |
 |---|---|---|---|---|---|---|
-| McGinnis | 49 | 0.20 / 0.15 | 0.64 / 0.73 | 0.12 / 0.10 | 0.02 / 0.01 | 0.08 |
 | Warden | 33 | 0.52 / 0.49 | 0.31 / 0.36 | 0.11 / 0.12 | 0.03 / 0.02 | 0.06 |
 | Viscous | 29 | 0.13 / 0.17 | 0.51 / 0.50 | 0.28 / 0.25 | 0.05 / 0.07 | 0.06 |
 | Celeste | 77 | 0.16 / 0.18 | 0.61 / 0.58 | 0.17 / 0.19 | 0.04 / 0.04 | 0.05 |
@@ -16,19 +15,20 @@ Shares of damage to enemy heroes. Distance = half the summed absolute share gaps
 | Mirage | 45 | 0.31 / 0.31 | 0.48 / 0.46 | 0.17 / 0.21 | 0.02 / 0.02 | 0.04 |
 | Calico | 110 | 0.13 / 0.14 | 0.38 / 0.41 | 0.31 / 0.33 | 0.15 / 0.13 | 0.04 |
 | Apollo | 92 | 0.11 / 0.11 | 0.53 / 0.57 | 0.17 / 0.15 | 0.17 / 0.17 | 0.04 |
-| Seven | 95 | 0.20 / 0.20 | 0.66 / 0.69 | 0.10 / 0.09 | 0.02 / 0.01 | 0.03 |
 | Holliday | 73 | 0.27 / 0.28 | 0.54 / 0.52 | 0.13 / 0.14 | 0.05 / 0.06 | 0.03 |
-| Shiv | 209 | 0.27 / 0.29 | 0.48 / 0.47 | 0.16 / 0.15 | 0.08 / 0.08 | 0.03 |
+| Shiv | 209 | 0.27 / 0.30 | 0.48 / 0.47 | 0.16 / 0.15 | 0.08 / 0.08 | 0.03 |
+| Seven | 95 | 0.20 / 0.20 | 0.66 / 0.69 | 0.10 / 0.09 | 0.02 / 0.01 | 0.03 |
 | Violet | 376 | 0.19 / 0.20 | 0.67 / 0.70 | 0.10 / 0.08 | 0.02 / 0.02 | 0.03 |
 | Lash | 216 | 0.13 / 0.14 | 0.58 / 0.59 | 0.25 / 0.23 | 0.03 / 0.03 | 0.03 |
 | Yamato | 131 | 0.24 / 0.25 | 0.38 / 0.37 | 0.17 / 0.19 | 0.18 / 0.18 | 0.03 |
+| McGinnis | 49 | 0.20 / 0.22 | 0.64 / 0.64 | 0.12 / 0.10 | 0.02 / 0.02 | 0.03 |
 | Kelvin | 80 | 0.08 / 0.09 | 0.70 / 0.68 | 0.17 / 0.19 | 0.03 / 0.04 | 0.03 |
 | Graves | 151 | 0.20 / 0.18 | 0.50 / 0.52 | 0.27 / 0.28 | 0.02 / 0.02 | 0.03 |
 | Deadman Danny | 357 | 0.16 / 0.15 | 0.63 / 0.63 | 0.18 / 0.21 | 0.01 / 0.01 | 0.03 |
 | Dynamo | 53 | 0.23 / 0.24 | 0.62 / 0.63 | 0.08 / 0.09 | 0.05 / 0.04 | 0.03 |
 | Wraith | 283 | 0.32 / 0.33 | 0.41 / 0.40 | 0.24 / 0.26 | 0.01 / 0.01 | 0.03 |
 | Drifter | 186 | 0.26 / 0.27 | 0.44 / 0.45 | 0.17 / 0.16 | 0.11 / 0.12 | 0.03 |
-| Nurse Harrow | 347 | 0.29 / 0.27 | 0.61 / 0.63 | 0.06 / 0.06 | 0.03 / 0.03 | 0.02 |
+| Nurse Harrow | 347 | 0.29 / 0.27 | 0.61 / 0.63 | 0.06 / 0.06 | 0.03 / 0.03 | 0.03 |
 | Vyper | 78 | 0.46 / 0.47 | 0.26 / 0.28 | 0.25 / 0.24 | 0.02 / 0.02 | 0.02 |
 | Infernus | 173 | 0.23 / 0.23 | 0.60 / 0.59 | 0.13 / 0.15 | 0.03 / 0.02 | 0.02 |
 | Abrams | 138 | 0.23 / 0.24 | 0.20 / 0.20 | 0.13 / 0.12 | 0.42 / 0.43 | 0.02 |
@@ -42,10 +42,10 @@ Shares of damage to enemy heroes. Distance = half the summed absolute share gaps
 | Haze | 324 | 0.35 / 0.35 | 0.50 / 0.51 | 0.12 / 0.12 | 0.02 / 0.01 | 0.02 |
 | Paradox | 168 | 0.24 / 0.24 | 0.48 / 0.48 | 0.23 / 0.24 | 0.03 / 0.02 | 0.01 |
 | Rem | 57 | 0.20 / 0.21 | 0.58 / 0.58 | 0.16 / 0.16 | 0.05 / 0.05 | 0.01 |
-| Sinclair | 55 | 0.12 / 0.13 | 0.79 / 0.78 | 0.04 / 0.04 | 0.03 / 0.03 | 0.01 |
 | Silver | 100 | 0.41 / 0.41 | 0.37 / 0.37 | 0.10 / 0.12 | 0.10 / 0.10 | 0.01 |
-| Rat King | 424 | 0.33 / 0.33 | 0.57 / 0.58 | 0.03 / 0.03 | 0.05 / 0.05 | 0.01 |
+| Sinclair | 55 | 0.12 / 0.13 | 0.79 / 0.78 | 0.04 / 0.04 | 0.03 / 0.03 | 0.01 |
 | Venator | 257 | 0.48 / 0.49 | 0.40 / 0.40 | 0.03 / 0.03 | 0.07 / 0.08 | 0.01 |
+| Rat King | 424 | 0.33 / 0.33 | 0.57 / 0.58 | 0.03 / 0.03 | 0.05 / 0.05 | 0.01 |
 | Paige | 135 | 0.29 / 0.29 | 0.59 / 0.60 | 0.07 / 0.07 | 0.03 / 0.03 | 0.01 |
 | Mina | 198 | 0.12 / 0.13 | 0.66 / 0.67 | 0.19 / 0.19 | 0.01 / 0.01 | 0.01 |
 | The Doorman | 38 | 0.16 / 0.16 | 0.62 / 0.61 | 0.17 / 0.18 | 0.03 / 0.04 | 0.01 |
@@ -59,41 +59,41 @@ real/sim = (real source dmg / real gun dmg) / (sim source dmg / sim gun dmg). Be
 
 | Hero | Source | kind | real share | sim share | real/sim |
 |---|---|---|---|---|---|
-| McGinnis | Mini Turret | ability | 0.467 | 0.575 | 0.62 |
 | Sinclair | Vexing Bolt | ability | 0.351 | 0.276 | 1.37 |
 | Sinclair | Audience Participation | ability | 0.205 | 0.300 | 0.73 |
 | Lady Geist | Soul Exchange | ability | 0.139 | 0.081 | 1.70 |
 | Viscous | Goo Ball | ability | 0.107 | 0.075 | 1.79 |
 | Mirage | Djinn's Mark | ability | 0.291 | 0.240 | 1.22 |
 | Pocket | Affliction | ability | 0.120 | 0.161 | 0.73 |
+| McGinnis | Heavy Barrage | ability | 0.136 | 0.107 | 1.45 |
 | Warden | Last Stand | ability | 0.138 | 0.173 | 0.75 |
 | Viscous | Express Shot | item | 0.052 | 0.027 | 2.43 |
 | Viscous | Splatter | ability | 0.285 | 0.310 | 1.16 |
 | Lady Geist | Malice | ability | 0.144 | 0.180 | 0.79 |
-| Celeste | Radiant Daggers | ability | 0.184 | 0.171 | 1.26 |
-| Lady Geist | Essence Bomb | ability | 0.190 | 0.225 | 0.84 |
+| Celeste | Radiant Daggers | ability | 0.184 | 0.172 | 1.25 |
+| Lady Geist | Essence Bomb | ability | 0.190 | 0.226 | 0.84 |
 | Holliday | Powder Keg | ability | 0.397 | 0.382 | 1.10 |
 | Nurse Harrow | Lurking Terrors | ability | 0.300 | 0.316 | 0.89 |
-| Sinclair | Spectral Assistant | ability | 0.191 | 0.169 | 1.22 |
 | Dynamo | Kinetic Pulse | ability | 0.444 | 0.424 | 1.09 |
+| Sinclair | Spectral Assistant | ability | 0.191 | 0.169 | 1.22 |
 | Celeste | Shining Wonder | ability | 0.170 | 0.161 | 1.24 |
 | Kelvin | Frost Grenade | ability | 0.297 | 0.272 | 1.13 |
-| Celeste | Light Eater | ability | 0.220 | 0.221 | 1.17 |
+| McGinnis | Mini Turret | ability | 0.467 | 0.494 | 1.07 |
+| Celeste | Light Eater | ability | 0.220 | 0.221 | 1.16 |
 | Shiv | Killing Blow | ability | 0.056 | 0.034 | 1.80 |
-| Seven | Storm Cloud | ability | 0.202 | 0.227 | 0.87 |
-| McGinnis | Heavy Barrage | ability | 0.136 | 0.132 | 0.79 |
 | Mo & Krill | Torment Pulse | item | 0.138 | 0.162 | 0.82 |
 | Viscous | Puddle Punch | ability | 0.123 | 0.119 | 1.29 |
-| Graves | Jar of Dead | ability | 0.212 | 0.225 | 0.87 |
+| Seven | Storm Cloud | ability | 0.202 | 0.226 | 0.87 |
+| Graves | Jar of Dead | ability | 0.212 | 0.224 | 0.87 |
+| Solomon | Develop Queen | ability | 0.161 | 0.186 | 0.85 |
 | Shiv | Slice and Dice | ability | 0.145 | 0.130 | 1.22 |
-| Solomon | Develop Queen | ability | 0.161 | 0.184 | 0.86 |
 | Calico | MELEE | melee | 0.149 | 0.128 | 1.20 |
 | Warden | Alchemical Flask | ability | 0.129 | 0.146 | 0.83 |
-| Vyper | Split Shot | item | 0.110 | 0.089 | 1.27 |
+| Vyper | Split Shot | item | 0.110 | 0.088 | 1.27 |
+| Victor | Pain Battery | ability | 0.276 | 0.259 | 1.10 |
 | Graves | Borrowed Decree | ability | 0.195 | 0.203 | 0.88 |
-| Victor | Pain Battery | ability | 0.276 | 0.259 | 1.09 |
-| Dynamo | Singularity | ability | 0.179 | 0.209 | 0.89 |
 | Nurse Harrow | Leech Therapy | ability | 0.312 | 0.313 | 0.93 |
+| Dynamo | Singularity | ability | 0.179 | 0.209 | 0.89 |
 | Pocket | Barrage | ability | 0.260 | 0.232 | 1.09 |
 | Mirage | Dust Devil | ability | 0.079 | 0.099 | 0.80 |
 | Billy | Bashdown | ability | 0.309 | 0.317 | 0.94 |
@@ -117,12 +117,12 @@ Item damage per all the player's damage while the item was owned (players who ha
 | Ricochet | 700 | 0.050 | 0.066 | 0.75 |
 | Spirit Burn | 687 | 0.084 | 0.081 | 1.04 |
 | Mystic Shot | 673 | 0.062 | 0.059 | 1.05 |
-| Escalating Exposure | 610 | 0.110 | 0.110 | 0.99 |
-| Express Shot | 558 | 0.121 | 0.108 | 1.13 |
+| Escalating Exposure | 610 | 0.110 | 0.109 | 1.00 |
+| Express Shot | 558 | 0.121 | 0.107 | 1.13 |
 | Cold Front | 525 | 0.057 | 0.059 | 0.95 |
-| Siphon Bullets | 521 | 0.086 | 0.087 | 0.99 |
-| Tesla Bullets | 509 | 0.139 | 0.134 | 1.04 |
-| Melee Charge | 434 | 0.047 | 0.029 | 1.61 |
+| Siphon Bullets | 521 | 0.086 | 0.087 | 0.98 |
+| Tesla Bullets | 509 | 0.139 | 0.135 | 1.03 |
+| Melee Charge | 434 | 0.047 | 0.029 | 1.60 |
 | Headhunter | 410 | 0.090 | 0.091 | 0.99 |
 | Capacitor | 375 | 0.206 | 0.199 | 1.03 |
 | Headshot Booster | 375 | 0.044 | 0.038 | 1.16 |
@@ -135,10 +135,10 @@ Item damage per all the player's damage while the item was owned (players who ha
 | Crushing Fists | 148 | 0.055 | 0.032 | 1.74 |
 | Decay | 135 | 0.173 | 0.180 | 0.96 |
 | Phantom Strike | 125 | 0.050 | 0.044 | 1.15 |
-| Scourge | 122 | 0.158 | 0.171 | 0.93 |
+| Scourge | 122 | 0.158 | 0.170 | 0.93 |
 | Alchemical Fire | 111 | 0.126 | 0.153 | 0.82 |
 | Return Fire | 96 | 0.094 | 0.029 | 3.19 |
-| Lightning Scroll | 49 | 0.039 | 0.025 | 1.52 |
+| Lightning Scroll | 49 | 0.039 | 0.027 | 1.45 |
 | Focus Lens | 39 | 0.105 | 0.087 | 1.20 |
 | Silence Wave | 33 | 0.046 | 0.048 | 0.96 |
 
@@ -154,32 +154,32 @@ As above, per hero. The source table above compares the whole real match with du
 | Drifter | Melee Charge | 68 | 0.035 | 0.012 | 2.97 |
 | Nurse Harrow | Quicksilver Reload | 89 | 0.047 | 0.021 | 2.24 |
 | Nurse Harrow | Ricochet | 135 | 0.025 | 0.052 | 0.49 |
-| Billy | Melee Charge | 48 | 0.044 | 0.022 | 1.97 |
+| Billy | Melee Charge | 48 | 0.044 | 0.022 | 1.95 |
 | Lash | Quicksilver Reload | 154 | 0.046 | 0.025 | 1.85 |
 | Billy | Crushing Fists | 31 | 0.050 | 0.027 | 1.81 |
-| Violet | Torment Pulse | 69 | 0.103 | 0.058 | 1.78 |
-| Yamato | Crushing Fists | 30 | 0.050 | 0.029 | 1.73 |
+| Violet | Torment Pulse | 69 | 0.103 | 0.058 | 1.79 |
+| Yamato | Crushing Fists | 30 | 0.050 | 0.029 | 1.74 |
 | Violet | Mystic Burst | 66 | 0.044 | 0.026 | 1.69 |
 | Drifter | Spirit Burn | 42 | 0.070 | 0.044 | 1.61 |
 | Haze | Lucky Shot | 92 | 0.153 | 0.099 | 1.55 |
 | Apollo | Mystic Burst | 66 | 0.052 | 0.034 | 1.52 |
 | Wraith | Ricochet | 185 | 0.041 | 0.062 | 0.67 |
-| Calico | Arctic Blast | 102 | 0.155 | 0.106 | 1.47 |
+| Calico | Arctic Blast | 102 | 0.155 | 0.105 | 1.48 |
 | Infernus | Ricochet | 66 | 0.027 | 0.039 | 0.69 |
 | Venator | Ricochet | 36 | 0.057 | 0.081 | 0.70 |
-| Shiv | Express Shot | 125 | 0.255 | 0.183 | 1.39 |
+| Shiv | Express Shot | 125 | 0.255 | 0.181 | 1.41 |
 | Violet | Tankbuster | 207 | 0.144 | 0.106 | 1.36 |
 | Yamato | Melee Charge | 57 | 0.041 | 0.030 | 1.34 |
 | Lash | Mystic Burst | 210 | 0.061 | 0.046 | 1.31 |
-| Paradox | Headshot Booster | 42 | 0.042 | 0.032 | 1.31 |
+| Paradox | Headshot Booster | 42 | 0.042 | 0.033 | 1.30 |
 | Bebop | Mystic Reverb | 24 | 0.143 | 0.185 | 0.77 |
 | Mirage | Ricochet | 33 | 0.041 | 0.053 | 0.77 |
 | Abrams | Phantom Strike | 58 | 0.046 | 0.036 | 1.29 |
 | Shiv | Lucky Shot | 45 | 0.143 | 0.112 | 1.28 |
-| Vyper | Split Shot | 69 | 0.144 | 0.115 | 1.26 |
+| Vyper | Split Shot | 69 | 0.144 | 0.114 | 1.26 |
+| Yamato | Express Shot | 46 | 0.158 | 0.128 | 1.23 |
 | Haze | Ricochet | 207 | 0.067 | 0.083 | 0.81 |
-| Yamato | Express Shot | 46 | 0.158 | 0.129 | 1.23 |
-| Violet | Mystic Shot | 170 | 0.073 | 0.060 | 1.23 |
+| Violet | Mystic Shot | 170 | 0.073 | 0.059 | 1.23 |
 | Mo & Krill | Mystic Burst | 174 | 0.072 | 0.059 | 1.22 |
 | Abrams | Melee Charge | 129 | 0.068 | 0.055 | 1.22 |
 | Mo & Krill | Quicksilver Reload | 150 | 0.058 | 0.048 | 1.22 |
