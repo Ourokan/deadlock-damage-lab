@@ -1,6 +1,7 @@
 """Silver's Lycan Curse on real timing (deadsim/heroes/werewolf.py, data/wolf_timing.json): each fight's first
 transform is drawn (already in wolf form, at a real time, or not at all), later casts follow the rage rule. Wolf
-abilities skip the human slot's first-cast hold; Tail Whack also hits others near the target. Run from sim/:
+abilities skip the human slot's first-cast hold; Tail Whack also hits others near the target. Claws and rifle hit
+factors over her aim. Run from sim/:
     python3 -m unittest discover -s tests
 """
 import heapq
@@ -130,6 +131,24 @@ class SilverCase(unittest.TestCase):
             self.assertEqual(self.ult.impl.wolf_hold(c, cls), 0.0)
         finally:
             werewolf.WOLF_ABILITY_TIMING = False
+
+    def test_claws_and_rifle_hit_factors(self):
+        from deadsim.build import GUN_HIT
+        self.assertEqual(self.f.st.hit_mult, GUN_HIT[80])
+        self.ult.cast()
+        self.assertEqual(self.f.st.hit_mult, werewolf.CLAW_HIT)
+        self.assertEqual(self.g.st.hit_mult, 1.0)
+
+    def test_fire_applies_hit_mult(self):
+        import dataclasses
+        hits = []
+        for m in (1.0, werewolf.CLAW_HIT):
+            self.f.st = dataclasses.replace(self.f.st, hit_mult=m, pellets=1, burst_count=1)
+            self.f.bullets_hit, self.f.clip = 0, 10 ** 6
+            for _ in range(200):
+                self.e.fire(self.f)
+            hits.append(self.f.bullets_hit)
+        self.assertAlmostEqual(hits[1] / hits[0], werewolf.CLAW_HIT, delta=0.05)
 
 
 if __name__ == "__main__":

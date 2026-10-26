@@ -1080,7 +1080,7 @@ class Engine:
             if s is not None:
                 shoot_summon(self, f, s, n_bullets)
                 return
-        p_hit = min(1.0, f.skill.accuracy * (1.0 - e.stat("evasion")) * self.hit_reach(st))
+        p_hit = min(1.0, f.skill.accuracy * st.hit_mult * (1.0 - e.stat("evasion")) * self.hit_reach(st))
         shot_acc = SHOT_SPLIT_PELLETS.get(st.hero.id)
         if shot_acc:   # the shot lands whole (build.SHOT_SPLIT_PELLETS): pellet accuracy -> shot accuracy
             shots = max(1, round(st.burst_count * ctx["pellet_mult"]))

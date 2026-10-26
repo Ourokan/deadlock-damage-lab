@@ -26,7 +26,9 @@ Lycan Curse (ult):
   the hero's ALT_FIRE per-boon value; clip scaled like the rifle's clip items). Each claw hit adds a stack of
   BonusFireRate / MaxStacks fire rate (all stacks refresh to StackDuration), and adds BonusDurationOnBullet s to the
   form. Each 1% of health lost adds BonusDurationPerHealthPercentLost s. HeadshotResist and the T3 kill refresh are
-  ignored. The claws (6 m) are assumed to reach: Silver closes in during the form.
+  ignored. The claws (6 m) are assumed to reach: Silver closes in during the form. They hit CLAW_HIT x her aim
+  (the API accuracy, mostly her rifle's pellets): Phantom+ replays land 5.7 claw hits per wolf run, the sim 3.8 at
+  her pellet accuracy (claws 10% of her damage in fights vs real 16%, rifle 26% vs 23%); 1.55 gives 5.9.
 - While transformed, each slot casts its wolf ability (slot mapping is a guess; the wolf abilities are not in
   abilities.json, so `alt` reads them from raw/items.json into an Ability and evaluates them with the slot's
   CastCtx rules: its upgrade tier, spirit power, light melee and duration bonuses):
@@ -65,6 +67,7 @@ CLAWS = "citadel_weapon_werewolf_claws"
 WOLF_TIMING = True
 WOLF_ABILITY_TIMING = False   # OPT-IN, with WOLF_TIMING: wolf abilities' first casts per transform on real timing
 PLAN_HORIZON = 20.0   # s, the replay holds' horizon (null = not transformed by then)
+CLAW_HIT = 1.55   # Lycan Claws hit chance over her aim (Stats.hit_mult; the rifle's is build.GUN_HIT)
 TAIL_WHACK_OTHERS = 0.20   # other enemy heroes hit per Tail Whack (replays: 1.20 heroes per cast; Go For The Throat 1.07)
 
 
@@ -399,7 +402,7 @@ class LycanCurse(AbilityImpl):
             burst_count=int(cw.get("burst_shot_count", 1) or 1),
             burst_interval=cw.get("intra_burst_cycle_time", 0.0) or 0.0,
             clip=max(1, int(round(cw.get("clip_size", 12) * clip_scale))),
-            reload_time=cw.get("reload_duration", 1.5) * orig.reload_mult)
+            reload_time=cw.get("reload_duration", 1.5) * orig.reload_mult, hit_mult=CLAW_HIT)
         f.clip = f.st.clip
         st["orig"] = orig
         for ab in f.abilities:   # wolf abilities start ready, or on real timing (draw_plan's fights)
