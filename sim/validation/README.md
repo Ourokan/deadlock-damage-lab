@@ -1540,9 +1540,11 @@ Tried, on even/odd match halves (fit the ability length corrections on one, audi
 
 The smaller Carbine is worse: Mystic Reverb echoes the hit (1.37x under) and the length correction just scales the
 hit back up, so the count stays as it is. Shorter Paradox fights move Tankbuster a little (1.63 -> 1.42 at 0.7x) and
-need a per-hero fight length the engine doesn't have. Kept: the refit alone, better on both halves. Full sample:
-Paradox 0.062 -> 0.043 (gun 0.278 -> 0.252, abilities 0.435 -> 0.501, real 0.483; length_corr Pulse Grenade 1.236 ->
-1.658, Kinetic Carbine 1.204 -> 1.422, Paradoxical Swap 1.526 -> 2.320), then `item_landing_heroes.py --hero Paradox`
-(Express Shot, Headhunter barely move). Left: Tankbuster 1.69x under and melee 0.63x over; the count needs short,
-Carbine-opened fights in the duel model.
+need a per-hero fight length the engine doesn't have. Kept: the refit alone, better on both halves (redone on main after #107/#110: odd 0.058 -> 0.052, even 0.075 ->
+0.043). Full sample: Paradox 0.064 -> 0.045 (gun 0.278 -> 0.252, abilities 0.435 -> 0.502, real 0.483; length_corr
+Pulse Grenade 1.236 -> 1.680, Kinetic Carbine 1.204 -> 1.437, Paradoxical Swap 1.526 -> 2.350), then
+`item_landing_heroes.py --hero Paradox` (Express Shot, Headhunter barely move); player-weighted audit 0.0308 ->
+0.0303, other heroes move only by duel noise. sim_vs_win 27k (correlation, higher is better) flat: all
+pairs 0.171 -> 0.172, damage items 0.054 -> 0.055, per item 0.251. Left: Tankbuster
+1.72x under and melee 0.6x over; the count needs short, Carbine-opened fights in the duel model.
 
