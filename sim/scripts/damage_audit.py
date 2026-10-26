@@ -19,6 +19,8 @@ Unlike landing_rates.py and item_landing.py this fits nothing and writes no mode
 is furthest from real games now. Output: validation/damage_audit.json and validation/damage_audit.md.
 
 usage: python3 scripts/damage_audit.py <sample.jsonl.gz> [max_players] [workers] [--badge N]
+AUDIT_OUT=path writes path.json/.md instead; AUDIT_HEROES=name,name audits only those heroes' players (a quick
+per-hero check: the items tables then pool only them).
 The sample comes from scripts/fetch_validation.py (e.g. --api 91 5 for Phantom+ of the last 5 days).
 """
 import collections
@@ -186,12 +188,13 @@ def main():
     real_item = collections.defaultdict(lambda: [0.0, 0.0, 0])   # item -> [item dmg, gun dmg, holders]
     real_hero_item = collections.defaultdict(lambda: [0.0, 0.0, 0])   # (hero, item) -> the same, per hero
     jobs, real_of, held_of = [], {}, {}
+    only = {G.hero(x.strip()).id for x in os.environ.get("AUDIT_HEROES", "").split(",") if x.strip()}
     n_matches = 0
     for line in gzip.open(sample):
         m = json.loads(line)
         n_matches += 1
         for p in m["players"]:
-            if p["hero_id"] not in G.heroes or not L.gun_known(p):
+            if p["hero_id"] not in G.heroes or not L.gun_known(p) or (only and p["hero_id"] not in only):
                 continue
             classes = [ab.class_name for ab in G.hero(p["hero_id"]).abilities]
             d = collections.Counter()

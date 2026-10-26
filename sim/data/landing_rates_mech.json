@@ -73,28 +73,28 @@
     "landing": 0.611,
     "real_share": 0.0632,
     "sim_share": 0.0623,
-    "length_corr": 1.454
+    "length_corr": 1.508
    },
    "Flight": {
     "class": "citadel_ability_hornet_leap",
     "landing": 0.415,
     "real_share": 0.1121,
     "sim_share": 0.1103,
-    "length_corr": 2.76
+    "length_corr": 2.973
    },
    "Crow Familiar": {
     "class": "citadel_ability_hornet_sting",
     "landing": 0.517,
     "real_share": 0.1443,
     "sim_share": 0.1419,
-    "length_corr": 1.287
+    "length_corr": 1.619
    },
    "Assassinate": {
     "class": "citadel_ability_hornet_snipe",
     "landing": 1.534,
     "real_share": 0.1476,
     "sim_share": 0.1419,
-    "length_corr": 0.208
+    "length_corr": 0.351
    }
   },
   "Lady Geist": {
@@ -437,21 +437,21 @@
     "landing": 0.32,
     "real_share": 0.2041,
     "sim_share": 0.2176,
-    "length_corr": 1.409
+    "length_corr": 1.59
    },
    "Stone Form": {
     "class": "citadel_ability_tengu_stone_form",
     "landing": 0.31,
     "real_share": 0.0733,
     "sim_share": 0.0782,
-    "length_corr": 0.724
+    "length_corr": 0.734
    },
    "Air Drop": {
     "class": "citadel_ability_tengu_airlift",
     "landing": 0.67,
     "real_share": 0.0839,
     "sim_share": 0.0896,
-    "length_corr": 1.204
+    "length_corr": 1.493
    }
   },
   "Warden": {
