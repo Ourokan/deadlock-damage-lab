@@ -350,11 +350,12 @@ def recast_rows():
     return _RECAST
 
 
-def recast_wait(ab, cls=None, n=None):
+def recast_wait(ab, cls=None, n=None, finite=False):
     """Mechanics.recast_timing, at a cast: the wait (s) past the cooldown before the next cast of ab, drawn from the
     real recast curve (inf: not again this fight), 0 for charged abilities, ultimates, abilities whose sim timing is
     its own (skip) and fights without a phase or rng. cls: the ability class cast from ab's slot when it isn't ab's
-    own (Silver's wolf abilities), n its cast count (default ab.casts)."""
+    own (Silver's wolf abilities), n its cast count (default ab.casts). finite: only the waits of the casts that
+    came (a reset: the curve's not-again share is mostly fights ending, which the sim's fight length already does)."""
     f = ab.f
     phase, rng = f.skill.fight_phase, f.e.rng
     if phase is None and rng is None:
@@ -371,6 +372,8 @@ def recast_wait(ab, cls=None, n=None):
         u = (phase + zlib.crc32(f"recast|{cls}|{f.name}|{ab.casts if n is None else n}".encode()) / 2 ** 32) % 1.0
     else:
         u = rng.random()
+    if finite:
+        q = [h for h in q if h is not None] or [0.0]
     h = q[min(len(q) - 1, int(u * len(q)))]
     return math.inf if h is None else max(0.0, h)
 
