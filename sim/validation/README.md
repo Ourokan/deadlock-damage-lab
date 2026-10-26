@@ -1629,5 +1629,5 @@ Split-half (fit on one half: 3 rounds `ability_corr_heroes.py --hero Paradox`, t
 Spirit Burn 2.32 -> 1.00, Mystic Reverb 1.12 -> 0.99. length_corr Kinetic Carbine 1.437 -> 1.052, Pulse Grenade
 1.680 -> 1.724, Swap 2.350 -> 2.344. Paradox's Mystic Reverb row falls to 0.315: a poke's echo hits a full-health
 target (+10% of current health) every time, while real Reverb lands 0.3-0.37 echoes per Carbine hit in pokes and
-fights alike. Player-weighted audit 0.0303 -> 0.0300 (only Paradox moves). sim_vs_win 27k flat: all pairs 0.172 -> 0.171, damage items 0.055 -> 0.054, per item
+fights alike. Player-weighted audit 0.0303 -> 0.0299 on main after #113 (only Paradox moves). sim_vs_win 27k flat: all pairs 0.172 -> 0.171, damage items 0.055 -> 0.054, per item
 0.251 -> 0.251 (Paradox is 1 of 44 heroes and pokes only add his own damage). Left: melee 0.63x over.
