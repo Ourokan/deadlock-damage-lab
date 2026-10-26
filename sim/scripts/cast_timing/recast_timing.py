@@ -7,7 +7,9 @@ cooldown runs out before the fight's last hit is a recast chance: ready = cast +
 moment (the sim's AbilityState.cooldown() of the player's real build at that game time: items, net worth -> ability
 tiers by the popular order), delay = the next cast of the ability - ready, censored at the fight's end. Kaplan-Meier
 P(recast by t s after ready | fight still going) on GRID. Charged abilities (2+ charges) and ultimates are left out
-(charges recast between charges; an ult's cooldown outlasts the fight).
+(charges recast between charges; an ult's cooldown outlasts the fight). Silver's wolf abilities count as their own rows (their
+class ids in replays; the slot's cooldown reduction). fit: rows for abilities with MIN_ROW chances, shrunk toward the
+pooled curve (n / (n + SHRINK)); split-half 0.110 / 0.096 (MIN_FIT 100 rows only) -> 0.101 / 0.089.
 sim: the damage audit's duels (real builds both sides, the model as the searches fight): the same curve from the
 duels' cast times (engine.PROFILE_SOURCES keeps every cast, Fighter.casts_at).
 
@@ -54,9 +56,26 @@ def cooldowns(p, t, cache):
         from deadsim.fight import make_fighter
         items, souls = L.build_at(p, max(0.0, b * CD_BUCKET_S))
         f = make_fighter(Engine(mech=None), Loadout(game().hero(p["hero_id"]).name, items, souls=souls))
-        cache[key] = {ab.ab.class_name: (None if ab.max_charges() > 1 or ab.ab.ultimate or not ab.unlocked else ab.cooldown())
-                      for ab in f.abilities}
+        cds = {}
+        for ab in f.abilities:
+            cds[ab.ab.class_name] = None if ab.max_charges() > 1 or ab.ab.ultimate or not ab.unlocked else ab.cooldown()
+            if cds[ab.ab.class_name] and getattr(ab.impl, "WOLF", ""):   # Silver's wolf ability on the slot
+                cds[ab.impl.WOLF] = ab.impl.wolf_cooldown(ab.ctx)
+        cache[key] = cds
     return cache[key]
+
+
+def slot_classes(h):
+    """{ability id in replays: class} of hero h: its abilities and the wolf abilities cast from Silver's slots."""
+    from deadsim.abilities import REGISTRY, load_heroes
+    load_heroes()
+    out = {ab.id: ab.class_name for ab in h.abilities}
+    for ab in h.abilities:
+        w = getattr(REGISTRY.get(ab.class_name), "WOLF", "")
+        if w:
+            from deadsim.heroes.werewolf import raw_ability
+            out[raw_ability(w).id] = w
+    return out
 
 
 def pair_spans(hero, ev, by_hero):
@@ -142,7 +161,7 @@ def km_grid(rows):
 def real(workers):
     from deadsim import game
     G = game()
-    abil = {h.id: {ab.id: ab.class_name for ab in h.abilities} for h in G.heroes.values()}
+    abil = {h.id: slot_classes(h) for h in G.heroes.values()}
     mids = {f.split(".")[0] for f in os.listdir(CT.CASTS) if f.endswith(".ndjson.gz")}
     mids &= {f.split(".")[0] for f in os.listdir(CT.FIGHTS) if f.endswith(".ndjson.gz")}
     if HALF is not None:   # split-half: even (0) or odd (1) match ids only
@@ -183,13 +202,17 @@ def _sim_job(job):
     global _REC
     import damage_audit as A
     from deadsim import abilities, engine
+    from deadsim.heroes import werewolf
     if _REC is None:
         _REC = {"casts": [], "ends": {}}
         cast0, run0 = abilities.AbilityState.cast, engine.Engine.run
 
         def cast(self):
             if self.f.name.endswith("(A)") and not self.ab.ultimate and self.max_charges() == 1 and not self.scratch.get("prefight"):
-                _REC["casts"].append((id(self.f.e), self.ab.class_name, self.f.e.t, self.cooldown()))
+                cls, cd = self.ab.class_name, self.cooldown()
+                if getattr(self.impl, "WOLF", "") and werewolf.wolf(self.ctx):   # Silver's slot casts its wolf ability
+                    cls, cd = self.impl.WOLF, self.impl.wolf_cooldown(self.ctx)
+                _REC["casts"].append((id(self.f.e), cls, self.f.e.t, cd))
             return cast0(self)
 
         def run(self, *a, **k):
@@ -239,6 +262,9 @@ def sim(n, workers, on=False, fit_out=None):
             for cls, d, left in rs:
                 rows[f"{hid}:{cls}"].append((None if d is None else max(0.0, d), left))
     nm = {f"{h.id}:{a.class_name}": f"{h.name}: {a.name}" for h in G.heroes.values() for a in h.abilities}
+    from deadsim.heroes.werewolf import raw_ability
+    nm.update({f"{h.id}:{c}": f"{h.name}: {raw_ability(c).name} (wolf)" for h in G.heroes.values()
+               for c in slot_classes(h).values() if f"{h.id}:{c}" not in nm})
     lines = ["# Ability recasts after the cooldown is ready: sim vs real Phantom+ (scripts/cast_timing/recast_timing.py)",
              "", "P(recast by 0.5 / 1 / 2 / 4 / 8 s after the cooldown is ready | fight still going). Real: "
              + json.load(open(REAL))["source"] + f". Sim: damage audit duels ({n} players x 3).", "",
@@ -281,21 +307,25 @@ def waits(curve):
 
 
 def fit(real_rows, sim_rows, path):
-    """Rows: real abilities with MIN_FIT chances the sim recasts on ready (P(by 0.5 s) >= ON_READY, or too few sim
-    chances to tell); skip: abilities the sim gates itself (below ON_READY); pooled: the rows' curves weighted by
+    """Rows: real abilities with MIN_FIT chances the sim recasts on ready (P(by 0.5 s) >= ON_READY or over SKIP_MARGIN
+    above real, or too few sim chances to tell); skip: abilities the sim gates itself to about real timing; pooled: the rows' curves weighted by
     chances, for abilities without a row."""
     src, skip, pool, w = {}, [], [0.0] * len(GRID), 0
     for key, r in sorted(real_rows.items()):
         n, c = sim_rows.get(key, (0, None))
-        if n >= MIN_SIM and c[1] < ON_READY:
+        if n >= MIN_SIM and c[1] < min(ON_READY, r["recast_by"][1] + SKIP_MARGIN):
             skip.append(key)
             continue
         if r["chances"] < MIN_FIT:
             continue
-        src[key] = waits(r["recast_by"])
         pool = [a + r["chances"] * b for a, b in zip(pool, r["recast_by"])]
         w += r["chances"]
     pooled = [round(v / w, 4) for v in pool]
+    for key, r in sorted(real_rows.items()):
+        if key in skip or r["chances"] < MIN_ROW:
+            continue
+        k = r["chances"] / (r["chances"] + SHRINK)   # few chances: shrunk toward the pooled curve
+        src[key] = waits([k * a + (1 - k) * b for a, b in zip(r["recast_by"], pooled)])
     res = {"source": json.load(open(REAL))["source"] + "; sim: damage audit duels, recast timing off",
            "note": NOTE, "grid_s": GRID, "pooled_by": pooled, "pooled": waits(pooled), "skip": skip, "sources": src}
     with open(path, "w") as fh:
@@ -309,9 +339,12 @@ NOTE = ("QBINS equal-probability waits (s) past an ability's cooldown before its
         "(Mechanics.recast_timing). sources: per ability; pooled: abilities without a row; skip: abilities the sim "
         "gates itself (a toggle, stacks), which keep their own timing.")
 QBINS = 20
-MIN_FIT = 100
+MIN_FIT = 100   # chances for an ability's curve to count in the pooled one
+MIN_ROW = int(os.environ.get("RECAST_MIN_ROW", 40))   # chances for its own row
+SHRINK = float(os.environ.get("RECAST_SHRINK", 50))   # its curve x n / (n + SHRINK) + pooled x the rest
 MIN_SIM = 20
 ON_READY = 0.5
+SKIP_MARGIN = 0.1   # a self-gated ability recasting this much more often by 0.5 s than real still gets the waits
 
 
 HALF = None

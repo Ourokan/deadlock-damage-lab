@@ -350,10 +350,11 @@ def recast_rows():
     return _RECAST
 
 
-def recast_wait(ab):
+def recast_wait(ab, cls=None, n=None):
     """Mechanics.recast_timing, at a cast: the wait (s) past the cooldown before the next cast of ab, drawn from the
     real recast curve (inf: not again this fight), 0 for charged abilities, ultimates, abilities whose sim timing is
-    its own (skip) and fights without a phase or rng."""
+    its own (skip) and fights without a phase or rng. cls: the ability class cast from ab's slot when it isn't ab's
+    own (Silver's wolf abilities), n its cast count (default ab.casts)."""
     f = ab.f
     phase, rng = f.skill.fight_phase, f.e.rng
     if phase is None and rng is None:
@@ -361,12 +362,13 @@ def recast_wait(ab):
     if ab.max_charges() > 1 or ab.ab.ultimate:
         return 0.0
     rows = recast_rows()
-    key = f"{f.st.hero.id}:{ab.ab.class_name}"
+    cls = cls or ab.ab.class_name
+    key = f"{f.st.hero.id}:{cls}"
     if key in rows["skip"]:
         return 0.0
     q = rows["sources"].get(key) or rows["pooled"]
     if phase is not None:
-        u = (phase + zlib.crc32(f"recast|{ab.ab.class_name}|{f.name}|{ab.casts}".encode()) / 2 ** 32) % 1.0
+        u = (phase + zlib.crc32(f"recast|{cls}|{f.name}|{ab.casts if n is None else n}".encode()) / 2 ** 32) % 1.0
     else:
         u = rng.random()
     h = q[min(len(q) - 1, int(u * len(q)))]

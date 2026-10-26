@@ -97,9 +97,38 @@ class RecastWait(unittest.TestCase):
         e.t = ab.ready_at + 100.0
         self.assertFalse(castable(ab))
         self.assertFalse(ab.try_cast())
-        ab.reset_cooldown()   # a reset (Refresher) lets it go at once
+        ab.reset_cooldown()   # a reset (Refresher) makes it ready now, cast on a fresh real recast wait from now
+        q = M.recast_rows()["sources"][key("Lady Geist", "Malice")]
+        w = ab.recast_wait
+        self.assertTrue(w == math.inf or any(abs(w - max(0.0, h)) < 1e-9 for h in q if h is not None))
+        e.t += 0 if w == math.inf else w
+        self.assertEqual(castable(ab), w != math.inf)
+        ab.reset_cooldown(redraw=False)   # no wait at all (Silver's slots keep theirs per form)
         self.assertEqual(ab.recast_wait, 0.0)
         self.assertTrue(castable(ab))
+
+    def test_silver_waits_per_form(self):
+        """Silver's slots cast a human or a wolf ability, each on its own cooldown plus its own real recast wait (the
+        form swap's cooldown reset used to drop the wait: Boot Kick recast within 0.5 s 89% vs real 3%)."""
+        from deadsim.heroes import werewolf as W
+        e, f = fighter("Silver")
+        ab = next(a for a in f.abilities if a.ab.name == "Boot Kick")
+        ab.cast()
+        st = ab.ctx.state
+        self.assertEqual(ab.recast_wait, 0.0)
+        self.assertGreaterEqual(st["base_ready"], e.t + ab.cooldown())
+        f.counters[W.WOLF_KEY] = e.t + 100.0
+        waits = set()
+        for _ in range(8):
+            e.t = st["wolf_ready"] + 0.01 if st["wolf_ready"] > e.t else e.t
+            ab.cast()
+            w = st["wolf_ready"] - e.t - ab.impl.wolf_cooldown(ab.ctx)
+            self.assertGreaterEqual(w, -1e-9)
+            waits.add(round(w, 3))
+            if w == math.inf:
+                break
+        self.assertGreater(len(waits), 1)   # drawn afresh each wolf cast
+        self.assertIn(f"{game().hero('Silver').id}:ability_werewolf_maulingleap", M.recast_rows()["sources"])
 
     def test_off_casts_on_ready(self):
         mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(27000), recast_timing=False)

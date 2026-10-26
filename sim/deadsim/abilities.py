@@ -571,12 +571,21 @@ class AbilityState:
         self.scratch.pop("_bonus_duration", None)
         self.scratch.pop("_walk_in_at", None)
 
-    def reset_cooldown(self):
+    def reset_cooldown(self, redraw=True):
+        """Ready now (Refresher, Shadow Transformation...). With Mechanics.recast_timing the next cast waits a fresh real
+        recast wait from now (redraw; RESET_REDRAW): real players don't jump on a reset ability any faster than on one
+        whose cooldown ran out (their recast curves already hold the resets, as early recasts)."""
         self.charges = self.max_charges()
         self.ready_at = self.f.e.t
         self.recast_wait = 0.0
         self.next_charge = 0.0
+        e = self.f.e
+        if redraw and RESET_REDRAW and e.length and e.mech is not None and getattr(e.mech, "recast_timing", False):
+            from .mechanics import recast_wait
+            self.recast_wait = recast_wait(self, n=f"reset{self.casts}")
 
+
+RESET_REDRAW = True   # reset_cooldown draws a fresh recast wait (Mechanics.recast_timing)
 
 _LOADED = False
 
