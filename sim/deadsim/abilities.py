@@ -427,6 +427,7 @@ class AbilityState:
         self.held_until = 0.0   # first cast held to real cast timing (mechanics.hold_first_casts); not a cooldown
         self.precast_at = None   # mechanics.precast: cast this long before the fight start
         self.timed = False       # the first cast has a real cast timing hold (patterns.Plan skips the ult's wait)
+        self.recast_wait = 0.0   # mechanics.recast_timing: the next cast waits this long past ready_at (inf: not this fight)
         self.casts = 0
 
     # stats --------------------------------------------------------------------------------------------
@@ -505,7 +506,7 @@ class AbilityState:
             return False
         t = self.f.e.t
         self._recharge()
-        if self.charges <= 0 or t < self.ready_at or (t < self.held_until and self.impl.held(self.ctx)):
+        if self.charges <= 0 or t < self.ready_at + self.recast_wait or (t < self.held_until and self.impl.held(self.ctx)):
             return False
         if self.f.counters.get("fleeing") and self.impl.kind != "self":
             return False
@@ -538,6 +539,9 @@ class AbilityState:
         else:
             self.ready_at = t + self.cooldown()
             self.next_charge = self.ready_at
+        if f.e.length and f.e.mech is not None and getattr(f.e.mech, "recast_timing", False):
+            from .mechanics import recast_wait
+            self.recast_wait = recast_wait(self)
         f.e.note(f"{f.name} casts {self.ab.name}")
         if getattr(f.e, "profile_casts", False):
             f.cast_first.setdefault(self.ab.class_name, t)
@@ -570,6 +574,7 @@ class AbilityState:
     def reset_cooldown(self):
         self.charges = self.max_charges()
         self.ready_at = self.f.e.t
+        self.recast_wait = 0.0
         self.next_charge = 0.0
 
 
