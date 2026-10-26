@@ -1217,6 +1217,46 @@ Results on main after #100 (sim_vs_win is a correlation: higher is better): sim_
 
 Left: Assassinate now ~1 s early (the shot-would-kill check on gate health); Killing Blow ~1.4 s late.
 
+### Killing Blow and Soul Exchange on real timing (2026-10-26)
+
+Follow-up of the section above, on the real cast curves after the cast reader fix (#108). P(first cast by t | fight
+still going), Shiv's Killing Blow: real 0.03 / 0.07 / 0.13 / 0.36 by 1 / 3 / 6 / 20 s, main 0.00 / 0.02 / 0.08 /
+0.84 (median of the casts 8.5 s real, 11.2 s main): late, and cast in 2.3x the fights. Lady Geist's Soul Exchange: real
+0.03 / 0.09 / 0.16 / 0.42, main 0.02 / 0.05 / 0.08 / 0.18 (median 8.6 s real, 6.4 s main): early, and in half the
+fights. From the 260 replays (`scripts/mechanics/execute_timing.py` -> `data/execute_timing.json`):
+
+- Most real first Killing Blows in a fight are no execute: by 20 s 26% of fights have a first cast without one (the
+  slash on a target at ~55% health for ~7% of its health, or a miss; the ult then sits out its whole cooldown, next
+  cast ~200 s later vs ~10 s after an execute's recast), 10% an execute. The sim only cast on an execute.
+- Real Geists swap at ~25% health on a ~90% target. They enter fights at ~75% health and take ~1.15x as much from
+  other enemies as from their pair enemy: the 1v1 duel rarely opens that gap.
+- Shiv's target also takes ~0.9x from others, but the sim's duels already bring it down faster than a real pair
+  fight: with that damage seen by the gate the executes came ~3 s early, so Killing Blow doesn't use it.
+
+**Change:**
+- `Mechanics.execute_timing` (**on**, with cast_timing): each fight draws a Killing Blow plan, spent at a real time
+  (`commit_holds`, the real no-execute first cast curve; an execute if the target is under the threshold by then), wait
+  for the execute gate (`exec_share` 0.10 of the fights, fitted on the audit duels so the cast share by 20 s matches),
+  or not cast (on cooldown). Soul Exchange's first cast is held to a real first cast time (or not cast; `hold_share`
+  0.79, fitted the same way), then its gap gate. Draws like cast_timing (phase or rng; deterministic fights skip).
+- `Mechanics.gate_assist` (**on**, with fight_length): Geist's gate health (`Fighter.gate_hp`) is short by a real entry
+  deficit and by 1.14x the damage she takes in the duel; the swap's gap and its damage use it. Health stays.
+- Levels kept: `length_factors.py --entry --target-entry --target-off MECH.gate_assist,MECH.execute_timing --hero
+  Shiv` (and Lady Geist): the target run has the two new flags off and the entry gate as on main (new options
+  `--target-entry`, `MECH.flag` in `--target-off`). Killing Blow length_corr 0.65 -> 2.22 (landing x corr 0.23 ->
+  0.78), Soul Exchange 0.96 -> 0.40.
+
+**Results:**
+- Curves now: Killing Blow 0.04 / 0.05 / 0.12 / 0.36 (quartiles of the casts 4.0 / 7.9 / 13.5 s, real 4.1 / 8.5 /
+  13.6), Soul Exchange 0.02 / 0.06 / 0.14 / 0.48 (4.0 / 8.4 / 15.4 s, real 3.7 / 8.6 / 13.7). Mean |real - sim| of the
+  0-20 s curve 0.201 -> 0.011 and 0.103 -> 0.021.
+- Damage audit (full sample, both heroes): Shiv mix 0.03 -> 0.03, Geist 0.01 -> 0.02; Killing Blow share 0.034 ->
+  0.031 (real 0.056), Soul Exchange 0.089 -> 0.094 (real 0.139). Split-half (plans and levels fitted on one half, the
+  other half audited, against main): source distance Shiv 0.051 -> 0.057 / 0.026 -> 0.025, Geist 0.083 -> 0.086 /
+  0.065 -> 0.059 (odd / even audited): flat.
+- sim_vs_win at 27k (a correlation: higher is better): all pairs 0.171 -> 0.174, damage items 0.054 -> 0.053, clear
+  of noise 0.272 -> 0.273, per item 0.251 -> 0.250: flat.
+
 ## Tankbuster minimum damage (2026-10-25)
 
 Follow-up of cast timing (its audit loss was mostly Tankbuster on spirit heroes). In 260 Phantom+ replays (every

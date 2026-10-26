@@ -103,28 +103,28 @@
     "landing": 1.03,
     "real_share": 0.2102,
     "sim_share": 0.2215,
-    "length_corr": 1.473
+    "length_corr": 1.427
    },
    "Life Drain": {
     "class": "ability_life_drain",
     "landing": 0.501,
     "real_share": 0.1258,
     "sim_share": 0.1337,
-    "length_corr": 1.65
+    "length_corr": 1.72
    },
    "Malice": {
     "class": "ability_blood_shards",
     "landing": 0.699,
     "real_share": 0.156,
     "sim_share": 0.1668,
-    "length_corr": 1.327
+    "length_corr": 1.263
    },
    "Soul Exchange": {
     "class": "ability_health_swap",
     "landing": 1.418,
     "real_share": 0.1062,
     "sim_share": 0.115,
-    "length_corr": 0.957
+    "length_corr": 0.401
    }
   },
   "Abrams": {
@@ -414,21 +414,21 @@
     "landing": 0.45,
     "real_share": 0.2944,
     "sim_share": 0.3307,
-    "length_corr": 1.906
+    "length_corr": 1.915
    },
    "Slice and Dice": {
     "class": "citadel_ability_shiv_dash",
     "landing": 1.09,
     "real_share": 0.1504,
     "sim_share": 0.167,
-    "length_corr": 1.733
+    "length_corr": 1.735
    },
    "Killing Blow": {
     "class": "citadel_ability_shiv_killing_blow",
     "landing": 0.35,
     "real_share": 0.0584,
     "sim_share": 0.0628,
-    "length_corr": 0.654
+    "length_corr": 2.218
    }
   },
   "Ivy": {

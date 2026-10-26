@@ -14,7 +14,11 @@ Assumptions:
   VulnerabilityPerStack% damage taken (from Geist; 1v1 so applied as damage_taken_amp); recasting refreshes.
 - Soul Exchange: swaps health fractions. Geist walks up to SWAP_APPROACH m beyond cast range + engage margin to
   reach the target (the 5.5 m range is shorter than the duel distance; movement is not modeled). The enemy can't drop below EnemyMinHealthPct; the health loss is
-  recorded as pure damage. Cast only when Geist is at least SWAP_MIN_GAIN lower (fraction) than the target.
+  recorded as pure damage. Cast only when Geist is at least SWAP_MIN_GAIN lower (fraction) than the target. Geist's
+  side of the swap is her gate health (Fighter.gate_hp: short by her real entry deficit and the damage the real
+  fight's other enemies add, Mechanics.entry_gate / gate_assist): real Geists swap at ~25% health on a ~90% target.
+  First cast held to a real first cast time (Mechanics.execute_timing, data/execute_timing.json; None: not cast in
+  this fight), then the gap gate.
 """
 import math
 
@@ -117,8 +121,15 @@ class SoulExchange(AbilityImpl):
     def in_range(self, c):
         return c.within(c.rng("AbilityCastRange") + SWAP_APPROACH)
 
+    def draw_plan(self, c, u):
+        """Mechanics.execute_timing: the first cast's hold from draw u (mechanics.execute_plans)."""
+        from deadsim.mechanics import execute_timing_data
+        q = execute_timing_data()["soul_exchange"]["holds"]
+        h = q[min(len(q) - 1, int(u * len(q)))]
+        self.s.held_until = c.now + (math.inf if h is None else h)
+
     def should_cast(self, c):
-        return self.in_range(c) and c.foe.hp_frac - c.me.hp_frac >= max(SWAP_MIN_GAIN, c.raw("MinDiffToCast"))
+        return self.in_range(c) and c.foe.hp_frac - c.me.gate_frac >= max(SWAP_MIN_GAIN, c.raw("MinDiffToCast"))
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay")
@@ -129,7 +140,7 @@ class SoulExchange(AbilityImpl):
         me, foe = c.me, c.foe
         if not me.alive or not foe.alive:
             return
-        mf, ff = me.hp_frac, foe.hp_frac
+        mf, ff = me.gate_frac, foe.hp_frac
         new_foe = max(mf, c.raw("EnemyMinHealthPct", 30) / 100) * foe.max_hp
         loss = foe.hp - new_foe
         if loss > 0:

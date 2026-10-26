@@ -130,6 +130,16 @@ class Mechanics:
     # it), so they land as early as in real fights while every fight keeps its length (validation/README.md
     # "Execute gates on real entry health")
     entry_gate: bool = True
+    # third parties at the health gates (2026-10-26): with fight_length, Soul Exchange's Geist sees her health short
+    # by a real entry deficit (as entry_gate) and by the damage the real pair fight's other enemies add (data/execute_timing.json assist: ~1.15x the damage from
+    # the pair enemy, scripts/mechanics/execute_timing.py), so the swap's gap opens as in real fights; only the gate
+    # sees it (Fighter.gate_hp), health and fight length stay
+    gate_assist: bool = True
+    # Killing Blow and Soul Exchange first casts on real timing (2026-10-26): with cast_timing, each fight draws a
+    # plan (data/execute_timing.json). Killing Blow: spent at a real time without an execute (most real first casts:
+    # the slash on a ~55% target or a miss, then the whole cooldown), wait for the execute gate, or not cast (on
+    # cooldown). Soul Exchange: held to a real first cast time (or not cast), then its gap gate
+    execute_timing: bool = True
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
@@ -319,6 +329,10 @@ EXECUTE_GATES = {"citadel_ability_shiv_killing_blow", "citadel_ability_hornet_sn
                  "ability_viper_venom"}
 
 
+# abilities that cast or scale on their caster's own health (Fighter.gate_hp, Mechanics.gate_assist)
+SELF_GATES = {"ability_health_swap"}
+
+
 def entry_gate(f):
     """Mechanics.entry_gate at the fight start: the fighter's health stays, execute gates see it short by
     entry_deficit (Fighter.gate_hp). Drawn only against an enemy with one, so other fights stay as they were."""
@@ -326,6 +340,48 @@ def entry_gate(f):
         return
     d = entry_deficit(f)
     f.entry_gap = d or 0.0
+
+
+EXEC_ROW = "all"   # data/execute_timing.json row (the split-half check uses "even" / "odd")
+_EXEC = None
+
+
+def execute_timing_data():
+    global _EXEC
+    if _EXEC is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "execute_timing.json")) as fh:
+            _EXEC = json.load(fh)
+    return _EXEC[EXEC_ROW]
+
+
+def gate_assist(f):
+    """Mechanics.gate_assist at the fight start: the holder of a self gate (Soul Exchange's Geist) sees its health
+    short by a real entry deficit (entry_deficit, as entry_gate) and by the real third parties' damage per damage it
+    takes in the duel (Fighter.gate_assist)."""
+    a = execute_timing_data()["assist"]
+    own = [a.get(ab.ab.class_name, 0.0) for ab in f.abilities if ab.unlocked and ab.ab.class_name in SELF_GATES]
+    if not own:
+        return
+    f.gate_assist = max(own)
+    if not f.entry_gap:
+        f.entry_gap = entry_deficit(f) or 0.0
+
+
+def execute_plans(f):
+    """Mechanics.execute_timing, after hold_first_casts: abilities with a drawn first cast plan (impl.draw_plan:
+    Killing Blow, Soul Exchange) get a draw like cast_timing's (phase or rng; deterministic fights skip)."""
+    phase, rng = f.skill.fight_phase, f.e.rng
+    if phase is None and rng is None:
+        return
+    for ab in f.abilities:
+        draw = getattr(ab.impl, "draw_plan", None)
+        if not ab.unlocked or draw is None:
+            continue
+        if phase is not None:
+            u = (phase + zlib.crc32(f"plan|{ab.ab.class_name}|{f.name}".encode()) / 2 ** 32) % 1.0
+        else:
+            u = rng.random()
+        draw(ab.ctx, u)
 
 
 def precast(f):
