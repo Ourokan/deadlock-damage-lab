@@ -17,8 +17,11 @@ first wolf run's start in the other fights (Kaplan-Meier, the fight end censors;
 deadsim/heroes/werewolf.py (LycanCurse.draw_plan, Mechanics.execute_timing).
 abilities: per wolf ability, QBINS equal-probability times of its first cast in a wolf run (real casts from the
 cast-timing replays, cast_timing/fetch_ability_casts.py: a cast up to PRE_RUN_S before the run's start counts as at
-its start), counted from the run's start; Kaplan-Meier with the run's end censoring, None = not in the run (on
-cooldown from an earlier run, out of reach, or not used). Real runs cast Go For The Throat / Mauling Leap / Tail
+its start), counted from the run's start; Kaplan-Meier with the run's end censoring, None = not in the run by
+RUN_HORIZON. A run without a cast counts as censored: some never would have cast (on cooldown from an earlier run,
+out of reach, not used), so the draws overstate the cast share a little. Counting those runs as never cast instead
+undershoots (sim 1.16 / 0.87 / 0.85 casts per run against real 1.21 / 1.03 / 0.99, as the sim's own run ends censor
+again) and Silver's split-half audit got worse still. Real runs cast Go For The Throat / Mauling Leap / Tail
 Whack in 84 / 74 / 82% of runs, the sim (all ready at the transform, cast on sight) in ~100%: 1.3x the real casts of
 the first two. Read by LycanCurse.cast (a draw per transform) when werewolf.WOLF_ABILITY_TIMING is on (opt-in: it
 did not improve Silver's split-half audit, see werewolf.py). Also prints the wolf form's share of
@@ -213,6 +216,9 @@ def main():
     for aid in WOLF_ABILITIES:
         rs = ab_rows[aid]
         cls = WOLF[aid]
+        if not rs:
+            print(f"{cls}: no wolf runs with cast data ({CASTS})")
+            continue
         ab_holds[cls] = km_holds(rs)
         print(f"{cls}: {len(rs)} runs, {ab_casts[aid] / len(rs):.2f} casts per run, cast in "
               f"{sum(r[0] is not None for r in rs) / len(rs):.2f}; holds {ab_holds[cls]}")
@@ -227,6 +233,9 @@ def main():
            "abilities": ab_holds,
            "real": {"wolf_uptime": round(t_wolf / t_fight, 3), "wolf_damage_share": round(dmg["wolf"] / tot, 3),
                     "human_damage_share": round(dmg["human"] / tot, 3)}}
+    if len(ab_holds) < len(WOLF_ABILITIES):   # no cast data: keep the file's ability rows
+        with open(OUT) as fh:
+            out["abilities"] = json.load(fh).get("abilities", {})
     if "--write" in sys.argv:
         with open(OUT, "w") as fh:
             json.dump(out, fh, indent=1)

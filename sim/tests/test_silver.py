@@ -111,6 +111,23 @@ class SilverCase(unittest.TestCase):
                 h = self.ult.impl.wolf_hold(c, s.impl.WOLF)
                 self.assertTrue(h == math.inf or any(abs(h - self.e.t - x) < 1e-9 for x in q[s.impl.WOLF] if x is not None))
             self.assertEqual(self.ult.impl.wolf_hold(c, "x"), 0.0)
+            cls = wolves[0].impl.WOLF            # same plan draw and transform: same hold; draws differ by transform
+            n = c.state["wolf_n"]
+            self.assertEqual(self.ult.impl.wolf_hold(c, cls), self.ult.impl.wolf_hold(c, cls))
+            seen = set()
+            for k in range(40):
+                c.state["wolf_n"] = k
+                seen.add(self.ult.impl.wolf_hold(c, cls))
+            self.assertGreater(len(seen), 1)
+            c.state["wolf_n"] = n
+            self.f.counters[werewolf.WOLF_KEY] = -1.0
+            self.ult.cast()                         # the transform sets each wolf ability's ready time from its draw
+            for s in wolves:
+                c.state["wolf_n"] -= 1
+                self.assertEqual(s.scratch["wolf_ready"], self.ult.impl.wolf_hold(c, s.impl.WOLF))
+                c.state["wolf_n"] += 1
+            c.state.pop("wolf_u")                   # a fight without a plan draw (deterministic): ready at once
+            self.assertEqual(self.ult.impl.wolf_hold(c, cls), 0.0)
         finally:
             werewolf.WOLF_ABILITY_TIMING = False
 
