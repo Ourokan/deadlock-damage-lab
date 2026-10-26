@@ -3,9 +3,11 @@
 Assumptions:
 - Threadsap: skillshot within AbilityCastRange; the thread bursts ExplodeTime after the cast for Damage and steals
   TechPowerGain spirit (stacking up to MaxStacks) for DebuffDuration: the target loses it, Baba gains
-  StolenSpiritEffectiveness % of it. While Baba holds stolen spirit every gun bullet (pellet) that hits deals
+  StolenSpiritEffectiveness % of it. While Baba holds stolen spirit every shot that hits deals
   MagicDamagePerBullet spirit damage, booked as the game does under "Threadsap (gun)" (the API's damage matrix
-  lists ability_baba_bubbling_brew_gun_damage as its own Threadsap source). T3 pull is movement only.
+  lists ability_baba_bubbling_brew_gun_damage as its own Threadsap source), once per shot whatever its pellets
+  (replays). Her gun's 8.8 bullet damage is per shot, shared by the 3 pellets (build.SHOT_SPLIT_PELLETS).
+  T3 pull is movement only.
 - Granny Long Legs: a self buff for AbilityDuration: StatusResistancePercent status resist and MeleeResist melee
   resist (T3 adds to both and MeleeLifesteal melee lifesteal). Each heavy melee landed meanwhile is a ground pound
   that also deals HeavyMeleeSpiritDamage; light kicks only knock back. Meanwhile 71% of her melees are heavy
@@ -58,7 +60,9 @@ class Threadsap(AbilityImpl):
     def on_damage_dealt(self, c, target, hit):
         if hit.source != "gun" or not hit.hits or c.now >= c.me.counters.get(STOLEN_KEY, -1.0):
             return
-        c.engine.damage(c.me, target, c.val("MagicDamagePerBullet") * hit.hits, "spirit", "Threadsap (gun)",
+        # once per shot that lands, however many of its pellets hit (build.SHOT_SPLIT_PELLETS: the shot is the bullet).
+        # Replays: one Threadsap event on the tick of 74-78% of her gun hits, one shot's worth (~104 late) each
+        c.engine.damage(c.me, target, c.val("MagicDamagePerBullet"), "spirit", "Threadsap (gun)",
                         is_ability=True, ability=self.s)
 
 

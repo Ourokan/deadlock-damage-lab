@@ -16,6 +16,12 @@ from dataclasses import dataclass, field
 from .data import game, gun_calibration, Hero, Item, UNITS_PER_METER
 
 _warned = set()
+# guns whose data bullet_damage is the whole shot, shared by its `bullets` pellets (the API lists it per pellet for
+# other shotguns). Baba: Phantom+ replays, first 150 s of 59 matches (level 1-4): her volleys peak at 9 (8.8 body, all
+# three pellets) and 14 (8.8 x 1.65 head), with steps at 3 and 6 (one, two pellets) and nothing near 17.6 / 26.4;
+# Mo & Krill's 2.82 x 4 peak at 3, 6, 9, 12 as listed. With 8.8 per pellet the sim's gun dealt 2x real per shot
+# (other heroes 1.0-1.2x) and every Baba ability fit followed it, so Torment Pulse read 2x under in the audit.
+SHOT_SPLIT_PELLETS = {88}
 
 
 def gun_quirks(hero_id):
@@ -285,6 +291,8 @@ def compute_stats(hero, items=(), souls=None, level=None) -> Stats:
     st.fire_rate_pct = A("FIRE_RATE") / 100
     st.bullet_damage = w.get("bullet_damage", 0) + boons * pb.get("MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL", 0)
     st.pellets = int(w.get("bullets", 1) or 1)
+    if hero.id in SHOT_SPLIT_PELLETS:
+        st.bullet_damage /= st.pellets
     st.cycle_time = w.get("cycle_time", 1.0)
     charge, st.gun_range_m, st.gun_falloff = gun_quirks(hero.id)
     if st.gun_range_m is not None:

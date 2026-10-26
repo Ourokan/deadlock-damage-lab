@@ -19,6 +19,7 @@ Items not listed here only contribute their always-on stats; `MODELED` lets repo
 from __future__ import annotations
 
 from .abilities import CastCtx
+from .build import SHOT_SPLIT_PELLETS
 
 HANDLERS = {}
 
@@ -179,6 +180,8 @@ class BuildUp(FX):
     def per_hit(self, f):
         # a charged shot (Danny) is gun_charge base bullets' worth of damage, and builds up as much
         base = ((f.st.weapon or {}).get("bullet_damage", 0.0) or 1.0) * f.st.gun_charge
+        if f.st.hero.id in SHOT_SPLIT_PELLETS:   # a pellet carries its share of the shot (build.SHOT_SPLIT_PELLETS)
+            base /= f.st.pellets
         return self.item.p(self.per_prop) * self.scale * base * f.e.hit_falloff(f.st)
 
     def __init__(self, item, f):

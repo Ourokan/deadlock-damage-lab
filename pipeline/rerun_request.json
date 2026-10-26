@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-26T11:07:59Z",
- "reason": "Haze's Bullet Dance bullets proc on-hit items (Lucky Shot, Ricochet, Toxic, Tesla, ...) like gun bullets; Haze item factors refit"
+ "requested_at": "2026-10-26T14:30:00Z",
+ "reason": "Baba's gun: 8.8 damage per shot shared by its 3 pellets (was per pellet), Threadsap gun bonus once per shot; Baba refit"
 }

@@ -177,6 +177,23 @@ class GunCalibration(unittest.TestCase):
         self.assertEqual(info["matches"], 0)
         self.assertEqual(info["median_distance_m"], row["median_distance_m"])
 
+    def test_baba_pellets_share_the_shot(self):
+        # replays: Baba's 8.8 is the whole 3-pellet shot (build.SHOT_SPLIT_PELLETS); Mo & Krill's is per pellet
+        h = G.hero("Baba")
+        st = compute_stats(h.name, souls=0)
+        self.assertEqual(st.pellets, 3)
+        self.assertAlmostEqual(st.bullet_damage * st.pellets, h.weapon["bullet_damage"])
+        mo = G.hero("Mo & Krill")
+        self.assertAlmostEqual(compute_stats(mo.name, souls=0).bullet_damage, mo.weapon["bullet_damage"])
+
+    def test_threadsap_gun_bonus_once_per_shot(self):
+        from deadsim.heroes.baba import STOLEN_KEY, Threadsap
+        c = mock.Mock(now=1.0)
+        c.me.counters = {STOLEN_KEY: 5.0}
+        c.val.return_value = 40.0
+        Threadsap.on_damage_dealt(mock.Mock(s=None), c, mock.Mock(), mock.Mock(source="gun", hits=3))
+        self.assertEqual(c.engine.damage.call_args[0][2], 40.0)
+
 
 if __name__ == "__main__":
     unittest.main()
