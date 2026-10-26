@@ -1,6 +1,7 @@
 {
  "meta": {
-  "what": "landed basic melee hits per second of fight, fitted so sim melee/gun damage matches real damage matrix (scripts/landing_rates.py --fit-melee)"
+  "what": "landed basic melee hits per second of fight, fitted so sim melee/gun damage matches real damage matrix (scripts/landing_rates.py --fit-melee)",
+  "audit_fit": "rows with audit_fit: rate refit straight to the damage audit (scripts/melee_audit_fit.py, 2026-10-26), kept only for heroes better on both split halves; a landing_rates.py --fit-melee run would undo them"
  },
  "heroes": {
   "1": {
@@ -20,8 +21,9 @@
   },
   "4": {
    "name": "Lady Geist",
-   "rate": 0.0238,
-   "real_melee_share": 0.0219
+   "rate": 0.0349,
+   "real_melee_share": 0.0219,
+   "audit_fit": true
   },
   "6": {
    "name": "Abrams",
@@ -35,13 +37,15 @@
   },
   "8": {
    "name": "McGinnis",
-   "rate": 0.0037,
-   "real_melee_share": 0.0129
+   "rate": 0.0143,
+   "real_melee_share": 0.0129,
+   "audit_fit": true
   },
   "10": {
    "name": "Paradox",
-   "rate": 0.0464,
-   "real_melee_share": 0.0261
+   "rate": 0.0292,
+   "real_melee_share": 0.0261,
+   "audit_fit": true
   },
   "11": {
    "name": "Dynamo",
@@ -50,8 +54,9 @@
   },
   "12": {
    "name": "Kelvin",
-   "rate": 0.021,
-   "real_melee_share": 0.0263
+   "rate": 0.0425,
+   "real_melee_share": 0.0263,
+   "audit_fit": true
   },
   "13": {
    "name": "Haze",
@@ -65,8 +70,9 @@
   },
   "15": {
    "name": "Bebop",
-   "rate": 0.0302,
-   "real_melee_share": 0.0513
+   "rate": 0.0212,
+   "real_melee_share": 0.0513,
+   "audit_fit": true
   },
   "16": {
    "name": "Calico",
@@ -80,8 +86,9 @@
   },
   "18": {
    "name": "Mo & Krill",
-   "rate": 0.0342,
-   "real_melee_share": 0.0364
+   "rate": 0.0482,
+   "real_melee_share": 0.0364,
+   "audit_fit": true
   },
   "19": {
    "name": "Shiv",
@@ -155,8 +162,9 @@
   },
   "67": {
    "name": "Paige",
-   "rate": 0.0223,
-   "real_melee_share": 0.021
+   "rate": 0.0343,
+   "real_melee_share": 0.021,
+   "audit_fit": true
   },
   "69": {
    "name": "The Doorman",
@@ -170,8 +178,9 @@
   },
   "77": {
    "name": "Apollo",
-   "rate": 0.1003,
-   "real_melee_share": 0.2088
+   "rate": 0.1282,
+   "real_melee_share": 0.2088,
+   "audit_fit": true
   },
   "78": {
    "name": "Deadman Danny",
@@ -180,8 +189,9 @@
   },
   "79": {
    "name": "Rem",
-   "rate": 0.0259,
-   "real_melee_share": 0.0415
+   "rate": 0.0373,
+   "real_melee_share": 0.0415,
+   "audit_fit": true
   },
   "80": {
    "name": "Silver",
@@ -205,13 +215,15 @@
   },
   "87": {
    "name": "Nurse Harrow",
-   "rate": 0.0237,
-   "real_melee_share": 0.0347
+   "rate": 0.0274,
+   "real_melee_share": 0.0347,
+   "audit_fit": true
   },
   "86": {
    "name": "Violet",
-   "rate": 0.0209,
-   "real_melee_share": 0.0103
+   "rate": 0.0336,
+   "real_melee_share": 0.0103,
+   "audit_fit": true
   },
   "88": {
    "name": "Baba",
