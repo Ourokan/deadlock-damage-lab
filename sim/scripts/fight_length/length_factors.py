@@ -26,9 +26,12 @@ Each row keeps its fitted factor (landing) and gets length_corr; deadsim.accurac
 keep the fit as it is. After a refit (landing_rates.py, refit_landing_heroes.py, item_landing.py: they fit with
 every hit in full and keep the old length_corr) rerun this.
 
---entry (after Mechanics.entry_hp, on factors already kept for cast timing): target = the current corrections in held
-duels at full health; rounds scale them until the duels at real entry health give that again. --target-holds PATH:
+--entry (after Mechanics.entry_hp or entry_gate, on factors already kept for cast timing): target = the current
+corrections in held duels at full health (both off); rounds scale them until the duels at real entry health give that
+again. --target-holds PATH:
 the target run uses that cast_timing.json (the one before the refit), so abilities newly held keep their level.
+--target-off MODULE.FLAG[,...]: the target run also has these module flags off (a new hero mechanic, e.g.
+deadsim.heroes.mirage.MARK_GAPS), so it moves when that damage lands, not how much.
 usage: python3 length_factors.py [workers] [--sample PATH] [--rounds 3] [--write] [--hero NAME] [--refit] [--entry]   (~1 min a round on 4 cores)
 --hero: only that hero's players and ability rows (a newly added hero); item factors are left as they are.
 After refit_landing_heroes.py for a hero: --refit --no-cast-timing --hero NAME (the corrections as before cast
@@ -72,7 +75,11 @@ def set_cast_timing(on, entry=None):
     import dataclasses
     if entry is None:   # off with cast timing off (the fitted state), else as configured
         entry = A.MECH.entry_hp if on else False
-    A.MECH = dataclasses.replace(A.MECH, cast_timing=on, entry_hp=entry)
+    gate = (A.MECH.entry_gate or bool(_GATE)) if on else False   # execute gates: as entry_hp
+    A.MECH = dataclasses.replace(A.MECH, cast_timing=on, entry_hp=entry, entry_gate=gate)
+
+
+_GATE = None   # Mechanics.entry_gate as configured, set in main (set_cast_timing(False) turns it off)
 
 
 PENDING = "cast_timing_pending_heroes"   # meta: heroes refit (--refit --hero) and not yet keep-scaled
@@ -110,6 +117,8 @@ def run(jobs, workers):
 
 
 def main():
+    global _GATE
+    _GATE = A.MECH.entry_gate
     args = sys.argv[1:]
     sample = os.path.join(ROOT, "validation", "phantom_sample.jsonl.gz")
     if "--sample" in args:
@@ -165,15 +174,25 @@ def main():
         # a refit that added holds, so newly held abilities keep their level too)
         import deadsim.mechanics as M
         ACC.LENGTH_CORR = True
-        entry = A.MECH.entry_hp
-        A.MECH = dataclasses.replace(A.MECH, entry_hp=False)
+        entry, gate = A.MECH.entry_hp, A.MECH.entry_gate
+        A.MECH = dataclasses.replace(A.MECH, entry_hp=False, entry_gate=False)
         holds = M._CAST
         if "--target-holds" in sys.argv:
             with open(sys.argv[sys.argv.index("--target-holds") + 1]) as fh:
                 M._CAST = json.load(fh)["sources"]
+        flags = []
+        if "--target-off" in sys.argv:
+            import importlib
+            for name in sys.argv[sys.argv.index("--target-off") + 1].split(","):
+                mod, attr = name.rsplit(".", 1)
+                mod = importlib.import_module(mod)
+                flags.append((mod, attr, getattr(mod, attr)))
+                setattr(mod, attr, False)
         target_ab, _, target_it, _, _ = run(jobs, workers)
         M._CAST = holds
-        A.MECH = dataclasses.replace(A.MECH, entry_hp=entry)
+        for mod, attr, v in flags:
+            setattr(mod, attr, v)
+        A.MECH = dataclasses.replace(A.MECH, entry_hp=entry, entry_gate=gate)
     elif keep and "cast_timing_kept" in abil["meta"] and only is None:
         # the target run would cast on sight with corrections already scaled for held casts: rerunning compounds
         sys.exit("length_factors: these factors are already scaled for cast timing (meta cast_timing_kept). Start "

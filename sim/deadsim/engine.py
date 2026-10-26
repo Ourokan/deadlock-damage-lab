@@ -271,6 +271,7 @@ class Fighter:
         self.max_hp_base = stats.max_health
         self.hp = stats.max_health
         self.entry_set = False      # start health set by the caller (Mechanics.entry_hp leaves it)
+        self.entry_gap = 0.0        # share of max health short at fight entry, seen by execute gates (Mechanics.entry_gate)
         self.mods = Mods(engine)
         self.barriers = []          # [amount, expire]
         self.enemy: Fighter = None
@@ -366,6 +367,16 @@ class Fighter:
     @property
     def hp_frac(self):
         return self.hp / self.max_hp
+
+    @property
+    def gate_hp(self):
+        """Health as execute gates (Killing Blow, Assassinate, Close The Deal, Lethal Venom) see it: short by the
+        real entry deficit drawn for the fight (Mechanics.entry_gate; 0 otherwise)."""
+        return max(1e-6, self.hp - self.entry_gap * self.max_hp)
+
+    @property
+    def gate_frac(self):
+        return self.gate_hp / self.max_hp
 
     def dyn(self, key):
         """Dynamic (conditional) modifiers from items, e.g. +18% weapon damage while above 65% health."""
@@ -1047,6 +1058,9 @@ class Engine:
             if self.length and self.mech is not None and getattr(self.mech, "entry_hp", False):
                 from .mechanics import entry_health
                 entry_health(f)
+            elif self.length and self.mech is not None and getattr(self.mech, "entry_gate", False):
+                from .mechanics import entry_gate
+                entry_gate(f)
             if f.skill.fight_phase is not None:
                 unused_items(f)
             for fx in f.items_fx:

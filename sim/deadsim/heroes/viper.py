@@ -9,7 +9,8 @@ Assumptions:
   between VenomMinDamage (target at >= 100% health) and VenomMaxDamage (target at <= 30%) from the target's
   health at that moment. Vyper casts it once the target is below VENOM_CAST_HP. T2 healing penalty lasts while
   the venom is pending. T3: each gun hit adds BuildUpPerShot % (resets after BuildUpDuration without hits);
-  at 100% a venom is applied if none is pending. Venom ignores Petrify's damage block.
+  at 100% a venom is applied if none is pending. Venom ignores Petrify's damage block. Cast and damage use the
+  target's gate health (Mechanics.entry_gate: short by its real entry deficit).
 - Slither: movement only. T3 barrier CombatBarrier (180 + spirit scaling, via c.val) for BuffDuration,
   on every slide, which is assumed to be used whenever the T3 cooldown is ready.
 - Petrifying Bola: assumed direct hit: Damage + PetrifyDamage, then the target is stunned and immune to damage
@@ -31,7 +32,7 @@ def venom_damage(c, ab_ctx, target):
     lo, hi = ab_ctx.val("VenomMinDamage"), ab_ctx.val("VenomMaxDamage")
     hp_hi = ab_ctx.raw("VenomMinDamageHealthPercentage", 100) / 100
     hp_lo = ab_ctx.raw("VenomMaxDamageHealthPercentage", 30) / 100
-    x = (hp_hi - target.hp_frac) / max(1e-6, hp_hi - hp_lo)
+    x = (hp_hi - target.gate_frac) / max(1e-6, hp_hi - hp_lo)   # (Mechanics.entry_gate: real entry health)
     return lo + (hi - lo) * min(1.0, max(0.0, x))
 
 
@@ -74,7 +75,7 @@ class LethalVenom(AbilityImpl):
         return c.within(r)
 
     def should_cast(self, c):
-        return self.in_range(c) and c.foe.hp_frac <= VENOM_CAST_HP and c.now >= c.state["pending_until"]
+        return self.in_range(c) and c.foe.gate_frac <= VENOM_CAST_HP and c.now >= c.state["pending_until"]
 
     def cast(self, c):
         self.apply(c)

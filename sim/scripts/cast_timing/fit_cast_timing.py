@@ -59,6 +59,7 @@ HORIZON = 20.0
 MIN_FIGHTS = 60      # real fights for a row
 MIN_DUELS = 30
 CAST_ON_SIGHT = 0.7
+PROBE_SIGHT_S = 2.0  # held_opens == "first_hit" abilities: on sight in the probe run by then
 QBINS = 20
 LAG_MAX = 8.0        # a hit this long after the cast belongs to it (charge-up, fuse, travel, a DoT's first tick)
 MIN_LAGS = 30        # casts with a hit for an ability's median cast -> hit time
@@ -324,18 +325,24 @@ def fit(n, workers, write, hero=None):
     load_heroes()
     ults = {f"{hh.id}:{a.class_name}" for hh in G.heroes.values() for i, a in enumerate(hh.abilities)
             if i == 3 or getattr(REGISTRY.get(a.class_name), "held_opens", False)}
+    # held openers that wait for a first gun hit (Djinn's Mark's first mark) come after the other openers' gun locks
+    # with the holds off: their probe counts as on sight by PROBE_SIGHT_S
+    late_ok = {f"{hh.id}:{a.class_name}" for hh in G.heroes.values() for a in hh.abilities
+               if getattr(REGISTRY.get(a.class_name), "held_opens", False) == "first_hit"}
     sim0u = sim_curves(n, workers, False, probe=True, hero=hid)
     h = int(HORIZON / 0.5)
 
-    def on_sight(sm):
+    def on_sight(sm, by=2):
         return sm and sm["duels"] >= MIN_DUELS and sm["cast_by"][h] >= 0.05 and \
-            sm["cast_by"][2] >= CAST_ON_SIGHT * sm["cast_by"][h]
+            sm["cast_by"][by] >= CAST_ON_SIGHT * sm["cast_by"][h]
     out = {}
     for key, r in sorted(real_rows.items()):
         sm = sim0.get(key)
-        if not on_sight(sm) and key in ults and on_sight(sim0u.get(key)):
+        if on_sight(sm):
+            pass
+        elif key in ults and on_sight(sim0u.get(key), int(PROBE_SIGHT_S / 0.5) if key in late_ok else 2):
             sm = sim0u[key]
-        if not on_sight(sm):
+        else:
             continue   # the sim already waits for something (a health gate, stacks, range): its timing is its own
         out[key] = holds(r, sm)
     res = {"source": json.load(open(REAL))["source"] + "; sim: damage audit duels, holds off",

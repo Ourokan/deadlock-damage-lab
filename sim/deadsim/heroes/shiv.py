@@ -18,6 +18,7 @@ Assumptions:
   at least CLEAR_MIN damage is pending. T3 data (+15 DamagePctDeferred) used as is.
 - Killing Blow: cast only when the target is below EnemyHealthPercent (buffer ignored) and in cast range (+ the
   usual engage margin): executes (pure damage = remaining health). The recast window is irrelevant in 1v1.
+  The threshold checks the target's gate health (Mechanics.entry_gate: short by its real entry deficit).
 """
 from deadsim.abilities import AbilityImpl, register
 
@@ -176,7 +177,7 @@ class KillingBlow(AbilityImpl):
 
     def should_cast(self, c):
         thr = c.raw("EnemyHealthPercent") / 100
-        return c.foe.hp_frac < thr and c.within(c.rng("AbilityCastRange"))
+        return c.foe.gate_frac < thr and c.within(c.rng("AbilityCastRange"))
 
     def cast(self, c):
         delay = max(c.raw("AbilityCastDelay"), c.raw("MinTimeToTarget"))
