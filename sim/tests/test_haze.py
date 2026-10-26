@@ -54,6 +54,21 @@ class BulletDanceLanding(unittest.TestCase):
         self.assertGreater(part.a_dmg.get("gun", 0), full.a_dmg.get("gun", 0))
 
 
+class BulletDanceProcsOnHit(unittest.TestCase):
+    def test_bullet_dance_bullets_proc_on_hit_items(self):
+        # the gun never hits (accuracy 0) and Bullet Dance always does: on-hit items proc only through the ult, as
+        # Haze's do in Phantom+ replays (Lucky Shot / Ricochet / Toxic events in its windows with no gun hits)
+        sk = Skill(accuracy=0.0, headshot=0.0, use_actives=False)
+        a = Loadout("Haze", ["Lucky Shot", "Toxic Bullets"], souls=30000, skill=sk)
+        b = Loadout("Abrams", [], souls=30000, skill=Skill(accuracy=0.0, use_abilities=False, use_actives=False,
+                                                           melee_rate=0.0))
+        r = duel(a, b, distance=8.0, max_time=8.0, mechanics=None)
+        self.assertGreater(r.a_dmg.get("Bullet Dance", 0), 0)
+        self.assertEqual(r.a_dmg.get("gun", 0), 0)
+        self.assertGreater(r.a_dmg.get("Lucky Shot", 0), 0)
+        self.assertGreater(r.a_dmg.get("Toxic Bullets", 0), 0)
+
+
 class SleepWakesOnAnyDamage(unittest.TestCase):
     def sleep_then_dot(self, at):
         """Haze sleeps the target at t=0 (no other damage), then a no-proc DoT tick hits it at `at` s."""
