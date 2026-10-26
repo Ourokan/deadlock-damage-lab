@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-26T07:14:54Z",
- "reason": "Melee rates refit to the damage audit for 11 heroes incl. Paradox (PR #117)"
+ "requested_at": "2026-10-26T07:27:59Z",
+ "reason": "Damage audit item rows per total damage; per-hero item factors refit on them"
 }
