@@ -11,7 +11,10 @@ Assumptions:
   MeleeAttackLength (+ engage margin) or was just hooked. The landing explosion only damages *other* enemies,
   so it deals nothing in a 1v1. The hit is melee damage (melee resist, not spirit resist) but procs Mystic Burst /
   Tankbuster like a spirit ability hit (Phantom+ replays: Uppercut alone on a tick releases Tankbuster 18% and
-  Mystic Burst 23% of the time; Grapple Arm, also melee, never does). T2: +BuffBaseWeaponPct weapon damage for UppercutBuffOnHit s; T3: Grapple Arm
+  Mystic Burst 23% of the time; Grapple Arm, also melee, never does). Tankbuster's 165 minimum doesn't apply to
+  it: Uppercut releases it on TANKBUSTER_CHANCE of hits at every size (27 Bebop holders, 215 Uppercuts alone on
+  their tick: 7-26% in every 20-damage bin from 80 to 200 dealt, 38 of 215 overall, the misses a median 37 s
+  after the last release, so not for lack of charge), where the 165 rule left it 5% of sim Uppercuts. T2: +BuffBaseWeaponPct weapon damage for UppercutBuffOnHit s; T3: Grapple Arm
   cooldown reset and heal MissingHPHeal % of missing health.
 - Sticky Bomb: target ability (cast range + margin, or after a hook); explodes after FuseTime. The permanent
   per-hit stacks grow within the fight (BonusDamagePctPerPlayerHit per earlier hit). Self damage ignored
@@ -24,6 +27,7 @@ Assumptions:
 from deadsim.abilities import AbilityImpl, register
 
 HOOK_MELEE_SCALE = 0.7     # raw Grapple Arm Damage: 0 + 0.7 x ELightMeleeDamage
+TANKBUSTER_CHANCE = 0.18   # share of Uppercut hits that release Tankbuster, any size (replays, see above)
 HOOK_CLOSE_WINDOW = 3.0   # s the hooked target stays in melee / sticky range after the pull
 HOOK_KEY = "bebop_hooked_until"
 FLIGHT_KEY = "bebop_hook_flight"
@@ -54,6 +58,7 @@ def combo_ready(c):
 class ExplodingUppercut(AbilityImpl):
     kind = "target"
     spirit_procs = True
+    tankbuster_chance = TANKBUSTER_CHANCE
 
     def in_range(self, c):
         return hooked(c) or c.within(c.rng("MeleeAttackLength", 6.0))

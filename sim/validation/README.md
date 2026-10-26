@@ -1478,3 +1478,28 @@ other): mix 0.0343 -> 0.0345 and 0.0309 -> 0.0318, hero x item |log real/sim| 0.
 (melee and Mystic Burst / Tankbuster rows 0.256 -> 0.241, 0.248 -> 0.232). sim_vs_win 27k: all pairs 0.171 -> 0.169, damage items 0.070 -> 0.067, edges clear of noise
 0.265 -> 0.267, per item 0.240 -> 0.241 (flat); mean gain per 1000 souls Spirit Snatch 0.066 -> 0.060, Spirit Strike
 0.094 -> 0.093. On main after #106/#108: audit mix 0.0302 -> 0.0308.
+
+## Tankbuster on Bebop: Uppercut releases it on a flat share of hits (2026-10-26)
+
+Bebop's Tankbuster was 1.55 x under real in the holders-only table (43 holders). Replays (260 Phantom+ fight
+replays, every hero-vs-hero DamageEvent with victim health) say Tankbuster's own rule is right: a release is exactly
+(40 + 7.5% of the victim's health before it) x charge (ratio 1.00 at 14 s+ since the last release, 0.68 at 7-14 s),
+the charge is shared over victims (not per victim), and Tankbuster per Sticky Bomb damage for Bebop holders is 0.25
+real vs 0.26 sim. Sticky Bomb triggers 88% of Bebop's real releases, Uppercut ~10%. The same 43 players are ~1.5 x
+under per gun on Sticky Bomb (5.05 vs 3.19) and Uppercut (1.04 vs 0.77) too: the Bebops who buy Tankbuster barely
+shoot, so most of the gap is the gun denominator, not the item (all Bebops by game phase: Sticky Bomb per gun
+0.97-1.02 real/sim, Tankbuster 1.10 late).
+
+What was wrong: Uppercut releases Tankbuster on a flat share of its hits whatever their size (215 Uppercuts alone on
+their tick by 27 holders: 7-26% in every 20-damage bin from 80 to 200 dealt, 38 of 215 overall; the misses come a
+median 37 s after the last release, so not for lack of charge). The sim applied the 165 minimum, so only 5% of its
+Uppercuts released. Now `AbilityImpl.tankbuster_chance` (Uppercut: `bebop.TANKBUSTER_CHANCE` = 0.18) releases it on
+that share of hits and skips the minimum; Mystic Burst keeps its 80 dealt check (its Uppercut share falls with hit
+size in replays, likely holders selling it late, so not changed). Nothing refit: Bebop has no per-hero Tankbuster
+factor and the pooled one is above 1 (uncut).
+
+Results (main -> this, full sample, same machine): audit mix 0.0309 -> 0.0308, hero x item |log real/sim| 0.2335 ->
+0.2328; Bebop Tankbuster 1.53 -> 1.35, Bebop sources 0.0252 -> 0.0245; split halves (even / odd match ids, Bebop
+only, nothing fitted): sources 0.0292 -> 0.0290 and 0.0212 -> 0.0212, odd-half Tankbuster 1.12 -> 1.04 (even half
+under 20 holders). sim_vs_win 27k for Bebop unchanged (only Bebop's Uppercut changes). Left: the gun of spirit-built
+Bebops; Tankbuster under on Paradox / Drifter / Violet (pooled real/sim 1.42, uncut) is not this.
