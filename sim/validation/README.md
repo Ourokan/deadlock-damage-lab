@@ -1342,8 +1342,8 @@ Stalker +16%.
   item's rows): Abrams 0.66, Bebop 0.89, Billy 0.74, Calico 0.76, Silver 0.69, Yamato 0.63, Drifter 1.0 (cap; real/sim
   1.30). The 8 Stalker holders on low-melee heroes: real/sim 1.16 -> 0.97.
 
-Results (main -> this): damage audit player-weighted mix 0.0311 -> 0.0313, pooled Stalker real/sim 1.06 -> 1.11
-(Drifter at the cap), items |log real/sim| 0.158 -> 0.164; most of that is Rebuttal 1.26 -> 1.61, whose sim damage is a
+Results (main -> this): damage audit player-weighted mix 0.0311 -> 0.0313 (0.0317 -> 0.0317 after rebasing on #103),
+pooled Stalker real/sim 1.06 -> 1.11 (Drifter at the cap), items |log real/sim| 0.158 -> 0.164; most of that is Rebuttal 1.26 -> 1.61, whose sim damage is a
 handful of parries per player and flips with any change to a fight (per-hero rows move both ways: Bebop 0.13 -> 0.07,
 Wraith 0.02 -> 0.10 of gun damage); turning the melee cap off leaves it the same. sim_vs_win 27k: all pairs 0.159 ->
 0.168, damage items 0.041 -> 0.063, edges clear of noise 0.264 -> 0.264, per item 0.230 -> 0.237. Mean sim gain per
