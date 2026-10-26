@@ -1,5 +1,5 @@
 {
   "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
-  "requested_at": "2026-10-26T22:20:00Z",
-  "reason": "Victor's Aura of Suffering on at the fight start (frank.AURA_TIMING) + Victor refit"
+  "requested_at": "2026-10-26T23:35:00Z",
+  "reason": "Cooldown items start more fights with abilities ready (Mechanics.cdr_ready, data/cdr_ready.json)"
 }

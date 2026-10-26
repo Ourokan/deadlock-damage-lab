@@ -2104,3 +2104,31 @@ and 0.0163 -> 0.0158, per-source 0.0235 -> 0.0184 and 0.0198 -> 0.0181 (better o
 compare: aura first 2 s 0.06 -> 0.20 (real 0.26), mean time 9.0 -> 6.3 s (real 5.2). sim_vs_win 27k (before #138):
 Victor's pairs 0.258 -> 0.250 (damage items 0.230 -> 0.238, clear edges 0.400 -> 0.404); all heroes 0.171, clear
 edges 0.267, per item 0.248, damage items 0.066 (flat against main's 0.170 / 0.266 / 0.244 / 0.066).
+
+## Cooldown items at the fight start (2026-10-27)
+
+After the recast fix (#138) cooldown items lost 20-30% of their sim value, and they were already ranked low against
+real wins: sim_vs_win 27k per-item sim gain rank (of 141) vs real Phantom+ win edge rank, before #138 / on main:
+Superior Cooldown 109 / 121 (edge +0.7, rank 12), Compress Cooldown 115 / 126 (+0.4, rank 22), Transcendent
+Cooldown 126 / 131 (-0.4, rank 56). Two checks on the 259 cast-timing replays:
+- Recasts: real holders' wait past the (shorter) cooldown matches matched non-holders' (same hero, ability, 10-min
+  bin): P(recast by 0.5/1/2/4/8 s) 0.14/0.23/0.38/0.58/0.82 vs 0.15/0.25/0.40/0.61/0.80. Measured from the cooldown
+  they would have had without the items it is 0.35/0.41/0.51/0.67/0.86, so the cut is used in full; recast_timing's
+  waits drawn independent of the cooldown are right.
+- Fight starts: the sim opens each fight with every ability ready and holds the first cast to the real cast timing,
+  whose share of fights started with an ability still cooling came from real (mostly item-less) cooldowns, so
+  cooldown items bought no fight starts. `scripts/cast_timing/cdr_ready.py real` -> per fight start and single-charge
+  ability (ults included): time since the last cast tau, the cooldown, the cooldown without item cdr. Ready = tau >=
+  cooldown (item cdr: cooldown items, ult cooldown items, a Compress Cooldown imbue; mechanics.item_cd_keep). Ults: holders ready at 0.467 of fight starts vs matched non-holders 0.425; non-holders' tau at the
+  holders' cooldown ratio (0.81) would give 0.513, so holders get rho 0.47 of it (halves by hero id parity 0.48 /
+  0.47). Abilities: 0.572 vs 0.545 vs 0.616, rho 0.38 (halves 0.45 / 0.23). Holders cast more between fights, so
+  their tau is shorter.
+- Model (Mechanics.cdr_ready, ON): mechanics.cdr_ready_u moves the first-cast hold quantile so the ready share goes
+  from r(1) to r(1) + rho x (r(k) - r(1)), k = the cooldown share the build's items leave, r = non-holders' share
+  of fights with tau >= k x cooldown (per ability with >= 300 fights, else pooled ult / ability; data/cdr_ready.json).
+  The real holds' early quantiles stretch over the new ready share, the late / not-cast ones shrink into the rest.
+- Results (27k sim_vs_win, main -> this): all pairs 0.176 -> 0.179, clear edges 0.269 -> 0.274, per item 0.255 ->
+  0.260, damage items 0.068 -> 0.069. Superior Cooldown sim gain 0.0171 -> 0.0222 (rank 121 -> 108), Transcendent
+  0.0111 -> 0.0138 (131 -> 127), Compress 0.0136 -> 0.0152 (126 -> 123). Damage audit mix 0.0228 -> 0.0232 (noise:
+  real builds hold few cooldown items). Cooldown items still rank below their real edge: what is left is outside a
+  fight (farming, pushing, more casts between fights), which the overall score does not see; the win blend carries it.
