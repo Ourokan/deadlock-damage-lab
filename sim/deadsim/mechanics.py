@@ -66,6 +66,7 @@ Settings fitted to real ranked matches (validation/README.md, "New mechanics"):
 """
 from __future__ import annotations
 
+import bisect
 import json
 import math
 import os
@@ -162,6 +163,13 @@ class Mechanics:
     # MECH.recast_timing), so it moves when ability damage lands and what cooldown items are worth, not how much
     # the fitted factors give (validation/README.md "Ability recasts on real timing")
     recast_timing: bool = True
+    # cooldown items at the fight start (2026-10-27): the real holds (cast_timing) carry real players' share of fights
+    # opened with an ability still cooling from the fight before, at real cooldowns, so cooldown items only bought
+    # recasts. With cast_timing, a build whose items cut an ability's cooldown (to k x) starts more fights with it
+    # ready: the ready share rises by rho x (r(k) - r(1)), r = real share of fights with time since the last cast >=
+    # k x cooldown, rho = the share of it real holders get (data/cdr_ready.json, scripts/cast_timing/cdr_ready.py);
+    # the hold draw moves from the late / not-cast end of the real holds to the early end by that much
+    cdr_ready: bool = True
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
@@ -331,10 +339,57 @@ def hold_first_casts(f):
             u = (phase + zlib.crc32(f"{ab.ab.class_name}|{f.name}".encode()) / 2 ** 32) % 1.0
         else:
             u = rng.random()
+        if getattr(f.e.mech, "cdr_ready", False):
+            u = cdr_ready_u(f, ab, u)
         h = q[min(len(q) - 1, int(u * len(q)))]
         ab.held_until = f.e.t + (math.inf if h is None else max(0.0, h))
         ab.timed = True
         ab.precast_at = f.e.t + h if h is not None and h < 0 else None
+
+
+_CDR = None
+
+
+def cdr_ready_rows():
+    """data/cdr_ready.json: {"k_grid", "rho": {"ability"|"ult": {"rho"...}}, "pooled": {..: curve}, "sources":
+    {"hero id:ability class": curve}}, curve = real share of fights started ready at k x the cooldown."""
+    global _CDR
+    if _CDR is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "cdr_ready.json")) as fh:
+            _CDR = json.load(fh)
+    return _CDR
+
+
+def item_cd_keep(f, ab):
+    """The share of ab's cooldown the fighter's items leave (1 = no item cooldown reduction): cooldown items, ult
+    cooldown items and a Compress Cooldown imbue (AbilityState.cooldown's item terms)."""
+    reds = [f.st.cdr] + ([f.st.ult_cdr] if ab.ab.ultimate else [])
+    reds += [it.p("CooldownReduction") / 100 for it in ab.imbues if it.class_name == "upgrade_magic_tempo"]
+    keep = 1.0
+    for r in reds:
+        keep *= 1.0 - max(0.0, min(0.95, r))
+    return keep
+
+
+def cdr_ready_u(f, ab, u):
+    """Mechanics.cdr_ready: the hold quantile u for a build whose items leave k of ab's cooldown. The real ready
+    share r(1) becomes r(1) + rho x (r(k) - r(1)); the holds below the real ready share stretch over the new one,
+    the rest shrink into what is left."""
+    keep = item_cd_keep(f, ab)
+    if keep >= 0.999 or ab.max_charges() > 1:
+        return u
+    d = cdr_ready_rows()
+    tag = "ult" if ab.ab.ultimate else "ability"
+    c = d["sources"].get(f"{f.st.hero.id}:{ab.ab.class_name}") or d["pooled"][tag]
+    ks = d["k_grid"]
+    k = max(ks[0], keep)
+    j = min(len(ks) - 2, bisect.bisect_right(ks, k) - 1)
+    rk = c[j] + (c[j + 1] - c[j]) * (k - ks[j]) / (ks[j + 1] - ks[j])
+    r1 = c[-1]
+    r = min(0.999, r1 + max(0.0, d["rho"][tag]["rho"] * (rk - r1)))
+    if r <= r1 or r1 <= 0.0:
+        return u
+    return u * r1 / r if u < r else r1 + (u - r) * (1.0 - r1) / (1.0 - r)
 
 
 _RECAST = None
