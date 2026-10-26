@@ -1688,3 +1688,32 @@ mostly lower (Bebop Mystic Reverb 0.56 -> 0.36, Tankbuster on Bebop/Celeste/Rem/
 `ability_corr_heroes.py`) stay per gun: they pool every player of a hero, where per gun and per share have the same
 fixed point. Scripts that import the audit's `sim_player` for its held-item rows (`item_landing.py`, `length_factors.py`) keep per gun: only the audit's own run defaults to total. The pooled `item_landing.py` fit is unchanged
 (per gun; refitting it moves pooled factors a lot, see "Per-hero item factors").
+
+## Baba's gun: 8.8 per shot, not per pellet (2026-10-26)
+
+Baba had the audit's widest mix gap (0.093) with Torment Pulse 2.17x under per gun, though Torment Pulse itself matches
+replays (uptime and hit size). The anchor was off: her gun dealt 2.0x real damage per shot (sim gun damage / shots vs
+replay gun damage / `shots_fight4`, `gun_calib/gun_stats.json.gz`; other heroes 0.93-1.33x), and every Baba ability,
+melee and item factor is fitted relative to gun damage, so all her sources ran 2-3.6x real per fight second while the
+time-based Torment Pulse could not follow.
+
+Replays: a Baba gun hit is one damage event per shot. In the first 70 s (level 1, no items) the values peak at 9 (8.8
+body) and 14 (x1.65 head) with steps near 3 and 6; almost none reach 17-26, which 2-3 pellets of 8.8 would give
+although the API counts 2.14 pellets per hitting shot. Mo & Krill's 2.82 x 4 peak at 3, 6, 9, 12 as listed. So the
+data's 8.8 (and its level growth) is the whole shot: `build.SHOT_SPLIT_PELLETS` divides it by the pellets (and
+`BuildUp.per_hit`). Threadsap's gun bonus is one event on the tick of 74-78% of gun hits, one shot's worth each: now
+once per landed shot, not per pellet. After the split the gun reads 0.67x real per shot.
+
+Refit of Baba only (`refit_landing_heroes.py --iterate 2`, 3x `ability_corr_heroes.py`, `melee_audit_fit.py`,
+3x `ability_corr_heroes.py` again since the melee rate drives Granny Long Legs' ground pounds, 2x
+`item_landing_heroes.py --hero Baba`). Split-half (fit on even match ids, audit odd, and reverse), old code with the
+same refit as reference:
+
+| fit -> audit | mix old | mix new | per-source old | per-source new |
+|---|---|---|---|---|
+| even -> odd | 0.099 | 0.032 | 0.105 | 0.056 |
+| odd -> even | 0.090 | 0.049 | 0.108 | 0.055 |
+
+Full sample: Baba 0.093 -> 0.031, Torment Pulse holders 1.87 -> 0.98, all heroes 0.0256 -> 0.0243; melee rate
+0.176 -> 0.070. sim_vs_win 27k all pairs 0.166 -> 0.167, edges clear of noise 0.266, per item 0.238. Drifter's
+"3 x 19.5" looks the same in replays (early hits peak at 20, never 39 or 58; gun 1.64x real per shot): not changed.
