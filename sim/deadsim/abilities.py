@@ -429,6 +429,7 @@ class AbilityState:
         self.timed = False       # the first cast has a real cast timing hold (patterns.Plan skips the ult's wait)
         self.recast_wait = 0.0   # mechanics.recast_timing: the next cast waits this long past ready_at (inf: not this fight)
         self.casts = 0
+        self.resets = 0
 
     # stats --------------------------------------------------------------------------------------------
     def is_charged(self):
@@ -571,12 +572,28 @@ class AbilityState:
         self.scratch.pop("_bonus_duration", None)
         self.scratch.pop("_walk_in_at", None)
 
-    def reset_cooldown(self):
+    def reset_cooldown(self, redraw=True):
+        """Ready now (Refresher, Shadow Transformation...). With Mechanics.recast_timing the next cast waits a fresh real
+        recast wait from now (redraw; RESET_REDRAW): real players don't jump on a reset ability any faster than on one
+        whose cooldown ran out (their recast curves already hold the resets, as early recasts). The draw is among the
+        waits of casts that came (never "not again this fight"); an ability already off cooldown keeps its wait."""
+        e = self.f.e
+        left = max(0.0, self.ready_at + self.recast_wait - e.t)   # an ability already off cooldown keeps its wait
+        on_cd = e.t < self.ready_at
         self.charges = self.max_charges()
-        self.ready_at = self.f.e.t
+        self.ready_at = e.t
         self.recast_wait = 0.0
         self.next_charge = 0.0
+        if redraw and RESET_REDRAW and e.length and e.mech is not None and getattr(e.mech, "recast_timing", False):
+            if not on_cd:
+                self.recast_wait = left
+                return
+            from .mechanics import recast_wait
+            self.resets += 1
+            self.recast_wait = recast_wait(self, n=f"reset{self.casts}.{self.resets}", finite=True)
 
+
+RESET_REDRAW = True   # reset_cooldown draws a fresh recast wait (Mechanics.recast_timing)
 
 _LOADED = False
 

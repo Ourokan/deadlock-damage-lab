@@ -38,7 +38,9 @@ Lycan Curse (ult):
               bullet shred) and DPS spirit DoT for DebuffDuration. Lands at spirit_accuracy.
     slot 3 -> Tail Whack: spirit Damage in a 10 m radius + disarm for DisarmDuration. Replays: 1.20 enemy heroes hit
               per cast, so TAIL_WHACK_OTHERS x Damage also lands on the others near the target (mechanics._splash).
-  Human and wolf versions keep separate cooldowns, both scaled by the slot's cooldown reduction. The slot's real
+  Human and wolf versions keep separate cooldowns, both scaled by the slot's cooldown reduction, and (Mechanics.
+  recast_timing) separate real recast waits past them: the wolf abilities' own curves from replays (their class ids;
+  the form swap's cooldown reset used to drop the wait, Boot Kick recast within 0.5 s of ready 89% vs real 3%). The slot's real
   first-cast hold (Mechanics.cast_timing) is the human ability's and doesn't hold its wolf ability: real wolf runs
   open with Mauling Leap / Tail Whack / Go For The Throat 0.5 / 0.7 / 1.1 s in (median), while the sim waited
   out the human holds (the Bola's held Tail Whack to 0.70 casts per transform, a 2.1x length_corr).
@@ -165,16 +167,30 @@ class WolfSlot(AbilityImpl):
 
     def cast(self, c):
         st = c.state
-        base_cd = c.raw("AbilityCooldown")
-        keep = self.s.cooldown() / base_cd if base_cd else 1.0
         if wolf(c):
-            st["wolf_ready"] = c.now + alt(c, self.WOLF).raw("AbilityCooldown") * keep
+            st["wolf_casts"] = st.get("wolf_casts", 0) + 1
+            st["wolf_ready"] = c.now + self.wolf_cooldown(c) + self.wolf_wait(c)
             self.s.casts -= 1   # not the human ability's first cast (held_opener)
             self.wolf_cast(c)
         else:
-            st["base_ready"] = c.now + self.s.cooldown()
+            # the slot's recast wait (Mechanics.recast_timing, drawn at this cast) waits past the human cooldown
+            st["base_ready"] = c.now + self.s.cooldown() + self.s.recast_wait
             self.base_cast(c)
-        self.s.reset_cooldown()   # cooldowns are tracked per form in scratch
+        self.s.reset_cooldown(redraw=False)   # cooldowns (and recast waits) are tracked per form in scratch
+
+    def wolf_cooldown(self, c):
+        """The wolf ability's cooldown, scaled by the slot's cooldown reduction."""
+        base_cd = c.raw("AbilityCooldown")
+        keep = self.s.cooldown() / base_cd if base_cd else 1.0
+        return alt(c, self.WOLF).raw("AbilityCooldown") * keep
+
+    def wolf_wait(self, c):
+        """Mechanics.recast_timing: the wolf ability's own real recast wait (its class in replays)."""
+        e = c.engine
+        if not (e.length and e.mech is not None and getattr(e.mech, "recast_timing", False)):
+            return 0.0
+        from deadsim.mechanics import recast_wait
+        return recast_wait(self.s, self.WOLF, n=c.state["wolf_casts"])
 
 
 @register("ability_werewolf_unloadgun")
