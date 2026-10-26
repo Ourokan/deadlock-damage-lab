@@ -25,7 +25,17 @@ ability factors were just refit (scripts/refit_landing_heroes.py): its old item 
 With --item NAME (repeatable) only that item's rows are refit, the same way, after a change to how the sim deals that
 item's damage (Stalker's in-range share, 2026-10-26).
 
-usage: python3 scripts/item_landing_heroes.py [--audit PATH] [--prior N] [--hero NAME ...] [--item NAME ...] [--write]
+With --item and --pooled the named items' pooled factors (item_landing.json "items") are refit first, the same way
+from the audit's pooled holders-only rows (current factor min(1, landing), the same shrinkage and cap), for an item
+whose damage changed for every hero (Tankbuster / Decay on real target health, 2026-10-26): run the audit, this with --pooled, the audit again, then this with --item alone for the
+per-hero rows, and the audit once more. --keep-level BASE_AUDIT (with --pooled): an uncut item (pooled factor
+>= 1, so real/sim above 1 can't be fit by the factor) that real/sim now puts further under than in BASE_AUDIT (the
+audit before the change) gets its length_corr scaled by now / before, so the change keeps its old level (Tankbuster:
+1.04 before real target health, 1.13 after; its damage per hit follows the real target health, how often real
+holders get it stays as fitted).
+
+usage: python3 scripts/item_landing_heroes.py [--audit PATH] [--prior N] [--hero NAME ...] [--item NAME ...]
+       [--pooled [--keep-level BASE_AUDIT]] [--write]
 """
 import json
 import math
@@ -68,6 +78,29 @@ def fit(audit, prior=PRIOR, only=None, items=None):
     return data
 
 
+def fit_pooled(audit, items, prior=PRIOR, base=None):
+    """The named items' pooled factors from the audit's pooled rows (see the module doc, --pooled, --keep-level)."""
+    data = json.load(open(accuracy.ITEM_LANDING))
+    for cls, r in audit["items"].items():
+        row = data["items"].get(cls)
+        if r["name"] not in items or row is None or not r.get("real_over_sim"):
+            continue
+        before = (base or {}).get("items", {}).get(cls, {}).get("real_over_sim")
+        if row["landing"] >= 1 and before and r["real_over_sim"] > max(1.0, before) and "length_corr" in row:
+            k = r["real_over_sim"] / max(1.0, before)
+            print(f"pooled {r['name']:22s} n={r['holders']:4d} real/sim {before:.2f} -> {r['real_over_sim']:.2f}: "
+                  f"uncut, length_corr {row['length_corr']:.3f} -> {row['length_corr'] * k:.3f}")
+            row["length_corr"] = round(row["length_corr"] * k, 3)
+            continue
+        cur = min(1.0, row["landing"])
+        new = max(0.25, min(1.0, cur * math.exp(r["holders"] / (r["holders"] + prior) * math.log(r["real_over_sim"]))))
+        print(f"pooled {r['name']:22s} n={r['holders']:4d} real/sim {r['real_over_sim']:.2f}: {row['landing']:.3f} -> "
+              f"{new if new < 1 else max(1.0, row['landing']):.3f}")
+        if new < 1 or row["landing"] < 1:
+            row["landing"] = round(new, 3)
+    return data
+
+
 def main():
     args = sys.argv[1:]
     path = os.path.join(ROOT, "validation", "damage_audit.json")
@@ -78,6 +111,14 @@ def main():
         prior = float(args[args.index("--prior") + 1])
     only = {args[i + 1] for i, a in enumerate(args) if a == "--hero"}
     items = {args[i + 1] for i, a in enumerate(args) if a == "--item"}
+    if "--pooled" in args:
+        if not items:
+            sys.exit("--pooled needs --item")
+        base = json.load(open(args[args.index("--keep-level") + 1])) if "--keep-level" in args else None
+        data = fit_pooled(json.load(open(path)), items, prior, base)
+        if "--write" in args:
+            json.dump(data, open(accuracy.ITEM_LANDING, "w"), indent=1)
+        return
     data = fit(json.load(open(path)), prior, only, items)
     n = sum(len(v) for v in data["heroes"].values())
     for h, v in data["heroes"].items():

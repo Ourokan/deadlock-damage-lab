@@ -1802,8 +1802,8 @@ matches real on both halves (0.25 gives 0.67 / 0.66). An immortal enemy's refill
 item sees as full; without that, the overall search's enemy would read 0% for the rest of the fight.
 
 Tankbuster, Mystic Reverb and Rupture deal damage based on the target's current health, so the same skew applies to
-them. They are left as they are because their item_landing factors were fitted on the current duels, and switching
-them needs a refit of those rows.
+them. They were left as they were here; Tankbuster and Decay (Rupture) followed with their factors refit, see "Target
+health for Tankbuster and Decay" below.
 
 Results:
 
@@ -1877,3 +1877,47 @@ offsets: mix 0.033 -> 0.020 and 0.032 -> 0.024 (better both halves), per-source 
 sim_vs_win 27k (all heroes, side by side): all pairs 0.172 -> 0.173, edges clear of noise 0.273 -> 0.273, per item
 0.243 -> 0.243. Kept as the more faithful model: the wolf form comes when real players have it, the mix is closer on
 both held-out halves, and four of her six ability fudges moved toward 1.
+
+## Target health for Tankbuster and Decay (2026-10-26)
+
+`target_health.py items` takes the items that deal damage from the target's health and measures, for each real hit
+on an enemy hero in the 260 replays, the target's health share before it, and the hit's damage per current and per
+max health by health decile (the one that stays flat is what the item scales with):
+
+| item | scales with (replays) | mean target health share at a hit: real | sim duels before | as the item sees it now |
+|---|---|---|---|---|
+| Tankbuster | current health (40 + 7.5%) | 0.586 (halves 0.585 / 0.588) | 0.71 | 0.59 / 0.59 |
+| Decay (Rupture) | current health (1.9%/s) | 0.628 (0.643 / 0.615) | 0.74 | 0.65 / 0.65 |
+| Toxic Bullets | max health (control) | 0.485 | 0.71 | - |
+| Mystic Reverb | neither (see below) | 0.637 | 0.68 | - |
+
+Tankbuster and Decay are now in `TARGET_HEALTH_ITEMS` and deal their health part from `Fighter.item_hp`: the entry
+deficit and third parties as for Opening Rounds, but at `CURRENT_HEALTH_ASSIST` 0.15 x the damage taken instead of
+0.35 (0.35 piles Tankbuster hits on near-empty targets, mean 0.53 and 13% in the bottom decile vs real 8%; 0.15
+matches the real deciles too).
+
+Refit (`item_landing_heroes.py --item Tankbuster --item Decay --pooled --keep-level <audit before>`, audit,
+`--item` alone for the hero rows, audit). Tankbuster's pooled factor is uncut (1.42) so its 1.04 -> 1.14 real/sim
+drop can't be fit by the factor; `--keep-level` scales its length_corr 0.91 -> 1.00 to keep the old level (the
+change moves which targets it hits hardest, not how often real holders get it). Decay's pooled factor goes 1.17
+(uncut) -> 0.97. Split-half (fit on even match ids, audit the odd half): pooled Tankbuster 1.144 -> 1.076, Decay
+0.929 -> 0.903, these items' hero rows |log real/sim| 0.172 -> 0.122 (unfit -> fit; main's own factors were fit on
+both halves, so it is no held-out baseline).
+
+Mystic Reverb: the sim adds the tooltip's 10% of the target's current health to the echo, but real echoes on heroes
+don't scale with health at all (1457 echoes: damage = 0.27 x the trigger damage 3 s earlier + 0.006 x current +
+0.007 x max health + 83; median echo / trigger 0.48, the 50% alone). Without the bonus (factors refit, real/sim 0.80
+-> 1.06) sim_vs_win's damage items fell 0.056 -> 0.038 and all pairs 0.172 -> 0.170: its real win edge is positive on
+most heroes (up to +5 pt), and the overrated echo is what gave it value. So it stays on
+(`MysticReverb.CURRENT_HEALTH_BONUS`) until something else explains Reverb's edge.
+
+Results (sim_vs_win per pair: the Decay change alone lifts damage items by ~0.011, Tankbuster's leaves every pair as
+it was):
+
+| | main | this |
+|---|---|---|
+| damage audit mix (player-weighted) | 0.0233 | 0.0235 |
+| real/sim: Tankbuster / Decay (holders, per damage) | 1.04 / 0.86 | 1.05 / 0.96 |
+| sim_vs_win 27k all pairs / damage items | 0.172 / 0.056 | 0.175 / 0.066 |
+| edges clear of noise / per item | 0.273 / 0.242 | 0.277 / 0.248 |
+| Decay sim gain per 1000 souls (real edge -4.55 pt) | 0.0889 | 0.0809 |

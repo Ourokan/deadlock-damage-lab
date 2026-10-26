@@ -12,8 +12,14 @@ for gun damage to enemy heroes, how it spreads over the target's health share at
 - sim: the damage audit's duels (real builds both sides, the searches' skills, real fight length), the main
   fighter's gun damage to its target, each hit x P(fight still going) as the audit books it.
 
+- items: for the items that deal damage from the target's current health (CURRENT_HEALTH_ITEMS), the target's
+  health share before each of the item's hits on an enemy hero, real (every hit in the replays) and sim (the damage
+  audit's duels, the main fighter's item hits x P(fight still going)); real also gives the item's damage per hit / the
+  target's current health and / its max health by health share, to tell which one it scales with.
+
 usage: python3 -I target_health.py real <raw dir> [--sample PATH]
        python3 -I target_health.py sim [max_players=1500] [workers]
+       python3 -I target_health.py items real <raw dir> | items sim [max_players=3000] [workers]
 """
 import collections
 import glob
@@ -174,12 +180,126 @@ def sim(max_players, workers):
     show(f"sim duels ({len(jobs)} players)", h)
 
 
+# items dealing damage from the target's current health: class -> game item name (sim source)
+CURRENT_HEALTH_ITEMS = {"upgrade_magic_shock": "Tankbuster", "upgrade_mystic_reverb": "Mystic Reverb",
+                        "upgrade_rupture": "Decay", "upgrade_eldritch_shot": "Haunting Shot",
+                        "upgrade_toxic_bullets": "Toxic Bullets"}   # Toxic: max health (control)
+
+
+def show_items(rows):
+    for name, (n, s_hp, hist) in sorted(rows.items()):
+        tot = sum(hist.values()) or 1.0
+        deciles = " ".join(f"{hist.get(k, 0.0) / tot:.2f}" for k in range(BINS))
+        print(f"{name:16s} hits {n:8.0f}  mean health share {s_hp / max(1e-9, n):.3f}  by decile {deciles}")
+
+
+def items_real(raw):
+    from deadsim import game
+    G = game()
+    ids = {it.id: it.name for it in G.items.values() if it.class_name in CURRENT_HEALTH_ITEMS}
+    rows = {n: [0, 0.0, collections.Counter()] for n in ids.values()}
+    ratio = collections.defaultdict(lambda: [0.0, 0.0, 0.0, 0])   # (item, decile) -> [dmg/cur, dmg/max, -, n]
+    for fn in sorted(glob.glob(os.path.join(raw, "*.ndjson.gz"))):
+        mid = int(os.path.basename(fn).split(".")[0])
+        if HALF is not None and mid % 2 != HALF:
+            continue
+        hero, ev = read(fn)
+        for t, a, v, hp, hmax, dmg, ab in ev:
+            name = ids.get(ab)
+            if name is None or hmax <= 0 or a == v or hero.get(v) is None:
+                continue
+            before = min(hmax, hp + dmg)
+            if before <= 0:
+                continue
+            frac = before / hmax
+            b = min(BINS - 1, int(frac * BINS))
+            r = rows[name]
+            r[0] += 1
+            r[1] += frac
+            r[2][b] += 1
+            q = ratio[name, b]
+            q[0] += dmg / before
+            q[1] += dmg / hmax
+            q[3] += 1
+    show_items(rows)
+    print("damage per hit / current health and / max health, by health share decile (scales with the flat one):")
+    for name in sorted(rows):
+        cur = " ".join(f"{ratio[name, b][0] / max(1, ratio[name, b][3]):.3f}" for b in range(BINS))
+        mx = " ".join(f"{ratio[name, b][1] / max(1, ratio[name, b][3]):.3f}" for b in range(BINS))
+        print(f"{name:16s} /cur {cur}\n{'':16s} /max {mx}")
+
+
+def items_sim_player(job):
+    import damage_audit as A
+    from deadsim import engine
+    names = set(CURRENT_HEALTH_ITEMS.values())
+    out = {}
+    orig = engine.Engine.damage
+
+    def hooked(self, src, dst, raw, kind, source, *a, **k):
+        before = (dst.hp_frac, dst.item_hp / dst.max_hp) if dst.alive else None
+        w = self.length_w()
+        amt = orig(self, src, dst, raw, kind, source, *a, **k)
+        if source in names and before and self.fighters and src is self.fighters[0] and amt:
+            r = out.setdefault(source, [0.0, 0.0, 0.0, [0.0] * BINS])
+            r[0] += w
+            r[1] += w * before[0]
+            r[2] += w * before[1]
+            r[3][min(BINS - 1, int(min(1.0, before[1]) * BINS))] += w
+        return amt
+    engine.Engine.damage = hooked
+    try:
+        A.sim_player(job)
+    finally:
+        engine.Engine.damage = orig
+    return out
+
+
+def items_sim(max_players, workers):
+    import gzip
+    from concurrent.futures import ProcessPoolExecutor
+    import landing_rates as L
+    from deadsim import game
+    G = game()
+    cls = set(CURRENT_HEALTH_ITEMS)
+    jobs = []
+    for line in gzip.open(os.path.join(ROOT, "validation", "phantom_sample.jsonl.gz")):
+        m = json.loads(line)
+        if HALF is not None and m["match_id"] % 2 != HALF:
+            continue
+        for p in m["players"]:
+            its = {G.items[i[0]].class_name for i in p.get("items", []) if i[0] in G.items}
+            if p["hero_id"] in G.heroes and its & cls:
+                jobs.append((m, p["slot"]))
+    random.Random(1).shuffle(jobs)
+    jobs = jobs[:max_players]
+    tot = {}
+    with ProcessPoolExecutor(workers) as ex:
+        for r in ex.map(items_sim_player, jobs, chunksize=4):
+            for k, v in r.items():
+                t = tot.setdefault(k, [0.0, 0.0, 0.0, [0.0] * BINS])
+                for i in range(3):
+                    t[i] += v[i]
+                t[3] = [x + y for x, y in zip(t[3], v[3])]
+    print(f"sim duels ({len(jobs)} holders)")
+    for name, (n, h, s, hist) in sorted(tot.items()):
+        deciles = " ".join(f"{x / max(1e-9, n):.2f}" for x in hist)
+        print(f"{name:16s} hits {n:8.1f}  mean health share {h / n:.3f}, as the item sees it {s / n:.3f}  "
+              f"by decile (seen) {deciles}")
+
+
 def main():
     args = sys.argv[1:]
     sample_path = os.path.join(ROOT, "validation", "phantom_sample.jsonl.gz")
     if "--sample" in args:
         sample_path = args.pop(args.index("--sample") + 1)
         args.remove("--sample")
+    if args[0] == "items":
+        if args[1] == "real":
+            items_real(args[2])
+        else:
+            items_sim(int(args[2]) if len(args) > 2 else 3000, int(args[3]) if len(args) > 3 else os.cpu_count())
+        return
     if args[0] == "real":
         real(args[1], sample_path)
     else:
