@@ -74,6 +74,27 @@ class BabaCase(unittest.TestCase):
             self.e.melee_tick(self.f)
         self.assertAlmostEqual(sum(heavies), 100 * self.f.skill.heavy_share, delta=1)
 
+    def test_melee_bunches_into_granny_long_legs(self):
+        from deadsim.heroes import baba
+        landed = []
+        self.e.melee_hit = lambda f, heavy, w=1.0: landed.append(w)
+        self.e.after = lambda *a, **k: None
+        self.f.gun_locked_until = -1.0
+        self.f.skill.melee_rate = 0.1
+        self.g.skill.parry_rate = 0.0   # parried heavies swing more: not this test
+        self.e.melee_tick(self.f)
+        off = landed.pop()
+        self.ab["ability_baba_bench_run"].cast()
+        self.e.melee_tick(self.f)
+        on = landed.pop()
+        self.assertAlmostEqual(on / off, baba.GLL_MELEE_RATIO)
+        # the fitted rate is kept on average at the real bench uptime
+        u = baba.GLL_UPTIME
+        self.assertAlmostEqual(u * on + (1 - u) * off, 0.1 * 0.5)
+        self.e.t = self.f.counters["melee_focus"][2]   # the bench is down: back to the off rate
+        self.e.melee_tick(self.f)
+        self.assertAlmostEqual(landed.pop(), off)
+
     def test_first_brew_is_prebrewed(self):
         br = self.ab["ability_baba_hexing_brew"]
         br.cast()

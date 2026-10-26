@@ -1815,3 +1815,32 @@ Results:
 | Opening Rounds sim gain per 1000 souls (real edge -1.47 pt) | 0.0716 | 0.0648 |
 
 Nothing is refit. Opening Rounds' bonus isn't a fitted factor, and only its holders' gun damage moves (~2%).
+
+## Baba's melee bunches into Granny Long Legs (2026-10-26)
+
+Granny Long Legs fitted a landing x length_corr of ~1.9 (landing 2.42, clipped to 1.5, x 1.275): the sim's ground
+pounds came out at about half of real before the fit. Per pound, nothing is short: in 260 Phantom+ replays (59 Baba
+players) 97% of the pounds land on the tick of a heavy bench melee, 71% of bench melees are pounds (the
+`GLL_HEAVY_SHARE`), 5% of pounds hit a second hero, and a pound is 1.15x its heavy melee (median 149 vs 132). The gap
+is when she melees. With her casts from `cast_timing/raw` (window = cast + 10 s, or to her last bench melee), the
+bench is up 38% of her fight seconds and holds 82% of her melee hits in fights: she melees 7.7x as often on it as off
+it. The sim's melee was one steady rate, so only 53% of her melee damage (and so of her heavies) fell in the window.
+
+`baba.py` now splits her fitted melee rate into 2.17x inside the window and 0.28x outside (`GLL_MELEE_RATIO` 7.7,
+average kept at the 38% uptime) through a new engine counter `melee_focus` (rate mult in, rate mult out, until), with
+0.5 s weighted melee ticks so the rate follows the window's edges. In the audit 75% of her melee now lands in it.
+
+Refit of Baba only (melee rate, ability length_corr, per-hero item factors; 4 rounds): melee rate 0.107 -> 0.126 hits/s,
+Granny Long Legs length_corr 1.275 -> 0.818 (effective 1.91 -> 1.23), Spirit Strike 0.53 -> 0.64 and Spirit Snatch
+0.69 -> 0.79 (melee items needed less of a cut). Split-half, old code with the same refit as reference:
+
+| fit -> audit | mix old | mix new | per-source old | per-source new | GLL real / old / new |
+|---|---|---|---|---|---|
+| even -> odd | 0.031 | 0.036 | 0.053 | 0.053 | 0.103 / 0.092 / 0.097 |
+| odd -> even | 0.016 | 0.017 | 0.054 | 0.056 | 0.103 / 0.122 / 0.117 |
+
+Granny Long Legs itself is closer on both held-out halves; the mix is flat (the even -> odd half: Feed The Birds is
+over there, so a fuller Granny Long Legs pushes the ability share further over). Full sample: mix 0.023 -> 0.024,
+per-source 0.023 -> 0.024 (0.023 again after rebasing on the target-health change). sim_vs_win 27k (all heroes, side by side): all pairs 0.170 -> 0.170, edges clear of
+noise 0.270 -> 0.270, per item 0.240 -> 0.240. Kept as the more faithful model: the fudge factor that stood in for the timing is mostly
+gone, and her melee items now see her melee where she really lands it.

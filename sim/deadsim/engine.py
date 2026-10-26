@@ -38,6 +38,7 @@ MELEE_HEAVY_TIME = 1.1
 # Below MELEE_MIN_RATE hits/s a melee event fires every 1/MELEE_MIN_RATE s with a fractional weight (expected
 # damage), so rare meleers still melee within a short fight.
 MELEE_MIN_RATE = 0.2
+MELEE_FOCUS_TICK = 0.5   # melee tick (s) of a fighter whose melee rate follows a window (counters "melee_focus")
 # Melee (basic and ability melee: Exploding Uppercut, Grapple Arm, ...) also gains this share of the weapon damage
 # bonus, on top of the melee damage bonus. Phantom+ replays (260 matches): Bebop's Uppercut and every hero's light
 # melee grow with the attacker's real weapon power at ~0.5x (light melee / formula 1.0 below 10% weapon power, 1.35
@@ -1208,10 +1209,15 @@ class Engine:
             share = hs[0]
         heavy = f.acc("melee_heavy").take(share, 1) > 0
         rate = f.skill.melee_rate
+        focus = f.counters.get("melee_focus")   # (rate mult in, rate mult out, until): melee bunched in an ability
+        if focus is not None:
+            rate *= focus[0] if t < focus[2] else focus[1]
         if self.mech is not None and self.mech.parry:
             # parried heavies don't land: swing more often so landed melee stays at the fitted rate
             rate /= max(0.5, 1.0 - f.enemy.skill.parry_rate * share)
         interval = 1.0 / max(rate, MELEE_MIN_RATE)
+        if focus is not None:   # short weighted ticks, so the bunched rate follows the window's edges
+            interval = min(interval, MELEE_FOCUS_TICK)
         if self.mover is None or f.counters.get("fleeing") is not True and self.distance <= self.mover.start + \
                 self.mover.melee_reach(f, heavy):
             w = min(1.0, rate * interval)
