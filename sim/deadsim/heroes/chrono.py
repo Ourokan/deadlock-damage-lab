@@ -17,7 +17,10 @@ Assumptions:
   landing factor (capped at 1.5) could not make it up. Charged for MaxChargeDuration x CARBINE_CHARGE seconds
   (no shooting): in replays the gap from Paradox's previous gun shot to a mid-fight Carbine hit is mostly 2.5-6 s.
   Always a full charge, landing at spirit_accuracy; HeadshotBonus% at the caster's headshot rate. Time-stop = stun for MaxSlowDuration. The hit procs Mystic Shot like a gun hit (replays:
-  73% of Paradox's Mystic Shot procs on heroes land with a Kinetic Carbine hit).
+  73% of Paradox's Mystic Shot procs on heroes land with a Kinetic Carbine hit). Real hits are ~0.6x this
+  formula and come ~2x as often per gun damage (scripts/mechanics/carbine_replays.py); a 0.6x hit audited worse
+  (Mystic Reverb echoes it), so the hit stays full and landing x length_corr carry the total (validation/README.md
+  "Paradox's Carbine count").
 - Paradoxical Swap: the projectile lands at spirit_accuracy; SwapDamage (+T3 MaxHealthDamage% of max health)
   on arrival. Both heroes are in transit for MinSwapTime: Paradox can't shoot, the target is stunned. T1 barrier
   = CombatBarrier (200 + 1.5 x spirit power).

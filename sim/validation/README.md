@@ -1015,7 +1015,9 @@ data: Phantom+ replays (89 matches, 31 with a Baba, 868 fights) and 151 Baba pla
 - **Summons:** Graves' and McGinnis' summons can be shot and splashed (see "Targetable summons"); real enemies also
   hit them with area abilities aimed elsewhere, which the sim folds into the splash share. Accuracy on summons is an
   assumption. McGinnis is still the worst-matched hero (gun share 2% vs 26% real), for reasons other than turret uptime.
-- **Paradox Kinetic Carbine** damage follows real hits (see "Paradox's gun share"); the charge is always full.
+- **Paradox Kinetic Carbine** is one big hit per fight; real Paradox lands about twice as many hits per gun damage at
+  ~0.6x the size (see "Paradox's Carbine count"). Its total is right, the procs that ride on the count (Tankbuster,
+  Mystic Burst, Mystic Shot) are not.
 - **Bebop Hyper Beam** dominates any 20 s duel that starts with it ready (landing 0.06); the model matches the
   data, the gap is the fresh-cooldown bias above. (Haze Bullet Dance: fixed 2026-10-21, see "Haze duels" below.)
 - **Multi-target items** (Ricochet, Split Shot) do nothing in a 1v1 without mechanics; see above. Deadman Danny's charged primary fire is
@@ -1503,3 +1505,44 @@ Results (main -> this, full sample, same machine): audit mix 0.0309 -> 0.0308, h
 only, nothing fitted): sources 0.0292 -> 0.0290 and 0.0212 -> 0.0212, odd-half Tankbuster 1.12 -> 1.04 (even half
 under 20 holders). sim_vs_win 27k for Bebop unchanged (only Bebop's Uppercut changes). Left: the gun of spirit-built
 Bebops; Tankbuster under on Paradox / Drifter / Violet (pooled real/sim 1.42, uncut) is not this.
+
+## Paradox's Carbine count (2026-10-26)
+
+Paradox had the 6th widest mix gap (0.062: gun 0.28 vs 0.24 real, melee 0.046 vs 0.025, Kinetic Carbine / Pulse
+Grenade / Swap 1.2-1.5x under per gun damage, Tankbuster 1.6x, Mystic Burst 1.8x, Spirit Burn 2.6x). In 70 Phantom+
+replays (`scripts/mechanics/carbine_replays.py`, fight-length raw) against the audit's own duels:
+
+| | real | sim |
+|---|---|---|
+| Carbine hits per 1000 gun damage | 3.7 | 1.9 |
+| Carbine hit, median, at 30 / 60 / 90% of the match | 196 / 432 / 508 | 351 / 613 / 888 (before landing) |
+| his gun hit, median, same points | 17 / 26 / 31 | 17 / 26 / 31 |
+| Carbine hits per fight (fights where he dealt 300+) | 0.67-0.77 | 0.60-0.68 per duel |
+| gap from his last gun hit to a mid-fight Carbine hit, median | 3.2 s | 2.9 s |
+
+So his gun hits are right and the Carbine hit is ~0.6x the sim's full-charge formula, at every stage and at T2 and T3
+alike (a Carbine hit is 11.6x his median gun hit at 30% of the match, 16.4x at 90%, sim 21-29x). A short charge
+explains part of it (hits that come less than 2 s after his last gun hit are 5.6-9.4x his gun hit, longer ones level
+off at ~13x), the rest is the formula. Per fight the count is right; the gap is that a real fight is short and
+mostly Carbine-opened (half the hits are the fight's first damage), so real Paradox lands twice the Carbines for his
+gun damage. 1102 of 1375 real Tankbuster releases come with a Carbine hit (Swap 216, Pulse Grenade 28), so Tankbuster
+and Mystic Burst follow the count.
+
+Tried, on even/odd match halves (fit the ability length corrections on one, audit the other):
+
+| | mix, odd half | mix, even half |
+|---|---|---|
+| main | 0.054 | 0.074 |
+| refit (3 rounds `ability_corr_heroes.py --hero Paradox`) | 0.051 | 0.036 |
+| Carbine at 0.6x + refit | 0.065 | 0.055 |
+| Paradox fights 0.877x the pooled length (fit_length.py's hero_mean_ratio) + refit | 0.051 | 0.034 |
+| the same at 0.7x + refit | 0.049 | 0.034 |
+
+The smaller Carbine is worse: Mystic Reverb echoes the hit (1.37x under) and the length correction just scales the
+hit back up, so the count stays as it is. Shorter Paradox fights move Tankbuster a little (1.63 -> 1.42 at 0.7x) and
+need a per-hero fight length the engine doesn't have. Kept: the refit alone, better on both halves. Full sample:
+Paradox 0.062 -> 0.043 (gun 0.278 -> 0.252, abilities 0.435 -> 0.501, real 0.483; length_corr Pulse Grenade 1.236 ->
+1.658, Kinetic Carbine 1.204 -> 1.422, Paradoxical Swap 1.526 -> 2.320), then `item_landing_heroes.py --hero Paradox`
+(Express Shot, Headhunter barely move). Left: Tankbuster 1.69x under and melee 0.63x over; the count needs short,
+Carbine-opened fights in the duel model.
+
