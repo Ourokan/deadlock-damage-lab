@@ -113,7 +113,7 @@ class DispelAfterburn(unittest.TestCase):
             sk = dataclasses.replace(hero_default_skill("Haze", badge=91, counterplay=True), dot_cleanse_share=0.0,
                                      dot_cleanse_share_buildup=share_buildup)
             r = duel(a, Loadout("Haze", ["Rapid Rounds", "Swift Striker", "Dispel Magic"], souls=25000, skill=sk))
-            return r.a_dmg.get("Afterburn", 0.0)
+            return r.a_dmg.get("Afterburn", 0.0) / r.time   # per second: the two duels can end at different times
         self.assertLess(burn(1.0), 0.9 * burn(0.0))
 
 

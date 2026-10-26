@@ -101,7 +101,7 @@ def wolf(c):
 
 def melee(c, amount, name):
     """Melee damage that returns what was dealt (for lifesteal)."""
-    amount *= 1.0 + c.me.st.melee_pct + c.me.stat("melee_pct")
+    amount *= c.me.melee_mult()
     return c.engine.damage(c.me, c.foe, amount, "melee", name, is_ability=True, ability=c.s)
 
 

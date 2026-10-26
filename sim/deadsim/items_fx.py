@@ -1045,6 +1045,12 @@ class HealingTempo(FX):
 # ---------------------------------------------------------------------------------------------------
 # Spirit items
 # ---------------------------------------------------------------------------------------------------
+def spirit_procs(hit):
+    """A non-spirit ability hit that procs spirit ability-hit items as a spirit hit would (AbilityImpl.spirit_procs)."""
+    impl = getattr(hit.ability, "impl", None)
+    return bool(getattr(impl, "spirit_procs", False))
+
+
 @handler("upgrade_magic_burst", "upgrade_magic_shock")
 class MysticBurst(FX):
     """Charges up over AbilityChargeUpTime and each qualifying ability hit releases what has charged, not a full proc
@@ -1065,7 +1071,7 @@ class MysticBurst(FX):
         self.charged_at = -1e9
 
     def on_damage_dealt(self, f, t, hit):
-        if hit.kind != "spirit" or not hit.is_ability or hit.is_dot:
+        if not hit.is_ability or hit.is_dot or (hit.kind != "spirit" and not spirit_procs(hit)):
             return
         size = hit.pre_mit if self.item.class_name == "upgrade_magic_shock" else hit.amount / max(1e-6, hit.landing)
         if size < self.item.p("MinimumDamage", 80):
@@ -1503,9 +1509,18 @@ def _basic_melee(hit):
     return hit.kind == "melee" and hit.source == "melee"
 
 
-def _melee_proc(fx, f):
-    """Whether a (possibly fractional-weight) melee event triggers this item's on-melee effect."""
-    return fx.ready() and f.acc(fx.item.class_name + ":melee").take(f.counters.get("melee_weight", 1.0), 1) > 0
+def _any_melee(hit):
+    """A basic melee or an ability's melee hit (Exploding Uppercut, Grapple Arm, Rend, ...). Phantom+ replays: on-melee
+    items proc on them too (Bebop's Grapple Arm releases Spirit Snatch on 71% of its hits by holders, Uppercut 33%,
+    basic melee 33%; Spirit Strike 34 / 17 / 11%; both on cooldown)."""
+    return hit.kind == "melee" and not hit.is_item and (hit.source == "melee" or hit.is_ability)
+
+
+def _melee_proc(fx, f, hit=None):
+    """Whether a (possibly fractional-weight) melee event triggers this item's on-melee effect. An ability's melee hit
+    weighs its landing factor (the share of the hit its damage stands for)."""
+    w = f.counters.get("melee_weight", 1.0) if hit is None or hit.source == "melee" else min(1.0, hit.landing)
+    return fx.ready() and f.acc(fx.item.class_name + ":melee").take(w, 1) > 0
 
 
 @handler("upgrade_melee_charge", "upgrade_crushing_fists")
@@ -1535,10 +1550,11 @@ class MeleeCharge(FX):
 
 @handler("upgrade_spirit_snatch")
 class SpiritSnatch(FX):
-    """Melee hit off cooldown: SpiritDamage, and steals spirit power and spirit resist for AbilityDuration."""
+    """Melee hit (basic or ability, _any_melee) off cooldown: SpiritDamage, and steals spirit power and spirit resist
+    for AbilityDuration."""
 
     def on_damage_dealt(self, f, t, hit):
-        if not _basic_melee(hit) or not _melee_proc(self, f):
+        if not _any_melee(hit) or not _melee_proc(self, f, hit):
             return
         self.use()
         d = self.dur("AbilityDuration", 10)
@@ -1551,10 +1567,11 @@ class SpiritSnatch(FX):
 
 @handler("upgrade_acolytes_glove")
 class SpiritStrike(FX):
-    """Melee hit off cooldown: SpiritDamage and a spirit resist reduction for AbilityDuration."""
+    """Melee hit (basic or ability, _any_melee) off cooldown: SpiritDamage and a spirit resist reduction for
+    AbilityDuration."""
 
     def on_damage_dealt(self, f, t, hit):
-        if not _basic_melee(hit) or not _melee_proc(self, f):
+        if not _any_melee(hit) or not _melee_proc(self, f, hit):
             return
         self.use()
         self.spirit(t, self.v("SpiritDamage"), procs=False)
@@ -1563,10 +1580,11 @@ class SpiritStrike(FX):
 
 @handler("upgrade_lifestrike_gauntlets", "upgrade_boxing_glove")
 class Lifestrike(FX):
-    """Melee hit off cooldown heals LifestrikeHeal (Melee Lifesteal) or LifestealHeal + % of the hit (Lifestrike)."""
+    """Melee hit (basic or ability, _any_melee) off cooldown heals LifestrikeHeal (Melee Lifesteal) or LifestealHeal +
+    % of the hit (Lifestrike)."""
 
     def on_damage_dealt(self, f, t, hit):
-        if not _basic_melee(hit) or not _melee_proc(self, f):
+        if not _any_melee(hit) or not _melee_proc(self, f, hit):
             return
         self.use()
         amt = self.v("LifestrikeHeal") + self.v("LifestealHeal") + hit.amount * self.item.p("LifestealHealPercent") / 100

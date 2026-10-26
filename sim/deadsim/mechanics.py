@@ -74,7 +74,7 @@ from dataclasses import dataclass
 
 from .build import combine_resist
 from .data import GAME
-from .items_fx import BuildUp, FX, CC_KEYS, _basic_melee
+from .items_fx import BuildUp, FX, CC_KEYS, _any_melee
 
 
 SUMMON_ACC_MAX = 0.9        # cap on accuracy against a summon (acc_mult x hero accuracy)
@@ -1123,7 +1123,7 @@ class LifestrikeSlow(_MoveFX):
     """Lifestrike's melee proc also slows SlowPercent for SlowDuration (same AbilityCooldown)."""
 
     def on_damage_dealt(self, f, t, hit):
-        if not _basic_melee(hit) or not self.ready():
+        if not _any_melee(hit) or not self.ready():
             return
         self.use()
         _debuff(t, "move_slow", self.item.p("SlowPercent", 48) / 100, self.item.p("SlowDuration", 2.5), ("lstrike", "slow"))

@@ -1440,3 +1440,39 @@ on the held-out half; "new holds only" is worse for most because their length co
 holds. Full sample: Ivy 0.040 -> 0.030, Vindicta 0.062 -> 0.018; player-weighted mix 0.0313 -> 0.0302.
 sim_vs_win 27k (correlation, higher is better) is flat: all pairs 0.172 -> 0.170, damage items 0.058, per item
 0.244 -> 0.243.
+
+## Melee hits grow with weapon damage; Uppercut procs spirit items (2026-10-26)
+
+The hero calibration thread found the sim's Exploding Uppercut far smaller than real (sim median 98 before resists,
+none at 165+; real median 104 after resists, 90th percentile 187). `scripts/mechanics/melee_scaling.py` (260 Phantom+
+fight replays, every hero-vs-hero DamageEvent, + the validation sample's builds and real weapon power):
+
+- Uppercut is one hit per victim, the size of the victim's own light melee hit from the same Bebop (ratio 1.0), and
+  melee-resisted, not spirit-resisted (no trend with the victim's spirit resist). So the ability is right and the
+  light melee formula is short: real / (base + boon growth) x (1 + melee bonus) x (1 - melee resist) climbs with the
+  attacker's real weapon power, within the same match minute, for Uppercut and for every hero's light melee alike
+  (lowest fifth of basic melee hits: 0.99 below 10% weapon power, 1.33 at 30-60%, 1.69 above 100%). It is flat with
+  0.5 x the weapon bonus (0.97 / 1.00 / 1.08 / 1.09 / 1.05); 1.0 overshoots (0.76 above 100%). Now
+  `engine.MELEE_WEAPON_SCALE` = 0.5: every melee hit (basic and ability: `Fighter.melee_mult`) x (1 + melee bonus +
+  0.5 x weapon bonus). Uppercut stays ~1.10 x the formula at every weapon power (not modeled).
+- Uppercut alone on a tick releases Tankbuster on 24% and Mystic Burst on 19% of holders' hits; Grapple Arm and basic
+  melee (also melee damage) never do. `AbilityImpl.spirit_procs`: Uppercut's hits pass Mystic Burst / Tankbuster's
+  spirit check (their MinimumDamage checks unchanged).
+- On-melee items proc on ability melee hits too: Spirit Snatch on 72% of Grapple Arm hits by holders, 33% of Uppercut,
+  27% of basic melee; Spirit Strike 44 / 17 / 11%. The sim procced them on basic melee only. `items_fx._any_melee`:
+  Spirit Snatch, Spirit Strike, Lifestrike / Melee Lifesteal (and its slow) proc on any non-item melee hit, an ability
+  hit weighing its landing factor. Melee Charge / Crushing Fists stay basic-melee only (heavy melee).
+
+Refits, so damage totals stay where the audit had them (bigger hits, fewer of them): every hero's melee rate x (old /
+new sim melee per gun damage, two rounds; Bebop 0.0396 -> 0.030, Venator 0.195 -> 0.12, Billy 0.218 -> 0.151) and the
+length_corr of the abilities that scale with light melee (Uppercut 1.71 -> 1.44, Grapple Arm 2.18 -> 1.74, Calico
+Leaping Slash, Yamato Flying Slash, Viscous Puddle Punch, Drifter Rend, Billy Bashdown, Silver Boot Kick); then Spirit
+Snatch / Spirit Strike: pooled landing x new / old pooled real/sim (1.213 (uncut) -> 0.853, 1.073 -> 0.872) and
+`item_landing_heroes.py --item "Spirit Snatch" --item "Spirit Strike"`.
+
+Results (main -> this, full sample): damage audit player-weighted mix 0.0310 -> 0.0316, sources 0.0304 -> 0.0306;
+Bebop Mystic Burst real/sim 1.53 -> 1.20, Spirit Snatch 1.09 -> 0.96, Spirit Strike 1.23 -> 0.97, Uppercut 1.00 ->
+1.00; Tankbuster stays 1.57 (Bebop's spirit builds rarely reach 165 before resists; real Uppercut releases it even at
+84-150 dealt). Split halves (even / odd match ids; the Spirit Snatch / Strike refit fit on one half, audited on the
+other): mix 0.0343 -> 0.0345 and 0.0309 -> 0.0318, hero x item |log real/sim| 0.210 -> 0.208 and 0.207 -> 0.204
+(melee and Mystic Burst / Tankbuster rows 0.256 -> 0.241, 0.248 -> 0.232).

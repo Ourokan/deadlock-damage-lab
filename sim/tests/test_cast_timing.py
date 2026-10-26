@@ -297,8 +297,9 @@ class MeleeOpener(unittest.TestCase):
             for s in range(n):
                 mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(15000), melee_timing=on)
                 e = Engine(distance=8, max_time=10, rng=random.Random(s), mech=mech)
-                a = make_fighter(e, Loadout("Bebop", ["Spirit Strike"], souls=15000,
-                                            skill=hero_default_skill("Bebop")))
+                # Lady Geist: no ability melee hits (they proc Spirit Strike too, items_fx._any_melee)
+                a = make_fighter(e, Loadout("Lady Geist", ["Spirit Strike"], souls=15000,
+                                            skill=hero_default_skill("Lady Geist")))
                 b = make_fighter(e, Loadout("Abrams", [], souls=15000))
                 e.run(a, b)
                 first.append(a.dmg_first.get("Spirit Strike", math.inf))
@@ -370,7 +371,7 @@ class MeleeOpener(unittest.TestCase):
                 n += M.melee_opener(f) is not None
             return n / 400
         low, high = share("Vindicta"), share("Bebop")
-        self.assertGreater(high, 0.55)
+        self.assertGreater(high, 0.45)   # Bebop's rate is lower since melee hits grew with weapon damage (2026-10-26)
         self.assertLess(low, 0.25)
         self.assertGreater(low, 0.08)
 
