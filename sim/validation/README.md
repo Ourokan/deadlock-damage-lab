@@ -1338,3 +1338,40 @@ all pairs 0.164 -> 0.163, damage items 0.042 -> 0.040, per item 0.237 -> 0.237.
 Left: The Doorman's corrections (x3-4) rest on 38 players; Violet's four real cast curves are near identical (ult
 cast by 20 s in 98% of fights), worth a look in the cast replays; Solomon's Develop Queen corr sits at the 10 cap;
 Rem, Paige, Sinclair also keep under half their players at 150 hits.
+
+## Rem, Paige, Sinclair: just under the hit cutoff; Violet's cast curves were cooldown cuts (2026-10-26)
+
+Rem (median 551 shots / 133 API hero hits a Phantom+ match), Paige (447 / 135) and Sinclair (685 / 141) sit just under
+150 hits, so `gun_known` kept 23 of 62, 58 of 139 and 20 of 56 players. `landing_rates.SLOW_GUNS` gives them (60, 200):
+57, 135 and 55 players.
+
+Violet's four real cast curves were near identical (each "cast" in 97-99% of fights by 20 s) because the replay reader
+took every new cooldown start as a cast. Two things move the start without a cast: cooldown cuts (Violet's Living Ink
+hits cut her other cooldowns 1.5 s: 75% of the dropped Violet rows land within 0.1 s of a hit by another of her
+abilities, 2% of the kept ones) and pauses (they shift the tick -> game time offset, 1-10 stretches a replay).
+`fit_cast_timing.real_casts` keeps a row only when its start is the game time in one of the replay's offset
+stretches, or up to 20 s later and past the ability's last start (cooldown after the duration: Rem's Lil Helpers).
+Cuts were 63% of Violet's rows, 63% of Rem's, 76% of Deadman Danny's, 3-20% for most heroes. Real cast by 20 s:
+Violet's Abstract Landscape 0.98 -> 0.36, Flow State 0.99 -> 0.80, Still Life 0.99 -> 0.87; Rem's Naptime 0.98 ->
+0.55; Deadman Danny's Rocketeer 0.91 -> 0.55; 50 of 170 real rows move by more than 0.05
+(`validation/cast_timing_real.json` is refit for all heroes; holds were refit only for Rem and Violet).
+
+Cast timing refit (`fit_cast_timing.py fit --hero`) for all four, then 3 rounds of audit + `ability_corr_heroes.py`
+and `item_landing_heroes.py`. Held-out (fit on even match ids, audit odd, and the reverse), mix distance with the new
+players, before -> after:
+
+| hero | fit odd, audit even | fit even, audit odd | kept |
+|---|---|---|---|
+| Rem | 0.089 -> 0.036 | 0.132 -> 0.045 | holds + refit |
+| Paige | 0.018 -> 0.044 | 0.038 -> 0.035 | players only |
+| Sinclair | 0.019 -> 0.026 | 0.066 -> 0.050 | players only |
+| Violet | 0.024 -> 0.035 | 0.032 -> 0.037 | holds + refit |
+
+Violet keeps the new holds although her mix is a little worse: the old holds were fitted on the cut rows (her ult
+held as cast by 20 s in all but 2% of fights), and sim_vs_win 27k (correlation, higher is better) is the same with
+either: main all pairs 0.162 / damage items 0.048 / per item 0.233; this branch 0.163 / 0.037 / 0.237; with Violet's
+old holds 0.162 / 0.039 / 0.236. Full sample: Rem 0.108 -> 0.024, Violet 0.028 -> 0.036, Paige 0.026, Sinclair 0.040;
+player-weighted mix 0.0315 -> 0.0313.
+Left: the other 46 heroes' holds still rest on the old real curves (biggest moves: Deadman Danny's Rocketeer, Graves'
+ability_necro_gravestone, Ivy's Air Drop, Grey Talon's Guided Arrow); refit hero by hero with a split-half check.
+`fight_patterns/replay_openers.py` filters cuts with one offset per replay, so it drops real casts after a pause.

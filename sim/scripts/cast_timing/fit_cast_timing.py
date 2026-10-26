@@ -9,7 +9,7 @@ only moved the booking; this moves the casts.
 
 real: the fight-length replays (fight_length/fetch_fights.py: two enemy heroes trading, gaps < 5 s, >= 4 hits both
 ways, the unit the sim's fight-length booking is fitted on) and their ability casts (fetch_ability_casts.py: cooldown
-starts per owner pawn). For each fighter of a fight and each ability it has (cast before in the match, or in the
+starts per owner pawn, real_casts: not the cooldown cuts). For each fighter of a fight and each ability it has (cast before in the match, or in the
 fight): the first cast from PRE_S before the fight's first hit (the cast that opens it), seconds after the first hit
 (0 for an opening cast), censored by the fight's end: a Kaplan-Meier P(cast by t | fight still going). A cast on
 another enemy of a team fight counts too (the cooldown is spent all the same).
@@ -62,6 +62,8 @@ CAST_ON_SIGHT = 0.7
 PROBE_SIGHT_S = 2.0  # held_opens == "first_hit" abilities: on sight in the probe run by then
 QBINS = 20
 LAG_MAX = 8.0        # a hit this long after the cast belongs to it (charge-up, fuse, travel, a DoT's first tick)
+MIN_OFFSET_ROWS = 30  # rows on one tick -> game time offset for it to be a stretch of the match (real_casts)
+MAX_LATER_S = 20.0    # a cast's cooldown can start this long after it (the ability's duration)
 MIN_LAGS = 30        # casts with a hit for an ability's median cast -> hit time
 PRECAST = True       # damage abilities: hold on when the damage lands (due), not the cast (holds())
 # a fighter's overlapping pair fights merged into one engagement (as fit_item_use.py)? No: the sim's duel timeline is
@@ -90,6 +92,33 @@ def km(rows):
     return out
 
 
+def real_casts(rows):
+    """The rows that are casts. A cast sets the cooldown start to the current game time, a fixed offset from tick / T
+    within a stretch of the match (a pause moves the offset: 1-10 stretches a replay, each hundreds of rows), or to a
+    later time for an ability whose cooldown runs after its duration (Rem's Helping Hands, ~5 s). Cooldown cuts move
+    the start back to an earlier time, which is no cast: Violet's Living Ink hits cut her other cooldowns 1.5 s (63% of
+    her rows were cuts, so all four of her abilities followed the Living Ink hits: cast in 97-99% of fights by 20 s),
+    Rem 63%, Deadman Danny 76%, most heroes 3-20% (Witchmail, cooldown items)."""
+    rows = sorted((r for r in rows if r.get("k", "cast") == "cast"), key=lambda r: r["tick"])
+    n = collections.Counter(round(r["tick"] / T - r["v"], 1) for r in rows)
+    span = {}
+    for r in rows:
+        o = round(r["tick"] / T - r["v"], 1)
+        if n[o] >= MIN_OFFSET_ROWS:
+            span[o] = (span.get(o, (r["tick"],))[0], r["tick"])
+    out, last = [], {}
+    for r in rows:
+        t = r["tick"] / T
+        offs = [o for o, (t0, t1) in span.items() if t0 <= r["tick"] <= t1] or list(span)
+        now = any(abs(t - r["v"] - o) < 0.1 for o in offs)
+        later = 0 < r["v"] - (t - min(offs)) <= MAX_LATER_S if offs else False
+        key = r["a"], r["s"]
+        if now or (later and r["v"] > last.get(key, -1e9)):
+            out.append(r)
+        last[key] = max(last.get(key, -1e9), r["v"])
+    return out
+
+
 def real_rows(args):
     """[(hero id, ability class, first cast s or None, fight length s, its hit s after the cast or None, first due s
     or None)] for one match. Due: when the first cast's damage lands (its own hit, else the cast + the ability's
@@ -99,8 +128,7 @@ def real_rows(args):
     hero, ev = OT.read(fn)   # FL.read's rows + the hit's ability id
     by_hero = {p["hero_id"]: p for p in m["players"]}
     casts = collections.defaultdict(list)
-    for line in gzip.open(cast_fn, "rt"):
-        r = json.loads(line)
+    for r in real_casts([json.loads(line) for line in gzip.open(cast_fn, "rt")]):
         casts[(r["a"], int(r["s"]))].append(r["tick"] / T)
     for v in casts.values():
         v.sort()
