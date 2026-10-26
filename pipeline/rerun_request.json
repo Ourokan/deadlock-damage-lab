@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-26T03:50:00Z",
- "reason": "Melee hits grow with weapon damage, Uppercut procs Mystic Burst/Tankbuster, ability melee procs on-melee items (PR #107)"
+ "requested_at": "2026-10-26T04:22:00Z",
+ "reason": "Uppercut releases Tankbuster on a flat 18% of hits at any size (PR #110)"
 }
