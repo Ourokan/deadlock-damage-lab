@@ -270,7 +270,7 @@ class CastCtx:
 
     def melee_hit(self, amount, *, name=None, delay=0.0):
         f, e = self.me, self.foe
-        amount *= 1.0 + f.st.melee_pct + f.stat("melee_pct")
+        amount *= f.melee_mult()
 
         def go():
             f.e.damage(f, e, amount, "melee", name or self.s.ab.name, is_ability=True, ability=self.s)
@@ -349,6 +349,7 @@ class AbilityImpl:
     kind = "skillshot"         # skillshot | target | aoe | self | passive
     post_mortem = False        # keeps dealing damage after the caster dies (e.g. projectiles in flight)
     modeled = True             # False for GenericAbility so reports can flag it
+    spirit_procs = False       # its melee hits proc Mystic Burst / Tankbuster like spirit ability hits (Uppercut)
 
     def __init__(self, state):
         self.s = state

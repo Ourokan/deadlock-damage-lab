@@ -310,7 +310,7 @@
     "landing": 0.98,
     "real_share": 0.1015,
     "sim_share": 0.1132,
-    "length_corr": 1.71
+    "length_corr": 1.444
    },
    "Sticky Bomb": {
     "class": "citadel_ability_sticky_bomb",
@@ -329,7 +329,7 @@
    "Grapple Arm": {
     "landing": 0.42,
     "class": "citadel_ability_hook",
-    "length_corr": 2.183
+    "length_corr": 1.74
    }
   },
   "Calico": {
@@ -345,7 +345,7 @@
     "landing": 0.65,
     "real_share": 0.0909,
     "sim_share": 0.088,
-    "length_corr": 1.587
+    "length_corr": 1.381
    },
    "Return to Shadows": {
     "class": "ability_nano_shadow_pulse",
@@ -490,7 +490,7 @@
     "landing": 0.56,
     "real_share": 0.1371,
     "sim_share": 0.1289,
-    "length_corr": 1.076
+    "length_corr": 0.835
    },
    "Crimson Slash": {
     "class": "citadel_ability_healing_slash",
@@ -536,7 +536,7 @@
     "landing": 0.37,
     "real_share": 0.1221,
     "sim_share": 0.1434,
-    "length_corr": 1.332
+    "length_corr": 1.029
    },
    "Goo Ball": {
     "class": "viscous_goo_bowling_ball",
@@ -679,7 +679,7 @@
     "landing": 1.026,
     "real_share": 0.2285,
     "sim_share": 0.2296,
-    "length_corr": 1.51
+    "length_corr": 1.374
    },
    "Stalker's Mark": {
     "class": "drifter_shadow_mark",
@@ -801,7 +801,7 @@
     "landing": 0.986,
     "real_share": 0.3082,
     "sim_share": 0.2837,
-    "length_corr": 1.349
+    "length_corr": 1.132
    },
    "Rising Ram": {
     "class": "ability_punkgoat_goatflip",
@@ -907,7 +907,7 @@
     "landing": 1.05,
     "real_share": 0.0885,
     "sim_share": 0.0715,
-    "length_corr": 0.775
+    "length_corr": 0.683
    },
    "Entangling Bola": {
     "class": "ability_werewolf_netshot",

@@ -38,6 +38,11 @@ MELEE_HEAVY_TIME = 1.1
 # Below MELEE_MIN_RATE hits/s a melee event fires every 1/MELEE_MIN_RATE s with a fractional weight (expected
 # damage), so rare meleers still melee within a short fight.
 MELEE_MIN_RATE = 0.2
+# Melee (basic and ability melee: Exploding Uppercut, Grapple Arm, ...) also gains this share of the weapon damage
+# bonus, on top of the melee damage bonus. Phantom+ replays (260 matches): Bebop's Uppercut and every hero's light
+# melee grow with the attacker's real weapon power at ~0.5x (light melee / formula 1.0 below 10% weapon power, 1.35
+# at 30-60%, 1.75 above 100%; flat at 0.5-0.6), within the same match minute, so it isn't the level growth.
+MELEE_WEAPON_SCALE = 0.5
 # items bought for melee: holders melee more often than the hero's average player (data/melee_items.json,
 # Skill.melee_item_mult)
 MELEE_ITEMS = frozenset({"upgrade_melee_charge", "upgrade_crushing_fists", "upgrade_boxing_glove",
@@ -396,6 +401,10 @@ class Fighter:
 
     def weapon_pct(self):
         return self.st.weapon_pct + self.stat("weapon_pct")
+
+    def melee_mult(self):
+        """Melee damage multiplier: melee damage bonus + MELEE_WEAPON_SCALE x weapon damage bonus."""
+        return 1.0 + self.st.melee_pct + self.stat("melee_pct") + MELEE_WEAPON_SCALE * self.weapon_pct()
 
     def fire_rate(self):
         return self.st.fire_rate_pct + self.stat("fire_rate") - self.stat("fire_rate_slow")
@@ -1194,7 +1203,7 @@ class Engine:
             raw = heavy_base + grow * (heavy_base / light if light else 1.0)
         else:
             raw = light + grow
-        raw *= (1.0 + st.melee_pct + f.stat("melee_pct")) * w
+        raw *= f.melee_mult() * w
         f.counters["melee_heavy"] = heavy
         f.counters["melee_weight"] = w
         f.gun_locked_until = max(f.gun_locked_until, t + (MELEE_HEAVY_TIME if heavy else MELEE_LIGHT_TIME) * w)

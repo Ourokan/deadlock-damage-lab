@@ -166,8 +166,9 @@
    "holders": 557,
    "real_per_gun": 0.2338,
    "sim_per_gun": 0.218,
-   "landing": 1.073,
-   "length_corr": 1.089
+   "landing": 0.872,
+   "length_corr": 1.089,
+   "note": "2026-10-26: x new/old pooled real/sim after ability melee hits proc it (old landing > 1 = uncut)"
   },
   "upgrade_headshot_booster": {
    "name": "Headshot Booster",
@@ -214,8 +215,9 @@
    "holders": 707,
    "real_per_gun": 0.3666,
    "sim_per_gun": 0.3022,
-   "landing": 1.213,
-   "length_corr": 1.029
+   "landing": 0.853,
+   "length_corr": 1.029,
+   "note": "2026-10-26: x new/old pooled real/sim after ability melee hits proc it (old landing > 1 = uncut)"
   },
   "upgrade_magic_burst": {
    "name": "Mystic Burst",
@@ -294,12 +296,12 @@
   "Abrams": {
    "Spirit Snatch": {
     "holders": 39,
-    "real_over_sim": 0.812,
-    "landing": 0.797
+    "real_over_sim": 1.114,
+    "landing": 0.856
    },
    "Spirit Strike": {
     "holders": 24,
-    "real_over_sim": 0.712,
+    "real_over_sim": 1.001,
     "landing": 0.786
    },
    "Stalker": {
@@ -311,13 +313,13 @@
   "Apollo": {
    "Spirit Snatch": {
     "holders": 66,
-    "real_over_sim": 0.918,
-    "landing": 0.936
+    "real_over_sim": 0.909,
+    "landing": 0.87
    },
    "Spirit Strike": {
     "holders": 35,
-    "real_over_sim": 0.593,
-    "landing": 0.717
+    "real_over_sim": 0.774,
+    "landing": 0.609
    },
    "Torment Pulse": {
     "holders": 23,
@@ -338,8 +340,8 @@
    },
    "Spirit Strike": {
     "holders": 114,
-    "real_over_sim": 1.205,
-    "landing": 0.872
+    "real_over_sim": 1.029,
+    "landing": 0.893
    },
    "Torment Pulse": {
     "holders": 138,
@@ -373,6 +375,16 @@
     "real_over_sim": 1.024,
     "landing": 0.369
    },
+   "Spirit Snatch": {
+    "holders": 191,
+    "real_over_sim": 0.664,
+    "landing": 0.69
+   },
+   "Spirit Strike": {
+    "holders": 186,
+    "real_over_sim": 0.699,
+    "landing": 0.724
+   },
    "Stalker": {
     "holders": 120,
     "real_over_sim": 1.494,
@@ -387,13 +399,13 @@
   "Billy": {
    "Spirit Snatch": {
     "holders": 81,
-    "real_over_sim": 0.953,
-    "landing": 0.962
+    "real_over_sim": 0.998,
+    "landing": 0.96
    },
    "Spirit Strike": {
     "holders": 24,
-    "real_over_sim": 0.686,
-    "landing": 0.747
+    "real_over_sim": 0.964,
+    "landing": 0.732
    },
    "Stalker": {
     "holders": 63,
@@ -414,13 +426,13 @@
    },
    "Spirit Snatch": {
     "holders": 107,
-    "real_over_sim": 0.886,
-    "landing": 0.9
+    "real_over_sim": 0.799,
+    "landing": 0.745
    },
    "Spirit Strike": {
     "holders": 86,
-    "real_over_sim": 0.924,
-    "landing": 0.938
+    "real_over_sim": 0.896,
+    "landing": 0.858
    },
    "Stalker": {
     "holders": 109,
@@ -483,10 +495,15 @@
    }
   },
   "Drifter": {
+   "Spirit Snatch": {
+    "holders": 154,
+    "real_over_sim": 0.929,
+    "landing": 0.937
+   },
    "Spirit Strike": {
     "holders": 103,
-    "real_over_sim": 0.921,
-    "landing": 0.933
+    "real_over_sim": 0.88,
+    "landing": 0.838
    },
    "Stalker": {
     "holders": 177,
@@ -809,8 +826,8 @@
    },
    "Spirit Strike": {
     "holders": 38,
-    "real_over_sim": 0.711,
-    "landing": 0.563
+    "real_over_sim": 0.992,
+    "landing": 0.56
    },
    "Torment Pulse": {
     "holders": 50,
@@ -826,8 +843,8 @@
    },
    "Spirit Snatch": {
     "holders": 33,
-    "real_over_sim": 0.974,
-    "landing": 0.882
+    "real_over_sim": 0.722,
+    "landing": 0.72
    },
    "Stalker": {
     "holders": 94,
@@ -962,13 +979,13 @@
    },
    "Spirit Snatch": {
     "holders": 41,
-    "real_over_sim": 0.613,
-    "landing": 0.542
+    "real_over_sim": 0.834,
+    "landing": 0.48
    },
    "Spirit Strike": {
     "holders": 48,
-    "real_over_sim": 0.694,
-    "landing": 0.549
+    "real_over_sim": 0.856,
+    "landing": 0.492
    },
    "Stalker": {
     "holders": 104,

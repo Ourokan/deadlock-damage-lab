@@ -90,7 +90,7 @@ class PuddlePunch(AbilityImpl):
         else:
             dmg = c.val("Damage")
         ls = c.raw("LifeStealPercentOnHit") / 100
-        amp = 1.0 + c.me.st.melee_pct + c.me.stat("melee_pct")
+        amp = c.me.melee_mult()
 
         def go():
             if not c.me.alive or not c.foe.alive:

@@ -9,7 +9,9 @@ Assumptions:
   42% of casts, median 51 before 8 min and 96 at 30-40 min, ~1 s after the cast).
 - Exploding Uppercut: a light-melee-strength hit (UppercutDamage + light melee damage) when the target is within
   MeleeAttackLength (+ engage margin) or was just hooked. The landing explosion only damages *other* enemies,
-  so it deals nothing in a 1v1. T2: +BuffBaseWeaponPct weapon damage for UppercutBuffOnHit s; T3: Grapple Arm
+  so it deals nothing in a 1v1. The hit is melee damage (melee resist, not spirit resist) but procs Mystic Burst /
+  Tankbuster like a spirit ability hit (Phantom+ replays: Uppercut alone on a tick releases Tankbuster 18% and
+  Mystic Burst 23% of the time; Grapple Arm, also melee, never does). T2: +BuffBaseWeaponPct weapon damage for UppercutBuffOnHit s; T3: Grapple Arm
   cooldown reset and heal MissingHPHeal % of missing health.
 - Sticky Bomb: target ability (cast range + margin, or after a hook); explodes after FuseTime. The permanent
   per-hit stacks grow within the fight (BonusDamagePctPerPlayerHit per earlier hit). Self damage ignored
@@ -51,6 +53,7 @@ def combo_ready(c):
 @register("citadel_ability_uppercut")
 class ExplodingUppercut(AbilityImpl):
     kind = "target"
+    spirit_procs = True
 
     def in_range(self, c):
         return hooked(c) or c.within(c.rng("MeleeAttackLength", 6.0))
