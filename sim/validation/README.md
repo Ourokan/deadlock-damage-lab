@@ -1769,3 +1769,49 @@ Full sample: Drifter 0.045 -> 0.021, Baba 0.031 -> 0.023, all heroes 0.0243 -> 0
 0.167 -> 0.170, edges clear of noise 0.266 -> 0.270, per item 0.238 -> 0.240. Baba's Granny Long Legs fits a
 landing x length_corr of 2.9 (2.0 before, 1.8 before Baba's split): the pounds per cast or their damage are short
 of real, not new here (follow-up).
+
+## Target health for Opening Rounds (2026-10-26)
+
+Opening Rounds adds weapon damage against targets above half health. `scripts/fight_length/target_health.py` measures
+how gun damage spreads over the target's health share at the hit (before it). The real side uses every hero gun hit in
+the 260 Phantom+ replays (`fetch_fights.py` extracts, weapon id from `data/game/weapons.json`). The sim side uses the
+damage audit's duels, with each hit weighted by P(fight still going):
+
+| | gun damage on targets above half health |
+|---|---|
+| real, all gun hits on heroes | 0.628 |
+| real, inside pair fights (lane / mid / late) | 0.640 (0.686 / 0.635 / 0.614) |
+| sim duels before | 0.846 |
+| sim, as Opening Rounds now sees the target | 0.643 / 0.633 (even / odd match halves; real 0.641 / 0.640) |
+
+The cause is that a sim target starts every duel at full health, and only the duel's opponent damages it. In real
+pair fights, 47% of targets enter in the top decile and the rest enter already hurt. During the fight, other enemies
+add 0.71x as much damage to the target as the pair opponent does.
+
+`Mechanics.target_health` (on, with fight_length) handles this. When the enemy holds an item in
+`mechanics.TARGET_HEALTH_ITEMS` (Opening Rounds), that item sees the fighter's health
+(`Fighter.item_hp_frac`) as short by two amounts:
+
+- a real entry deficit (the same draw as `entry_gate`, shared through `Fighter.entry_drawn`);
+- `TARGET_ASSIST` x the damage the fighter has taken in the duel.
+
+The fighter's real health, the fight's length and execute gates don't change, as with `entry_gate` (making the health
+itself short, `entry_hp`, hurt sim_vs_win). With the raw 0.71, the share falls to 0.54 and damage piles up at 0-10%,
+because real targets losing health that fast also die or back off sooner. So `TARGET_ASSIST` is fitted instead: 0.35
+matches real on both halves (0.25 gives 0.67 / 0.66). An immortal enemy's refill (survive) starts a new life that the
+item sees as full; without that, the overall search's enemy would read 0% for the rest of the fight.
+
+Tankbuster, Mystic Reverb and Rupture deal damage based on the target's current health, so the same skew applies to
+them. They are left as they are because their item_landing factors were fitted on the current duels, and switching
+them needs a refit of those rows.
+
+Results:
+
+| | main | this |
+|---|---|---|
+| damage audit mix (player-weighted) | 0.0243 | 0.0243 (gun share 0.2465 -> 0.2458, real 0.2431; no hero moves > 0.002) |
+| sim_vs_win 27k all pairs / damage items | 0.167 / 0.047 | 0.170 / 0.051 |
+| edges clear of noise / per item | 0.266 / 0.238 | 0.269 / 0.240 |
+| Opening Rounds sim gain per 1000 souls (real edge -1.47 pt) | 0.0716 | 0.0648 |
+
+Nothing is refit. Opening Rounds' bonus isn't a fitted factor, and only its holders' gun damage moves (~2%).
