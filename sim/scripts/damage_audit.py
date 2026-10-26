@@ -26,6 +26,7 @@ is furthest from real games now. Output: validation/damage_audit.json and valida
 usage: python3 scripts/damage_audit.py <sample.jsonl.gz> [max_players] [workers] [--badge N]
 AUDIT_OUT=path writes path.json/.md instead; AUDIT_HEROES=name,name audits only those heroes' players (a quick
 per-hero check: the items tables then pool only them). AUDIT_NORM=gun: items tables per gun damage (before 2026-10-26).
+AUDIT_SEED=k: another draw of foes and per-fight draws (k=0 is the default draw), for averaging small samples.
 The sample comes from scripts/fetch_validation.py (e.g. --api 91 5 for Phantom+ of the last 5 days).
 """
 import collections
@@ -56,6 +57,7 @@ LENGTH = True        # damage expected over real fight lengths (mechanics.real_l
 # items tables: item dmg per "total" dmg while owned, or per "gun". The audit itself defaults to total (main); scripts
 # that import sim_player for its held rows (item_landing.py, length_factors.py) keep gun, as their factors were fitted
 ITEM_NORM = os.environ.get("AUDIT_NORM", "gun")
+SEED = int(os.environ.get("AUDIT_SEED", "0"))   # another draw of foes and fight draws (split-half averaging)
 _sk = {}
 
 
@@ -108,7 +110,7 @@ def sim_player(job, both=False):
     foes = [p for p in m["players"] if p["team"] != me["team"] and p["hero_id"] in G.heroes]
     h = G.hero(me["hero_id"])
     names = {ab.name: ab.class_name for ab in h.abilities}
-    rnd = random.Random(m["match_id"] * 31 + slot)
+    rnd = random.Random(m["match_id"] * 31 + slot + SEED * 1000003)
     out, out_u = collections.Counter(), collections.Counter()
     held = collections.defaultdict(lambda: [0.0, 0.0])   # item class -> [sim item dmg, sim gun/all dmg] in duels holding it
     held_u = collections.defaultdict(lambda: [0.0, 0.0])

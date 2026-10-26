@@ -354,6 +354,11 @@ class AbilityImpl:
     spirit_procs = False       # its melee hits proc Mystic Burst / Tankbuster like spirit ability hits (Uppercut)
     tankbuster_chance = None   # spirit_procs hits release Tankbuster on this share of hits, ignoring its MinimumDamage
 
+    def held(self, c: CastCtx):
+        """The slot's first-cast hold (mechanics.hold_first_casts, AbilityState.held_until) applies to this cast.
+        Silver's wolf abilities share a slot with human abilities whose real holds don't time them."""
+        return True
+
     def __init__(self, state):
         self.s = state
 
@@ -500,7 +505,7 @@ class AbilityState:
             return False
         t = self.f.e.t
         self._recharge()
-        if self.charges <= 0 or t < self.ready_at or t < self.held_until:
+        if self.charges <= 0 or t < self.ready_at or (t < self.held_until and self.impl.held(self.ctx)):
             return False
         if self.f.counters.get("fleeing") and self.impl.kind != "self":
             return False

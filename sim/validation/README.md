@@ -1921,3 +1921,28 @@ it was):
 | sim_vs_win 27k all pairs / damage items | 0.172 / 0.056 | 0.175 / 0.066 |
 | edges clear of noise / per item | 0.273 / 0.242 | 0.277 / 0.248 |
 | Decay sim gain per 1000 souls (real edge -4.55 pt) | 0.0889 | 0.0809 |
+
+## Silver's Tail Whack and the wolf abilities' holds (2026-10-26)
+
+After the wolf form moved to real timing, Tail Whack's landing x length_corr went 1.55 -> 2.09 while the other wolf
+fudges moved toward 1. Replays (fight_length raw, 50 Silver players): per hit Tail Whack matches its formula
+(45 + 1.5 x spirit power, pre-resist, ratio ~1.1 with the T1 +25 unknown), so the gap was cast count. Real wolf runs
+open with their abilities at once (median first hit after the run start: Mauling Leap 0.5 s, Tail Whack 0.7 s, Go For
+The Throat 1.1 s), Tail Whack 0.85x as many casts as Go For The Throat. The sim cast it 0.70 times per transform
+(0.55x Go For The Throat), median 2.9 s in: each wolf ability shares an AbilityState with the human ability in its
+slot, and that slot's first-cast hold (Mechanics.cast_timing, fitted on the human ability's own class) held the wolf
+casts too. The Bola's long hold blocked Tail Whack most (in the audit duels 7124 blocked checks vs 115 casts).
+
+Fix: `AbilityImpl.held(c)` says whether the slot's hold applies; Silver's wolf slots answer no while transformed, and
+a wolf cast doesn't count as the human ability's first cast (`held_opener`). Replays also show 1.20 enemy heroes hit
+per Tail Whack (Go For The Throat 1.07, Mauling Leap 1.01): `werewolf.TAIL_WHACK_OTHERS` = 0.20 x Damage lands on the
+others near the target (mechanics._splash). Sim now: Tail Whack 1.04 casts per transform, median 1.1 s in.
+
+Refit of Silver only (ability_corr_heroes.py 3 rounds, then item_landing_heroes.py): landing x length_corr Tail
+Whack 2.09 -> 0.96, Go For The Throat 1.15 -> 0.76, Mauling Leap 1.09 -> 0.59 (both now cast as often as their
+cooldowns allow, more than real players do), human abilities unchanged. Audit, full sample averaged over 5 draws
+(`AUDIT_SEED`): mix 0.0196 -> 0.0180, per-source 0.0178 -> 0.0161. Split-half (main refit the same way as
+reference, 5 draws): per-source 0.048 -> 0.043 and 0.047 -> 0.037 (better both halves), mix 0.022 -> 0.018 and
+0.026 -> 0.028; held-out Tail Whack real/sim 0.76 -> 0.82 and 1.18 -> 1.01.
+sim_vs_win 27k (all heroes, main vs this side by side): all pairs 0.173 -> 0.174, edges clear of noise 0.273 -> 0.273,
+per item 0.243 -> 0.244.

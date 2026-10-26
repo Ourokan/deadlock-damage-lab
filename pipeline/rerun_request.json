@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-26T17:35:00Z",
- "reason": "Tankbuster and Decay deal damage from real-like target health (Mechanics.target_health, CURRENT_HEALTH_ASSIST); their item factors refit"
+ "requested_at": "2026-10-26T18:30:00Z",
+ "reason": "Silver's wolf abilities no longer held by the human abilities' first-cast timing; Tail Whack hits others; Silver refit"
 }
