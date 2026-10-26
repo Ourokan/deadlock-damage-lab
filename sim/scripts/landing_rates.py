@@ -321,9 +321,13 @@ def main():
                 new = rate * (r.get("MELEE", 0) / r["GUN"]) / (s_["MELEE"] / s_["GUN"])
                 out[str(hid)] = {"name": G.hero(hid).name, "rate": round(min(1.0, new), 4),
                                  "real_melee_share": round(r.get("MELEE", 0) / sum(r.values()), 4)}
-        json.dump({"meta": {"what": "landed basic melee hits per second of fight, fitted so sim melee/gun damage "
-                                    "matches real damage matrix (scripts/landing_rates.py --fit-melee)"},
-                   "heroes": out}, open(MELEE_FILE, "w"), indent=1)
+        try:
+            meta = json.load(open(MELEE_FILE))["meta"]   # keeps the audit_fit note
+        except (OSError, KeyError, ValueError):
+            meta = {}
+        meta["what"] = ("landed basic melee hits per second of fight, fitted so sim melee/gun damage matches real "
+                        "damage matrix (scripts/landing_rates.py --fit-melee)")
+        json.dump({"meta": meta, "heroes": out}, open(MELEE_FILE, "w"), indent=1)
         print("melee rates:", {v["name"]: v["rate"] for v in out.values()})
     if only:
         for hn in shares:

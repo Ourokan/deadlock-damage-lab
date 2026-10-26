@@ -371,8 +371,11 @@ class MeleeOpener(unittest.TestCase):
                 n += M.melee_opener(f) is not None
             return n / 400
         low, high = share("Vindicta"), share("Bebop")
-        self.assertGreater(high, 0.30)   # Bebop's rate is lower since melee hits grew with weapon damage and his rate
-        # was refit to the damage audit (2026-10-26, scripts/melee_audit_fit.py): 0.019/s with one item
+        # Bebop opens in 0.36 of the fights (2026-10-26): his rate dropped when melee hits grew with weapon damage and
+        # again when it was refit to the damage audit (scripts/melee_audit_fit.py), 0.0194/s with one melee item
+        # (0.0212 x his melee_items.json multiplier) vs MELEE_OPEN_FULL_RATE 0.036
+        self.assertGreater(high, 0.32)
+        self.assertGreater(high, low + 0.15)
         self.assertLess(low, 0.25)
         self.assertGreater(low, 0.08)
 
