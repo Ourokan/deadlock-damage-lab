@@ -13,7 +13,7 @@ Assumptions:
   T3: target is silenced for the escape window.
 - Last Stand: 2 s charge, then pulses every PulseInterval for AbilityDuration, healing HealthStealPctHero% of
   damage dealt. Bullet/spirit resist (incl. T3 +30%) and the gun lock apply during the charge only (PULSE_FREE):
-  Warden shoots and casts while it pulses. Before T3 (unstoppable) a stun in the charge cancels the pulses. Cast when the target is within Radius
+  Warden shoots and casts while it pulses. Before T3 (unstoppable) a stun in the charge (or at the first pulse) cancels the pulses. Cast when the target is within Radius
   (+ engage margin) and not almost dead.
 """
 from deadsim.abilities import AbilityImpl, register
@@ -113,18 +113,32 @@ class LastStand(_Base):
         n = max(1, int(round(dur / iv)))
         st = {"broken": False}
 
+        def stunned():
+            """Before T3 a stun breaks Last Stand (in the charge only with PULSE_FREE): no pulses, lock and resists end."""
+            if unstoppable or not c.me.mods.active("stun"):
+                return False
+            st["broken"] = True
+            c.me.gun_locked_until = min(c.me.gun_locked_until, c.now) if PULSE_FREE else c.now
+            c.me.mods.remove("bullet_resist", "laststand_br")
+            c.me.mods.remove("spirit_resist", "laststand_sr")
+            return True
+
+        def charge_check(t):
+            if st["broken"] or not c.me.alive or stunned():
+                return
+            if t + iv < charge - 1e-9:
+                c.after(iv, charge_check, t + iv)
+
         def pulse(i):
             if st["broken"] or not c.me.alive or not c.foe.alive:
                 return
-            if not unstoppable and c.me.mods.active("stun") and (i == 0 or not PULSE_FREE):
-                st["broken"] = True
-                c.me.gun_locked_until = min(c.me.gun_locked_until, c.now) if PULSE_FREE else c.now
-                c.me.mods.remove("bullet_resist", "laststand_br")
-                c.me.mods.remove("spirit_resist", "laststand_sr")
+            if (i == 0 or not PULSE_FREE) and stunned():
                 return
             amt = c.engine.damage(c.me, c.foe, per, "spirit", self.s.ab.name, is_ability=True, ability=self.s,
                                   is_ult=True)
             c.heal(amt * steal)
             if i + 1 < n:
                 c.after(iv, pulse, i + 1)
+        if PULSE_FREE:
+            c.after(iv, charge_check, iv)   # a stun landing in the charge (checked on the pulse grid, as before)
         c.after(charge + iv, pulse, 0)
