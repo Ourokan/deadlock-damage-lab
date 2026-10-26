@@ -2,9 +2,9 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-02 to 2026-10-24, 151,478 Ritualist+ matches (refreshed 2026-10-26T04:18:40Z).
+Edges: patch 09-29-2026, matches 2026-10-02 to 2026-10-24, 151,478 Ritualist+ matches (refreshed 2026-10-26T06:07:26Z).
 
-- Recommended item slots with data: 1981; mean edge +1.1 (popular builds +0.0); clearly positive 1178, clearly negative 17.
+- Recommended item slots with data: 1982; mean edge +1.1 (popular builds +0.0); clearly positive 1173, clearly negative 18.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
@@ -16,34 +16,32 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 
 | Item | slot/tier | builds | heroes (edge) |
 |---|---|---:|---|
-| Spirit Snatch | spirit 3 | 4 | Apollo -1.4 |
+| Spirit Snatch | spirit 3 | 6 | Billy -2.1, Apollo -1.4 |
 | Stalker | weapon 2 | 4 | Billy -1.8 |
 | Kinetic Dash | weapon 2 | 3 | Deadman Danny -4.3 |
 | Escalating Exposure | spirit 4 | 3 | Victor -1.7, Kelvin -1.1 |
 | Rapid Recharge | spirit 3 | 1 | Dynamo -1.8 |
-| Arcane Surge | spirit 2 | 1 | Graves -1.4 |
 | Toxic Bullets | weapon 3 | 1 | Wraith -1.0 |
 
 ## Strong items the sim never picks (edge >= +1.5, lower 95% bound > 0)
 
 | Item | slot/tier | heroes | heroes (edge) |
 |---|---|---:|---|
-| Diviner's Kevlar | vitality 4 | 13 | Rat King +6.6, Paige +3.7, Holliday +3.6, Solomon +3.5, Nurse Harrow +3.5, Mo & Krill +3.0, Yamato +2.4, Vindicta +2.2, Silver +2.1, Baba +2.1, Graves +2.1, Mina +1.9, Pocket +1.6 |
+| Diviner's Kevlar | vitality 4 | 14 | Rat King +6.6, Paige +3.7, Holliday +3.6, Solomon +3.5, Nurse Harrow +3.5, Mo & Krill +3.0, Calico +2.7, Yamato +2.4, Vindicta +2.2, Silver +2.1, Baba +2.1, Graves +2.1, Mina +1.9, Pocket +1.6 |
 | Fleetfoot | weapon 2 | 7 | Baba +4.4, Seven +2.3, Vindicta +1.9, Vyper +1.7, Warden +1.7, Rat King +1.6, Venator +1.5 |
+| Witchmail | vitality 4 | 6 | Kelvin +3.0, Lady Geist +3.0, Victor +2.8, Dynamo +2.8, Bebop +2.1, Mo & Krill +2.0 |
 | Magic Carpet | spirit 4 | 6 | Lash +5.5, Solomon +4.2, Rem +4.1, Sinclair +3.0, Venator +2.9, Graves +2.6 |
 | Silencer | weapon 4 | 6 | Infernus +3.1, Warden +2.8, Wraith +2.6, Haze +1.9, Ivy +1.9, Graves +1.8 |
 | Sprint Boots | vitality 1 | 6 | Victor +3.1, Lady Geist +2.4, Kelvin +1.9, Infernus +1.7, Venator +1.7, Wraith +1.6 |
 | Superior Cooldown | spirit 3 | 5 | Drifter +2.2, Yamato +2.1, Paradox +1.9, Baba +1.8, Holliday +1.7 |
-| Witchmail | vitality 4 | 5 | Kelvin +3.0, Victor +2.8, Dynamo +2.8, Bebop +2.1, Mo & Krill +2.0 |
 | Ethereal Shift | spirit 4 | 5 | Pocket +3.0, Mina +2.6, Billy +2.5, Violet +2.1, Shiv +1.9 |
 | Duration Extender | spirit 2 | 5 | Rat King +3.4, Silver +2.7, Vindicta +2.2, Violet +2.2, Drifter +1.7 |
+| Spirit Burn | spirit 4 | 4 | Infernus +2.3, Paradox +2.1, Apollo +2.0, Bebop +1.6 |
 | Mystic Expansion | spirit 1 | 4 | Kelvin +1.9, Baba +1.9, Dynamo +1.7, Celeste +1.6 |
-| Spirit Burn | spirit 4 | 4 | Infernus +2.3, Paradox +2.1, Calico +1.6, Bebop +1.6 |
 | Compress Cooldown | spirit 2 | 3 | Deadman Danny +1.8, Baba +1.7, Lash +1.7 |
 | Frenzy | weapon 4 | 3 | Bebop +3.4, Victor +2.8, Rat King +1.7 |
 | Slowing Bullets | weapon 2 | 3 | Rat King +2.0, Silver +1.9, Bebop +1.7 |
 | Spellslinger | weapon 4 | 3 | Venator +2.2, Wraith +1.9, Vindicta +1.9 |
-| Indomitable | vitality 4 | 2 | Seven +2.0, Calico +2.0 |
 | High-Velocity Rounds | weapon 1 | 2 | Deadman Danny +4.5, Holliday +1.6 |
 | Long Range | weapon 2 | 2 | Deadman Danny +1.6, Solomon +1.5 |
 | Healing Tempo | vitality 4 | 2 | Haze +3.0, Dynamo +2.0 |
@@ -54,12 +52,12 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Stamina Mastery | vitality 3 | 1 | Apollo +1.6 |
 | Greater Expansion | spirit 3 | 1 | Baba +1.6 |
 | Colossus | vitality 4 | 1 | Billy +2.0 |
+| Indomitable | vitality 4 | 1 | Calico +2.0 |
 | Glass Cannon | weapon 4 | 1 | Drifter +1.8 |
 | Rapid Recharge | spirit 3 | 1 | Haze +2.0 |
 | Enduring Speed | vitality 2 | 1 | Haze +1.5 |
 | Quicksilver Reload | spirit 2 | 1 | Holliday +1.7 |
 | Spellbreaker | vitality 4 | 1 | Infernus +1.9 |
-| Bullet Lifesteal | vitality 2 | 1 | Infernus +1.6 |
 | Dispel Magic | vitality 3 | 1 | Ivy +2.2 |
 | Swift Striker | weapon 2 | 1 | Ivy +1.5 |
 | Infuser | vitality 4 | 1 | Lady Geist +2.8 |
@@ -80,11 +78,12 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 ### Abrams
 
 ### Apollo
+- 10k: Spirit Snatch -1.4
 - 18k: Spirit Snatch -1.4
 - 27k: Spirit Snatch -1.4
 - 37k: Spirit Snatch -1.4
 - 50k: Spirit Snatch -1.4
-- never picked: Stamina Mastery +1.6
+- never picked: Spirit Burn +2.0, Stamina Mastery +1.6
 
 ### Baba
 - never picked: Fleetfoot +4.4, Diviner's Kevlar +2.1, Mystic Expansion +1.9, Superior Cooldown +1.8, Compress Cooldown +1.7, Greater Expansion +1.6
@@ -94,13 +93,13 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 
 ### Billy
 - 10k: Stalker -1.8
-- 18k: Stalker -1.8
+- 18k: Stalker -1.8, Spirit Snatch -2.1
 - 37k: Stalker -1.8
 - 50k: Stalker -1.8
 - never picked: Ethereal Shift +2.5, Colossus +2.0
 
 ### Calico
-- never picked: Indomitable +2.0, Spirit Burn +1.6
+- never picked: Diviner's Kevlar +2.7, Indomitable +2.0
 
 ### Celeste
 - never picked: Mystic Expansion +1.6
@@ -119,7 +118,6 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Witchmail +2.8, Healing Tempo +2.0, Mystic Expansion +1.7
 
 ### Graves
-- 27k: Arcane Surge -1.4
 - never picked: Magic Carpet +2.6, Diviner's Kevlar +2.1, Silencer +1.8
 
 ### Grey Talon
@@ -131,7 +129,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Diviner's Kevlar +3.6, Lucky Shot +1.8, Superior Cooldown +1.7, Quicksilver Reload +1.7, High-Velocity Rounds +1.6
 
 ### Infernus
-- never picked: Silencer +3.1, Spirit Burn +2.3, Spellbreaker +1.9, Sprint Boots +1.7, Warp Stone +1.7, Bullet Lifesteal +1.6
+- never picked: Silencer +3.1, Spirit Burn +2.3, Spellbreaker +1.9, Sprint Boots +1.7, Warp Stone +1.7
 
 ### Ivy
 - never picked: Dispel Magic +2.2, Silencer +1.9, Swift Striker +1.5
@@ -141,7 +139,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Witchmail +3.0, Mystic Expansion +1.9, Sprint Boots +1.9
 
 ### Lady Geist
-- never picked: Infuser +2.8, Sprint Boots +2.4
+- never picked: Witchmail +3.0, Infuser +2.8, Sprint Boots +2.4
 
 ### Lash
 - never picked: Magic Carpet +5.5, Siphon Bullets +2.0, Compress Cooldown +1.7
@@ -175,7 +173,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Magic Carpet +4.1
 
 ### Seven
-- never picked: Fleetfoot +2.3, Indomitable +2.0, Monster Rounds +1.7
+- never picked: Fleetfoot +2.3, Monster Rounds +1.7
 
 ### Shiv
 - never picked: Ethereal Shift +1.9
