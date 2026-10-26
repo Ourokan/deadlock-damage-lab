@@ -117,8 +117,9 @@
   },
   "35": {
    "name": "Viscous",
-   "rate": 0.0421,
-   "real_melee_share": 0.0519
+   "rate": 0.0238,
+   "real_melee_share": 0.0519,
+   "audit_fit": true
   },
   "50": {
    "name": "Pocket",
@@ -229,6 +230,12 @@
    "name": "Baba",
    "rate": 0.1756,
    "real_melee_share": 0.1236
+  },
+  "76": {
+   "name": "Graves",
+   "rate": 0.0199,
+   "real_melee_share": 0.0238,
+   "audit_fit": true
   }
  }
 }

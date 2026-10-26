@@ -4,7 +4,7 @@
   "formula": "(real ability dmg / real gun dmg) / (sim ability dmg / sim gun dmg)",
   "length": "fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x length_corr (the sim's source/gun in full / the same expected over real fight lengths, scripts/fight_length/length_factors.py, phantom_sample.jsonl.gz, 3 rounds)",
   "cast_timing_kept": "length_corr scaled so held first casts (Mechanics.cast_timing) keep the expected levels of cast-on-sight duels; rerun from the factors before",
-  "audit_corr_heroes": "length_corr fitted straight to the damage audit (scripts/ability_corr_heroes.py, phantom_sample.jsonl.gz, 3 rounds) after a Phantom+ landing refit for: Venator, Infernus, Victor, Silver, Seven, Vyper, Paige, Mirage, Ivy, Kelvin, Bebop (2026-10-25, validation/README.md), Deadman Danny (2026-10-25, per-ability check); Apollo with no landing refit after his cast timing rows (2026-10-25); Violet, The Doorman, Solomon the same once landing_rates.SLOW_GUNS let their players in (2026-10-25); Paradox with no landing refit (2026-10-26, validation/README.md \"Paradox's Carbine count\")"
+  "audit_corr_heroes": "length_corr fitted straight to the damage audit (scripts/ability_corr_heroes.py, phantom_sample.jsonl.gz, 3 rounds) after a Phantom+ landing refit for: Venator, Infernus, Victor, Silver, Seven, Vyper, Paige, Mirage, Ivy, Kelvin, Bebop (2026-10-25, validation/README.md), Deadman Danny (2026-10-25, per-ability check); Apollo with no landing refit after his cast timing rows (2026-10-25); Violet, The Doorman, Solomon the same once landing_rates.SLOW_GUNS let their players in (2026-10-25); Paradox with no landing refit (2026-10-26, validation/README.md \"Paradox's Carbine count\"); Haze, Mina (2026-10-26, split-half sweep of all heroes, validation/README.md \"Stale ability corrections\")"
  },
  "heroes": {
   "Infernus": {
@@ -257,21 +257,21 @@
     "landing": 0.568,
     "real_share": 0.0762,
     "sim_share": 0.0832,
-    "length_corr": 0.829
+    "length_corr": 0.839
    },
    "Fixation": {
     "class": "ability_stacking_damage",
     "landing": 0.975,
     "real_share": 0.2984,
     "sim_share": 0.3252,
-    "length_corr": 1.392
+    "length_corr": 1.364
    },
    "Bullet Dance": {
     "class": "ability_bullet_flurry",
     "landing": 0.169,
     "real_share": 0.1529,
     "sim_share": 0.166,
-    "length_corr": 1.915
+    "length_corr": 1.476
    }
   },
   "Holliday": {
@@ -656,21 +656,21 @@
     "landing": 1.075,
     "real_share": 0.2342,
     "sim_share": 0.2331,
-    "length_corr": 1.707
+    "length_corr": 1.729
    },
    "Love Bites": {
     "class": "ability_vampirebat_lovebites",
     "landing": 0.701,
     "real_share": 0.2939,
     "sim_share": 0.2904,
-    "length_corr": 1.039
+    "length_corr": 1.075
    },
    "Nox Nostra": {
     "class": "ability_vampirebat_batswarm",
     "landing": 0.261,
     "real_share": 0.1549,
     "sim_share": 0.1525,
-    "length_corr": 2.463
+    "length_corr": 2.002
    }
   },
   "Drifter": {
