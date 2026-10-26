@@ -63,7 +63,7 @@ class DazzlingTrick(AbilityImpl):
         """T3 lets Shining Wonder bounce off the prism: put the prism up when the ult is ready to go."""
         if c.tier < 3:
             return False
-        return any(ab.ab.class_name == "ability_unicorn_dazzlingorb" and ab.unlocked and ab.ready_at + ab.recast_wait <= c.now
+        return any(ab.ab.class_name == "ability_unicorn_dazzlingorb" and ab.unlocked and ab.ready_at <= c.now
                    for ab in c.me.abilities)
 
     def cast(self, c):
