@@ -41,6 +41,9 @@ class SilverCase(unittest.TestCase):
         self.assertFalse(self.ult.impl.should_cast(c))
         c.state["rage"] = 1e9                       # a full rage bar doesn't override the drawn plan
         self.assertFalse(self.ult.impl.should_cast(c))
+        self.e.t += werewolf.PLAN_HORIZON           # past the data's horizon: the rage rule again
+        self.assertTrue(self.ult.impl.should_cast(c))
+        self.e.t = 0.0
         h = d["holds"][0]
         self.ult.impl.draw_plan(c, p0 + 1e-6)       # first real bin
         self.assertAlmostEqual(c.state["plan_at"], self.e.t + h)

@@ -49,6 +49,7 @@ from deadsim.data import Ability, _load, _num
 WOLF_KEY = "silver_wolf_until"
 CLAWS = "citadel_weapon_werewolf_claws"
 WOLF_TIMING = True
+PLAN_HORIZON = 20.0   # s, the replay holds' horizon (null = not transformed by then)
 
 
 @lru_cache(maxsize=1)
@@ -312,11 +313,15 @@ class LycanCurse(AbilityImpl):
         q = d["holds"]
         h = q[min(len(q) - 1, int((u - p0) / (1.0 - p0) * len(q)))]
         c.state["plan_at"] = math.inf if h is None else c.now + h
+        c.state["plan_end"] = c.now + PLAN_HORIZON   # past the data's horizon, the rage rule again
 
     def should_cast(self, c):
         if not c.foe.alive or wolf(c):
             return False
         at = c.state.get("plan_at")
+        if at is not None and c.now >= c.state.get("plan_end", math.inf):
+            c.state.pop("plan_at")
+            at = None
         if at is not None:   # first transform on real timing (draw_plan)
             return c.now >= at
         return c.state["rage"] >= self.max_rage(c)
