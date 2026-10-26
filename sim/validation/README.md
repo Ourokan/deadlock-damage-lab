@@ -88,6 +88,18 @@ Spirit Strike, Lifestrike, Melee Lifesteal. `accuracy.hero_default_skill` loads 
 with `hero_default_skill(hero, melee_rate_override=0.5, heavy_share=0.4)` (or `Skill(melee_rate=..., heavy_share=...)`).
 `Skill.combo_melee` (on by default) adds Abrams' charge into heavy melee combo on top of the rate.
 
+### Melee rates refit to the audit
+
+`landing_rates.py` fits in its own model (abilities at 100%, no mechanics, the older all-ranks sample), so by
+2026-10-26 some heroes' rates were stale in the model the searches use: in the damage audit Paradox meleed 1.6x his
+real melee/gun damage (0.63x), Bebop 1.3x, while Kelvin, McGinnis and Violet meleed half or less. Hit sizes are not
+the cause: every hero's light melee in the replays is 0.93-1.03x the sim's formula (`scripts/mechanics/melee_scaling.py`).
+`scripts/melee_audit_fit.py` scales a hero's rate by the audit's MELEE real/sim (2 rounds). Split-half (fit on even
+match ids, audit odd, and reverse) kept 11 heroes with a lower mix distance both ways: Paradox (0.030 -> 0.019),
+Bebop, Kelvin, Violet, Paige, Mo & Krill, Nurse Harrow, Lady Geist, Rem, Apollo, McGinnis. Infernus, Calico, Grey
+Talon, Dynamo, Baba, Wraith and Deadman Danny were worse or flat on one half and keep their rates. Those rows carry
+`audit_fit` and a `landing_rates.py --fit-melee` run leaves them alone.
+
 ### Melee follows the build
 
 The fitted rate is the hero's average player, but players who buy melee items melee more. `scripts/melee_items_fit.py`
@@ -1651,9 +1663,9 @@ log B| 0.105 -> 0.072, correlation 0.91 -> 0.95, 120 shared rows). Fitting the p
 | odd -> even | 0.0331 | 0.0319 | 0.0295 | 0.0300 |
 
 (per-source gap = player-weighted half the summed absolute share gaps over every source.) Full sample after two
-passes, on main after #114: mix 0.0299 -> 0.0291, per-source gap 0.0291 -> 0.0271; 140 hero x item factors (was 127),
+passes, on main after #117: mix 0.0284 -> 0.0274, per-source gap 0.0278 -> 0.0257; 139 hero x item factors (was 127),
 mostly lower (Bebop Mystic Reverb 0.56 -> 0.36, Tankbuster on Bebop/Celeste/Rem/Solomon now just under 1). sim_vs_win
-27k: all pairs 0.175 -> 0.173, damage items 0.054 -> 0.052, edges clear of noise 0.273 -> 0.270, per item 0.251 -> 0.248
+27k (on main after #114): all pairs 0.175 -> 0.173, damage items 0.054 -> 0.052, edges clear of noise 0.273 -> 0.270, per item 0.251 -> 0.248
 (as flat as PR #85's 0.176 -> 0.173). `AUDIT_NORM=gun` gives the old tables. The per-source ratios (and
 `ability_corr_heroes.py`) stay per gun: they pool every player of a hero, where per gun and per share have the same
 fixed point. Scripts that import the audit's `sim_player` for its held-item rows (`item_landing.py`, `length_factors.py`) keep per gun: only the audit's own run defaults to total. The pooled `item_landing.py` fit is unchanged

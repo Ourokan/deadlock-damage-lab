@@ -308,16 +308,27 @@ def main():
                 out = json.load(open(MELEE_FILE))["heroes"]
             except (OSError, KeyError, ValueError):
                 out = {}
+        try:   # rows refit to the damage audit (scripts/melee_audit_fit.py) stay: this model is not the audit's
+            kept = {k: v for k, v in json.load(open(MELEE_FILE))["heroes"].items() if v.get("audit_fit")}
+        except (OSError, KeyError, ValueError):
+            kept = {}
         for hid in sorted(sim):
+            if str(hid) in kept:
+                out[str(hid)] = kept[str(hid)]
+                continue
             r, s_ = real[hid], sim[hid]
             rate = MELEE.get(hid, MELEE_START)
             if r["GUN"] > 0 and s_["GUN"] > 0 and s_.get("MELEE", 0) > 0:
                 new = rate * (r.get("MELEE", 0) / r["GUN"]) / (s_["MELEE"] / s_["GUN"])
                 out[str(hid)] = {"name": G.hero(hid).name, "rate": round(min(1.0, new), 4),
                                  "real_melee_share": round(r.get("MELEE", 0) / sum(r.values()), 4)}
-        json.dump({"meta": {"what": "landed basic melee hits per second of fight, fitted so sim melee/gun damage "
-                                    "matches real damage matrix (scripts/landing_rates.py --fit-melee)"},
-                   "heroes": out}, open(MELEE_FILE, "w"), indent=1)
+        try:
+            meta = json.load(open(MELEE_FILE))["meta"]   # keeps the audit_fit note
+        except (OSError, KeyError, ValueError):
+            meta = {}
+        meta["what"] = ("landed basic melee hits per second of fight, fitted so sim melee/gun damage matches real "
+                        "damage matrix (scripts/landing_rates.py --fit-melee)")
+        json.dump({"meta": meta, "heroes": out}, open(MELEE_FILE, "w"), indent=1)
         print("melee rates:", {v["name"]: v["rate"] for v in out.values()})
     if only:
         for hn in shares:
