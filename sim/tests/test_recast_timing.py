@@ -70,16 +70,36 @@ class RecastWait(unittest.TestCase):
         e, f = fighter("Lady Geist")
         self.assertEqual(M.recast_wait(f.abilities[3]), 0.0)
 
-    def test_cast_sets_the_wait_and_try_cast_honours_it(self):
+    def test_phase_draw_is_fixed_per_cast(self):
         e, f = fighter("Lady Geist", phase=0.3)
         ab = next(a for a in f.abilities if a.ab.name == "Malice")
         ab.cast()
-        self.assertEqual(ab.recast_wait, M.recast_wait(ab))   # a phase draw is fixed per cast
-        e.t = ab.ready_at   # cooldown up
-        if ab.recast_wait > 0:
-            self.assertFalse(ab.try_cast())
+        self.assertEqual(ab.recast_wait, M.recast_wait(ab))
+
+    def malice_with_wait(self, w):
+        from deadsim import patterns
+        e, f = fighter("Lady Geist")
+        ab = next(a for a in f.abilities if a.ab.name == "Malice")
+        ab.cast()
+        ab.recast_wait = w
+        return e, ab, patterns._castable
+
+    def test_try_cast_and_plan_wait_past_the_cooldown(self):
+        e, ab, castable = self.malice_with_wait(2.0)
+        e.t = ab.ready_at + 1.0   # cooldown up, wait not over
+        self.assertFalse(castable(ab))
+        self.assertFalse(ab.try_cast())
+        e.t = ab.ready_at + 2.0
+        self.assertTrue(castable(ab))
+
+    def test_not_again_this_fight_until_a_reset(self):
+        e, ab, castable = self.malice_with_wait(math.inf)
+        e.t = ab.ready_at + 100.0
+        self.assertFalse(castable(ab))
+        self.assertFalse(ab.try_cast())
         ab.reset_cooldown()   # a reset (Refresher) lets it go at once
         self.assertEqual(ab.recast_wait, 0.0)
+        self.assertTrue(castable(ab))
 
     def test_off_casts_on_ready(self):
         mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(27000), recast_timing=False)

@@ -772,8 +772,9 @@ class Infuser(FX):
 @handler("upgrade_fury_trance")
 class FuryTrance(FX):
     def try_active(self, f):
-        # silences yourself, so only worth it once abilities are all on cooldown
-        if not self.ready() or any(a.unlocked and a.charges > 0 and f.e.t >= a.ready_at for a in f.abilities if a.impl.kind != "passive"):
+        # silences yourself, so only worth it once abilities are all on cooldown (or held past it, recast_timing)
+        if not self.ready() or any(a.unlocked and a.charges > 0 and f.e.t >= a.ready_at + a.recast_wait
+                                   for a in f.abilities if a.impl.kind != "passive"):
             return False
         self.use()
         d = self.dur("AbilityDuration", 6.5)
