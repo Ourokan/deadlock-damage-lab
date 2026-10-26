@@ -127,6 +127,7 @@ from __future__ import annotations
 
 import argparse
 import dataclasses
+import functools
 import json
 import math
 import os
@@ -464,7 +465,7 @@ def movement_value(items, hero=None):
     for i in held:
         x = extra.get(i, vals.get(i, 1.0))
         if i in close and hero is not None:
-            x = 1.0 + (x - 1.0) * close_scale(close[i], hero)
+            x = 1.0 + (x - 1.0) * close_scale(i, hero)
         v *= x
     n = len(held & (moving | set(extra)))   # the caps were measured on any movement items held, weighted or not
     if n >= 2 and caps:
@@ -472,10 +473,12 @@ def movement_value(items, hero=None):
     return v
 
 
-def close_scale(c, hero):
+@functools.lru_cache(maxsize=None)
+def close_scale(item, hero):
     """A close_items movement item's speed procs on weapon hits within radius_m: the hero's reach share at its real
     median fight distance / the share of the players its value was measured on (Stalker: Vindicta ~0.25, Abrams
     ~1.14). Capped so the item stays within the file's 1.25 per-item cap."""
+    c = _move[4][item]
     k = reach_share_at(default_distance(hero), c["radius_m"] + 0.5, c["cooldown_s"]) / c["holder_share"]
     return min(k, CLOSE_SCALE_MAX)
 

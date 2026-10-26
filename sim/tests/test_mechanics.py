@@ -378,3 +378,20 @@ class FocusLensExpire(unittest.TestCase):
 if __name__ == "__main__":
     unittest.main()
 
+
+
+class ReachShareAtTest(unittest.TestCase):
+    """mechanics.reach_share_at (overall_search close_items, Stalker's movement value) = FX.reach_share's mean field."""
+
+    def test_matches_engine_mean_field(self):
+        import types
+        import deadsim.mechanics as M
+        st = types.SimpleNamespace(hero=types.SimpleNamespace(base={}), extra={})
+        f = types.SimpleNamespace(st=st, stat=lambda k: 0.0)
+        for d in (7.3, 13.0, 26.4):
+            e = Engine(distance=d)
+            e.spread, e.spread_tau = M.drift_params()   # this module runs with range_drift off
+            s = {}
+            e.reach_ready(s, 8.5, f, mean_field=True)
+            self.assertAlmostEqual(M.reach_share_at(d, 8.5, 6.0), 6.0 / (6.0 + s["_reach_delay"]), places=9)
+        self.assertGreater(M.reach_share_at(7.3, 8.5, 6.0), M.reach_share_at(26.4, 8.5, 6.0))
