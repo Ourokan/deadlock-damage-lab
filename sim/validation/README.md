@@ -1717,3 +1717,25 @@ same refit as reference:
 Full sample: Baba 0.093 -> 0.031, Torment Pulse holders 1.87 -> 0.98, all heroes 0.0256 -> 0.0243; melee rate
 0.176 -> 0.070. sim_vs_win 27k all pairs 0.166 -> 0.167, edges clear of noise 0.266, per item 0.238. Drifter's
 "3 x 19.5" looks the same in replays (early hits peak at 20, never 39 or 58; gun 1.64x real per shot): not changed.
+
+## Abrams' gun per shot (2026-10-26)
+
+The Drifter thread read Abrams' gun at 2.0x real per shot (sim gun damage / trigger pulls in the Phantom+ audit duels
+vs replay gun damage / shots within 4 s of hero damage). That compares different players at different times: the 16
+Abrams in the replays aimed 0.228 per pellet where the sample's 138 aim 0.278 (1.22x), and his real hits come early
+(laning) while the audit duels sit at 30/60/90% of the match (1.17x on the same players). `scripts/gun_calib/
+shot_damage.py` runs the audit duels for the replay matches' own players (fetched in `fetch_validation` format) at 19
+evenly spaced points and takes the per-player sim/real geometric mean: Abrams 1.19x (95% 1.05-1.35, 16 players), in the
+band of Billy 1.19, Danny 1.17, Kelvin 1.15, Apollo 1.20 (Haze 1.03, Wraith 1.01, Bebop 1.00).
+
+Checked against his replay gun DamageEvents (16 matches, 2111 hits; `effectiveness` is the falloff, `pre_damage` the
+damage before resists, head pellets come as their own event): body hits sit at whole multiples of 3.6 x (1 + weapon
+power) per pellet, so 3.6 is per pellet as listed; falloff 0.94 damage-weighted (sim 0.96); Close Quarters' +20%
+shows on hits inside 17 m; Shoulder Charge T3's +1.5 lands per pellet after weapon power, within 6 s of a charge hit
+(the sim's weapon % conversion gives the same). Real pellets land together (a third of shots hit, 5.5 pellets each;
+the sim draws them one by one, 0.86 of shots hitting) but damage per shot doesn't depend on that. No model change.
+
+Same measure on main for the other split-pellet guns: Drifter 1.36x (1.27-1.46), Baba 0.61x (0.55-0.68); with the
+Drifter PR's whole-shot landing Drifter 0.74x, Baba 0.85x. Shot-count outliers (replay shot steps don't match the
+sim's trigger pulls: charged or alt-fire guns): Paradox 6.7, Venator 3.3, Seven 3.1, Lash 3.0, Sinclair 2.4, Violet
+1.8.
