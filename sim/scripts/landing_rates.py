@@ -61,9 +61,10 @@ MIN_SHOTS = 300      # shots for the player's own accuracy (else the hero defaul
 # Slow guns land far fewer hero hits a match: Apollo (0.38 s cycle) has a median 300 shots / 69 hits per Phantom+
 # match vs 1360 / 334 over all heroes, so MIN_HITS kept 6 of 111 Apollo players and his ability timing, landing and
 # audit rested on them. Per hero (min hits, min shots), about MIN_HITS / MIN_SHOTS x the hero's median shots share
-# (~0.25), floored for a usable accuracy (40 hits: +-15% relative). Others with the same gap (The Doorman, Violet,
-# Kelvin, Solomon) need their own landing refit before they join.
-SLOW_GUNS = {77: (40, 150)}
+# (~0.25), floored for a usable accuracy (40 hits: +-15% relative, 150 shots). The same gap (validation/README.md):
+# Violet (220 shots / 67 hits, 1% of players known at 150), The Doorman (301 / 99, 5%), Kelvin (508 / 98, 14%),
+# Solomon (373 / 129, 31%); all but Kelvin then got cast timing rows and an audit refit.
+SLOW_GUNS = {77: (40, 150), 86: (40, 150), 69: (40, 150), 12: (55, 150), 85: (40, 150)}
 FIGHT_TIME = 20.0
 FRACS = (0.3, 0.6, 0.9)
 

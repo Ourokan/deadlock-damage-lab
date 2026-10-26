@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-10-26T01:40:00Z",
- "reason": "Close-range items on far heroes: Stalker procs x its in-range share (refit), melee openers capped by the hero's own melee rate (Vindicta no longer gets Stalker / Melee Charge)"
+ "requested_at": "2026-10-26T01:15:00Z",
+ "reason": "PR #105: close-range items on far heroes (Stalker in-range share + refit, melee openers capped by melee rate); on top of #101 slow-gun fits and #103 execute gates"
 }

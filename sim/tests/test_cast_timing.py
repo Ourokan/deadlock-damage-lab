@@ -45,6 +45,17 @@ class CastHolds(unittest.TestCase):
             self.assertGreater(sorted(x for x in q if x is not None)[len(q) // 2 - 1], 1.0)
         self.assertNotIn(ult_key("Apollo"), holds)
 
+    def test_other_slow_guns_are_held(self):
+        """Violet, The Doorman and Solomon joined the fits with Apollo's slow-gun limits: their on-sight abilities are
+        held to real cast times. Kelvin joined without holds (they made his held-out damage mix worse both ways)."""
+        holds = M.cast_holds()
+        for name, held in (("Violet", 4), ("The Doorman", 3), ("Solomon", 3)):
+            h = game().hero(name)
+            rows = [k for k in holds if k.startswith(f"{h.id}:")]
+            self.assertEqual(len(rows), held, name)
+            self.assertTrue(all(len(holds[k]) == 20 for k in rows))
+        self.assertFalse([k for k in holds if k.startswith(f"{game().hero('Kelvin').id}:")])
+
     def test_hold_moves_the_ready_time(self):
         mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(27000))
         e = Engine(mech=mech, rng=random.Random(1))
