@@ -1315,3 +1315,26 @@ Held-out (fit on even match ids, audit odd, and the reverse), Apollo mix distanc
 0.042 -> 0.044, per item 0.239 -> 0.238; Apollo's own 129 pairs 0.31 -> 0.28 (noise level at that n).
 Left: Melee Charge on Apollo 5x under (real 0.42 of gun damage while held, sim 0.08), Itani Lo Sahn cast in 80% of
 sim duels by 20 s vs 43% real (health gate, duels to the death).
+
+## Violet, The Doorman, Kelvin, Solomon: the other slow guns (2026-10-25)
+
+The Apollo gap again: their guns land a median 67 (Violet), 99 (The Doorman), 98 (Kelvin), 129 (Solomon) API hero
+hits a Phantom+ match, so 150 hits kept 4 of 424 Violet, 2 of 39 Doorman, 12 of 88 Kelvin and 42 of 137 Solomon
+players. `landing_rates.SLOW_GUNS` gives them (40, 150), Kelvin (55, 150): 376, 38, 80, 136 players.
+
+- `fit_cast_timing.py fit --hero NAME --write` for each: Violet all four abilities held (curve gap 0.190 -> 0.050),
+  The Doorman Call Bell, Luggage Cart, Hotel Guest (0.399 -> 0.164), Solomon refit with all players (his three rows
+  had come from 42; 0.585 -> 0.153).
+- Then 3 rounds of audit + `ability_corr_heroes.py --write` and `item_landing_heroes.py --write` for those three.
+
+Held-out (fit on even match ids, audit odd, and the reverse), mix distance with the new players, before -> after:
+Violet 0.043 -> 0.031 / 0.036 -> 0.033, The Doorman 0.185 -> 0.036 / 0.217 -> 0.058, Solomon 0.032 -> 0.014 /
+0.080 -> 0.054. Kelvin got worse both ways with his holds (0.056 -> 0.068 / 0.024 -> 0.072: holding his casts doubles
+his gun share, real 0.09, and the refit overshoots abilities) and flat without them (0.051 / 0.024), so he only
+gets the extra players: no cast timing rows, factors from PR #91 kept.
+Full sample: Violet 0.051 -> 0.028, The Doorman 0.285 -> 0.019, Solomon 0.049 -> 0.018, Kelvin 0.046 -> 0.040;
+player-weighted mix 0.0309 -> 0.0302 with 670 more players. sim_vs_win 27k (correlation, higher is better) flat:
+all pairs 0.164 -> 0.163, damage items 0.042 -> 0.040, per item 0.237 -> 0.237.
+Left: The Doorman's corrections (x3-4) rest on 38 players; Violet's four real cast curves are near identical (ult
+cast by 20 s in 98% of fights), worth a look in the cast replays; Solomon's Develop Queen corr sits at the 10 cap;
+Rem, Paige, Sinclair also keep under half their players at 150 hits.
