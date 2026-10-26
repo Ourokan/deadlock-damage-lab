@@ -285,8 +285,9 @@ class Fighter:
         self.entry_set = False      # start health set by the caller (Mechanics.entry_hp leaves it)
         self.entry_gap = 0.0        # share of max health short at fight entry, seen by execute gates (Mechanics.entry_gate)
         self.gate_assist = 0.0      # third parties' damage per damage taken here, seen by health gates (Mechanics.gate_assist)
-        self.entry_drawn = False    # entry_gap drawn for this fight (entry_gate, gate_assist, target_health draw once)
-        self.item_assist = 0.0      # the same, seen by items conditioned on this fighter's health (Mechanics.target_health)
+        self.entry_drawn = False    # entry_gap drawn for this fight: target_health doesn't draw again (gate_assist keeps
+        #                             its own redraw after a 0 from entry_gate, as its Geist factors were kept with it)
+        self.item_assist = 0.0      # third parties' damage per damage taken, seen by items conditioned on this fighter's health (Mechanics.target_health)
         self.item_gap = 0.0         # entry deficit those items see (0 again after a refill: the immortal enemy's next life)
         self.item_dmg0 = 0.0        # damage taken before that life
         self.mods = Mods(engine)
@@ -817,7 +818,9 @@ class Engine:
                 f = getattr(fx, "on_lethal", None)
                 if f and f(dst, src):
                     saved = True
-                    if dst.hp >= dst.max_hp:   # an immortal enemy's refill: health-conditional items see a new life
+                    # an immortal enemy's refill (survive, the dummy): health-conditional items see a new life. Saves that
+                    # leave the target low (Cheat Death at 1 hp) keep what the items saw: the real target is low too
+                    if dst.hp >= dst.max_hp:
                         dst.item_gap, dst.item_dmg0 = 0.0, sum(dst.dmg_in.values())
                     break
             if not saved:

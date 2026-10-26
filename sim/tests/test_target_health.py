@@ -62,6 +62,20 @@ class TargetHealth(unittest.TestCase):
         self.assertAlmostEqual(g.item_hp_frac, 0.45)
         self.assertFalse(fx.stat(f))
 
+    def test_engine_run_wires_it(self):
+        seen = {}
+        probe = type("Probe", (), {"item": None, "on_start": lambda self, x: seen.setdefault(x.name, x.item_assist)})
+        for flag, length, want in ((True, True, M.TARGET_ASSIST), (False, True, 0.0), (True, False, 0.0)):
+            mech = dataclasses.replace(M.DEFAULT, target_health=flag,
+                                       fight_length=M.real_length(27000) if length else None)
+            e = Engine(distance=10, mech=mech, rng=random.Random(3))
+            f = make_fighter(e, Loadout("Haze", ["Opening Rounds"], souls=27000))
+            g = make_fighter(e, Loadout("Abrams", [], souls=27000))
+            seen.clear()
+            g.items_fx.append(probe())
+            e.run(f, g)
+            self.assertEqual(seen[g.name], want)
+
     def test_refill_is_a_new_life(self):
         e, f, g = pair(["Opening Rounds"])
         g.item_assist, g.item_gap = 0.5, 0.2
