@@ -19,7 +19,13 @@ Assumptions:
 - Killing Blow: cast only when the target is below EnemyHealthPercent (buffer ignored) and in cast range (+ the
   usual engage margin): executes (pure damage = remaining health). The recast window is irrelevant in 1v1.
   The threshold checks the target's gate health (Mechanics.entry_gate: short by its real entry deficit).
+  First cast plan (Mechanics.execute_timing, data/execute_timing.json): half of the real first Killing Blows in a fight
+  are no execute (the slash on a ~55% target or a miss, then the whole cooldown). Each fight draws: spent at a real
+  time (the slash's Damage unless the target is below the threshold by then: an execute), wait for the execute, or
+  not cast (on cooldown from an earlier fight).
 """
+import math
+
 from deadsim.abilities import AbilityImpl, register
 
 CLEAR_MIN = 120.0       # min pending deferred damage worth clearing with Bloodletting's active
@@ -175,16 +181,41 @@ class KillingBlow(AbilityImpl):
             c.engine.note(f"{c.me.name} reaches full rage")
             c.debuff("damage_taken_amp", c.raw("BuffDamage") / 100, 1e6, tag="shiv_rage")
 
+    def draw_plan(self, c, u):
+        """Mechanics.execute_timing: this fight's first cast plan from draw u (mechanics.execute_plans)."""
+        from deadsim.mechanics import execute_timing_data
+        d = execute_timing_data()["killing_blow"]
+        q = d["commit_holds"]
+        h = q[min(len(q) - 1, int(u * len(q)))]
+        if h is not None:
+            c.state["commit_at"] = c.now + h
+            c.state["plan"] = "spent"
+        elif u >= sum(x is not None for x in q) / len(q) + d["exec_share"]:
+            self.s.held_until = math.inf   # on cooldown from an earlier fight
+            c.state["plan"] = "none"
+        else:
+            c.state["plan"] = "exec"
+
+    def executes(self, c):
+        return c.foe.gate_frac < c.raw("EnemyHealthPercent") / 100
+
     def should_cast(self, c):
-        thr = c.raw("EnemyHealthPercent") / 100
-        return c.foe.gate_frac < thr and c.within(c.rng("AbilityCastRange"))
+        if not c.within(c.rng("AbilityCastRange")):
+            return False
+        return self.executes(c) or c.now >= c.state.get("commit_at", math.inf)
 
     def cast(self, c):
         delay = max(c.raw("AbilityCastDelay"), c.raw("MinTimeToTarget"))
         c.lock_gun(delay + c.raw("AbilityPostCastDuration"))
+        c.state.pop("commit_at", None)   # the plan is for the first cast: a recast waits for the execute
 
         def go():
-            if c.me.alive and c.foe.alive:
+            if not (c.me.alive and c.foe.alive):
+                return
+            if self.executes(c):
                 c.engine.damage(c.me, c.foe, c.foe.hp + 1.0, "pure", self.s.ab.name, ignore_resist=True,
                                 is_ability=True, ability=self.s, is_ult=True)
+            else:   # no execute: the slash's damage, the ult spent
+                c.engine.damage(c.me, c.foe, c.val("Damage"), "spirit", self.s.ab.name, is_ability=True,
+                                ability=self.s, is_ult=True)
         c.after(delay, go)

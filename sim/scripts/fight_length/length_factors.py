@@ -31,7 +31,9 @@ corrections in held duels at full health (both off); rounds scale them until the
 again. --target-holds PATH:
 the target run uses that cast_timing.json (the one before the refit), so abilities newly held keep their level.
 --target-off MODULE.FLAG[,...]: the target run also has these module flags off (a new hero mechanic, e.g.
-deadsim.heroes.mirage.MARK_GAPS), so it moves when that damage lands, not how much.
+deadsim.heroes.mirage.MARK_GAPS; MECH.flag: a Mechanics flag, e.g. MECH.execute_timing), so it moves when that damage
+lands, not how much. --target-entry: the target run keeps entry_hp / entry_gate as configured (a mechanic added on
+factors already kept for them: only the --target-off flags differ).
 usage: python3 length_factors.py [workers] [--sample PATH] [--rounds 3] [--write] [--hero NAME] [--refit] [--entry]   (~1 min a round on 4 cores)
 --hero: only that hero's players and ability rows (a newly added hero); item factors are left as they are.
 After refit_landing_heroes.py for a hero: --refit --no-cast-timing --hero NAME (the corrections as before cast
@@ -175,7 +177,9 @@ def main():
         import deadsim.mechanics as M
         ACC.LENGTH_CORR = True
         entry, gate = A.MECH.entry_hp, A.MECH.entry_gate
-        A.MECH = dataclasses.replace(A.MECH, entry_hp=False, entry_gate=False)
+        mech = A.MECH
+        if "--target-entry" not in sys.argv:
+            A.MECH = dataclasses.replace(A.MECH, entry_hp=False, entry_gate=False)
         holds = M._CAST
         if "--target-holds" in sys.argv:
             with open(sys.argv[sys.argv.index("--target-holds") + 1]) as fh:
@@ -185,6 +189,9 @@ def main():
             import importlib
             for name in sys.argv[sys.argv.index("--target-off") + 1].split(","):
                 mod, attr = name.rsplit(".", 1)
+                if mod == "MECH":   # a Mechanics flag of the audit's duels (forked workers inherit it)
+                    A.MECH = dataclasses.replace(A.MECH, **{attr: False})
+                    continue
                 mod = importlib.import_module(mod)
                 flags.append((mod, attr, getattr(mod, attr)))
                 setattr(mod, attr, False)
@@ -192,7 +199,7 @@ def main():
         M._CAST = holds
         for mod, attr, v in flags:
             setattr(mod, attr, v)
-        A.MECH = dataclasses.replace(A.MECH, entry_hp=entry, entry_gate=gate)
+        A.MECH = mech
     elif keep and "cast_timing_kept" in abil["meta"] and only is None:
         # the target run would cast on sight with corrections already scaled for held casts: rerunning compounds
         sys.exit("length_factors: these factors are already scaled for cast timing (meta cast_timing_kept). Start "

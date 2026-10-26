@@ -277,6 +277,7 @@ class Fighter:
         self.hp = stats.max_health
         self.entry_set = False      # start health set by the caller (Mechanics.entry_hp leaves it)
         self.entry_gap = 0.0        # share of max health short at fight entry, seen by execute gates (Mechanics.entry_gate)
+        self.gate_assist = 0.0      # third parties' damage per damage taken here, seen by health gates (Mechanics.gate_assist)
         self.mods = Mods(engine)
         self.barriers = []          # [amount, expire]
         self.enemy: Fighter = None
@@ -378,6 +379,16 @@ class Fighter:
         """Health as execute gates (Killing Blow, Assassinate, Close The Deal, Lethal Venom) see it: short by the
         real entry deficit drawn for the fight (Mechanics.entry_gate; 0 otherwise)."""
         return max(1e-6, self.hp - self.entry_gap * self.max_hp)
+
+    @property
+    def self_gate_frac(self):
+        """Health share as a gate on the fighter's own health (Soul Exchange) sees it: gate_hp, also short by the
+        damage the real fight's third parties add (Mechanics.gate_assist: gate_assist x the damage taken in the
+        duel). Execute gates on this fighter don't see that part."""
+        hp = self.gate_hp
+        if self.gate_assist:
+            hp = max(1e-6, hp - self.gate_assist * sum(self.dmg_in.values()))
+        return hp / self.max_hp
 
     @property
     def gate_frac(self):
@@ -1070,6 +1081,9 @@ class Engine:
             elif self.length and self.mech is not None and getattr(self.mech, "entry_gate", False):
                 from .mechanics import entry_gate
                 entry_gate(f)
+            if self.length and self.mech is not None and getattr(self.mech, "gate_assist", False):
+                from .mechanics import gate_assist
+                gate_assist(f)
             if f.skill.fight_phase is not None:
                 unused_items(f)
             for fx in f.items_fx:
@@ -1084,6 +1098,9 @@ class Engine:
             if self.length and self.mech is not None and getattr(self.mech, "cast_timing", False):
                 from .mechanics import hold_first_casts
                 hold_first_casts(f)
+                if getattr(self.mech, "execute_timing", False):
+                    from .mechanics import execute_plans
+                    execute_plans(f)
         for f in (a, b):
             fight_start(f)
         if self.length and self.mech is not None and getattr(self.mech, "cast_timing", False):
