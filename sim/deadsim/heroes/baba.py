@@ -11,8 +11,9 @@ Assumptions:
 - Granny Long Legs: a self buff for AbilityDuration: StatusResistancePercent status resist and MeleeResist melee
   resist (T3 adds to both and MeleeLifesteal melee lifesteal). Each heavy melee landed meanwhile is a ground pound
   that also deals HeavyMeleeSpiritDamage; light kicks only knock back. Meanwhile 71% of her melees are heavy
-  (GLL_HEAVY_SHARE, replays) instead of the usual split. Move speed / jumps are movement only.
-  Cast on sight: she runs in on it (the bench is a brawling stance); its melee lands at her fitted melee rate.
+  (GLL_HEAVY_SHARE, replays) instead of the usual split, and she melees 7.7x as often as off it (GLL_MELEE_RATIO,
+  replays: her fitted melee rate is bunched into the window). Move speed / jumps are movement only.
+  Cast on sight: she runs in on it (the bench is a brawling stance).
 - Baba's Brew: Baba throws the scalding brew (the burn: DamagePerSecond for BurnDuration and SpiritResistReduction
   spirit shred), the damaging one of the three. It is brewed for FireLockTime before the throw, except the first,
   assumed brewed before the fight. T3 BrewEffectiveness scales the burn and the shred
@@ -28,6 +29,14 @@ STOLEN_KEY = "baba_stolen_until"
 # Phantom+ replays: 672 of Baba's 943 melee hits during Granny Long Legs are ground pounds (a heavy melee event on
 # the same tick as the spirit hit), against the usual 30% heavy split
 GLL_HEAVY_SHARE = 0.71
+# Phantom+ replays (59 Baba players, her fights): Granny Long Legs is up 38% of her fight time and holds 82% of her
+# melee hits (bench melee events, plus casts), so she melees 7.7x as often on the bench as off it. The sim's melee is
+# a steady rate, which put only ~half her melee (and so her ground pounds) in the bench window. Her fitted rate is
+# split in and out of the window keeping its average at that uptime (engine counters "melee_focus").
+GLL_UPTIME = 0.38
+GLL_MELEE_RATIO = 7.7
+GLL_RATE_OUT = 1.0 / (1.0 - GLL_UPTIME + GLL_UPTIME * GLL_MELEE_RATIO)
+GLL_RATE_IN = GLL_MELEE_RATIO * GLL_RATE_OUT
 
 
 @register("ability_baba_bubbling_brew")
@@ -72,6 +81,7 @@ class GrannyLongLegs(AbilityImpl):
 
     def start(self, c):
         c.state["until"] = -1.0
+        c.me.counters["melee_focus"] = (GLL_RATE_IN, GLL_RATE_OUT, -1.0)
 
     def in_range(self, c):
         return True   # she runs in on the bench (BonusMoveSpeed); its melee lands at Baba's fitted melee rate
@@ -80,6 +90,7 @@ class GrannyLongLegs(AbilityImpl):
         d = c.dur("AbilityDuration")
         c.state["until"] = c.now + d
         c.me.counters["heavy_share"] = (GLL_HEAVY_SHARE, c.now + d)
+        c.me.counters["melee_focus"] = (GLL_RATE_IN, GLL_RATE_OUT, c.now + d)
         c.buff("status_resist", c.raw("StatusResistancePercent") / 100, d)
         c.buff("melee_resist", c.raw("MeleeResist") / 100, d)
 
