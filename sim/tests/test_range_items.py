@@ -49,6 +49,32 @@ class TestRangeItems(unittest.TestCase):
         self.assertEqual(held["ability_vampirebat_batblink"], ["Mystic Expansion"])
 
 
+def stalker_damage(distance, mech=SPREAD):
+    """Stalker's own damage from Vindicta's gun on an idle, refilled Abrams in 30 s (Stalker procs within 8 m)."""
+    e = Engine(distance=distance, max_time=30, mech=mech)
+    a = make_fighter(e, Loadout("Vindicta", ["Stalker"], souls=18000, skill=Skill(use_abilities=False)), "a")
+    d = make_fighter(e, Loadout("Abrams", [], souls=18000, skill=Skill(accuracy=0, use_abilities=False)), "d")
+    d.abilities = []
+    d.max_hp_base = d.hp = 1e7
+    e.run(a, d, one_way=True)
+    return a.dmg_out.get("Stalker", 0.0)
+
+
+class TestStalkerReach(unittest.TestCase):
+    """Stalker procs off cooldown only when the target is within 8 m: with range spread its procs count x
+    cooldown / (cooldown + the expected wait for the target to come that close), not a per-bullet p_within chance
+    (which fired it on cooldown for a hero who is that close a few % of the time)."""
+
+    def test_far_hero_gets_a_small_share(self):
+        close, far = stalker_damage(6.0), stalker_damage(26.0)
+        self.assertGreater(close, 0.0)
+        self.assertLess(far, 0.25 * close)
+
+    def test_fixed_distance_is_in_or_out(self):
+        self.assertGreater(stalker_damage(6.0, FIXED), 0.0)
+        self.assertEqual(stalker_damage(26.0, FIXED), 0.0)
+
+
 class TestRangeSpread(unittest.TestCase):
     """Range spread: the distance is lognormal around the fight distance (data/fight_range.json)."""
 

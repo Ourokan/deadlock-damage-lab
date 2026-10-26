@@ -330,6 +330,22 @@ class MeleeOpener(unittest.TestCase):
             M.parry_check = orig
         self.assertEqual(a.counters.get("melee_debt"), 0.0)
 
+    def test_low_melee_hero_opens_in_its_share(self):
+        """The opener moves the hero's own first melee earlier: Vindicta lands ~0.01 melees/s even with a melee item
+        (she fights at ~26 m), so she opens with one in ~26% of the pooled holders' fights with an opener (~65%)."""
+        def share(hero):
+            n = 0
+            for k in range(400):
+                e = Engine(mech=dataclasses.replace(M.DEFAULT, fight_length=M.real_length(15000)))
+                f = make_fighter(e, Loadout(hero, ["Melee Charge"], souls=15000,
+                                            skill=dataclasses.replace(hero_default_skill(hero), fight_phase=k / 400)))
+                n += M.melee_opener(f) is not None
+            return n / 400
+        low, high = share("Vindicta"), share("Bebop")
+        self.assertGreater(high, 0.55)
+        self.assertLess(low, 0.25)
+        self.assertGreater(low, 0.08)
+
     def test_no_item_no_opener(self):
         mech = dataclasses.replace(M.DEFAULT, fight_length=M.real_length(15000))
         e = Engine(mech=mech, rng=random.Random(1))
