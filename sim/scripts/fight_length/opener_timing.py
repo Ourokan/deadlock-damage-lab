@@ -17,10 +17,14 @@ The sim side runs the damage audit's duels (real builds both sides, the searches
 Kaplan-Meier curve of each held source's first hit (a duel ends at a death or 20 s).
 
 usage: python3 -I opener_timing.py real <raw dir> <out.json> [--sample PATH]
-       python3 -I opener_timing.py compare <real.json> [max_players=3000] [workers] [--sim CACHE] [--out PATH] [--no-hold]
+       python3 -I opener_timing.py compare <real.json> [max_players=3000] [workers] [--sim CACHE] [--out PATH] [--hold | --no-hold]
        python3 -I opener_timing.py fit <real.json> [max_players=3000] [workers] [--sim CACHE] [--write]
 The real output is kept as validation/opener_timing_real.json.gz (real.json may be gzipped). fit writes
 data/opener_timing.json from the sim run with the holds off.
+compare books the sim side with the opener holds (data/opener_timing.json) only when Mechanics.opener_timing is on, as
+the engine does (--hold / --no-hold force it). It is off by default and the duels already hold first casts to real
+timing (Mechanics.cast_timing), so adding the opener holds moved held sources twice: until 2026-10-26 compare did
+that by default (median |shift| 1.45 s over 275 sources vs 0.71 without; Warden's Flask mean time 7.9 vs 6.0 s).
 Raw dir: fetch_fights.py output (project folder analysis/work/fight_length/raw).
 """
 import collections
@@ -378,7 +382,9 @@ if __name__ == "__main__":
             if cache:
                 json.dump(sim, open(cache, "w"))
         if args[0] == "compare":
-            rows = compare(args[1], n, w, out, sim, "--no-hold" not in args)
+            from deadsim.mechanics import DEFAULT as MECH
+            hold = "--hold" in args or (MECH.opener_timing and "--no-hold" not in args)
+            rows = compare(args[1], n, w, out, sim, hold)
             import statistics
             sh = [abs(d) for d, *_ in rows]
             print(f"mean time real - sim: median |shift| {statistics.median(sh):.2f} s over {len(sh)} sources")

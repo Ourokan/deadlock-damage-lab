@@ -12,8 +12,8 @@ Assumptions:
   Immobilize is movement-only. T1: +20% bullet damage taken for BulletArmorReductionDuration on landing.
   T3: target is silenced for the escape window.
 - Last Stand: 2 s charge, then pulses every PulseInterval for AbilityDuration, healing HealthStealPctHero% of
-  damage dealt. Bullet/spirit resist (incl. T3 +30%) applies during charge and channel. Warden can't shoot.
-  Before T3 (unstoppable) a stun on Warden cancels the remaining pulses. Cast when the target is within Radius
+  damage dealt. Bullet/spirit resist (incl. T3 +30%) and the gun lock apply during the charge only (PULSE_FREE):
+  Warden shoots and casts while it pulses. Before T3 (unstoppable) a stun in the charge (or at the first pulse) cancels the pulses. Cast when the target is within Radius
   (+ engage margin) and not almost dead.
 """
 from deadsim.abilities import AbilityImpl, register
@@ -21,6 +21,11 @@ from deadsim.abilities import AbilityImpl, register
 THROW_RANGE = 30.0
 HURT_HP = 0.85
 BIND_LAND = 0.7
+# Last Stand locks the gun (and gives its resists) only for the 2 s charge; Warden shoots and casts while it pulses.
+# 105 Phantom+ replay casts (fight_length raw): Warden gun hits/s around the first pulse 0.5 before, 0.18 during the
+# charge, ~1.0 during the pulses; Flask hits keep landing; damage per hit taken 24 in the charge vs ~41 before and
+# during the pulses. False: the old model (gun locked and resists for charge + duration).
+PULSE_FREE = True
 
 
 class _Base(AbilityImpl):
@@ -98,27 +103,42 @@ class LastStand(_Base):
         charge = c.raw("AbilityCastDelay", 2.0)
         dur = c.dur("AbilityDuration")
         iv = c.raw("PulseInterval", 0.5)
-        c.lock_gun(charge + dur)
-        c.buff("bullet_resist", c.raw("BulletResist") / 100, charge + dur, tag="laststand_br")
-        c.buff("spirit_resist", c.raw("TechResist") / 100, charge + dur, tag="laststand_sr")
+        lock = charge if PULSE_FREE else charge + dur
+        c.lock_gun(lock)
+        c.buff("bullet_resist", c.raw("BulletResist") / 100, lock, tag="laststand_br")
+        c.buff("spirit_resist", c.raw("TechResist") / 100, lock, tag="laststand_sr")
         per = c.val("PulseDPS") * iv
         steal = c.raw("HealthStealPctHero") / 100
         unstoppable = c.tier >= 3
         n = max(1, int(round(dur / iv)))
         st = {"broken": False}
 
+        def stunned():
+            """Before T3 a stun breaks Last Stand (in the charge only with PULSE_FREE): no pulses, lock and resists end."""
+            if unstoppable or not c.me.mods.active("stun"):
+                return False
+            st["broken"] = True
+            c.me.gun_locked_until = min(c.me.gun_locked_until, c.now) if PULSE_FREE else c.now
+            c.me.mods.remove("bullet_resist", "laststand_br")
+            c.me.mods.remove("spirit_resist", "laststand_sr")
+            return True
+
+        def charge_check(t):
+            if st["broken"] or not c.me.alive or stunned():
+                return
+            if t + iv < charge - 1e-9:
+                c.after(iv, charge_check, t + iv)
+
         def pulse(i):
             if st["broken"] or not c.me.alive or not c.foe.alive:
                 return
-            if not unstoppable and c.me.mods.active("stun"):
-                st["broken"] = True
-                c.me.gun_locked_until = c.now
-                c.me.mods.remove("bullet_resist", "laststand_br")
-                c.me.mods.remove("spirit_resist", "laststand_sr")
+            if (i == 0 or not PULSE_FREE) and stunned():
                 return
             amt = c.engine.damage(c.me, c.foe, per, "spirit", self.s.ab.name, is_ability=True, ability=self.s,
                                   is_ult=True)
             c.heal(amt * steal)
             if i + 1 < n:
                 c.after(iv, pulse, i + 1)
+        if PULSE_FREE:
+            c.after(iv, charge_check, iv)   # a stun landing in the charge (checked on the pulse grid, as before)
         c.after(charge + iv, pulse, 0)

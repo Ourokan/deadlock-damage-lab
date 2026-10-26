@@ -136,10 +136,11 @@ class TestScornHeal(unittest.TestCase):
 # (hero, enemy, winner, time, damage dealt, damage taken) at 20k souls, accuracy 0.3, no items, mechanics default
 PINNED = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift, all hero range checks)
             # re-pinned 2026-10-26 for melee's share of the weapon damage bonus (engine.MELEE_WEAPON_SCALE)
+            # re-pinned 2026-10-26 for Warden shooting while Last Stand pulses (warden.PULSE_FREE)
     ("Mo & Krill", "Haze", None, 30.0, 1551.1, 1478.3),
     ("Paradox", "Abrams", None, 30.0, 2357.5, 1528.4),
     ("Venator", "Lash", "Venator (A)", 18.3, 2138.7, 877.0),
-    ("Warden", "Seven", None, 16.6, 728.0, 2437.2),
+    ("Warden", "Seven", "Seven (B)", 25.9, 1318.9, 3020.6),
 ]
 
 
