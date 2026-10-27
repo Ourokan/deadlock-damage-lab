@@ -175,6 +175,12 @@ class Mechanics:
     # k x cooldown, rho = the share of it real holders get (data/cdr_ready.json, scripts/cast_timing/cdr_ready.py);
     # the hold draw moves from the late / not-cast end of the real holds to the early end by that much
     cdr_ready: bool = True
+    # an allied Nurse's Wretched Vapors (2026-10-27): real Nurses mostly vapor their allies (nurse.SELF_CAST), and the
+    # game credits the crash to whoever hit the vapored ally, as ability_nurse_adrenaline_rush. A duel has no ally, so
+    # (a share, b share): the expected share of each fighter's incoming damage an allied Nurse's rush defers, crashed
+    # back at +DeferredDamageBonusPercent and booked as the attacker's crash (nurse.AllyVapors). Set per duel by the
+    # damage audit from the real teams (nurse.ally_vapors_share: a teammate Nurse); 0 elsewhere (no teams)
+    ally_vapors: tuple = (0.0, 0.0)
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut

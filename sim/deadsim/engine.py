@@ -1135,6 +1135,11 @@ class Engine:
             if self.length and self.mech is not None and getattr(self.mech, "target_health", False):
                 from .mechanics import target_health
                 target_health(f)
+            if self.mech is not None and getattr(self.mech, "ally_vapors", None):
+                w = self.mech.ally_vapors[0 if f is a else 1]
+                if w > 0:
+                    from .heroes.nurse import AllyVapors
+                    f.items_fx.append(AllyVapors(w))
             if f.skill.fight_phase is not None:
                 unused_items(f)
             for fx in f.items_fx:

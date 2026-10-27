@@ -127,6 +127,54 @@ class _Specters:
         return amt - part
 
 
+# An allied Nurse's vapors on a duel fighter (Mechanics.ally_vapors): the share of a fighter's incoming damage her rush
+# defers when a teammate is Nurse Harrow, fitted so the audit's crash share of the attackers' damage matches real
+# Phantom+ matches (scripts/nurse/fit_ally_vapors.py: crash credit is 1.50% of the damage of players facing a Nurse,
+# 0 for the rest; the duels booked 0.08% with only her self-cast, 1.48% with this share). The crash comes CRASH_DELAY s after the hit (half of a 4 s rush).
+ALLY_VAPORS = 0.018
+CRASH_DELAY = 2.0
+NURSE_HERO = "Nurse Harrow"
+
+
+def ally_vapors_share(team, hero):
+    """Mechanics.ally_vapors share for a fighter of hero (name) whose real team holds heroes team (names)."""
+    return ALLY_VAPORS if hero != NURSE_HERO and NURSE_HERO in team else 0.0
+
+
+_VAPOR_PROPS = None
+
+
+def _vapor_props():
+    global _VAPOR_PROPS
+    if _VAPOR_PROPS is None:
+        from deadsim import game
+        h = next(h for h in game().heroes.values() if h.name == NURSE_HERO)
+        ab = next(a for a in h.abilities if a.class_name == "ability_nurse_adrenaline_rush")
+        _VAPOR_PROPS = (ab.props.get("DeferredDamagePercent", 100.0) / 100,
+                        ab.props.get("DeferredDamageBonusPercent", 30.0) / 100)
+    return _VAPOR_PROPS
+
+
+class AllyVapors:
+    """Pseudo item effect on a fighter vapored by an allied Nurse (expected value, weight w): w x DeferredDamagePercent
+    of each incoming hit is deferred, then crashes CRASH_DELAY s later at +DeferredDamageBonusPercent, credited to
+    the attacker as CRASH_SRC (no procs), like the crash on a self-cast Nurse."""
+
+    def __init__(self, w):
+        self.w = w
+
+    def reduce_incoming(self, f, src, amt, kind, is_dot):
+        defer, bonus = _vapor_props()
+        part = amt * self.w * defer
+        if part > 0 and src is not None and src is not f:
+            f.e.after(CRASH_DELAY, self.crash, f, src, part * (1.0 + bonus))
+        return amt - part
+
+    def crash(self, f, src, dmg):
+        if f.alive and not f.e.over:
+            f.e.damage(src, f, dmg, "pure", CRASH_SRC, pure=True, procs=False)
+
+
 @register("ability_nurse_adrenaline_rush")
 class WretchedVapors(AbilityImpl):
     kind = "self"

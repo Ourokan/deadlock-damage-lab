@@ -48,16 +48,18 @@ from deadsim.abilities import load_heroes  # noqa: E402
 from deadsim.mechanics import DEFAULT as MECH, RICOCHET_RADIUS, area_extra, real_length, real_nearby  # noqa: E402
 from deadsim.accuracy import HEADS, HITS, SHOTS, default_distance, gun_calibrated, hero_default_skill  # noqa: E402
 import landing_rates as L  # noqa: E402
+from deadsim.heroes import nurse  # noqa: E402
 
 BADGE = 91
-HERO_ITEM_MIN = 20   # holders for a per-hero item row
+HERO_ITEM_MIN = int(os.environ.get("HERO_ITEM_MIN", "20"))
 COUNTERPLAY = True   # item_landing.py fits with this off (items uncut) and everything else as the searches fight
 PROFILE = False      # scripts/fight_length/profile_check.py: also "_by2s:k" / "_alive:k" (damage, duels going)
 LENGTH = True        # damage expected over real fight lengths (mechanics.real_length); --no-length: in full to 20 s
 # items tables: item dmg per "total" dmg while owned, or per "gun". The audit itself defaults to total (main); scripts
 # that import sim_player for its held rows (item_landing.py, length_factors.py) keep gun, as their factors were fitted
 ITEM_NORM = os.environ.get("AUDIT_NORM", "gun")
-SEED = int(os.environ.get("AUDIT_SEED", "0"))   # another draw of foes and fight draws (split-half averaging)
+SEED = int(os.environ.get("AUDIT_SEED", "0"))
+ALLY_VAPORS = os.environ.get("AUDIT_ALLY_VAPORS", "1") != "0"   # an allied Nurse's vapors on the real teams (Mechanics.ally_vapors)   # another draw of foes and fight draws (split-half averaging)
 _sk = {}
 
 
@@ -122,7 +124,11 @@ def sim_player(job, both=False):
         a = Loadout(h.name, items, souls=souls, skill=skill_of(me))
         b = Loadout(foe["hero_id"], fitems, souls=fsouls, skill=skill_of(foe))
         try:
-            mech = dataclasses.replace(MECH, extra_targets=real_nearby("extra", RICOCHET_RADIUS, souls),
+            team = lambda pl: {G.hero(x["hero_id"]).name for x in m["players"]   # noqa: E731
+                               if x["team"] == pl["team"] and x["hero_id"] in G.heroes}
+            vapors = (nurse.ally_vapors_share(team(me), h.name), nurse.ally_vapors_share(team(foe), G.hero(foe["hero_id"]).name)) \
+                if ALLY_VAPORS else (0.0, 0.0)
+            mech = dataclasses.replace(MECH, extra_targets=real_nearby("extra", RICOCHET_RADIUS, souls), ally_vapors=vapors,
                                        fight_length=real_length(souls) if LENGTH else None)
             r = duel(a, b, distance=default_distance(h.name), max_time=L.FIGHT_TIME, rng=random.Random(rnd.random()),
                      mechanics=mech)

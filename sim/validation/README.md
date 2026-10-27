@@ -2199,3 +2199,26 @@ pairs 0.178 -> 0.181, damage items 0.069 -> 0.078, clear edges Spearman 0.279 ->
 Left: Apollo's items read ~1.2x under per holder (Tankbuster, Torment Pulse, Mystic Burst 1.5); real Mystic Burst
 procs off Spirit Snatch's spirit hit, which the sim books procs=False. Celeste's gun is right per shot
 (shot_damage.py 1.03, 8 players) and her items per gun ~1.0; all four abilities read ~1.2x under per gun.
+
+## An allied Nurse's Wretched Vapors (2026-10-27)
+
+Re-ranking heroes by damage mix after #142/#143 (4 audit draws) put Ivy first among heroes with a steady gap (0.046;
+Viscous 29 players and Celeste noise). Her item holders' gaps (Alchemical Fire, Decay, Cold Front ~0.65x real) rest
+on 9-16 players, and replay item casts show her use per fight and damage per cast in line with other heroes. Her
+largest single source gap was "other": `ability_nurse_adrenaline_rush`, real 1.0% of her damage, sim 0.03%.
+
+The game credits Wretched Vapors' crash to whoever hit the vapored hero, and real Nurses mostly vapor their allies
+(`nurse.SELF_CAST` 0.2). In the validation sample, crash credit is 1.50% of the damage of every player whose enemy team
+has a Nurse and exactly 0 for the rest; the audit's duels booked 0.08% (only her self-cast, when the foe is her).
+
+`Mechanics.ally_vapors` (a share, b share): a duel fighter with a Nurse teammate (not Nurse herself) gets
+`nurse.AllyVapors`: `ALLY_VAPORS` of each incoming hit is deferred, then crashes `CRASH_DELAY` 2 s later at
++DeferredDamageBonusPercent (30%), credited to the attacker as the crash (no procs). The damage audit sets it from the
+real teams (`AUDIT_ALLY_VAPORS=0` turns it off); everywhere else it is (0, 0), so the build search, survival and
+sim_vs_win are unchanged. `scripts/nurse/fit_ally_vapors.py` fits the share: 0.018 gives 1.48% (real 1.50%).
+
+Damage audit, 4 draws (AUDIT_SEED 0-3), mix distance weighted by players 0.0243 -> 0.0209 (unweighted 0.0262 ->
+0.0229), 41 heroes better, 2 worse (Solomon 0.013 -> 0.015). Ivy 0.046 -> 0.042, Apollo 0.050 -> 0.045, Violet
+0.034 -> 0.028, Calico 0.036 -> 0.031. Sim "other" share 0.006 -> 0.013 (real 0.018; the rest is Shiv's deferred
+damage, 0.009 real vs 0.006, and zip lines). One scalar fitted on the whole sample: the real share is the same in
+both match-id halves (even 1.46%, odd 1.54%). No landing refit: the crash takes the same share from every other source.

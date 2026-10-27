@@ -127,6 +127,31 @@ class TestCrashBooking(unittest.TestCase):
         self.assertEqual(L.sim_key(nurse.CRASH_SRC, {}, game()), "ability_nurse_adrenaline_rush")
 
 
+class TestAllyVapors(unittest.TestCase):
+    """An allied Nurse's vapors on a duel fighter (Mechanics.ally_vapors): part of each hit is deferred, then crashes
+    back at +30% booked as the attacker's crash."""
+
+    def test_share_needs_a_nurse_teammate(self):
+        self.assertEqual(nurse.ally_vapors_share({"Abrams", "Nurse Harrow"}, "Abrams"), nurse.ALLY_VAPORS)
+        self.assertEqual(nurse.ally_vapors_share({"Abrams", "Haze"}, "Abrams"), 0.0)
+        self.assertEqual(nurse.ally_vapors_share({"Nurse Harrow"}, "Nurse Harrow"), 0.0)   # her self-cast is modeled
+
+    def test_hit_deferred_then_crashes_as_attacker_damage(self):
+        e = Engine(distance=10, max_time=60, mech=None)
+        a = make_fighter(e, Loadout("Haze", [], souls=20000))
+        b = make_fighter(e, Loadout("Abrams", [], souls=20000))
+        a.enemy, b.enemy = b, a
+        b.items_fx.append(nurse.AllyVapors(0.5))
+        hp = b.hp
+        dealt = e.damage(a, b, 100.0, "spirit", "test", ignore_resist=True)
+        self.assertAlmostEqual(hp - b.hp, dealt)
+        self.assertAlmostEqual(dealt, 50.0, places=6)
+        while e.q:
+            e.t, _, fn, args = heapq.heappop(e.q)
+            fn(*args)
+        self.assertAlmostEqual(a.dmg_out.get(nurse.CRASH_SRC, 0.0), 65.0, places=6)
+
+
 class TestAimRows(unittest.TestCase):
     """Every hero has its own population aim (skill_defaults.json) or a replay gun calibration (Graves, Danny), so no
     hero silently falls back to the all-hero default aim and fight distance."""
