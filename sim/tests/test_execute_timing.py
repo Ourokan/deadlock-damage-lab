@@ -3,6 +3,7 @@
 - Mechanics.execute_timing (on): Killing Blow's first cast in a fight is drawn from the real outcomes
   (data/execute_timing.json): spent at a real time without an execute, wait for the execute gate, or not cast; Soul
   Exchange's first cast is held to a real first cast time (or not cast), then its gap gate.
+- Mechanics.swap_full (on, 2026-10-28): the swap lands whole (no landing factor) on ghost.SWAP_LAND of casts.
 - Mechanics.gate_assist (on): Soul Exchange's Geist sees her health short by a real entry deficit and by the real
   third parties' damage per damage she takes (Fighter.self_gate_frac); her health stays.
 Run: python3 -m unittest discover -s tests -v (from sim/)."""
@@ -130,7 +131,7 @@ class SoulExchange(unittest.TestCase):
         self.assertFalse(kb.impl.executes(kb.ctx))
 
     def test_swap_on_gate_health(self):
-        e, f, g = pair("Lady Geist")
+        e, f, g = pair("Lady Geist", rng=False)   # no rng: the swap's SWAP_LAND draw lands the first cast
         se = ability(f, "Soul Exchange")
         f.gate_assist, f.entry_gap = 0.0, 0.6
         self.assertTrue(se.impl.should_cast(se.ctx))         # actual health full, gate health 40%
@@ -138,6 +139,20 @@ class SoulExchange(unittest.TestCase):
         se.impl.swap(se.ctx)
         self.assertAlmostEqual(g.hp, max(0.4, se.ctx.raw("EnemyMinHealthPct") / 100) * g.max_hp, delta=1.0)
         self.assertLess(g.hp, before)
+
+    def test_swap_whole_past_landing_factor(self):
+        # Mechanics.swap_full: the swap skips Soul Exchange's landing factor (it is no hit that lands part of the
+        # time); off, the factor shrinks it as before
+        for whole in (True, False):
+            e, f, g = pair("Lady Geist", rng=False)
+            e.mech = dataclasses.replace(e.mech, swap_full=whole)
+            f.skill = dataclasses.replace(f.skill, ability_landing={"Soul Exchange": 0.5})
+            se = ability(f, "Soul Exchange")
+            f.gate_assist, f.entry_gap = 0.0, 0.6
+            before = g.hp
+            floor = max(0.4, se.ctx.raw("EnemyMinHealthPct") / 100) * g.max_hp
+            se.impl.swap(se.ctx)
+            self.assertAlmostEqual(before - g.hp, (before - floor) * (1.0 if whole else 0.5), delta=1.0)
 
     def test_hold_draw(self):
         q = M.execute_timing_data()["soul_exchange"]["holds"]

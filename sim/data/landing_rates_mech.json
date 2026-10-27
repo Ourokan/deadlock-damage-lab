@@ -104,21 +104,21 @@
     "landing": 1.03,
     "real_share": 0.2102,
     "sim_share": 0.2215,
-    "length_corr": 1.576
+    "length_corr": 0.942
    },
    "Life Drain": {
     "class": "ability_life_drain",
     "landing": 0.501,
     "real_share": 0.1258,
     "sim_share": 0.1337,
-    "length_corr": 1.763
+    "length_corr": 1.536
    },
    "Malice": {
     "class": "ability_blood_shards",
     "landing": 0.699,
     "real_share": 0.156,
     "sim_share": 0.1668,
-    "length_corr": 1.852
+    "length_corr": 1.228
    },
    "Soul Exchange": {
     "class": "ability_health_swap",

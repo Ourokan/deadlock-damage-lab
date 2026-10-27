@@ -17,7 +17,8 @@ Assumptions:
   recorded as pure damage. Cast only when Geist is at least SWAP_MIN_GAIN lower (fraction) than the target. Geist's
   side of the swap is her gate health (Fighter.self_gate_frac: short by her real entry deficit and the damage the real
   fight's other enemies add, Mechanics.entry_gate / gate_assist): real Geists swap at ~25% health on a ~90% target.
-  First cast held to a real first cast time (Mechanics.execute_timing, data/execute_timing.json; None: not cast in
+  With Mechanics.swap_full the swap lands whole on SWAP_LAND of casts (no landing factor: real swaps take ~half the
+  target's max health, the factor had cut that to ~0.2). First cast held to a real first cast time (Mechanics.execute_timing, data/execute_timing.json; None: not cast in
   this fight), then the gap gate.
 """
 import math
@@ -27,6 +28,7 @@ from deadsim.abilities import AbilityImpl, register
 PUDDLE_UPTIME = 0.5
 SWAP_MIN_GAIN = 0.3
 SWAP_APPROACH = 10.0    # m Geist walks in to reach Soul Exchange's 5.5 m cast range (she keeps shooting meanwhile)
+SWAP_LAND = 0.93       # Mechanics.swap_full: real Soul Exchange hits per cast (scripts/mechanics/swap_real.py)
 HERO_WIDTH = 1.5        # m, hittable width of a hero for Malice's shard fan
 
 
@@ -140,12 +142,15 @@ class SoulExchange(AbilityImpl):
         me, foe = c.me, c.foe
         if not me.alive or not foe.alive:
             return
+        whole = getattr(c.engine.mech, "swap_full", False)
+        if whole and not me.acc("swap").take(SWAP_LAND):
+            return   # missed (out of reach when it went off)
         mf, ff = me.self_gate_frac, foe.hp_frac
         new_foe = max(mf, c.raw("EnemyMinHealthPct", 30) / 100) * foe.max_hp
         loss = foe.hp - new_foe
         if loss > 0:
             c.engine.damage(me, foe, loss, "pure", self.s.ab.name, ignore_resist=True, is_ability=True,
-                            ability=self.s, is_ult=True, procs=False, nonlethal=True)
+                            ability=self.s, is_ult=True, procs=False, nonlethal=True, landed=whole)
         me.hp = max(me.hp, ff * me.max_hp)
         if c.tier >= 2:
             c.debuff("silence", 1, c.dur("SilenceDuration"))
