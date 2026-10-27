@@ -167,7 +167,7 @@ class Items(unittest.TestCase):
         self.assertLess(r1, r2)
         self.assertAlmostEqual(r0, melee_rate("Haze"), delta=0.3 * melee_rate("Haze"))  # most Haze players: none
         import deadsim.mechanics as M
-        e = Engine(distance=10, mech=replace(M.DEFAULT, heavy_holders=False))   # Melee Charge's heavy share aside
+        e = Engine(distance=10, mech=replace(M.DEFAULT, heavy_holders=False, melee_phase=False))   # heavy share, phase aside
         rates = [make_fighter(e, Loadout("Haze", its, souls=20000, skill=sk)).skill.melee_rate
                  for its in ([], ["Melee Charge"], ["Melee Charge", "Lifestrike"], ["Melee Charge", "Lifestrike",
                                                                                     "Spirit Snatch"])]
@@ -214,7 +214,7 @@ class Items(unittest.TestCase):
         import dataclasses
         import deadsim.mechanics as M
         sk = hero_default_skill("Haze")
-        f = make_fighter(TeamEngine(distance=10, mech=dataclasses.replace(M.DEFAULT, heavy_holders=False)),
+        f = make_fighter(TeamEngine(distance=10, mech=dataclasses.replace(M.DEFAULT, heavy_holders=False, melee_phase=False)),
                          Loadout("Haze", ["Melee Charge", "Lifestrike"], souls=20000, skill=sk))
         self.assertAlmostEqual(f.skill.melee_rate, melee_rates_by_items("Haze")[2], places=3)
 

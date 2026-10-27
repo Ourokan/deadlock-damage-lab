@@ -25,10 +25,11 @@ DUELS = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift, all 
             # re-pinned 2026-10-24 for Split Shot's replay fit
             # re-pinned 2026-10-26 for melee's share of the weapon damage bonus (engine.MELEE_WEAPON_SCALE)
             # Haze re-pinned 2026-10-26: Bullet Dance bullets proc Toxic Bullets (Hit.gun_bullet)
+            # re-pinned 2026-10-27 for melee by game phase (Mechanics.melee_phase scales the 0.1/s melee rate)
     ("Haze", ["Rapid Rounds", "Toxic Bullets", "Restorative Locket"], "Infernus",
-     ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Haze (A)", 24.76, 2748.9, 1880.7),
-    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 25.6, 1974.1, 3181.2),
-    ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1745.9, 1347.1),
+     ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Infernus (B)", 25.1, 2354.1, 2225.5),
+    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 25.6, 1980.6, 3181.2),
+    ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1612.8, 1347.1),
 ]
 
 

@@ -191,6 +191,9 @@ def make_fighter(engine, lo: Loadout, name=None):
             skill = dataclasses.replace(skill, item_landing={k: il.get(k, 1.0) * c.get(k, 1.0) for k in set(il) | set(c)})
     if skill.melee_item_mult:
         skill = dataclasses.replace(skill, melee_rate=skill.melee_rate * melee_build_mult(skill, items))
+    if engine.mech is not None and getattr(engine.mech, "melee_phase", False) and skill.melee_rate > 0:
+        from .mechanics import melee_phase_mult
+        skill = dataclasses.replace(skill, melee_rate=skill.melee_rate * melee_phase_mult(hero.id, st.souls))
     if engine.mech is not None and getattr(engine.mech, "heavy_holders", False):
         skill = heavy_holder_skill(skill, hero, items)
     f = Fighter(engine, name or lo.name or hero.name, st, skill)

@@ -1,5 +1,5 @@
 {
   "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
-  "requested_at": "2026-10-27T10:01:30Z",
-  "reason": "Venator: Ira Domini stakes booked under the ult (not gun) with their own landing, ult starts fights on cooldown at the real ready share; Venator refit"
+  "requested_at": "2026-10-27T11:57:19Z",
+  "reason": "Melee by game phase: each hero's melee rate follows the real lane-to-late curve (Mechanics.melee_phase; real melee front-loaded, Calico 1.39x in lane)"
 }
