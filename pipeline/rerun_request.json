@@ -1,5 +1,5 @@
 {
   "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
-  "requested_at": "2026-10-27T06:02:24Z",
-  "reason": "Restorative Locket team value scaled to real ally healing (holders heal themselves; team value x1.07 -> x1.005)"
+  "requested_at": "2026-10-27T07:34:28Z",
+  "reason": "Healing items' real death ratios left out of the death rate factor (holders die less without winning more)"
 }
