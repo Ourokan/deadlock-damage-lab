@@ -1202,6 +1202,11 @@ class Engine:
                 break
             self.t = t
             fn(*args)
+        for f in (a, b):   # what an ability still lands once the duel is over (Lurking Terrors' channel)
+            for ab in f.abilities:
+                g = getattr(ab.impl, "on_fight_end", None) if ab.unlocked else None
+                if g:
+                    g(ab.ctx)
         winner = None
         if not a.alive and b.alive:
             winner = b.name
