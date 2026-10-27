@@ -25,7 +25,12 @@ The position-based count (team_value.json "positions": other enemies within the 
 0.05-0.4 here, far below what the replays show, because most fight seconds in the position data are approach and
 poke at 15-20 m, while area items fire in the brawl.
 
-usage: python3 -I area_hits.py <raw dir>... [--sample validation/phantom_sample.jsonl.gz] [--write]
+Fight times: replay seconds -> game seconds by fit_length.clock_offset (the deaths line the clock up per stretch
+between pauses), from the same match's extract with health in --clock (default the project folder's
+analysis/work/fight_length/raw); one offset per match (the ticks past the game clock at its end) when it can't, which
+put every fight before a pause a pause's length early (median 16 s, until 2026-10-28).
+
+usage: python3 -I area_hits.py <raw dir>... [--sample validation/phantom_sample.jsonl.gz] [--clock DIR] [--write]
 """
 import ast
 import bisect
@@ -39,6 +44,9 @@ import random
 import sys
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..")
+sys.path.insert(0, os.path.join(ROOT, "scripts", "fight_length"))
+import fit_length as FL  # noqa: E402
+CLOCK = "/mnt/project-files/analysis/work/fight_length/raw"
 T = 64
 GAP_S = 8
 AREA = ["Mystic Reverb", "Alchemical Fire", "Tesla Bullets", "Capacitor", "Scourge", "Torment Pulse", "Cold Front",
@@ -49,8 +57,8 @@ NW_EDGES = [10000, 15000, 20000, 25000, 32000, 40000]   # fight net worth bins f
 BOOT = 200           # match bootstrap draws for the curve's 95% band
 
 
-def nw_curves(sample, matches):
-    """match id -> (duration s, [per player [(time s, net worth)]])."""
+def nw_curves(sample, matches, clock_dir=CLOCK):
+    """match id -> (duration s, [per player [(time s, net worth)]], replay s -> game offset s or None)."""
     out = {}
     for line in gzip.open(sample):
         m = json.loads(line)
@@ -61,7 +69,10 @@ def nw_curves(sample, matches):
             st = ast.literal_eval(p["stats"]) if isinstance(p["stats"], str) else p["stats"]
             if st:
                 curves.append([(s["time_stamp_s"], s["net_worth"]) for s in st])
-        out[str(m["match_id"])] = (m["duration_s"], curves)
+        fn = os.path.join(clock_dir, f"{m['match_id']}.ndjson.gz")
+        hero, ev = FL.read(fn) if os.path.exists(fn) else ({}, [])
+        off = FL.clock_offset(ev, hero, m) if ev else None
+        out[str(m["match_id"])] = (m["duration_s"], curves, off)
     return out
 
 
@@ -89,7 +100,7 @@ def fights(fn, weap, items, nw):
         last_tick = max(last_tick, r["tick"])
         if r.get("k") == "dmg" and r.get("s"):
             ev[r["a"] // 100000].append((r["tick"], r["a"] % 100000, int(r["s"]), r["v"]))
-    dur, curves = nw.get(mid, (None, None))
+    dur, curves, clock = nw.get(mid, (None, None, None))
     off = max(0.0, last_tick / T - dur) if curves else 0.0   # ticks run from before the game clock starts
     rows = []
     for es in ev.values():
@@ -108,7 +119,8 @@ def fights(fn, weap, items, nw):
             if not gun:
                 continue
             main = gun.most_common(1)[0][0]
-            fnw = mean_nw(curves, f[0][0] / T - off) if curves else None
+            t0 = f[0][0] / T
+            fnw = mean_nw(curves, t0 - (clock(t0) if clock else off)) if curves else None
             acc = collections.defaultdict(lambda: [0.0, 0.0])
             for _, v, i, d in f:
                 if i in items:
@@ -175,6 +187,11 @@ def main():
         sample = args[args.index("--sample") + 1]
         args.remove("--sample")
         args.remove(sample)
+    clock_dir = CLOCK
+    if "--clock" in args:
+        clock_dir = args[args.index("--clock") + 1]
+        args.remove("--clock")
+        args.remove(clock_dir)
     dirs = [a for a in args if not a.startswith("--")]
     weap = {w["id"] for w in json.load(open(os.path.join(ROOT, "..", "data", "game", "weapons.json")))}
     items = {i["id"]: i["name"] for i in json.load(open(os.path.join(ROOT, "..", "data", "game", "shop_items.json")))
@@ -183,7 +200,8 @@ def main():
     for d in dirs:
         for fn in glob.glob(os.path.join(d, "*.ndjson")) + glob.glob(os.path.join(d, "*.ndjson.gz")):
             files.setdefault(os.path.basename(fn).split(".")[0], fn)
-    nw = nw_curves(sample, set(files))
+    nw = nw_curves(sample, set(files), clock_dir)
+    print(f"{sum(v[2] is not None for v in nw.values())} with the clock lined up by deaths")
     print(f"{len(files)} replays, {len(nw)} with net worth in {sample}")
     rows = [r for fn in files.values() for r in fights(fn, weap, items, nw)]
     acc, base_m, base = pooled(rows)

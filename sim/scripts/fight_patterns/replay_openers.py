@@ -5,11 +5,19 @@ from PRE s before its first hit count as its opener. Per hero: cast order (pairw
 share of fights each ability is cast / cast first / cast before the first hit, abilities cast before the ultimate, and
 for Mo & Krill the share of fights that start with Mo underground.
 
+Casts are the rows whose cooldown start is the game time (fit_cast_timing.real_casts): a pause moves the replay tick ->
+game time offset, and until 2026-10-28 one offset per replay (the most common) dropped every cast after a pause (21%
+of the casts in the 259 cast_timing replays; half the replays lost over 18%). Cooldown cuts (Violet's Living Ink hits,
+Witchmail) move the start back, which is no cast.
+
 usage: python3 -I replay_openers.py <work dir> <out.json>
+       python3 -I replay_openers.py --split <cast_timing raw dir> <fight_length raw dir> <out.json>   (no Mo burrow)
 """
-import json, glob, os, sys, collections, statistics as st, struct
+import json, glob, gzip, os, sys, collections, statistics as st, struct
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "cast_timing"))
 from deadsim.data import game
+from fit_cast_timing import real_casts  # noqa: E402  casts by the offset of their stretch of the match (pauses)
 G = game()
 AB = {}
 for hid in G.heroes:
@@ -36,8 +44,8 @@ agg = collections.defaultdict(lambda: {"fights": 0, "matches": 0, "first": colle
                                        "t": collections.defaultdict(list), "pre": collections.Counter(),
                                        "before": collections.Counter(), "ground": 0, "ult_after": collections.Counter(), "ult_fights": 0,
                                        "seq": collections.Counter()})
-files = glob.glob(os.path.join(sys.argv[1], "raw", "*.ndjson"))
-for fn in files:
+def load_replay(fn):
+    """fetch_replays.py extract -> (pawn -> hero id, pawn -> [(s, ability id)] casts, pawn -> [(s, dmg)], pawn -> ground)."""
     rows = [json.loads(l) for l in open(fn)]
     # hero per pawn: the hero whose abilities that pawn owns (m_nHeroID is empty in the extracts)
     pawns = {r["a"] for r in rows if r["k"] == "pawn"}
@@ -48,24 +56,57 @@ for fn in files:
             if aid in AB:
                 votes[r["a"] & 0x3FFF][AB[aid][0]] += 1
     pawn = {e: c.most_common(1)[0][0] for e, c in votes.items()}
-    # a cast sets the cooldown start to the current game time (a fixed offset from tick / TICK in each replay);
-    # cooldown cuts (Violet's Living Ink hits, Witchmail) move the start back, which is no cast
-    off = collections.Counter(round(r["tick"] / TICK - r["v"], 2) for r in rows if r["k"] == "cast").most_common(1)
-    off = off[0][0] if off else None
     casts = collections.defaultdict(list); dmg = collections.defaultdict(list); ground = collections.defaultdict(list)
+    for r in real_casts(rows):
+        e = r["a"] & 0x3FFF
+        aid = struct.unpack("<I", bytes.fromhex(r["s"][:8]))[0]
+        if e in pawn and aid in AB and AB[aid][0] == pawn[e]:
+            casts[e].append((r["tick"] / TICK, aid))
     for r in rows:
-        if r["k"] == "cast":
-            e = r["a"] & 0x3FFF
-            if e not in pawn or abs(r["tick"] / TICK - r["v"] - off) > 0.05: continue
-            aid = struct.unpack("<I", bytes.fromhex(r["s"][:8]))[0]
-            if aid in AB and AB[aid][0] == pawn[e]:
-                casts[e].append((r["tick"] / TICK, aid))
-        elif r["k"] == "dmg":
+        if r["k"] == "dmg":
             at, vi = divmod(r["a"], 100000)
             if at in pawn and vi in pawn and at != vi:
                 dmg[at].append((r["tick"] / TICK, r["v"])); dmg[vi].append((r["tick"] / TICK, r["v"]))
         elif r["k"] == "ground":
             ground[r["a"] & 0x3FFF].append((r["tick"] / TICK, r["s"] == "true"))
+    return pawn, casts, dmg, ground
+
+
+def load_split(cast_fn, fight_fn):
+    """cast_timing/fetch_ability_casts.py casts + fight_length/fetch_fights.py damage of one match: same tables, pawn
+    -> hero from the damage extract's ctl rows, no ground rows (Mo's burrow needs fetch_replays.py)."""
+    hero = {}
+    dmg = collections.defaultdict(list)
+    for line in gzip.open(fight_fn, "rt"):
+        r = json.loads(line)
+        if r["k"] == "ctl":
+            hero[r["a"]] = int(r["s"])
+        elif r["k"] == "dmg" and r.get("s"):
+            at, vi = divmod(r["a"], 100000)
+            if at != vi:
+                dmg[at].append((r["tick"] / TICK, r["v"])); dmg[vi].append((r["tick"] / TICK, r["v"]))
+    pawn = {e: h for e, h in hero.items() if h in G.heroes}
+    dmg = {e: v for e, v in dmg.items() if e in pawn}
+    casts = collections.defaultdict(list)
+    for r in real_casts([json.loads(line) for line in gzip.open(cast_fn, "rt")]):
+        aid = int(r["s"])
+        if r["a"] in pawn and aid in AB and AB[aid][0] == pawn[r["a"]]:
+            casts[r["a"]].append((r["tick"] / TICK, aid))
+    return pawn, casts, collections.defaultdict(list, dmg), collections.defaultdict(list)
+
+
+args = sys.argv[1:]
+if args[0] == "--split":
+    cdir, fdir, out_fn = args[1:4]
+    mids = sorted({f.split(".")[0] for f in os.listdir(cdir) if f.endswith(".ndjson.gz")}
+                  & {f.split(".")[0] for f in os.listdir(fdir) if f.endswith(".ndjson.gz")})
+    matches = [lambda m=m: load_split(os.path.join(cdir, m + ".ndjson.gz"), os.path.join(fdir, m + ".ndjson.gz"))
+               for m in mids]
+else:
+    out_fn = args[1]
+    matches = [lambda fn=fn: load_replay(fn) for fn in glob.glob(os.path.join(args[0], "raw", "*.ndjson"))]
+for load in matches:
+    pawn, casts, dmg, ground = load()
     for e, hid in pawn.items():
         if hid not in G.heroes: continue
         A = agg[hid]; A["matches"] += 1
@@ -115,10 +156,10 @@ for hid, A in sorted(agg.items(), key=lambda kv: G.hero(kv[0]).name):
     ids = [a.id for a in h.abilities if A["cast"][a.id] / n >= 0.10]
     score = {a: sum(A["before"][(a, b)] > A["before"][(b, a)] for b in ids if b != a) for a in ids}
     order = sorted(ids, key=lambda a: (-score[a], st.median(A["t"][a])))
-    out[str(hid)] = {"name": h.name, "matches": A["matches"], "fights": n, "burrowed_at_start": round(A["ground"] / n, 3) if hid == 18 else None,
+    out[str(hid)] = {"name": h.name, "matches": A["matches"], "fights": n, "burrowed_at_start": round(A["ground"] / n, 3) if hid == 18 and args[0] != "--split" else None,
                      "order": [AB[a][2] for a in order], "abilities": abil,
                      "top_sequences": [[[h.abilities[i].name for i in k], round(v / n, 3)] for k, v in A["seq"].most_common(3)]}
-json.dump(out, open(sys.argv[2], "w"), indent=1)
+json.dump(out, open(out_fn, "w"), indent=1)
 for r in out.values():
     print(f"{r['name']:15} m{r['matches']:3} f{r['fights']:4} order: {' > '.join(r['abilities'][c]['name'] for c in r['order'])}"
           + (f"  burrowed {r['burrowed_at_start']}" if r['burrowed_at_start'] is not None else ""))

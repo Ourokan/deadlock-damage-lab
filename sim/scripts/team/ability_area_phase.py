@@ -34,6 +34,8 @@ import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 sys.path.insert(0, ROOT)
+sys.path.insert(0, os.path.join(ROOT, "scripts", "fight_length"))
+import fit_length as FL  # noqa: E402
 RAW = "/mnt/project-files/analysis/work/fight_length/raw/"
 SAMPLE = os.path.join(ROOT, "validation", "phantom_sample.jsonl.gz")
 OUT = os.path.join(ROOT, "data", "ability_area_phase.json")
@@ -74,7 +76,13 @@ def fights(args):
         elif r["k"] == "dmg" and r.get("s"):
             ev[r["a"] // 100000].append((r["tick"], r["a"] % 100000, int(r["s"].split("|")[0]), r["v"]))
     by_hero = {p["hero_id"]: p for p in m["players"]}
+    # replay seconds -> game seconds: pauses add replay time, so one offset for the whole match (the ticks past the
+    # game clock at its end) put every fight before a pause a pause's length early; the deaths line it up per stretch
+    clock = FL.clock_offset(FL.read(fn)[1], hero, m)
     off = max(0.0, last / T - m["duration_s"])
+
+    def game_s(tick):
+        return tick / T - (clock(tick / T) if clock else off)
     out = []
     for pawn, es in ev.items():
         p = by_hero.get(hero.get(pawn))
@@ -99,7 +107,7 @@ def fights(args):
             if not gun:
                 continue
             main = gun.most_common(1)[0][0]
-            nw = nw_at(curve, f[0][0] / T - off)
+            nw = nw_at(curve, game_s(f[0][0]))
             acc = collections.defaultdict(lambda: [0.0, 0.0])
             for _, v, s, d in f:
                 k = -1 if s in weap else s if s in mine else None
