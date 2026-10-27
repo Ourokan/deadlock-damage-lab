@@ -86,6 +86,20 @@ class TestMakerData(unittest.TestCase):
             export.ROOT, export.OUT = old
             shutil.rmtree(tmp)
 
+    def test_own_aim_is_your_side_only(self):
+        enemies = [{"hero": "Abrams", "items": [], "souls": 18000}]
+        def run(**aim):
+            req = {"hero": "Haze", "souls": 18000, "enemies": enemies, "variants": [[]], **aim}
+            return json.loads(bridge.maker(json.dumps(req)))["variants"][0][0]
+        base = run()
+        cached = {h: (bridge._maker_sk(h, "p75").accuracy, bridge._maker_sk(h, "p75").headshot) for h in ("Haze", "Abrams")}
+        self.assertEqual(run(accuracy=None, headshot=None), base)   # absent or None: Phantom+ aim as before
+        sharp = run(accuracy=0.6, headshot=0.3)
+        self.assertGreater(sharp["dealt"], base["dealt"])
+        # the shared Phantom+ skills (yours and the enemy's) are copied, never changed
+        self.assertEqual({h: (bridge._maker_sk(h, "p75").accuracy, bridge._maker_sk(h, "p75").headshot) for h in cached}, cached)
+        self.assertEqual(run(), base)
+
     def test_maker_data_skips_unknown_utility_names(self):
         import build
         tmp = tempfile.mkdtemp()

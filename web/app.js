@@ -104,7 +104,8 @@ function renderAttacker() {
   $("#a-hero").value = A.hero;
   $("#a-souls").value = A.souls;
   $("#a-aim").value = A.aim;
-  $("#custom-aim").hidden = A.aim !== "custom";
+  $("#custom-aim").hidden = !ownAim();
+  $("#custom-aim .aim-load").hidden = A.aim === "mine";
   const ids = [...A.items].sort((a, b) => S.items[a].slot.localeCompare(S.items[b].slot) || S.items[a].cost - S.items[b].cost);
   $("#a-build").innerHTML = ids.map((i) => tile(i, { remove: true, cost: true })).join("");
   const cost = A.items.reduce((s, i) => s + (S.items[i]?.cost || 0), 0);
@@ -126,9 +127,11 @@ async function renderPresets() {
   const bk = nearestBudget(Object.keys(d.budgets), S.A.souls), b = d.budgets[bk];
   const btn = (k, label) => `<button class="chip-btn" data-k="${k}">${label}</button>`;
   box.innerHTML = `<span class="hint">Load at ${fmt(bk / 1000)}k:</span>` + btn("popular", "Popular")
-    + Object.entries(OBJ).map(([k, l]) => btn(k, `Most dmg ${l}`)).join("");
+    + Object.entries(OBJ).map(([k, l]) => btn(k, `Most dmg ${l}`)).join("") + (Account.current() ? btn("mine", "My last match") : "");
   box.onclick = (e) => {
     const k = e.target.dataset?.k; if (!k) return;
+    if (k === "mine") { loadMyBuild(); return; }
+    $$(".mine-note").forEach((x) => x.remove());
     applyPreset(d, k, Number(bk)); renderAttacker(); syncDummyHint(); autoRun(0);
   };
 }
@@ -205,6 +208,109 @@ async function pullAim() {
   } finally { btn.disabled = false; }
 }
 
+// ---------- Steam sign-in (account.js) ----------
+// "mine" = the signed-in player's own numbers on this hero, filled into the same fields as "My own numbers"
+const ownAim = () => S.A.aim === "custom" || S.A.aim === "mine";
+
+function renderAccount() {
+  const me = Account.current();
+  $("#acct").innerHTML = me
+    ? `<button class="who" id="acct-who" aria-haspopup="true" title="Signed in as ${esc(me.name)}">${me.avatar ? `<img src="${esc(me.avatar)}" alt="">` : '<i class="ph"></i>'}<span>${esc(me.name)}</span></button>`
+    : '<button class="who out" id="acct-who" aria-haspopup="true">Sign in with Steam</button>';
+  $("#acct-pop").innerHTML = me
+    ? `<p><b>Signed in as ${esc(me.name)}</b></p>
+      <p class="hint">The damage test and build maker now use your own hero accuracy, headshot rate and fight distance on each hero, read from your last 10 matches on it ("My aim on this hero" under Aim), and "My last match" loads the items you held in your latest match on that hero.</p>
+      <div class="row-btns"><button class="chip-btn" id="acct-refresh">Read my matches again</button><button class="chip-btn" id="acct-out">Sign out</button></div>
+      <p class="hint" id="acct-msg"></p>`
+    : `<p class="hint">Sign in to test builds with your own aim on each hero and start from your own builds. Only your public match stats are read, from the Deadlock API.</p>
+      <button type="button" class="steam-btn" id="acct-steam">Sign in through Steam</button>
+      <div class="acct-or">or type it</div>
+      <form class="aim-load" id="acct-form"><input id="acct-id" type="text" placeholder="Steam profile link, Steam ID or name" autocomplete="off" spellcheck="false">
+        <button class="chip-btn" type="submit">Use this player</button></form>
+      <p class="hint" id="acct-msg"></p>`;
+  $("#a-aim-mine").hidden = $("#mk-aim-mine").hidden = !me;
+}
+
+function wireAccount() {
+  const pop = $("#acct-pop"), msg = (t) => { const m = $("#acct-msg"); if (m) m.textContent = t; };
+  $("#acct").onclick = (e) => { if (e.target.closest("#acct-who")) { pop.hidden = !pop.hidden; if (!pop.hidden) $("#acct-id")?.focus(); } };
+  document.addEventListener("click", (e) => { if (!pop.hidden && !e.target.closest("#acct-pop, #acct")) pop.hidden = true; });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") pop.hidden = true; });
+  pop.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = pop.querySelector("button[type=submit]");
+    btn.disabled = true; msg("Looking up the player…");
+    try { await Account.enter($("#acct-id").value); pop.hidden = true; } catch (err) { msg(err.message); } finally { btn.disabled = false; }
+  });
+  pop.addEventListener("click", async (e) => {
+    if (e.target.id === "acct-steam") Account.signIn();
+    else if (e.target.id === "acct-out") { Account.signOut(); pop.hidden = true; }
+    else if (e.target.id === "acct-refresh") {
+      const hero = S.A.hero;
+      msg(`Reading your ${S.heroById[hero]?.name || ""} matches…`);
+      try { await Account.heroAim(hero, { force: true }); msg("Done."); if (S.A.aim === "mine") loadMine(); renderPresets(); } catch (err) { msg(err.message); }
+    }
+  });
+  Account.onChange((me) => {
+    renderAccount();
+    if (me && !ownAim()) S.A.aim = "mine";
+    if (!me && S.A.aim === "mine") S.A.aim = "p75";
+    renderAttacker(); renderPresets(); renderAimHint();
+    if (S.A.aim === "mine") loadMine(); else autoRun(0);
+  });
+}
+
+function aimSummary(r, heroName) {
+  return `${pct(r.accuracy, 1)} accuracy and ${pct(r.headshot, 1)} headshots over ${fmt(r.shots)} shots at heroes in your last ${r.matches} matches`
+    + (r.scope === "hero" ? ` on ${heroName}` : ` (all heroes; fewer than 3 recent ${heroName} matches)`) + (r.distance ? `, median hit distance ${fmt(r.distance, 1)} m.` : ".");
+}
+
+// Fill the aim fields with the signed-in player's numbers on the attacker's hero, reading their matches if needed.
+async function loadMine() {
+  const hero = S.A.hero, heroName = S.heroById[hero]?.name || "this hero", msg = $("#a-pull-msg");
+  const fill = (r) => {
+    $("#a-acc").value = (r.accuracy * 100).toFixed(1);
+    $("#a-hs").value = (r.headshot * 100).toFixed(1);
+    $("#a-dist").value = r.distance ? r.distance.toFixed(1) : "";
+    msg.textContent = `Your aim: ${aimSummary(r, heroName)}`;
+    renderAimHint();
+  };
+  const c = Account.cached(hero);
+  if (c) fill(c); else msg.textContent = `Reading your ${heroName} matches…`;
+  try {
+    const r = await Account.heroAim(hero, { onProgress: (a, b) => { if (!c) msg.textContent = `Reading your match ${a} of ${b}…`; } });
+    if (S.A.hero !== hero || S.A.aim !== "mine") return;
+    if (r !== c) { fill(r); autoRun(0); renderPresets(); }
+  } catch (e) {
+    if (S.A.hero !== hero || S.A.aim !== "mine") return;
+    if (c) { msg.textContent = `${e.message} Showing the numbers read earlier.`; return; }
+    // nothing of theirs to show: back to Phantom+ aim rather than running "my aim" on numbers that aren't theirs
+    S.A.aim = "p75"; renderAttacker(); autoRun(0);
+    mineNote(`Couldn't read your ${heroName} aim: ${e.message} Using Phantom+ aim.`);
+  }
+}
+
+function mineNote(t) { $$(".mine-note").forEach((x) => x.remove()); $("#presets").insertAdjacentHTML("afterend", `<p class="hint mine-note">${esc(t)}</p>`); }
+
+// "My last match": the items the signed-in player held when they reached this net worth in their latest match on the hero
+async function loadMyBuild() {
+  const hero = S.A.hero, heroName = S.heroById[hero]?.name || "this hero";
+  const note = mineNote;
+  note(`Reading your ${heroName} matches…`);
+  let r;
+  try { r = await Account.heroAim(hero); } catch (e) { note(e.message); return; }
+  if (S.A.hero !== hero) return;
+  if (!r?.last) { note(`No recent ${heroName} match on record for you.`); return; }
+  const mk = await load("data/maker.json"); // item components, so an upgraded item's parts don't take slots too
+  if (S.A.hero !== hero) return;
+  const at = Aim.heldAt(r.last, S.A.souls, (id) => Object.hasOwn(S.items, id), (id) => (mk?.components[id] || []).map(Number));
+  const items = at.items.sort((a, b) => S.items[b].cost - S.items[a].cost).slice(0, 12);
+  const ago = Math.max(0, Math.round((Date.now() / 1000 - r.last.start_time) / 86400));
+  Object.assign(S.A, { items, label: "My last match", preset: null, order: null });
+  note(`Your items ${at.t != null ? `when you reached ${fmt(S.A.souls)} souls` : `at the end (you finished at ${fmt(r.last.net_worth)} souls)`} in your latest ${heroName} match, ${ago ? `${ago} day${ago > 1 ? "s" : ""} ago` : "today"}.`);
+  renderAttacker(); autoRun(0);
+}
+
 // ---------- target ----------
 function renderTarget() {
   const D = S.D;
@@ -222,9 +328,9 @@ let ZONE_EXIT_S = 2.0;
 
 function request() {
   const A = S.A, D = S.D, num = (s) => { const v = parseFloat($(s).value); return isFinite(v) ? v : null; };
-  const req = { hero: A.hero, items: [...A.items], souls: A.souls, aim: A.aim === "custom" ? "p50" : A.aim };
+  const req = { hero: A.hero, items: [...A.items], souls: A.souls, aim: ownAim() ? "p50" : A.aim };
   if (A.order) req.ability_order = A.order;
-  if (A.aim === "custom") { const pc = (sel) => { const v = num(sel); return v == null ? null : v / 100; }; req.accuracy = pc("#a-acc"); req.headshot = pc("#a-hs"); req.distance = num("#a-dist"); req.melee_rate = num("#a-mel"); }
+  if (ownAim()) { const pc = (sel) => { const v = num(sel); return v == null ? null : v / 100; }; req.accuracy = pc("#a-acc"); req.headshot = pc("#a-hs"); req.distance = num("#a-dist"); req.melee_rate = num("#a-mel"); }
   const immortal = $("#d-immortal").checked, zone_exit_s = $("#d-walk").checked ? ZONE_EXIT_S : null;
   if (D.mode === "plain") {
     req.dummy = { hero: "Haze", items: [], hp: num("#d-hp"), immortal, zone_exit_s,
@@ -317,7 +423,7 @@ function checkInputs() {
     for (const [s, l] of [["#d-br", "Bullet"], ["#d-sr", "Spirit"], ["#d-mr", "Melee"]])
       if (v(s) && !(n(s) >= -100 && n(s) <= 95)) return `${l} resist must be between -100% and 95%.`;
   }
-  if (S.A.aim === "custom") {
+  if (ownAim()) {
     if (!(n("#a-acc") > 0 && n("#a-acc") <= 100)) return "Hero accuracy must be above 0% and at most 100%.";
     if (!(n("#a-hs") >= 0 && n("#a-hs") <= 100)) return "Headshot % must be between 0 and 100.";
   }
@@ -358,8 +464,8 @@ function shareURL(hash = location.hash) {
   p.set("h", A.hero); p.set("s", A.souls);
   if (A.items.length) p.set("i", A.items.join("."));
   if (A.order) p.set("ao", A.order.join("."));
-  p.set("aim", A.aim);
-  if (A.aim === "custom") for (const k of ["acc", "hs", "dist", "mel"]) p.set(k, val(k)); // blanks too, so the recipient's saved aim can't fill them
+  p.set("aim", ownAim() ? "custom" : A.aim); // "mine" travels as the numbers it filled in
+  if (ownAim()) for (const k of ["acc", "hs", "dist", "mel"]) p.set(k, val(k)); // blanks too, so the recipient's saved aim can't fill them
   if (D.mode === "plain") {
     for (const k of ["hp", "br", "sr", "mr"]) if (val(k) && (k === "hp" || Number(val(k)) !== 0)) p.set(k, val(k));
   } else {
@@ -1059,6 +1165,7 @@ function phoneLayout() {
 
 // ---------- boot ----------
 async function boot() {
+  const signedIn = Account.takeReturn(); // first: Steam's answer leaves the address bar before anything reads the link
   startEngine();   // first: Pyodide and the sim bundle are the longest download, so they start before the page's data
   const top = $(".top");
   new ResizeObserver(() => document.documentElement.style.setProperty("--top-h", getComputedStyle(top).position === "sticky" ? `${top.offsetHeight + 8}px` : "0px")).observe(top);
@@ -1087,6 +1194,8 @@ async function boot() {
   const b = d?.budgets["27000"];
   if (b) $("#d-hp").value = b.dummy_hp;
   restoreAim(); // before the link, so a shared link's aim wins over the numbers saved in this browser
+  renderAccount(); wireAccount();
+  if (Account.current()) S.A.aim = "mine";
   if (readShare()) $("#share-note").hidden = false;
   else if (b) {
     S.A.items = [...b.popular.items]; S.A.label = "Popular"; S.A.preset = "popular";
@@ -1096,11 +1205,14 @@ async function boot() {
   }
   renderAttacker(); renderTarget(); renderPresets(); syncDummyHint(); renderResult();
 
-  $("#a-hero").onchange = async (e) => { S.A.hero = Number(e.target.value); if (!S.A.preset) S.A.label = null; S.A.order = null; renderAttacker(); renderPresets(); syncDummyHint(); renderAimHint(); await followPreset(); autoRun(0); };
+  $("#a-hero").onchange = async (e) => { S.A.hero = Number(e.target.value); if (!S.A.preset) S.A.label = null; S.A.order = null; $$(".mine-note").forEach((x) => x.remove()); renderAttacker(); renderPresets(); syncDummyHint(); renderAimHint(); if (S.A.aim === "mine") loadMine(); await followPreset(); autoRun(0); };
   $("#a-souls").onchange = async (e) => { S.A.souls = Number(e.target.value) || 0; renderAttacker(); renderPresets(); syncDummyHint(); await followPreset(); autoRun(0); };
-  $("#a-aim").onchange = (e) => { S.A.aim = e.target.value; renderAttacker(); renderAimHint(); };
+  $("#a-aim").onchange = (e) => { S.A.aim = e.target.value; renderAttacker(); renderAimHint(); if (S.A.aim === "mine") loadMine(); };
   renderAimHint();
-  for (const sel of Object.values(AIM_FIELDS)) $(sel).addEventListener("change", () => { saveAim(); renderAimHint(); });
+  if (S.A.aim === "mine") loadMine();
+  if (signedIn != null) Account.setPlayer(signedIn, "steam").catch((e) => showErr("Steam sign-in: " + e.message));
+  // typing over your own numbers makes them "My own numbers"
+  for (const sel of Object.values(AIM_FIELDS)) $(sel).addEventListener("change", () => { if (S.A.aim === "mine") { S.A.aim = "custom"; renderAttacker(); } saveAim(); renderAimHint(); });
   $("#a-pull").onclick = pullAim;
   $("#a-steam").addEventListener("keydown", (e) => { if (e.key === "Enter") pullAim(); });
   wireShop("a", () => S.A.items, () => { S.A.label = null; S.A.preset = null; renderAttacker(); autoRun(); });
