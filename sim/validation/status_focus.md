@@ -35,6 +35,12 @@ holder's `Fighter.status_focus = focus` and every debuff duration uses `Fighter.
 x status_focus, at most 1. The audit and the dummy (focus 1) are unchanged; the enemy's own resist against the
 holder's debuffs is unchanged (only the holder is focused).
 
+An approximation: `focus` enemies leave focus x D x (1 - r) of debuff time on the holder, the sim D x (1 - focus x r).
+The saving from resist is the same (focus x r x D); the baseline is short by (focus - 1) x D whatever the build, so
+it cancels between builds. Past r = 1 / focus (50% at focus 2) the sim caps at immunity and under-credits more resist,
+so stacked resist builds can't be overvalued. Vyper's Petrify gun lock now reads the same resist as her stun right
+above it (it used the static stat only, missing timed resist like Unstoppable).
+
 ## Results (sim_vs_win, blend off, all heroes; local pools from the shared 10-14 snapshots)
 
 | | all pairs | within slot and tier | per item | within, hero halves | all, hero halves |

@@ -443,7 +443,10 @@ class Fighter:
     def status_resist(self):
         """Share a debuff's duration is cut by: status resist x status_focus, at most 1. A fighter whose foe hits x
         focus stands in for that many enemies' debuffs too, and resist saves the same share of each, so its saving
-        scales with the count while the one simulated foe applies debuffs once."""
+        scales with the count while the one simulated foe applies debuffs once. An approximation: focus enemies leave
+        focus x D x (1 - r) of debuff time, the sim D x (1 - focus x r), the same saving (focus x r x D) on a baseline
+        short by a constant (focus - 1) x D that no build changes; past r = 1 / focus the sim stops at immunity
+        and under-credits further resist (real saving keeps growing), so stacked resist is never overvalued."""
         return min(1.0, (self.st.status_resist + self.stat("status_resist")) * self.status_focus)
 
     # ---- derived live stats --------------------------------------------------------------------------
