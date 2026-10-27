@@ -16,6 +16,11 @@ Assumptions:
   (data/djinn_gaps.json, scripts/mechanics/djinn_gaps.py). Fights that book damage over real fight lengths and have
   an rng or a fight phase draw, after each mark, whether the next one misses that window: then no gun hit marks
   until the marks have expired. Other fights (dummy page, deterministic) keep marking every hit.
+  After the fight (MARKS_OUTLAST): marks on a target pop on expiry whether or not the two still trade then, so in
+  fights booked over real fight lengths a pop counts as likely as the fight still going at the last mark, not at
+  the pop: a fight that ends between the two (a disengage) still gets the marks' damage, on expiry instead of the
+  cast. Real Mirage fights: 64% of pops are expiry pops, many after the shooting stopped
+  (scripts/mechanics/djinn_pops.py).
 - Traveler: a map teleport with no 1v1 combat effect except its upgrades, which are applied as if Mirage
   teleported in at fight start: T1 +BonusFireRate for MovementSpeedBonusDuration, T2 barrier
   CombatBarrier (400 + spirit scaling) for BARRIER_DURATION.
@@ -30,6 +35,7 @@ SCARAB_RANGE = 25.0          # m, scarab projectiles (no range in data)
 RECAST_DELAY = 1.0           # s between the Dust Devil cast and its T3 recast
 BARRIER_DURATION = 6.0       # s, combat barrier duration (not in data)
 MARK_GAPS = True
+MARKS_OUTLAST = True         # pops book at the last mark's time (marks outlast a disengage), see Djinn's Mark above
 GAPS_ROW = "all"             # data/djinn_gaps.json row (the split-half check uses "even" / "odd")
 _gaps = None
 
@@ -110,7 +116,7 @@ class DjinnsMark(AbilityImpl):
     held_opens = "first_hit"
 
     def start(self, c):
-        c.state.update(stacks=0, next_proc=0.0, expire=-1.0, gen=0, gap_until=-1.0, draws=0)
+        c.state.update(stacks=0, next_proc=0.0, expire=-1.0, gen=0, gap_until=-1.0, draws=0, last=0.0)
 
     def cd_mult(self):
         base = self.s.ctx.raw("AbilityCooldown")
@@ -131,6 +137,7 @@ class DjinnsMark(AbilityImpl):
         st["next_proc"] = c.now + c.raw("ProcCooldown") * self.cd_mult()
         st["stacks"] = min(int(c.raw("MaxStacks", 4)), st["stacks"] + 1)
         st["gen"] += 1
+        st["last"] = c.now
         d = c.dur("VictimStackDuration")
         st["expire"] = c.now + d
         c.after(d, self.expire, c, st["gen"])
@@ -161,7 +168,15 @@ class DjinnsMark(AbilityImpl):
         dmg = self.pending(c)
         st["stacks"] = 0
         st["gen"] += 1
-        c.spirit_hit(dmg)
+        e = c.engine
+        if MARKS_OUTLAST and getattr(e, "length", None) is not None:
+            e.book_at = st["last"]
+            try:
+                c.spirit_hit(dmg)
+            finally:
+                e.book_at = None
+        else:
+            c.spirit_hit(dmg)
         if full and c.raw("StunDuration"):
             c.debuff("stun", 1, c.raw("StunDuration"))
 

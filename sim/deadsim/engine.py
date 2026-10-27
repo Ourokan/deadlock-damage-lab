@@ -601,6 +601,9 @@ class Engine:
         # also booked x P(the two are still trading at its time | nobody died) in Fighter.dmg_exp: the damage
         # expected over real fight lengths, without a random cut that would swing results by whole casts.
         self.length = getattr(mech, "fight_length", None) if mech is not None else None
+        # hits booked as if at another time (length_w's default t): damage that lands whether or not the two still
+        # trade then, once its cause came earlier (Djinn's Mark marks pop on expiry after a disengage)
+        self.book_at = None
         self.profile_casts = PROFILE_SOURCES   # Fighter.cast_first (AbilityState.cast)
 
     def length_w(self, t=None, src=None, source=None):
@@ -613,9 +616,11 @@ class Engine:
         if src is not None and src.opener_hold:
             q = src.hold_of(source)
             if q:
-                t0 = self.t if t is None else t
+                t0 = (self.t if self.book_at is None else self.book_at) if t is None else t
                 return sum(self.length_w(t0 + h) for h in q) / len(q)
         from .mechanics import LENGTH_STEP
+        if t is None and self.book_at is not None:
+            t = self.book_at
         x = max(0.0, self.t if t is None else t) / LENGTH_STEP
         k = int(x)
         if k >= len(c) - 1:

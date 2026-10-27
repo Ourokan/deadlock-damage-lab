@@ -2132,3 +2132,37 @@ Cooldown 126 / 131 (-0.4, rank 56). Two checks on the 259 cast-timing replays:
   0.0111 -> 0.0138 (131 -> 127), Compress 0.0136 -> 0.0152 (126 -> 123). Damage audit mix 0.0228 -> 0.0232 (noise:
   real builds hold few cooldown items). Cooldown items still rank below their real edge: what is left is outside a
   fight (farming, pushing, more casts between fights), which the overall score does not see; the win blend carries it.
+
+## Djinn's Mark after the fight (2026-10-27)
+
+Re-ranking heroes by audit mix distance after the 2026-10-26 evening merges (4 draws, AUDIT_SEED 0-3, on main after
+#141): Mirage 0.066, Viscous 0.055 (n 29), Celeste 0.052, Apollo 0.050, Ivy 0.047 (all heroes 0.024). Mirage had
+drifted from ~0.03: bisecting main (Mirage-only audits, 4 draws per commit) put most of it on #138, whose
+level-keeping pass cut Djinn's Mark's length_corr 6.56 -> 5.81 (Djinn's Mark share 0.263 -> 0.236, real 0.291) and
+pushed his items' share up. Skipping its recast wait alone moved it 0.005; the fitted correction was absorbing a
+mechanism gap.
+
+`scripts/mechanics/djinn_pops.py real` (260 Phantom+ replays, 923 Mirage pair fights) vs `sim` (the audit's duels of
+the sample's Mirage players, weighted as booked):
+
+| | pops / 10 s of fight | expiry pops | marks popped 1 / 2 / 3 / 4+ |
+|---|---|---|---|
+| real | 0.72 | 64% | 58 / 23 / 17 / 2% |
+| sim before | 0.43 | 34% | 58 / 28 / 9 / 6% |
+| sim, marks outlast a disengage | 0.78 | 53% | 54 / 30 / 10 / 6% |
+
+Real marks mostly pop on expiry after the shooting stops. The sim booked each pop by P(the real fight still goes on)
+at the pop, so marks still on a target when a fight ends (most real fights end in a disengage) never popped. In game
+they pop on expiry anyway. mirage.MARKS_OUTLAST (on): a pop books as likely as the fight still going at the last
+mark (Engine.book_at, the time length_w reads by default). A fight that ends between the mark and a cast still gets
+the marks, on expiry instead.
+
+Refit Mirage only (ability_corr_heroes.py 3 rounds, item_landing_heroes.py --hero Mirage): Djinn's Mark length_corr
+5.85 -> 4.05, Ricochet 0.40 -> 0.39, Toxic Bullets 0.69 -> 0.65. Mirage, 4 draws: mix 0.065 -> 0.046, per-source
+0.059 -> 0.038, Djinn's Mark 0.237 -> 0.287 (real 0.291). His item share stays high (0.21 vs 0.17): his holders-only
+item rows already read 0.93-0.97, so that is the per-hero table's mid-game item bias. Split-half (fit on one half,
+audit the other, 4 draws; a refit on the old model as the reference): held-out half 1 per-source 0.053 -> 0.061, mix
+0.047 -> 0.047; half 0 per-source 0.065 -> 0.056, mix 0.083 -> 0.069. Halves are 22 players each and their real
+Djinn's Mark share differs (0.278 / 0.298), so the replays above carry the case. All-hero audit flat (0.0232 ->
+0.0232, seed 0). sim_vs_win 27k, Mirage (the only hero touched): all pairs 0.233 -> 0.232, damage items -0.158 ->
+-0.127, clear edges Spearman 0.18 -> 0.27.
