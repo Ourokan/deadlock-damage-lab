@@ -108,9 +108,9 @@ class Loadout:
 # heroes whose default ability order is their real players' median order (data/ability_order.json,
 # scripts/ability_order.py) instead of the single most played full order: the top row can save every point for one
 # ability (Celeste's popular order has Shining Wonder at tier 0.4 at 60% of the match, real players 1.6). Judged per
-# hero by split-half (validation/README.md "Ability order"); the damage audit gives these heroes' players their real
-# tiers at the duel's moment.
-ORDER_HEROES = ("Celeste",)
+# hero by split-half (validation/README.md "Ability order"; Sinclair, Doorman and McGinnis did not hold); the damage
+# audit gives these heroes' players their real tiers at the duel's moment.
+ORDER_HEROES = ("Celeste", "Ivy", "Paige")
 
 
 @lru_cache(maxsize=64)

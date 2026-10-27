@@ -71,6 +71,12 @@ class MedianOrder(unittest.TestCase):
         ult = next(i for i, a in enumerate(h.abilities) if a.ultimate)
         self.assertGreaterEqual(_auto_abilities(h, 34000)[0][ult], 1)
 
+    def test_ivy_levels_kudzu_early(self):
+        # Ivy's popular order leaves Kudzu Connection at tier 0 by mid game, real players have it at 2.1
+        h = G.hero("Ivy")
+        kudzu = next(i for i, a in enumerate(h.abilities) if a.name == "Kudzu Connection")
+        self.assertGreaterEqual(_auto_abilities(h, 14000)[0][kudzu], 2)
+
 
 if __name__ == "__main__":
     unittest.main()
