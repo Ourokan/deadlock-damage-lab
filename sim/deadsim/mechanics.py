@@ -195,6 +195,12 @@ class Mechanics:
     # pooled level stays, the phase shape moves (Nurse's ult share real 0.15 / 0.36 / 0.45 at 30 / 60 / 90% of the
     # match, sim 0.28 / 0.35 / 0.35 before)
     ability_area_phase: bool = True
+    # melee by game phase (2026-10-27): real players melee most in the lane and less as the game goes on (the hero's
+    # real melee share over the sim's, all heroes: 1.20x at 30% of the match, 0.91x at 60%, 0.74x at 90%; Calico 1.27 /
+    # 1.15 / 1.03, while per hit sizes match the formula). The melee rate is fitted flat, so at the duel's net worth it
+    # is x melee_phase_mult (data/melee_phase.json, scripts/mechanics/melee_phase.py: real over sim melee share at
+    # 30 / 60 / 90% of the match, shrunk to the pooled curve; linear in ln net worth between the points, flat outside)
+    melee_phase: bool = True
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
@@ -692,6 +698,32 @@ def ability_area_mult(cls, souls):
         if x <= x1:
             return (y0 + (y1 - y0) * (x - x0) / max(1e-9, x1 - x0)) / base
     return pts[-1][1] / base
+
+
+_MELEE_PHASE = None
+
+
+def melee_phase_mult(hero_id, souls):
+    """Mechanics.melee_phase: multiplier on the hero's melee rate at net worth souls (data/melee_phase.json, the
+    hero's row or pooled), linear in ln net worth between its points, flat outside; 1.0 without data."""
+    global _MELEE_PHASE
+    if _MELEE_PHASE is None:
+        fn = os.path.join(os.path.dirname(__file__), "..", "data", "melee_phase.json")
+        _MELEE_PHASE = {}
+        if os.path.exists(fn):
+            with open(fn) as fh:
+                for k, v in json.load(fh)["heroes"].items():
+                    _MELEE_PHASE[k] = [(math.log(nw), m) for nw, m in v["points"]]
+    pts = _MELEE_PHASE.get(str(hero_id))
+    if not pts or not souls:
+        return 1.0
+    x = math.log(max(souls, 1.0))
+    if x <= pts[0][0]:
+        return pts[0][1]
+    for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+        if x <= x1:
+            return y0 + (y1 - y0) * (x - x0) / max(1e-9, x1 - x0)
+    return pts[-1][1]
 
 
 def area_extra(name, souls=None):
