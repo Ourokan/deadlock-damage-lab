@@ -2,16 +2,15 @@
 Mechanics.ult_phase).
 
 The first-cast holds (data/cast_timing.json, fit_cast_timing.py) are one curve per ability over the whole match. Real
-ults go out in fewer fights early on: P(ult cast by 20 s of a pair fight) is about 0.8x the hero's whole-match share
-before 45% of the match and 1.05-1.1x after it (all heroes), most for the big-burst ults (Violet 0.12 / 0.17 / 0.19
-of fights by phase, Solomon 0.04 / 0.09 / 0.08, McGinnis 0.05 / 0.13 / 0.11, Victor 0.06 / 0.16 / 0.16). With the
-pooled hold the sim's ult share of damage was 0.94x real around 30% of the match and 1.17x under real at 90%
-(Violet 0.19 sim vs 0.11 real early, 0.18 vs 0.23 late): the damage audit per phase, validation/README.md.
+ults go out in fewer fights early on: P(ult cast by 20 s of a pair fight) is 0.88x the hero's whole-match share
+before 45% of the match, 1.06x to 75%, 1.02x after (all heroes; Solomon 0.53 / 1.50 / 0.78, Infernus 0.76 / 1.15 /
+1.07). With the pooled hold the sim's ult share of damage was 0.94x real around 30% of the match, the big-burst ults
+most (Violet 0.19 sim vs 0.11 real, Solomon 0.19 vs 0.12): scripts/phase_mix.py, validation/README.md.
 
 real: the fight-length replays' pair fights and ability casts (as fit_cast_timing.py real). For each fighter and its
-ult (unlocked: cast before in the match, in the fight, or the fourth ability unlock reached at the fighter's net worth;
-"cast before" alone leaves out the fights between the unlock and the first cast): the first cast from PRE_S before the fight's first hit, censored by
-the fight's end, the fight's match fraction and the fighter's net worth then.
+ult (unlocked: cast before in the match, in the fight, or the fourth ability unlock reached at the fighter's net
+worth; "cast before" alone leaves out the fights between the unlock and the first cast): the first cast from PRE_S
+before the fight's first hit, censored by the fight's end, the fight's match fraction and the fighter's net worth then.
 fit: per hero, the Kaplan-Meier P(cast by HORIZON) in each match-fraction bin over the hero's whole-match one, shrunk
 in ln to the pooled ratio of the bin (SHRINK fights of weight), at the bin's median net worth. Heroes with an ult
 hold only (cast_timing.json); gated ults keep their own timing.
@@ -46,7 +45,7 @@ import recast_timing as RT  # noqa: E402
 ROWS = "/mnt/project-files/analysis/work/ult_phase/rows.pkl"
 OUT = os.path.join(ROOT, "data", "ult_phase.json")
 BINS = (0.0, 0.45, 0.75, 1.01)   # match fraction
-SHRINK = 300   # fights
+SHRINK = 3000   # fights (split-half: held-out cast-share error 1693 / 1952 off, 1560 / 1703 at 3000, 1775 / 1851 at 300)
 CLAMP = (0.3, 3.0)
 
 

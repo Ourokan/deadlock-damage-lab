@@ -1,5 +1,5 @@
 {
   "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
-  "requested_at": "2026-10-27T11:57:19Z",
-  "reason": "Melee by game phase: each hero's melee rate follows the real lane-to-late curve (Mechanics.melee_phase; real melee front-loaded, Calico 1.39x in lane)"
+  "requested_at": "2026-10-27T14:20:00Z",
+  "reason": "Ult casts by game phase: the ult's first-cast share follows the real early/mid/late curve (Mechanics.ult_phase; real ults go out in 0.88x as many fights before 45% of the match)"
 }

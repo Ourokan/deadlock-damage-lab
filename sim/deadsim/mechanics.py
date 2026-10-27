@@ -764,16 +764,7 @@ def melee_phase_mult(hero_id, souls):
             with open(fn) as fh:
                 for k, v in json.load(fh)["heroes"].items():
                     _MELEE_PHASE[k] = [(math.log(nw), m) for nw, m in v["points"]]
-    pts = _MELEE_PHASE.get(str(hero_id))
-    if not pts or not souls:
-        return 1.0
-    x = math.log(max(souls, 1.0))
-    if x <= pts[0][0]:
-        return pts[0][1]
-    for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
-        if x <= x1:
-            return y0 + (y1 - y0) * (x - x0) / max(1e-9, x1 - x0)
-    return pts[-1][1]
+    return _interp_ln(_MELEE_PHASE.get(str(hero_id)), souls)
 
 
 def area_extra(name, souls=None):
