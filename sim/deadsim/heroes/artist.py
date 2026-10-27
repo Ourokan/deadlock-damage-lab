@@ -1,8 +1,8 @@
 """Violet (hero_artist).
 
 Assumptions:
-- Living Ink: a charge empowers the next MaxShots gun shots for AbilityDuration. Steered bullets hit at the
-  better of the caster's gun and spirit accuracy (they home in), deal BulletDamageMultiplier % of a gun bullet
+- Living Ink: a charge empowers the next MaxShots gun shots for AbilityDuration. Steered bullets home in: they hit
+  at the caster's gun accuracy x INK_HOMING (from replays, not every one lands), deal BulletDamageMultiplier % of a gun bullet
   plus Damage spirit splash. As in the game's damage events, the bullet is a gun hit (same tick as the splash,
   booked under the weapon) and only the splash is booked under Living Ink. Each landed shot cuts the other abilities' cooldowns by
   CooldownReductionPerHit and active item cooldowns by half of it (replays: the other cooldown starts step back
@@ -41,6 +41,14 @@ LIVING_INK = "Living Ink"
 # tick) at t = 0, 0.25, ..., 2.5 (Kaplan-Meier, kills censored); unbroken draws complete at the channel's end
 SKETCH_BREAK = (0.048, 0.088, 0.151, 0.183, 0.236, 0.304, 0.335, 0.399, 0.441, 0.481, 0.515)
 SKETCH_BREAK_STEP = 0.25
+# Living Ink: a steered shot lands at the caster's gun accuracy x INK_HOMING. Phantom+ replays (259 matches,
+# scripts/mechanics/living_ink_hits.py): a cast in a fight hits a hero 1.43 times before it runs out or the next charge
+# (1.72 in sustained fights: >= 3 of her other hits in the window), and 97% of hero hits move the other cooldowns back
+# by CooldownReductionPerHit (1.5 s, 2.5 s at T3) as the game says. With every steered shot landing the sim hit 2.56
+# times per cast, so Violet got ~1.6x the real cooldown cuts and won 55% of audit duels outright. 2.0 gives 1.62 per
+# cast; split-half (Violet ability, melee and item rows refit on one half, audited on the other) mix 0.017 -> 0.012 and
+# 0.015 -> 0.010 (1.75: 0.015 / 0.013, 2.2: 0.010 / 0.007, 1.4 worse).
+INK_HOMING = 2.0
 # Abstract Landscape, from Phantom+ replays (97 casts): an enemy that takes its damage first does at 3.7 s after the
 # cast (median; channel included), and is hit 1.71 times on average (it crosses the ink again 1.3 s later)
 GROVE_FIRST_HIT = 3.7
@@ -128,7 +136,7 @@ class LivingInk(AbilityImpl):
         ctx["pellet_mult"] = 0.0   # this shot is the steered bullet below, not a gun shot
         f, e, eng = c.me, c.foe, c.engine
         sk = f.skill
-        p = min(1.0, max(sk.accuracy, sk.spirit_accuracy) * (1.0 - e.stat("evasion")) * eng.hit_reach(f.st))
+        p = min(1.0, sk.accuracy * INK_HOMING * (1.0 - e.stat("evasion")) * eng.hit_reach(f.st))
         if f.acc("living_ink").take(p, 1) <= 0:
             return
         heads = f.head_acc.take(sk.headshot, 1)

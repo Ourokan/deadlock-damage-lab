@@ -66,6 +66,16 @@ class TestLivingInk(VioletCase):
         self.assertEqual(li.ready_at, 20.0)
         self.assertAlmostEqual(sl.ready_at, 18.5)
 
+    def test_missed_steered_shot_deals_nothing_and_cuts_nothing(self):
+        """Steered shots land at gun accuracy x INK_HOMING (replays: not every one hits)."""
+        li, sl = self.ab["ability_artist_homingbrush"], self.ab["ability_artist_tether"]
+        self.f.skill.accuracy = 0.0
+        li.cast()
+        sl.ready_at = 20.0
+        self.assertEqual(self.shoot()["pellet_mult"], 0.0)
+        self.assertEqual(self.f.dmg_out.get("Living Ink", 0), 0)
+        self.assertEqual(sl.ready_at, 20.0)
+
     def test_cuts_skip_effects_without_an_item(self):
         """survival.py's immortal refill (and hero pseudo effects) sit in items_fx with no item: Violet as the
         survival or overall search's enemy crashed every fight on it (rerun 73, 2026-10-25)."""
