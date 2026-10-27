@@ -2366,3 +2366,36 @@ variant fitted on one match-id half, 3 draws on the other:
 Whole sample, 4 draws: per source 0.007, mix 0.014 (gun 0.376 vs real 0.379). Full audit flat 0.0186 -> 0.0187 (one
 draw; other heroes move by their Venator foes). sim_vs_win 27k, Venator only: all items 0.210 -> 0.225, damage items
 0.187 -> 0.240, within slot and tier 0.234 -> 0.255.
+
+## Melee by game phase (2026-10-27)
+
+Re-rank on main after #150-#159 (4 draws, all heroes 0.0202): Viscous 0.054 (n 29), Celeste 0.049, Ivy 0.044 (all
+three judged noise before), Mirage 0.041, Calico 0.040 (n 110, steady), Warden 0.038 (n 33), Apollo 0.037. Calico's
+whole-match mix had melee under (0.123 vs real 0.149) and items over (0.348 vs 0.312). Phase by phase (real damage in
+the frac +- 15% window of the sample's damage_series, sim duels at that frac only) her items match real at every
+phase (0.26 / 0.30 / 0.40 both), so "items over" was the late duels' weight; melee was 0.188 / 0.146 / 0.108 real vs
+0.148 / 0.131 / 0.108 sim. Per hit sizes match the formula at every phase (replays, melee_scaling.py k = 0.5), so it is
+the rate. The same holds for nearly every hero: real melee share over sim, players weighted, 1.20 / 0.91 / 0.74 at
+30 / 60 / 90% of the match (ranged heroes drop most: Ivy 1.47 / 0.72 / 0.51, Nurse 1.10 / 0.59 / 0.44; melee heroes
+flat: Abrams 0.92 / 1.01 / 1.05). Real players melee in the lane and stop later; the fitted rate is one number.
+
+Mechanics.melee_phase: the melee rate x melee_phase_mult(hero, net worth) (data/melee_phase.json,
+scripts/mechanics/melee_phase.py, 3 rounds): real over sim melee share at each frac, shrunk in ln to the pooled curve
+(heroes weighted by real melee damage, 30 players), at the hero's median net worth there, linear in ln net worth
+between, flat outside. Pooled 1.16 / 0.97 / 0.87; Calico 1.39 / 1.18 / 0.98.
+
+Split-half (fit on one match-id half, audit the other, 4 draws whole match / 2 draws per phase):
+
+| half | whole-match mix | phase mix 30 / 60 / 90% | phase melee gap 30 / 60 / 90% |
+|---|---|---|---|
+| odd, base | 0.0233 | 0.0406 / 0.0328 / 0.0434 | 0.0116 / 0.0055 / 0.0103 |
+| odd, fit on even | 0.0240 | 0.0370 / 0.0317 / 0.0409 | 0.0058 / 0.0032 / 0.0054 |
+| even, base | 0.0219 | 0.0384 / 0.0339 / 0.0405 | 0.0112 / 0.0065 / 0.0089 |
+| even, fit on odd | 0.0229 | 0.0359 / 0.0332 / 0.0386 | 0.0073 / 0.0046 / 0.0047 |
+
+Phase by phase every number is better on both halves; the whole-match mix is a little worse because it compares the
+whole real match (lane-heavy melee included) with three duels whose damage grows with the phase, so the flat rate
+fitted to it was its own optimum. Kept on the phase-matched view (as for ability_area_phase) and sim_vs_win 27k, all
+heroes: all items 0.242 -> 0.245, damage items 0.146 -> 0.154, within slot and tier 0.282 -> 0.286, per item 0.341 ->
+0.343. Whole sample, 4 draws: all heroes 0.0202 -> 0.0206; Calico 0.040 -> 0.036 (melee 0.123 -> 0.132), Apollo
+0.037 -> 0.034, Dynamo 0.017 -> 0.013, Nurse 0.013 -> 0.017 (whole-match melee 0.031 -> 0.021 vs real 0.032).

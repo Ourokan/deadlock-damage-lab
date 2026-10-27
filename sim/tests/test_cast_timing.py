@@ -365,7 +365,7 @@ class MeleeOpener(unittest.TestCase):
         def share(hero):
             n = 0
             for k in range(400):
-                e = Engine(mech=dataclasses.replace(M.DEFAULT, fight_length=M.real_length(15000)))
+                e = Engine(mech=dataclasses.replace(M.DEFAULT, fight_length=M.real_length(15000), melee_phase=False))
                 f = make_fighter(e, Loadout(hero, ["Melee Charge"], souls=15000,
                                             skill=dataclasses.replace(hero_default_skill(hero), fight_phase=k / 400)))
                 n += M.melee_opener(f) is not None
