@@ -105,8 +105,34 @@ class Loadout:
         return hero, items
 
 
+# heroes whose default ability order is their real players' median order (data/ability_order.json,
+# scripts/ability_order.py) instead of the single most played full order: the top row can save every point for one
+# ability (Celeste's popular order has Shining Wonder at tier 0.4 at 60% of the match, real players 1.6). Judged per
+# hero by split-half (validation/README.md "Ability order"); the damage audit gives these heroes' players their real
+# tiers at the duel's moment.
+ORDER_HEROES = ("Celeste",)
+
+
+@lru_cache(maxsize=64)
+def median_ability_order(hero_id):
+    """Real players' median ability order for the hero (data/ability_order.json), () without a row."""
+    fn = os.path.join(os.path.dirname(__file__), "..", "data", "ability_order.json")
+    if not os.path.exists(fn):
+        return ()
+    with open(fn) as fh:
+        row = json.load(fh)["heroes"].get(str(hero_id))
+    return tuple(row["order"]) if row else ()
+
+
+def default_ability_order(hero):
+    """The order a loadout without one follows: the median order for ORDER_HEROES, else the popular one."""
+    if hero.name in ORDER_HEROES:
+        return median_ability_order(hero.id) or popular_ability_order(hero.id)
+    return popular_ability_order(hero.id)
+
+
 def _auto_abilities(hero, souls):
-    order = popular_ability_order(hero.id)
+    order = default_ability_order(hero)
     n = ability_events_for_souls(souls)
     ids = [a.id for a in hero.abilities]
     tiers, unlocked = [0] * len(ids), [False] * len(ids)

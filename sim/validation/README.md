@@ -2481,3 +2481,42 @@ Left: the late gun over (0.219 vs 0.202) is now mostly spirit builds that shoot 
 0.135, Nurse, Celeste, Dynamo, Doorman, Viscous, Rem, Kelvin: their real gun share drops 3x from 30% to 90%), and the
 late ult under (Nurse, Violet) takes share from the gun too. Per victim, real damage / pre_damage is far lower on Shiv
 (0.65: Bloodletting defers), Viscous 0.80, Mo & Krill 0.84, Yamato 0.87 (the sim's Shiv defers too).
+
+## Ability order (2026-10-27)
+
+Re-ranking heroes by damage mix on main after #160-#163 (4 audit draws, all heroes 0.021): Viscous 0.057 (29
+players), Celeste 0.048, Ivy 0.047, Mirage 0.045, Calico 0.038. Phase-matched (scripts/phase_mix.py) Ivy is in line at
+every phase (her whole-match item gap is the mid-game bias of the per-hero table). Celeste is not: her ult share was
+0.13 / 0.12 / 0.16 at 30 / 60 / 90% of the match against the real 0.12 / 0.17 / 0.21, her gun 0.24 / 0.18 / 0.18
+against 0.20 / 0.14 / 0.13.
+
+Not the orb's bounces: in the fight-length replays (447 Shining Wonder casts) the orb hits the cast's main target 2.0
+times per cast in lane and 2.8 late, other heroes 0.63 -> 0.86 x that; the sim's hits per cast (1 + prism rebounds at
+Dazzling Trick T3) grow 1.0 -> 1.4 over the same net worths, about the real shape, and the landing x length_corr carries
+the level. The per-hit damage does not: sim raw 169 / 182 / 193 / 202 / 348 at 8k / 14k / 20k / 27k / 35k souls, real
+(after resist) 157 / 177 / 257 / 306 / 313. A loadout without an ability order follows the hero's single most played
+full order (fight.popular_ability_order), and Celeste's top row puts every point into Dazzling Trick before the ult:
+Shining Wonder tier 0.42 at 60% of the match, real players (their ability events in the sample's items) 1.57.
+
+The same shows on many heroes (mean |real - popular| tier gap over abilities x 30 / 60 / 90%: Ivy 0.84, Sinclair 0.81,
+Paige 0.67, Doorman 0.63, McGinnis 0.62; all heroes 0.39; Ivy's Kudzu Connection 0.0 vs 2.1 real at 60%).
+`scripts/ability_order.py` writes data/ability_order.json: each hero's ability events sorted by the median net worth
+real players bought them at (a player who never did counts above every net worth), an ability's own events in order.
+Tier gap with it 0.39 -> 0.26 over all heroes (Celeste 0.27 -> 0.21; her ult at 60% 0.88: one order cannot reach a mean
+of 1.57).
+
+On for `fight.ORDER_HEROES` (Celeste only so far): their loadouts without an order follow the median order
+(fight.default_ability_order), and the damage audit gives their players their real tiers at the duel's moment
+(damage_audit.real_tiers; AUDIT_REAL_TIERS=0 for the median order), so the fitted factors are per cast at real tiers.
+Celeste's corrections refit 3 rounds (ability_corr_heroes.py: Light Eater 1.60 -> 1.88, Dazzling Trick 1.47 -> 2.29,
+Radiant Daggers 0.92 -> 1.13, Shining Wonder 3.99 -> 4.03). Split-half against the same refit on main's code (fit on
+one match-id half, 4 draws on the other): mix 0.0225 -> 0.0223 and 0.0275 -> 0.0232, per-source 0.0595 -> 0.0581 and
+0.0516 -> 0.0523.
+
+Results: Celeste mix (6 draws) 0.049 -> 0.019 (0.040 before the refit); phase-matched ult 0.126 / 0.157 / 0.158 (real
+0.122 / 0.169 / 0.208), gun 0.203 / 0.158 / 0.170 (real 0.204 / 0.135 / 0.132); phase mix distance (all heroes) 0.0515
+/ 0.0457 / 0.0606 -> 0.0514 / 0.0453 / 0.0602. sim_vs_win Celeste 27k all 0.429 -> 0.445, within slot and tier 0.430
+-> 0.444; 37k 0.347 -> 0.355 / 0.348 -> 0.354.
+
+Left: her late ult (0.158 vs 0.208 at 90%, with real tiers) and late gun; the other heroes with large tier gaps (Ivy,
+Sinclair, Paige, Doorman, McGinnis) need the same split-half judgement before going on ORDER_HEROES.

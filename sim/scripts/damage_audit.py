@@ -27,6 +27,7 @@ usage: python3 scripts/damage_audit.py <sample.jsonl.gz> [max_players] [workers]
 AUDIT_OUT=path writes path.json/.md instead; AUDIT_HEROES=name,name audits only those heroes' players (a quick
 per-hero check: the items tables then pool only them). AUDIT_NORM=gun: items tables per gun damage (before 2026-10-26).
 AUDIT_SEED=k: another draw of foes and per-fight draws (k=0 is the default draw), for averaging small samples.
+AUDIT_REAL_TIERS=0: fight.ORDER_HEROES' players on the default (median) order instead of their real ability tiers.
 AUDIT_AREA_PHASE=0: area abilities without their game-phase term (Mechanics.ability_area_phase).
 The sample comes from scripts/fetch_validation.py (e.g. --api 91 5 for Phantom+ of the last 5 days).
 """
@@ -46,6 +47,7 @@ sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from deadsim import Loadout, duel, game  # noqa: E402
 from deadsim.abilities import load_heroes  # noqa: E402
+from deadsim.fight import ORDER_HEROES  # noqa: E402
 from deadsim.mechanics import DEFAULT as MECH, RICOCHET_RADIUS, area_extra, real_length, real_nearby  # noqa: E402
 from deadsim.accuracy import HEADS, HITS, SHOTS, default_distance, gun_calibrated, hero_default_skill  # noqa: E402
 import landing_rates as L  # noqa: E402
@@ -60,6 +62,7 @@ LENGTH = True        # damage expected over real fight lengths (mechanics.real_l
 # that import sim_player for its held rows (item_landing.py, length_factors.py) keep gun, as their factors were fitted
 ITEM_NORM = os.environ.get("AUDIT_NORM", "gun")
 SEED = int(os.environ.get("AUDIT_SEED", "0"))
+REAL_TIERS = os.environ.get("AUDIT_REAL_TIERS", "1") != "0"   # fight.ORDER_HEROES' players with their real ability tiers
 AREA_PHASE = os.environ.get("AUDIT_AREA_PHASE", "1") != "0"   # area abilities' extra heroes by phase (Mechanics.ability_area_phase)
 ALLY_VAPORS = os.environ.get("AUDIT_ALLY_VAPORS", "1") != "0"   # an allied Nurse's vapors on the real teams (Mechanics.ally_vapors)   # another draw of foes and fight draws (split-half averaging)
 _sk = {}
@@ -103,6 +106,26 @@ def kind(key, G, classes):
     return "other"
 
 
+def real_tiers(p, t):
+    """Loadout tiers / unlocked from the player's real ability events up to t (sample items: an ability id's first
+    buy unlocks it, each later one is an upgrade), for heroes in fight.ORDER_HEROES (their default order is the
+    median one; the audit gives their players their own); {} for the rest (default order) or AUDIT_REAL_TIERS=0."""
+    G = game()
+    h = G.hero(p["hero_id"])
+    if not REAL_TIERS or h.name not in ORDER_HEROES:
+        return {}
+    ids = [ab.id for ab in h.abilities]
+    tiers, unlocked = [0] * len(ids), [False] * len(ids)
+    for i, bt, _, _ in sorted(p["items"], key=lambda x: x[1]):
+        if i in ids and bt <= t:
+            k = ids.index(i)
+            if unlocked[k]:
+                tiers[k] = min(3, tiers[k] + 1)
+            else:
+                unlocked[k] = True
+    return {"tiers": tiers, "unlocked": unlocked}
+
+
 def sim_player(job, both=False):
     """(hero id, sim damage by source, {item: [item dmg, gun or all dmg (ITEM_NORM)] of the duels holding it});
     both=True: each of the two as a pair (expected over real fight lengths, in full) from the same duels
@@ -123,8 +146,8 @@ def sim_player(job, both=False):
         items, souls = L.build_at(me, t)
         foe = rnd.choice(foes)
         fitems, fsouls = L.build_at(foe, t)
-        a = Loadout(h.name, items, souls=souls, skill=skill_of(me))
-        b = Loadout(foe["hero_id"], fitems, souls=fsouls, skill=skill_of(foe))
+        a = Loadout(h.name, items, souls=souls, skill=skill_of(me), **real_tiers(me, t))
+        b = Loadout(foe["hero_id"], fitems, souls=fsouls, skill=skill_of(foe), **real_tiers(foe, t))
         try:
             team = lambda pl: {G.hero(x["hero_id"]).name for x in m["players"]   # noqa: E731
                                if x["team"] == pl["team"] and x["hero_id"] in G.heroes}
