@@ -91,6 +91,21 @@ class DeathRate(unittest.TestCase):
         # movement_value already counts their deaths (escape)
         self.assertNotIn(item("Warp Stone"), O.death_rates(27000))
 
+    def test_healing_items_left_out(self):
+        # their holders die less without winning more (heal_deaths.py); HEAL_DEATHS = True keeps their ratios
+        was = O.HEAL_DEATHS
+        try:
+            O.HEAL_DEATHS = False
+            self.assertNotIn(item("Radiant Regeneration"), O.death_rates(27000))
+            self.assertNotIn(item("Spirit Lifesteal"), O.death_rates(27000))
+            self.assertIn(item("Cheat Death"), O.death_rates(27000))
+            O.HEAL_DEATHS = True
+            self.assertIn(item("Radiant Regeneration"), O.death_rates(27000))
+        finally:
+            O.HEAL_DEATHS = was
+        names = {it.name for it in S.G().items.values()}
+        self.assertFalse(O.HEAL_ITEMS - names)    # renamed by a patch: fix the list
+
     def test_fight_value(self):
         O.FIGHT_RATE = False
         self.assertEqual(O.fight_value(500, 1000, 3000, 2000, 27000), 1.0)

@@ -94,7 +94,8 @@ per minute (more or longer fights) and -5% deaths, but about the same damage dea
 extra damage taken doesn't track real wins (r -0.04), holders' deaths per minute do (r -0.32; kills + assists
 +0.39, and the sim already ranks items like those, r 0.62). So the score is multiplied by death_rate_value: the
 death_value share with d = the hero's real deaths per engagement x the held items' real holder / non-holder death
-ratios (sim/data/fight_rate.json at the budget's net worth, |z| >= 3, movement items left out; Cheat Death 0.67,
+ratios (sim/data/fight_rate.json at the budget's net worth, |z| >= 3, movement and healing items left out (HEAL_ITEMS:
+their holders die less without winning more); Cheat Death 0.67,
 Restorative Locket 0.91, Spirit Resilience ~0.92, Metal Skin 1.04, Rebuttal 1.07). sim_vs_win at 27k: all pairs
 0.133 -> 0.168, per item 0.209 -> 0.265, edges clear of noise 0.181 -> 0.229 (37k: 0.146 -> 0.174, 0.219 ->
 0.264); Cheat Death's mean gain rank 119 -> 52
@@ -244,6 +245,18 @@ DEATH_RATE = True
 DEATH_RATE_Z = 3.0
 DEATH_RATE_CLAMP = (0.5, 1.5)
 _drate = {}
+# Healing items are left out too (2026-10-27, Healing Nova / Mystic / Radiant Regeneration scored over their tier's
+# items that win more): across the other items real holders who die less win more (27k: -12 win points per log
+# death ratio, r -0.41), the basis of this factor, but across healing items the relation turns (+8, r +0.36, both
+# match-id halves, 37k alike; sim/scripts/fight_rate/heal_deaths.py). Their holders die less (Radiant 0.90, Nova 0.93)
+# without winning more, and lifesteal holders die more (1.05) while Spirit Lifesteal wins: the healing itself still
+# counts in the duel, the fight entry health and map time. sim_vs_win 27k: all pairs 0.219 -> 0.224, within slot and
+# tier 0.260 -> 0.264, per item 0.309 -> 0.320 (both hero halves). HEAL_DEATHS = True keeps their ratios.
+HEAL_DEATHS = False
+HEAL_ITEMS = frozenset((
+    "Healing Nova", "Mystic Regeneration", "Radiant Regeneration", "Extra Regen", "Fortitude", "Restorative Locket",
+    "Healing Booster", "Spirit Lifesteal", "Bullet Lifesteal", "Restorative Shot", "Healing Rite", "Rescue Beam",
+    "Leech", "Siphon Bullets", "Infuser"))
 
 # Damage elasticity (2026-10-27, damage items scored over same-tier utility items that win more): across items, real
 # Phantom+ holders' hero damage per minute rises only ~half as much as the sim's damage before death says (log real
@@ -322,20 +335,23 @@ def fight_rate_data():
 
 def death_rates(souls):
     """{item id: real deaths-per-minute ratio of holders} for the fit budget nearest souls (|z| >= DEATH_RATE_Z,
-    movement items left out)."""
+    movement items and, unless HEAL_DEATHS, healing items left out)."""
     d = fight_rate_data()["items"]
     b = min(d, key=lambda k: abs(math.log(int(k) / souls)))
-    if b not in _drate:
+    key = (b, HEAL_DEATHS)
+    if key not in _drate:
         movement_value(())   # loads _move
         moving = _move[2] | {i for row in _move[3].values() for i in row}
+        skip = set() if HEAL_DEATHS else HEAL_ITEMS
         lo, hi = DEATH_RATE_CLAMP
         by_name = {it.name: i for i, it in S.G().items.items()}
         gone = sorted(n for n in d[b]["items"] if n not in by_name)
         if gone:   # renamed or removed by a patch: their ratios are dropped (pipeline/smoke_test.py checks this)
             print(f"warning: {FIGHT_RATE_PATH} names items the game no longer has: {gone}", file=sys.stderr)
-        _drate[b] = {by_name[n]: max(lo, min(hi, e["deaths"][0])) for n, e in d[b]["items"].items()
-                     if n in by_name and by_name[n] not in moving and abs(e["deaths"][1]) >= DEATH_RATE_Z}
-    return _drate[b]
+        _drate[key] = {by_name[n]: max(lo, min(hi, e["deaths"][0])) for n, e in d[b]["items"].items()
+                       if n in by_name and by_name[n] not in moving and n not in skip
+                       and abs(e["deaths"][1]) >= DEATH_RATE_Z}
+    return _drate[key]
 
 
 def death_rate_value(items, hero, souls):
