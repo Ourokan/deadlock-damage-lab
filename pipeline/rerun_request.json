@@ -1,5 +1,5 @@
 {
   "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
-  "requested_at": "2026-10-27T20:20:00Z",
-  "reason": "Violet's Still Life: a 2.6 s channel that locks her gun and breaks before the stun in half the real draws; Violet corrections refit"
+  "requested_at": "2026-10-27T21:20:00Z",
+  "reason": "Violet's Living Ink: steered shots land at gun accuracy x 2.0 (real hits per cast), not always, so her cooldown cuts match replays; Violet corrections refit (after #167's Still Life channel)"
 }
