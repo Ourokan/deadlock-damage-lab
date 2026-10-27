@@ -12,6 +12,11 @@ overall or best raw damage build changed items, or whose number moved 5% or more
 dying (overall) or dummy damage by 15 s (raw damage), old and new. Causes come from data/patch.json (new game
 patch, hotfix = game values changed, newer player builds), the model changes merged since the last rerun
 (first-parent commits touching the sim or the search scripts) and pipeline/rerun_request.json.
+
+Model changes are counted between the commits the two results were BUILT from (data/patch.json results_commit), not
+between the rerun commits: a rerun takes ~2 h and publishes over a main that has moved on, so the changes merged
+while it ran are not in its results. Those go in the entry's "pending" list (in the next rerun). Without this, a run
+built from older code listed the newer PRs as its causes and showed 0 changed builds (2026-10-27, after #149).
 """
 import argparse
 import datetime
@@ -108,8 +113,35 @@ def model_changes(prev, head):
     return out
 
 
-def causes(prev, head, new_ref):
-    """Why the results moved, oldest cause first. prev/head are commits; new_ref is the new results (None = tree)."""
+def built(ref):
+    """The commit the results at ref (None = tree) were built from (patch.json results_commit), if git knows it."""
+    sha = (at(ref, "data/patch.json") or {}).get("results_commit")
+    if not sha:
+        return None
+    try:
+        git("cat-file", "-e", f"{sha}^{{commit}}")
+    except subprocess.CalledProcessError:
+        return None
+    return sha
+
+
+def code_range(old_ref, new_ref, prev, head):
+    """(from, to) commits whose model changes are in the new results: the old and new results' build commits when
+    both are known and in order, else prev..head."""
+    a, b = (built(old_ref) if old_ref else None), built(new_ref)
+    if a and b:
+        try:
+            git("merge-base", "--is-ancestor", a, b)
+            return a, b
+        except subprocess.CalledProcessError:
+            pass
+    return prev, head
+
+
+def causes(prev, head, new_ref, code_from=None, code_to=None):
+    """Why the results moved, oldest cause first. prev/head are commits; new_ref is the new results (None = tree);
+    code_from..code_to is the model code that changed between the two results (default prev..head)."""
+    code_from, code_to = (code_from, code_to) if code_to else (prev, head)
     a = (at(prev, "data/patch.json") or {}) if prev else {}
     b = at(new_ref, "data/patch.json") or {}
     out = []
@@ -120,10 +152,10 @@ def causes(prev, head, new_ref):
                     "link": patch_link(new_ref, b.get("patch"))})
     if b.get("standard") and a.get("standard") and a["standard"] != b["standard"]:
         out.append({"kind": "standard", "text": f"Standard rank changed to {b['standard']}"})
-    for m in model_changes(prev, head):
+    for m in model_changes(code_from, code_to):
         out.append({"kind": "model", **m})
-    if prev:
-        ra, rb = at(prev, "pipeline/rerun_request.json") or {}, at(head, "pipeline/rerun_request.json") or {}
+    if code_from:
+        ra, rb = at(code_from, "pipeline/rerun_request.json") or {}, at(code_to, "pipeline/rerun_request.json") or {}
         if rb.get("requested_at") and ra.get("requested_at") != rb.get("requested_at") and rb.get("reason"):
             out.append({"kind": "request", "text": rb["reason"]})
     if b.get("builds_through") and a.get("builds_through") and a["builds_through"] != b["builds_through"]:
@@ -136,13 +168,19 @@ def entry(old_ref, new_ref, prev, head, tier, reason, sha=None, date=None):
     """old_ref/new_ref: the results compared (new_ref None = working tree); prev..head: where to look for causes."""
     rows, total = build_rows(at(old_ref, OVERALL) if old_ref else None, at(new_ref, OVERALL), tier)
     p = at(new_ref, "data/patch.json") or {}
+    code_from, code_to = code_range(old_ref, new_ref, prev, head)
     changed = [r for r in rows if r["in"] or r["out"]]
     e = {"date": date or p.get("results_built") or datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
          "tier": tier, "reason": reason, "patch": p.get("patch"), "builds_through": p.get("builds_through"),
-         "causes": causes(prev, head, new_ref),
+         "causes": causes(prev, head, new_ref, code_from, code_to),
          "summary": {"builds": total, "changed": len(changed), "moved": len(rows) - len(changed),
                      "heroes": len({r["hero"] for r in changed})},
          "rows": rows}
+    if code_to:
+        e["code"] = code_to[:7]
+    pending = model_changes(code_to, head) if code_to and code_to != head else []
+    if pending:
+        e["pending"] = pending   # merged after this run started: not in these results, in the next rerun
     if sha:
         e["sha"] = sha
     return e

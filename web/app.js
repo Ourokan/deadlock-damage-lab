@@ -1100,7 +1100,9 @@ async function renderChangesTab() {
     };
     const table = rows.length ? `<div class="scroll"><table><thead><tr><th>Hero</th><th class="n">Net worth</th><th>Out</th><th>In</th><th class="n">${metric}</th><th></th></tr></thead><tbody>${rows.map(row).join("")}</tbody></table></div>`
       : `<p class="fine">${hero ? "No change for this hero in this run." : "No best build changed in this run."}</p>`;
-    return `<details class="chg"${i === 0 ? " open" : ""}><summary>${head}</summary><div class="chg-b"><h3>Why it ran</h3><ul class="causes">${causes}</ul>${table}</div></details>`;
+    // changes merged while the run was going (a rerun takes ~2 h): not in these results, the next rerun has them
+    const pending = e.pending?.length ? `<h3>Merged during this run</h3><p class="fine">Not in these results yet: the next rerun has them.</p><ul class="causes">${e.pending.map((m) => causeLine({ kind: "model", ...m })).join("")}</ul>` : "";
+    return `<details class="chg"${i === 0 ? " open" : ""}><summary>${head}</summary><div class="chg-b"><h3>Why it ran</h3><ul class="causes">${causes}</ul>${pending}${table}</div></details>`;
   }).join("");
   out.innerHTML = `<p class="hint">${d.entries.length} reruns, newest first. Numbers are for the rerun's rank bracket. Some runs change many builds at once: when several builds score within a hair of each other, a small model change can reorder them.</p>${html}`;
 }
