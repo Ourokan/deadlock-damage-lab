@@ -51,9 +51,11 @@ ALIASES = {
     "Tail Whack": "ability_werewolf_cripplingslash",
     "Bloodletting (deferred)": "citadel_ability_shiv_defer_damage",   # an enemy Shiv's deferred damage
     "Wretched Vapors (crash)": "ability_nurse_adrenaline_rush",       # an enemy Nurse's specters (her own vapors)
+    "Ira Domini (stakes)": "citadel_weapon_priest_crossbow",          # Venator's ult stakes, booked under their weapon
 }
 SHIV_DEFER = "citadel_ability_shiv_defer_damage"
 # damage the game books under the enemy's ability (deferred damage hitting its owner): not one of this hero's sources
+STAKES = "citadel_weapon_priest_crossbow"   # (and _crit): Ira Domini, not gun
 ENEMY_BOOKED = {SHIV_DEFER, "ability_nurse_adrenaline_rush"}
 COPY_ULT = "ability_magician_copyult"   # Sinclair: the copied ultimate is booked under the enemy hero's own class
 MIN_HITS = 150       # API enemy-hero hits for a player's real aim to count (gun_known)
@@ -74,6 +76,8 @@ FRACS = (0.3, 0.6, 0.9)
 def real_key(name, classes):
     """Normalize a damage-matrix source name: gun -> GUN, melee -> MELEE, ability sub-sources
     (e.g. citadel_ability_shiv_dagger_dot) -> their ability class."""
+    if name.startswith(STAKES):
+        return STAKES   # Venator's Ira Domini stakes: the weapon his ult swaps in, an ability source of its own
     if name.startswith("citadel_weapon") or "_primary_weapon" in name:
         return "GUN"
     if "ability_melee_" in name or name == "ability_baba_bench_melee":   # Baba's melee while on her bench

@@ -390,9 +390,10 @@ def hold_first_casts(f):
 
 # gated abilities that start a fight on cooldown past their real ready share (Mechanics.gate_ready). Apollo's ult: cast
 # by 20 s in 92% of the audit duels -> 52% (real 38%). Yamato's Shadow Transformation: 1.00 -> 0.49 (real 0.45). Seven's,
-# Venator's, Grey Talon's and Mo & Krill's ults were tried and left out: their held-out audit got worse
-# (validation/README.md "More gated ults on real readiness")
-GATE_READY = frozenset({"77:ability_fencer_ultimate", "27:citadel_ability_infinity_slash"})
+# Grey Talon's and Mo & Krill's ults were tried and left out: their held-out audit got worse (validation/README.md
+# "More gated ults on real readiness"). Venator's Ira Domini joined once its stakes were booked under the ult, not gun
+# (validation/README.md "Venator's stakes and ult readiness")
+GATE_READY = frozenset({"77:ability_fencer_ultimate", "27:citadel_ability_infinity_slash", "65:ability_priest_weaponswap"})
 
 
 def gate_ready(f, ab):

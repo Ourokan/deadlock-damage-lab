@@ -14,8 +14,10 @@ Assumptions:
   damage-taken amp for RevealDuration.
 - Ira Domini: replaces the gun with StakeCount crossbow stakes fired STAKE_INTERVAL apart; each lands with the
   caster's spirit (skillshot) accuracy since they are single aimed shots, no headshots. Each stake: Damage (weapon
-  scaled), booked as "gun" damage because the game reports stakes as weapon damage
-  (citadel_weapon_priest_crossbow); only the blessed bonus / execute count as Ira Domini. The final stake (all of them at T3) is blessed: +BonusDamage pure damage and executes a target left below ExecuteThreshold % health. Cast once the target is below
+  scaled) bullet damage that procs like a gun bullet. The game books stakes under their own weapon
+  (citadel_weapon_priest_crossbow, not the gun citadel_weapon_priest_set), so they are "Ira Domini (stakes)" with a
+  landing factor of their own: replays land 1.6 stakes on heroes per cast (of 3) for 1.4 blessed hits, and booked as
+  gun they hid a plain gun share of 0.16 vs real 0.38 behind stakes at 0.27-0.33 of damage vs real 0.10. The final stake (all of them at T3) is blessed: +BonusDamage pure damage and executes a target left below ExecuteThreshold % health. Cast once the target is below
   ULT_CAST_HP so the execute matters.
 """
 from deadsim.abilities import AbilityImpl, register
@@ -25,6 +27,7 @@ WALL_CHANCE = 0.5         # share of Gutshots that wall-stun (no walls in the mo
 SNAP_TRAP_TRIGGER = 1.0   # s from kick to the target stepping on the armed trap
 STAKE_INTERVAL = 0.8      # s between crossbow stakes (not in data)
 ULT_CAST_HP = 0.7
+STAKES_AS_ULT = True      # stakes booked under Ira Domini (with its landing), not gun
 
 
 @register("ability_priest_flashbang")
@@ -95,8 +98,13 @@ class IraDomini(AbilityImpl):
         if not (f.alive and e.alive):
             return
         p = f.skill.spirit_accuracy   # single aimed stakes land like skillshots, not like spray
-        # stakes are crossbow (weapon) bullets: the game books them as weapon damage, so they go under "gun"
-        c.engine.damage(f, e, c.val("Damage") * p, "bullet", "gun", ability=self.s, hits=1, is_ult=True)
+        # stakes are crossbow (weapon) bullets that proc like gun bullets; the game books them under their own weapon
+        # (citadel_weapon_priest_crossbow), which the audit counts as Ira Domini, so they take the ult's landing
+        if STAKES_AS_ULT:
+            c.engine.damage(f, e, c.val("Damage") * p, "bullet", self.s.ab.name + " (stakes)", is_ability=True,
+                            ability=self.s, hits=1, is_ult=True, weapon_proc=True)
+        else:
+            c.engine.damage(f, e, c.val("Damage") * p, "bullet", "gun", ability=self.s, hits=1, is_ult=True)
         if blessed and e.alive:
             c.engine.damage(f, e, c.val("BonusDamage") * p, "pure", self.s.ab.name + " (blessed)", is_ability=True,
                             ability=self.s, is_ult=True)

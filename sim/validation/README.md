@@ -2334,3 +2334,35 @@ Yamato with the gate (mechanics.GATE_READY), his three ability corrections refit
 draws): Power Slash 2.292 -> 2.611, Flying Slash 0.869 -> 0.917, Crimson Slash 1.412 -> 1.468. Yamato audit (8 draws)
 mix 0.0236 -> 0.0224, per source 0.0197 -> 0.0197; sim_vs_win of the five heroes 0.174 -> 0.183, within slot and tier
 0.232 -> 0.237, clear edges 0.294 -> 0.307; Yamato 0.200 -> 0.252.
+
+## Venator's stakes and ult readiness (2026-10-27)
+
+Follow-up of "More gated ults on real readiness", where gating Ira Domini dropped Venator's gun share 0.49 -> 0.40.
+The game books the ult's stakes under their own weapon, `citadel_weapon_priest_crossbow(_crit)`, not his gun
+(`citadel_weapon_priest_set`), and the damage matrix shows them apart: Phantom+ Venator damage is plain gun 0.378,
+stakes 0.101, Ira Domini (blessed + execute) 0.117. The sim booked stakes as "gun" with no landing factor, at 0.27-0.33
+of his damage, while his plain gun sat at 0.16. Both added up to the real 0.48 "gun" share, and his ability
+corrections had been fitted on top of that (Consecrating Grenade 1.62, Gutshot 1.57, Snap Trap 2.37, melee rate
+0.114). Plain gun damage per shot is right: scripts/gun_calib/shot_damage.py read Venator 3.31x real per shot with
+the stakes in, 1.05x (0.97-1.13) without them. Replays (analysis/work/replay_damage, 100 Venators): 1.63 stake hits on
+heroes per cast (of 3) for 1.42 blessed hits, 258 / 296 damage each.
+
+Now: stakes are "Ira Domini (stakes)" (bullet damage that procs like the gun, priest.STAKES_AS_ULT) with their own
+landing row (class citadel_weapon_priest_crossbow, landing_rates.ALIASES); the audit maps the real crossbow to it
+(landing_rates.real_key), so stakes count as ability damage on both sides; melee_items_fit.py leaves them out of real
+gun. Ira Domini joins mechanics.GATE_READY. Venator's corrections and melee rate refit to the audit (3 rounds of 4
+draws): Grenade 0.866, Gutshot 1.015, Snap Trap 1.206, Ira Domini 1.908, stakes 0.918 (x landing 0.65), melee rate
+0.051.
+
+Split-half, judged with stakes as a source of their own on both sides (main's own audit hides them inside gun), each
+variant fitted on one match-id half, 3 draws on the other:
+
+| variant | per source (half 1, half 0) | mix (half 1, half 0) |
+|---|---|---|
+| main (stakes as gun), refit | 0.128, 0.129 | 0.242, 0.236 |
+| stakes under the ult, gate off, refit | 0.022, 0.026 | 0.029, 0.023 |
+| stakes under the ult, gate on, refit | 0.020, 0.015 | 0.026, 0.019 |
+
+Whole sample, 4 draws: per source 0.007, mix 0.014 (gun 0.376 vs real 0.379). Full audit flat 0.0186 -> 0.0187 (one
+draw; other heroes move by their Venator foes). sim_vs_win 27k, Venator only: all items 0.210 -> 0.225, damage items
+0.187 -> 0.240, within slot and tier 0.234 -> 0.255.
