@@ -2222,3 +2222,39 @@ Damage audit, 4 draws (AUDIT_SEED 0-3), mix distance weighted by players 0.0243 
 0.034 -> 0.028, Calico 0.036 -> 0.031. Sim "other" share 0.006 -> 0.013 (real 0.018; the rest is Shiv's deferred
 damage, 0.009 real vs 0.006, and zip lines). One scalar fitted on the whole sample: the real share is the same in
 both match-id halves (even 1.46%, odd 1.54%). No landing refit: the crash takes the same share from every other source.
+
+## Area abilities hit more heroes later in the match (2026-10-27)
+
+Re-ranking heroes after #145 (4 audit draws): Viscous (29 players), Celeste, Apollo, Mirage and Ivy lead but swing
+0.03-0.06 between draws or were checked already; Nurse Harrow (347 players) sat at a steady 0.034, gun under (real
+0.29, sim 0.26), Lurking Terrors over (0.300 / 0.328). Split by game phase (real damage between 25-35 / 55-65 /
+85-95% of the match vs the audit's 30 / 60 / 90% duels), her ult share is real 0.15 / 0.36 / 0.45, sim 0.28 / 0.35 /
+0.35. The same early-over / late-under shape shows for Sinclair, Violet, Pocket, Seven, Dynamo, Warden and Solomon.
+
+Real ult casts per fight (once the ult has been cast in the match) do not change with the phase (~0.2-0.3 by 20 s
+for Nurse in every third of the match), but the heroes an area ability hits do: replay DamageEvents give Lurking
+Terrors 2.3 heroes per hitting cast before 45% of the match, 2.8 to 75%, 3.1 after. An ability's landing factor
+absorbs the pooled count; area items already had a phase curve (area_hits.py), abilities had none.
+
+`scripts/team/ability_area_phase.py` (fight_length replays, 260 matches): fights as area_hits.py (one attacker's run
+of hero damage, gaps < 8 s, main target = most gun damage); per hero ability and the attacker's own net worth bin,
+rel = (1 + other / main) / (1 + the gun's other / main) (the gun switches targets more late too: 0.21 in lane, 0.40
+late, and its calibration already counts every hero); shrunk to the pooled rel (60 fights), non-decreasing.
+`Mechanics.ability_area_phase` multiplies the ability's damage at the duel's souls by rel(souls) / pooled rel
+(`mechanics.ability_area_mult`, data/ability_area_phase.json), so the pooled level stays and only the shape moves;
+the damage audit's `AUDIT_AREA_PHASE=0` turns it off.
+
+Split-half (corrections refit 2 rounds on one match-id half with the term off and on, judged on the other half by
+the source distance at each of the 30 / 60 / 90% points, mix not worse by more than 0.002): better on both halves for
+Baba, Bebop, Dynamo, Grey Talon, Kelvin, Mina, Mo & Krill, Nurse Harrow, Paige, Paradox, Pocket, Rat King, Violet,
+Viscous (Nurse 0.119 -> 0.111 / 0.119 -> 0.109, Rat King 0.068 -> 0.062 / 0.070 -> 0.052, Paige 0.141 -> 0.127 /
+0.126 -> 0.114); clearly worse for Haze, Infernus and Deadman Danny (their sim ability share already follows the real
+one by phase, so something else in their model leans the other way). Only the 14 kept heroes get rows
+(`ability_area_phase.HEROES`; `--all` writes every hero to judge more). Their ability corrections refit 3 rounds on
+the whole sample (ability_corr_heroes.py).
+
+Damage audit, 4 draws, mix distance weighted by players 0.0209 -> 0.0199; Nurse 0.034 -> 0.012, Kelvin 0.020 ->
+0.014, Baba 0.017 -> 0.013, Grey Talon 0.026 -> 0.023; Viscous 0.051 -> 0.055, Mo & Krill 0.014 -> 0.019, Bebop
+0.018 -> 0.022, Paige 0.013 -> 0.015. Most of Nurse's pooled gain is the refit itself (her corrections were stale:
+held-out mix 0.009 / 0.014 with the term off and refit, 0.010 / 0.015 on); the term moves her damage between phases.
+sim_vs_win 27k all heroes: all pairs 0.181 -> 0.183, damage items 0.078 -> 0.080, clear edges Spearman 0.287 -> 0.291.
