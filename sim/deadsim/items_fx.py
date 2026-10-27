@@ -122,7 +122,7 @@ class FX:
         self.ready_at = self.now + self.cd(prop)
 
     def debuff(self, target, key, value, duration, tag=None):
-        dur = duration * max(0.0, 1.0 - target.st.status_resist - target.stat("status_resist"))
+        dur = duration * max(0.0, 1.0 - target.status_resist())
         target.mods.add(key, value, dur, tag or (self.item.class_name, key))
         target.mark_debuff(key, tag or (self.item.class_name, key))
         if key in CC_KEYS:

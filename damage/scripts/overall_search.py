@@ -108,6 +108,8 @@ at equal damage dealt, deaths and kills, taking more loses real games; the score
 real damage-taken ratios ^ -FOCUS_GAMMA (focus_value; healing items and Cheat Death left out).
 Farm value (2026-10-27): souls earned between fights; the score is multiplied by the held items' real jungle-souls
 ratios ^ FARM_GAMMA (farm_value, an economy-sized weight).
+Status resist under focus (2026-10-28): the enemy's damage is x FOCUS but it applied its debuffs once, so the
+holder's status resist counts x FOCUS (deadsim Mechanics.status_focus, sim/validation/status_focus.md).
 Not counted: vision, lane farming, objective damage, debuffs from area items on the other enemies.
 
 Real win edge (Tyler 2026-10-24, "blend win edge into score"): the score is also multiplied by

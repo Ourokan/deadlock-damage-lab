@@ -144,4 +144,4 @@ class PetrifyingBola(AbilityImpl):
         d = c.raw("PetrifyDuration") * acc
         c.debuff("stun", 1, d, delay=delay + 0.01)
         c.debuff("invulnerable", 1, d, tag="viper_petrify", delay=delay + 0.01)
-        c.after(delay, lambda: c.lock_gun(d * (1.0 - c.foe.st.status_resist)))
+        c.after(delay, lambda: c.lock_gun(d * (1.0 - c.foe.status_resist())))

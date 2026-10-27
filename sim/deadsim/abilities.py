@@ -285,7 +285,7 @@ class CastCtx:
         """Effect on the enemy. Status resist shortens it."""
         e = self.foe
         tag = tag or (self.s.ab.class_name, key)
-        dur = duration * (1.0 - e.st.status_resist - e.stat("status_resist"))
+        dur = duration * (1.0 - e.status_resist())
 
         def go():
             if not e.alive:

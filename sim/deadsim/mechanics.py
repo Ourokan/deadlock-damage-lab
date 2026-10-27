@@ -220,6 +220,11 @@ class Mechanics:
     # --replays): real fights spread the shooter's hits over targets and the debuffs lapse. Fitted per attacker hero
     # (split-half 0.40 / 0.30, items and abilities alike): the in-fight shred values are x shred_uptime
     shred_uptime: float = 0.35
+    # debuffs under focus (2026-10-28): survive(focus=) makes the one simulated foe hit x focus to stand in for that
+    # many enemies, but it still applies its stuns, slows, silences and shreds once. Status resist saves the same
+    # share of every enemy's debuff time, so the focused fighter's resist counts x focus (Fighter.status_resist,
+    # at most 1): Debuff Reducer's 25% had half the duel value of the enemy team's debuffs it shortens
+    status_focus: bool = True
     # gun time by build (2026-10-27): real players shoot less the more souls their build has in spirit items (real
     # over sim gun share, Phantom+ sample, scripts/gun_calib/gun_build.py: about 0.94 with < 2k spirit souls, 0.78 at
     # 10-16k, 0.65 past 24k, the same at 30 / 60 / 90% of the match for the same spirit souls; within a hero too: Ivy
@@ -873,7 +878,7 @@ def raw_props(class_name):
 
 
 def _debuff(target, key, value, duration, tag):
-    dur = duration * max(0.0, 1.0 - target.st.status_resist - target.stat("status_resist"))
+    dur = duration * max(0.0, 1.0 - target.status_resist())
     if dur <= 0:
         return
     target.mods.add(key, value, dur, tag)
