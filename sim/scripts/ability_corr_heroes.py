@@ -35,6 +35,8 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 PATH = os.path.join(ROOT, "data", "landing_rates_mech.json")
 PRIOR = 20
 KEEP_RANGE = (0.1, 10.0)   # as length_factors.py's keep mode
+# abilities whose damage skips its landing factor x length_corr (Mechanics.swap_full: Soul Exchange swaps whole)
+UNSCALED = {"ability_health_swap"}
 
 
 def fit(audit, heroes, prior=PRIOR):
@@ -47,6 +49,8 @@ def fit(audit, heroes, prior=PRIOR):
             continue
         w = a["players"] / (a["players"] + prior)
         for name, r in rows.items():
+            if r.get("class") in UNSCALED:
+                continue
             src = a["sources"].get(r.get("class") or "")
             x = src and src.get("real_over_sim")
             if not x or x <= 0:

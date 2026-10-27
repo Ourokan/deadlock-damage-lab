@@ -227,6 +227,11 @@ class Mechanics:
     # interval and reload time are / exp(-gun_lean x spirit item souls / 1000) (the gun's whole timeline slows, so its
     # damage per second drops by that factor)
     gun_lean: float = 0.028
+    # Soul Exchange swaps whole (2026-10-28): the swap is a health swap, not a hit that lands part of the time, yet it
+    # took its fitted landing factor x length_corr (1.42 x 0.41 = 0.58), so the target lost ~0.20 of its max health per
+    # swap vs ~0.50 in real Phantom+ replays (scripts/mechanics/swap_real.py) and the audit had it at half its real
+    # share. On: the swap skips those factors and lands on ghost.SWAP_LAND of casts (real hits per cast)
+    swap_full: bool = True
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut

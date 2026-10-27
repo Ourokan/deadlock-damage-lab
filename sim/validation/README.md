@@ -2694,3 +2694,38 @@ at the fight start's weight) brought the correction to 0.5-1.2, but the halves d
 0.0399 -> 0.0244 on one, 0.0272 -> 0.0397 on the other; 60% phase mix 0.0227 -> 0.0617): a few big blasts per
 half sample. Left: the ult is still under (1.34 / 1.42 / 1.63); those third-party revives are the cause, and need a
 version with less variance (an expected-value blast per fight) before a refit can follow.
+
+## Soul Exchange swaps whole (2026-10-28)
+
+Lady Geist was the next hero gap on the whole-match audit: Soul Exchange at 0.073 of her damage vs 0.139 real
+(1.70x under), Essence Bomb and Malice over (0.235 / 0.190 vs 0.190 / 0.144), and under at every phase (ult real /
+sim 3.05 / 1.96 / 1.71 at 30 / 60 / 90%, scripts/phase_mix.py). The audit sample has only 37 Geist players, so
+validation/geist_sample.jsonl.gz adds 443 more Phantom+ matches with a Geist (match ids from aim_sample.jsonl.gz,
+none in phantom_sample; fetch_validation.get + slim): ~240 more Geist players. Soul Exchange there: 0.137 real vs
+0.074 sim, the same gap.
+
+Cause (scripts/mechanics/swap_real.py on the 260 replays, 33 Geists, 144 casts): a real swap takes 0.52 of the
+target's max health (median; target at 0.88, Geist at 0.25), 93% of casts hit a hero. The sim swap went through
+Soul Exchange's fitted landing factor x length_corr (1.42 x 0.41 = 0.58, a level kept through #113's timing change
+from fits on 37 players), so its target lost ~0.20 per swap. The swap is a health swap, not a hit that lands part
+of the time: Mechanics.swap_full (on) books it whole on ghost.SWAP_LAND = 0.93 of casts (Accum draw), without the
+factor; ability_corr_heroes.py leaves its row alone (UNSCALED).
+
+Swap alone (no refit): Soul Exchange 0.088 -> 0.135 (2 seeds), right on both match-id halves of both samples
+(phantom 0.116 / 0.151 vs real 0.121 / 0.155; Geist sample 0.116 / 0.111 vs 0.135 / 0.139); held-out per-source
+distance 0.076 / 0.084 -> 0.050 / 0.048 and 0.108 / 0.097 -> 0.082 / 0.071, but the class mix worse (Essence Bomb,
+Malice, Life Drain corrections had been fitted around the short swap: ability share too high, gun 0.26 vs 0.29).
+
+Geist's other corrections refit (ability_corr_heroes fit, 3 rounds) on phantom + Geist samples: Essence Bomb 1.576
+-> 0.942, Life Drain 1.763 -> 1.536, Malice 1.852 -> 1.228. Split-half on the Geist sample (fit one half, audit the
+other, 2 seeds): per source 0.108 / 0.097 -> 0.035 / 0.026, mix 0.058 / 0.051 -> 0.022 / 0.015; the same refit
+without swap_full lands about the same (0.029 / 0.027, mix 0.018 / 0.022, its Soul Exchange correction refit to
+~0.58), so on the audit the two are even: swap_full is kept because it is what the replays show per cast, with one
+free factor fewer. (On 18-player halves of the phantom sample alone the refits disagreed: why the earlier sweeps
+left Geist.)
+
+Results: Geist whole-match mix 0.035 -> 0.010, Soul Exchange 0.073 -> 0.145, Essence Bomb 0.235 -> 0.162, Malice
+0.190 -> 0.146 (real 0.139 / 0.190 / 0.144); audit 0.0185 -> 0.0184. Phase mix (both samples, window 0.05) 0.135 /
+0.128 / 0.129 -> 0.015 / 0.069 / 0.080, ult real / sim 2.37 / 1.69 / 1.55 -> 0.95 / 0.77 / 0.81 (now a little over
+mid and late). sim_vs_win Lady Geist 27k + 37k: all 0.410 -> 0.398, within slot and tier 0.409 -> 0.395, damage
+items 0.389 -> 0.415 (swap alone 0.416 within; the plain refit 0.396), within one hero's noise.

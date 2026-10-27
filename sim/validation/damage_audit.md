@@ -12,7 +12,6 @@ Shares of damage to enemy heroes. Distance = half the summed absolute share gaps
 | Warden | 33 | 0.52 / 0.47 | 0.31 / 0.37 | 0.11 / 0.12 | 0.03 / 0.03 | 0.06 |
 | Dynamo | 53 | 0.23 / 0.25 | 0.62 / 0.58 | 0.08 / 0.10 | 0.05 / 0.05 | 0.04 |
 | Graves | 151 | 0.20 / 0.18 | 0.50 / 0.53 | 0.27 / 0.26 | 0.02 / 0.02 | 0.04 |
-| Lady Geist | 37 | 0.29 / 0.26 | 0.62 / 0.65 | 0.05 / 0.04 | 0.03 / 0.03 | 0.04 |
 | Drifter | 186 | 0.26 / 0.24 | 0.44 / 0.47 | 0.17 / 0.16 | 0.11 / 0.12 | 0.03 |
 | Calico | 110 | 0.13 / 0.12 | 0.38 / 0.40 | 0.31 / 0.32 | 0.15 / 0.15 | 0.03 |
 | Shiv | 209 | 0.27 / 0.29 | 0.48 / 0.48 | 0.16 / 0.14 | 0.08 / 0.08 | 0.03 |
@@ -35,11 +34,12 @@ Shares of damage to enemy heroes. Distance = half the summed absolute share gaps
 | Bebop | 254 | 0.18 / 0.17 | 0.56 / 0.57 | 0.19 / 0.20 | 0.05 / 0.05 | 0.02 |
 | Lash | 216 | 0.13 / 0.14 | 0.58 / 0.59 | 0.25 / 0.24 | 0.03 / 0.03 | 0.02 |
 | Apollo | 92 | 0.11 / 0.11 | 0.53 / 0.53 | 0.17 / 0.16 | 0.17 / 0.19 | 0.02 |
+| Lady Geist | 37 | 0.29 / 0.30 | 0.62 / 0.60 | 0.05 / 0.05 | 0.03 / 0.04 | 0.01 |
 | Holliday | 73 | 0.27 / 0.27 | 0.54 / 0.53 | 0.13 / 0.14 | 0.05 / 0.06 | 0.01 |
 | Pocket | 117 | 0.14 / 0.13 | 0.66 / 0.66 | 0.16 / 0.18 | 0.02 / 0.02 | 0.01 |
 | Haze | 324 | 0.35 / 0.36 | 0.50 / 0.50 | 0.12 / 0.12 | 0.02 / 0.01 | 0.01 |
-| Mo & Krill | 176 | 0.07 / 0.07 | 0.47 / 0.47 | 0.39 / 0.41 | 0.05 / 0.04 | 0.01 |
 | Infernus | 173 | 0.23 / 0.23 | 0.60 / 0.61 | 0.13 / 0.13 | 0.03 / 0.03 | 0.01 |
+| Mo & Krill | 176 | 0.07 / 0.07 | 0.47 / 0.47 | 0.39 / 0.41 | 0.05 / 0.04 | 0.01 |
 | Venator | 257 | 0.38 / 0.37 | 0.50 / 0.50 | 0.03 / 0.04 | 0.07 / 0.08 | 0.01 |
 | The Doorman | 38 | 0.16 / 0.17 | 0.62 / 0.61 | 0.17 / 0.16 | 0.03 / 0.04 | 0.01 |
 | Deadman Danny | 357 | 0.16 / 0.15 | 0.63 / 0.64 | 0.18 / 0.18 | 0.01 / 0.01 | 0.01 |
@@ -61,44 +61,44 @@ real/sim = (real source dmg / real gun dmg) / (sim source dmg / sim gun dmg). Be
 |---|---|---|---|---|---|
 | Sinclair | Audience Participation | ability | 0.205 | 0.301 | 0.68 |
 | Kelvin | Arctic Beam | ability | 0.402 | 0.410 | 0.82 |
-| Lady Geist | Essence Bomb | ability | 0.190 | 0.235 | 0.73 |
-| Lady Geist | Soul Exchange | ability | 0.139 | 0.073 | 1.70 |
-| Lady Geist | Malice | ability | 0.144 | 0.190 | 0.68 |
 | Sinclair | Vexing Bolt | ability | 0.351 | 0.295 | 1.19 |
 | Warden | Last Stand | ability | 0.138 | 0.177 | 0.71 |
 | Dynamo | Kinetic Pulse | ability | 0.444 | 0.426 | 1.14 |
 | Graves | Jar of Dead | ability | 0.212 | 0.240 | 0.80 |
-| Drifter | Rend | ability | 0.228 | 0.253 | 0.83 |
 | Kelvin | Frost Grenade | ability | 0.297 | 0.293 | 0.85 |
+| Drifter | Rend | ability | 0.228 | 0.253 | 0.83 |
 | Sinclair | Spectral Assistant | ability | 0.191 | 0.151 | 1.27 |
-| Warden | Alchemical Flask | ability | 0.129 | 0.156 | 0.76 |
-| Dynamo | Singularity | ability | 0.179 | 0.154 | 1.28 |
+| Warden | Alchemical Flask | ability | 0.129 | 0.156 | 0.75 |
 | Viscous | Express Shot | item | 0.052 | 0.025 | 2.32 |
+| Dynamo | Singularity | ability | 0.179 | 0.154 | 1.28 |
 | Abrams | MELEE | melee | 0.424 | 0.440 | 0.91 |
 | Celeste | Radiant Daggers | ability | 0.184 | 0.203 | 0.82 |
+| Billy | Bashdown | ability | 0.309 | 0.322 | 0.89 |
 | Victor | Aura of Suffering | ability | 0.306 | 0.339 | 0.89 |
-| Billy | Bashdown | ability | 0.309 | 0.321 | 0.89 |
+| Lady Geist | Essence Bomb | ability | 0.190 | 0.162 | 1.20 |
 | Violet | Abstract Landscape | ability | 0.174 | 0.157 | 1.22 |
 | Violet | Living Ink | ability | 0.261 | 0.257 | 1.12 |
 | Rem | Pillow Toss | ability | 0.437 | 0.440 | 1.07 |
 | The Doorman | Call Bell | ability | 0.474 | 0.469 | 1.06 |
 | Baba | MELEE | melee | 0.124 | 0.142 | 0.82 |
-| Victor | Shocking Reanimation | ability | 0.058 | 0.036 | 1.60 |
+| Victor | Shocking Reanimation | ability | 0.058 | 0.036 | 1.61 |
 | Wraith | Card Trick | ability | 0.280 | 0.295 | 0.92 |
 | Paradox | Kinetic Carbine | ability | 0.318 | 0.323 | 0.92 |
 | Celeste | Shining Wonder | ability | 0.170 | 0.179 | 0.86 |
 | Calico | Gloom Bombs | ability | 0.182 | 0.188 | 0.87 |
-| Grey Talon | Charged Shot | ability | 0.351 | 0.359 | 0.93 |
 | Shiv | Express Shot | item | 0.086 | 0.068 | 1.35 |
-| Viscous | Spirit Snatch | item | 0.042 | 0.025 | 1.87 |
-| Billy | MELEE | melee | 0.223 | 0.230 | 0.89 |
+| Viscous | Spirit Snatch | item | 0.042 | 0.025 | 1.86 |
+| Grey Talon | Charged Shot | ability | 0.351 | 0.359 | 0.93 |
+| Victor | Pain Battery | ability | 0.276 | 0.248 | 1.10 |
+| Billy | MELEE | melee | 0.223 | 0.229 | 0.90 |
 | Deadman Danny | Chimera Mk1 | ability | 0.202 | 0.217 | 0.89 |
-| Victor | Pain Battery | ability | 0.276 | 0.248 | 1.09 |
 | Paradox | Pulse Grenade | ability | 0.112 | 0.126 | 0.83 |
 | Shiv | Serrated Knives | ability | 0.283 | 0.277 | 1.09 |
 | Bebop | Sticky Bomb | ability | 0.277 | 0.289 | 0.92 |
 | Vyper | Split Shot | item | 0.110 | 0.091 | 1.22 |
 | Graves | Grasping Hands | ability | 0.088 | 0.099 | 0.80 |
+| Drifter | Stalker's Mark | ability | 0.134 | 0.142 | 0.86 |
+| Apollo | MELEE | melee | 0.171 | 0.188 | 0.90 |
 
 ## Items (holders only, all heroes)
 
@@ -112,7 +112,7 @@ Item damage per all the player's damage while the item was owned (players who ha
 | Toxic Bullets | 888 | 0.113 | 0.104 | 1.09 |
 | Spirit Snatch | 863 | 0.065 | 0.066 | 0.98 |
 | Torment Pulse | 822 | 0.154 | 0.150 | 1.03 |
-| Spirit Burn | 819 | 0.085 | 0.093 | 0.92 |
+| Spirit Burn | 819 | 0.085 | 0.092 | 0.92 |
 | Stalker | 795 | 0.051 | 0.048 | 1.05 |
 | Ricochet | 747 | 0.050 | 0.065 | 0.76 |
 | Escalating Exposure | 694 | 0.109 | 0.116 | 0.94 |
@@ -140,7 +140,7 @@ Item damage per all the player's damage while the item was owned (players who ha
 | Return Fire | 99 | 0.093 | 0.025 | 3.77 |
 | Lightning Scroll | 59 | 0.039 | 0.035 | 1.10 |
 | Focus Lens | 45 | 0.105 | 0.104 | 1.01 |
-| Silence Wave | 33 | 0.046 | 0.051 | 0.90 |
+| Silence Wave | 33 | 0.046 | 0.051 | 0.91 |
 
 ## Items by hero (holders only, at least 20 holders), furthest off first
 
@@ -148,7 +148,7 @@ As above, per hero. The source table above compares the whole real match with du
 
 | Hero | Item | holders | real per dmg | sim per dmg | real/sim |
 |---|---|---|---|---|---|
-| Rat King | Return Fire | 44 | 0.099 | 0.028 | 3.56 |
+| Rat King | Return Fire | 44 | 0.099 | 0.028 | 3.57 |
 | Nurse Harrow | Quicksilver Reload | 89 | 0.047 | 0.022 | 2.14 |
 | Mo & Krill | Rebuttal | 22 | 0.009 | 0.020 | 0.48 |
 | Viscous | Spirit Snatch | 20 | 0.096 | 0.056 | 1.71 |
@@ -160,9 +160,9 @@ As above, per hero. The source table above compares the whole real match with du
 | Infernus | Ricochet | 75 | 0.026 | 0.038 | 0.69 |
 | Mina | Toxic Bullets | 99 | 0.078 | 0.054 | 1.45 |
 | Viscous | Mystic Burst | 20 | 0.064 | 0.045 | 1.44 |
-| Wraith | Ricochet | 198 | 0.041 | 0.058 | 0.71 |
+| Wraith | Ricochet | 198 | 0.041 | 0.058 | 0.70 |
 | Yamato | Express Shot | 47 | 0.157 | 0.113 | 1.40 |
-| Mirage | Ricochet | 34 | 0.041 | 0.056 | 0.72 |
+| Mirage | Ricochet | 34 | 0.041 | 0.057 | 0.72 |
 | Apollo | Mystic Burst | 65 | 0.052 | 0.037 | 1.38 |
 | Kelvin | Spirit Burn | 27 | 0.103 | 0.141 | 0.73 |
 | Grey Talon | Mystic Reverb | 26 | 0.154 | 0.210 | 0.73 |
