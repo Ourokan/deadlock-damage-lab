@@ -2590,14 +2590,17 @@ spirit-build gun rate. The rest is Still Life (`scripts/mechanics/still_life_dra
 The sim let her shoot through the draw, completed it when the meter reached 100 (seconds plus shots) and stunned in 92%
 of draws. Now (deadsim/heroes/artist.py) a draw channels AbilityChannelTime with the gun locked and her other abilities
 waiting, breaks at a time drawn from the real curve (SKETCH_BREAK; fights with a phase or an rng, as recast waits are
-drawn), and only an unbroken draw ends in Damage + stun. Violet's corrections refit 3 rounds (Still Life 2.11 -> 3.12,
-Abstract Landscape 2.36 -> 2.66, Flow State 3.04 -> 2.88, Living Ink 1.53 -> 1.46).
+drawn), and only an unbroken draw ends in Damage + stun.
 
-Split-half (corrections refit 3 rounds on one match-id half, 2 draws on the other, against the same refit on main's
-code): mix 0.0340 -> 0.0300 and 0.0260 -> 0.0240, per-source 0.0304 -> 0.0284 and 0.0228 -> 0.0227. Results: Violet
-mix (4 draws) 0.030 -> 0.027 (0.019 before the refit: the refit raises Still Life back, and her items stay under until
-the gun rate); duels she wins outright 64% -> 59%. sim_vs_win 27k all heroes flat (all 0.249, within slot and tier
-0.297); Violet 0.425 -> 0.411.
+Judged on main before #165: split-half (corrections refit 3 rounds on one match-id half, 2 draws on the other, against
+the same refit on main's code) mix 0.0340 -> 0.0300 and 0.0260 -> 0.0240; Violet mix (4 draws) 0.030 -> 0.027; duels
+she wins outright 64% -> 59%; sim_vs_win 27k all heroes flat (all 0.249, within slot and tier 0.297).
 
-Left: Violet's item gap is mostly #165's; she still kills fast in duels (Living Ink's cooldown cuts are the next
+Again after #165 merged (gun time by build): split-half with 6 draws per half, per-source 0.0209 -> 0.0198 and 0.0172
+-> 0.0163, mix 0.0195 -> 0.0158 and 0.0168 -> 0.0167. Violet's corrections refit 3 rounds on top of #165 (Still Life
+1.79 -> 2.66, Abstract Landscape 2.04 -> 2.23, Flow State 2.60 -> 2.46, Living Ink 1.36 -> 1.33). Violet mix (4 draws)
+0.018 -> 0.014; holders' Torment Pulse 1.68 -> 1.51, Mystic Shot 1.12 -> 1.06. sim_vs_win Violet 27k + 37k: all 0.360
+-> 0.380, within slot and tier 0.396 -> 0.407, clear of noise 0.432 -> 0.496 (damage items 0.507 -> 0.464).
+
+Left: she still kills fast in duels (Living Ink's cooldown cuts are the next
 suspect: in replays Still Life was recast early in 83% of chances).
