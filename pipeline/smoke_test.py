@@ -141,6 +141,12 @@ assert set(got) == {(18000, "overall"), (18000, "damage"), (27000, "damage")}, g
 assert got[(18000, "overall")]["in"] == [6] and got[(18000, "overall")]["out"] == [3] and got[(18000, "overall")]["kept"] == [1, 2]
 assert got[(27000, "damage")]["in"] == [] and got[(27000, "damage")]["new"] == 2400
 assert C.build_rows(_old, _new, "ascendant") == ([], 0)
+# model causes come from the commits the results were built from, not the rerun commits: the 05:38 rerun of
+# 2026-10-27 was built from #145's code, so #146/#147/#149 (merged while it ran) are pending, not causes
+if C.built("648862c") and C.built("71eae46"):
+    _e = C.entry("71eae46", "648862c", "71eae46", "648862c", "phantom", "forced")
+    assert [c["pr"] for c in _e["causes"] if c["kind"] == "model"] == [145], _e["causes"]
+    assert [m["pr"] for m in _e["pending"]] == [146, 147, 149], _e.get("pending")
 print("changes ok")
 
 # real win edge refresh after a patch (pipeline/refresh_win_edge.py): counts the patch window's day files, rebuilds the
