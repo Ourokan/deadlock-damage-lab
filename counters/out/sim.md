@@ -1,12 +1,12 @@
 # Counter items in the sim (phantom and up)
 
-Built 2026-10-27T07:13:46Z by `counters/scripts/export_sim.py`. Each hero's most popular real build gets the item added on top and is scored with the overall test (net damage dealt before dying against every hero's typical real build at that net worth; sustain, movement, mechanics and counterplay on). Gain = overall score change, weighted by how often each hero reaches that net worth; the overall score also multiplies in the item's real per-hero win edge (overall_search win_value), so items real buyers lose with score low on Gain even when the sim likes them. *Sim mean* = the same without the win edge (mean of vs over enemies). *Vs enemy* = the change in that one matchup's damage before dying, as a share of the popular build's mean over all matchups (so its enemy-weighted mean is the gain); *lift* = vs enemy minus the item's mean over all enemies.
+Built 2026-10-27T09:08:33Z by `counters/scripts/export_sim.py`. Each hero's most popular real build gets the item added on top and is scored with the overall test (net damage dealt before dying against every hero's typical real build at that net worth; sustain, movement, mechanics and counterplay on). Gain = overall score change, weighted by how often each hero reaches that net worth; the overall score also multiplies in the item's real per-hero win edge (overall_search win_value), so items real buyers lose with score low on Gain even when the sim likes them. *Sim mean* = the same without the win edge (mean of vs over enemies). *Vs enemy* = the change in that one matchup's damage before dying, as a share of the popular build's mean over all matchups (so its enemy-weighted mean is the gain); *lift* = vs enemy minus the item's mean over all enemies.
 
 ## 18,000 souls
 
 | Item | Cost | Gain | Per 1k souls | Sim mean | Best vs (lift) | Already in popular build |
 |---|---|---|---|---|---|---|
-| Divine Barrier | 6,400 | +0.371 | +0.059 | +0.098 | Lash +0.27, Wraith +0.16, Calico +0.12 | 0 heroes |
+| Divine Barrier | 6,400 | +0.372 | +0.060 | +0.098 | Lash +0.27, Wraith +0.16, Calico +0.12 | 0 heroes |
 | Spirit Resilience | 3,200 | +0.162 | +0.051 | +0.122 | Lash +0.28, Deadman Danny +0.18, Wraith +0.15 | 1 heroes |
 | Dispel Magic | 3,200 | +0.105 | +0.033 | +0.077 | Mirage +0.39, Silver +0.13, Infernus +0.11 | 4 heroes |
 | Debuff Reducer | 1,600 | +0.042 | +0.026 | +0.059 | Wraith +0.08, Deadman Danny +0.08, Grey Talon +0.05 | 0 heroes |
