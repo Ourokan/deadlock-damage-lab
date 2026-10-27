@@ -26,7 +26,8 @@ With --item NAME (repeatable) only that item's rows are refit, the same way, aft
 item's damage (Stalker's in-range share, 2026-10-26).
 
 With --item and --pooled the named items' pooled factors (item_landing.json "items") are refit first, the same way
-from the audit's pooled holders-only rows (current factor min(1, landing), the same shrinkage and cap), for an item
+from the audit's pooled holders-only rows (current factor min(1, landing), the same shrinkage and cap; an item
+accuracy.CAP_AFTER_LENGTH lifts is fit on min(1, landing x length_corr) and may keep a landing above 1), for an item
 whose damage changed for every hero (Tankbuster / Decay on real target health, 2026-10-26): run the audit, this with --pooled, the audit again, then this with --item alone for the
 per-hero rows, and the audit once more. --keep-level BASE_AUDIT (with --pooled): an uncut item (pooled factor
 >= 1, so real/sim above 1 can't be fit by the factor) that real/sim now puts further under than in BASE_AUDIT (the
@@ -91,6 +92,14 @@ def fit_pooled(audit, items, prior=PRIOR, base=None):
             print(f"pooled {r['name']:22s} n={r['holders']:4d} real/sim {before:.2f} -> {r['real_over_sim']:.2f}: "
                   f"uncut, length_corr {row['length_corr']:.3f} -> {row['length_corr'] * k:.3f}")
             row["length_corr"] = round(row["length_corr"] * k, 3)
+            continue
+        if accuracy.lifted(row):   # min(1, landing x length_corr): the landing itself may sit above 1
+            corr = row["length_corr"]
+            cur = min(1.0, row["landing"] * corr) / corr
+            new = max(0.25, min(1.0 / corr, cur * math.exp(r["holders"] / (r["holders"] + prior) * math.log(r["real_over_sim"]))))
+            print(f"pooled {r['name']:22s} n={r['holders']:4d} real/sim {r['real_over_sim']:.2f}: lifted, landing "
+                  f"{row['landing']:.3f} -> {new:.3f}")
+            row["landing"] = round(new, 3)
             continue
         cur = min(1.0, row["landing"])
         new = max(0.25, min(1.0, cur * math.exp(r["holders"] / (r["holders"] + prior) * math.log(r["real_over_sim"]))))
