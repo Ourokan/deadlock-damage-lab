@@ -86,12 +86,27 @@ function fakeReplay() {
   return { match_info: { ...m, players, match_paths: { interval_s: 1, x_resolution: 16383, y_resolution: 16383, paths } } };
 }
 
+// the signed-in player (Steam sign-in): account 1000 is player 1 of the made-up match; their match history is three
+// matches on that hero, each served in the single-match shape with the per-snapshot aim stats Aim.matchStats reads
+const PLAYER = 1000, AIM_MATCHES = [MATCH_ID + 1, MATCH_ID + 2, MATCH_ID + 3];
+function fakePlayer() {
+  const p = fakeMatch()[0].players[0];
+  const names = ["Enemy Hero Accuracy##Shots", "Enemy Hero Accuracy##Hits", "Enemy Hero Accuracy##Headshots", "Outgoing Bullet Dist##20"];
+  const vals = [2000, 700, 90, 500];
+  const meta = { match_info: { custom_user_stats: names.map((name, id) => ({ id, name })), players: [{ ...p,
+    stats: p.stats.map((x) => ({ ...x, custom_user_stats: vals.map((value, id) => ({ id, value })) })) }] } };
+  const history = AIM_MATCHES.map((match_id, k) => ({ match_id, hero_id: p.hero_id, game_mode: 1, start_time: 1790000000 + k }));
+  return { hero: p.hero_id, meta: JSON.stringify(meta), history: JSON.stringify(history),
+    steam: JSON.stringify([{ account_id: PLAYER, personaname: "Test Player", avatar: null }]) };
+}
+
 // ---------- checks ----------
 const failures = [];
 function fail(where, msg) { failures.push(`[${where}] ${msg}`); console.log(`  FAIL ${msg}`); }
 
 async function watch(context, where, base, missing) {
-  const origin = new URL(base).origin, match = JSON.stringify(fakeMatch()), single = JSON.stringify(fakeReplay());
+  const origin = new URL(base).origin, match = JSON.stringify(fakeMatch()), single = JSON.stringify(fakeReplay()), me = fakePlayer();
+  const api = (route, body) => route.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body });
   await context.route("**/*", (route) => {
     const u = new URL(route.request().url());
     if (u.origin === origin) return route.continue();
@@ -100,6 +115,9 @@ async function watch(context, where, base, missing) {
       return route.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: match });
     if (u.hostname === API_HOST && u.pathname === `/v1/matches/${MATCH_ID}/metadata`)
       return route.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: single });
+    if (u.hostname === API_HOST && u.pathname === "/v1/players/steam") return api(route, me.steam);
+    if (u.hostname === API_HOST && u.pathname === `/v1/players/${PLAYER}/match-history`) return api(route, me.history);
+    if (u.hostname === API_HOST && AIM_MATCHES.some((m) => u.pathname === `/v1/matches/${m}/metadata`)) return api(route, me.meta);
     fail(where, `request to an unexpected host: ${u.href}`);
     return route.abort();
   });
@@ -231,6 +249,37 @@ async function whyTab(page) {
   await page.click('#sh-tabs [data-v="damage"]');
 }
 
+// sign in by typing a Steam ID: the damage test switches to the player's own aim on the hero and "My last match"
+// loads their items; then Steam's sign-in coming back to the page (a fresh page, the sim not awaited)
+async function signInTab(page, where, base) {
+  const me = fakePlayer();
+  await step(page, where, "steam sign-in", async () => {
+    await page.selectOption("#a-hero", String(me.hero));
+    await page.click("#acct-who");
+    await page.fill("#acct-id", String(PLAYER));
+    let n = await runId(page);
+    await page.click('#acct-pop button[type="submit"]');
+    await page.waitForFunction(() => /Test Player/.test($("#acct").textContent), null, { timeout: STEP_MS });
+    await page.waitForFunction((after) => S.runId > after && S.A.aim === "mine" && S.last?.req?.accuracy === 0.35 && !$("#run").disabled, n, { timeout: STEP_MS });
+    if (!/Your aim: 35\.0% accuracy/.test(await page.$eval("#a-pull-msg", (e) => e.textContent))) throw new Error("no note on the aim used");
+    n = await runId(page);
+    await page.click('#presets [data-k="mine"]');
+    await liveResult(page, n);
+    const st = await page.evaluate(() => ({ label: S.A.label, items: S.last.req.items.length }));
+    if (st.label !== "My last match" || !st.items) throw new Error(`My last match didn't load a build: ${JSON.stringify(st)}`);
+  });
+  await step(page, where, "steam sign-in return", async () => {
+    const p2 = await page.context().newPage();
+    const id64 = (76561197960265728n + BigInt(PLAYER)).toString();
+    const q = new URLSearchParams({ "openid.mode": "id_res", "openid.op_endpoint": "https://steamcommunity.com/openid/login",
+      "openid.claimed_id": `https://steamcommunity.com/openid/id/${id64}` });
+    await p2.goto(base + "?" + q + "#test", { waitUntil: "load" });
+    await p2.waitForFunction(() => Account.current()?.via === "steam" && /Test Player/.test($("#acct").textContent), null, { timeout: STEP_MS });
+    if (/openid/.test(p2.url())) throw new Error(`Steam's answer left in the address bar: ${p2.url()}`);
+    await p2.close();
+  });
+}
+
 async function makerTab(page, where) {
   await step(page, where, "build maker", async () => {
     await go(page, "maker");
@@ -240,6 +289,9 @@ async function makerTab(page, where) {
     await page.waitForFunction(() => MK.sugTotal > 0 && MK.sugg.length >= Math.min(4, MK.sugTotal), null, { timeout: SIM_LOAD_MS });
     const n = await page.$$eval("#mk-sugg .mk-sug", (x) => x.length);
     if (!n) throw new Error("no suggestions shown");
+    // signed in (signInTab): your side uses your own aim
+    if (await page.$eval("#mk-aim", (e) => e.value) !== "mine") throw new Error("the build maker isn't on the signed-in player's aim");
+    await page.waitForFunction(() => /Your aim/.test($("#mk-aim-msg").textContent), null, { timeout: STEP_MS });
   });
 }
 
@@ -325,6 +377,7 @@ async function run(browser, base, where, contextOpts, missing) {
   });
   const sim = await testTab(page, where);
   if (sim) {
+    await signInTab(page, where, base);
     await makerTab(page, where);
     await matchTab(page, where);
     await teamTab(page, where);

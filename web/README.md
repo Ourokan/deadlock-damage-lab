@@ -15,6 +15,12 @@ Static site, no server. Open `index.html` through any static host (or `python3 -
   (`aim.js`: Steam link, ID or name -> Deadlock API match metadata, hero-only "Enemy Hero Accuracy" stats, the same
   numbers as `deadsim.accuracy.player_skill`). The page shows where those numbers sit among ranked players of the
   hero and remembers them in the browser.
+- **Steam sign-in** (`account.js`, header): "Sign in through Steam" goes to Steam's OpenID page and reads the SteamID
+  it sends back (not verified with Steam: the site has no server, and it only reads public stats), or the player
+  types a Steam link, ID or name. Signed in, the damage test and build maker default to "My aim on this hero" (the
+  player's hero-only accuracy, headshot rate and fight distance from their last 10 matches on the hero, kept 12 h in
+  localStorage; the build maker's enemies keep Phantom+ aim), and "My last match" loads the items they held at this
+  net worth in their latest match on the hero.
 - **Build maker** (`maker.js`, `bridge.maker`): build from nothing against up to five enemies. Each enemy holds what
   Phantom+ players of that hero hold most at about your net worth (`data/maker.json` from `search/out/usage.json`,
   filled most-held first up to the souls players that rich hold in items, within the tier caps). Every change runs you

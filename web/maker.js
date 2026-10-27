@@ -84,11 +84,16 @@ function mkPopular(hero, nw) {
 }
 
 // ---------- sim calls ----------
-const mkKey = (items, enemies) => `${MK.hero}|${MK.aim}|${mkMyNW()}|${[...items].sort().join(".")}|${enemies.map((e) => e.hero + ":" + e.items.join(".") + ":" + e.souls).join(",")}`;
+// "mine": the signed-in player's own accuracy and headshot rate on this hero (account.js) on your side, over Phantom+
+// habits; until they're read (or when they can't be), Phantom+ aim
+const mkMine = () => (MK.aim === "mine" ? Account.cached(MK.hero) : null);
+const mkKey = (items, enemies) => `${MK.hero}|${MK.aim}|${mkMine()?.accuracy ?? ""}|${mkMine()?.headshot ?? ""}|${mkMyNW()}|${[...items].sort().join(".")}|${enemies.map((e) => e.hero + ":" + e.items.join(".") + ":" + e.souls).join(",")}`;
 const mkEnemyLoadouts = () => { const nw = mkEnemyNW(); return MK.enemies.map((h) => ({ hero: h, items: mkPopular(h, nw), souls: Math.max(1, nw) })); };
 
 function mkReq(variants, enemies) {
-  return { hero: MK.hero, aim: MK.aim, souls: Math.max(1, mkMyNW()), T: MK_T, enemies, variants };
+  const mine = mkMine();
+  return { hero: MK.hero, aim: MK.aim === "mine" ? "p75" : MK.aim, souls: Math.max(1, mkMyNW()), T: MK_T, enemies, variants,
+    ...(mine ? { accuracy: mine.accuracy, headshot: mine.headshot } : {}) };
 }
 
 // main worker (app.js S.engine): the current build and hover previews, newest request wins (seq: a result for an
@@ -363,7 +368,7 @@ function mkReadShare() {
   if (!m) return;
   const p = new URLSearchParams(m[1]), ids = (k) => (p.get(k) || "").split(".").filter((x) => /^\d+$/.test(x)).map(Number);
   if (S.heroById[Number(p.get("h"))]) MK.hero = Number(p.get("h"));
-  if (["p25", "p50", "p75", "p90"].includes(p.get("aim"))) MK.aim = p.get("aim");
+  if (["p25", "p50", "p75", "p90"].includes(p.get("aim")) || (p.get("aim") === "mine" && Account.current())) MK.aim = p.get("aim");
   MK.items = [...new Set(ids("i").filter((i) => S.items[i]))].slice(0, MK_MAX);
   const e = ids("e").filter((h) => S.heroById[h]).slice(0, 5);
   if (e.length) MK.enemies = e;
@@ -374,9 +379,38 @@ function mkReadShare() {
 // ---------- updates ----------
 function mkChanged() {
   MK.hover = null; MK.base = null; MK.gen++; MK.sugg = []; MK.sugTotal = 0;
-  mkRenderBuild(); mkRenderEnemies(); mkRenderSugg(); mkMsg("");
+  mkRenderBuild(); mkRenderEnemies(); mkRenderSugg(); mkMsg(""); mkAimNote();
   try { history.replaceState(null, "", mkShareURL()); } catch { /* sandboxed */ }
   mkLive(MK.items, (rows) => { MK.base = rows; mkRenderEnemies(); mkSuggest(); });
+}
+
+// what "My aim on this hero" is using, reading the player's matches on this hero the first time
+function mkAimNote() {
+  const el = $("#mk-aim-msg"), name = S.heroById[MK.hero]?.name || "this hero";
+  el.hidden = MK.aim !== "mine";
+  if (MK.aim !== "mine") return;
+  const c = mkMine();
+  if (c) { el.textContent = `Your aim: ${aimSummary(c, name)} Enemies keep Phantom+ aim.`; return; }
+  el.textContent = `Reading your ${name} matches… (Phantom+ aim until then)`;
+  const hero = MK.hero;
+  Account.heroAim(hero).then(() => { if (MK.hero === hero && MK.aim === "mine") mkChanged(); })
+    .catch((e) => { if (MK.hero === hero && MK.aim === "mine") el.textContent = `${e.message} Using Phantom+ aim.`; });
+}
+
+// "My last match": what you held in your latest match on this hero, at the net worth set above or at the end
+async function mkLoadMine() {
+  const hero = MK.hero, name = S.heroById[hero]?.name || "this hero";
+  mkMsg(`Reading your ${name} matches…`);
+  let r;
+  try { r = await Account.heroAim(hero); } catch (e) { mkMsg(e.message); return; }
+  if (MK.hero !== hero) return;
+  if (!r?.last) { mkMsg(`No recent ${name} match on record for you.`); return; }
+  const at = Aim.heldAt(r.last, MK.nw != null ? MK.nw : Infinity, (id) => Object.hasOwn(S.items, id));
+  // components a finished item replaced are dropped by mkConflict's rule: keep the bigger item
+  const out = [];
+  for (const i of at.items.sort((a, b) => S.items[b].cost - S.items[a].cost)) if (out.length < MK_MAX && !out.some((x) => mkConflict(x, i))) out.push(i);
+  MK.items = out;
+  mkChanged();
 }
 
 let mkHoverTimer = null;
@@ -411,6 +445,13 @@ async function mkLoadPopular(budget) {
   mkChanged();
 }
 
+function mkPopChips() {
+  $("#mk-pop").innerHTML = '<span class="hint">Start from the popular build at</span>'
+    + Object.keys(MK.data.usage || {}).map((b) => `<button class="chip-btn" data-b="${b}">${fmt(b / 1000)}k</button>`).join("")
+    + (Account.current() ? '<button class="chip-btn" data-b="mine">My last match</button>' : "")
+    + '<button class="chip-btn" data-b="clear">Clear</button>';
+}
+
 async function mkInit() {
   if (MK.inited || !S.heroes.length) return;
   MK.inited = true;
@@ -418,8 +459,16 @@ async function mkInit() {
   if (!MK.data) { mkMsg("The build maker's data didn't load."); return; }
   const opts = S.heroes.map((h) => `<option value="${h.id}">${esc(h.name)}</option>`).join("");
   $("#mk-hero").innerHTML = opts;
+  if (Account.current()) MK.aim = "mine";
   mkReadShare();
-  $("#mk-pop").innerHTML = '<span class="hint">Start from the popular build at</span>'
+  mkPopChips();
+  Account.onChange((me) => {
+    if (me && MK.aim === "p75") MK.aim = "mine";
+    if (!me && MK.aim === "mine") MK.aim = "p75";
+    MK.cache.clear(); mkPopChips(); mkChanged();
+  });
+  $("#mk-pop").onclick = (e) => { const b = e.target.dataset?.b; if (!b) return; if (b === "mine") mkLoadMine(); else if (b === "clear") { MK.items = []; MK.nw = null; $("#mk-nw").value = ""; mkChanged(); } else mkLoadPopular(b); };
+  $("#mk-off").innerHTML = '<span class="hint">Start from the popular build at</span>'
     + Object.keys(MK.data.usage || {}).map((b) => `<button class="chip-btn" data-b="${b}">${fmt(b / 1000)}k</button>`).join("")
     + '<button class="chip-btn" data-b="clear">Clear</button>';
   $("#mk-off").innerHTML = [[-5000, "5k behind"], [0, "Even"], [5000, "5k ahead"]].map(([v, l]) => `<button data-v="${v}" class="${v === MK.offset ? "on" : ""}">${l}</button>`).join("");
@@ -430,7 +479,6 @@ async function mkInit() {
   $("#mk-hero").onchange = (e) => { MK.hero = Number(e.target.value); MK.items = []; MK.nw = null; $("#mk-nw").value = ""; mkChanged(); };
   $("#mk-aim").onchange = (e) => { MK.aim = e.target.value; MK.cache.clear(); mkChanged(); };
   $("#mk-nw").onchange = (e) => { const v = parseFloat(e.target.value); MK.nw = isFinite(v) && v >= 0 ? v : null; mkChanged(); };
-  $("#mk-pop").onclick = (e) => { const b = e.target.dataset?.b; if (!b) return; if (b === "clear") { MK.items = []; MK.nw = null; $("#mk-nw").value = ""; mkChanged(); } else mkLoadPopular(b); };
   $("#mk-off").onclick = (e) => { const v = e.target.dataset?.v; if (v == null) return; MK.offset = Number(v); $$("#mk-off button").forEach((x) => x.classList.toggle("on", x === e.target)); mkChanged(); };
   $("#mk-sort").onclick = (e) => { const v = e.target.dataset?.v; if (!v) return; MK.sort = v; $$("#mk-sort button").forEach((x) => x.classList.toggle("on", x === e.target)); mkRenderSugg(); };
   for (const k of ["d", "s", "u"]) $(`#mk-w${k}`).oninput = (e) => { MK.w[k] = Number(e.target.value); mkRenderSugg(); };

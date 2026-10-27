@@ -38,11 +38,13 @@ const Aim = (() => {
     return { id: rows[0].account_id, name: rows[0].personaname };
   }
 
+  const player = (meta, accountId) => ((meta.match_info || meta).players || []).find((x) => x.account_id === accountId);
+
   // One player's hero-only gun numbers in one match, from the last stats snapshot, or null.
   function matchStats(meta, accountId) {
     const mi = meta.match_info || meta;
     const names = Object.fromEntries((mi.custom_user_stats || []).map((c) => [c.id, c.name]));
-    const p = (mi.players || []).find((x) => x.account_id === accountId);
+    const p = player(meta, accountId);
     const last = p?.stats?.length ? p.stats[p.stats.length - 1] : null;
     if (!last) return null;
     const cs = {};
@@ -74,16 +76,17 @@ const Aim = (() => {
     const onHero = normal.filter((m) => m.hero_id === heroId);
     const pool = (onHero.length >= min ? onHero : normal).slice(0, n * 2);
     const scope = onHero.length >= min ? "hero" : "all";
-    let shots = 0, hits = 0, heads = 0, used = 0, next = 0, failed = 0;
+    let shots = 0, hits = 0, heads = 0, used = 0, next = 0, failed = 0, last = null;
     const dist = {};
     const worker = async () => {
       while (used < n && next < pool.length) {
         const m = pool[next++];
-        let cs = null;
-        try { cs = matchStats(await get(`/v1/matches/${m.match_id}/metadata`), accountId); } catch (e) {
+        let cs = null, meta = null;
+        try { meta = await get(`/v1/matches/${m.match_id}/metadata`); cs = matchStats(meta, accountId); } catch (e) {
           if (e.status !== 404) failed++; // 404 = not ingested yet; anything else (429, 5xx, network) is a failed read
         }
         if (!cs || used >= n) continue;
+        if (m.hero_id === heroId && (!last || m.start_time > last.start_time)) last = { ...buildOf(player(meta, accountId)), match_id: m.match_id, start_time: m.start_time };
         used++; shots += cs[SHOTS]; hits += cs[HITS] || 0; heads += cs[HEADS] || 0;
         for (const [k, v] of Object.entries(cs)) if (typeof k === "string" && k.startsWith(DIST)) { const b = k.slice(DIST.length); dist[b] = (dist[b] || 0) + v; }
         onProgress?.(used, Math.min(n, pool.length));
@@ -93,7 +96,27 @@ const Aim = (() => {
     if (!shots) throw new Error(failed ? "The Deadlock API did not answer for your matches (it may be rate limiting). Try again in a minute."
       : "No recent matches with aim stats yet. New matches can take a while to show up.");
     return { accuracy: hits / shots, headshot: heads / Math.max(1, hits), distance: medianDistance(dist),
-      matches: used, failed, scope, shots, hits, headshots: heads };
+      matches: used, failed, scope, shots, hits, headshots: heads, last };
+  }
+
+  // A player's purchases and net worth over one match (the item ids the shop shows; components and sold items included).
+  function buildOf(p) {
+    return { items: (p.items || []).map((x) => [x.item_id, x.game_time_s, x.sold_time_s || 0]),
+      nw: (p.stats || []).map((s) => [s.time_stamp_s, s.net_worth]), net_worth: p.net_worth };
+  }
+
+  // Items held when the player's net worth first reached `souls` (or at the end, when it never did), from buildOf().
+  // `known` keeps only ids the page can price (shop items).
+  function heldAt(b, souls, known) {
+    const pts = [[0, 0], ...b.nw];
+    let t = Infinity;
+    for (let i = 1; i < pts.length; i++) {
+      const [t1, v1] = pts[i], [t0, v0] = pts[i - 1];
+      if (v1 >= souls) { t = t0 + (t1 - t0) * (souls - v0) / Math.max(1, v1 - v0); break; }
+    }
+    const out = [];
+    for (const [id, at, sold] of b.items) if (known(id) && at <= t && (!sold || sold > t) && !out.includes(id)) out.push(id);
+    return { items: out, t: isFinite(t) ? t : null };
   }
 
   // Where a value sits in a {p25, p50, p75, p90} spread, as a rough ranked percentile (linear between points).
@@ -109,7 +132,7 @@ const Aim = (() => {
     return null;
   }
 
-  return { resolve, fromMatches, matchStats, medianDistance, percentile };
+  return { resolve, fromMatches, matchStats, medianDistance, percentile, heldAt, get };
 })();
 
 if (typeof module !== "undefined") module.exports = Aim;

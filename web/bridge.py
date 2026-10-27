@@ -212,7 +212,7 @@ def _maker_sk(name, aim):
     return _maker_skill[k]
 
 
-def _skirmish(G, me, foe, T, aim):
+def _skirmish(G, me, foe, T, aim, you_aim=None):
     import dataclasses
     from deadsim import Loadout, mechanics
     from deadsim.engine import Engine
@@ -221,8 +221,11 @@ def _skirmish(G, me, foe, T, aim):
     # movement off, as in the survival and overall searches: running away isn't damage dealt or taken
     mech = dataclasses.replace(mechanics.DEFAULT, movement=False) if mechanics.DEFAULT else None
     e = Engine(distance=(default_distance(hn) + default_distance(en)) / 2, max_time=T, mech=mech)
+    sk = _maker_sk(hn, aim)
+    if you_aim:   # the signed-in player's own hero accuracy / headshot rate; the enemies keep the ranked aim
+        sk = dataclasses.replace(sk, **{k: float(you_aim[k]) for k in ("accuracy", "headshot") if you_aim.get(k) is not None})
     a = make_fighter(e, Loadout(hn, [_item(G, x).name for x in me["items"]], souls=me.get("souls") or None,
-                                skill=_maker_sk(hn, aim)), "you")
+                                skill=sk), "you")
     b = make_fighter(e, Loadout(en, [_item(G, x).name for x in foe["items"]], souls=foe.get("souls") or None,
                                 skill=_maker_sk(en, aim)), "enemy")
     ra, rb = _Refill(), _Refill()
@@ -249,13 +252,14 @@ def _skirmish(G, me, foe, T, aim):
 
 def maker(req_json):
     """Your build against each enemy build, both fighting back for T seconds (default 15) and refilling instead of
-    dying. {"hero", "items", "souls", "aim", "T", "enemies": [{"hero", "items", "souls"}],
-    "variants": [[items], ...]} -> {"variants": [[per-enemy result, ...], ...]} (variants default to [items])."""
+    dying. {"hero", "items", "souls", "aim", "accuracy"?, "headshot"?, "T", "enemies": [{"hero", "items", "souls"}],
+    "variants": [[items], ...]} (accuracy/headshot replace your side's aim only) -> {"variants": [[per-enemy result, ...], ...]} (variants default to [items])."""
     q = json.loads(req_json)
     G = game()
     T, aim = float(q.get("T") or 15.0), q.get("aim") or "p75"
     out = []
     for items in q.get("variants") or [q.get("items", [])]:
         me = {"hero": q["hero"], "items": items, "souls": q.get("souls")}
-        out.append([_skirmish(G, me, foe, T, aim) for foe in q.get("enemies", [])])
+        you = {k: q.get(k) for k in ("accuracy", "headshot")}
+        out.append([_skirmish(G, me, foe, T, aim, you) for foe in q.get("enemies", [])])
     return json.dumps({"variants": out})

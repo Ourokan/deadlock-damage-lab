@@ -27,8 +27,10 @@
       <a href="#team" data-tab="team">Team fight</a>
       <a href="#changes" data-tab="changes">What changed</a>
     </nav>
+    <div class="acct" id="acct"></div>
     <span class="engine" id="engine" data-state="loading">Loading sim</span>
   </div>
+  <div class="acct-pop" id="acct-pop" hidden></div>
 </header>
 
 <main class="wrap">
@@ -53,6 +55,7 @@
               <option value="p50">Median ranked</option>
               <option value="p75" selected>75th pct ranked (Phantom+)</option>
               <option value="p90">90th pct ranked</option>
+              <option value="mine" id="a-aim-mine" hidden>My aim on this hero (Steam)</option>
               <option value="custom">My own numbers</option>
             </select></label>
         </div>
@@ -158,9 +161,11 @@
               <option value="p50">Median ranked</option>
               <option value="p75">75th pct ranked (Phantom+)</option>
               <option value="p90">90th pct ranked</option>
+              <option value="mine" id="mk-aim-mine" hidden>My aim on this hero (Steam)</option>
             </select></label>
           <label class="f"><span>Net worth</span><input id="mk-nw" type="number" min="0" step="500" placeholder="auto"></label>
         </div>
+        <p class="hint" id="mk-aim-msg" hidden></p>
         <div class="presets" id="mk-pop"></div>
         <div class="build" id="mk-build"></div>
         <p class="hint" id="mk-budget"></p>
@@ -368,6 +373,7 @@
   </div>
 </div>
 <script src="aim.js"></script>
+<script src="account.js"></script>
 <script src="app.js"></script>
 <script src="match.js"></script>
 <script src="replay.js"></script>
