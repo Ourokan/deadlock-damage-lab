@@ -137,7 +137,8 @@ class TestScornHeal(unittest.TestCase):
 PINNED = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift, all hero range checks)
             # re-pinned 2026-10-26 for melee's share of the weapon damage bonus (engine.MELEE_WEAPON_SCALE)
             # re-pinned 2026-10-26 for Warden shooting while Last Stand pulses (warden.PULSE_FREE)
-    ("Mo & Krill", "Haze", None, 30.0, 1551.1, 1478.3),
+            # re-pinned 2026-10-27 for in-fight bullet shred x Mechanics.shred_uptime (Haze's Sleep Dagger shred)
+    ("Mo & Krill", "Haze", None, 30.0, 1551.1, 1446.6),
     ("Paradox", "Abrams", None, 30.0, 2357.5, 1528.4),
     ("Venator", "Lash", "Venator (A)", 18.3, 2138.7, 877.0),
     ("Warden", "Seven", "Seven (B)", 25.9, 1318.9, 3020.6),

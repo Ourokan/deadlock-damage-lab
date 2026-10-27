@@ -206,6 +206,20 @@ class Mechanics:
     # 45% of the match, 1.06x to 75%, 1.02x after (Solomon 0.61 / 1.33 / 0.86, Infernus 0.79 / 1.12 / 1.06). The hold's
     # cast share at the fighter's net worth is x ult_phase_mult (data/ult_phase.json, scripts/cast_timing/ult_phase.py)
     ult_phase: bool = True
+    # opt-in (2026-10-27): damage a barrier soaks is not booked as dealt. The game's damage numbers (DamageEvent damage,
+    # the API damage matrix) are health lost; what a barrier absorbs is in damage_absorbed only (replays: gun 5% / 9% /
+    # 9% of hits on heroes before 45% / to 75% / after, other damage 5% / 9% / 10%; the sim's duels book gun 6% / 11% /
+    # 12%, all damage 6% / 9% / 10%). The duel is unchanged (the barrier still takes the hit), only dmg_out / dmg_exp
+    # drop it. Off: it moves the late gun share only 0.223 -> 0.221 (real 0.202) and the whole-match audit was fitted
+    # with barrier damage booked (0.0207 -> 0.0215 on, items rise); it would need an item_landing refit with it on
+    unbook_absorbed: bool = False
+    # bullet resist shred debuffs in fights (2026-10-27): a duel keeps every shred debuff (items, Hunter's Aura, hero
+    # abilities) on its one target, so the sim's gun hits late in the match kept 1.05x the damage the target's build
+    # resists allow; real gun hits on heroes keep 0.99x / 0.99x / 0.98x at 30 / 60 / 90% of the match (160 replays,
+    # DamageEvent (damage + absorbed) / pre_damage over the target's build resist, scripts/gun_calib/gun_phase.py
+    # --replays): real fights spread the shooter's hits over targets and the debuffs lapse. Fitted per attacker hero
+    # (split-half 0.40 / 0.30, items and abilities alike): the in-fight shred values are x shred_uptime
+    shred_uptime: float = 0.35
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut

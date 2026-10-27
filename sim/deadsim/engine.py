@@ -779,7 +779,10 @@ class Engine:
             amt *= (1.0 + dst.stat("damage_taken_amp"))
         if not (ignore_resist or pure):
             if kind == "bullet":
-                res = combine_resist(dst.bullet_resists(), list(src.st.bullet_shred) + dst.mods.values("bullet_shred"))
+                shred = dst.mods.values("bullet_shred")
+                if shred and self.mech is not None and self.mech.shred_uptime != 1.0:
+                    shred = [v * self.mech.shred_uptime for v in shred]
+                res = combine_resist(dst.bullet_resists(), list(src.st.bullet_shred) + shred)
                 amt *= (1.0 - res)
             elif kind == "spirit":
                 res = combine_resist(dst.spirit_resists(), list(src.st.spirit_shred) + dst.mods.values("spirit_shred"))
@@ -815,15 +818,18 @@ class Engine:
                 take = min(b[0], left)
                 b[0] -= take
                 left -= take
+        # the barrier's share is not damage dealt in the game's numbers (Mechanics.unbook_absorbed); the target's
+        # damage taken (dmg_in) keeps it
+        dealt_k = left / amt if left < amt and self.mech is not None and self.mech.unbook_absorbed else 1.0
         if nonlethal:
             left = min(left, max(0.0, dst.hp - 1.0))
         dst.hp -= left
         hit.amount = amt
         w = self.length_w(src=src, source=source)
         for name, part in booked:
-            src.dmg_out[name] = src.dmg_out.get(name, 0.0) + part
+            src.dmg_out[name] = src.dmg_out.get(name, 0.0) + part * dealt_k
             dst.dmg_in[name] = dst.dmg_in.get(name, 0.0) + part
-            src.dmg_exp[name] = src.dmg_exp.get(name, 0.0) + part * w
+            src.dmg_exp[name] = src.dmg_exp.get(name, 0.0) + part * dealt_k * w
         k = int(max(0.0, self.t) // 2)   # a precast's hit before the fight start (mechanics.precast) books in slice 0
         src.dmg_by_2s[k] = src.dmg_by_2s.get(k, 0.0) + amt
         if amt > 0 and PROFILE_SOURCES:

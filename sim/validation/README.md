@@ -2439,3 +2439,45 @@ already on ability_area_phase; real ult casts per fight are flat from 60% to 90%
 late over (0.91x) is spread (Paige 0.135 real vs 0.262 sim at 90%, Nurse, Violet, Shiv, Lash, Abrams). Permanent
 pickups (sample power_ups: by 90% +97 HP, +9.6% weapon power, +4.8% fire rate, +7 spirit) are not modelled; small and
 on both sides.
+
+## Gun damage late in the match (2026-10-27)
+
+Follow-up of ult casts by game phase: the phase-matched audit (scripts/phase_mix.py) had the gun 0.97x / 0.93x / 0.91x
+real at 30 / 60 / 90% of the match, spread over many heroes. scripts/gun_calib/gun_phase.py splits it per hero bullet
+hit (real: damage_series gun damage / stats hero_bullets_hit in frac +- 0.1; sim: the audit's duels): real damage per
+hit is flat from 60% to 90% for most heroes (Paige 54.2 -> 54.6, Nurse 27.1 -> 27.2, Wraith 11.2 -> 11.0) while the
+sim's grows (67 -> 72, 32 -> 38, 13 -> 16); geo mean sim/real 0.82 / 0.83 / 0.93.
+
+Replays (160 Phantom+ matches of the validation sample, scripts/gun_calib/fetch_gun_hits.py: every gun hit on a hero
+with pre_damage, effectiveness, crit_damage, damage_absorbed; raw in /mnt/project-files/analysis/work/gun_phase) split
+the per hit gap (gun_phase.py --replays): falloff (0.88 / 0.91 / 0.87 real, 0.90 sim) and crit share (0.14 / 0.13 /
+0.13 vs 0.14 / 0.15 / 0.15) match; damage / pre_damage does not (0.94 / 0.89 / 0.83 real, 1.00 / 1.00 / 0.97 sim).
+Two parts:
+
+- Barriers: the game's damage numbers (DamageEvent damage = the API damage matrix, checked per player) leave out what a
+  barrier soaks. Real: 5% / 9% / 9% of gun damage, 5% / 9% / 10% of other damage (grouped demo query, 30 matches). The
+  sim books barrier damage as dealt (gun 6% / 11% / 12%, all 6% / 9% / 10%). Mechanics.unbook_absorbed drops it from
+  dmg_out / dmg_exp (the duel is unchanged). Kept OFF: late gun share only 0.223 -> 0.221, and the whole-match audit
+  goes 0.0207 -> 0.0215 (items rise; item_landing was fitted with barrier damage booked).
+- Bullet resist: per hit (damage + absorbed) / pre_damage over 1 - the target's build resist after the shooter's build
+  shred (compute_stats at the hit's time; scripts/gun_calib/resist_check.py) is 0.99 / 0.99 / 0.98 real (match-id
+  halves 0.993 / 0.996 / 0.983 and 0.991 / 0.988 / 0.973), the audit's duels 1.01 / 1.04 / 1.05: a duel keeps every
+  shred debuff (shred items, Hunter's Aura at its single-target x2, hero abilities: Rat King's bites, Silver, Wraith,
+  Yamato, Haze) on its one target. Late, items add +0.057 and abilities +0.024 over no in-fight shred (0.967).
+  Per shooting hero (late, real vs sim at 60 / 90%), fitting separate item and ability factors gave 0.40 / 0.40 on one
+  half and 0.30 / 0.25 on the other (one factor 0.40 / 0.30); held-out per hero rmse 0.082 -> 0.055 and 0.074 -> 0.048
+  (no shred at all 0.059 / 0.061). Mechanics.shred_uptime = 0.35 multiplies the in-fight bullet_shred debuffs (build
+  shred unchanged). Holders of a shred item read +10-14% in real (Hunter's Aura 1.114 vs 0.978 without) against
+  +13-18% in the sim with every debuff in full; per holder comparisons mix in who builds them, so the per hero fit
+  decides.
+
+Results (shred_uptime 0.35, unbook off): phase_mix gun 0.276 / 0.243 / 0.219 (real 0.270 / 0.230 / 0.202; before
+0.278 / 0.247 / 0.223), mix distance 0.0534 / 0.0460 / 0.0657 -> 0.0529 / 0.0453 / 0.0642; whole-match audit (2
+draws) 0.0207 -> 0.0209 (heroes with their own gun shred lose gun share: Drifter, Silver, Bebop, Paradox, Yamato).
+sim_vs_win 27k flat: all 0.246 -> 0.245, within slot and tier 0.286 -> 0.287, clear of noise 0.352 -> 0.354, damage
+items 0.154 -> 0.155 (no tier_caps locally, both runs the same).
+
+Left: the late gun over (0.219 vs 0.202) is now mostly spirit builds that shoot less late in real games (Paige 0.254 vs
+0.135, Nurse, Celeste, Dynamo, Doorman, Viscous, Rem, Kelvin: their real gun share drops 3x from 30% to 90%), and the
+late ult under (Nurse, Violet) takes share from the gun too. Per victim, real damage / pre_damage is far lower on Shiv
+(0.65: Bloodletting defers), Viscous 0.80, Mo & Krill 0.84, Yamato 0.87 (the sim's Shiv defers too).
