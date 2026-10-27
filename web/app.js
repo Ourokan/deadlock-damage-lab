@@ -301,7 +301,9 @@ async function loadMyBuild() {
   try { r = await Account.heroAim(hero); } catch (e) { note(e.message); return; }
   if (S.A.hero !== hero) return;
   if (!r?.last) { note(`No recent ${heroName} match on record for you.`); return; }
-  const at = Aim.heldAt(r.last, S.A.souls, (id) => Object.hasOwn(S.items, id));
+  const mk = await load("data/maker.json"); // item components, so an upgraded item's parts don't take slots too
+  if (S.A.hero !== hero) return;
+  const at = Aim.heldAt(r.last, S.A.souls, (id) => Object.hasOwn(S.items, id), (id) => (mk?.components[id] || []).map(Number));
   const items = at.items.sort((a, b) => S.items[b].cost - S.items[a].cost).slice(0, 12);
   const ago = Math.max(0, Math.round((Date.now() / 1000 - r.last.start_time) / 86400));
   Object.assign(S.A, { items, label: "My last match", preset: null, order: null });

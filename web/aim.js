@@ -106,8 +106,9 @@ const Aim = (() => {
   }
 
   // Items held when the player's net worth first reached `souls` (or at the end, when it never did), from buildOf().
-  // `known` keeps only ids the page can price (shop items).
-  function heldAt(b, souls, known) {
+  // `known` keeps only ids the page can price (shop items); `comps(id)` (item ids it's built from) drops components
+  // still listed next to the item that replaced them.
+  function heldAt(b, souls, known, comps = () => []) {
     const pts = [[0, 0], ...b.nw];
     let t = Infinity;
     for (let i = 1; i < pts.length; i++) {
@@ -116,7 +117,8 @@ const Aim = (() => {
     }
     const out = [];
     for (const [id, at, sold] of b.items) if (known(id) && at <= t && (!sold || sold > t) && !out.includes(id)) out.push(id);
-    return { items: out, t: isFinite(t) ? t : null };
+    const inside = new Set(out.flatMap((id) => comps(id)));
+    return { items: out.filter((id) => !inside.has(id)), t: isFinite(t) ? t : null };
   }
 
   // Where a value sits in a {p25, p50, p75, p90} spread, as a rough ranked percentile (linear between points).

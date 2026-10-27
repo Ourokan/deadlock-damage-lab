@@ -57,6 +57,18 @@ class WebAim(unittest.TestCase):
                    " 'https://steamcommunity.com/profiles/76561197994765978/'].map(Aim.resolve))")
         self.assertEqual([r["id"] for r in got], [34500250] * 4)
 
+    def test_held_at(self):
+        # net worth 0 -> 10k at 600 s -> 20k at 1200 s; item 2 is built from 1, item 4 sold at 700 s, 9 not a shop item
+        b = {"items": [[1, 100, 0], [2, 500, 0], [3, 650, 0], [4, 200, 700], [9, 50, 0], [5, 1100, 0]],
+             "nw": [[600, 10000], [1200, 20000]], "net_worth": 21000}
+        known, comps = "(id) => id !== 9", "(id) => (id === 2 ? [1] : [])"
+        at = node(f"Aim.heldAt({json.dumps(b)}, 12000, {known}, {comps})")   # 12k reached at 720 s
+        self.assertAlmostEqual(at["t"], 720)
+        self.assertEqual(at["items"], [2, 3])           # 4 sold at 700, 5 bought later, 1 inside 2, 9 unknown
+        end = node(f"Aim.heldAt({json.dumps(b)}, 99999, {known})")             # never reached: the end build
+        self.assertIsNone(end["t"])
+        self.assertEqual(end["items"], [1, 2, 3, 5])     # no comps given: components stay
+
     def test_from_matches(self):
         def meta(shots, hits, heads):
             m = json.loads(json.dumps(META))

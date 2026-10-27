@@ -405,11 +405,8 @@ async function mkLoadMine() {
   try { r = await Account.heroAim(hero); } catch (e) { mkMsg(e.message); return; }
   if (MK.hero !== hero) return;
   if (!r?.last) { mkMsg(`No recent ${name} match on record for you.`); return; }
-  const at = Aim.heldAt(r.last, MK.nw != null ? MK.nw : Infinity, (id) => Object.hasOwn(S.items, id));
-  // components a finished item replaced are dropped by mkConflict's rule: keep the bigger item
-  const out = [];
-  for (const i of at.items.sort((a, b) => S.items[b].cost - S.items[a].cost)) if (out.length < MK_MAX && !out.some((x) => mkConflict(x, i))) out.push(i);
-  MK.items = out;
+  const at = Aim.heldAt(r.last, MK.nw != null ? MK.nw : Infinity, (id) => Object.hasOwn(S.items, id), mkComps);
+  MK.items = at.items.sort((a, b) => S.items[b].cost - S.items[a].cost).slice(0, MK_MAX);
   mkChanged();
 }
 
@@ -468,9 +465,6 @@ async function mkInit() {
     MK.cache.clear(); mkPopChips(); mkChanged();
   });
   $("#mk-pop").onclick = (e) => { const b = e.target.dataset?.b; if (!b) return; if (b === "mine") mkLoadMine(); else if (b === "clear") { MK.items = []; MK.nw = null; $("#mk-nw").value = ""; mkChanged(); } else mkLoadPopular(b); };
-  $("#mk-off").innerHTML = '<span class="hint">Start from the popular build at</span>'
-    + Object.keys(MK.data.usage || {}).map((b) => `<button class="chip-btn" data-b="${b}">${fmt(b / 1000)}k</button>`).join("")
-    + '<button class="chip-btn" data-b="clear">Clear</button>';
   $("#mk-off").innerHTML = [[-5000, "5k behind"], [0, "Even"], [5000, "5k ahead"]].map(([v, l]) => `<button data-v="${v}" class="${v === MK.offset ? "on" : ""}">${l}</button>`).join("");
   $("#mk-sort").innerHTML = [["soul", "Per soul"], ["total", "Biggest impact"]].map(([v, l]) => `<button data-v="${v}" class="${v === MK.sort ? "on" : ""}">${l}</button>`).join("");
   if (MK.nw != null) $("#mk-nw").value = MK.nw;
