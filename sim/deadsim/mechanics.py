@@ -117,6 +117,11 @@ class Mechanics:
     # back (a long fight keeps the fitted melee; a short one up to one hit more, as real openers add). Draws like
     # cast_timing (phase or rng; deterministic fights skip)
     melee_timing: bool = True
+    # heavy melee of Melee Charge / Crushing Fists holders (2026-10-27): real holders' basic melee hits are ~half heavies
+    # that proc the item (Apollo 0.67, Abrams 0.54; data/melee_heavy.json, scripts/mechanics/melee_heavy.py), the
+    # rotation's HEAVY_SHARE is 0.3 for everyone. A holder's rotation takes the hero's real share, at a melee rate
+    # cut so melee damage per second stays the fitted one (fight.heavy_holder_skill); only the item's procs move
+    heavy_holders: bool = True
     # fight entry health (2026-10-25): with fight_length, a fighter whose start health wasn't set (survive's
     # start_hp) starts short of full by a deficit drawn from the real Phantom+ entry health spread at hero combat
     # start (data/sustain.json entry_deficit_q, scripts/sustain/fit_sustain.py; about half the fights start full).
@@ -284,6 +289,20 @@ def melee_holds():
         with open(os.path.join(os.path.dirname(__file__), "..", "data", "melee_timing.json")) as fh:
             _MELEE_T = json.load(fh)["items"]
     return _MELEE_T
+
+
+_HEAVY = None
+
+
+def holder_heavy_share(hero_id):
+    """Mechanics.heavy_holders: heavy share of a Melee Charge / Crushing Fists holder's melee (data/melee_heavy.json,
+    the hero's row or pooled)."""
+    global _HEAVY
+    if _HEAVY is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "melee_heavy.json")) as fh:
+            _HEAVY = json.load(fh)
+    row = _HEAVY["heroes"].get(str(hero_id))
+    return row["share"] if row else _HEAVY["pooled"]
 
 
 MELEE_OPEN_FULL_RATE = 0.036   # landed melees/s: Bebop's with one melee item, the lowest of the real opener rows

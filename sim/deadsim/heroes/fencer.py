@@ -6,8 +6,8 @@ Assumptions:
 - Riposte: cast while the enemy is shooting and within DashRange; Apollo can't shoot during the
   AbilityChannelTime window. The first enemy damage instance in the window is negated (any instance, the
   DamageThreshold is ignored), then Apollo is invulnerable for RIPOSTE_INVULN, dashes in, stuns
-  (StunDuration), reduces melee resist and follows up with one light melee (Riposte itself deals no damage in
-  the game, so the follow-up is booked as melee). If nothing hits him, it whiffs. T3 lifesteal 75% (bullet + spirit) for TargetLifestealDuration.
+  (StunDuration), reduces melee resist and follows up with one basic melee, heavy at the rotation's share (Riposte
+  itself deals no damage in the game, so the follow-up is booked as basic melee and procs on-melee items). If nothing hits him, it whiffs. T3 lifesteal 75% (bullet + spirit) for TargetLifestealDuration.
 - Flawless Advance: MaxStabs lunges STAB_INTERVAL apart, each a skillshot; PERFECT_RATE of them are perfect
   (PerfectDamage), the rest MaxDamageBeforePerfect. Gun locked while lunging. T1 heals HealFixedHealth per
   perfect hit (35 + 1.3 x spirit per the data; the tooltip only says "Heal 35", so the scaling is doubtful). T2 bullet resist
@@ -82,7 +82,13 @@ class Riposte(AbilityImpl):
         f.gun_locked_until = c.now
         c.debuff("stun", 1, c.val("StunDuration"))
         c.debuff("melee_resist", c.raw("MeleeResistReduction") / 100, c.val("MeleeResistReductionDuration"))
-        c.melee_hit(c.light_melee(), delay=0.2, name="Melee (Riposte follow-up)")
+        # the follow-up is the player's own melee: the game books it as basic melee (no Riposte damage source), so
+        # on-melee items proc on it as on any basic melee and it is heavy at the rotation's share (Phantom+ replays:
+        # Melee Charge holders' follow-ups proc it 46% of the time; follow-ups land ~1.5x the size of other melee)
+        def follow_up():
+            if f.alive and f.enemy.alive:
+                f.e.melee_hit(f, f.acc("melee_heavy").take(f.skill.heavy_share, 1) > 0, 1.0)
+        f.e.after(0.2, follow_up)
         if c.tier >= 3:
             ls = c.raw("TargetLifesteal") / 100
             d = c.raw("TargetLifestealDuration")
