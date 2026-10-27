@@ -1541,18 +1541,37 @@ def _melee_proc(fx, f, hit=None, key=":melee"):
     return fx.ready() and f.acc(fx.item.class_name + key).take(w, 1) > 0
 
 
+# ability melee hits the game counts as heavy melee: Phantom+ replays, Melee Charge / Crushing Fists procs on the same
+# tick as Drifter's Rend (307 of 438 Melee Charge procs), Viscous' Puddle Punch (99 / 124), Billy's Bashdown (201 / 281)
+HEAVY_MELEE_ABILITIES = frozenset({"drifter_blood_blast", "viscous_telepunch", "ability_punkgoat_ult"})
+
+
 @handler("upgrade_melee_charge", "upgrade_crushing_fists")
 class MeleeCharge(FX):
     """Heavy melee off cooldown deals +BonusHeavyMeleeDamage%. Crushing Fists also stuns on it and each light
-    melee adds a bullet-resist-reduction stack (MaxStacks, DebuffDuration; a heavy adds HeavyMeleeMultiplier)."""
+    melee adds a bullet-resist-reduction stack (MaxStacks, DebuffDuration; a heavy adds HeavyMeleeMultiplier).
+    HEAVY_MELEE_ABILITIES' melee hits proc it like a heavy, in their landing factor's share of hits."""
 
     def on_damage_dealt(self, f, t, hit):
+        ab = hit.kind == "melee" and hit.is_ability and hit.ability is not None and \
+            hit.ability.ab.class_name in HEAVY_MELEE_ABILITIES
+        if ab:
+            if _melee_proc(self, f, hit):
+                self.use()
+                f.e.damage(f, t, hit.raw * self.item.p("BonusHeavyMeleeDamage") / 100, "melee", self.name,
+                           is_item=True, procs=False)
+                if self.dur("StunDuration"):
+                    self.debuff(t, "stun", 1, self.dur("StunDuration"))
+            return
         if not _basic_melee(hit):
             return
         heavy = f.counters.get("melee_heavy")
         if heavy and _melee_proc(self, f):
             self.use()
-            f.e.damage(f, t, hit.raw * self.item.p("BonusHeavyMeleeDamage") / 100, "melee", self.name,
+            # a weighted melee tick (below MELEE_MIN_RATE) already procs in its weight's share of ticks: the bonus is
+            # of one whole heavy (it was of the weighted hit, w^2: Apollo's 0.64-weight ticks read 4x under)
+            w = max(1e-6, f.counters.get("melee_weight", 1.0))
+            f.e.damage(f, t, hit.raw / w * self.item.p("BonusHeavyMeleeDamage") / 100, "melee", self.name,
                        is_item=True, procs=False)
             if self.dur("StunDuration"):
                 self.debuff(t, "stun", 1, self.dur("StunDuration"))
@@ -1605,7 +1624,8 @@ class Lifestrike(FX):
         if not _any_melee(hit) or not _melee_proc(self, f, hit):
             return
         self.use()
-        amt = self.v("LifestrikeHeal") + self.v("LifestealHeal") + hit.amount * self.item.p("LifestealHealPercent") / 100
+        w = max(1e-6, f.counters.get("melee_weight", 1.0)) if hit.source == "melee" else 1.0   # of one whole hit
+        amt = self.v("LifestrikeHeal") + self.v("LifestealHeal") + hit.amount / w * self.item.p("LifestealHealPercent") / 100
         f.heal(amt, self.name, "item")
 
 
