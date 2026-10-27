@@ -1,7 +1,8 @@
 """Audit: how the sim's damage mix compares with real Phantom+ matches, per hero and per item, with the model as the
 build searches use it (ability landing factors, real-data item factors, counterplay, mechanics, melee by build).
 
-For each player-match in the sample, duel the player's real build (items and net worth at 30/60/90% of the match,
+For each player-match in the sample, duel the player's real build (items and net worth at five times drawn from the
+player's real damage over the match, see "Whole-match cover" below; 30/60/90% for importers of sim_player,
 the player's real hero accuracy and headshot rate) against a real enemy from the same match at the same moment,
 with the real mean count of other enemies near the target (Mechanics.extra_targets = mechanics.real_nearby, as the
 searches fight; Ricochet and Split Shot hits on them count, and area items' replay-measured extra hits on other
@@ -19,6 +20,14 @@ then compare where the damage comes from with the match's real damage matrix (da
   half the sim's) read every item ~1.4x under per gun; per total damage they read ~1.0 (Tankbuster 1.34 -> 0.97).
   Split-half (fit item_landing_heroes.py on one half, audit the other): per-source gap 0.0361 -> 0.0346 and
   0.0331 -> 0.0319. The per-source ratios below stay per gun (whole hero, every player: same fixed point).
+
+Whole-match cover (AUDIT_COVER=1, the default of main): the real mix is the whole match, so the duels cover it too:
+duel i at the time the player's cumulative real damage passes (i + u) / 5 of the match total (lane included), and the
+sim mix of each fifth of the match is weighted by the real damage in it. Before 2026-10-27 the duels were at 30/60/90%
+only and pooled by sim damage, which grows much faster with the phase than real damage (late duels ~13x the lane's,
+real ~4x): the whole-match sim mix read like the late game, and a late gun over-shoot had been hiding it (PR #165's
+gun slowdown read 0.021 -> 0.028 there, 0.023 -> 0.020 here). Per-duel reweighting to real damage instead was biased
+(gun +0.015: ability-heavy duels deal more damage). AUDIT_COVER=0: the old duels at 30/60/90%.
 
 Unlike landing_rates.py and item_landing.py this fits nothing and writes no model data; it says where the model
 is furthest from real games now. Output: validation/damage_audit.json and validation/damage_audit.md.
@@ -64,7 +73,12 @@ ITEM_NORM = os.environ.get("AUDIT_NORM", "gun")
 SEED = int(os.environ.get("AUDIT_SEED", "0"))
 REAL_TIERS = os.environ.get("AUDIT_REAL_TIERS", "1") != "0"   # fight.ORDER_HEROES' players with their real ability tiers
 AREA_PHASE = os.environ.get("AUDIT_AREA_PHASE", "1") != "0"   # area abilities' extra heroes by phase (Mechanics.ability_area_phase)
-ALLY_VAPORS = os.environ.get("AUDIT_ALLY_VAPORS", "1") != "0"   # an allied Nurse's vapors on the real teams (Mechanics.ally_vapors)   # another draw of foes and fight draws (split-half averaging)
+ALLY_VAPORS = os.environ.get("AUDIT_ALLY_VAPORS", "1") != "0"   # an allied Nurse's vapors on the real teams (Mechanics.ally_vapors)
+# whole-match cover (main sets AUDIT_COVER=1; importers of sim_player keep the duels at L.FRACS): COVER_DUELS duels per
+# player-match at times drawn from the player's real damage over the match, the sim mix of each fifth of the match
+# weighted by the real damage in it
+COVER_DUELS = 5
+COVER_BINS = 5
 _sk = {}
 
 
@@ -126,6 +140,52 @@ def real_tiers(p, t):
     return {"tiers": tiers, "unlocked": unlocked}
 
 
+DEFAULT_FRACS = L.FRACS
+
+
+def cover_bin(frac):
+    return min(COVER_BINS - 1, int(frac * COVER_BINS))
+
+
+def cover_fracs(m, p):
+    """COVER_DUELS duel times (fractions of the match) drawn stratified from the player's real damage to enemy heroes:
+    duel i where the cumulative damage passes (i + u) / n of the match total; None without damage_series."""
+    real = L.real_gun_series(m, p, gun_only=False)
+    T = m["duration_s"]
+    if real is None or real(T) <= 0:
+        return None
+    rnd = random.Random(m["match_id"] * 7 + p["slot"] + SEED * 1000003)
+    out = []
+    for i in range(COVER_DUELS):
+        q, lo, hi = (i + rnd.random()) / COVER_DUELS * real(T), 0.0, T
+        for _ in range(30):
+            mid = 0.5 * (lo + hi)
+            lo, hi = (mid, hi) if real(mid) < q else (lo, mid)
+        out.append(0.5 * (lo + hi) / T)
+    return out
+
+
+def real_bins(m, p):
+    """The player's real damage to enemy heroes in each COVER_BINS-th of the match, or None."""
+    real = L.real_gun_series(m, p, gun_only=False)
+    if real is None:
+        return None
+    T = m["duration_s"]
+    return [real((b + 1) / COVER_BINS * T) - real(b / COVER_BINS * T) for b in range(COVER_BINS)]
+
+
+def cover_mix(sim_bin, real_bin):
+    """{hero: Counter source -> damage}: each fifth's sim mix (pooled by sim damage inside it) x the real damage in that
+    fifth. A fifth without sim duels (rare: duels follow the real damage) is left out, the shares come from the rest."""
+    out = collections.defaultdict(collections.Counter)
+    for (hid, b), c in sim_bin.items():
+        st = sum(c.values())
+        if st > 0:
+            for k, v in c.items():
+                out[hid][k] += real_bin[hid, b] * v / st
+    return out
+
+
 def sim_player(job, both=False):
     """(hero id, sim damage by source, {item: [item dmg, gun or all dmg (ITEM_NORM)] of the duels holding it});
     both=True: each of the two as a pair (expected over real fight lengths, in full) from the same duels
@@ -141,7 +201,11 @@ def sim_player(job, both=False):
     out, out_u = collections.Counter(), collections.Counter()
     held = collections.defaultdict(lambda: [0.0, 0.0])   # item class -> [sim item dmg, sim gun/all dmg] in duels holding it
     held_u = collections.defaultdict(lambda: [0.0, 0.0])
-    for frac in L.FRACS:
+    # cover mode: every duel's damage is tagged with its fifth of the match (main weights the fifths by real damage);
+    # a player without damage_series keeps the 30/60/90% duels, tagged the same way
+    tag = os.environ.get("AUDIT_COVER") == "1" and L.FRACS == DEFAULT_FRACS and not (PROFILE or both)
+    fracs = cover_fracs(m, me) if tag else None
+    for frac in fracs or L.FRACS:
         t = m["duration_s"] * frac
         items, souls = L.build_at(me, t)
         foe = rnd.choice(foes)
@@ -194,7 +258,7 @@ def sim_player(job, both=False):
                     out[f"_lg:{cls}:{min(40, int((first[cls] - r.a_cast_first[cls]) / 0.25))}"] += 1
         for o, hd, exp in ((out, held, True), (out_u, held_u, False)) if both else ((out, held, True),):
             d = sim_sources(r, lambda k: L.sim_key(k, names, G), exp)
-            o.update(d)
+            o.update({f"{cover_bin(frac)}|{k}": v for k, v in d.items()} if tag else d)
             for i in items:
                 c = G.items[i].class_name
                 hd[c][0] += d.get(c, 0.0)
@@ -217,6 +281,8 @@ def main():
     global BADGE, LENGTH, ITEM_NORM
     os.environ.setdefault("AUDIT_NORM", "total")   # an env var, so spawned workers get it too
     ITEM_NORM = os.environ["AUDIT_NORM"]
+    os.environ.setdefault("AUDIT_COVER", "1")
+    cover = os.environ["AUDIT_COVER"] == "1" and L.FRACS == DEFAULT_FRACS
     if "--no-length" in args:
         LENGTH = False
         args.remove("--no-length")
@@ -257,13 +323,25 @@ def main():
     sim_item = collections.defaultdict(lambda: [0.0, 0.0, 0])
     sim_hero_item = collections.defaultdict(lambda: [0.0, 0.0, 0])
     errs = collections.Counter()
+    sim_bin = collections.defaultdict(collections.Counter)   # (hero, fifth of the match) -> sim damage by source
+    real_bin = collections.Counter()                          # (hero, fifth) -> real damage to enemy heroes
     t0 = time.time()
     with ProcessPoolExecutor(workers) as ex:
         for i, ((m, slot), (hid, d, held)) in enumerate(zip(jobs, ex.map(sim_player, jobs, chunksize=8))):
             rd = real_of[m["match_id"], slot]
             real[hid].update(rd)
+            rb = real_bins(m, next(p for p in m["players"] if p["slot"] == slot)) if cover else None
             for k, v in d.items():
-                (errs if k.startswith("_") else sim[hid])[k] += v
+                if k.startswith("_"):
+                    errs[k] += v
+                elif "|" in k:
+                    b, kk = k.split("|", 1)
+                    sim_bin[hid, int(b)][kk] += v
+                else:
+                    sim[hid][k] += v
+            if rb is not None:
+                for b, v in enumerate(rb):
+                    real_bin[hid, b] += v
             # holders only, and only damage while the item was owned: real = damage between buy and sell
             # (damage matrix samples), sim = the duels whose build had it
             hg = held_of.get((m["match_id"], slot))
@@ -280,6 +358,10 @@ def main():
             if i % 500 == 0:
                 print(f"{i}/{len(jobs)} {time.time() - t0:.0f}s", flush=True)
     print("errors:", errs.most_common(10))
+    # whole-match cover: the sim's damage per duel grows much faster with the phase than real damage does (late duels
+    # ~13x the lane's, real ~4x), so the sim mix of each fifth of the match weighs as much as the real damage in it
+    for hid, c in cover_mix(sim_bin, real_bin).items():
+        sim[hid].update(c)
 
     heroes = {}
     for hid in sorted(sim):
