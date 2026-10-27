@@ -2569,3 +2569,38 @@ Grey Talon, Paradox, Yamato whole-match gun 0.02-0.03 under now, though each pha
 refit (ability_corr_heroes.py --split, all heroes) kept Seven, Dynamo, Shiv, Mina, Violet: whole-match 0.0277, phase
 mix 0.0529 / 0.0453 / 0.0642 -> 0.0547 / 0.0424 / 0.0615. Left: the sim gun is ~0.95x real share even without spirit
 items; melee over for spirit builds too (0.031 vs 0.023 past 0.65 spirit lean at 90%).
+
+## Violet's Still Life draws (2026-10-27)
+
+Re-ranking on main after #164/#166 with each hero's sampling noise (bootstrap of the real players, 200 draws): Violet
+had the largest gap clear of noise (0.029 with 376 players, noise 0.005); Calico 0.041 is the known mid-game bias of the
+whole-match table, Warden / Viscous (0.06) have 33 / 29 players and noise ~0.03. Violet's time-based items were under on
+her only (holders: Torment Pulse 1.9x, Mystic Burst 1.6x, Tankbuster 1.4x, Mystic Shot 1.25x; ~1.0 on every other
+hero) and she killed in 64% of her audit duels (median 13.8 s; Baba 10%, Celeste 24%), so those items got little time.
+
+Same players (the 155 Violets of the 260 fight-length replays), per gun hit: Tankbuster and Mystic Shot procs 0.72 /
+0.14 in the sim vs 0.95 / 0.18 real, and open PR #165 (gun time by build) moves them to 0.95 / 0.17; that part is the
+spirit-build gun rate. The rest is Still Life (`scripts/mechanics/still_life_draws.py`, 4917 draws):
+
+- a completed draw ends 2.61 s after its first tick (AbilityChannelTime 2.6) whatever Violet hit meanwhile: the BuildUp
+  props do not shorten it;
+- Violet lands 0.01 gun hits per second while drawing vs 0.55 when engaged, and casts nearly nothing else;
+- 48% of draws complete; P(broken by t) 0.05 / 0.18 / 0.34 / 0.44 / 0.52 at 0 / 0.75 / 1.5 / 2.0 / 2.5 s.
+
+The sim let her shoot through the draw, completed it when the meter reached 100 (seconds plus shots) and stunned in 92%
+of draws. Now (deadsim/heroes/artist.py) a draw channels AbilityChannelTime with the gun locked and her other abilities
+waiting, breaks at a time drawn from the real curve (SKETCH_BREAK; fights with a phase or an rng, as recast waits are
+drawn), and only an unbroken draw ends in Damage + stun.
+
+Judged on main before #165: split-half (corrections refit 3 rounds on one match-id half, 2 draws on the other, against
+the same refit on main's code) mix 0.0340 -> 0.0300 and 0.0260 -> 0.0240; Violet mix (4 draws) 0.030 -> 0.027; duels
+she wins outright 64% -> 59%; sim_vs_win 27k all heroes flat (all 0.249, within slot and tier 0.297).
+
+Again after #165 merged (gun time by build): split-half with 6 draws per half, per-source 0.0209 -> 0.0198 and 0.0172
+-> 0.0163, mix 0.0195 -> 0.0158 and 0.0168 -> 0.0167. Violet's corrections refit 3 rounds on top of #165 (Still Life
+1.79 -> 2.66, Abstract Landscape 2.04 -> 2.23, Flow State 2.60 -> 2.46, Living Ink 1.36 -> 1.33). Violet mix (4 draws)
+0.018 -> 0.014; holders' Torment Pulse 1.68 -> 1.51, Mystic Shot 1.12 -> 1.06. sim_vs_win Violet 27k + 37k: all 0.360
+-> 0.380, within slot and tier 0.396 -> 0.407, clear of noise 0.432 -> 0.496 (damage items 0.507 -> 0.464).
+
+Left: she still kills fast in duels (Living Ink's cooldown cuts are the next
+suspect: in replays Still Life was recast early in 83% of chances).

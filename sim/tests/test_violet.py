@@ -85,21 +85,50 @@ class TestLivingInk(VioletCase):
 
 
 class TestStillLife(VioletCase):
-    def test_sketch_completes_and_stuns(self):
+    def test_draw_channels_then_stuns(self):
+        """Without a phase or rng the draw isn't broken: it channels AbilityChannelTime, then stuns."""
         sl = self.ab["ability_artist_tether"]
         sl.cast()
-        self.run_queue(artist.SKETCH_MAX)
+        ch = sl.ctx.raw("AbilityChannelTime")
+        self.assertGreaterEqual(self.f.gun_locked_until, ch - 1e-9)
+        self.run_queue(ch - 0.05)
+        self.assertTrue(sl.scratch["active"])
+        self.assertFalse(self.g.mods.active("stun"))
+        self.run_queue(ch + 0.01)
         self.assertFalse(sl.scratch["active"])
-        self.assertGreaterEqual(sl.scratch["meter"], 100)
+        self.assertTrue(self.g.mods.active("stun"))
+        self.assertLessEqual(self.f.gun_locked_until, ch + 0.01)
         self.assertGreater(self.f.dmg_out.get("Still Life", 0), 0)
 
-    def test_living_ink_hit_fills_the_sketch_once(self):
+    def test_no_other_casts_while_drawing(self):
         sl, li = self.ab["ability_artist_tether"], self.ab["ability_artist_homingbrush"]
         sl.cast()
-        before = sl.scratch["meter"]
-        li.cast()
-        TestLivingInk.shoot(self)
-        self.assertAlmostEqual(sl.scratch["meter"] - before, sl.ctx.raw("BuildUpPerShot"))
+        self.assertTrue(artist.drawing(sl.ctx))
+        self.assertFalse(li.impl.should_cast(li.ctx))
+
+    def test_break_curve(self):
+        """Drawn break times follow SKETCH_BREAK; about half the draws complete."""
+        import random
+        self.e.rng = random.Random(3)
+        sl = self.ab["ability_artist_tether"]
+        brks = [artist.sketch_break(sl.ctx, n) for n in range(4000)]
+        done = sum(b is None for b in brks) / len(brks)
+        self.assertAlmostEqual(done, 1 - artist.SKETCH_BREAK[-1], delta=0.03)
+        early = sum(b is not None and b <= 1.0 for b in brks) / len(brks)
+        self.assertAlmostEqual(early, artist.SKETCH_BREAK[4], delta=0.03)
+
+    def test_broken_draw_does_not_stun(self):
+        sl = self.ab["ability_artist_tether"]
+        artist.sketch_break, keep = (lambda c, n: 1.0), artist.sketch_break
+        try:
+            sl.cast()
+        finally:
+            artist.sketch_break = keep
+        self.run_queue(1.05)
+        self.assertFalse(sl.scratch["active"])
+        self.assertLessEqual(self.f.gun_locked_until, 1.05)
+        self.run_queue(4.0)
+        self.assertFalse(self.g.mods.active("stun"))
 
 
 class TestStillLifeT1(VioletCase):
