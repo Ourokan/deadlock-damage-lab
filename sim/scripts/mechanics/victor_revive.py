@@ -136,13 +136,16 @@ def main():
         key = sorted(v, key=lambda x: (x is None, x or 0.0))
         qs = [key[min(len(key) - 1, int((i + 0.5) / QBINS * len(key)))] for i in range(QBINS)]
         out["phases"][ph] = [None if x is None else round(x, 1) for x in qs]
-        on = {cd: sum(1 for x in v if x is not None and x < cd) / len(v) for cd in (145, 240)}
+        on = {cd: sum(1 for x in v if x is not None and x < cd) / max(1, len(v)) for cd in (145, 240)}
+        # in_fight: measured only (the drawn third-party revive was not kept, frank.py doesn't read it)
         r = ready[ph]
         at = sorted(x for x in r if x is not None)
-        out["in_fight"][ph] = {"p": round(len(at) / len(r), 4),
-                               "at": [round(at[min(len(at) - 1, int((i + 0.5) / QBINS * len(at)))], 1) for i in range(QBINS)]}
-        print(f"{ph:5s} ready fights {len(r)}: revives in {out['in_fight'][ph]['p']:.3f}, "
-              f"median {at[len(at) // 2]:.1f} s in")
+        out["in_fight"][ph] = {"p": round(len(at) / max(1, len(r)), 4),
+                               "at": [round(at[min(len(at) - 1, int((i + 0.5) / QBINS * len(at)))], 1)
+                                      for i in range(QBINS)] if at else []}
+        if at:
+            print(f"{ph:5s} ready fights {len(r)}: revives in {out['in_fight'][ph]['p']:.3f}, "
+                  f"median {at[len(at) // 2]:.1f} s in")
         print(f"{ph:5s} fights {len(v):5d}  on cooldown at start if cd 145 s: {on[145]:.2f}, 240 s: {on[240]:.2f}")
     if "--write" in sys.argv:
         i = sys.argv.index("--write") + 1
