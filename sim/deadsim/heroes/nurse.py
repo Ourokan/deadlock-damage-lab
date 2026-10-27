@@ -25,6 +25,8 @@ replays, 2026-10-25):
   FearDurationPerLeechStack per stack, then builds again; it takes full DPS throughout (facing her or feared) and
   FireRateSlow% fire-rate slow. T3: Nurse is immune to damage while channeling. Real ult casts hit the main target
   4.2 s of the 7 s on average (they flee out of the cone) and 2.6 heroes: the landing factor absorbs both.
+  The channel commits the fight (TERRORS_COMMIT): ticks book at the channel start's fight weight and the channel left
+  when the duel ends still lands (validation/README.md "Nurse's Lurking Terrors runs its channel").
 """
 from deadsim.abilities import AbilityImpl, register
 
@@ -37,6 +39,13 @@ CRASH_SRC = "Wretched Vapors (crash)"
 # (234 replays) vs ~40% if she self-cast it in every duel. A duel has no ally, so the rush counts as an expected
 # value: SELF_CAST of the deferral, speed-up and crash (scripts/nurse/fit_vapors.py matches the 4.9%).
 SELF_CAST = 0.2
+# Lurking Terrors commits the fight (TERRORS_COMMIT): feared targets flee yet keep taking the DPS and a T3 Nurse can't
+# be hurt, so real channels run on (234 replays: damage spans 3.7 s of the 7 s channel at T0, 6.4 s of 10 s at T3).
+# Its ticks are booked at the channel start's fight weight (Engine.book_at), and the channel left when the duel ends
+# still lands: in full when the duel hit its time cap, at TERRORS_OTHERS (the other heroes' share of a real cast's
+# damage, 0.40 in lane to 0.53 late) after the duel's target died.
+TERRORS_COMMIT = True
+TERRORS_OTHERS = 0.5
 
 
 def start_stacks(souls):
@@ -260,7 +269,7 @@ class LurkingTerrors(AbilityImpl):
         if c.raw("ChannelDamageImmune"):
             c.buff("invulnerable", 1, delay + T, tag="terrors_immune")
         tick = c.raw("TickRate", 0.15)
-        c.state.update(end=c.now + delay + T, terror=0.0, feared_until=-1.0)
+        c.state.update(end=c.now + delay + T, terror=0.0, feared_until=-1.0, book=c.now + delay, last=None)
         c.after(delay + tick, self.tick, c, tick)
 
     def tick(self, c, tick):
@@ -271,9 +280,16 @@ class LurkingTerrors(AbilityImpl):
         if f.mods.active("stun"):   # channel broken
             f.gun_locked_until = c.now
             f.mods.remove("invulnerable", "terrors_immune")
+            st["last"] = None   # nothing of a broken channel lands at the duel's end, even once the stun ran out
             return
-        c.engine.damage(f, foe, c.val("DPS") * tick, "spirit", self.s.ab.name, is_ability=True, ability=self.s,
-                        is_dot=True, is_ult=True)
+        e = c.engine
+        if TERRORS_COMMIT:
+            e.book_at = st["book"]
+        try:
+            st["last"] = (c.now, tick, e.damage(f, foe, c.val("DPS") * tick, "spirit", self.s.ab.name, is_ability=True,
+                                                ability=self.s, is_dot=True, is_ult=True))
+        finally:
+            e.book_at = None
         c.debuff("fire_rate_slow", c.raw("FireRateSlow") / 100, tick + c.raw("SlowLingerDuration", 0.5),
                  tag="terrors_slow")
         if c.now >= st["feared_until"]:
@@ -285,3 +301,23 @@ class LurkingTerrors(AbilityImpl):
                 st["terror"] = 0.0
                 st["feared_until"] = c.now + fear
         c.after(tick, self.tick, c, tick)
+
+    def on_fight_end(self, c):
+        """TERRORS_COMMIT: the channel left when the duel ends (time cap, or the target died) at the last tick's damage.
+        An expected-value credit for fights booked over real fight lengths only (the audit, the searches' duels): it goes
+        to dmg_out / dmg_exp, not through Engine.damage (no target health, dmg_in, 2 s profiles, hooks or barrier
+        unbooking), and a fight without Mechanics.fight_length (the dummy's time to kill) gets none."""
+        st, f, e = c.state, c.me, c.engine
+        last = st.get("last") if TERRORS_COMMIT and e.length else None
+        if not last or not f.alive or f.mods.active("stun") or last[2] <= 0 or c.now > st["end"]:
+            return
+        t, tick, dealt = last
+        n = int((st["end"] - t) / tick + 1e-9)
+        if n <= 0:
+            return
+        share = 1.0 if c.foe.alive else TERRORS_OTHERS
+        amt = dealt * n * share
+        w = e.length_w(st["book"], src=f, source=self.s.ab.name)
+        name = self.s.ab.name
+        f.dmg_out[name] = f.dmg_out.get(name, 0.0) + amt
+        f.dmg_exp[name] = f.dmg_exp.get(name, 0.0) + amt * w

@@ -111,6 +111,77 @@ class TestTerrors(NurseCase):
         self.assertAlmostEqual(self.f.dmg_out.get("Lurking Terrors", 0.0), dealt, delta=c.val("DPS") * 0.2)
         self.assertLess(self.f.gun_locked_until, c.raw("AbilityCastDelay") + 1.0)
 
+    def channel_left_booked(self, end):
+        """Terrors damage booked by on_fight_end after the duel stopped 2 s into the channel, end(c) at the stop."""
+        self.e.length = (1.0, 1.0)   # booked over real fight lengths (flat: weight 1)
+        lt = self.ab["ability_nurse_fear"]
+        c = lt.ctx
+        lt.cast()
+        self.run_until(c.raw("AbilityCastDelay") + 2.0)
+        end(c)
+        tick = self.f.dmg_out["Lurking Terrors"]
+        last = c.state["last"]
+        lt.impl.on_fight_end(c)
+        if last is None:
+            return self.f.dmg_out["Lurking Terrors"] - tick, 0.0
+        n = int((c.state["end"] - last[0]) / last[1] + 1e-9)
+        return self.f.dmg_out["Lurking Terrors"] - tick, last[2] * n
+
+    def test_channel_left_lands_at_duel_end(self):
+        got, full = self.channel_left_booked(lambda c: None)
+        self.assertGreater(full, 0)
+        self.assertAlmostEqual(got, full, places=6)
+
+    def test_channel_left_on_others_after_the_target_died(self):
+        got, full = self.channel_left_booked(lambda c: setattr(self.g, "alive", False))
+        self.assertAlmostEqual(got, full * nurse.TERRORS_OTHERS, places=6)
+
+    def test_no_channel_left_without_fight_lengths(self):
+        got, _ = self.channel_left_booked(lambda c: setattr(self.e, "length", None))
+        self.assertEqual(got, 0.0)
+
+    def test_duel_end_lands_the_channel_left(self):
+        """Engine.run calls on_fight_end: a duel cut by its time cap mid-channel books more than the ticks it ran."""
+        from deadsim.engine import Engine as E
+        out = []
+        for commit in (False, True):
+            old = nurse.TERRORS_COMMIT
+            nurse.TERRORS_COMMIT = commit
+            try:
+                e = E(distance=10, max_time=4.0, mech=None)
+                e.length = (1.0, 1.0)
+                a = make_fighter(e, Loadout("Nurse Harrow", [], souls=20000))
+                b = make_fighter(e, Loadout("Abrams", [], souls=20000))
+                for s in a.abilities:
+                    if s.ab.class_name != "ability_nurse_fear":
+                        s.unlocked = False
+                e.run(a, b, one_way=True)
+                out.append(a.dmg_out.get("Lurking Terrors", 0.0))
+            finally:
+                nurse.TERRORS_COMMIT = old
+        self.assertGreater(out[0], 0)
+        self.assertGreater(out[1], out[0] * 1.5)
+
+    def test_no_channel_left_after_a_stun_broke_it(self):
+        def stun_then_tick(c):
+            self.f.mods.add("stun", 1, 0.2, "test_stun")
+            self.run_until(self.e.t + 0.6)   # the stun breaks the channel at the next tick, then runs out
+            self.assertFalse(self.f.mods.active("stun"))
+        got, _ = self.channel_left_booked(stun_then_tick)
+        self.assertEqual(got, 0.0)
+
+    def test_no_channel_left_when_stunned_or_off(self):
+        got, _ = self.channel_left_booked(lambda c: self.f.mods.add("stun", 1, 5.0, "test_stun"))
+        self.assertEqual(got, 0.0)
+        old = nurse.TERRORS_COMMIT
+        nurse.TERRORS_COMMIT = False
+        try:
+            self.setUp()
+            got, _ = self.channel_left_booked(lambda c: None)
+        finally:
+            nurse.TERRORS_COMMIT = old
+        self.assertEqual(got, 0.0)
+
     def test_needles_never_cast(self):
         self.assertFalse(self.ab["ability_nurse_healing_needles"].try_cast())
 

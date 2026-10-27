@@ -2622,3 +2622,33 @@ Results (2 draws): whole-match mix 0.0280 (30 / 60 / 90%) -> 0.0202; the same au
 the gun slowdown is an improvement there. ability_corr_heroes.py --split (all heroes, now on the cover audit) kept
 Apollo, Mirage, Lash, McGinnis, Mina, Infernus: 0.0202 -> 0.0193 (Apollo 0.040 -> 0.018, Lash 0.028 -> 0.017,
 McGinnis 0.023 -> 0.011). The audit runs 5 duels instead of 3 (~2 min on 4 cores).
+
+## Nurse's Lurking Terrors runs its channel (2026-10-27)
+
+Re-ranked on the cover audit (#169), per-source distance with each hero split by match-id halves: Sinclair (0.094) is
+noise (Audience Participation 0.18 / 0.35 on one half, 0.23 / 0.20 on the other: the copied ult varies), Lady Geist
+(0.084, 37 players), Viscous and Warden (29 / 33) are small; Nurse Harrow (0.040, 347 players) had the same gaps on
+both halves. By phase (phase_mix.py --window 0.05) her ult share was 0.21 / 0.34 / 0.33 in the sim vs 0.15 / 0.36 /
+0.45 real at 30 / 60 / 90% of the match, Leech Therapy over late (0.37 vs 0.26).
+
+Replays (234 Nurse matches of the fight-length replays): Terrors deals 304 / 747 / 1117 / 1321 per cast at net worth
+<10k / 10-20k / 20-30k / 30k+ (2.1 to 3.1 heroes, damage spanning 3.9 to 6.6 s; T3 casts 6.4 s of the 10 s channel,
+taking 2 damage meanwhile); the first cast share per fight is flat over the match for all her abilities. In the audit
+duels the channel was cut short more and more as the match goes on: the channel left when the duel ended (time cap,
+target dead, Nurse dead or stunned) was 15% of it at 30% of the match and 35% at 90% (T3 channel 10 s, faster kills),
+on top of every tick being weighed by P(the two still trade then).
+
+Now (deadsim/heroes/nurse.py TERRORS_COMMIT): Terrors' ticks are booked at the channel start's fight weight
+(Engine.book_at: feared targets flee but keep taking the DPS), and the channel left when the duel ends lands at the
+last tick's damage, in full at the time cap and x TERRORS_OTHERS (0.5: the other heroes' share of a real cast, 0.40
+in lane to 0.53 late) when the target died; none when Nurse died or is stunned (Engine.run calls the abilities'
+on_fight_end). Real ability tiers for Nurse (fight.ORDER_HEROES) were tried too: Leech late better, early ult worse,
+dropped.
+
+Split-half (Nurse's corrections refit 3 rounds on one half, against the same refit on the old code, judged on the
+other): phase mix 0.090 / 0.042 / 0.110 -> 0.067 / 0.041 / 0.086 and 0.143 / 0.101 / 0.078 -> 0.110 / 0.096 / 0.041
+at 30 / 60 / 90%; whole-match held-out mix 0.022 -> 0.024 and 0.021 -> 0.021. Refit on the whole sample (Terrors
+length_corr 2.55 -> 1.84, Leech 1.48 -> 1.42): audit 0.0187 -> 0.0184, Nurse 0.016 -> 0.013 (per source 0.040 ->
+0.008). A stun that broke the channel leaves nothing to land at the end. sim_vs_win Nurse 27k + 37k: all 0.286 -> 0.302, within slot and tier 0.312 -> 0.332.
+
+Left: Nurse's early ult is still over (0.22 vs 0.15 at 30%).
