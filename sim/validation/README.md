@@ -2520,3 +2520,28 @@ Results: Celeste mix (6 draws) 0.049 -> 0.019 (0.040 before the refit); phase-ma
 
 Left: her late ult (0.158 vs 0.208 at 90%, with real tiers) and late gun; the other heroes with large tier gaps (Ivy,
 Sinclair, Paige, Doorman, McGinnis) need the same split-half judgement before going on ORDER_HEROES.
+
+### More heroes on the median order (2026-10-27)
+
+The five heroes with the largest tier gaps, each judged on its own: the hero added to `ORDER_HEROES` with its ability
+corrections refit 3 rounds on one match-id half, audited on the other (8 draws), against the same refit on main's code.
+McGinnis (49 players) was then judged again the way his draws need (each fit round on the mean of seeds 0-3, held-out
+test on seeds 6-9, as for #136), and Ivy and Paige too.
+
+| hero | held-out mix, main code -> median order (half 1 / half 0) | per-source | kept |
+| --- | --- | --- | --- |
+| Ivy | 0.0483 -> 0.0469 / 0.0440 -> 0.0394 (seed-averaged 0.0443 -> 0.0429 / 0.0487 -> 0.0467) | better both | yes |
+| Paige | 0.0353 -> 0.0262 / 0.0245 -> 0.0211 (seed-averaged 0.0325 -> 0.0228 / 0.0339 -> 0.0218) | better both | yes |
+| McGinnis | 0.0826 -> 0.0820 / 0.0402 -> 0.0391, seed-averaged 0.0325 -> 0.0376 / 0.0465 -> 0.0445 | seed-averaged worse one half | no |
+| Sinclair | 0.0238 -> 0.0249 / 0.0376 -> 0.0392 | better both | no |
+| The Doorman | 0.0191 -> 0.0216 / 0.0187 -> 0.0233 | worse one half | no |
+
+Sinclair's and the Doorman's corrections already absorb their popular orders (both sit near 0.01-0.02 mix), and
+McGinnis's turret pacing (#136) already found his real per-player order no better. Ivy and Paige corrections refit on
+the whole sample (seed-averaged, 3 rounds): Ivy Entangling Thorns 1.60 -> 1.86, Stone Form 0.78 -> 0.90, Air Drop
+1.49 -> 1.68; Paige Bookwyrm 1.50 -> 2.01, Captivating Read 1.18 -> 1.29, Rallying Charge 2.16 -> 1.99. Ivy now has
+Kudzu Connection at tier 2-3 by 8-14k souls (popular order: 0 until ~27k).
+
+Results (4 draws): all heroes 0.0207 -> 0.0205, Ivy 0.047 -> 0.043, Paige 0.015 -> 0.013, others flat.
+sim_vs_win (all heroes, 27k + 37k pooled): all 0.240 -> 0.241, within slot and tier 0.276 -> 0.277; Ivy 27k 0.163 ->
+0.168, 37k 0.158 -> 0.163; Paige 27k 0.188 -> 0.207, 37k 0.172 -> 0.190.

@@ -71,6 +71,22 @@ class MedianOrder(unittest.TestCase):
         ult = next(i for i, a in enumerate(h.abilities) if a.ultimate)
         self.assertGreaterEqual(_auto_abilities(h, 34000)[0][ult], 1)
 
+    def test_ivy_levels_kudzu_early(self):
+        # Ivy's popular order leaves Kudzu Connection at tier 0 by mid game, real players have it at 2.1
+        h = G.hero("Ivy")
+        kudzu = next(i for i, a in enumerate(h.abilities) if a.name == "Kudzu Connection")
+        self.assertGreaterEqual(_auto_abilities(h, 14000)[0][kudzu], 2)
+
+    def test_paige_unlocks_her_ult_in_lane(self):
+        # Paige's popular order maxes Bookwyrm first and has Rallying Charge locked at 8k souls; the median order has
+        # it unlocked and Bookwyrm at tier 1
+        h = G.hero("Paige")
+        ult = next(i for i, a in enumerate(h.abilities) if a.ultimate)
+        book = next(i for i, a in enumerate(h.abilities) if a.name == "Bookwyrm")
+        tiers, unlocked = _auto_abilities(h, 8000)
+        self.assertTrue(unlocked[ult])
+        self.assertLessEqual(tiers[book], 1)
+
 
 if __name__ == "__main__":
     unittest.main()
