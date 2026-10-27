@@ -320,6 +320,7 @@ class Fighter:
         self.clip = stats.clip
         self.bonus_ammo = 0
         self.reload_until = 0.0
+        self.gun_uptime = 1.0       # share of the time the fighter shoots (Mechanics.gun_lean)
         self.shooting_since = 0.0   # start of continuous fire (Intensifying Magazine)
         self.hit_acc = Accum(engine.rng, 0.5)
         self.head_acc = Accum(engine.rng, 0.5)
@@ -1040,7 +1041,7 @@ class Engine:
             return
         if f.clip + f.bonus_ammo <= 0:
             if f.reload_until <= t:
-                rt = st.reload_time * max(0.1, 1.0 + f.stat("reload_mult"))
+                rt = st.reload_time * max(0.1, 1.0 + f.stat("reload_mult")) / f.gun_uptime
                 f.reload_until = t + rt
                 f.shooting_since = None
                 for fx in f.items_fx:
@@ -1063,7 +1064,7 @@ class Engine:
             cycle = st.cycle_time + (st.spin_cycle - st.cycle_time) * spin
         if st.burst_count > 1:
             cycle += st.burst_count * st.burst_interval
-        interval = cycle / max(0.05, 1.0 + f.fire_rate())
+        interval = cycle / max(0.05, 1.0 + f.fire_rate()) / f.gun_uptime
         self.after(interval, self.gun_tick, f)
 
     def finish_reload(self, f):

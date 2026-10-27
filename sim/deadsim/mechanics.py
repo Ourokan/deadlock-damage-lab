@@ -220,6 +220,13 @@ class Mechanics:
     # --replays): real fights spread the shooter's hits over targets and the debuffs lapse. Fitted per attacker hero
     # (split-half 0.40 / 0.30, items and abilities alike): the in-fight shred values are x shred_uptime
     shred_uptime: float = 0.35
+    # gun time by build (2026-10-27): real players shoot less the more souls their build has in spirit items (real
+    # over sim gun share, Phantom+ sample, scripts/gun_calib/gun_build.py: about 0.94 with < 2k spirit souls, 0.78 at
+    # 10-16k, 0.65 past 24k, the same at 30 / 60 / 90% of the match for the same spirit souls; within a hero too: Ivy
+    # 1.23 gun builds / 0.38 spirit builds, Bebop 1.03 / 0.58), while the sim fires whenever it can. The gun's fire
+    # interval and reload time are / exp(-gun_lean x spirit item souls / 1000) (the gun's whole timeline slows, so its
+    # damage per second drops by that factor)
+    gun_lean: float = 0.028
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut

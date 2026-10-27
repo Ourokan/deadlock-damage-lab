@@ -28,8 +28,9 @@ DUELS = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift, all 
             # re-pinned 2026-10-27 for melee by game phase (Mechanics.melee_phase scales the 0.1/s melee rate)
             # Haze, Ivy (vs Hunter's Aura) re-pinned 2026-10-27: in-fight bullet shred x Mechanics.shred_uptime
             # Ivy re-pinned 2026-10-27: real median ability order (fight.ORDER_HEROES) + her corrections refit
+            # Haze, Infernus, Ivy re-pinned 2026-10-27: spirit item souls slow the gun (Mechanics.gun_lean)
     ("Haze", ["Rapid Rounds", "Toxic Bullets", "Restorative Locket"], "Infernus",
-     ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Infernus (B)", 25.1, 2339.4, 2225.5),
+     ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Infernus (B)", 25.1, 2369.0, 2172.3),
     ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 25.6, 1980.6, 3181.2),
     ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1412.7, 1281.5),
 ]

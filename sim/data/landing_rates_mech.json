@@ -44,28 +44,28 @@
     "landing": 0.38,
     "real_share": 0.1887,
     "sim_share": 0.2007,
-    "length_corr": 0.814
+    "length_corr": 0.65
    },
    "Static Charge": {
     "class": "citadel_ability_static_charge",
     "landing": 1.15,
     "real_share": 0.0568,
     "sim_share": 0.0604,
-    "length_corr": 0.549
+    "length_corr": 0.445
    },
    "Power Surge": {
     "class": "ability_power_surge",
     "landing": 0.56,
     "real_share": 0.1592,
     "sim_share": 0.1702,
-    "length_corr": 1.747
+    "length_corr": 1.837
    },
    "Storm Cloud": {
     "class": "citadel_ability_storm_cloud",
     "landing": 0.56,
     "real_share": 0.2828,
     "sim_share": 0.3019,
-    "length_corr": 0.311
+    "length_corr": 0.236
    }
   },
   "Vindicta": {
@@ -226,14 +226,14 @@
     "landing": 0.585,
     "real_share": 0.4409,
     "sim_share": 0.432,
-    "length_corr": 1.347
+    "length_corr": 1.063
    },
    "Singularity": {
     "class": "citadel_ability_self_vacuum",
     "landing": 0.745,
     "real_share": 0.1692,
     "sim_share": 0.1649,
-    "length_corr": 1.61
+    "length_corr": 1.326
    }
   },
   "Kelvin": {
@@ -415,21 +415,21 @@
     "landing": 0.45,
     "real_share": 0.2944,
     "sim_share": 0.3307,
-    "length_corr": 1.909
+    "length_corr": 1.574
    },
    "Slice and Dice": {
     "class": "citadel_ability_shiv_dash",
     "landing": 1.09,
     "real_share": 0.1504,
     "sim_share": 0.167,
-    "length_corr": 1.961
+    "length_corr": 1.975
    },
    "Killing Blow": {
     "class": "citadel_ability_shiv_killing_blow",
     "landing": 0.35,
     "real_share": 0.0584,
     "sim_share": 0.0628,
-    "length_corr": 2.198
+    "length_corr": 3.97
    }
   },
   "Ivy": {
@@ -657,21 +657,21 @@
     "landing": 1.075,
     "real_share": 0.2342,
     "sim_share": 0.2331,
-    "length_corr": 2.106
+    "length_corr": 1.742
    },
    "Love Bites": {
     "class": "ability_vampirebat_lovebites",
     "landing": 0.701,
     "real_share": 0.2939,
     "sim_share": 0.2904,
-    "length_corr": 1.101
+    "length_corr": 1.052
    },
    "Nox Nostra": {
     "class": "ability_vampirebat_batswarm",
     "landing": 0.261,
     "real_share": 0.1549,
     "sim_share": 0.1525,
-    "length_corr": 2.002
+    "length_corr": 1.603
    }
   },
   "Drifter": {
@@ -1051,22 +1051,22 @@
    "Living Ink": {
     "class": "ability_artist_homingbrush",
     "landing": 0.68,
-    "length_corr": 1.53
+    "length_corr": 1.363
    },
    "Flow State": {
     "class": "ability_artist_rollingprojectile",
     "landing": 0.47,
-    "length_corr": 3.036
+    "length_corr": 2.604
    },
    "Still Life": {
     "class": "ability_artist_tether",
     "landing": 0.75,
-    "length_corr": 2.113
+    "length_corr": 1.785
    },
    "Abstract Landscape": {
     "class": "ability_artist_bamboogrove",
     "landing": 1.18,
-    "length_corr": 2.36
+    "length_corr": 2.041
    }
   },
   "Baba": {

@@ -11,6 +11,7 @@ import bisect
 import heapq
 import dataclasses
 import json
+import math
 import os
 import random
 from dataclasses import dataclass, field
@@ -223,6 +224,9 @@ def make_fighter(engine, lo: Loadout, name=None):
     if engine.mech is not None and getattr(engine.mech, "heavy_holders", False):
         skill = heavy_holder_skill(skill, hero, items)
     f = Fighter(engine, name or lo.name or hero.name, st, skill)
+    if engine.mech is not None and getattr(engine.mech, "gun_lean", 0.0):
+        spirit = sum(it.cost for it in items if it.slot == "spirit")
+        f.gun_uptime = math.exp(-engine.mech.gun_lean * spirit / 1000.0)
     if lo.ability_order:
         tiers, unlocked = abilities_for_order(hero, lo.ability_order, st.souls)
     else:

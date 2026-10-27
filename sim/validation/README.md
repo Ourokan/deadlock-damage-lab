@@ -2545,3 +2545,27 @@ Kudzu Connection at tier 2-3 by 8-14k souls (popular order: 0 until ~27k).
 Results (4 draws): all heroes 0.0207 -> 0.0205, Ivy 0.047 -> 0.043, Paige 0.015 -> 0.013, others flat.
 sim_vs_win (all heroes, 27k + 37k pooled): all 0.240 -> 0.241, within slot and tier 0.276 -> 0.277; Ivy 27k 0.163 ->
 0.168, 37k 0.158 -> 0.163; Paige 27k 0.188 -> 0.207, 37k 0.172 -> 0.190.
+## Gun time by build (2026-10-27)
+
+After the shred fix the late gun was still over (phase_mix gun 0.276 / 0.243 / 0.219 sim vs 0.270 / 0.230 / 0.202
+real at 30 / 60 / 90%), mostly on spirit heroes (Paige 0.261 vs 0.135 at 90%). scripts/gun_calib/gun_build.py puts
+each player-match's real gun share in the window frac +- 0.05 beside the audit duel at that frac, with the build's
+spirit item souls. Real over sim gun share (share-corrected: r(1-g) / g(1-r)) falls with the souls in spirit items,
+not with the phase: 0.95 with none, 0.93 under 2k, 0.88 at 2-5k, 0.84 at 5-9k, 0.80 at 9-14k, 0.74 at 14-20k, 0.66
+past 20k, and each bin is the same at 30, 60 and 90% of the match. It holds within a hero (low vs high spirit lean at
+90%: Ivy 1.23 / 0.38, Bebop 1.03 / 0.58, Holliday 1.22 / 0.66, Graves 1.00 / 0.73; within-hero slope -18e-3 ln per 1k
+spirit souls). The real lost share goes to abilities; items match.
+
+Mechanics.gun_lean: the gun's fire interval and reload are / exp(-gun_lean x spirit item souls / 1000) (stretching
+only the interval moved the share half as much: a longer clip means fewer reloads). Fitted by the ln-ratio slope over
+spirit souls crossing 0: 0.0264 on even match ids, 0.0257 on odd; within-hero slope at 0.028: -2.7e-3 / -1.0e-3 per
+1k (from -18e-3). Set 0.028.
+
+Results (gun_lean 0.028): phase_mix gun real/sim 0.98 / 0.95 / 0.93 -> 1.00 / 1.00 / 1.04. sim_vs_win 27k: all 0.245
+-> 0.263, within slot and tier 0.287 -> 0.296, clear of noise 0.354 -> 0.369, damage items 0.155 -> 0.166. The
+whole-match audit (4 draws) 0.0210 -> 0.0299: it compares the whole real match, gun-heavy lane included, with duels at
+30 / 60 / 90% only, and the old late over-shooting had been filling in for the missing lane (Drifter, Graves, Danny,
+Grey Talon, Paradox, Yamato whole-match gun 0.02-0.03 under now, though each phase matches). Split-half ability
+refit (ability_corr_heroes.py --split, all heroes) kept Seven, Dynamo, Shiv, Mina, Violet: whole-match 0.0277, phase
+mix 0.0529 / 0.0453 / 0.0642 -> 0.0547 / 0.0424 / 0.0615. Left: the sim gun is ~0.95x real share even without spirit
+items; melee over for spirit builds too (0.031 vs 0.023 past 0.65 spirit lean at 90%).
