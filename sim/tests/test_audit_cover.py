@@ -49,6 +49,16 @@ class AuditCover(unittest.TestCase):
         self.assertEqual(D.cover_bin(0.39), 1)
         self.assertEqual(D.cover_bin(1.0), D.COVER_BINS - 1)
 
+    def test_cover_mix_weights_fifths_by_real_damage(self):
+        import collections
+        # sim: lane fifth 1000 dmg all gun, late fifth 9000 dmg all ability; real: 300 in the lane, 100 late
+        sim_bin = {(1, 0): collections.Counter(GUN=1000.0), (1, 4): collections.Counter(ab=9000.0),
+                   (1, 2): collections.Counter()}
+        real_bin = collections.Counter({(1, 0): 300.0, (1, 4): 100.0, (1, 2): 50.0})
+        mix = D.cover_mix(sim_bin, real_bin)[1]
+        self.assertAlmostEqual(mix["GUN"], 300.0)
+        self.assertAlmostEqual(mix["ab"], 100.0)   # the empty fifth adds nothing
+
 
 if __name__ == "__main__":
     unittest.main()

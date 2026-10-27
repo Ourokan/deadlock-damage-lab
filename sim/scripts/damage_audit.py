@@ -73,12 +73,12 @@ ITEM_NORM = os.environ.get("AUDIT_NORM", "gun")
 SEED = int(os.environ.get("AUDIT_SEED", "0"))
 REAL_TIERS = os.environ.get("AUDIT_REAL_TIERS", "1") != "0"   # fight.ORDER_HEROES' players with their real ability tiers
 AREA_PHASE = os.environ.get("AUDIT_AREA_PHASE", "1") != "0"   # area abilities' extra heroes by phase (Mechanics.ability_area_phase)
-ALLY_VAPORS = os.environ.get("AUDIT_ALLY_VAPORS", "1") != "0"
+ALLY_VAPORS = os.environ.get("AUDIT_ALLY_VAPORS", "1") != "0"   # an allied Nurse's vapors on the real teams (Mechanics.ally_vapors)
 # whole-match cover (main sets AUDIT_COVER=1; importers of sim_player keep the duels at L.FRACS): COVER_DUELS duels per
 # player-match at times drawn from the player's real damage over the match, the sim mix of each fifth of the match
 # weighted by the real damage in it
 COVER_DUELS = 5
-COVER_BINS = 5   # an allied Nurse's vapors on the real teams (Mechanics.ally_vapors)   # another draw of foes and fight draws (split-half averaging)
+COVER_BINS = 5
 _sk = {}
 
 
@@ -174,6 +174,18 @@ def real_bins(m, p):
     return [real((b + 1) / COVER_BINS * T) - real(b / COVER_BINS * T) for b in range(COVER_BINS)]
 
 
+def cover_mix(sim_bin, real_bin):
+    """{hero: Counter source -> damage}: each fifth's sim mix (pooled by sim damage inside it) x the real damage in that
+    fifth. A fifth without sim duels (rare: duels follow the real damage) is left out, the shares come from the rest."""
+    out = collections.defaultdict(collections.Counter)
+    for (hid, b), c in sim_bin.items():
+        st = sum(c.values())
+        if st > 0:
+            for k, v in c.items():
+                out[hid][k] += real_bin[hid, b] * v / st
+    return out
+
+
 def sim_player(job, both=False):
     """(hero id, sim damage by source, {item: [item dmg, gun or all dmg (ITEM_NORM)] of the duels holding it});
     both=True: each of the two as a pair (expected over real fight lengths, in full) from the same duels
@@ -189,9 +201,10 @@ def sim_player(job, both=False):
     out, out_u = collections.Counter(), collections.Counter()
     held = collections.defaultdict(lambda: [0.0, 0.0])   # item class -> [sim item dmg, sim gun/all dmg] in duels holding it
     held_u = collections.defaultdict(lambda: [0.0, 0.0])
-    fracs = cover_fracs(m, me) if os.environ.get("AUDIT_COVER") == "1" and L.FRACS == DEFAULT_FRACS \
-        and not (PROFILE or both) else None
-    tag = fracs is not None
+    # cover mode: every duel's damage is tagged with its fifth of the match (main weights the fifths by real damage);
+    # a player without damage_series keeps the 30/60/90% duels, tagged the same way
+    tag = os.environ.get("AUDIT_COVER") == "1" and L.FRACS == DEFAULT_FRACS and not (PROFILE or both)
+    fracs = cover_fracs(m, me) if tag else None
     for frac in fracs or L.FRACS:
         t = m["duration_s"] * frac
         items, souls = L.build_at(me, t)
@@ -347,12 +360,8 @@ def main():
     print("errors:", errs.most_common(10))
     # whole-match cover: the sim's damage per duel grows much faster with the phase than real damage does (late duels
     # ~13x the lane's, real ~4x), so the sim mix of each fifth of the match weighs as much as the real damage in it
-    for hid in {h for h, _ in sim_bin}:
-        w = {b: real_bin[hid, b] for b in range(COVER_BINS) if sum(sim_bin[hid, b].values()) > 0}
-        for b, rw in w.items():
-            st = sum(sim_bin[hid, b].values())
-            for k, v in sim_bin[hid, b].items():
-                sim[hid][k] += rw * v / st
+    for hid, c in cover_mix(sim_bin, real_bin).items():
+        sim[hid].update(c)
 
     heroes = {}
     for hid in sorted(sim):
