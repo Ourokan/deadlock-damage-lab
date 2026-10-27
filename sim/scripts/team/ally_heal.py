@@ -97,7 +97,9 @@ def main():
     sm = {n: sim(n) for n in ITEMS}
     ratio = {n: re[n][1] / sm[n] for n in ITEMS if sm[n] > 0}
     ref = statistics.median(ratio.values())
-    out = {"source": f"ally_heal.py: {len(glob.glob(os.path.join(sys.argv[1], '*.json.gz')))} Phantom+ sustain "
+    with open(os.path.join(SIM, "..", "data", "patch.json")) as f:
+        patch = json.load(f)["patch"]
+    out = {"patch": patch, "source": f"ally_heal.py: {len(glob.glob(os.path.join(sys.argv[1], '*.json.gz')))} Phantom+ sustain "
                      f"replays after {MID_S} s vs the 3v3 at {SOULS} souls",
            "median_real_per_sim": round(ref, 4), "items": {}}
     for n in ITEMS:

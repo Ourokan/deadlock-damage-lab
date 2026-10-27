@@ -447,7 +447,13 @@ def ally_heal():
     global _ally_heal
     if _ally_heal is None:
         with open(ALLY_HEAL_PATH) as f:
-            _ally_heal = {n: e["factor"] for n, e in json.load(f)["items"].items()}
+            d = json.load(f)
+        with open(os.path.join(ROOT, "..", "data", "patch.json")) as f:
+            patch = json.load(f)["patch"]
+        if d.get("patch") != patch:   # static file: the sustain replays live in the shared folder, CI can't refit it
+            print(f"warning: {ALLY_HEAL_PATH} is from patch {d.get('patch')}, the sim is on {patch}; "
+                  "rerun sim/scripts/team/ally_heal.py on new sustain replays", file=sys.stderr)
+        _ally_heal = {n: e["factor"] for n, e in d["items"].items()}
     return _ally_heal
 
 
