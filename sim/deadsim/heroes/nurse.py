@@ -303,9 +303,12 @@ class LurkingTerrors(AbilityImpl):
         c.after(tick, self.tick, c, tick)
 
     def on_fight_end(self, c):
-        """TERRORS_COMMIT: the channel left when the duel ends (time cap, or the target died) at the last tick's damage."""
+        """TERRORS_COMMIT: the channel left when the duel ends (time cap, or the target died) at the last tick's damage.
+        An expected-value credit for fights booked over real fight lengths only (the audit, the searches' duels): it goes
+        to dmg_out / dmg_exp, not through Engine.damage (no target health, dmg_in, 2 s profiles, hooks or barrier
+        unbooking), and a fight without Mechanics.fight_length (the dummy's time to kill) gets none."""
         st, f, e = c.state, c.me, c.engine
-        last = st.get("last") if TERRORS_COMMIT else None
+        last = st.get("last") if TERRORS_COMMIT and e.length else None
         if not last or not f.alive or f.mods.active("stun") or last[2] <= 0 or c.now > st["end"]:
             return
         t, tick, dealt = last
