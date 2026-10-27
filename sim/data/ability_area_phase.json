@@ -1,0 +1,1346 @@
+{
+ "source": "260 Phantom+ replays, hero-vs-hero DamageEvent (scripts/team/ability_area_phase.py)",
+ "note": "ability damage x rel(nw) / pooled at the duel's net worth nw, linear in ln nw between bin means, flat outside (Mechanics.ability_area_phase)",
+ "gun_other_per_main": [
+  0.214,
+  0.203,
+  0.237,
+  0.293,
+  0.34,
+  0.403
+ ],
+ "abilities": {
+  "citadel_ability_chrono_pulse_grenade": {
+   "name": "Paradox: Pulse Grenade",
+   "fights": 1186,
+   "pooled": 1.5274,
+   "bins": [
+    {
+     "net_worth": 1735,
+     "rel": 1.334,
+     "observed": 1.334
+    },
+    {
+     "net_worth": 10988,
+     "rel": 1.4053,
+     "observed": 1.4053
+    },
+    {
+     "net_worth": 16684,
+     "rel": 1.4795,
+     "observed": 1.4795
+    },
+    {
+     "net_worth": 23337,
+     "rel": 1.5183,
+     "observed": 1.5183
+    },
+    {
+     "net_worth": 31233,
+     "rel": 1.6865,
+     "observed": 1.8088
+    },
+    {
+     "net_worth": 41561,
+     "rel": 1.6865,
+     "observed": 1.521
+    }
+   ]
+  },
+  "citadel_ability_stomp": {
+   "name": "Dynamo: Kinetic Pulse",
+   "fights": 667,
+   "pooled": 1.3176,
+   "bins": [
+    {
+     "net_worth": 2363,
+     "rel": 1.1904,
+     "observed": 1.1904
+    },
+    {
+     "net_worth": 10735,
+     "rel": 1.3317,
+     "observed": 1.3441
+    },
+    {
+     "net_worth": 16621,
+     "rel": 1.3317,
+     "observed": 1.3661
+    },
+    {
+     "net_worth": 22869,
+     "rel": 1.3317,
+     "observed": 1.2855
+    },
+    {
+     "net_worth": 31164,
+     "rel": 1.3685,
+     "observed": 1.397
+    },
+    {
+     "net_worth": 40809,
+     "rel": 1.3685,
+     "observed": 1.3142
+    }
+   ]
+  },
+  "ability_ice_grenade": {
+   "name": "Kelvin: Frost Grenade",
+   "fights": 686,
+   "pooled": 1.516,
+   "bins": [
+    {
+     "net_worth": 1858,
+     "rel": 1.3578,
+     "observed": 1.3578
+    },
+    {
+     "net_worth": 11183,
+     "rel": 1.509,
+     "observed": 1.509
+    },
+    {
+     "net_worth": 16811,
+     "rel": 1.5365,
+     "observed": 1.5725
+    },
+    {
+     "net_worth": 23792,
+     "rel": 1.5365,
+     "observed": 1.5418
+    },
+    {
+     "net_worth": 30524,
+     "rel": 1.5365,
+     "observed": 1.4964
+    },
+    {
+     "net_worth": 43706,
+     "rel": 1.5767,
+     "observed": 1.5767
+    }
+   ]
+  },
+  "ability_icebeam": {
+   "name": "Kelvin: Arctic Beam",
+   "fights": 663,
+   "pooled": 1.6166,
+   "bins": [
+    {
+     "net_worth": 2935,
+     "rel": 1.3498,
+     "observed": 1.3498
+    },
+    {
+     "net_worth": 11351,
+     "rel": 1.4868,
+     "observed": 1.534
+    },
+    {
+     "net_worth": 16917,
+     "rel": 1.4868,
+     "observed": 1.4586
+    },
+    {
+     "net_worth": 23686,
+     "rel": 1.6359,
+     "observed": 1.6359
+    },
+    {
+     "net_worth": 30749,
+     "rel": 1.7167,
+     "observed": 1.7167
+    },
+    {
+     "net_worth": 43876,
+     "rel": 1.8043,
+     "observed": 1.8043
+    }
+   ]
+  },
+  "citadel_ability_sticky_bomb": {
+   "name": "Bebop: Sticky Bomb",
+   "fights": 1964,
+   "pooled": 1.2005,
+   "bins": [
+    {
+     "net_worth": 3276,
+     "rel": 1.1374,
+     "observed": 1.1374
+    },
+    {
+     "net_worth": 10833,
+     "rel": 1.1982,
+     "observed": 1.3111
+    },
+    {
+     "net_worth": 17126,
+     "rel": 1.1982,
+     "observed": 1.2136
+    },
+    {
+     "net_worth": 23313,
+     "rel": 1.1982,
+     "observed": 1.1532
+    },
+    {
+     "net_worth": 30711,
+     "rel": 1.1982,
+     "observed": 1.1274
+    },
+    {
+     "net_worth": 43169,
+     "rel": 1.298,
+     "observed": 1.298
+    }
+   ]
+  },
+  "citadel_ability_uppercut": {
+   "name": "Bebop: Exploding Uppercut",
+   "fights": 1933,
+   "pooled": 1.2451,
+   "bins": [
+    {
+     "net_worth": 3031,
+     "rel": 1.2317,
+     "observed": 1.2317
+    },
+    {
+     "net_worth": 10828,
+     "rel": 1.2446,
+     "observed": 1.3438
+    },
+    {
+     "net_worth": 17172,
+     "rel": 1.2446,
+     "observed": 1.2684
+    },
+    {
+     "net_worth": 23114,
+     "rel": 1.2446,
+     "observed": 1.1562
+    },
+    {
+     "net_worth": 30879,
+     "rel": 1.2446,
+     "observed": 1.2226
+    },
+    {
+     "net_worth": 42661,
+     "rel": 1.2748,
+     "observed": 1.2748
+    }
+   ]
+  },
+  "citadel_ability_bebop_laser_beam": {
+   "name": "Bebop: Hyper Beam",
+   "fights": 417,
+   "pooled": 2.5405,
+   "bins": [
+    {
+     "net_worth": 5067,
+     "rel": 2.1041,
+     "observed": 2.1041
+    },
+    {
+     "net_worth": 10621,
+     "rel": 2.3381,
+     "observed": 2.3381
+    },
+    {
+     "net_worth": 16720,
+     "rel": 2.6699,
+     "observed": 2.8037
+    },
+    {
+     "net_worth": 23504,
+     "rel": 2.6699,
+     "observed": 2.5853
+    },
+    {
+     "net_worth": 30312,
+     "rel": 2.6789,
+     "observed": 2.7969
+    },
+    {
+     "net_worth": 44274,
+     "rel": 2.6789,
+     "observed": 2.5724
+    }
+   ]
+  },
+  "ability_immobilize_trap": {
+   "name": "Grey Talon: Spirit Snare",
+   "fights": 399,
+   "pooled": 1.7448,
+   "bins": [
+    {
+     "net_worth": 3706,
+     "rel": 1.4667,
+     "observed": 1.4667
+    },
+    {
+     "net_worth": 11099,
+     "rel": 1.7268,
+     "observed": 1.7451
+    },
+    {
+     "net_worth": 17266,
+     "rel": 1.7268,
+     "observed": 1.7134
+    },
+    {
+     "net_worth": 23083,
+     "rel": 1.7268,
+     "observed": 1.7233
+    },
+    {
+     "net_worth": 30509,
+     "rel": 2.1932,
+     "observed": 2.3273
+    },
+    {
+     "net_worth": 44600,
+     "rel": 2.1932,
+     "observed": 2.0462
+    }
+   ]
+  },
+  "ability_charged_shot": {
+   "name": "Grey Talon: Charged Shot",
+   "fights": 1093,
+   "pooled": 1.1792,
+   "bins": [
+    {
+     "net_worth": 2282,
+     "rel": 1.1322,
+     "observed": 1.1322
+    },
+    {
+     "net_worth": 11163,
+     "rel": 1.1582,
+     "observed": 1.1582
+    },
+    {
+     "net_worth": 16988,
+     "rel": 1.176,
+     "observed": 1.176
+    },
+    {
+     "net_worth": 23369,
+     "rel": 1.1922,
+     "observed": 1.2181
+    },
+    {
+     "net_worth": 30784,
+     "rel": 1.1922,
+     "observed": 1.1664
+    },
+    {
+     "net_worth": 45360,
+     "rel": 1.2034,
+     "observed": 1.2034
+    }
+   ]
+  },
+  "ability_guided_arrow": {
+   "name": "Grey Talon: Guided Owl",
+   "fights": 204,
+   "pooled": 2.4451,
+   "bins": [
+    {
+     "net_worth": 5144,
+     "rel": 2.3262,
+     "observed": 2.3556
+    },
+    {
+     "net_worth": 11163,
+     "rel": 2.3262,
+     "observed": 2.2931
+    },
+    {
+     "net_worth": 17032,
+     "rel": 2.3803,
+     "observed": 2.4969
+    },
+    {
+     "net_worth": 22896,
+     "rel": 2.3803,
+     "observed": 2.2793
+    },
+    {
+     "net_worth": 29953,
+     "rel": 2.5894,
+     "observed": 2.5894
+    },
+    {
+     "net_worth": 44293,
+     "rel": 2.7845,
+     "observed": 2.7845
+    }
+   ]
+  },
+  "ability_intimidate": {
+   "name": "Mo & Krill: Scorn",
+   "fights": 1807,
+   "pooled": 1.4221,
+   "bins": [
+    {
+     "net_worth": 2088,
+     "rel": 1.2792,
+     "observed": 1.2792
+    },
+    {
+     "net_worth": 10901,
+     "rel": 1.4462,
+     "observed": 1.4703
+    },
+    {
+     "net_worth": 16791,
+     "rel": 1.4462,
+     "observed": 1.42
+    },
+    {
+     "net_worth": 23455,
+     "rel": 1.4632,
+     "observed": 1.4766
+    },
+    {
+     "net_worth": 30791,
+     "rel": 1.4632,
+     "observed": 1.4461
+    },
+    {
+     "net_worth": 44406,
+     "rel": 1.6132,
+     "observed": 1.6132
+    }
+   ]
+  },
+  "ability_throw_sand": {
+   "name": "Mo & Krill: Sand Blast",
+   "fights": 1144,
+   "pooled": 1.2649,
+   "bins": [
+    {
+     "net_worth": 3062,
+     "rel": 1.2115,
+     "observed": 1.2313
+    },
+    {
+     "net_worth": 10838,
+     "rel": 1.2115,
+     "observed": 1.176
+    },
+    {
+     "net_worth": 16709,
+     "rel": 1.3009,
+     "observed": 1.346
+    },
+    {
+     "net_worth": 23448,
+     "rel": 1.3009,
+     "observed": 1.2533
+    },
+    {
+     "net_worth": 30850,
+     "rel": 1.3247,
+     "observed": 1.3338
+    },
+    {
+     "net_worth": 44329,
+     "rel": 1.3247,
+     "observed": 1.3166
+    }
+   ]
+  },
+  "ability_ult_combo": {
+   "name": "Mo & Krill: Combo",
+   "fights": 538,
+   "pooled": 1.2142,
+   "bins": [
+    {
+     "net_worth": 5162,
+     "rel": 1.1792,
+     "observed": 1.1792
+    },
+    {
+     "net_worth": 11157,
+     "rel": 1.1946,
+     "observed": 1.2166
+    },
+    {
+     "net_worth": 16847,
+     "rel": 1.1946,
+     "observed": 1.2217
+    },
+    {
+     "net_worth": 23598,
+     "rel": 1.1946,
+     "observed": 1.1605
+    },
+    {
+     "net_worth": 30726,
+     "rel": 1.2045,
+     "observed": 1.2045
+    },
+    {
+     "net_worth": 43859,
+     "rel": 1.2885,
+     "observed": 1.2885
+    }
+   ]
+  },
+  "ability_burrow": {
+   "name": "Mo & Krill: Burrow",
+   "fights": 902,
+   "pooled": 1.4333,
+   "bins": [
+    {
+     "net_worth": 3974,
+     "rel": 1.3417,
+     "observed": 1.3417
+    },
+    {
+     "net_worth": 11081,
+     "rel": 1.4147,
+     "observed": 1.4147
+    },
+    {
+     "net_worth": 16885,
+     "rel": 1.4289,
+     "observed": 1.4313
+    },
+    {
+     "net_worth": 23505,
+     "rel": 1.4289,
+     "observed": 1.4335
+    },
+    {
+     "net_worth": 30790,
+     "rel": 1.4289,
+     "observed": 1.4211
+    },
+    {
+     "net_worth": 44217,
+     "rel": 1.5155,
+     "observed": 1.5155
+    }
+   ]
+  },
+  "viscous_telepunch": {
+   "name": "Viscous: Puddle Punch",
+   "fights": 244,
+   "pooled": 1.3031,
+   "bins": [
+    {
+     "net_worth": 3649,
+     "rel": 1.218,
+     "observed": 1.218
+    },
+    {
+     "net_worth": 11079,
+     "rel": 1.2346,
+     "observed": 1.2346
+    },
+    {
+     "net_worth": 17590,
+     "rel": 1.2971,
+     "observed": 1.2971
+    },
+    {
+     "net_worth": 24291,
+     "rel": 1.3251,
+     "observed": 1.4486
+    },
+    {
+     "net_worth": 31679,
+     "rel": 1.3251,
+     "observed": 1.4974
+    },
+    {
+     "net_worth": 45710,
+     "rel": 1.3251,
+     "observed": 1.2111
+    }
+   ]
+  },
+  "viscous_goo_grenade": {
+   "name": "Viscous: Splatter",
+   "fights": 405,
+   "pooled": 1.4718,
+   "bins": [
+    {
+     "net_worth": 2365,
+     "rel": 1.3634,
+     "observed": 1.3725
+    },
+    {
+     "net_worth": 10792,
+     "rel": 1.3634,
+     "observed": 1.3457
+    },
+    {
+     "net_worth": 16967,
+     "rel": 1.4807,
+     "observed": 1.4807
+    },
+    {
+     "net_worth": 23555,
+     "rel": 1.4949,
+     "observed": 1.4949
+    },
+    {
+     "net_worth": 30813,
+     "rel": 1.5592,
+     "observed": 1.5592
+    },
+    {
+     "net_worth": 46146,
+     "rel": 1.5608,
+     "observed": 1.5608
+    }
+   ]
+  },
+  "synth_barrage": {
+   "name": "Pocket: Barrage",
+   "fights": 924,
+   "pooled": 1.4631,
+   "bins": [
+    {
+     "net_worth": 3919,
+     "rel": 1.2382,
+     "observed": 1.3135
+    },
+    {
+     "net_worth": 10988,
+     "rel": 1.2382,
+     "observed": 1.1821
+    },
+    {
+     "net_worth": 17392,
+     "rel": 1.3718,
+     "observed": 1.3718
+    },
+    {
+     "net_worth": 23739,
+     "rel": 1.4623,
+     "observed": 1.4623
+    },
+    {
+     "net_worth": 31157,
+     "rel": 1.605,
+     "observed": 1.6266
+    },
+    {
+     "net_worth": 43327,
+     "rel": 1.605,
+     "observed": 1.5886
+    }
+   ]
+  },
+  "synth_plasma_flux": {
+   "name": "Pocket: Flying Cloak",
+   "fights": 740,
+   "pooled": 1.4195,
+   "bins": [
+    {
+     "net_worth": 1939,
+     "rel": 1.2626,
+     "observed": 1.3022
+    },
+    {
+     "net_worth": 10986,
+     "rel": 1.2626,
+     "observed": 1.1977
+    },
+    {
+     "net_worth": 16851,
+     "rel": 1.4176,
+     "observed": 1.4176
+    },
+    {
+     "net_worth": 23373,
+     "rel": 1.482,
+     "observed": 1.482
+    },
+    {
+     "net_worth": 30774,
+     "rel": 1.5611,
+     "observed": 1.6011
+    },
+    {
+     "net_worth": 43661,
+     "rel": 1.5611,
+     "observed": 1.5236
+    }
+   ]
+  },
+  "synth_affliction": {
+   "name": "Pocket: Affliction",
+   "fights": 260,
+   "pooled": 2.2569,
+   "bins": [
+    {
+     "net_worth": 4774,
+     "rel": 1.989,
+     "observed": 2.0436
+    },
+    {
+     "net_worth": 11469,
+     "rel": 1.989,
+     "observed": 1.9452
+    },
+    {
+     "net_worth": 17443,
+     "rel": 2.1027,
+     "observed": 2.1027
+    },
+    {
+     "net_worth": 23733,
+     "rel": 2.4056,
+     "observed": 2.6312
+    },
+    {
+     "net_worth": 31578,
+     "rel": 2.4056,
+     "observed": 2.2807
+    },
+    {
+     "net_worth": 43296,
+     "rel": 2.4056,
+     "observed": 2.3884
+    }
+   ]
+  },
+  "synth_pulse": {
+   "name": "Pocket: Enchanter's Satchel",
+   "fights": 891,
+   "pooled": 1.5309,
+   "bins": [
+    {
+     "net_worth": 3879,
+     "rel": 1.2729,
+     "observed": 1.2848
+    },
+    {
+     "net_worth": 10790,
+     "rel": 1.2729,
+     "observed": 1.2573
+    },
+    {
+     "net_worth": 17109,
+     "rel": 1.4923,
+     "observed": 1.4923
+    },
+    {
+     "net_worth": 23471,
+     "rel": 1.5345,
+     "observed": 1.5345
+    },
+    {
+     "net_worth": 31160,
+     "rel": 1.8152,
+     "observed": 1.8152
+    },
+    {
+     "net_worth": 43772,
+     "rel": 1.8258,
+     "observed": 1.8258
+    }
+   ]
+  },
+  "ability_vampirebat_batswarm": {
+   "name": "Mina: Nox Nostra",
+   "fights": 616,
+   "pooled": 1.7365,
+   "bins": [
+    {
+     "net_worth": 4867,
+     "rel": 1.4907,
+     "observed": 1.4907
+    },
+    {
+     "net_worth": 10574,
+     "rel": 1.6241,
+     "observed": 1.6241
+    },
+    {
+     "net_worth": 17052,
+     "rel": 1.7843,
+     "observed": 1.8221
+    },
+    {
+     "net_worth": 23580,
+     "rel": 1.7843,
+     "observed": 1.7552
+    },
+    {
+     "net_worth": 30719,
+     "rel": 1.8092,
+     "observed": 1.8434
+    },
+    {
+     "net_worth": 44926,
+     "rel": 1.8092,
+     "observed": 1.7811
+    }
+   ]
+  },
+  "ability_bookworm_dragonfire": {
+   "name": "Paige: Bookwyrm",
+   "fights": 805,
+   "pooled": 1.8982,
+   "bins": [
+    {
+     "net_worth": 3986,
+     "rel": 1.482,
+     "observed": 1.482
+    },
+    {
+     "net_worth": 11124,
+     "rel": 1.9154,
+     "observed": 1.9841
+    },
+    {
+     "net_worth": 17191,
+     "rel": 1.9154,
+     "observed": 1.8642
+    },
+    {
+     "net_worth": 23306,
+     "rel": 1.9181,
+     "observed": 1.9279
+    },
+    {
+     "net_worth": 30592,
+     "rel": 1.9181,
+     "observed": 1.9082
+    },
+    {
+     "net_worth": 43665,
+     "rel": 2.0206,
+     "observed": 2.0206
+    }
+   ]
+  },
+  "ability_bookworm_knightcharge": {
+   "name": "Paige: Rallying Charge",
+   "fights": 244,
+   "pooled": 2.1017,
+   "bins": [
+    {
+     "net_worth": 4822,
+     "rel": 1.8384,
+     "observed": 1.8384
+    },
+    {
+     "net_worth": 11226,
+     "rel": 2.0064,
+     "observed": 2.0064
+    },
+    {
+     "net_worth": 17346,
+     "rel": 2.1416,
+     "observed": 2.1489
+    },
+    {
+     "net_worth": 23650,
+     "rel": 2.1416,
+     "observed": 2.1351
+    },
+    {
+     "net_worth": 31276,
+     "rel": 2.1917,
+     "observed": 2.2882
+    },
+    {
+     "net_worth": 44451,
+     "rel": 2.1917,
+     "observed": 2.1334
+    }
+   ]
+  },
+  "ability_bookworm_aoemagic": {
+   "name": "Paige: Captivating Read",
+   "fights": 603,
+   "pooled": 1.5147,
+   "bins": [
+    {
+     "net_worth": 3600,
+     "rel": 1.2579,
+     "observed": 1.2579
+    },
+    {
+     "net_worth": 11211,
+     "rel": 1.4986,
+     "observed": 1.5257
+    },
+    {
+     "net_worth": 17037,
+     "rel": 1.4986,
+     "observed": 1.4734
+    },
+    {
+     "net_worth": 23322,
+     "rel": 1.5898,
+     "observed": 1.6213
+    },
+    {
+     "net_worth": 30864,
+     "rel": 1.5898,
+     "observed": 1.5533
+    },
+    {
+     "net_worth": 42297,
+     "rel": 1.6373,
+     "observed": 1.6373
+    }
+   ]
+  },
+  "ability_ratking_ratarmor": {
+   "name": "Rat King: Royal Pestments",
+   "fights": 1986,
+   "pooled": 1.6292,
+   "bins": [
+    {
+     "net_worth": 3978,
+     "rel": 1.486,
+     "observed": 1.5179
+    },
+    {
+     "net_worth": 10898,
+     "rel": 1.486,
+     "observed": 1.5062
+    },
+    {
+     "net_worth": 16988,
+     "rel": 1.486,
+     "observed": 1.4573
+    },
+    {
+     "net_worth": 23680,
+     "rel": 1.7207,
+     "observed": 1.9191
+    },
+    {
+     "net_worth": 31160,
+     "rel": 1.7207,
+     "observed": 1.6563
+    },
+    {
+     "net_worth": 42510,
+     "rel": 1.7207,
+     "observed": 1.6075
+    }
+   ]
+  },
+  "ability_ratking_standard_bearer": {
+   "name": "Rat King: Rule, Ratannia!",
+   "fights": 714,
+   "pooled": 2.4272,
+   "bins": [
+    {
+     "net_worth": 5185,
+     "rel": 1.87,
+     "observed": 1.87
+    },
+    {
+     "net_worth": 10946,
+     "rel": 2.2262,
+     "observed": 2.2262
+    },
+    {
+     "net_worth": 17395,
+     "rel": 2.419,
+     "observed": 2.419
+    },
+    {
+     "net_worth": 23520,
+     "rel": 2.5144,
+     "observed": 2.5144
+    },
+    {
+     "net_worth": 30694,
+     "rel": 2.6115,
+     "observed": 2.6675
+    },
+    {
+     "net_worth": 42662,
+     "rel": 2.6115,
+     "observed": 2.5603
+    }
+   ]
+  },
+  "ability_ratking_scrap_grenade": {
+   "name": "Rat King: Scrap Grenade",
+   "fights": 3554,
+   "pooled": 1.9793,
+   "bins": [
+    {
+     "net_worth": 2147,
+     "rel": 1.4635,
+     "observed": 1.4635
+    },
+    {
+     "net_worth": 10839,
+     "rel": 1.7727,
+     "observed": 1.7727
+    },
+    {
+     "net_worth": 17139,
+     "rel": 1.9564,
+     "observed": 1.9564
+    },
+    {
+     "net_worth": 23374,
+     "rel": 2.1419,
+     "observed": 2.1419
+    },
+    {
+     "net_worth": 30997,
+     "rel": 2.2488,
+     "observed": 2.2517
+    },
+    {
+     "net_worth": 42537,
+     "rel": 2.2488,
+     "observed": 2.2456
+    }
+   ]
+  },
+  "ability_ratking_ratnibble": {
+   "name": "Rat King: Rat Swarm",
+   "fights": 3277,
+   "pooled": 1.7309,
+   "bins": [
+    {
+     "net_worth": 3042,
+     "rel": 1.3686,
+     "observed": 1.3686
+    },
+    {
+     "net_worth": 11029,
+     "rel": 1.6232,
+     "observed": 1.6232
+    },
+    {
+     "net_worth": 17069,
+     "rel": 1.647,
+     "observed": 1.647
+    },
+    {
+     "net_worth": 23253,
+     "rel": 1.8925,
+     "observed": 1.9408
+    },
+    {
+     "net_worth": 30902,
+     "rel": 1.8925,
+     "observed": 1.9206
+    },
+    {
+     "net_worth": 41886,
+     "rel": 1.8925,
+     "observed": 1.808
+    }
+   ]
+  },
+  "ability_artist_bamboogrove": {
+   "name": "Violet: Abstract Landscape",
+   "fights": 991,
+   "pooled": 2.8216,
+   "bins": [
+    {
+     "net_worth": 5233,
+     "rel": 2.2189,
+     "observed": 2.2189
+    },
+    {
+     "net_worth": 10860,
+     "rel": 2.5909,
+     "observed": 2.5909
+    },
+    {
+     "net_worth": 17151,
+     "rel": 2.6967,
+     "observed": 2.7865
+    },
+    {
+     "net_worth": 23303,
+     "rel": 2.6967,
+     "observed": 2.6245
+    },
+    {
+     "net_worth": 30698,
+     "rel": 3.1642,
+     "observed": 3.2267
+    },
+    {
+     "net_worth": 40513,
+     "rel": 3.1642,
+     "observed": 3.0824
+    }
+   ]
+  },
+  "ability_artist_rollingprojectile": {
+   "name": "Violet: Flow State",
+   "fights": 1480,
+   "pooled": 1.5336,
+   "bins": [
+    {
+     "net_worth": 3970,
+     "rel": 1.3555,
+     "observed": 1.3555
+    },
+    {
+     "net_worth": 10855,
+     "rel": 1.3668,
+     "observed": 1.3668
+    },
+    {
+     "net_worth": 16882,
+     "rel": 1.5297,
+     "observed": 1.5297
+    },
+    {
+     "net_worth": 23201,
+     "rel": 1.6711,
+     "observed": 1.7454
+    },
+    {
+     "net_worth": 30928,
+     "rel": 1.6711,
+     "observed": 1.6035
+    },
+    {
+     "net_worth": 41645,
+     "rel": 1.6907,
+     "observed": 1.6907
+    }
+   ]
+  },
+  "ability_artist_tether": {
+   "name": "Violet: Still Life",
+   "fights": 3539,
+   "pooled": 1.2272,
+   "bins": [
+    {
+     "net_worth": 2411,
+     "rel": 1.1716,
+     "observed": 1.1936
+    },
+    {
+     "net_worth": 10890,
+     "rel": 1.1716,
+     "observed": 1.1403
+    },
+    {
+     "net_worth": 16849,
+     "rel": 1.2243,
+     "observed": 1.2243
+    },
+    {
+     "net_worth": 23307,
+     "rel": 1.2647,
+     "observed": 1.2685
+    },
+    {
+     "net_worth": 30776,
+     "rel": 1.2647,
+     "observed": 1.2606
+    },
+    {
+     "net_worth": 40554,
+     "rel": 1.3334,
+     "observed": 1.3334
+    }
+   ]
+  },
+  "ability_nurse_leech_therapy": {
+   "name": "Nurse Harrow: Leech Therapy",
+   "fights": 3134,
+   "pooled": 1.3665,
+   "bins": [
+    {
+     "net_worth": 1311,
+     "rel": 1.2973,
+     "observed": 1.302
+    },
+    {
+     "net_worth": 10787,
+     "rel": 1.2973,
+     "observed": 1.283
+    },
+    {
+     "net_worth": 16926,
+     "rel": 1.3265,
+     "observed": 1.3265
+    },
+    {
+     "net_worth": 22937,
+     "rel": 1.4832,
+     "observed": 1.4832
+    },
+    {
+     "net_worth": 30392,
+     "rel": 1.6005,
+     "observed": 1.7122
+    },
+    {
+     "net_worth": 40380,
+     "rel": 1.6005,
+     "observed": 1.4314
+    }
+   ]
+  },
+  "ability_nurse_fear": {
+   "name": "Nurse Harrow: Lurking Terrors",
+   "fights": 474,
+   "pooled": 2.9506,
+   "bins": [
+    {
+     "net_worth": 4810,
+     "rel": 2.2694,
+     "observed": 2.2694
+    },
+    {
+     "net_worth": 11449,
+     "rel": 2.8973,
+     "observed": 2.8973
+    },
+    {
+     "net_worth": 16817,
+     "rel": 2.9369,
+     "observed": 3.0281
+    },
+    {
+     "net_worth": 23040,
+     "rel": 2.9369,
+     "observed": 2.8469
+    },
+    {
+     "net_worth": 30732,
+     "rel": 3.1493,
+     "observed": 3.1493
+    },
+    {
+     "net_worth": 42063,
+     "rel": 3.3603,
+     "observed": 3.3603
+    }
+   ]
+  },
+  "ability_baba_ultimate_2": {
+   "name": "Baba: Feed The Birds",
+   "fights": 329,
+   "pooled": 1.9475,
+   "bins": [
+    {
+     "net_worth": 5106,
+     "rel": 1.742,
+     "observed": 1.742
+    },
+    {
+     "net_worth": 10933,
+     "rel": 1.8355,
+     "observed": 1.8355
+    },
+    {
+     "net_worth": 16934,
+     "rel": 1.8692,
+     "observed": 1.8692
+    },
+    {
+     "net_worth": 22977,
+     "rel": 1.9898,
+     "observed": 1.9898
+    },
+    {
+     "net_worth": 30292,
+     "rel": 2.0635,
+     "observed": 2.0635
+    },
+    {
+     "net_worth": 39910,
+     "rel": 2.2421,
+     "observed": 2.2421
+    }
+   ]
+  },
+  "ability_baba_hexing_brew": {
+   "name": "Baba: Baba's Brew",
+   "fights": 305,
+   "pooled": 1.7684,
+   "bins": [
+    {
+     "net_worth": 2774,
+     "rel": 1.4485,
+     "observed": 1.4485
+    },
+    {
+     "net_worth": 11068,
+     "rel": 1.6285,
+     "observed": 1.6285
+    },
+    {
+     "net_worth": 16899,
+     "rel": 1.8678,
+     "observed": 2.057
+    },
+    {
+     "net_worth": 23910,
+     "rel": 1.8678,
+     "observed": 1.7565
+    },
+    {
+     "net_worth": 28973,
+     "rel": 1.9535,
+     "observed": 2.0168
+    },
+    {
+     "net_worth": 41380,
+     "rel": 1.9535,
+     "observed": 1.879
+    }
+   ]
+  },
+  "ability_baba_bench_run": {
+   "name": "Baba: Granny Long Legs",
+   "fights": 515,
+   "pooled": 1.7,
+   "bins": [
+    {
+     "net_worth": 3265,
+     "rel": 1.4923,
+     "observed": 1.4923
+    },
+    {
+     "net_worth": 11108,
+     "rel": 1.5239,
+     "observed": 1.5239
+    },
+    {
+     "net_worth": 16927,
+     "rel": 1.8024,
+     "observed": 1.8295
+    },
+    {
+     "net_worth": 23365,
+     "rel": 1.8024,
+     "observed": 1.7866
+    },
+    {
+     "net_worth": 30178,
+     "rel": 1.8024,
+     "observed": 1.8991
+    },
+    {
+     "net_worth": 40632,
+     "rel": 1.8024,
+     "observed": 1.7397
+    }
+   ]
+  }
+ }
+}

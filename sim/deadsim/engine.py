@@ -754,6 +754,13 @@ class Engine:
             if fac is not None:
                 amt *= fac
                 land *= fac
+        if is_ability and ability is not None and src.skill.ability_landing and self.mech is not None \
+                and self.mech.ability_area_phase:
+            # the other enemies an area ability also hits grow with the game phase (Mechanics.ability_area_phase)
+            from .mechanics import ability_area_mult
+            ph = ability_area_mult(ability.ab.class_name, src.st.souls)
+            amt *= ph
+            land *= ph
         if is_ability and ability is not None:
             av = ability.scratch.get("_avail", 1.0)   # expected wait for the target to be in reach (spread)
             amt *= av

@@ -27,6 +27,7 @@ usage: python3 scripts/damage_audit.py <sample.jsonl.gz> [max_players] [workers]
 AUDIT_OUT=path writes path.json/.md instead; AUDIT_HEROES=name,name audits only those heroes' players (a quick
 per-hero check: the items tables then pool only them). AUDIT_NORM=gun: items tables per gun damage (before 2026-10-26).
 AUDIT_SEED=k: another draw of foes and per-fight draws (k=0 is the default draw), for averaging small samples.
+AUDIT_AREA_PHASE=0: area abilities without their game-phase term (Mechanics.ability_area_phase).
 The sample comes from scripts/fetch_validation.py (e.g. --api 91 5 for Phantom+ of the last 5 days).
 """
 import collections
@@ -59,6 +60,7 @@ LENGTH = True        # damage expected over real fight lengths (mechanics.real_l
 # that import sim_player for its held rows (item_landing.py, length_factors.py) keep gun, as their factors were fitted
 ITEM_NORM = os.environ.get("AUDIT_NORM", "gun")
 SEED = int(os.environ.get("AUDIT_SEED", "0"))
+AREA_PHASE = os.environ.get("AUDIT_AREA_PHASE", "1") != "0"   # area abilities' extra heroes by phase (Mechanics.ability_area_phase)
 ALLY_VAPORS = os.environ.get("AUDIT_ALLY_VAPORS", "1") != "0"   # an allied Nurse's vapors on the real teams (Mechanics.ally_vapors)   # another draw of foes and fight draws (split-half averaging)
 _sk = {}
 
@@ -129,6 +131,7 @@ def sim_player(job, both=False):
             vapors = (nurse.ally_vapors_share(team(me), h.name), nurse.ally_vapors_share(team(foe), G.hero(foe["hero_id"]).name)) \
                 if ALLY_VAPORS else (0.0, 0.0)
             mech = dataclasses.replace(MECH, extra_targets=real_nearby("extra", RICOCHET_RADIUS, souls), ally_vapors=vapors,
+                                       ability_area_phase=MECH.ability_area_phase and AREA_PHASE,
                                        fight_length=real_length(souls) if LENGTH else None)
             r = duel(a, b, distance=default_distance(h.name), max_time=L.FIGHT_TIME, rng=random.Random(rnd.random()),
                      mechanics=mech)
