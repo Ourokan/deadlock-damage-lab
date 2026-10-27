@@ -8,7 +8,8 @@ ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 sys.path[:0] = [os.path.join(ROOT, p) for p in ("sim", "search/scripts", "damage/scripts", "damage")]
 
 from deadsim.data import game  # noqa: E402
-from deadsim.fight import abilities_for_order, ability_budget, popular_ability_order  # noqa: E402
+from deadsim.fight import (ORDER_HEROES, _auto_abilities, abilities_for_order, ability_budget,  # noqa: E402
+                           default_ability_order, median_ability_order, popular_ability_order)
 import skill_order as K  # noqa: E402
 
 G = game()
@@ -52,6 +53,23 @@ class Search(unittest.TestCase):
         self.assertEqual(abilities_for_order(HAZE, order, 50000)[0], [3, 3, 3, 3])
         levels = [s["level"] for s in steps]
         self.assertEqual(levels, sorted(levels))
+
+
+class MedianOrder(unittest.TestCase):
+    def test_order_heroes_follow_the_median_order(self):
+        for name in ORDER_HEROES:
+            h = G.hero(name)
+            order = default_ability_order(h)
+            self.assertEqual(order, median_ability_order(h.id))
+            ids = [a.id for a in h.abilities]
+            self.assertEqual(sorted(order), sorted(ids * 4))   # 4 unlocks + 12 upgrades, each ability 1 + 3
+        self.assertEqual(default_ability_order(HAZE), popular_ability_order(HAZE.id))
+
+    def test_celeste_upgrades_her_ult_by_mid_game(self):
+        # real Celeste players have Shining Wonder at tier 1.6 at 60% of the match (scripts/ability_order.py)
+        h = G.hero("Celeste")
+        ult = next(i for i, a in enumerate(h.abilities) if a.ultimate)
+        self.assertGreaterEqual(_auto_abilities(h, 34000)[0][ult], 1)
 
 
 if __name__ == "__main__":
