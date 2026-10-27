@@ -17,7 +17,8 @@ gun is rel(bin) = (1 + other / main) / (1 + gun other / main). One ability's bin
 shrunk to the ability's pooled rel with SHRINK fights of weight (n / (n + SHRINK)) and made non-decreasing (pool
 adjacent violators).
 
-The sim multiplies the ability's damage at net worth nw by rel(nw) / pooled rel (main-damage weighted), linear in
+The sim multiplies the ability's damage at net worth nw by rel(nw) / pooled rel (the fitted curve's mean weighted
+by main-target damage, so the real fights' mean multiplier is 1), linear in
 ln net worth between bin means, flat outside: the pooled level stays where the landing factor put it, only the phase
 shape moves. Rows only for HEROES (split-half) and abilities with MIN_EXTRA pooled extra hits over the gun's and MIN_FIGHTS fights.
 
@@ -182,6 +183,7 @@ def main():
             w.append(x[0])
             nws.append(math.exp(x[3] / max(1e-9, x[0] + x[1])))
         fit = isotonic(ex, w)
+        pooled = sum(f * x for f, x in zip(fit, w)) / sum(w)   # the fitted curve's main-damage-weighted mean
         name = f"{G.heroes[hid].name}: {ab.name}"
         if G.heroes[hid].name not in HEROES and "--all" not in args:
             continue

@@ -8,7 +8,7 @@ Shares of damage to enemy heroes. Distance = half the summed absolute share gaps
 
 | Hero | n | gun real / sim | abilities | items | melee | distance |
 |---|---|---|---|---|---|---|
-| Viscous | 29 | 0.13 / 0.14 | 0.51 / 0.55 | 0.28 / 0.22 | 0.05 / 0.06 | 0.06 |
+| Viscous | 29 | 0.13 / 0.14 | 0.51 / 0.56 | 0.28 / 0.22 | 0.05 / 0.06 | 0.06 |
 | Warden | 33 | 0.52 / 0.48 | 0.31 / 0.36 | 0.11 / 0.12 | 0.03 / 0.02 | 0.06 |
 | Celeste | 77 | 0.16 / 0.18 | 0.61 / 0.57 | 0.17 / 0.19 | 0.04 / 0.05 | 0.05 |
 | Ivy | 116 | 0.32 / 0.32 | 0.36 / 0.33 | 0.26 / 0.30 | 0.04 / 0.04 | 0.04 |
@@ -71,8 +71,8 @@ real/sim = (real source dmg / real gun dmg) / (sim source dmg / sim gun dmg). Be
 | Holliday | Powder Keg | ability | 0.397 | 0.378 | 1.10 |
 | Solomon | Develop Queen | ability | 0.161 | 0.183 | 0.83 |
 | Shiv | Killing Blow | ability | 0.056 | 0.033 | 1.83 |
-| Celeste | Shining Wonder | ability | 0.170 | 0.160 | 1.22 |
-| Celeste | Light Eater | ability | 0.220 | 0.217 | 1.16 |
+| Celeste | Light Eater | ability | 0.220 | 0.216 | 1.16 |
+| Celeste | Shining Wonder | ability | 0.170 | 0.161 | 1.22 |
 | Sinclair | Spectral Assistant | ability | 0.191 | 0.172 | 1.18 |
 | Graves | Jar of Dead | ability | 0.212 | 0.222 | 0.87 |
 | Warden | Alchemical Flask | ability | 0.129 | 0.147 | 0.81 |
@@ -81,8 +81,8 @@ real/sim = (real source dmg / real gun dmg) / (sim source dmg / sim gun dmg). Be
 | Graves | Borrowed Decree | ability | 0.195 | 0.203 | 0.87 |
 | Mo & Krill | Torment Pulse | item | 0.138 | 0.161 | 0.85 |
 | Calico | MELEE | melee | 0.149 | 0.128 | 1.19 |
-| McGinnis | Mini Turret | ability | 0.467 | 0.490 | 1.05 |
 | Abrams | MELEE | melee | 0.424 | 0.421 | 1.06 |
+| McGinnis | Mini Turret | ability | 0.467 | 0.491 | 1.05 |
 | Apollo | Itani Lo Sahn | ability | 0.100 | 0.117 | 0.82 |
 | Vyper | Split Shot | item | 0.110 | 0.091 | 1.23 |
 | Mirage | Toxic Bullets | item | 0.093 | 0.109 | 0.82 |
@@ -139,7 +139,7 @@ Item damage per all the player's damage while the item was owned (players who ha
 | Alchemical Fire | 111 | 0.126 | 0.149 | 0.85 |
 | Return Fire | 96 | 0.094 | 0.030 | 3.13 |
 | Lightning Scroll | 49 | 0.039 | 0.026 | 1.46 |
-| Focus Lens | 39 | 0.105 | 0.089 | 1.17 |
+| Focus Lens | 39 | 0.105 | 0.089 | 1.18 |
 | Silence Wave | 33 | 0.046 | 0.049 | 0.95 |
 
 ## Items by hero (holders only, at least 20 holders), furthest off first
@@ -148,11 +148,11 @@ As above, per hero. The source table above compares the whole real match with du
 
 | Hero | Item | holders | real per dmg | sim per dmg | real/sim |
 |---|---|---|---|---|---|
-| Rat King | Return Fire | 41 | 0.101 | 0.030 | 3.39 |
+| Rat King | Return Fire | 41 | 0.101 | 0.030 | 3.38 |
 | Nurse Harrow | Quicksilver Reload | 89 | 0.047 | 0.022 | 2.10 |
 | Violet | Torment Pulse | 69 | 0.103 | 0.053 | 1.93 |
 | Lash | Quicksilver Reload | 154 | 0.046 | 0.024 | 1.90 |
-| Nurse Harrow | Ricochet | 135 | 0.025 | 0.048 | 0.53 |
+| Nurse Harrow | Ricochet | 135 | 0.025 | 0.048 | 0.54 |
 | Violet | Mystic Burst | 66 | 0.044 | 0.026 | 1.66 |
 | Haze | Lucky Shot | 92 | 0.153 | 0.098 | 1.55 |
 | Drifter | Spirit Burn | 42 | 0.070 | 0.046 | 1.52 |
@@ -167,7 +167,7 @@ As above, per hero. The source table above compares the whole real match with du
 | Shiv | Express Shot | 125 | 0.255 | 0.189 | 1.35 |
 | Lash | Mystic Burst | 210 | 0.061 | 0.045 | 1.35 |
 | Holliday | Headshot Booster | 31 | 0.040 | 0.030 | 1.34 |
-| Viscous | Mystic Burst | 20 | 0.066 | 0.051 | 1.30 |
+| Viscous | Mystic Burst | 20 | 0.066 | 0.050 | 1.31 |
 | Yamato | Crushing Fists | 30 | 0.050 | 0.038 | 1.29 |
 | Shiv | Lucky Shot | 45 | 0.143 | 0.111 | 1.29 |
 | Abrams | Phantom Strike | 58 | 0.046 | 0.036 | 1.27 |
@@ -186,5 +186,5 @@ As above, per hero. The source table above compares the whole real match with du
 | Lash | Headshot Booster | 156 | 0.040 | 0.033 | 1.19 |
 | Apollo | Torment Pulse | 23 | 0.163 | 0.138 | 1.18 |
 | Victor | Escalating Exposure | 102 | 0.133 | 0.157 | 0.85 |
+| Paradox | Mystic Shot | 62 | 0.067 | 0.056 | 1.18 |
 | Apollo | Spirit Snatch | 66 | 0.057 | 0.048 | 1.18 |
-| Paradox | Mystic Shot | 62 | 0.067 | 0.057 | 1.18 |

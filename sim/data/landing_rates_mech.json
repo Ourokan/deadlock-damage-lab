@@ -203,7 +203,7 @@
     "landing": 0.86,
     "real_share": 0.1137,
     "sim_share": 0.1413,
-    "length_corr": 1.744
+    "length_corr": 1.733
    },
    "Kinetic Carbine": {
     "class": "citadel_ability_chrono_kinetic_carbine",
@@ -226,14 +226,14 @@
     "landing": 0.585,
     "real_share": 0.4409,
     "sim_share": 0.432,
-    "length_corr": 1.353
+    "length_corr": 1.347
    },
    "Singularity": {
     "class": "citadel_ability_self_vacuum",
     "landing": 0.745,
     "real_share": 0.1692,
     "sim_share": 0.1649,
-    "length_corr": 1.617
+    "length_corr": 1.61
    }
   },
   "Kelvin": {
@@ -242,14 +242,14 @@
     "landing": 0.94,
     "real_share": 0.2661,
     "sim_share": 0.2933,
-    "length_corr": 0.734
+    "length_corr": 0.728
    },
    "Arctic Beam": {
     "class": "ability_icebeam",
     "landing": 0.88,
     "real_share": 0.3468,
     "sim_share": 0.3797,
-    "length_corr": 0.606
+    "length_corr": 0.599
    }
   },
   "Haze": {
@@ -318,14 +318,14 @@
     "landing": 1.04,
     "real_share": 0.3026,
     "sim_share": 0.3372,
-    "length_corr": 1.67
+    "length_corr": 1.668
    },
    "Hyper Beam": {
     "class": "citadel_ability_bebop_laser_beam",
     "landing": 0.11,
     "real_share": 0.1574,
     "sim_share": 0.1741,
-    "length_corr": 8.617
+    "length_corr": 8.45
    },
    "Grapple Arm": {
     "landing": 0.42,
@@ -362,7 +362,7 @@
     "landing": 0.484,
     "real_share": 0.35,
     "sim_share": 0.364,
-    "length_corr": 0.783
+    "length_corr": 0.781
    },
    "Spirit Snare": {
     "class": "ability_immobilize_trap",
@@ -376,7 +376,7 @@
     "landing": 0.784,
     "real_share": 0.1407,
     "sim_share": 0.1463,
-    "length_corr": 0.451
+    "length_corr": 0.449
    }
   },
   "Mo & Krill": {
@@ -385,28 +385,28 @@
     "landing": 1.372,
     "real_share": 0.2162,
     "sim_share": 0.2556,
-    "length_corr": 0.873
+    "length_corr": 0.867
    },
    "Burrow": {
     "class": "ability_burrow",
     "landing": 0.7,
     "real_share": 0.1596,
     "sim_share": 0.1887,
-    "length_corr": 0.527
+    "length_corr": 0.526
    },
    "Sand Blast": {
     "class": "ability_throw_sand",
     "landing": 1.141,
     "real_share": 0.0438,
     "sim_share": 0.0518,
-    "length_corr": 0.408
+    "length_corr": 0.407
    },
    "Combo": {
     "class": "ability_ult_combo",
     "landing": 0.472,
     "real_share": 0.0628,
     "sim_share": 0.0743,
-    "length_corr": 0.495
+    "length_corr": 0.494
    }
   },
   "Shiv": {
@@ -530,21 +530,21 @@
     "landing": 0.72,
     "real_share": 0.299,
     "sim_share": 0.3512,
-    "length_corr": 1.848
+    "length_corr": 1.845
    },
    "Puddle Punch": {
     "class": "viscous_telepunch",
     "landing": 0.37,
     "real_share": 0.1221,
     "sim_share": 0.1434,
-    "length_corr": 1.348
+    "length_corr": 1.371
    },
    "Goo Ball": {
     "class": "viscous_goo_bowling_ball",
     "landing": 0.46,
     "real_share": 0.0652,
     "sim_share": 0.0767,
-    "length_corr": 2.314
+    "length_corr": 2.38
    }
   },
   "Pocket": {
@@ -553,28 +553,28 @@
     "landing": 0.98,
     "real_share": 0.2394,
     "sim_share": 0.235,
-    "length_corr": 1.563
+    "length_corr": 1.562
    },
    "Flying Cloak": {
     "class": "synth_plasma_flux",
     "landing": 0.665,
     "real_share": 0.1152,
     "sim_share": 0.1129,
-    "length_corr": 0.753
+    "length_corr": 0.749
    },
    "Enchanter's Satchel": {
     "class": "synth_pulse",
     "landing": 0.768,
     "real_share": 0.165,
     "sim_share": 0.1618,
-    "length_corr": 1.14
+    "length_corr": 1.133
    },
    "Affliction": {
     "class": "synth_affliction",
     "landing": 0.583,
     "real_share": 0.1453,
     "sim_share": 0.1433,
-    "length_corr": 0.758
+    "length_corr": 0.761
    }
   },
   "Mirage": {
@@ -671,7 +671,7 @@
     "landing": 0.261,
     "real_share": 0.1549,
     "sim_share": 0.1525,
-    "length_corr": 2.004
+    "length_corr": 2.002
    }
   },
   "Drifter": {
@@ -756,21 +756,21 @@
     "landing": 0.51,
     "real_share": 0.3256,
     "sim_share": 0.3439,
-    "length_corr": 1.508
+    "length_corr": 1.497
    },
    "Captivating Read": {
     "class": "ability_bookworm_aoemagic",
     "landing": 0.9,
     "real_share": 0.127,
     "sim_share": 0.1348,
-    "length_corr": 1.193
+    "length_corr": 1.183
    },
    "Rallying Charge": {
     "class": "ability_bookworm_knightcharge",
     "landing": 0.72,
     "real_share": 0.0818,
     "sim_share": 0.0867,
-    "length_corr": 2.18
+    "length_corr": 2.161
    }
   },
   "The Doorman": {
@@ -969,14 +969,14 @@
     "landing": 0.551,
     "real_share": 0.35,
     "sim_share": 0.3585,
-    "length_corr": 1.307
+    "length_corr": 1.301
    },
    "Rat Swarm": {
     "class": "ability_ratking_ratnibble",
     "landing": 0.53,
     "real_share": 0.0914,
     "sim_share": 0.0936,
-    "length_corr": 1.271
+    "length_corr": 1.268
    },
    "Royal Pestments": {
     "class": "ability_ratking_ratarmor",
@@ -990,7 +990,7 @@
     "landing": 0.294,
     "real_share": 0.0952,
     "sim_share": 0.0974,
-    "length_corr": 1.89
+    "length_corr": 1.899
    }
   },
   "Solomon": {
@@ -1019,12 +1019,12 @@
   "Nurse Harrow": {
    "Leech Therapy": {
     "landing": 1.3,
-    "length_corr": 1.49,
+    "length_corr": 1.479,
     "class": "ability_nurse_leech_therapy"
    },
    "Lurking Terrors": {
     "landing": 0.57,
-    "length_corr": 2.589,
+    "length_corr": 2.55,
     "class": "ability_nurse_fear"
    }
   },
@@ -1051,12 +1051,12 @@
    "Flow State": {
     "class": "ability_artist_rollingprojectile",
     "landing": 0.47,
-    "length_corr": 3.053
+    "length_corr": 3.036
    },
    "Still Life": {
     "class": "ability_artist_tether",
     "landing": 0.75,
-    "length_corr": 2.117
+    "length_corr": 2.113
    },
    "Abstract Landscape": {
     "class": "ability_artist_bamboogrove",
@@ -1073,17 +1073,17 @@
    "Granny Long Legs": {
     "class": "ability_baba_bench_run",
     "landing": 2.42,
-    "length_corr": 0.767
+    "length_corr": 0.76
    },
    "Baba's Brew": {
     "class": "ability_baba_hexing_brew",
     "landing": 0.35,
-    "length_corr": 1.82
+    "length_corr": 1.777
    },
    "Feed The Birds": {
     "class": "ability_baba_ultimate_2",
     "landing": 0.32,
-    "length_corr": 2.045
+    "length_corr": 2.027
    }
   }
  }

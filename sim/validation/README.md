@@ -2253,8 +2253,11 @@ one by phase, so something else in their model leans the other way). Only the 14
 (`ability_area_phase.HEROES`; `--all` writes every hero to judge more). Their ability corrections refit 3 rounds on
 the whole sample (ability_corr_heroes.py).
 
-Damage audit, 4 draws, mix distance weighted by players 0.0209 -> 0.0199; Nurse 0.034 -> 0.012, Kelvin 0.020 ->
-0.014, Baba 0.017 -> 0.013, Grey Talon 0.026 -> 0.023; Viscous 0.051 -> 0.055, Mo & Krill 0.014 -> 0.019, Bebop
-0.018 -> 0.022, Paige 0.013 -> 0.015. Most of Nurse's pooled gain is the refit itself (her corrections were stale:
+Damage audit, 4 draws, mix distance weighted by players 0.0209 -> 0.0200; Nurse 0.034 -> 0.012, Kelvin 0.020 ->
+0.014, Baba 0.017 -> 0.013, Grey Talon 0.026 -> 0.023; Viscous 0.051 -> 0.056, Mo & Krill 0.014 -> 0.019, Bebop
+0.018 -> 0.022, Paige 0.013 -> 0.016 (kept: their held-out per-phase distance fell on both halves, the pooled mix
+rose within the 0.002 slack there). The curve is a static snapshot like area_hits.json (fight_length replays in the
+project folder): rerun ability_area_phase.py --write and refit the 14 heroes' corrections after a big patch.
+Most of Nurse's pooled gain is the refit itself (her corrections were stale:
 held-out mix 0.009 / 0.014 with the term off and refit, 0.010 / 0.015 on); the term moves her damage between phases.
 sim_vs_win 27k all heroes: all pairs 0.181 -> 0.183, damage items 0.078 -> 0.080, clear edges Spearman 0.287 -> 0.291.
