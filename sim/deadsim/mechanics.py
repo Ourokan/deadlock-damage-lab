@@ -175,6 +175,12 @@ class Mechanics:
     # k x cooldown, rho = the share of it real holders get (data/cdr_ready.json, scripts/cast_timing/cdr_ready.py);
     # the hold draw moves from the late / not-cast end of the real holds to the early end by that much
     cdr_ready: bool = True
+    # gated ults at the fight start (2026-10-27): an ability the sim gates itself (no cast_timing hold) started every
+    # fight ready, so Apollo cast Itani Lo Sahn in 92% of his audit duels by 20 s vs 38% of real Phantom+ pair fights:
+    # real Apollos open only 53% of fights with the ult off cooldown (data/cdr_ready.json, time since the last cast >=
+    # cooldown). With cast_timing, an ability in GATE_READY starts a fight on cooldown (not cast in it) past its real
+    # ready share, raised by cooldown items as cdr_ready; ready, it keeps its own gate (mechanics.gate_ready)
+    gate_ready: bool = True
     # an allied Nurse's Wretched Vapors (2026-10-27): real Nurses mostly vapor their allies (nurse.SELF_CAST), and the
     # game credits the crash to whoever hit the vapored ally, as ability_nurse_adrenaline_rush. A duel has no ally, so
     # (a share, b share): the expected share of each fighter's incoming damage an allied Nurse's rush defers, crashed
@@ -367,6 +373,8 @@ def hold_first_casts(f):
             continue
         q = holds.get(f"{hid}:{ab.ab.class_name}")
         if not q:
+            if f"{hid}:{ab.ab.class_name}" in GATE_READY and getattr(f.e.mech, "gate_ready", False):
+                gate_ready(f, ab)
             continue
         if phase is not None:
             u = (phase + zlib.crc32(f"{ab.ab.class_name}|{f.name}".encode()) / 2 ** 32) % 1.0
@@ -378,6 +386,29 @@ def hold_first_casts(f):
         ab.held_until = f.e.t + (math.inf if h is None else max(0.0, h))
         ab.timed = True
         ab.precast_at = f.e.t + h if h is not None and h < 0 else None
+
+
+# gated abilities that start a fight on cooldown past their real ready share (Mechanics.gate_ready). Apollo's ult: cast
+# by 20 s in 92% of the audit duels -> 52% (real 38%); other gated ults cast too often (Seven's, Venator's, Yamato's,
+# Grey Talon's, Mo & Krill's: validation/cast_timing.md) are candidates, each with its own refit
+GATE_READY = frozenset({"77:ability_fencer_ultimate"})
+
+
+def gate_ready(f, ab):
+    """Mechanics.gate_ready at the fight start: ab (no cast_timing hold, its own gate) is on cooldown for the whole
+    fight past its real share of fights started ready (data/cdr_ready.json at 1 x the cooldown; cooldown items raise
+    it as cdr_ready_u). Draws like hold_first_casts."""
+    phase, rng = f.skill.fight_phase, f.e.rng
+    if phase is not None:
+        u = (phase + zlib.crc32(f"{ab.ab.class_name}|{f.name}".encode()) / 2 ** 32) % 1.0
+    else:
+        u = rng.random()
+    if getattr(f.e.mech, "cdr_ready", False):
+        u = cdr_ready_u(f, ab, u)
+    d = cdr_ready_rows()
+    c = d["sources"].get(f"{f.st.hero.id}:{ab.ab.class_name}") or d["pooled"]["ult" if ab.ab.ultimate else "ability"]
+    if u >= c[-1]:
+        ab.held_until = math.inf
 
 
 _CDR = None

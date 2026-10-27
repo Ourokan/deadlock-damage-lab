@@ -12,9 +12,9 @@ Assumptions:
   (PerfectDamage), the rest MaxDamageBeforePerfect. Gun locked while lunging. T1 heals HealFixedHealth per
   perfect hit (35 + 1.3 x spirit per the data; the tooltip only says "Heal 35", so the scaling is doubtful). T2 bullet resist
   for DashBuffDuration per lunge. T3: flat damage adds and x1.15 spirit scaling (applied by c.val).
-- Itani Lo Sahn: cast when the target is at or below ULT_HP. After the 1.5 s charge the slash lands
-  (skillshot): ImpactDamage, then the target is frozen (stun, no healing, takes 70% less damage) for
-  DebuffDuration while Apollo is invulnerable and locked; on expiry DelayedDamage, +BonusDamagePercent if the
+- Itani Lo Sahn: cast when the target is at or below ULT_HP (if the ult is ready this fight: mechanics.gate_ready).
+  After the 1.5 s charge the slash lands (skillshot): ImpactDamage, then the target is frozen (stun, no healing,
+  takes 70% less damage) for DebuffDuration while Apollo is invulnerable and locked; on expiry DelayedDamage, +BonusDamagePercent if the
   target is below LowHealthEnemyThresholdPct.
 """
 from deadsim.abilities import AbilityImpl, register
@@ -24,7 +24,13 @@ RECAST_DELAY = 1.5
 RIPOSTE_INVULN = 0.5
 STAB_INTERVAL = 0.9
 PERFECT_RATE = 0.7
+# Itani Lo Sahn's health gate, once the ult is ready this fight (real Phantom+ Apollos open 53% of fights with it ready,
+# mechanics.GATE_READY): first cast by 1 / 3 / 6 / 20 s 0.01 / 0.05 / 0.20 / 0.52 vs real 0.01 / 0.04 / 0.10 / 0.38
+# (always ready: 0.92 by 20 s). A 40% gate matches the real curve but ranked items further from real wins
+# (Apollo sim_vs_win 0.375 -> 0.350), so the gate stays (validation/README.md "Apollo's ult on real readiness")
 ULT_HP = 0.6
+# the delayed hit is booked at the slash's fight weight (Engine.book_at): the frozen target can't leave the fight
+FROZEN_BOOKED = True
 
 
 @register("ability_fencer_throwblade")
@@ -145,13 +151,22 @@ class ItaniLoSahn(AbilityImpl):
             foe.mods.add("heal_received", -1.0, frozen, "itani")
             foe.mods.add("damage_taken_amp", -c.raw("IncomingDamageReductionPercent") / 100, frozen, "itani")
             c.me.mods.add("invulnerable", 1, frozen, "itani")
-            c.after(frozen, finish)
+            hit_at = c.now
+            c.after(frozen, lambda: finish(hit_at))
 
-        def finish():
+        def finish(hit_at):
             if not c.foe.alive:
                 return
             dmg = c.val("DelayedDamage")
             if c.foe.hp_frac < c.raw("LowHealthEnemyThresholdPct", 50) / 100:
                 dmg *= 1.0 + c.raw("BonusDamagePercent") / 100
-            c.spirit_hit(dmg, hit_chance=1.0)
+            e = c.engine
+            if FROZEN_BOOKED and getattr(e, "length", None) is not None:
+                e.book_at = hit_at   # the frozen target can't leave: the fight goes on until the delayed hit
+                try:
+                    c.spirit_hit(dmg, hit_chance=1.0)
+                finally:
+                    e.book_at = None
+            else:
+                c.spirit_hit(dmg, hit_chance=1.0)
         c.after(charge, slash)
