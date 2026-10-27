@@ -287,6 +287,18 @@ async function signInTab(page, where, base) {
   });
 }
 
+// Improvements tab, signed in (signInTab): reads the player's recent matches (the made-up match) and shows the
+// comparison with the Phantom+ benchmarks
+async function improveTab(page, where) {
+  await step(page, where, "improvements", async () => {
+    await go(page, "improve");
+    await page.waitForFunction(() => /last \d+ match/.test($("#im-status").textContent) && $("#im-out .im-sum"), null, { timeout: STEP_MS });
+    if (!(await page.$("#im-out table tbody tr"))) throw new Error("no comparison table");
+    const wide = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
+    if (wide) throw new Error("the Improvements tab scrolls sideways");
+  });
+}
+
 async function makerTab(page, where) {
   await step(page, where, "build maker", async () => {
     await go(page, "maker");
@@ -388,6 +400,7 @@ async function run(browser, base, where, contextOpts, missing) {
   const sim = await testTab(page, where);
   if (sim) {
     await signInTab(page, where, base);
+    await improveTab(page, where);
     await makerTab(page, where);
     await matchTab(page, where);
     await teamTab(page, where);
