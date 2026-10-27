@@ -9,7 +9,7 @@ movement items (their real value is in movement_value already) are skipped.
 Prints Pearson / Spearman over every (hero, item) pair, over items that deal damage (kill_weight.json rows) and
 per-item mean sim gain vs mean edge, over (hero, item) pairs with the sim gain centred on the hero's other items of
 the same slot and tier (as the edge is), with the overall score's KILL_WEIGHT and DEATH_COST as set (--no-kill to turn the
-kill weight off, --elasticity for DAMAGE_ELASTICITY, --death to turn the opt-in death cost on, --bounty for DEATH_BOUNTY, --no-death-rate to
+kill weight off, --elasticity for DAMAGE_ELASTICITY, --focus-gamma for FOCUS_GAMMA, --death to turn the opt-in death cost on, --bounty for DEATH_BOUNTY, --no-death-rate to
 turn the real death rate value off, --fight-rate for the opt-in fight rate). Rows in --out also carry the popular build's and the
 item build's sim death chance (overall_search.death_chance), for analysis/scripts/death_check.py, then health lost
 per fight and max health of both builds and both scores (for offline fight-rate variants), the item cost and both builds' damage before death.
@@ -37,8 +37,10 @@ EDGE = os.path.join(ROOT, "analysis", "out", "hero_item_edge.json")
 KILL = os.path.join(ROOT, "sim", "data", "kill_weight.json")
 
 
-def setup(kill, death=False, bounty=None, death_rate=True, fight_rate=False, elasticity=None):
+def setup(kill, death=False, bounty=None, death_rate=True, fight_rate=False, elasticity=None, focus=None):
     O.WIN_K = 0.0
+    if focus is not None:
+        O.FOCUS_GAMMA = focus
     if elasticity is not None:
         O.DAMAGE_ELASTICITY = elasticity
     O.KILL_WEIGHT = kill
@@ -51,8 +53,8 @@ def setup(kill, death=False, bounty=None, death_rate=True, fight_rate=False, ela
 
 
 def job(args):
-    hero, b, kill, death, bounty, death_rate, fight_rate, elasticity = args
-    setup(kill, death, bounty, death_rate, fight_rate, elasticity)
+    hero, b, kill, death, bounty, death_rate, fight_rate, elasticity, focus = args
+    setup(kill, death, bounty, death_rate, fight_rate, elasticity, focus)
     with open(EDGE) as f:
         edges = json.load(f)["heroes"].get(str(hero), {})
     O.movement_value(())
@@ -112,11 +114,13 @@ def main():
     ap.add_argument("--no-death-rate", action="store_true", help="turn the real death rate value off")
     ap.add_argument("--fight-rate", action="store_true", help="turn the opt-in fight rate (HP budget) on")
     ap.add_argument("--elasticity", type=float, default=None, help="overall_search.DAMAGE_ELASTICITY (1 = old score)")
+    ap.add_argument("--focus-gamma", type=float, default=None, help="overall_search.FOCUS_GAMMA (0 = no focus cost)")
     ap.add_argument("--out", default="")
     a = ap.parse_args()
     g = S.G()
     heroes = [g.hero(int(h) if h.isdigit() else h).id for h in a.heroes.split(",") if h] or sorted(g.heroes)
-    jobs = [(h, int(b), not a.no_kill, a.death, a.bounty, not a.no_death_rate, a.fight_rate, a.elasticity)
+    jobs = [(h, int(b), not a.no_kill, a.death, a.bounty, not a.no_death_rate, a.fight_rate, a.elasticity,
+             a.focus_gamma)
             for b in a.budgets.split(",") for h in heroes]
     rows = []
     with Pool(a.workers) as p:
@@ -127,7 +131,8 @@ def main():
     print(f"kill weight {'off' if a.no_kill else 'on'}, death cost {'on' if a.death else 'off'}, death rate "
           f"{'off' if a.no_death_rate else 'on'}, fight rate {'on' if a.fight_rate else 'off'}"
           f"{'' if a.bounty is None else f' (bounty {a.bounty:g})'}, damage elasticity "
-          f"{O.DAMAGE_ELASTICITY if a.elasticity is None else a.elasticity:g}; {len(rows)} (hero, item) pairs")
+          f"{O.DAMAGE_ELASTICITY if a.elasticity is None else a.elasticity:g}, focus cost "
+          f"{O.FOCUS_GAMMA if a.focus_gamma is None else a.focus_gamma:g}; {len(rows)} (hero, item) pairs")
     for label, rs in (("all items", rows), ("damage items", [r for r in rows if r[2] in dmg_items]),
                       ("edges clear of noise", [r for r in rows if abs(r[4]) > 1.96 * r[5]])):
         x, y = [r[3] for r in rs], [r[4] for r in rs]
