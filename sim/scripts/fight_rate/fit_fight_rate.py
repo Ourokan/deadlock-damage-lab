@@ -34,6 +34,8 @@ OUT = os.path.join(ROOT, "sim", "data", "fight_rate.json")
 MD = os.path.join(ROOT, "sim", "validation", "fight_rate.md")
 PHASES = {"lane": (0, 10000), "mid": (10000, 27001), "late": (27001, 10 ** 9)}
 KEYS = ("taken", "dealt", "deaths", "ka")
+# item tables also carry jungle souls per minute (stat key 17, souls from neutral camps): overall_search.farm_value
+ITEM_KEYS = KEYS + ("jungle",)
 GROUPS = 10
 BUDGETS = (10000, 18000, 27000, 37000, 50000)
 BAND = (0.75, 1.35)
@@ -81,6 +83,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", default=R.SRC)
     a = ap.parse_args()
+    R.METRICS = ITEM_KEYS
     items = R.shop_items()
     el = {p: Elasticity() for p in PHASES}
     bands = {b: R.Strata() for b in BUDGETS}
@@ -101,7 +104,8 @@ def main():
                         if mins < R.MIN_MIN or (ab and ab < s1[0]) or s0[7] <= 0:
                             continue
                         v = {"dealt": (s1[2] - s0[2]) / mins, "taken": (s1[3] - s0[3]) / mins,
-                             "deaths": (s1[5] - s0[5]) / mins, "ka": (s1[4] + s1[6] - s0[4] - s0[6]) / mins}
+                             "deaths": (s1[5] - s0[5]) / mins, "ka": (s1[4] + s1[6] - s0[4] - s0[6]) / mins,
+                             "jungle": (s1[17] - s0[17]) / mins}
                         el[phase_of(s0[1])].add((pl["hero_id"], s0[1] // R.NW_BIN, s0[0] // R.T_BIN), grp,
                                                 math.log(s0[7]), v)
                         held, part = R.held_sets(pl["items"], items, s0[0], s1[0])
@@ -125,7 +129,7 @@ def main():
             e = strata.compare(i)
             if e and e["n"] >= MIN_HOLDERS:
                 t[items[i]["name"]] = {"slot": items[i].get("slot"), "holders": e["n"],
-                                       **{k: [round(e[k]["ratio"], 4), round(e[k]["z"], 1)] for k in KEYS}}
+                                       **{k: [round(e[k]["ratio"], 4), round(e[k]["z"], 1)] for k in ITEM_KEYS}}
         tables[str(b)] = {"nw": [int(BAND[0] * b), int(BAND[1] * b)], "intervals": strata.n, "items": t}
     with open(os.path.join(ROOT, "data", "patch.json")) as f:
         patch = json.load(f)["patch"]
@@ -135,7 +139,7 @@ def main():
                   "hp_elasticity: d log(damage taken per minute) / d log(max health) at the same hero, net worth "
                   "and game time, per game phase (overall_search.game_phase; opt-in fight_value). items[budget]: "
                   "holders / non-holders ratio [ratio, z] of each per-minute rate at the same hero, net worth and "
-                  "game time (deaths used by overall_search.death_rate_value). Static snapshot: refit with "
+                  "game time (deaths used by overall_search.death_rate_value, taken by focus_value, jungle = souls from neutral camps by farm_value). Static snapshot: refit with "
                   "sim/scripts/fight_rate/fit_fight_rate.py after fetching new timelines."),
         "matches": n_m,
         "hp_elasticity": {ph: elas[ph]["taken"][0] for ph in PHASES},
