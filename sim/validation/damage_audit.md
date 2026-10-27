@@ -15,8 +15,8 @@ Shares of damage to enemy heroes. Distance = half the summed absolute share gaps
 | Lady Geist | 37 | 0.29 / 0.26 | 0.62 / 0.65 | 0.05 / 0.04 | 0.03 / 0.03 | 0.04 |
 | Drifter | 186 | 0.26 / 0.24 | 0.44 / 0.47 | 0.17 / 0.16 | 0.11 / 0.12 | 0.03 |
 | Calico | 110 | 0.13 / 0.12 | 0.38 / 0.40 | 0.31 / 0.32 | 0.15 / 0.15 | 0.03 |
-| Silver | 100 | 0.41 / 0.39 | 0.37 / 0.37 | 0.10 / 0.12 | 0.10 / 0.11 | 0.03 |
 | Shiv | 209 | 0.27 / 0.29 | 0.48 / 0.48 | 0.16 / 0.14 | 0.08 / 0.08 | 0.03 |
+| Silver | 100 | 0.41 / 0.39 | 0.37 / 0.37 | 0.10 / 0.12 | 0.10 / 0.11 | 0.03 |
 | Celeste | 77 | 0.16 / 0.14 | 0.61 / 0.63 | 0.17 / 0.18 | 0.04 / 0.04 | 0.03 |
 | Grey Talon | 103 | 0.31 / 0.30 | 0.49 / 0.50 | 0.16 / 0.18 | 0.01 / 0.01 | 0.03 |
 | Ivy | 116 | 0.32 / 0.31 | 0.36 / 0.35 | 0.26 / 0.29 | 0.04 / 0.03 | 0.03 |
@@ -128,14 +128,14 @@ Item damage per all the player's damage while the item was owned (players who ha
 | Headshot Booster | 394 | 0.045 | 0.042 | 1.06 |
 | Mercurial Magnum | 359 | 0.103 | 0.100 | 1.03 |
 | Mystic Reverb | 242 | 0.166 | 0.214 | 0.77 |
-| Rebuttal | 238 | 0.013 | 0.015 | 0.84 |
+| Rebuttal | 238 | 0.013 | 0.015 | 0.85 |
 | Lucky Shot | 229 | 0.142 | 0.105 | 1.35 |
 | Arctic Blast | 184 | 0.139 | 0.143 | 0.97 |
 | Split Shot | 181 | 0.089 | 0.081 | 1.10 |
 | Crushing Fists | 170 | 0.055 | 0.052 | 1.05 |
 | Scourge | 151 | 0.159 | 0.177 | 0.90 |
 | Phantom Strike | 141 | 0.050 | 0.054 | 0.93 |
-| Decay | 135 | 0.173 | 0.185 | 0.93 |
+| Decay | 135 | 0.173 | 0.186 | 0.93 |
 | Alchemical Fire | 113 | 0.127 | 0.142 | 0.89 |
 | Return Fire | 99 | 0.093 | 0.025 | 3.77 |
 | Lightning Scroll | 59 | 0.039 | 0.035 | 1.10 |
@@ -170,9 +170,9 @@ As above, per hero. The source table above compares the whole real match with du
 | Grey Talon | Spirit Burn | 45 | 0.088 | 0.117 | 0.75 |
 | Shiv | Express Shot | 125 | 0.255 | 0.192 | 1.33 |
 | Apollo | Melee Charge | 57 | 0.045 | 0.034 | 1.33 |
-| Nurse Harrow | Toxic Bullets | 85 | 0.152 | 0.115 | 1.32 |
 | Drifter | Spirit Burn | 43 | 0.072 | 0.054 | 1.32 |
 | Haze | Ricochet | 214 | 0.067 | 0.089 | 0.76 |
+| Nurse Harrow | Toxic Bullets | 85 | 0.152 | 0.117 | 1.30 |
 | Lash | Mystic Burst | 201 | 0.061 | 0.047 | 1.29 |
 | Paradox | Headshot Booster | 44 | 0.043 | 0.034 | 1.28 |
 | Mirage | Escalating Exposure | 22 | 0.100 | 0.127 | 0.79 |

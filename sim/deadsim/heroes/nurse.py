@@ -280,6 +280,7 @@ class LurkingTerrors(AbilityImpl):
         if f.mods.active("stun"):   # channel broken
             f.gun_locked_until = c.now
             f.mods.remove("invulnerable", "terrors_immune")
+            st["last"] = None   # nothing of a broken channel lands at the duel's end, even once the stun ran out
             return
         e = c.engine
         if TERRORS_COMMIT:
@@ -305,7 +306,7 @@ class LurkingTerrors(AbilityImpl):
         """TERRORS_COMMIT: the channel left when the duel ends (time cap, or the target died) at the last tick's damage."""
         st, f, e = c.state, c.me, c.engine
         last = st.get("last") if TERRORS_COMMIT else None
-        if not last or not f.alive or f.mods.active("stun") or last[2] <= 0:
+        if not last or not f.alive or f.mods.active("stun") or last[2] <= 0 or c.now > st["end"]:
             return
         t, tick, dealt = last
         n = int((st["end"] - t) / tick + 1e-9)

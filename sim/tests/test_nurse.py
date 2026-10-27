@@ -121,6 +121,8 @@ class TestTerrors(NurseCase):
         tick = self.f.dmg_out["Lurking Terrors"]
         last = c.state["last"]
         lt.impl.on_fight_end(c)
+        if last is None:
+            return self.f.dmg_out["Lurking Terrors"] - tick, 0.0
         n = int((c.state["end"] - last[0]) / last[1] + 1e-9)
         return self.f.dmg_out["Lurking Terrors"] - tick, last[2] * n
 
@@ -132,6 +134,14 @@ class TestTerrors(NurseCase):
     def test_channel_left_on_others_after_the_target_died(self):
         got, full = self.channel_left_booked(lambda c: setattr(self.g, "alive", False))
         self.assertAlmostEqual(got, full * nurse.TERRORS_OTHERS, places=6)
+
+    def test_no_channel_left_after_a_stun_broke_it(self):
+        def stun_then_tick(c):
+            self.f.mods.add("stun", 1, 0.2, "test_stun")
+            self.run_until(self.e.t + 0.6)   # the stun breaks the channel at the next tick, then runs out
+            self.assertFalse(self.f.mods.active("stun"))
+        got, _ = self.channel_left_booked(stun_then_tick)
+        self.assertEqual(got, 0.0)
 
     def test_no_channel_left_when_stunned_or_off(self):
         got, _ = self.channel_left_booked(lambda c: self.f.mods.add("stun", 1, 5.0, "test_stun"))

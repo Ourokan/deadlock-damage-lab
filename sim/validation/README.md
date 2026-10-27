@@ -2648,7 +2648,7 @@ dropped.
 Split-half (Nurse's corrections refit 3 rounds on one half, against the same refit on the old code, judged on the
 other): phase mix 0.090 / 0.042 / 0.110 -> 0.067 / 0.041 / 0.086 and 0.143 / 0.101 / 0.078 -> 0.110 / 0.096 / 0.041
 at 30 / 60 / 90%; whole-match held-out mix 0.022 -> 0.024 and 0.021 -> 0.021. Refit on the whole sample (Terrors
-length_corr 2.55 -> 1.71, Leech 1.48 -> 1.42): audit 0.0187 -> 0.0185, Nurse 0.016 -> 0.013 (per source 0.040 ->
-0.008). sim_vs_win Nurse 27k + 37k: all 0.286 -> 0.302, within slot and tier 0.312 -> 0.332.
+length_corr 2.55 -> 1.84, Leech 1.48 -> 1.42): audit 0.0187 -> 0.0184, Nurse 0.016 -> 0.013 (per source 0.040 ->
+0.008). A stun that broke the channel leaves nothing to land at the end. sim_vs_win Nurse 27k + 37k: all 0.286 -> 0.302, within slot and tier 0.312 -> 0.332.
 
 Left: Nurse's early ult is still over (0.22 vs 0.15 at 30%).
