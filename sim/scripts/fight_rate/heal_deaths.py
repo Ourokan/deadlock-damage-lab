@@ -3,8 +3,8 @@
 Per item: x = log(real holders' / non-holders' deaths per minute) (holder_rates.py output, matched by hero, net worth
 and game time), y = the item's mean real win edge over heroes (analysis/out/hero_item_edge.json, same-slot same-tier).
 Least squares slope and Pearson r of y on x, healing items vs the rest, for all matches and each match-id half.
-Across the other items holders who die less win more (27k: -12 points per log death ratio, r -0.41), the basis of
-the score's death rate factor (death_rate_value). Across healing items it goes the other way (+8, r +0.36, both
+Across the other items holders who die less win more (27k: -11.6 points per log death ratio, r -0.39), the basis of
+the score's death rate factor (death_rate_value). Across healing items it goes the other way (+7.8, r +0.35, both
 halves, 37k alike): their holders die less without winning more, so the score leaves their death ratios out.
 
 usage: python3 -I heal_deaths.py HOLDER_RATES.json [BUDGET]   (run from the repo root)
