@@ -1,5 +1,5 @@
 {
   "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
-  "requested_at": "2026-10-27T03:15:00Z",
-  "reason": "Damage audit: an allied Nurse's Wretched Vapors crash credited to the attacker (Mechanics.ally_vapors); audit 0.0243 -> 0.0209"
+  "requested_at": "2026-10-27T03:55:00Z",
+  "reason": "Real death rates now include imbued buys (Mystic Reverb, Compress Cooldown, Ballistic Enchantment, Mystic Expansion and 5 more were missing from fight_rate.json)"
 }

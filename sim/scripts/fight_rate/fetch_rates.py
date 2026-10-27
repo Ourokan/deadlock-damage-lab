@@ -2,7 +2,8 @@
 
 The bulk metadata endpoint (reads the API's store, no SQL rate limit, ~5 s per 200 matches) returns each player's
 stats every ~180-300 s (net worth, hero damage dealt / taken, kills, deaths, assists, max health) and item buys with
-sell times. Writes one gzipped JSONL per hour window, one line per match, skipped if present (resumes).
+sell times (imbue items too: until 2026-10-27 the fetch dropped every imbued buy, so Compress Cooldown, Mystic
+Expansion, Duration Extender and Quicksilver Reload were missing from fight_rate.json). Writes one gzipped JSONL per hour window, one line per match, skipped if present (resumes).
 
 usage: python3 -I fetch_rates.py [--start 2026-09-30] [--end 2026-10-25] [--out DIR] [--min-badge 91]
 """
@@ -15,8 +16,12 @@ import time
 import urllib.request
 
 UA = {"User-Agent": "deadlock-build-sim/0.1 (research)"}
+# the first 9 are what fit_fight_rate.py / real_rates.py read; the rest (objective, farm, team heal and barrier...)
+# were added 2026-10-27 for the cooldown items check and sit after them, so older files read the same
 STAT_KEYS = ("time_stamp_s", "net_worth", "player_damage", "player_damage_taken", "kills", "deaths", "assists",
-             "max_health", "self_healing")
+             "max_health", "self_healing", "boss_damage", "creep_damage", "neutral_damage", "teammate_healing",
+             "teammate_barriering", "player_barriering", "damage_mitigated", "gold_lane_creep", "gold_neutral_creep",
+             "gold_boss", "heal_prevented", "ability_points", "gold_treasure")
 URL = ("https://api.deadlock-api.com/v1/matches/metadata?min_unix_timestamp={a}&max_unix_timestamp={b}"
        "&min_average_badge={badge}&min_duration_s=900&limit=1000&include_info=true&include_player_info=true"
        "&include_player_stats=true&include_player_items=true&order_by=match_id&order_direction=desc")
@@ -25,7 +30,7 @@ URL = ("https://api.deadlock-api.com/v1/matches/metadata?min_unix_timestamp={a}&
 def get(url):
     for i in range(6):
         try:
-            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=90) as r:
+            with urllib.request.urlopen(urllib.request.Request(url, headers=UA), timeout=60) as r:
                 return json.load(r)
         except Exception as e:  # noqa: BLE001 - retry anything transient
             print("retry", i, e, flush=True)
@@ -40,7 +45,7 @@ def slim(m):
                          "net_worth": p.get("net_worth"), "abandon_s": p.get("abandon_match_time_s") or 0,
                          "stats": [[s.get(k) or 0 for k in STAT_KEYS] for s in p.get("stats") or []],
                          "items": [[it["item_id"], it["game_time_s"], it.get("sold_time_s") or 0]
-                                   for it in p.get("items") or [] if not it.get("imbued_ability_id")]}
+                                   for it in p.get("items") or []]}
                         for p in m["players"]]}
 
 
@@ -48,7 +53,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--start", default="2026-09-30")
     ap.add_argument("--end", default="2026-10-25")
-    ap.add_argument("--out", default="/mnt/project-files/analysis/work/fight_rate")
+    ap.add_argument("--out", default="/mnt/project-files/analysis/work/fight_rate_ext")
     ap.add_argument("--min-badge", type=int, default=91)
     ap.add_argument("--hours", type=int, default=3)
     a = ap.parse_args()
