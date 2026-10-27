@@ -90,6 +90,21 @@ assert ev._map(pop) == 1.0 and 0.7 < m < 1.0, m
 assert ev._map(pop + [ids["Radiant Regeneration"]]) > 1.0
 want = m / O.movement_value(pop)   # same damage: only movement and heal trips differ
 assert abs(ev.run(pop) - 1.0) < 1e-9 and abs(ev.run(pop[2:]) - want) < 1e-9, ev.run(pop)
+
+
+class _Ev4(_Ev):   # 4x the damage with one more item
+    def _rows(self, items, pool):
+        return [(1, 1.0, 900.0 * (4 if len(items) > 3 else 1), 12.0, False)]
+
+
+# damage elasticity: the score counts the damage ratio ^ DAMAGE_ELASTICITY, the other factors in full
+more = pop + [ids["Extra Health"]]
+_e = O.DAMAGE_ELASTICITY
+O.DAMAGE_ELASTICITY = 1.0
+full = _Ev4(1, 18000, {}).run(more)
+O.DAMAGE_ELASTICITY = 0.5
+assert abs(_Ev4(1, 18000, {}).run(more) - full / 2) < 1e-9, (full, _Ev4(1, 18000, {}).run(more))
+O.DAMAGE_ELASTICITY = _e
 S.popular_build = _popular
 # real win-edge blend (overall_search.win_value): neutral without items, movement items left out, capped per item
 haze = G.hero("Haze").id

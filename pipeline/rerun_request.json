@@ -1,5 +1,5 @@
 {
   "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
-  "requested_at": "2026-10-27T04:06:00Z",
-  "reason": "Area abilities hit more heroes later in the match (Mechanics.ability_area_phase, 14 heroes refit, #147); audit 0.0209 -> 0.0200"
+  "requested_at": "2026-10-27T05:30:00Z",
+  "reason": "Overall score counts duel damage ^ 0.5 (real holders damage response), so damage items stop outranking same-tier items that win more"
 }

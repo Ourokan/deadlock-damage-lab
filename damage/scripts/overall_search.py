@@ -114,6 +114,10 @@ ranked items almost unrelated to real wins (r 0.05 over 16 heroes): Decay was in
 losing 2-5 points on every hero, and team auras / AoE / death saves (Heroic Aura, Mystic Reverb, Cheat Death) were
 never picked. Movement items already carry a real-data value (movement_value) and are left out of the blend.
 
+Damage elasticity (2026-10-27): the damage part counts as (damage before death / the popular build's) ^
+DAMAGE_ELASTICITY 0.5, the real holders' damage per minute response to the sim's damage gain across items; damage
+items had been ranked over same-tier items that win more (see DAMAGE_ELASTICITY).
+
 Scores are relative to the hero's most popular real build (1.0 = popular). Same search machinery as the duel search
 (search/scripts/search.py: screen on 16 enemies, confirm on 41, up to 8 rounds, same budget rules).
 
@@ -231,6 +235,16 @@ DEATH_RATE = True
 DEATH_RATE_Z = 3.0
 DEATH_RATE_CLAMP = (0.5, 1.5)
 _drate = {}
+
+# Damage elasticity (2026-10-27, damage items scored over same-tier utility items that win more): across items, real
+# Phantom+ holders' hero damage per minute rises only ~half as much as the sim's damage before death says (log real
+# holder / non-holder damage ratio = 0.51 x log sim ratio over 141 items at 27k, both match-id halves 0.51-0.52,
+# 0.45 at 37k; sim/scripts/fight_rate/holder_rates.py). Fights end, targets back off and teammates take kills, so a
+# build's extra duel damage only partly becomes real damage. The score counts the damage ratio to the popular build
+# ^ DAMAGE_ELASTICITY; the real-data factors (death rate, team value, movement, map time, win edge) keep full weight.
+# sim_vs_win 27k: all pairs 0.180 -> 0.217, within slot and tier 0.220 -> 0.258, damage items 0.083 -> 0.114, per
+# item 0.258 -> 0.306 (both hero halves). 1.0 = the old score.
+DAMAGE_ELASTICITY = 0.5
 
 
 def death_data():
@@ -708,7 +722,7 @@ class Evaluator:
         self.h, self.souls, self.pools = hero, budget, pools
         self.cache = {}
         self.fights = 0
-        self.norm = {}
+        self.norm, self.dmg_norm = {}, {}
         pop = tuple(sorted(S.popular_build(hero, S.item_budget(budget), pools)))
         self.deficit = entry_deficit(hero, pop, budget)
         self.pop = pop
@@ -719,7 +733,8 @@ class Evaluator:
             rows = self._rows(pop, pool)
             self.pd_pop[pool] = self._death(rows)
             self.loss_pop[pool] = self._loss(rows)
-            self.norm[pool] = max(1.0, self._mean(rows, 2)) * movement_value(pop, hero) \
+            self.dmg_norm[pool] = max(1.0, self._mean(rows, 2))
+            self.norm[pool] = movement_value(pop, hero) \
                 * self._map(pop) * win_value(pop, hero) * team_value(pop, budget) * death_rate_value(pop, hero, budget)
 
     def _rows(self, items, pool):
@@ -778,13 +793,15 @@ class Evaluator:
         rate = fight_value(loss, self.loss_pop[pool], build_stats(self.h, items, self.souls)["max_hp"], self.hp_pop,
                            self.souls)
         drate = death_rate_value(items, self.h, self.souls)
-        score = dmg * move * mt * win * team * death * rate * drate / self.norm[pool]
+        score = (dmg / self.dmg_norm[pool]) ** DAMAGE_ELASTICITY * move * mt * win * team * death * rate * drate \
+            / self.norm[pool]
         if not detail:
             return score
         t = self._mean(rows, 3)
         return {
             "score": round(score, 4),
             "damage_before_death": round(dmg, 1),   # net of the enemy's healing
+            "damage_elasticity": DAMAGE_ELASTICITY,   # the score counts the damage ratio ^ this
             "entry_hp": round(entry_hp_start(self.h, items, self.souls, self.deficit)),
             "time_alive_s": round(t, 2),
             "survived_30s": round(self._mean(rows, 4), 4),
