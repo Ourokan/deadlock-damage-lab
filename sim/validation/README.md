@@ -2729,3 +2729,26 @@ Results: Geist whole-match mix 0.035 -> 0.010, Soul Exchange 0.073 -> 0.145, Ess
 0.128 / 0.129 -> 0.015 / 0.069 / 0.080, ult real / sim 2.37 / 1.69 / 1.55 -> 0.95 / 0.77 / 0.81 (now a little over
 mid and late). sim_vs_win Lady Geist 27k + 37k: all 0.410 -> 0.398, within slot and tier 0.409 -> 0.395, damage
 items 0.389 -> 0.415 (swap alone 0.416 within; the plain refit 0.396), within one hero's noise.
+
+## Replay readers after game pauses (2026-10-28)
+
+A pause moves the replay's tick -> game time offset (1-10 stretches per replay; the 259 cast replays: median 21 s of
+pauses, 75th percentile 46 s). #172 found victor_revive.py dropped every cast after a pause; the other replay readers:
+
+- `fight_patterns/replay_openers.py` kept only casts on the replay's most common offset: 21% of the casts in the 259
+  cast replays dropped (half the replays lost over 18%), plus every cast whose cooldown starts after its duration
+  (Calico's Ava, Ivy's Air Drop, Rem's Lil Helpers read ~0). Now `fit_cast_timing.real_casts`, and `--split` reads the
+  cast_timing + fight_length extracts (259 matches; no Mo burrow rows). The 'replay' block of data/fight_patterns.json
+  (what combo_check.py compares with) is rebuilt from them: cast shares ~25% higher for every hero. On the same 259
+  replays the fix alone changes the replay order of Shiv, Wraith, Rem and Warden's ult setup; combo_check.py with the
+  file's and the fixed variant: timing error, mix and ability log error the same to 0.001 for all four (under cast
+  timing the holds decide when abilities go out, the order only breaks ties), so `order` / `ult_after` stay.
+- `team/area_hits.py` and `team/ability_area_phase.py` put a fight's game time at one offset per match (the ticks
+  past the game clock at its end), so fights before a pause read their net worth up to a pause's length early (median
+  16 s). Now `fit_length.clock_offset` (deaths line the clock up per stretch; all 260 replays): area item phase bins
+  move <= 0.05 (inside their 95% bands), ability phase curves <= 0.04. Audit 0.0184 -> 0.0186, sim_vs_win 27k all
+  0.296 -> 0.296, within slot and tier 0.331 -> 0.331, damage items 0.184 -> 0.183: kept as the correct reading, no
+  refit (nothing moved enough to need one).
+- `nurse/nurse_replays.py` (report only, its leech extracts are not kept) has the same one-offset net worth; left.
+- `fight_patterns/replay_imbues.py` and `mechanics/split_shot_replays.py` only compare damage ticks with each other
+  (no game clock): not affected.
