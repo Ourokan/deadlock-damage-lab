@@ -7,11 +7,12 @@ it is compared with), as score gain per 1000 souls of the item. Compared with th
 movement items (their real value is in movement_value already) are skipped.
 
 Prints Pearson / Spearman over every (hero, item) pair, over items that deal damage (kill_weight.json rows) and
-per-item mean sim gain vs mean edge, with the overall score's KILL_WEIGHT and DEATH_COST as set (--no-kill to turn the
+per-item mean sim gain vs mean edge, over (hero, item) pairs with the sim gain centred on the hero's other items of
+the same slot and tier (as the edge is), with the overall score's KILL_WEIGHT and DEATH_COST as set (--no-kill to turn the
 kill weight off, --death to turn the opt-in death cost on, --bounty for DEATH_BOUNTY, --no-death-rate to
 turn the real death rate value off, --fight-rate for the opt-in fight rate). Rows in --out also carry the popular build's and the
 item build's sim death chance (overall_search.death_chance), for analysis/scripts/death_check.py, then health lost
-per fight and max health of both builds and both scores (for offline fight-rate variants).
+per fight and max health of both builds and both scores (for offline fight-rate variants), the item cost and both builds' damage before death.
 Earlier ad hoc check: Pearson 0.05 over 16 heroes x 27k/37k (build_win_check.md). This script, all heroes at 27k
 (2026-10-24): all pairs 0.10 without the kill weight, 0.14 with it.
 
@@ -58,6 +59,7 @@ def job(args):
     ev = GP.make_evaluator(hero, b, pools)
     pop = S.popular_build(hero, GP.item_budget(b), pools)
     base = ev.run(pop)
+    dmg_pop = ev.run(pop, detail=True)["damage_before_death"]
     pd_pop = ev.pd_pop["F"]
     fe = ev.fight if isinstance(ev, O.MixEvaluator) else ev   # MixEvaluator: its fight part
     loss_pop, hp_pop = getattr(fe, "loss_pop", {}).get("F", 0.0), O.build_stats(hero, pop, b)["max_hp"]
@@ -74,7 +76,7 @@ def job(args):
         sc = d["score"]
         out.append((hero, b, it.name, (sc - base) / it.cost * 1000, e[0], e[1], pd_pop, d["death_chance"],
                     loss_pop, d.get("hp_lost_per_fight", 0.0), hp_pop, O.build_stats(hero, GP.with_item(pop, i), b)["max_hp"],
-                    base, sc, it.cost))
+                    base, sc, it.cost, dmg_pop, d["damage_before_death"]))
     return out
 
 
@@ -126,6 +128,15 @@ def main():
                       ("edges clear of noise", [r for r in rows if abs(r[4]) > 1.96 * r[5]])):
         x, y = [r[3] for r in rs], [r[4] for r in rs]
         print(f"  {label:22s} n {len(rs):5d}  Pearson {pearson(x, y):+.3f}  Spearman {spearman(x, y):+.3f}")
+    # the real edge is against same-slot same-tier items, so also compare the sim gain against the hero's other
+    # items of that slot and tier (a tier whose sim favourites lose real games drags its other items down otherwise)
+    slot = {it.name: (it.slot, it.tier) for it in g.items.values()}
+    grp = {}
+    for r in rows:
+        grp.setdefault((r[0], *slot[r[2]]), []).append(r)
+    cen = [(r[3] - statistics.mean(q[3] for q in rs), r[4]) for rs in grp.values() if len(rs) > 1 for r in rs]
+    print(f"  {'within slot and tier':22s} n {len(cen):5d}  Pearson {pearson(*zip(*cen)):+.3f}  Spearman "
+          f"{spearman(*zip(*cen)):+.3f}")
     by = {}
     for r in rows:
         by.setdefault(r[2], []).append(r)

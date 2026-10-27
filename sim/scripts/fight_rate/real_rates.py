@@ -19,7 +19,7 @@ import os
 from collections import defaultdict
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".."))
-SRC = "/mnt/project-files/analysis/work/fight_rate"
+SRC = "/mnt/project-files/analysis/work/fight_rate_ext"   # with imbued buys (fight_rate/ dropped them)
 NW_BIN, T_BIN = 2500, 300
 METRICS = ("dealt", "taken", "deaths", "ka")
 MIN_MIN = 2.0     # minutes: shorter intervals (the last one) are noisy
