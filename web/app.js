@@ -950,6 +950,7 @@ function whatItDoes(ctx, d, x, m) {
 const SCORE_PARTS = [["damage_before_death", "damage before dying"], ["win_value", "real win edge", "Real win edge factor"], ["map_time", "time on the map (fewer walks back to heal)", "Time on the map"],
   ["team_value", "team value", "Team value"], ["death_value", "time not spent dead", "Time not dead"], ["fight_rate", "fights per minute", "Fights per minute"],
   ["death_rate_value", "real holders' death rate", "Real death rate factor"], ["focus_value", "real holders' damage taken", "Damage taken factor"],
+  ["farm_value", "real holders' jungle farming", "Farm factor"],
   ["movement_value", "movement", "Movement"]];
 
 function whyHtml(ctx, d, x, m) {

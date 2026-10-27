@@ -106,8 +106,9 @@ Focus cost (2026-10-27): the duel's enemy hits every build alike, so drawing mor
 free. Real holders of some items take more damage per minute (Rebuttal 1.07, Return Fire and Metal Skin 1.03) and,
 at equal damage dealt, deaths and kills, taking more loses real games; the score is multiplied by the held items'
 real damage-taken ratios ^ -FOCUS_GAMMA (focus_value; healing items and Cheat Death left out).
-Not counted: vision, souls from farming (Monster Rounds), objective damage, debuffs from area items on the other
-enemies.
+Farm value (2026-10-27): souls earned between fights; the score is multiplied by the held items' real jungle-souls
+ratios ^ FARM_GAMMA (farm_value, an economy-sized weight).
+Not counted: vision, lane farming, objective damage, debuffs from area items on the other enemies.
 
 Real win edge (Tyler 2026-10-24, "blend win edge into score"): the score is also multiplied by
 exp(WIN_K x the sum of the held items' real win edges on this hero) / the popular build's (win_value). Edge = win-rate
@@ -280,6 +281,21 @@ FOCUS_GAMMA = 0.4
 FOCUS_SKIP = frozenset(("Cheat Death",))
 _taken = {}
 
+# Farm value (2026-10-27, items ranked furthest from real wins within their slot and tier): the score counted only
+# hero fights, never the souls an item earns between them. Real holders of some items take jungle camps much faster
+# at the same hero, net worth and game time (fight_rate.json "jungle", souls from neutral camps per minute, 27k:
+# Ricochet 1.31, Escalating Exposure / Glass Cannon / Cultist Sacrifice 1.11 ... Rusted Barrel / Decay 0.91, Focus
+# Lens 0.90, Cursed Relic 0.88), and the jungle ratio is the real holder rate that best lines up with the win edges the sim misses. The
+# score is multiplied by farm_value = the product of the held items' jungle ratios (|z| >= DEATH_RATE_Z, movement
+# items left out as in death_rates, clamped like them) ^ FARM_GAMMA. FARM_GAMMA from the economy, not from wins:
+# jungle souls are ~220 / min at 20-36k net worth (15% of all souls), ~8.7 min of game are left, and 1000 souls are
+# worth ~0.07 of the score (the popular build's best next item, sim_vs_win median), so an item that farms x r gives
+# ~0.07 x 220 x 8.7 / 1000 x (r - 1) = 0.13 (r - 1) by the game's end, half that on average: ~0.1. The real
+# association is stronger (sim_vs_win rises up to gamma ~0.5): the rest is who farms with these items, not counted.
+# sim_vs_win 27k (validation/farm_value.md). 0 = off.
+FARM_GAMMA = 0.1
+_jungle = {}
+
 
 # Damage elasticity (2026-10-27, damage items scored over same-tier utility items that win more): across items, real
 # Phantom+ holders' hero damage per minute rises only ~half as much as the sim's damage before death says (log real
@@ -424,6 +440,36 @@ def focus_value(items, souls):
         ratio *= rates.get(i, 1.0)
     lo, hi = DEATH_RATE_CLAMP
     return max(lo, min(hi, ratio)) ** -FOCUS_GAMMA
+
+
+def jungle_rates(souls):
+    """{item id: real jungle-souls-per-minute ratio of holders} for the fit budget nearest souls (|z| >=
+    DEATH_RATE_Z, movement items left out)."""
+    d = fight_rate_data()["items"]
+    b = min(d, key=lambda k: abs(math.log(int(k) / souls)))
+    if b not in _jungle:
+        movement_value(())   # loads _move
+        moving = _move[2] | {i for row in _move[3].values() for i in row}
+        lo, hi = DEATH_RATE_CLAMP
+        by_name = {it.name: i for i, it in S.G().items.items()}
+        _jungle[b] = {by_name[n]: max(lo, min(hi, e["jungle"][0])) for n, e in d[b]["items"].items()
+                      if n in by_name and by_name[n] not in moving and "jungle" in e
+                      and abs(e["jungle"][1]) >= DEATH_RATE_Z}
+    return _jungle[b]
+
+
+def farm_value(items, souls):
+    """(product of the held items' real jungle-souls ratios, clamped to DEATH_RATE_CLAMP) ^ FARM_GAMMA: souls an item
+    earns between fights, which the duel can't see. Divided by the popular build's in the score. 1 when FARM_GAMMA
+    is 0."""
+    if not FARM_GAMMA:
+        return 1.0
+    rates = jungle_rates(souls)
+    ratio = 1.0
+    for i in set(items):
+        ratio *= rates.get(i, 1.0)
+    lo, hi = DEATH_RATE_CLAMP
+    return max(lo, min(hi, ratio)) ** FARM_GAMMA
 
 
 def fight_value(loss, loss_pop, hp, hp_pop, souls):
@@ -832,7 +878,7 @@ class Evaluator:
             self.dmg_norm[pool] = max(1.0, self._mean(rows, 2))
             self.norm[pool] = movement_value(pop, hero) \
                 * self._map(pop) * win_value(pop, hero) * team_value(pop, budget) * death_rate_value(pop, hero, budget) \
-                * focus_value(pop, budget)
+                * focus_value(pop, budget) * farm_value(pop, budget)
 
     def _rows(self, items, pool):
         key = (tuple(sorted(items)), pool)
@@ -891,8 +937,9 @@ class Evaluator:
                            self.souls)
         drate = death_rate_value(items, self.h, self.souls)
         focus = focus_value(items, self.souls)
+        farm = farm_value(items, self.souls)
         score = (max(0.0, dmg) / self.dmg_norm[pool]) ** DAMAGE_ELASTICITY * move * mt * win * team * death * rate * drate \
-            * focus / self.norm[pool]
+            * focus * farm / self.norm[pool]
         if not detail:
             return score
         t = self._mean(rows, 3)
@@ -915,6 +962,7 @@ class Evaluator:
             "fight_rate": round(rate, 4),  # fights per minute vs the popular build (fight_value)
             "death_rate_value": round(drate, 4),  # real holders' deaths (death_rate_value), before the popular's
             "focus_value": round(focus, 4),  # real holders' damage taken (focus_value), before the popular's
+            "farm_value": round(farm, 4),  # real holders' jungle souls (farm_value), before the popular's
             "matchups": {str(r[0]): [round(r[2]), round(r[3], 2)] for r in rows},
         }
 

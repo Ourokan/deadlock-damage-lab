@@ -1,5 +1,5 @@
 {
   "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
-  "requested_at": "2026-10-27T16:40:00Z",
-  "reason": "Bullet resist shred in fights: in-fight shred debuffs x Mechanics.shred_uptime 0.35 (real gun hits keep 0.98x their targets' build resist late, sim duels kept 1.05x)"
+  "requested_at": "2026-10-27T14:50:00Z",
+  "reason": "Farm value: overall score x held items' real jungle-souls ratios ^ 0.1 (Rusted Barrel / Disarming Hex drop); also carries the ult casts by game phase (#161) and in-fight bullet resist shred (#163) changes"
 }
