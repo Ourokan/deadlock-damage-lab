@@ -2652,3 +2652,45 @@ length_corr 2.55 -> 1.84, Leech 1.48 -> 1.42): audit 0.0187 -> 0.0184, Nurse 0.0
 0.008). A stun that broke the channel leaves nothing to land at the end. sim_vs_win Nurse 27k + 37k: all 0.286 -> 0.302, within slot and tier 0.312 -> 0.332.
 
 Left: Nurse's early ult is still over (0.22 vs 0.15 at 30%).
+
+## Victor's revive (2026-10-27)
+
+After the cover audit (#169) Victor's ult share was under at every phase and more so late, on both match-id halves
+(phase_mix.py --window 0.05, real / sim: 1.45 / 1.78 / 2.12 at 30 / 60 / 90%; even 1.59 / 1.61 / 2.25, odd 1.30 /
+1.97 / 2.01). In the replays (59 Victor matches) half his ult damage is the T1 bonus per bullet while it is on
+cooldown, and real Victors shoot ~50% of their mid / late bullets with it on. Per bullet hit the sim's bonus matches
+(its T1 damage per on-cooldown gun damage ~0.47 raw); the duels just started on cooldown too rarely.
+
+scripts/mechanics/victor_revive.py (data/victor_revive.json, read by heroes/frank.py CARRY_COOLDOWN) had three faults:
+- casts: it kept cooldown starts at the replay's one most common tick offset, so every cast after a game pause was
+  dropped (273 of 342 revives kept; 25% of his T1 hits came >240 s after the last kept cast, impossible). Now
+  fit_cast_timing.real_casts (per stretch of the replay): 96% of T1 hits fall inside a cooldown.
+- phases: split by minutes (9 / 25), the sim reads net worth (10k / 27k); now his net worth at the fight start.
+- fights: his aura's self-damage ticks out of combat counted as fights (~40% of the mid ones); now left out. And the
+  rest of a fight he revives in counts as a fight of its own started on cooldown (3 s after the cast): real fights
+  with a revive in them last ~25 s vs 6-9 s and go on a mean 9-11 s after it with half the fight's bullets, but a sim
+  duel's blast mostly finishes its one foe, so nothing of that part was in the sim.
+On cooldown at a fight's start (T3 145 s / T1 240 s): lane 0.11 / 0.11 -> 0.13 / 0.18, mid 0.30 / 0.54 -> 0.44 /
+0.67, late 0.29 / 0.47 -> 0.51 / 0.72.
+
+Split-half (data from one half's replays and Victor's corrections refit 3 rounds on that half of the sample, against
+the same refit on the old data, judged on the other half): whole-match held-out mix 0.0220 -> 0.0210 and 0.0200 ->
+0.0180, per source 0.0399 -> 0.0392 and 0.0272 -> 0.0256; phase mix 0.0545 / 0.0433 / 0.0495 -> 0.0469 / 0.0430 /
+0.0458 and 0.0385 / 0.0227 / 0.0426 -> 0.0344 / 0.0281 / 0.0411 at 30 / 60 / 90%.
+
+Kept without a refit (corrections as they were): ult by phase 1.45 / 1.78 / 2.12 -> 1.34 / 1.42 / 1.63 real / sim,
+phase mix 0.0298 / 0.0414 / 0.0467 -> 0.0253 / 0.0325 / 0.0433, Victor whole-match mix 0.021 -> 0.020 (ult share
+0.030 -> 0.036, real 0.058), audit 0.0184 -> 0.0185. sim_vs_win Victor 27k + 37k: all 0.238 -> 0.257, within slot
+and tier 0.264 -> 0.276, damage items 0.145 -> 0.162, edges clear of noise 0.496 -> 0.523. A Victor refit on top
+(3 / 5 rounds) runs Shocking Reanimation's length_corr from 3.49 to 8.9 / 10.0 (the KEEP_RANGE cap; landing 2.94),
+puts the ult at 0.64 / 1.01 / 1.04 (over at 30%: natural lane revives x that correction) and lowers sim_vs_win
+(within 0.257 / 0.251), so the levels stay.
+
+Tried, not kept: a drawn third-party revive. Real Victors who start a fight with the ult ready revive in it in 3%
+of lane fights, 21% mid and 27% late, a median ~14 s in (victor_revive.py prints it, json "in_fight"), mostly to
+the fight's other enemies; a sim duel's lone foe gets him there in ~5%, late in the duel where the length weights
+count the blast at ~0.1, which is why the blast's correction runs to the cap. Drawing those revives (blast booked
+at the fight start's weight) brought the correction to 0.5-1.2, but the halves disagreed (held-out per source
+0.0399 -> 0.0244 on one, 0.0272 -> 0.0397 on the other; 60% phase mix 0.0227 -> 0.0617): a few big blasts per
+half sample. Left: the ult is still under (1.34 / 1.42 / 1.63); those third-party revives are the cause, and need a
+version with less variance (an expected-value blast per fight) before a refit can follow.
