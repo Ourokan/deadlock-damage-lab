@@ -1,0 +1,30 @@
+{
+ "source": "ally_heal.py: 400 Phantom+ sustain replays after 540 s vs the 3v3 at 27000 souls",
+ "pooled_real_per_sim": 0.0488,
+ "items": {
+  "Healing Nova": {
+   "real_self_hp_min": 106.5,
+   "real_ally_hp_min": 220.0,
+   "held_min": 543,
+   "sim_ally_hp_fight_min": 1459.3,
+   "real_per_sim": 0.1508,
+   "factor": 1.0
+  },
+  "Rescue Beam": {
+   "real_self_hp_min": 83.6,
+   "real_ally_hp_min": 131.5,
+   "held_min": 794,
+   "sim_ally_hp_fight_min": 926.4,
+   "real_per_sim": 0.1419,
+   "factor": 1.0
+  },
+  "Restorative Locket": {
+   "real_self_hp_min": 117.9,
+   "real_ally_hp_min": 6.4,
+   "held_min": 3353,
+   "sim_ally_hp_fight_min": 622.9,
+   "real_per_sim": 0.0103,
+   "factor": 0.07
+  }
+ }
+}
