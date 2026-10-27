@@ -321,7 +321,7 @@ LENGTH_CAP_SKIP = ("Return Fire",)
 def lifted(r):
     """True if this item_landing.json row gets CAP_AFTER_LENGTH's min(1, landing x length_corr)."""
     return (CAP_AFTER_LENGTH and r["landing"] >= 1.0 and r.get("length_corr", 1.0) < 1.0
-            and r["name"] not in LENGTH_CAP_SKIP)
+            and r["holders"] >= ITEM_LANDING_MIN_HOLDERS and r["name"] not in LENGTH_CAP_SKIP)
 
 
 def item_length_corr():

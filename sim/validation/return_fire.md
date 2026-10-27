@@ -24,6 +24,11 @@ which now fits lifted rows on `min(1, landing x length_corr)` and lets the landi
 | items, holder-weighted mean abs log real/sim | 0.0966 | 0.0828 | 0.0769 |
 | hero mix distance (player-weighted) | 0.0182 | 0.0186 | 0.0186 |
 
+Per-hero rows (`item_landing.json` "heroes") multiply the same corrected factor, so the lifted items' hero rows were
+refit too (`item_landing_heroes.py --item X`, from the audit after the pooled refit): six Quicksilver rows had been
+fit on the old 0.855 and read ~15% over (Wraith 0.86, Mina 0.90); holder-weighted |log real/sim| over the lifted
+items' hero rows 0.210 (main) -> 0.171 (pooled refit) -> 0.116, pooled item gap 0.080, mix 0.0186.
+
 Split-half (match id parity; refit from one half's audit, audit the other): those five items' held-out gap
 0.143 -> 0.099 (odd half) and 0.086 -> 0.044 (even half); mix flat both halves. The hero mix moves +0.0004, mostly
 Calico (0.035 -> 0.042): her whole-match mix already has items over (0.33 vs 0.31, mid-game bias of the 30/60/90%
@@ -47,7 +52,7 @@ Not lifted (`accuracy.LENGTH_CAP_SKIP`). What the data says:
 
 Lifting it doubles its score; sim_vs_win (27k, blend off, all heroes): main all 0.219 / within slot and tier 0.258 /
 damage items 0.114 / per item 0.307; lift on every item 0.211 / 0.248 / 0.077 / 0.297; this change (lift without
-Return Fire, lifted items refit) 0.218 / 0.256 / 0.109 / 0.306. So the conflict the first try found is
+Return Fire, lifted items refit pooled and per hero) 0.217 / 0.258 / 0.109 / 0.308. So the conflict the first try found is
 Return Fire's alone: real damage that comes with being focused and doesn't win. Fixing the accuracy term would make
 its damage truer and the score worse in the same way; both wait for a score that can price damage taken to deal it.
 Script for the replay numbers: `sim/scripts/mechanics/return_fire_replays.py`.
