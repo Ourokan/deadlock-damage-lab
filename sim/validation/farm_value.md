@@ -69,6 +69,14 @@ more (the association is bigger than the souls are worth: who farms with these i
 Ranks (27k mean gain per 1000 souls): Rusted Barrel 75 -> 121, Disarming Hex 95 -> 105, Ricochet 77 -> 51,
 Cultist Sacrifice 124 -> 111, Melee Lifesteal 4 -> 9; Decay 10 -> 11 and Heroic Aura 1 stay.
 
+## Limits
+
+The jungle ratio is a holder vs non-holder association, not a controlled item effect: the metric was picked
+because it lines up with the win-edge misses, and part of it is who farms with these items and when (the sim_vs_win
+gain keeps growing past the economy-sized weight at 27k). FARM_GAMMA 0.1 credits only the souls' worth, so most of
+that association is left out; the 37k gain (+0.005 within) is small, and the rerun's build changes (Rusted Barrel,
+Decay, Disarming Hex out of some builds) are where to look for side effects.
+
 ## Looked at, not changed
 
 - Melee Lifesteal is credited with self healing in the sustain replays (71 HP/min, `upgrade_lifestrike_gauntlets`)
