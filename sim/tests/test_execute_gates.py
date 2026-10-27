@@ -4,7 +4,8 @@
   Assassinate, Close The Deal, Lethal Venom) gets a real entry deficit draw that only those gates see
   (Fighter.gate_hp); its health and the fight's length stay.
 - Djinn's Mark: after each mark, a real chance (data/djinn_gaps.json) that Mirage lands no mark until they expire;
-  a first cast held to real cast timing pops the marks there are.
+  a first cast held to real cast timing pops the marks there are. Marks outlast a disengage: a pop books as likely
+  as the fight still going at the last mark (mirage.MARKS_OUTLAST).
 Run: python3 -m unittest discover -s tests -v (from sim/)."""
 import dataclasses
 import os
@@ -127,6 +128,29 @@ class DjinnsMark(unittest.TestCase):
         self.assertTrue(dm.impl.should_cast(dm.ctx))
         dm.ctx.state["stacks"] = 0
         self.assertFalse(dm.impl.should_cast(dm.ctx))   # nothing to pop
+
+    def pop_weight(self, outlast):
+        old = mirage.MARKS_OUTLAST
+        mirage.MARKS_OUTLAST = outlast
+        try:
+            e, f, g, dm = self.setup(rng=False)
+            hit = type("Hit", (), {"kind": "bullet", "source": "gun", "hits": 1.0})()
+            e.t = 1.0
+            dm.impl.on_damage_dealt(dm.ctx, g, hit)
+            e.t = 6.0
+            dm.impl.pop(dm.ctx)
+            self.assertIsNone(e.book_at)
+            name = dm.ab.name
+            return f.dmg_exp[name] / f.dmg_out[name], e
+        finally:
+            mirage.MARKS_OUTLAST = old
+
+    def test_marks_outlast_a_disengage(self):
+        w, e = self.pop_weight(True)
+        self.assertAlmostEqual(w, e.length_w(1.0))   # as likely as the fight going on at the mark
+        self.assertGreater(w, e.length_w(6.0))
+        w, e = self.pop_weight(False)
+        self.assertAlmostEqual(w, e.length_w(6.0))
 
 
 if __name__ == "__main__":
