@@ -201,6 +201,11 @@ class Mechanics:
     # is x melee_phase_mult (data/melee_phase.json, scripts/mechanics/melee_phase.py: real over sim melee share at
     # 30 / 60 / 90% of the match, shrunk to the pooled curve; linear in ln net worth between the points, flat outside)
     melee_phase: bool = True
+    # ult casts by game phase (2026-10-27): the ult holds (cast_timing) are one curve over the whole match, but real
+    # players cast the ult in fewer fights early: P(cast by 20 s of a pair fight) 0.88x the whole-match share before
+    # 45% of the match, 1.06x to 75%, 1.02x after (Solomon 0.61 / 1.33 / 0.86, Infernus 0.79 / 1.12 / 1.06). The hold's
+    # cast share at the fighter's net worth is x ult_phase_mult (data/ult_phase.json, scripts/cast_timing/ult_phase.py)
+    ult_phase: bool = True
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
@@ -388,6 +393,8 @@ def hold_first_casts(f):
             u = rng.random()
         if getattr(f.e.mech, "cdr_ready", False):
             u = cdr_ready_u(f, ab, u)
+        if ab.ab.ultimate and getattr(f.e.mech, "ult_phase", False):
+            u = ult_phase_u(f, ab, q, u)
         h = q[min(len(q) - 1, int(u * len(q)))]
         ab.held_until = f.e.t + (math.inf if h is None else max(0.0, h))
         ab.timed = True
@@ -698,6 +705,49 @@ def ability_area_mult(cls, souls):
         if x <= x1:
             return (y0 + (y1 - y0) * (x - x0) / max(1e-9, x1 - x0)) / base
     return pts[-1][1] / base
+
+
+_ULT_PHASE = None
+
+
+def ult_phase_mult(key, souls):
+    """Mechanics.ult_phase: multiplier on the ult hold's cast share ("hero id:class") at net worth souls
+    (data/ult_phase.json), linear in ln net worth between its points, flat outside; 1.0 without data."""
+    global _ULT_PHASE
+    if _ULT_PHASE is None:
+        fn = os.path.join(os.path.dirname(__file__), "..", "data", "ult_phase.json")
+        _ULT_PHASE = {}
+        if os.path.exists(fn):
+            with open(fn) as fh:
+                for k, v in json.load(fh)["sources"].items():
+                    _ULT_PHASE[k] = [(math.log(nw), m) for nw, m in v["points"]]
+    return _interp_ln(_ULT_PHASE.get(key), souls)
+
+
+def _interp_ln(pts, souls):
+    if not pts or not souls:
+        return 1.0
+    x = math.log(max(souls, 1.0))
+    if x <= pts[0][0]:
+        return pts[0][1]
+    for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+        if x <= x1:
+            return y0 + (y1 - y0) * (x - x0) / max(1e-9, x1 - x0)
+    return pts[-1][1]
+
+
+ULT_PHASE_CAP = 0.98
+
+
+def ult_phase_u(f, ab, q, u):
+    """The hold quantile u with the hold's cast share c (its non-None values) at c x ult_phase_mult: holds in the cast
+    part keep their order and stretch over the new share, the not-cast part shrinks into what is left."""
+    m = ult_phase_mult(f"{f.st.hero.id}:{ab.ab.class_name}", f.st.souls)
+    c = sum(h is not None for h in q) / len(q)
+    if abs(m - 1.0) < 1e-6 or c <= 0.0 or c >= 1.0:
+        return u
+    c2 = min(ULT_PHASE_CAP, c * m)
+    return u * c / c2 if u < c2 else c + (u - c2) * (1.0 - c) / (1.0 - c2)
 
 
 _MELEE_PHASE = None
