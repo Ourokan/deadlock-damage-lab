@@ -703,28 +703,33 @@
     "landing": 1.77,
     "real_share": 0.1497,
     "sim_share": 0.1334,
-    "length_corr": 1.616
+    "length_corr": 0.866
    },
    "Gutshot": {
     "class": "ability_priest_knockback",
     "landing": 1.31,
     "real_share": 0.1157,
     "sim_share": 0.1129,
-    "length_corr": 1.569
+    "length_corr": 1.015
    },
    "Hex-Lined Snap Trap": {
     "class": "ability_priest_beartrap",
     "landing": 0.3,
     "real_share": 0.0245,
     "sim_share": 0.0238,
-    "length_corr": 2.373
+    "length_corr": 1.206
    },
    "Ira Domini": {
     "class": "ability_priest_weaponswap",
     "landing": 0.65,
     "real_share": 0.1124,
     "sim_share": 0.1784,
-    "length_corr": 1.158
+    "length_corr": 1.908
+   },
+   "Ira Domini (stakes)": {
+    "class": "citadel_weapon_priest_crossbow",
+    "landing": 0.65,
+    "length_corr": 0.918
    }
   },
   "Victor": {

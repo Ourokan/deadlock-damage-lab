@@ -100,7 +100,8 @@ def sim_player(job):
                 gun += v
             elif k.lower().startswith("melee") and k.lower() not in G.items_by_name:
                 mel += v    # basic and ability melees; item bonuses (Melee Charge) are booked under the item, as in game
-    real_gun = sum(v for k, v in me["damage_sources"].items() if k.startswith("citadel_weapon") or "_primary_weapon" in k)
+    real_gun = sum(v for k, v in me["damage_sources"].items()   # Venator's stakes count as his ult, not gun
+                   if (k.startswith("citadel_weapon") or "_primary_weapon" in k) and "priest_crossbow" not in k)
     real_mel = sum(v for k, v in me["damage_sources"].items() if "ability_melee_" in k)
     return me["hero_id"], sum(held) / len(held), gun, mel, real_gun, real_mel
 
