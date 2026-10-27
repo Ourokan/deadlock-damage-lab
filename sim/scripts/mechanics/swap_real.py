@@ -8,7 +8,9 @@ lands part of the time: Mechanics.swap_full books it whole on the real share of 
 
 Per Geist (fight_length/raw damage events, cast_timing/raw casts as fit_cast_timing.real_casts; matches with both):
 casts, Soul Exchange hits on enemy heroes, each hit's loss / target max health, the target's health before, Geist's
-last seen health; rows "all" / "even" / "odd" match ids.
+last seen health; rows "all" / "even" / "odd" match ids. Also the health gap at each swap (target before - Geist):
+real Geists wait for a gap of ~0.6 (median; the sim swapped as soon as SWAP_MIN_GAIN 0.3 opened, median 0.43),
+QBINS quantiles of it are ghost.SWAP_GAPS (Mechanics.swap_gap).
 
 usage: python3 -I swap_real.py   (~1 min on 4 cores)
 """
@@ -28,6 +30,7 @@ import opener_timing as OT  # noqa: E402
 
 GEIST = 4
 SE = 1307289689
+QBINS = 20
 
 
 def match_rows(fn):
@@ -73,6 +76,9 @@ def main():
               f"loss/max hp median {statistics.median(h[0] for h in hits):.3f} mean {statistics.mean(h[0] for h in hits):.3f}  "
               f"target before {statistics.median(h[1] for h in hits):.3f}  Geist {statistics.median(h[2] for h in hits):.3f}  "
               f"SE share of hero dmg {se / tot:.3f}")
+        gaps = sorted(h[1] - h[2] for h in hits)
+        print(f"     gap at swap (target before - Geist) {QBINS} quantiles (ghost.SWAP_GAPS):",
+              [round(gaps[min(len(gaps) - 1, int((b + 0.5) / QBINS * len(gaps)))], 2) for b in range(QBINS)])
 
 
 if __name__ == "__main__":

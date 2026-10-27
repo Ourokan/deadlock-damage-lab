@@ -25,7 +25,8 @@ Fights as fit_length.py (two enemy heroes trading, gaps < 5 s, >= 4 hits both wa
 fit_cast_timing.py real (PRE_S before the first hit counts as 0; never cast before in the match = not unlocked: left
 out). Rows "all" plus "even" / "odd" match id halves for the split-half check.
 
-usage: python3 -I execute_timing.py [--write]   (real side, then the sim fits on Shiv's / Geist's audit duels)
+usage: python3 -I execute_timing.py [--se-only] [--write]   (real side, then the sim fits on Shiv's / Geist's audit
+       duels; --se-only refits Soul Exchange's hold_share and keeps the file's Killing Blow rows)
 """
 import bisect
 import collections
@@ -208,7 +209,12 @@ def bisect_fit(set_x, target, steps=FIT_STEPS):
 
 def main():
     write = "--write" in sys.argv
+    se_only = "--se-only" in sys.argv
     res = real()
+    if se_only:
+        old = json.load(open(OUT))
+        for half, r in res.items():
+            r["killing_blow"] = old[half]["killing_blow"]
     for half, r in res.items():
         k = r["killing_blow"]
         print(half, "assist", r["assist"], "KB target", r["assist_kb_target"], "KB fights", k["fights"],
@@ -229,7 +235,8 @@ def main():
             se["holds"] = commit_holds([v / top * x for v in real_se])
             return sim_top(r, GEIST, SE_CLASS)
         target = k["exec_by"][-1] + k["spent_by"][-1]
-        k["exec_share"] = bisect_fit(kb_at, target)
+        if not se_only:
+            k["exec_share"] = bisect_fit(kb_at, target)
         se["hold_share"] = bisect_fit(se_at, real_se[-1])
         se_at(se["hold_share"])
         print(half, f"Killing Blow by 20 s target {target:.3f}: exec_share {k['exec_share']} -> "
