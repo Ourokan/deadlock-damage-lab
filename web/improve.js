@@ -380,7 +380,7 @@ async function imStart(id, name, force = false) {
     };
     await Promise.all([work(), work(), work()]);
     if (run !== IM.run) return;
-    imWrite({ id, at: Date.now(), rows });
+    if (!failed) imWrite({ id, at: Date.now(), rows });   // a partial read is shown but not kept, so "Read again" or the next visit retries it
     await imRender();
     imStatus(`${name}: last ${rows.length} matches.` + (failed ? ` Aim and damage mix missing for ${failed} of them (the API didn't answer).` : ""));
   } catch (e) {
