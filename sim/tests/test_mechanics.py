@@ -166,7 +166,8 @@ class Items(unittest.TestCase):
         self.assertLess(r0, r1)
         self.assertLess(r1, r2)
         self.assertAlmostEqual(r0, melee_rate("Haze"), delta=0.3 * melee_rate("Haze"))  # most Haze players: none
-        e = Engine(distance=10)
+        import deadsim.mechanics as M
+        e = Engine(distance=10, mech=replace(M.DEFAULT, heavy_holders=False))   # Melee Charge's heavy share aside
         rates = [make_fighter(e, Loadout("Haze", its, souls=20000, skill=sk)).skill.melee_rate
                  for its in ([], ["Melee Charge"], ["Melee Charge", "Lifestrike"], ["Melee Charge", "Lifestrike",
                                                                                     "Spirit Snatch"])]
@@ -210,8 +211,11 @@ class Items(unittest.TestCase):
         from deadsim.accuracy import hero_default_skill
         from deadsim.team import TeamEngine
         from deadsim.accuracy import melee_rates_by_items
+        import dataclasses
+        import deadsim.mechanics as M
         sk = hero_default_skill("Haze")
-        f = make_fighter(TeamEngine(distance=10), Loadout("Haze", ["Melee Charge", "Lifestrike"], souls=20000, skill=sk))
+        f = make_fighter(TeamEngine(distance=10, mech=dataclasses.replace(M.DEFAULT, heavy_holders=False)),
+                         Loadout("Haze", ["Melee Charge", "Lifestrike"], souls=20000, skill=sk))
         self.assertAlmostEqual(f.skill.melee_rate, melee_rates_by_items("Haze")[2], places=3)
 
     def test_web_melee_rate_override(self):
@@ -241,10 +245,12 @@ class Items(unittest.TestCase):
 
     def test_melee_charge_heavy_lands_from_farther_in_fight(self):
         # chase gap of 8 m beyond the start distance: past light reach (6 m), inside Melee Charge heavy reach (9 m)
+        import dataclasses
         from types import SimpleNamespace
+        import deadsim.mechanics as M
         from deadsim.mechanics import melee_reach
         for items, heavy, lands in ((["Melee Charge"], 1.0, True), ([], 1.0, False), (["Melee Charge"], 0.0, False)):
-            e = Engine(distance=11)
+            e = Engine(distance=11, mech=dataclasses.replace(M.DEFAULT, heavy_holders=False))   # heavy_share as set
             sk = Skill(accuracy=0.0, use_abilities=False, use_actives=False, melee_rate=1.0, heavy_share=heavy)
             a = make_fighter(e, Loadout("Abrams", items, souls=9000, skill=sk))
             b = make_fighter(e, Loadout("Haze", [], souls=9000))
@@ -252,6 +258,51 @@ class Items(unittest.TestCase):
             e.mover = SimpleNamespace(start=3.0, melee_reach=melee_reach)
             e.melee_tick(a)
             self.assertEqual(a.dmg_out.get("melee", 0) > 0, lands, (items, heavy))
+
+    def test_heavy_holders_share_and_rate(self):
+        # Mechanics.heavy_holders: a Melee Charge holder's rotation takes the hero's real heavy share (melee_heavy.json)
+        # at a rate that keeps melee damage per second; without the item nothing changes
+        import dataclasses
+        import deadsim.mechanics as M
+        from deadsim.accuracy import hero_default_skill
+        sk = hero_default_skill("Apollo")
+        off = dataclasses.replace(M.DEFAULT, heavy_holders=False)
+        h = M.holder_heavy_share(game().hero("Apollo").id)
+        self.assertGreater(h, 0.5)
+        for items, moved in (([], False), (["Melee Charge"], True)):
+            a = make_fighter(Engine(distance=3), Loadout("Apollo", items, souls=20000, skill=sk)).skill
+            b = make_fighter(Engine(distance=3, mech=off), Loadout("Apollo", items, souls=20000, skill=sk)).skill
+            base = game().hero("Apollo").base
+            r = base["heavy_melee_damage"] / base["light_melee_damage"]
+            per_hit = lambda x: x.melee_rate * (1 - x.heavy_share + x.heavy_share * r)
+            self.assertAlmostEqual(per_hit(a), per_hit(b), places=6)
+            self.assertEqual(a.heavy_share == h, moved)
+            self.assertEqual(a.melee_rate < b.melee_rate, moved)
+
+    def test_melee_charge_bonus_of_whole_heavy_on_weighted_tick(self):
+        # a weighted melee tick procs in its weight's share of ticks: the bonus is 25% of one whole heavy, not of the
+        # weighted hit (that was w^2)
+        e = Engine(distance=3, mech=None)
+        sk = Skill(accuracy=0.0, use_abilities=False, use_actives=False, melee_rate=0.1, heavy_share=1.0)
+        a = make_fighter(e, Loadout("Abrams", ["Melee Charge"], souls=9000, skill=sk))
+        b = make_fighter(e, Loadout("Haze", [], souls=9000))
+        a.enemy, b.enemy = b, a
+        e.melee_hit(a, True, 0.5)
+        e.melee_hit(a, True, 0.5)
+        melee, bonus = a.dmg_out.get("melee", 0), a.dmg_out.get("Melee Charge", 0)
+        self.assertGreater(bonus, 0)
+        self.assertAlmostEqual(bonus / melee, 0.25, places=6)   # one proc of 25% x a whole heavy over two half hits
+
+    def test_heavy_melee_abilities_proc_melee_charge(self):
+        # replays: Melee Charge procs on Drifter's Rend hit as on a heavy melee
+        e = Engine(distance=3, mech=None)
+        sk = Skill(accuracy=0.0, use_abilities=True, use_actives=False, melee_rate=0.0)
+        a = make_fighter(e, Loadout("Drifter", ["Melee Charge"], souls=20000, skill=sk))
+        b = make_fighter(e, Loadout("Haze", [], souls=20000))
+        a.enemy, b.enemy = b, a
+        rend = next(s for s in a.abilities if s.ab.class_name == "drifter_blood_blast")
+        e.damage(a, b, 100.0, "melee", rend.ab.name, is_ability=True, ability=rend)
+        self.assertGreater(a.dmg_out.get("Melee Charge", 0), 0)
 
     def test_runed_gauntlets_heavy_melee_cuts_cooldowns(self):
         e = Engine(distance=3)

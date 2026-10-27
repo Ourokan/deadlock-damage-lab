@@ -156,6 +156,22 @@ def melee_build_mult(skill, items):
     return m[min(len(m) - 1, sum(1 for it in items if it.class_name in MELEE_ITEMS))]
 
 
+def heavy_holder_skill(skill, hero, items):
+    """Mechanics.heavy_holders: a Melee Charge / Crushing Fists holder's rotation at the hero's real heavy share, the
+    melee rate cut by the heavier mean hit so melee damage (and gun time lost to swings, about) stays the fitted one."""
+    from .mechanics import HEAVY_OPENERS, holder_heavy_share
+    if skill.melee_rate <= 0 or not any(it.class_name in HEAVY_OPENERS for it in items):
+        return skill
+    light = hero.base.get("light_melee_damage", 0.0)
+    if light <= 0:
+        return skill
+    r = (hero.base.get("heavy_melee_damage", 0.0) or 2.32 * light) / light
+    h = holder_heavy_share(hero.id)
+    old = skill.heavy_share
+    return dataclasses.replace(skill, heavy_share=h,
+                               melee_rate=skill.melee_rate * (1 - old + old * r) / (1 - h + h * r))
+
+
 def make_fighter(engine, lo: Loadout, name=None):
     load_heroes()
     hero, items = lo.resolve()
@@ -175,6 +191,8 @@ def make_fighter(engine, lo: Loadout, name=None):
             skill = dataclasses.replace(skill, item_landing={k: il.get(k, 1.0) * c.get(k, 1.0) for k in set(il) | set(c)})
     if skill.melee_item_mult:
         skill = dataclasses.replace(skill, melee_rate=skill.melee_rate * melee_build_mult(skill, items))
+    if engine.mech is not None and getattr(engine.mech, "heavy_holders", False):
+        skill = heavy_holder_skill(skill, hero, items)
     f = Fighter(engine, name or lo.name or hero.name, st, skill)
     if lo.ability_order:
         tiers, unlocked = abilities_for_order(hero, lo.ability_order, st.souls)

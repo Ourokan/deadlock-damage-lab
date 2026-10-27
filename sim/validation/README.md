@@ -2166,3 +2166,36 @@ audit the other, 4 draws; a refit on the old model as the reference): held-out h
 Djinn's Mark share differs (0.278 / 0.298), so the replays above carry the case. All-hero audit flat (0.0232 ->
 0.0232, seed 0). sim_vs_win 27k, Mirage (the only hero touched): all pairs 0.233 -> 0.232, damage items -0.158 ->
 -0.127, clear edges Spearman 0.18 -> 0.27.
+
+## Melee Charge and Crushing Fists heavies (2026-10-27)
+
+Apollo and Celeste tied as the heroes furthest from real (mix 0.051, 4 draws). Apollo's gap was mostly Melee Charge:
+holders-only real/sim 4.4 (pooled 1.58, Crushing Fists 1.74, Drifter 3.6 / 5.4). Three causes, from the fight-length
+replays (`scripts/mechanics/melee_heavy.py`, 260 Phantom+ replays):
+
+- Real holders' basic melee hits are about half heavies that proc the item (a proc is 0.25x the melee hit on the same
+  tick, every one): Apollo 0.67, Abrams 0.54, Venator 0.67, Yamato 0.46, Billy 0.20, pooled 0.475. The sim's
+  rotation was 30% heavy for everyone. Mechanics.heavy_holders (on): a holder's rotation takes the hero's share
+  (data/melee_heavy.json, shrunk to pooled with 100 hits) at a melee rate cut so melee damage per second stays the
+  fitted one (fight.heavy_holder_skill); only the item's procs move.
+- Below MELEE_MIN_RATE a melee tick is weighted (Apollo 0.64, Drifter 0.47): the proc already comes in the weight's
+  share of ticks, but the bonus was also of the weighted hit, so the item scaled with w^2. The bonus is now of a
+  whole heavy (Lifestrike's % heal the same).
+- Apollo's Riposte follow-up was an ability light melee that never procced the item (and was cut by reach
+  availability, though it follows a dash). The game books it as basic melee: a peak of melee hits 0.75-2.25 s after
+  real Riposte casts, about 39% of his melee hits (sim 36%), 46% of holders' follow-ups proc Melee Charge. It is now
+  a basic melee (Engine.melee_hit, heavy at the rotation's share). Drifter's Rend, Viscous' Puddle Punch and Billy's
+  Bashdown proc the item in replays like a heavy (307 of 438, 99 of 124, 201 of 281 procs on their tick):
+  items_fx.HEAVY_MELEE_ABILITIES.
+
+Apollo's melee rate refit to the audit (melee_audit_fit.py, 0.128 -> 0.078: the follow-ups now land in full). Full
+audit: Melee Charge 1.58 -> 1.12, Crushing Fists 1.74 -> 1.15; holders Apollo MC 4.1 -> 1.4, Drifter MC 3.6 -> 1.1,
+CF 5.4 -> 1.4, Billy 1.8 -> 1.0, Abrams 1.19 -> 1.07; Apollo mix 0.043 -> 0.038, Drifter 0.030 -> 0.023, weighted
+0.0232 -> 0.0230. The pooled factors (2.25 / 3.05) are above 1 and so unused (accuracy.item_landing caps at 1): no
+item refit. Apollo's ability corrections (ability_corr_heroes.py --split): mix lower on both halves (0.035 -> 0.027,
+0.048 -> 0.039) but per-source worse on one (0.031 -> 0.033), so kept as they were. sim_vs_win 27k all heroes: all
+pairs 0.178 -> 0.181, damage items 0.069 -> 0.078, clear edges Spearman 0.279 -> 0.287.
+
+Left: Apollo's items read ~1.2x under per holder (Tankbuster, Torment Pulse, Mystic Burst 1.5); real Mystic Burst
+procs off Spirit Snatch's spirit hit, which the sim books procs=False. Celeste's gun is right per shot
+(shot_damage.py 1.03, 8 players) and her items per gun ~1.0; all four abilities read ~1.2x under per gun.

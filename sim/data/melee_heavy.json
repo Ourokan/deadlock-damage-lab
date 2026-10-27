@@ -1,0 +1,91 @@
+{
+ "source": "260 Phantom+ replays (fight_length raw), basic melee hits by Melee Charge / Crushing Fists holders with the item's proc on the same victim within 2 ticks (scripts/mechanics/melee_heavy.py)",
+ "note": "share = heavy share of a holder's melee rotation (Mechanics.heavy_holders), per hero shrunk toward pooled with 100 hits",
+ "pooled": 0.475,
+ "heroes": {
+  "6": {
+   "name": "Abrams",
+   "hits": 1984,
+   "procced": 1076,
+   "real": 0.542,
+   "share": 0.539
+  },
+  "27": {
+   "name": "Yamato",
+   "hits": 737,
+   "procced": 339,
+   "real": 0.46,
+   "share": 0.462
+  },
+  "72": {
+   "name": "Billy",
+   "hits": 542,
+   "procced": 107,
+   "real": 0.197,
+   "share": 0.241
+  },
+  "64": {
+   "name": "Drifter",
+   "hits": 504,
+   "procced": 162,
+   "real": 0.321,
+   "share": 0.347
+  },
+  "77": {
+   "name": "Apollo",
+   "hits": 430,
+   "procced": 287,
+   "real": 0.667,
+   "share": 0.631
+  },
+  "65": {
+   "name": "Venator",
+   "hits": 153,
+   "procced": 103,
+   "real": 0.673,
+   "share": 0.595
+  },
+  "16": {
+   "name": "Calico",
+   "hits": 152,
+   "procced": 57,
+   "real": 0.375,
+   "share": 0.415
+  },
+  "35": {
+   "name": "Viscous",
+   "hits": 64,
+   "procced": 26,
+   "real": 0.406,
+   "share": 0.448
+  },
+  "19": {
+   "name": "Shiv",
+   "hits": 50,
+   "procced": 26,
+   "real": 0.52,
+   "share": 0.49
+  },
+  "1": {
+   "name": "Infernus",
+   "hits": 43,
+   "procced": 24,
+   "real": 0.558,
+   "share": 0.5
+  },
+  "84": {
+   "name": "Rat King",
+   "hits": 30,
+   "procced": 16,
+   "real": 0.533,
+   "share": 0.488
+  },
+  "15": {
+   "name": "Bebop",
+   "hits": 30,
+   "procced": 15,
+   "real": 0.5,
+   "share": 0.481
+  }
+ }
+}
