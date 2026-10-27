@@ -2604,3 +2604,21 @@ Again after #165 merged (gun time by build): split-half with 6 draws per half, p
 
 Left: she still kills fast in duels (Living Ink's cooldown cuts are the next
 suspect: in replays Still Life was recast early in 83% of chances).
+## Whole-match audit cover (2026-10-27)
+
+After the gun slowdown (above) the whole-match audit read 0.0210 -> 0.0280 while every phase matched real better. The
+audit compared the whole real match (lane included) with duels at 30 / 60 / 90% pooled by sim damage, and sim damage
+per duel grows much faster with the phase than real damage does (per fifth of the match, real 18 / 29 / 42 / 57 / 76
+vs sim duel damage ~1 / 2 / 5 / 9 / 13): the sim side read like the late game. Duels drawn across the match by real
+damage, pooled the same way, gave 0.0316 (item share 0.171 vs real 0.152, the late game again); reweighting each duel
+to the real damage gave 0.0344 (gun +0.015: ability-heavy duels deal more, so equal weights favour the gun).
+
+damage_audit.py now (AUDIT_COVER=1, main's default; importers of sim_player keep 30 / 60 / 90%): 5 duels per
+player-match at the times its cumulative real damage passes (i + u) / 5 of the total, and the sim mix of each fifth of
+the match (pooled by sim damage inside it) weighted by the real damage in that fifth, per hero. Per fifth the sim mix
+matches real: gun 0.388 / 0.378, 0.262 / 0.261, 0.237 / 0.238, 0.222 / 0.214, 0.207 / 0.192 (real / sim).
+
+Results (2 draws): whole-match mix 0.0280 (30 / 60 / 90%) -> 0.0202; the same audit with gun_lean 0 reads 0.0230, so
+the gun slowdown is an improvement there. ability_corr_heroes.py --split (all heroes, now on the cover audit) kept
+Apollo, Mirage, Lash, McGinnis, Mina, Infernus: 0.0202 -> 0.0193 (Apollo 0.040 -> 0.018, Lash 0.028 -> 0.017,
+McGinnis 0.023 -> 0.011). The audit runs 5 duels instead of 3 (~2 min on 4 cores).
