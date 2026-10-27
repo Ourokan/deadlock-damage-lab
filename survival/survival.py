@@ -90,6 +90,8 @@ def survive(hero, items, souls, enemy, enemy_items, enemy_souls=None, max_time=6
     refill = _Refill()
     foe.items_fx.append(refill)
     foe.st.outgoing_mult *= focus
+    if mech is not None and mech.status_focus:
+        me.status_focus = focus
     max_hp = me.max_hp
     r = e.run(me, foe)
     if e.length and getattr(mech, "pokes", False):

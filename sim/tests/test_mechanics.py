@@ -327,6 +327,16 @@ class Items(unittest.TestCase):
             fx.on_enemy_cast(a, charge)
         self.assertGreaterEqual(a.stat("status_resist"), 1.0)
 
+    def test_status_resist_counts_per_focused_enemy(self):
+        e = Engine(distance=10)
+        a = make_fighter(e, Loadout("Abrams", ["Debuff Reducer"], souls=27000))
+        base = a.status_resist()
+        self.assertGreater(base, 0.2)
+        a.status_focus = 2.0
+        self.assertAlmostEqual(a.status_resist(), 2 * base)
+        a.status_focus = 10.0
+        self.assertEqual(a.status_resist(), 1.0)
+
     def test_per_bullet_bonus_is_per_shot_on_shotguns(self):
         from deadsim.engine import Hit
         from deadsim.items_fx import shots_hit
