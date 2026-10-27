@@ -6,7 +6,7 @@
 "use strict";
 
 const Account = (() => {
-  const KEY = "ddl.player", AIM_KEY = "ddl.player.aim", BACK_KEY = "ddl.signin.back";
+  const KEY = "ddl.player", AIM_KEY = "ddl.player.aim", BACK_KEY = "ddl.signin.back", STATE_KEY = "ddl.signin.state";
   const STEAM64 = 76561197960265728n, OPENID = "https://steamcommunity.com/openid/login";
   const NS = "http://specs.openid.net/auth/2.0", SELECT = NS + "/identifier_select";
   const FRESH_MS = 12 * 3600 * 1000;   // per-hero aim is read again after this long
@@ -22,10 +22,12 @@ const Account = (() => {
 
   const emit = () => subs.forEach((f) => { try { f(me); } catch (e) { console.error(e); } });
 
-  // Off to Steam's sign-in page; it comes back to this page with openid.* in the query string.
+  // Off to Steam's sign-in page; it comes back to this page with openid.* in the query string. A random value in
+  // return_to ties the answer to a sign-in this tab started, so a crafted link can't switch someone's account.
   function signIn() {
-    try { sessionStorage.setItem(BACK_KEY, location.href); } catch { /* the page comes back without its link */ }
-    const back = location.origin + location.pathname;
+    const st = Array.from(crypto.getRandomValues(new Uint8Array(12)), (b) => b.toString(16).padStart(2, "0")).join("");
+    try { sessionStorage.setItem(BACK_KEY, location.href); sessionStorage.setItem(STATE_KEY, st); } catch { /* no sessionStorage: the answer is refused */ }
+    const back = `${location.origin}${location.pathname}?st=${st}`;
     const p = new URLSearchParams({ "openid.ns": NS, "openid.mode": "checkid_setup", "openid.return_to": back,
       "openid.realm": location.origin + "/", "openid.identity": SELECT, "openid.claimed_id": SELECT });
     location.assign(`${OPENID}?${p}`);
@@ -36,10 +38,11 @@ const Account = (() => {
   function takeReturn() {
     const q = new URLSearchParams(location.search);
     if (!q.has("openid.mode")) return null;
-    let back = null;
-    try { back = sessionStorage.getItem(BACK_KEY); sessionStorage.removeItem(BACK_KEY); } catch { /* no saved link */ }
+    let back = null, st = null;
+    try { back = sessionStorage.getItem(BACK_KEY); st = sessionStorage.getItem(STATE_KEY); sessionStorage.removeItem(BACK_KEY); sessionStorage.removeItem(STATE_KEY); } catch { /* no saved link */ }
+    if (!st || q.get("st") !== st) back = null;   // not a sign-in this tab started: drop the answer and its link
     try { history.replaceState(null, "", back && new URL(back).origin === location.origin ? back : location.pathname + location.hash); } catch { /* sandboxed */ }
-    const m = q.get("openid.mode") === "id_res" && q.get("openid.op_endpoint") === OPENID
+    const m = back != null && q.get("openid.mode") === "id_res" && q.get("openid.op_endpoint") === OPENID
       && /^https:\/\/steamcommunity\.com\/openid\/id\/(7656\d{13})$/.exec(q.get("openid.claimed_id") || "");
     return m ? Number(BigInt(m[1]) - STEAM64) : null;
   }

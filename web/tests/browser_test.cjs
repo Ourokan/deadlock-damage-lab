@@ -271,8 +271,15 @@ async function signInTab(page, where, base) {
   await step(page, where, "steam sign-in return", async () => {
     const p2 = await page.context().newPage();
     const id64 = (76561197960265728n + BigInt(PLAYER)).toString();
-    const q = new URLSearchParams({ "openid.mode": "id_res", "openid.op_endpoint": "https://steamcommunity.com/openid/login",
+    const q = new URLSearchParams({ st: "abc123", "openid.mode": "id_res", "openid.op_endpoint": "https://steamcommunity.com/openid/login",
       "openid.claimed_id": `https://steamcommunity.com/openid/id/${id64}` });
+    // a crafted link (no sign-in started in this tab) is ignored: still the typed-in player from the step before
+    await p2.goto(base + "?" + q + "#test", { waitUntil: "load" });
+    await p2.waitForFunction(() => typeof Account !== "undefined" && $("#acct .who"), null, { timeout: STEP_MS });
+    if ((await p2.evaluate(() => Account.current()?.via)) !== "typed") throw new Error("a crafted sign-in link switched the account");
+    if (/openid/.test(p2.url())) throw new Error(`a crafted link's answer left in the address bar: ${p2.url()}`);
+    // the tab's own sign-in comes back with its value
+    await p2.evaluate(() => { sessionStorage.setItem("ddl.signin.state", "abc123"); sessionStorage.setItem("ddl.signin.back", location.origin + location.pathname + "#test"); });
     await p2.goto(base + "?" + q + "#test", { waitUntil: "load" });
     await p2.waitForFunction(() => Account.current()?.via === "steam" && /Test Player/.test($("#acct").textContent), null, { timeout: STEP_MS });
     if (/openid/.test(p2.url())) throw new Error(`Steam's answer left in the address bar: ${p2.url()}`);
