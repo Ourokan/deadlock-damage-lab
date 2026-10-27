@@ -180,6 +180,15 @@ _win = None
 
 TEAM_PATH = os.path.join(ROOT, "..", "sim", "data", "team_value.json")
 _team = None
+# Real ally healing (2026-10-27, Restorative Locket had the top sim gain with a ~0 real win edge): the 3v3 fit heals
+# the neediest teammate whenever the item is ready, and real Phantom+ holders of Healing Nova and Rescue Beam heal
+# teammates about that much, but real Locket holders heal themselves: 6 HP/min to teammates vs 118 to self, where the
+# 3v3 heals teammates 2.5x more than the holder. Each heal item's team value is x its real ally heal per minute over
+# the 3v3's, relative to the heal items' median (sim/data/ally_heal.json, sim/scripts/team/ally_heal.py: Locket 0.072,
+# Nova and Rescue Beam 1). Its self heal stays in the duel.
+ALLY_HEAL = True
+ALLY_HEAL_PATH = os.path.join(ROOT, "..", "sim", "data", "ally_heal.json")
+_ally_heal = None
 # area items: item -> (centre, radius m). "target": the hit lands around the holder's target (other enemies within
 # the radius of it); "self": around the holder. Ricochet's bounce radius sets the duel's extra_targets.
 AREA_ITEMS = {
@@ -414,8 +423,10 @@ def team_value(items, souls):
     3v3) x real teammates in reach / the 3v3's (team_value.json items). Only fits clear of their 95% band count.
     The 3v3 fit casts ally actives whenever ready; their real use share (item_use.json) is NOT applied here: the
     fitted value mixes the passive aura (Heroic Aura's ally bullet resist...) with the active, and scaling all of it
-    by the active's share moved the sim further from real wins (Heroic Aura +2.6 win points already under)."""
+    by the active's share moved the sim further from real wins (Heroic Aura +2.6 win points already under).
+    Heal items are x their real ally heal share (ALLY_HEAL: Restorative Locket is used on the holder itself)."""
     vals = team_data().get("items", {}).get("values", {})
+    heal = ally_heal() if ALLY_HEAL else {}
     g = S.G()
     v = 1.0
     for i in set(items):
@@ -426,8 +437,24 @@ def team_value(items, souls):
         b = min(bud, key=lambda k: abs(math.log(int(k) / souls)))
         kind = {"allies": "allies", "any": "any_ally", "enemies": "extra_self"}[spec["reach"]]
         if bud[b]["value"] > 1.96 * bud[b].get("se", 0.0):   # the search would chase lucky noisy fits
-            v += bud[b]["value"] * near(kind, spec["radius_m"], souls) / spec["reach_sim"]
+            v += bud[b]["value"] * near(kind, spec["radius_m"], souls) / spec["reach_sim"] \
+                * heal.get(g.item(i).name, 1.0)
     return v
+
+
+def ally_heal():
+    """{heal item name: real ally heal factor} (sim/data/ally_heal.json); items it doesn't name count 1."""
+    global _ally_heal
+    if _ally_heal is None:
+        with open(ALLY_HEAL_PATH) as f:
+            d = json.load(f)
+        with open(os.path.join(ROOT, "..", "data", "patch.json")) as f:
+            patch = json.load(f)["patch"]
+        if d.get("patch") != patch:   # static file: the sustain replays live in the shared folder, CI can't refit it
+            print(f"warning: {ALLY_HEAL_PATH} is from patch {d.get('patch')}, the sim is on {patch}; "
+                  "rerun sim/scripts/team/ally_heal.py on new sustain replays", file=sys.stderr)
+        _ally_heal = {n: e["factor"] for n, e in d["items"].items()}
+    return _ally_heal
 
 
 def win_value(items, hero):

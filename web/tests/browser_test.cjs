@@ -348,7 +348,8 @@ async function staticTabs(page, where, sim) {
     await step(page, where, `${tab} tab`, async () => {
       await go(page, tab);
       await page.waitForFunction((s) => $(s).children.length > 0, out, { timeout: 30000 });
-      const btn = await page.$(`${out} [data-test]`);
+      // What changed: only the newest entry is open; a newest run with no changed builds leaves its Test buttons hidden
+      const btn = await page.$(tab === "changes" ? `${out} details[open] [data-test]` : `${out} [data-test]`);
       if (!sim) return;
       if (tab === "overall") {
         // an item of the best overall build: the sheet compares it with the popular pick it stands in for
@@ -362,6 +363,8 @@ async function staticTabs(page, where, sim) {
       if (!btn) {
         // a fresh What changed log can have no rows; the Counter items tab is a table of items, not builds
         if (tab !== "changes" && tab !== "counter") throw new Error("no Test button in the tab");
+        // the open (newest) entry must then be one that changed no builds, not a table that lost its buttons
+        if (tab === "changes" && await page.$(`${out} details[open] tbody tr`)) throw new Error("changed builds without a Test button");
         return;
       }
       const n = await runId(page);

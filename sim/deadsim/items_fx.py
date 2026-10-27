@@ -902,8 +902,20 @@ class RescueBeam(FX):
         return True
 
 
+# Stacks Restorative Locket starts a fight with (2026-10-27, OPT-IN, 0 = from nothing). Real stacks persist between
+# fights: real Phantom+ holders heal themselves 118 HP/min with it (Healing Nova 106), while the duel, stacking only
+# from its one enemy's casts, heals ~24 per fight to Nova's ~120-160. 12 entry stacks match Nova's ratio, but don't
+# rank items more like real wins (sim_vs_win 27k within slot and tier by hero halves 0.2816 / 0.2738 -> 0.2822 /
+# 0.2732, sim/validation/ally_heal.md), so it stays off.
+LOCKET_ENTRY_STACKS = 0
+
+
 @handler("upgrade_restorative_locket")
 class RestorativeLocket(FX):
+    def on_start(self, f):
+        if LOCKET_ENTRY_STACKS:
+            f.counters["locket"] = min(self.item.p("MaxStacks", 25), LOCKET_ENTRY_STACKS)
+
     def on_enemy_cast(self, f, ab):
         if f.acc("locket_reach").take(self.reach_p(self.item.p("Radius", 32)), 1):
             f.counters["locket"] = min(self.item.p("MaxStacks", 25), f.counters.get("locket", 0) + 1)

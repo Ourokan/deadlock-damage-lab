@@ -156,6 +156,9 @@ class TeamGuardianWard(TeamBarrier):
 class TeamRestorativeLocket(items_fx.FX):
     """Stacks from every enemy cast in Radius; the heal goes to the teammate (or self) in most need."""
 
+    def on_start(self, f):
+        items_fx.RestorativeLocket.on_start(self, f)
+
     def on_enemy_cast(self, f, ab):
         if f.e.distance <= self.item.p("Radius", 32):
             f.counters["locket"] = min(self.item.p("MaxStacks", 25), f.counters.get("locket", 0) + 1)
