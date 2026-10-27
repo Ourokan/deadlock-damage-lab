@@ -57,6 +57,15 @@ Static site, no server. Open `index.html` through any static host (or `python3 -
   `python3 pipeline/changes.py backfill` rebuilds every entry from git history.
 - **Best damage builds** (`damage/out`, with the item buy order and the ability upgrade order for the best builds), **Duel builds** (`search/out`, shows whichever rank brackets exist) and
   **Tank builds** (`survival/out`). Every build has a Test button that loads it into the damage test.
+- **Improve** (`improve.js`, benchmarks `data/improve.json` from `analysis/out/improve_benchmarks.json`): the
+  signed-in player's (or any typed player's) 15 most recent matches against Phantom+ players on the same hero, per
+  phase (lane 0-10 min, mid 10-20, late 20+): souls, last hits, denies, jungle souls, hero damage, deaths, kill
+  participation, deaths per kill or assist, hero accuracy, headshots, unspent souls, parries, damage mix, item buy
+  times and builds vs the sim's best overall build. One bulk API call for the stat timelines, then each match's
+  metadata (about 1 MB each, 3 at a time) for aim, unspent souls and damage per source. Advice is ranked by how far
+  below the Phantom+ median the player is times the Phantom+ win-rate gap between the halves on that number (phase
+  numbers within bins of the team's net worth lead at the phase start; whole-match numbers count half). Refresh:
+  `python3 analysis/scripts/fetch_improve_sample.py --n 3000`, `... --winners`, `node analysis/scripts/improve_benchmarks.cjs`.
 - **Counter items** (`counters/out/sim.json` + the real-match tables in `counters/out`): per enemy hero, what each
   defensive item adds to a hero's popular build in the overall test, next to how much more real players buy it
   against that hero and its real win edge.

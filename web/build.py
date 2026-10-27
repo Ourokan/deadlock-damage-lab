@@ -256,6 +256,10 @@ def main():
     with open(os.path.join(data, "skill_defaults.json"), "w") as fh:
         json.dump(aim, fh)
     win_edge_data(data)
+    # Phantom+ benchmarks for the Improvements tab (analysis/scripts/improve_benchmarks.cjs)
+    bench = os.path.join(ROOT, "analysis/out/improve_benchmarks.json")
+    if os.path.exists(bench):
+        shutil.copy(bench, os.path.join(data, "improve.json"))
     with open(os.path.join(ROOT, "damage/out/index.json")) as fh:
         heroes = [{"id": h["id"], "name": h["name"]} for h in json.load(fh)["heroes"]]
     with open(os.path.join(data, "heroes.json"), "w") as fh:

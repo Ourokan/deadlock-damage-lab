@@ -17,6 +17,7 @@
     <nav class="tabs" id="tabs">
       <a href="#test" data-tab="test">Damage test</a>
       <a href="#maker" data-tab="maker">Build maker</a>
+      <a href="#improve" data-tab="improve">Improve</a>
       <a href="#match" data-tab="match">Real match</a>
       <a href="#overall" data-tab="overall">Best overall builds</a>
       <a href="#path" data-tab="path">Full game builds</a>
@@ -205,6 +206,22 @@
     </div>
   </section>
 
+  <!-- Improvements (improve.js): the player's last 15 matches against Phantom+ on the same heroes -->
+  <section id="tab-improve" class="tab" hidden>
+    <div class="intro">
+      <h1>What should you work on?</h1>
+      <p>Your 15 most recent matches, read from the Deadlock API and put next to Phantom+ players on the same hero, phase by phase: souls, last hits, jungle farm, damage, deaths, kill participation, aim, unspent souls, damage mix and when you buy your items, plus your builds next to the sim's best builds. The things to fix first are the ones where you are furthest behind on a number that Phantom+ games are won on.</p>
+    </div>
+    <p class="hint"><span id="im-who"></span> <button class="link" id="im-signin" type="button">Sign in</button></p>
+    <form class="filters" id="im-form">
+      <label class="f"><span>Another player</span><input id="im-id" type="text" placeholder="Steam profile link, Steam ID or name" autocomplete="off" spellcheck="false"></label>
+      <button class="run" type="submit">Read their matches</button>
+      <button class="ghost" id="im-again" type="button" hidden>Read again</button>
+    </form>
+    <p class="hint" id="im-status"></p>
+    <div id="im-out" class="stack"></div>
+  </section>
+
   <!-- Real match import (match.js) -->
   <section id="tab-match" class="tab" hidden>
     <div class="intro">
@@ -379,5 +396,6 @@
 <script src="replay.js"></script>
 <script src="team.js"></script>
 <script src="maker.js"></script>
+<script src="improve.js"></script>
 </body>
 </html>
