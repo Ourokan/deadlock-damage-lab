@@ -24,7 +24,10 @@ Assumptions:
   start of 11% of Victor's lane fights and ~30-50% later (data/victor_revive.json, scripts/mechanics/victor_revive.py:
   seconds since his last revive at each fight start). Fights that book damage over real fight lengths and have an
   rng or a fight phase draw that time: with it under the cooldown the duel starts with the ult on cooldown for the
-  rest (no revive, the T1 bonus on). Other fights (dummy page, deterministic) start with it ready.
+  rest (no revive, the T1 bonus on). Other fights (dummy page, deterministic) start with it ready. The rest of a real
+  fight he revived in counts there as a fight of its own started on cooldown: real fights with a revive last ~25 s vs
+  6-9 s and go on 9-11 s after it, with half the fight's bullets (T1 bonus on), while a sim duel's blast mostly ends
+  its one foe (validation/README.md "Victor's revive").
 """
 import json
 import math
