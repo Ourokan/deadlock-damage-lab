@@ -101,6 +101,7 @@ class DeathRate(unittest.TestCase):
             self.assertIn(item("Cheat Death"), O.death_rates(27000))
             O.HEAL_DEATHS = True
             self.assertIn(item("Radiant Regeneration"), O.death_rates(27000))
+            self.assertIn(item("Spirit Lifesteal"), O.death_rates(27000))
         finally:
             O.HEAL_DEATHS = was
         names = {it.name for it in S.G().items.values()}

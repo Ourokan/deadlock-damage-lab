@@ -95,8 +95,8 @@ extra damage taken doesn't track real wins (r -0.04), holders' deaths per minute
 +0.39, and the sim already ranks items like those, r 0.62). So the score is multiplied by death_rate_value: the
 death_value share with d = the hero's real deaths per engagement x the held items' real holder / non-holder death
 ratios (sim/data/fight_rate.json at the budget's net worth, |z| >= 3, movement and healing items left out (HEAL_ITEMS:
-their holders die less without winning more); Cheat Death 0.67,
-Restorative Locket 0.91, Spirit Resilience ~0.92, Metal Skin 1.04, Rebuttal 1.07). sim_vs_win at 27k: all pairs
+their death ratios don't track wins, 2026-10-27); Cheat Death 0.67, Spirit Resilience ~0.92, Metal Skin 1.04,
+Rebuttal 1.07). When added (2026-10-25, before later changes) sim_vs_win at 27k: all pairs
 0.133 -> 0.168, per item 0.209 -> 0.265, edges clear of noise 0.181 -> 0.229 (37k: 0.146 -> 0.174, 0.219 ->
 0.264); Cheat Death's mean gain rank 119 -> 52
 of 141, Rebuttal 25 -> 110, Metal Skin 82 -> 92. An "HP budget" fight rate (fight_value: fights per minute = max
@@ -235,8 +235,8 @@ _rate = None
 
 # Real death rate (2026-10-25): the same timelines give each item's real deaths per minute, holders / non-holders
 # at the same hero, net worth and game time (fight_rate.json items[budget], intervals at 0.75-1.35x the budget).
-# Most tank items barely move it (Extra Health 1.0, Rebuttal 1.07, Metal Skin 1.0); Cheat Death 0.67, Restorative
-# Locket 0.91, Spirit Resilience 0.91 do. Score x the share of the game spent fighting (c + d_pop L) / (c + d L),
+# Most tank items barely move it (Extra Health 1.0, Rebuttal 1.07, Metal Skin 1.0); Cheat Death 0.67, Spirit
+# Resilience 0.91 do. Score x the share of the game spent fighting (c + d_pop L) / (c + d L),
 # like death_value but with d = d_pop x the product of the held items' real ratios (|z| >= DEATH_RATE_Z, each and
 # the product clamped to DEATH_RATE_CLAMP), not the sim death chance (which doesn't track real deaths, death_check).
 # Movement items are left out: movement_value already counts their deaths (escape). An association at equal net
@@ -247,11 +247,14 @@ DEATH_RATE_CLAMP = (0.5, 1.5)
 _drate = {}
 # Healing items are left out too (2026-10-27, Healing Nova / Mystic / Radiant Regeneration scored over their tier's
 # items that win more): across the other items real holders who die less win more (27k: -12 win points per log
-# death ratio, r -0.41), the basis of this factor, but across healing items the relation turns (+8, r +0.36, both
-# match-id halves, 37k alike; sim/scripts/fight_rate/heal_deaths.py). Their holders die less (Radiant 0.90, Nova 0.93)
+# death ratio, r -0.39), the basis of this factor, but across healing items the relation turns (+8, r +0.35, both
+# match-id halves, 37k alike; sim/scripts/fight_rate/heal_deaths.py). A group trend over 15 items (the items credited
+# with self healing in the sustain replays), not per-item evidence: some (Leech, Infuser) have no clear ratio anyway. Their holders die less (Radiant 0.90, Nova 0.93)
 # without winning more, and lifesteal holders die more (1.05) while Spirit Lifesteal wins: the healing itself still
-# counts in the duel, the fight entry health and map time. sim_vs_win 27k: all pairs 0.219 -> 0.224, within slot and
-# tier 0.260 -> 0.264, per item 0.309 -> 0.320 (both hero halves). HEAL_DEATHS = True keeps their ratios.
+# counts in the duel, the fight entry health and map time. sim_vs_win 27k: all pairs 0.218 -> 0.225, within slot and
+# tier 0.260 -> 0.265, per item 0.309 -> 0.322 (both hero halves; 37k 0.214 -> 0.221, 0.244 -> 0.247). Leaving out only
+# the heal items whose holders die less was weaker (within 0.260 -> 0.260): lifesteal's higher death ratio doesn't
+# cost wins either. HEAL_DEATHS = True keeps their ratios.
 HEAL_DEATHS = False
 HEAL_ITEMS = frozenset((
     "Healing Nova", "Mystic Regeneration", "Radiant Regeneration", "Extra Regen", "Fortitude", "Restorative Locket",
