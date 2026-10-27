@@ -27,8 +27,9 @@ class AbilityAreaPhaseTest(unittest.TestCase):
         self.assertAlmostEqual(ability_area_mult(TERRORS, 100), b[0]["rel"] / row["pooled"], places=6)   # flat outside
         self.assertAlmostEqual(ability_area_mult(TERRORS, 1e6), b[-1]["rel"] / row["pooled"], places=6)
 
-    def test_lane_below_late_and_mean_one(self):
-        # non-decreasing in net worth, and the curve's mean (weighted as fitted) is the pooled level
+    def test_lane_below_late_and_pooled_inside(self):
+        # non-decreasing in net worth, and the pooled level (the curve's mean weighted by main-target damage, which
+        # the file doesn't carry) lies between its ends
         for cls, row in DATA["abilities"].items():
             rel = [b["rel"] for b in row["bins"]]
             self.assertEqual(rel, sorted(rel), cls)
