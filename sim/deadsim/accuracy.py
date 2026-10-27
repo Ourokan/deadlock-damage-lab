@@ -314,7 +314,9 @@ CAP_AFTER_LENGTH = True
 # real reflects land at 0.81 of the incoming damage, from 2.2 attackers per activation in 260 replays), yet real
 # holders deal +5.8% damage, die +7.6% more, get no more kills or assists and lose 5.5 win points on every hero
 # (validation/return_fire.md). Lifting it doubles its score and sim_vs_win drops; the score can't yet price damage
-# that comes with being focused, so it keeps the old cut.
+# that comes with being focused, so it keeps the old cut. Still so with the focus cost (overall_search.focus_value,
+# 2026-10-27): reflect without aim + landing refit (audit 3.05 -> 0.94) lifts it to rank 36 and drops sim_vs_win
+# 0.233 -> 0.220 (validation/focus_cost.md).
 LENGTH_CAP_SKIP = ("Return Fire",)
 
 

@@ -56,3 +56,6 @@ Return Fire, lifted items refit pooled and per hero) 0.217 / 0.258 / 0.109 / 0.3
 Return Fire's alone: real damage that comes with being focused and doesn't win. Fixing the accuracy term would make
 its damage truer and the score worse in the same way; both wait for a score that can price damage taken to deal it.
 Script for the replay numbers: `sim/scripts/mechanics/return_fire_replays.py`.
+
+Follow-up (2026-10-27, `focus_cost.md`): a focus cost (real holders' damage-taken ratio) is now in the score and
+helps sim_vs_win on its own, but Return Fire's aim fix still loses 0.013 with it; the reflect stays cut.

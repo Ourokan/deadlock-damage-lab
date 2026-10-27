@@ -102,6 +102,10 @@ Rebuttal 1.07). When added (2026-10-25, before later changes) sim_vs_win at 27k:
 of 141, Rebuttal 25 -> 110, Metal Skin 82 -> 92. An "HP budget" fight rate (fight_value: fights per minute = max
 health ^ the real damage-taken elasticity / sim health lost per fight) ranks items less like real wins in every
 variant (0.133 -> 0.095-0.125) and stays OFF (FIGHT_RATE).
+Focus cost (2026-10-27): the duel's enemy hits every build alike, so drawing more of the enemy team's damage was
+free. Real holders of some items take more damage per minute (Rebuttal 1.07, Return Fire and Metal Skin 1.03) and,
+at equal damage dealt, deaths and kills, taking more loses real games; the score is multiplied by the held items'
+real damage-taken ratios ^ -FOCUS_GAMMA (focus_value; healing items and Cheat Death left out).
 Not counted: vision, souls from farming (Monster Rounds), objective damage, debuffs from area items on the other
 enemies.
 
@@ -261,6 +265,22 @@ HEAL_ITEMS = frozenset((
     "Healing Booster", "Spirit Lifesteal", "Bullet Lifesteal", "Restorative Shot", "Healing Rite", "Rescue Beam",
     "Leech", "Siphon Bullets", "Infuser"))
 
+# Focus cost (2026-10-27, Return Fire: real reflected damage is 3x the sim's, but holders lose 5.5 win points): the
+# duel's enemy hits every build the same (FOCUS), so a build never pays for drawing more of the enemy team's damage.
+# Real holders of some items take more damage per minute at the same hero, net worth and game time (fight_rate.json
+# "taken": Rebuttal 1.067, Return Fire 1.031, Metal Skin 1.031), and across items, at equal damage dealt, deaths and
+# kills + assists, taking more loses (27k: win points = +4.6 log dealt - 2.3 log taken - 8.4 log deaths + 9.1 log
+# ka over 153 items, 37k -1.3 for taken). The score is multiplied by focus_value = the product of the held items'
+# real damage-taken ratios (|z| >= DEATH_RATE_Z, movement and healing items left out as in death_rates: healing
+# items' holders take damage they heal back; FOCUS_SKIP: Cheat Death's holders take 15% more because it keeps them
+# alive through lethal damage, its whole effect) ^ -FOCUS_GAMMA. FOCUS_GAMMA from sim_vs_win, plateau 0.3-0.5 on both
+# hero halves at 27k and 37k: 27k all pairs 0.223 -> 0.238, within slot and tier 0.263 -> 0.278, damage items 0.108 ->
+# 0.145; 37k within 0.250 -> 0.257 (validation/focus_cost.md). It does not rescue Return Fire's aim fix. 0 = off.
+FOCUS_GAMMA = 0.4
+FOCUS_SKIP = frozenset(("Cheat Death",))
+_taken = {}
+
+
 # Damage elasticity (2026-10-27, damage items scored over same-tier utility items that win more): across items, real
 # Phantom+ holders' hero damage per minute rises only ~half as much as the sim's damage before death says (log real
 # holder / non-holder damage ratio = 0.51 x log sim ratio over 141 items at 27k, both match-id halves 0.51-0.52,
@@ -374,6 +394,36 @@ def death_rate_value(items, hero, souls):
     d_pop = row["deaths_per_engagement"] * dd["heroes"].get(str(hero), {}).get("ratio", 1.0)
     c, L = row["alive_s_per_engagement"], death_seconds(souls)
     return (c + d_pop * L) / (c + d_pop * ratio * L)
+
+
+def taken_rates(souls):
+    """{item id: real damage-taken-per-minute ratio of holders} for the fit budget nearest souls (|z| >=
+    DEATH_RATE_Z, movement, healing and FOCUS_SKIP items left out)."""
+    d = fight_rate_data()["items"]
+    b = min(d, key=lambda k: abs(math.log(int(k) / souls)))
+    if b not in _taken:
+        movement_value(())   # loads _move
+        moving = _move[2] | {i for row in _move[3].values() for i in row}
+        lo, hi = DEATH_RATE_CLAMP
+        by_name = {it.name: i for i, it in S.G().items.items()}
+        _taken[b] = {by_name[n]: max(lo, min(hi, e["taken"][0])) for n, e in d[b]["items"].items()
+                     if n in by_name and by_name[n] not in moving and n not in HEAL_ITEMS and n not in FOCUS_SKIP
+                     and abs(e["taken"][1]) >= DEATH_RATE_Z}
+    return _taken[b]
+
+
+def focus_value(items, souls):
+    """(product of the held items' real damage-taken ratios, clamped to DEATH_RATE_CLAMP) ^ -FOCUS_GAMMA: the cost of
+    drawing more of the enemy team's damage, which the duel's fixed focus can't see. Divided by the popular build's
+    in the score. 1 when FOCUS_GAMMA is 0."""
+    if not FOCUS_GAMMA:
+        return 1.0
+    rates = taken_rates(souls)
+    ratio = 1.0
+    for i in set(items):
+        ratio *= rates.get(i, 1.0)
+    lo, hi = DEATH_RATE_CLAMP
+    return max(lo, min(hi, ratio)) ** -FOCUS_GAMMA
 
 
 def fight_value(loss, loss_pop, hp, hp_pop, souls):
@@ -781,7 +831,8 @@ class Evaluator:
             self.loss_pop[pool] = self._loss(rows)
             self.dmg_norm[pool] = max(1.0, self._mean(rows, 2))
             self.norm[pool] = movement_value(pop, hero) \
-                * self._map(pop) * win_value(pop, hero) * team_value(pop, budget) * death_rate_value(pop, hero, budget)
+                * self._map(pop) * win_value(pop, hero) * team_value(pop, budget) * death_rate_value(pop, hero, budget) \
+                * focus_value(pop, budget)
 
     def _rows(self, items, pool):
         key = (tuple(sorted(items)), pool)
@@ -839,8 +890,9 @@ class Evaluator:
         rate = fight_value(loss, self.loss_pop[pool], build_stats(self.h, items, self.souls)["max_hp"], self.hp_pop,
                            self.souls)
         drate = death_rate_value(items, self.h, self.souls)
+        focus = focus_value(items, self.souls)
         score = (max(0.0, dmg) / self.dmg_norm[pool]) ** DAMAGE_ELASTICITY * move * mt * win * team * death * rate * drate \
-            / self.norm[pool]
+            * focus / self.norm[pool]
         if not detail:
             return score
         t = self._mean(rows, 3)
@@ -862,6 +914,7 @@ class Evaluator:
             "healing_by_source": self._heals(rows),  # mean healing per fight (expected over real lengths) by source
             "fight_rate": round(rate, 4),  # fights per minute vs the popular build (fight_value)
             "death_rate_value": round(drate, 4),  # real holders' deaths (death_rate_value), before the popular's
+            "focus_value": round(focus, 4),  # real holders' damage taken (focus_value), before the popular's
             "matchups": {str(r[0]): [round(r[2]), round(r[3], 2)] for r in rows},
         }
 

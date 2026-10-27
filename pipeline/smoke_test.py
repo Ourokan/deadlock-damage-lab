@@ -126,6 +126,7 @@ _fr = O.fight_rate_data()
 missing = sorted({n for t in _fr["items"].values() for n in t["items"] if n not in ids})
 assert not missing, f"fight_rate.json names items the game no longer has (refit sim/scripts/fight_rate): {missing}"
 assert O.death_rate_value([ids["Cheat Death"]], haze, 27000) > 1.0
+assert O.focus_value([ids["Rebuttal"]], 27000) < 1.0 and O.focus_value([ids["Cheat Death"]], 27000) == 1.0
 print("movement weights ok: Stalker", round(st, 4), "four top items", round(O.movement_value(top), 4))
 
 # what changed between reruns (pipeline/changes.py): items in/out per hero and net worth, small moves dropped
