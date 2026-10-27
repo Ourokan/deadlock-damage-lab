@@ -958,7 +958,7 @@ function whyHtml(ctx, d, x, m) {
   else if (!a) parts.push(`<p>The most popular real build doesn't buy it${sv && !sw ? ", and none of its items fits in this item's souls, so there is no straight swap to compare" : ", and leaves out no item of its price or less to compare it with"}.</p>`);
   if (a && sw) {
     const F = sv.best.F, G = sw.F, ch = F.score / G.score - 1;
-    const drivers = SCORE_PARTS.map(([k, l]) => [l, F[k] != null && G[k] ? F[k] / G[k] - 1 : 0]).filter(([, v]) => Math.abs(v) >= 0.005)
+    const drivers = SCORE_PARTS.map(([k, l]) => [l, F[k] != null && G[k] ? (F[k] / G[k]) ** (k === "damage_before_death" ? F.damage_elasticity ?? 1 : 1) - 1 : 0]).filter(([, v]) => Math.abs(v) >= 0.005)
       .sort((p, q) => Math.abs(q[1]) - Math.abs(p[1])).slice(0, 3);
     parts.push(`<p>${pop.size ? "The most popular real build doesn't buy it. " : ""}Swapped for <b>${an}</b>, the popular pick the search compares it with, the overall score goes from ${fmt(G.score, 2)} to <b>${fmt(F.score, 2)}</b> (${signed(ch)})${drivers.length ? `, mostly from ${drivers.map(([l, v]) => `${l} ${signed(v)}`).join(", ")}` : ""}.</p>`);
     const heal = healGain(Object.fromEntries(Object.entries(F.healing_by_source || {}).map(([k, v]) => [k, v - (G.healing_by_source?.[k] || 0)])));
