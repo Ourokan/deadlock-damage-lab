@@ -261,6 +261,16 @@ _drate = {}
 # the heal items whose holders die less was weaker (within 0.260 -> 0.260): lifesteal's higher death ratio doesn't
 # cost wins either. HEAL_DEATHS = True keeps their ratios.
 HEAL_DEATHS = False
+# Deaths per engagement (2026-10-27, items still ranked furthest from their real win edge within slot and tier):
+# death_rate_value counts deaths per engagement, but the real ratios are deaths per minute, so items whose holders
+# simply join more fights read as dying more (Extended Magazine 1.04, Monster Rounds, Extra Spirit, Close Quarters)
+# and items whose holders farm read as safe. Each item's deaths ratio is divided by its kills + assists per minute
+# ratio (fight_rate.json "ka", the best engagement proxy of the per-minute rates: by damage dealt or taken instead,
+# sim_vs_win drops). Divine Barrier 0.87 -> 0.79, Extended Magazine 1.04 -> 0.98, Armor Piercer 1.07 -> 1.18, Glass
+# Cannon 1.10 -> 1.18. sim_vs_win 27k: all pairs 0.256 -> 0.294, within slot and tier 0.302 -> 0.331, per item
+# 0.371 -> 0.429 (both hero halves, both match-id halves of the ratios; validation/deaths_per_engagement.md).
+# False = deaths per minute as before.
+DEATH_PER_KA = True
 HEAL_ITEMS = frozenset((
     "Healing Nova", "Mystic Regeneration", "Radiant Regeneration", "Extra Regen", "Fortitude", "Restorative Locket",
     "Healing Booster", "Spirit Lifesteal", "Bullet Lifesteal", "Restorative Shot", "Healing Rite", "Rescue Beam",
@@ -373,11 +383,12 @@ def fight_rate_data():
 
 
 def death_rates(souls):
-    """{item id: real deaths-per-minute ratio of holders} for the fit budget nearest souls (|z| >= DEATH_RATE_Z,
-    movement items and, unless HEAL_DEATHS, healing items left out)."""
+    """{item id: real deaths-per-minute ratio of holders (per kills + assists ratio when DEATH_PER_KA)} for the fit
+    budget nearest souls (|z| >= DEATH_RATE_Z on the deaths ratio, movement items and, unless HEAL_DEATHS, healing
+    items left out)."""
     d = fight_rate_data()["items"]
     b = min(d, key=lambda k: abs(math.log(int(k) / souls)))
-    key = (b, HEAL_DEATHS)
+    key = (b, HEAL_DEATHS, DEATH_PER_KA)
     if key not in _drate:
         movement_value(())   # loads _move
         moving = _move[2] | {i for row in _move[3].values() for i in row}
@@ -387,7 +398,8 @@ def death_rates(souls):
         gone = sorted(n for n in d[b]["items"] if n not in by_name)
         if gone:   # renamed or removed by a patch: their ratios are dropped (pipeline/smoke_test.py checks this)
             print(f"warning: {FIGHT_RATE_PATH} names items the game no longer has: {gone}", file=sys.stderr)
-        _drate[key] = {by_name[n]: max(lo, min(hi, e["deaths"][0])) for n, e in d[b]["items"].items()
+        _drate[key] = {by_name[n]: max(lo, min(hi, e["deaths"][0] / (e.get("ka", [1.0])[0] if DEATH_PER_KA else 1.0)))
+                       for n, e in d[b]["items"].items()
                        if n in by_name and by_name[n] not in moving and n not in skip
                        and abs(e["deaths"][1]) >= DEATH_RATE_Z}
     return _drate[key]

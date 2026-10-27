@@ -57,6 +57,19 @@ class DeathRate(unittest.TestCase):
         O.DEATH_RATE = False
         self.assertEqual(O.death_rate_value([cd], hero, 27000), 1.0)
 
+    def test_per_kills_assists(self):
+        """DEATH_PER_KA divides each item's deaths ratio by its kills + assists ratio (deaths per engagement)."""
+        e = O.fight_rate_data()["items"]["27000"]["items"]["Extended Magazine"]
+        em = item("Extended Magazine")
+        was = O.DEATH_PER_KA
+        try:
+            O.DEATH_PER_KA = True
+            self.assertAlmostEqual(O.death_rates(27000)[em], e["deaths"][0] / e["ka"][0])
+            O.DEATH_PER_KA = False
+            self.assertAlmostEqual(O.death_rates(27000)[em], e["deaths"][0])
+        finally:
+            O.DEATH_PER_KA = was
+
     def test_through_the_evaluator(self):
         """The popular build scores 1 (its own death rate value is divided out), Cheat Death raises a build's score
         by exactly its death rate value when damage is unchanged; the lane score gets it too."""
