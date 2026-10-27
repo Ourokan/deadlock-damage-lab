@@ -2399,3 +2399,43 @@ fitted to it was its own optimum. Kept on the phase-matched view (as for ability
 heroes: all items 0.242 -> 0.245, damage items 0.146 -> 0.154, within slot and tier 0.282 -> 0.286, per item 0.341 ->
 0.343. Whole sample, 4 draws: all heroes 0.0202 -> 0.0206; Calico 0.040 -> 0.036 (melee 0.123 -> 0.132), Apollo
 0.037 -> 0.034, Dynamo 0.017 -> 0.013, Nurse 0.013 -> 0.017 (whole-match melee 0.031 -> 0.021 vs real 0.032).
+
+## Ult casts by game phase (2026-10-27)
+
+Follow-up of melee by game phase: the same phase-matched audit for every kind of damage (scripts/phase_mix.py: real
+damage in the frac +- 5% window of the sample's damage_series vs audit duels at that frac only, 2 draws, players
+weighted). Real / sim share at 30 / 60 / 90% of the match before:
+
+| kind | 30% | 60% | 90% |
+|---|---|---|---|
+| gun | 0.270 / 0.275 | 0.230 / 0.248 | 0.202 / 0.224 |
+| melee | 0.068 / 0.068 | 0.050 / 0.050 | 0.042 / 0.042 |
+| ult | 0.100 / 0.106 | 0.110 / 0.108 | 0.125 / 0.107 |
+| other abilities | 0.465 / 0.467 | 0.445 / 0.442 | 0.402 / 0.406 |
+| items (all) | 0.080 / 0.074 | 0.146 / 0.140 | 0.209 / 0.207 |
+
+Items and plain abilities follow real by phase. The ult is over early and under late; the gun over late. Big-burst ults
+were the early ones (Violet 0.11 real vs 0.19 sim at 30%, Solomon 0.12 / 0.19, Seven, Sinclair, McGinnis, Pocket).
+
+Cause of the early part: the ult holds (data/cast_timing.json) are one curve over the whole match, but real players
+cast the ult in fewer fights early. From the fight-length replays' pair fights (scripts/cast_timing/ult_phase.py), the
+Kaplan-Meier P(ult cast by 20 s) over the hero's whole-match one is 0.88 before 45% of the match, 1.06 to 75%, 1.02
+after (Solomon 0.53 / 1.50 / 0.78, Infernus 0.76 / 1.15 / 1.07). A fight counts once the ult is unlocked: cast before
+in the match, or the fourth ability unlock reached at that net worth (with "cast before" alone the fights between the
+unlock and the first cast are left out and the early bin came out 1.11).
+
+Mechanics.ult_phase: the ult hold's cast share c becomes min(0.98, c x ult_phase_mult(net worth)) (data/ult_phase.json,
+per hero shrunk in ln to the pooled ratio with 3000 fights, linear in ln net worth between the bins' median net worths);
+the cast holds keep their order and stretch over the new share. 28 heroes with an ult hold; gated ults keep their own
+timing. Split-half on the replays (fit on one match-id half, weighted squared ln error on the other half's per-bin
+ratios): off 1693 / 1952, fit 1560 / 1703 (shrink 300: 1775 / 1851, pooled only: 1571 / 1724).
+
+Results: ult share at 30% 0.106 -> 0.100 (real 0.100), phase mix distance 0.0543 / 0.0468 / 0.0672 -> 0.0534 /
+0.0460 / 0.0657; whole-match mix flat (3 draws 0.0208 / 0.0208); sim_vs_win 27k all 0.245 -> 0.246, clear of noise
+0.350 -> 0.352, within slot and tier 0.287 flat. No levels refit.
+
+Left: the late ult gap (real 0.125 vs 0.109 at 90%) is mostly Nurse (0.45 vs 0.32) and Violet (0.23 vs 0.18), both
+already on ability_area_phase; real ult casts per fight are flat from 60% to 90%, so it is damage per cast. The gun's
+late over (0.91x) is spread (Paige 0.135 real vs 0.262 sim at 90%, Nurse, Violet, Shiv, Lash, Abrams). Permanent
+pickups (sample power_ups: by 90% +97 HP, +9.6% weapon power, +4.8% fire rate, +7 spirit) are not modelled; small and
+on both sides.
