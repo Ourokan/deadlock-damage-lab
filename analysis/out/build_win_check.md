@@ -2,9 +2,9 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-02 to 2026-10-25, 159,532 Ritualist+ matches (refreshed 2026-10-27T09:23:08Z).
+Edges: patch 09-29-2026, matches 2026-10-02 to 2026-10-25, 159,532 Ritualist+ matches (refreshed 2026-10-27T11:12:03Z).
 
-- Recommended item slots with data: 1980; mean edge +1.5 (popular builds +0.1); clearly positive 1381, clearly negative 12.
+- Recommended item slots with data: 1980; mean edge +1.5 (popular builds +0.1); clearly positive 1378, clearly negative 10.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
@@ -16,7 +16,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 
 | Item | slot/tier | builds | heroes (edge) |
 |---|---|---:|---|
-| Arcane Surge | spirit 2 | 7 | Grey Talon -4.9, Lash -2.7, Solomon -2.3, McGinnis -1.7 |
+| Arcane Surge | spirit 2 | 5 | Grey Talon -4.9, Solomon -2.3, McGinnis -1.7 |
 | Stalker | weapon 2 | 4 | Billy -1.8 |
 | Guardian Ward | vitality 2 | 1 | Paige -0.9 |
 
@@ -25,8 +25,8 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Item | slot/tier | heroes | heroes (edge) |
 |---|---|---:|---|
 | Fleetfoot | weapon 2 | 7 | Baba +4.3, Seven +2.5, Vindicta +1.9, Vyper +1.9, Warden +1.9, Rat King +1.6, Venator +1.5 |
-| Duration Extender | spirit 2 | 7 | Rat King +3.4, Silver +2.8, Baba +2.6, Violet +2.5, Vindicta +2.3, McGinnis +1.7, Drifter +1.6 |
 | Ethereal Shift | spirit 4 | 6 | Paradox +3.7, Pocket +2.9, Mina +2.5, Billy +2.4, Violet +2.1, Shiv +1.7 |
+| Duration Extender | spirit 2 | 6 | Rat King +3.4, Silver +2.8, Violet +2.5, Vindicta +2.3, McGinnis +1.7, Drifter +1.6 |
 | Magic Carpet | spirit 4 | 6 | Lash +5.6, Rem +4.2, Solomon +4.1, Sinclair +3.0, Venator +2.9, Graves +2.6 |
 | Sprint Boots | vitality 1 | 5 | Victor +3.1, Lady Geist +2.3, Kelvin +1.9, Venator +1.8, Infernus +1.6 |
 | Mystic Expansion | spirit 1 | 3 | Kelvin +1.9, Baba +1.8, Dynamo +1.6 |
@@ -46,7 +46,6 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Indomitable | vitality 4 | 1 | Calico +1.8 |
 | Long Range | weapon 2 | 1 | Deadman Danny +1.7 |
 | Healing Tempo | vitality 4 | 1 | Dynamo +2.0 |
-| Rapid Recharge | spirit 3 | 1 | Haze +1.9 |
 | Enduring Speed | vitality 2 | 1 | Haze +1.6 |
 | Spellbreaker | vitality 4 | 1 | Infernus +1.7 |
 | Dispel Magic | vitality 3 | 1 | Ivy +2.1 |
@@ -60,6 +59,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Warp Stone | vitality 3 | 1 | Victor +1.9 |
 | Extended Magazine | weapon 1 | 1 | Vindicta +2.1 |
 | Vampiric Burst | vitality 4 | 1 | Vindicta +1.6 |
+| Boundless Spirit | spirit 4 | 1 | Wraith +1.9 |
 
 ## Per hero
 
@@ -69,7 +69,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Stamina Mastery +1.6
 
 ### Baba
-- never picked: Fleetfoot +4.3, Duration Extender +2.6, Mystic Expansion +1.8, Superior Cooldown +1.7, Compress Cooldown +1.6
+- never picked: Fleetfoot +4.3, Mystic Expansion +1.8, Superior Cooldown +1.7, Compress Cooldown +1.6
 
 ### Bebop
 - never picked: Witchmail +2.2, Slowing Bullets +1.5, Spirit Burn +1.5
@@ -99,11 +99,10 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Magic Carpet +2.6, Silencer +1.9
 
 ### Grey Talon
-- 37k: Arcane Surge -4.9
 - 50k: Arcane Surge -4.9
 
 ### Haze
-- never picked: Silencer +2.0, Rapid Recharge +1.9, Enduring Speed +1.6, Lucky Shot +1.6
+- never picked: Silencer +2.0, Enduring Speed +1.6, Lucky Shot +1.6
 
 ### Holliday
 - never picked: Lucky Shot +1.9, Superior Cooldown +1.7
@@ -121,7 +120,6 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Sprint Boots +2.3, Silencer +2.2, Frenzy +2.0
 
 ### Lash
-- 18k: Arcane Surge -2.7
 - never picked: Magic Carpet +5.6, Siphon Bullets +2.1, Compress Cooldown +1.7
 
 ### McGinnis
@@ -195,7 +193,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Fleetfoot +1.9
 
 ### Wraith
-- never picked: Spellslinger +1.9
+- never picked: Spellslinger +1.9, Boundless Spirit +1.9
 
 ### Yamato
 - never picked: Refresher +1.9, Colossus +1.6
