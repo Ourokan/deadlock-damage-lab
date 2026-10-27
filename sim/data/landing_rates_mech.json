@@ -3,7 +3,7 @@
   "source": "3628 player-matches x 3 duels, 20 s max, real builds both sides",
   "formula": "(real ability dmg / real gun dmg) / (sim ability dmg / sim gun dmg)",
   "length": "fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x length_corr (the sim's source/gun in full / the same expected over real fight lengths, scripts/fight_length/length_factors.py, phantom_sample.jsonl.gz, 3 rounds)",
-  "audit_corr_heroes": "length_corr fitted straight to the damage audit (scripts/ability_corr_heroes.py, phantom_sample.jsonl.gz, 3 rounds) after a Phantom+ landing refit for: Venator, Infernus, Victor, Silver, Seven, Vyper, Paige, Mirage, Ivy, Kelvin, Bebop (2026-10-25, validation/README.md), Deadman Danny (2026-10-25, per-ability check); Apollo with no landing refit after his cast timing rows (2026-10-25); Violet, The Doorman, Solomon the same once landing_rates.SLOW_GUNS let their players in (2026-10-25); Paradox with no landing refit (2026-10-26, validation/README.md \"Paradox's Carbine count\"); Haze, Mina (2026-10-26, split-half sweep of all heroes, validation/README.md \"Stale ability corrections\"); McGinnis with no landing refit after Mini Turret pacing, fitted on 4 audit draws (2026-10-26, validation/README.md \"McGinnis's Mini Turret\"); Mirage again after Djinn's Mark marks outlast a disengage (mirage.MARKS_OUTLAST), with his item rows (2026-10-27, validation/README.md \"Djinn's Mark after the fight\")",
+  "audit_corr_heroes": "length_corr fitted straight to the damage audit (scripts/ability_corr_heroes.py, phantom_sample.jsonl.gz, 3 rounds) after a Phantom+ landing refit for: Venator, Infernus, Victor, Silver, Seven, Vyper, Paige, Mirage, Ivy, Kelvin, Bebop (2026-10-25, validation/README.md), Deadman Danny (2026-10-25, per-ability check); Apollo with no landing refit after his cast timing rows (2026-10-25); Violet, The Doorman, Solomon the same once landing_rates.SLOW_GUNS let their players in (2026-10-25); Paradox with no landing refit (2026-10-26, validation/README.md \"Paradox's Carbine count\"); Haze, Mina (2026-10-26, split-half sweep of all heroes, validation/README.md \"Stale ability corrections\"); McGinnis with no landing refit after Mini Turret pacing, fitted on 4 audit draws (2026-10-26, validation/README.md \"McGinnis's Mini Turret\"); Mirage again after Djinn's Mark marks outlast a disengage (mirage.MARKS_OUTLAST), with his item rows (2026-10-27, validation/README.md \"Djinn's Mark after the fight\"); Yamato with no landing refit after Shadow Transformation starts fights on cooldown at the real ready share (mechanics.GATE_READY), fitted on 6 audit draws (2026-10-27, validation/README.md \"More gated ults on real readiness\")",
   "entry_hp_kept": "length_corr scaled so held first casts and Mechanics.entry_hp (as configured in the run) keep the expected levels of a target run at full health with the previous holds (length_factors.py --entry --target-holds)",
   "cast_timing_kept": "length_corr scaled so held first casts (Mechanics.cast_timing) keep the expected levels of cast-on-sight duels; rerun from the factors before"
  },
@@ -484,21 +484,21 @@
     "landing": 0.27,
     "real_share": 0.1412,
     "sim_share": 0.1331,
-    "length_corr": 2.292
+    "length_corr": 2.611
    },
    "Flying Slash": {
     "class": "citadel_ability_flying_strike",
     "landing": 0.56,
     "real_share": 0.1371,
     "sim_share": 0.1289,
-    "length_corr": 0.869
+    "length_corr": 0.917
    },
    "Crimson Slash": {
     "class": "citadel_ability_healing_slash",
     "landing": 0.43,
     "real_share": 0.1132,
     "sim_share": 0.1062,
-    "length_corr": 1.412
+    "length_corr": 1.468
    }
   },
   "Lash": {
