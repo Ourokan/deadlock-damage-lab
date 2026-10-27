@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-27T01:44:12Z",
+ "generated": "2026-10-27T03:36:20Z",
  "patch": "09-29-2026",
  "objectives": {
   "burst_5s": "damage dealt to the dummy in the first 5 s",
@@ -320,72 +320,72 @@
    "budgets": {
     "10000": {
      "burst_5s": {
-      "best": 1678.7,
-      "popular": 1144.0
+      "best": 1664.2,
+      "popular": 1234.1
      },
      "fight_15s": {
       "best": 2551.1,
-      "popular": 2102.9
+      "popular": 2122.2
      },
      "sustained_30s": {
-      "best": 4474.0,
-      "popular": 3803.1
+      "best": 4399.1,
+      "popular": 3720.9
      }
     },
     "18000": {
      "burst_5s": {
-      "best": 2740.2,
-      "popular": 1400.1
+      "best": 2854.0,
+      "popular": 1503.9
      },
      "fight_15s": {
-      "best": 4459.1,
-      "popular": 2638.4
+      "best": 4484.6,
+      "popular": 2658.1
      },
      "sustained_30s": {
-      "best": 8243.1,
-      "popular": 4793.5
+      "best": 8322.7,
+      "popular": 4695.2
      }
     },
     "27000": {
      "burst_5s": {
-      "best": 4586.8,
-      "popular": 1708.8
+      "best": 4574.3,
+      "popular": 1824.7
      },
      "fight_15s": {
-      "best": 6687.6,
-      "popular": 3092.8
+      "best": 6787.7,
+      "popular": 3130.9
      },
      "sustained_30s": {
-      "best": 14635.8,
-      "popular": 5895.3
+      "best": 14377.4,
+      "popular": 5801.9
      }
     },
     "37000": {
      "burst_5s": {
-      "best": 7466.1,
-      "popular": 2033.0
+      "best": 7668.0,
+      "popular": 2159.4
      },
      "fight_15s": {
-      "best": 11559.0,
-      "popular": 3805.3
+      "best": 11414.3,
+      "popular": 3846.1
      },
      "sustained_30s": {
-      "best": 21549.6,
-      "popular": 7140.2
+      "best": 21958.4,
+      "popular": 7037.7
      }
     },
     "50000": {
      "burst_5s": {
       "best": 13042.0,
-      "popular": 2591.3
+      "popular": 2748.4
      },
      "fight_15s": {
       "best": 20986.4,
-      "popular": 4986.1
+      "popular": 5043.2
      },
      "sustained_30s": {
       "best": 32764.5,
-      "popular": 9445.1
+      "popular": 9345.7
      }
     }
    }
@@ -908,7 +908,7 @@
     },
     "50000": {
      "burst_5s": {
-      "best": 5007.4,
+      "best": 5100.2,
       "popular": 2233.3
      },
      "fight_15s": {
@@ -916,7 +916,7 @@
       "popular": 4658.6
      },
      "sustained_30s": {
-      "best": 22315.6,
+      "best": 22281.3,
       "popular": 7302.5
      }
     }
@@ -1202,11 +1202,11 @@
       "popular": 1579.0
      },
      "fight_15s": {
-      "best": 9247.1,
+      "best": 9412.3,
       "popular": 2531.4
      },
      "sustained_30s": {
-      "best": 15099.6,
+      "best": 14953.4,
       "popular": 5159.1
      }
     },
@@ -1489,15 +1489,15 @@
     "27000": {
      "burst_5s": {
       "best": 2594.6,
-      "popular": 698.5
+      "popular": 688.4
      },
      "fight_15s": {
-      "best": 4751.8,
-      "popular": 2180.6
+      "best": 4700.4,
+      "popular": 2140.0
      },
      "sustained_30s": {
       "best": 9370.8,
-      "popular": 4106.5
+      "popular": 4114.6
      }
     },
     "37000": {
@@ -1516,16 +1516,16 @@
     },
     "50000": {
      "burst_5s": {
-      "best": 5040.4,
-      "popular": 916.0
+      "best": 4726.3,
+      "popular": 903.2
      },
      "fight_15s": {
-      "best": 11082.3,
-      "popular": 2786.2
+      "best": 10779.3,
+      "popular": 2734.7
      },
      "sustained_30s": {
-      "best": 20552.4,
-      "popular": 5449.2
+      "best": 18099.4,
+      "popular": 5523.0
      }
     }
    }
@@ -1558,7 +1558,7 @@
       "popular": 2742.5
      },
      "sustained_30s": {
-      "best": 7403.9,
+      "best": 7262.5,
       "popular": 5005.5
      }
     },
@@ -1600,7 +1600,7 @@
       "popular": 3869.5
      },
      "sustained_30s": {
-      "best": 23005.9,
+      "best": 23033.9,
       "popular": 7663.9
      }
     }
@@ -1634,7 +1634,7 @@
       "popular": 2333.1
      },
      "sustained_30s": {
-      "best": 5147.8,
+      "best": 5162.3,
       "popular": 3415.1
      }
     },
@@ -2083,43 +2083,43 @@
     "18000": {
      "burst_5s": {
       "best": 2028.2,
-      "popular": 1126.4
+      "popular": 1170.4
      },
      "fight_15s": {
       "best": 4258.8,
-      "popular": 2711.6
+      "popular": 2756.2
      },
      "sustained_30s": {
       "best": 8151.5,
-      "popular": 5307.1
+      "popular": 5412.5
      }
     },
     "27000": {
      "burst_5s": {
       "best": 3447.2,
-      "popular": 1654.6
+      "popular": 1702.9
      },
      "fight_15s": {
       "best": 6383.7,
-      "popular": 3565.8
+      "popular": 3614.8
      },
      "sustained_30s": {
       "best": 13441.0,
-      "popular": 6696.5
+      "popular": 6930.7
      }
     },
     "37000": {
      "burst_5s": {
       "best": 4585.3,
-      "popular": 1984.0
+      "popular": 2036.6
      },
      "fight_15s": {
       "best": 9262.0,
-      "popular": 3977.7
+      "popular": 4024.9
      },
      "sustained_30s": {
       "best": 18495.4,
-      "popular": 7692.6
+      "popular": 7813.8
      }
     },
     "50000": {
@@ -2256,7 +2256,7 @@
       "popular": 1451.9
      },
      "sustained_30s": {
-      "best": 10307.8,
+      "best": 10310.6,
       "popular": 3124.6
      }
     },
@@ -2284,7 +2284,7 @@
       "popular": 2741.1
      },
      "sustained_30s": {
-      "best": 23386.6,
+      "best": 23354.4,
       "popular": 6378.4
      }
     }
@@ -2360,7 +2360,7 @@
       "popular": 3228.7
      },
      "sustained_30s": {
-      "best": 24824.4,
+      "best": 24748.2,
       "popular": 5968.3
      }
     }
@@ -2408,7 +2408,7 @@
       "popular": 1889.1
      },
      "sustained_30s": {
-      "best": 7837.1,
+      "best": 7822.2,
       "popular": 3269.6
      }
     },
@@ -2448,11 +2448,11 @@
    "budgets": {
     "10000": {
      "burst_5s": {
-      "best": 1222.9,
+      "best": 1244.9,
       "popular": 742.4
      },
      "fight_15s": {
-      "best": 2069.7,
+      "best": 2181.6,
       "popular": 1432.7
      },
      "sustained_30s": {
@@ -2476,44 +2476,44 @@
     },
     "27000": {
      "burst_5s": {
-      "best": 3672.7,
-      "popular": 1981.4
+      "best": 3720.4,
+      "popular": 2016.7
      },
      "fight_15s": {
       "best": 7063.8,
-      "popular": 3928.7
+      "popular": 4046.7
      },
      "sustained_30s": {
-      "best": 12818.7,
-      "popular": 6340.2
+      "best": 12751.7,
+      "popular": 6412.7
      }
     },
     "37000": {
      "burst_5s": {
-      "best": 4887.1,
-      "popular": 2299.5
+      "best": 4867.2,
+      "popular": 2342.4
      },
      "fight_15s": {
-      "best": 10013.0,
-      "popular": 4680.1
+      "best": 9465.1,
+      "popular": 4816.9
      },
      "sustained_30s": {
       "best": 18119.5,
-      "popular": 7588.1
+      "popular": 7668.7
      }
     },
     "50000": {
      "burst_5s": {
-      "best": 6599.7,
-      "popular": 2786.5
+      "best": 6658.2,
+      "popular": 2833.4
      },
      "fight_15s": {
-      "best": 12906.6,
-      "popular": 5948.8
+      "best": 13781.3,
+      "popular": 6123.9
      },
      "sustained_30s": {
-      "best": 23647.8,
-      "popular": 9193.5
+      "best": 24642.6,
+      "popular": 9301.2
      }
     }
    }
@@ -2600,72 +2600,72 @@
    "budgets": {
     "10000": {
      "burst_5s": {
-      "best": 1074.3,
-      "popular": 890.4
+      "best": 1079.1,
+      "popular": 729.6
      },
      "fight_15s": {
-      "best": 2084.2,
-      "popular": 1797.6
+      "best": 2028.3,
+      "popular": 1507.0
      },
      "sustained_30s": {
-      "best": 3959.9,
-      "popular": 3410.9
+      "best": 3740.0,
+      "popular": 3022.6
      }
     },
     "18000": {
      "burst_5s": {
-      "best": 1660.5,
-      "popular": 973.4
+      "best": 1630.3,
+      "popular": 904.9
      },
      "fight_15s": {
-      "best": 3331.7,
-      "popular": 2049.8
+      "best": 3262.7,
+      "popular": 1676.1
      },
      "sustained_30s": {
-      "best": 6064.1,
-      "popular": 4059.5
+      "best": 6146.0,
+      "popular": 3593.7
      }
     },
     "27000": {
      "burst_5s": {
-      "best": 2537.1,
+      "best": 3086.5,
       "popular": 1598.7
      },
      "fight_15s": {
-      "best": 6618.9,
-      "popular": 3639.6
+      "best": 6275.2,
+      "popular": 3283.0
      },
      "sustained_30s": {
-      "best": 11732.9,
-      "popular": 6540.4
+      "best": 11185.5,
+      "popular": 6162.1
      }
     },
     "37000": {
      "burst_5s": {
-      "best": 3688.8,
+      "best": 4749.5,
       "popular": 1688.4
      },
      "fight_15s": {
-      "best": 9216.3,
-      "popular": 4428.3
+      "best": 8523.4,
+      "popular": 4124.6
      },
      "sustained_30s": {
-      "best": 16519.3,
-      "popular": 7450.3
+      "best": 15648.0,
+      "popular": 6988.7
      }
     },
     "50000": {
      "burst_5s": {
-      "best": 6470.0,
+      "best": 6408.2,
       "popular": 1985.2
      },
      "fight_15s": {
-      "best": 11778.6,
-      "popular": 5807.4
+      "best": 12029.6,
+      "popular": 5419.2
      },
      "sustained_30s": {
-      "best": 22121.7,
-      "popular": 9733.0
+      "best": 22159.5,
+      "popular": 9155.6
      }
     }
    }
@@ -2922,11 +2922,11 @@
       "popular": 1071.8
      },
      "fight_15s": {
-      "best": 4383.1,
+      "best": 4480.4,
       "popular": 2085.0
      },
      "sustained_30s": {
-      "best": 7562.4,
+      "best": 7696.9,
       "popular": 3683.0
      }
     },
