@@ -173,5 +173,34 @@ class AllyItems(unittest.TestCase):
         self.assertAlmostEqual(both, O.team_value([a], 27000) - 1 + O.team_value([b], 27000) - 1, places=6)
 
 
+class AllyHeal(unittest.TestCase):
+    # real ally healing factor (data/ally_heal.json): Restorative Locket holders heal themselves, not teammates
+    def setUp(self):
+        self.flag = O.ALLY_HEAL
+
+    def tearDown(self):
+        O.ALLY_HEAL = self.flag
+
+    def test_factor_cuts_the_team_value(self):
+        spec = {"reach": "any", "radius_m": 32, "reach_sim": 1.0, "budgets": {"27000": {"value": 0.1, "se": 0.01}}}
+        data = {"items": {"values": {"Restorative Locket": spec, "Healing Nova": spec}}}
+        with mock.patch.object(O, "team_data", return_value=data), \
+                mock.patch.object(O, "ally_heal", return_value={"Restorative Locket": 0.1}):
+            O.ALLY_HEAL = True
+            cut = O.team_value([ID["Restorative Locket"]], 27000)
+            nova = O.team_value([ID["Healing Nova"]], 27000)   # not in the factors: 1
+            O.ALLY_HEAL = False
+            full = O.team_value([ID["Restorative Locket"]], 27000)
+        self.assertGreater(full, cut)
+        self.assertAlmostEqual(cut - 1, (full - 1) * 0.1, places=6)
+        self.assertAlmostEqual(nova, full, places=6)
+
+    def test_data_names_real_items(self):
+        names = {it.name for it in G.items.values()}
+        for name, f in O.ally_heal().items():
+            self.assertIn(name, names)
+            self.assertTrue(0.0 <= f <= 1.0, name)
+
+
 if __name__ == "__main__":
     unittest.main()

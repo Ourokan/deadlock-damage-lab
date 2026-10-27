@@ -348,7 +348,8 @@ async function staticTabs(page, where, sim) {
     await step(page, where, `${tab} tab`, async () => {
       await go(page, tab);
       await page.waitForFunction((s) => $(s).children.length > 0, out, { timeout: 30000 });
-      const btn = await page.$(`${out} [data-test]`);
+      // What changed: only the newest entry is open; a newest run with no changed builds leaves its Test buttons hidden
+      const btn = await page.$(tab === "changes" ? `${out} details[open] [data-test]` : `${out} [data-test]`);
       if (!sim) return;
       if (tab === "overall") {
         // an item of the best overall build: the sheet compares it with the popular pick it stands in for

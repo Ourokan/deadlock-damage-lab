@@ -8,14 +8,15 @@ of the 400 sustain replays, fetch_sustain.py: heals credited to the item, to the
 only on themselves: 6 HP/min to teammates vs 118 to self, where the 3v3 heals teammates 2.5x more than the holder.
 
 Per item: real ally heal per held minute / the 3v3's ally heal per fight minute (27k popular builds, LINEUPS lineups x 3
-holders x focus/spread x 12/20 m, like team_value.py), divided by the same ratio pooled over the other items (held
-minutes weights; leave-one-out so Locket's many holders don't set its own reference): the share of the game spent
-fighting and casting is the same for every heal item. overall_search.team_value multiplies the
-item's team value by it (capped at 1; barrier and aura items have no heal data and keep 1). Writes data/ally_heal.json.
+holders x focus/spread x 12/20 m, like team_value.py), divided by the median of the items' ratios (the share of the
+game spent fighting and casting is the same for every heal item; the median, not a minute-weighted pool, so Locket's
+many holders don't set the reference). Nova and Rescue Beam sit at the median (0.151, 0.142), Locket 0.010 is the
+outlier. overall_search.team_value multiplies the item's team value by it (capped at 1; barrier and aura items have no heal data and keep 1). Writes data/ally_heal.json.
 Static: the replays live in the shared folder, CI can't refit it.
 """
 import collections
 import dataclasses
+import statistics
 import glob
 import gzip
 import json
@@ -95,17 +96,14 @@ def main():
     re = real(sys.argv[1])
     sm = {n: sim(n) for n in ITEMS}
     ratio = {n: re[n][1] / sm[n] for n in ITEMS if sm[n] > 0}
-
-    def pooled(skip=None):
-        rest = [n for n in ratio if n != skip]
-        return sum(ratio[n] * re[n][2] for n in rest) / sum(re[n][2] for n in rest)
+    ref = statistics.median(ratio.values())
     out = {"source": f"ally_heal.py: {len(glob.glob(os.path.join(sys.argv[1], '*.json.gz')))} Phantom+ sustain "
                      f"replays after {MID_S} s vs the 3v3 at {SOULS} souls",
-           "pooled_real_per_sim": round(pooled(), 4), "items": {}}
+           "median_real_per_sim": round(ref, 4), "items": {}}
     for n in ITEMS:
         out["items"][n] = {"real_self_hp_min": round(re[n][0], 1), "real_ally_hp_min": round(re[n][1], 1),
                            "held_min": round(re[n][2]), "sim_ally_hp_fight_min": round(sm[n], 1),
-                           "real_per_sim": round(ratio[n], 4), "factor": round(min(1.0, ratio[n] / pooled(n)), 3)}
+                           "real_per_sim": round(ratio[n], 4), "factor": round(min(1.0, ratio[n] / ref), 3)}
         print(n, out["items"][n])
     with open(OUT, "w") as f:
         json.dump(out, f, indent=1)

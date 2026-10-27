@@ -184,7 +184,7 @@ _team = None
 # the neediest teammate whenever the item is ready, and real Phantom+ holders of Healing Nova and Rescue Beam heal
 # teammates about that much, but real Locket holders heal themselves: 6 HP/min to teammates vs 118 to self, where the
 # 3v3 heals teammates 2.5x more than the holder. Each heal item's team value is x its real ally heal per minute over
-# the 3v3's, relative to the other heal items' (sim/data/ally_heal.json, sim/scripts/team/ally_heal.py: Locket 0.07,
+# the 3v3's, relative to the heal items' median (sim/data/ally_heal.json, sim/scripts/team/ally_heal.py: Locket 0.072,
 # Nova and Rescue Beam 1). Its self heal stays in the duel.
 ALLY_HEAL = True
 ALLY_HEAL_PATH = os.path.join(ROOT, "..", "sim", "data", "ally_heal.json")
@@ -425,13 +425,8 @@ def team_value(items, souls):
     fitted value mixes the passive aura (Heroic Aura's ally bullet resist...) with the active, and scaling all of it
     by the active's share moved the sim further from real wins (Heroic Aura +2.6 win points already under).
     Heal items are x their real ally heal share (ALLY_HEAL: Restorative Locket is used on the holder itself)."""
-    global _ally_heal
     vals = team_data().get("items", {}).get("values", {})
-    if _ally_heal is None:
-        _ally_heal = {}
-        if ALLY_HEAL:
-            with open(ALLY_HEAL_PATH) as f:
-                _ally_heal = {n: e["factor"] for n, e in json.load(f)["items"].items()}
+    heal = ally_heal() if ALLY_HEAL else {}
     g = S.G()
     v = 1.0
     for i in set(items):
@@ -443,8 +438,17 @@ def team_value(items, souls):
         kind = {"allies": "allies", "any": "any_ally", "enemies": "extra_self"}[spec["reach"]]
         if bud[b]["value"] > 1.96 * bud[b].get("se", 0.0):   # the search would chase lucky noisy fits
             v += bud[b]["value"] * near(kind, spec["radius_m"], souls) / spec["reach_sim"] \
-                * _ally_heal.get(g.item(i).name, 1.0)
+                * heal.get(g.item(i).name, 1.0)
     return v
+
+
+def ally_heal():
+    """{heal item name: real ally heal factor} (sim/data/ally_heal.json); items it doesn't name count 1."""
+    global _ally_heal
+    if _ally_heal is None:
+        with open(ALLY_HEAL_PATH) as f:
+            _ally_heal = {n: e["factor"] for n, e in json.load(f)["items"].items()}
+    return _ally_heal
 
 
 def win_value(items, hero):

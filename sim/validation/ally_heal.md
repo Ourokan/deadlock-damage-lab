@@ -19,7 +19,7 @@ Team value was the largest part.
 |---|---|---|---|---|---|
 | Healing Nova | 106 | 220 | 1459 | 0.151 | 1 |
 | Rescue Beam | 84 | 132 | 926 | 0.142 | 1 |
-| Restorative Locket | 118 | 6 | 623 | 0.010 | 0.07 |
+| Restorative Locket | 118 | 6 | 623 | 0.010 | 0.072 |
 
 The 3v3 heals the neediest teammate whenever the item is ready, and Nova and Rescue Beam holders really heal
 teammates at the same rate relative to the sim. Locket holders use it on themselves: the 3v3 heals teammates 2.5x more
@@ -28,8 +28,8 @@ holders' team heal +14 HP/min (x1.18 of 79), Nova +337, Rescue Beam +191.
 
 ## Change
 
-`overall_search.team_value` multiplies each heal item's team value by its factor (real / sim ally heal over the other
-heal items', `sim/data/ally_heal.json`, `ALLY_HEAL`): Locket's team value x1.07 -> x1.005. Its self heal stays in the
+`overall_search.team_value` multiplies each heal item's team value by its factor (real / sim ally heal over the heal
+items' median, `sim/data/ally_heal.json`, `ALLY_HEAL`): Locket's team value x1.07 -> x1.005. Its self heal stays in the
 duel. Barrier and aura items (Divine Barrier, Guardian Ward, Heroic Aura) have no heal data and keep theirs; their ally
 shares can't be read from the heal matrix.
 
