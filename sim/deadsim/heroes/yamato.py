@@ -20,6 +20,7 @@ Assumptions:
 """
 from deadsim.abilities import AbilityImpl, register
 
+# Shadow Transformation starts a fight on cooldown past real Yamatos' ready share (0.50, mechanics.GATE_READY); once ready:
 ST_ON_CD = 3     # Shadow Transformation once this many of the other abilities are on cooldown (replays: median 9 s)
 ST_HP = 0.35     # ... or Yamato below this health share
 ST_WAIT = 16.0   # ... or this far into the fight (a slow or silenced kit never gets all three on cooldown)

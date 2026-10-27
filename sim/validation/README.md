@@ -2294,3 +2294,43 @@ all items 0.367 -> 0.375, within slot and tier 0.385 -> 0.390, clear edges 0.569
 0.236. Other gated ults cast too often (Seven's Storm Cloud 0.90 vs 0.57, Venator 0.84 vs 0.34, Yamato 0.99 vs 0.47,
 Grey Talon 1.00 vs 0.47, Mo & Krill 1.00 vs 0.49 by 20 s, cast_timing.md) are candidates for GATE_READY, each with
 its own correction refit.
+
+## More gated ults on real readiness (2026-10-27)
+
+Follow-up of "Apollo's ult on real readiness": five more ults the sim gates itself (no cast_timing hold) started
+every duel ready. First cast by 1 / 3 / 6 / 20 s, real Phantom+ pair fights vs audit duels on main:
+
+| ult | real | sim (always ready) | sim (gate_ready) | real fights started ready |
+|---|---|---|---|---|
+| Seven: Storm Cloud | 0.06 / 0.11 / 0.17 / 0.41 | 0.85 / 0.85 / 0.85 / 0.91 | 0.38 / 0.38 / 0.38 / 0.41 | 0.48 |
+| Venator: Ira Domini | 0.03 / 0.07 / 0.14 / 0.33 | 0.06 / 0.31 / 0.61 / 0.98 | 0.02 / 0.14 / 0.27 / 0.42 | 0.43 |
+| Yamato: Shadow Transformation | 0.03 / 0.10 / 0.19 / 0.45 | 0.00 / 0.10 / 0.24 / 1.00 | 0.00 / 0.05 / 0.10 / 0.50 | 0.50 |
+| Grey Talon: Guided Owl | 0.02 / 0.04 / 0.09 / 0.29 | 0.87 / 0.88 / 0.99 / 1.00 | 0.32 / 0.32 / 0.39 / 0.39 | 0.39 |
+| Mo & Krill: Combo | 0.07 / 0.13 / 0.20 / 0.42 | 0.00 / 0.94 / 1.00 / 1.00 | 0.00 / 0.45 / 0.47 / 0.47 | 0.42 |
+
+Their length corrections had absorbed the extra casts (Storm Cloud 0.31, Guided Owl 0.45, Combo 0.49); with the gate
+an ult-only refit brings them to 1.01 / 1.24 / 1.34. Each hero was judged by split-half: every ability correction of
+the five fitted on one match-id half (4 rounds of 4 audit draws), 6 draws on the other half, against the same
+refit with the gate off (main's own factors were fitted on both halves, so they are not a fair baseline):
+
+| hero | mix gate / plain refit (half 1, half 0) | per source (half 1, half 0) |
+|---|---|---|
+| Seven | 0.032 / 0.021, 0.029 / 0.025 | 0.057 / 0.052, 0.046 / 0.045 |
+| Venator | 0.066 / 0.014, 0.061 / 0.022 | 0.045 / 0.015, 0.047 / 0.017 |
+| Yamato | 0.038 / 0.040, 0.040 / 0.048 | 0.038 / 0.039, 0.034 / 0.041 |
+| Grey Talon | 0.020 / 0.025, 0.019 / 0.031 | 0.021 / 0.019, 0.020 / 0.025 |
+| Mo & Krill | 0.045 / 0.014, 0.021 / 0.035 | 0.041 / 0.032, 0.032 / 0.043 |
+
+sim_vs_win 27k for the five heroes (Pearson, all items): main 0.174, all five gated + refit 0.254, all five refit
+with the gate off 0.158; per hero (main -> gated): Seven 0.107 -> 0.246, Yamato 0.200 -> 0.235, Grey Talon 0.288 ->
+0.284, Mo & Krill 0.303 -> 0.304, Venator 0.205 -> 0.201.
+
+Kept: Yamato only (better on both held-out halves). Venator's stakes count as gun damage, so gating the ult takes
+~18% of his gun damage away (gun share 0.49 -> 0.40 vs real 0.48) and only a gun refit could fix it. Seven gains the
+most on sim_vs_win but his held-out mix is worse on both halves; Grey Talon's per-source distance is worse on one
+half, Mo & Krill's mix on one; their sim_vs_win is flat. They stay always ready.
+
+Yamato with the gate (mechanics.GATE_READY), his three ability corrections refit on the whole sample (4 rounds of 6
+draws): Power Slash 2.292 -> 2.611, Flying Slash 0.869 -> 0.917, Crimson Slash 1.412 -> 1.468. Yamato audit (8 draws)
+mix 0.0236 -> 0.0224, per source 0.0197 -> 0.0197; sim_vs_win of the five heroes 0.174 -> 0.183, within slot and tier
+0.232 -> 0.237, clear edges 0.294 -> 0.307; Yamato 0.200 -> 0.252.

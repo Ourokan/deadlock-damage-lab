@@ -37,6 +37,19 @@ class GateReady(unittest.TestCase):
         held = sum(ult_held(s) for s in range(n)) / n
         self.assertAlmostEqual(held, 1.0 - ready, delta=0.04)
 
+    def test_yamato_ult_at_its_ready_share(self):
+        key = "27:citadel_ability_infinity_slash"
+        self.assertIn(key, M.GATE_READY)
+        ready = M.cdr_ready_rows()["sources"][key][-1]
+        n = 2000
+        held = 0
+        for s in range(n):
+            f = make_fighter(Engine(rng=random.Random(s), mech=M.DEFAULT), Loadout("Yamato", [], souls=27000))
+            ab = next(a for a in f.abilities if a.ab.ultimate)
+            M.hold_first_casts(f)
+            held += ab.held_until == math.inf
+        self.assertAlmostEqual(held / n, 1.0 - ready, delta=0.04)
+
     def test_off_keeps_the_ult_ready(self):
         mech = dataclasses.replace(M.DEFAULT, gate_ready=False)
         self.assertFalse(any(ult_held(s, mech) for s in range(200)))
