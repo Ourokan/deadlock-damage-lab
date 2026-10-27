@@ -176,7 +176,7 @@
    "holders": 367,
    "real_per_gun": 0.2149,
    "sim_per_gun": 0.1973,
-   "landing": 1.09,
+   "landing": 1.135,
    "length_corr": 0.881
   },
   "upgrade_quick_silver": {
@@ -184,7 +184,7 @@
    "holders": 1104,
    "real_per_gun": 0.1712,
    "sim_per_gun": 0.1546,
-   "landing": 1.107,
+   "landing": 1.17,
    "length_corr": 0.855
   },
   "upgrade_spirit_burn": {
@@ -208,7 +208,7 @@
    "holders": 32,
    "real_per_gun": 0.3686,
    "sim_per_gun": 0.3058,
-   "landing": 1.205,
+   "landing": 1.248,
    "length_corr": 0.801
   },
   "upgrade_spirit_snatch": {
@@ -241,7 +241,7 @@
    "holders": 123,
    "real_per_gun": 0.311,
    "sim_per_gun": 0.2112,
-   "landing": 1.473,
+   "landing": 1.205,
    "length_corr": 0.482
   },
   "upgrade_arctic_blast": {
@@ -249,7 +249,7 @@
    "holders": 170,
    "real_per_gun": 1.3273,
    "sim_per_gun": 0.8918,
-   "landing": 1.488,
+   "landing": 1.491,
    "length_corr": 0.536
   },
   "upgrade_melee_rebuttal": {
@@ -365,6 +365,11 @@
     "holders": 140,
     "real_over_sim": 1.018,
     "landing": 0.819
+   },
+   "Headshot Booster": {
+    "holders": 83,
+    "real_over_sim": 0.977,
+    "landing": 0.981
    },
    "Mystic Reverb": {
     "holders": 24,
@@ -599,8 +604,8 @@
    },
    "Quicksilver Reload": {
     "holders": 24,
-    "real_over_sim": 0.509,
-    "landing": 0.692
+    "real_over_sim": 0.644,
+    "landing": 0.544
    },
    "Ricochet": {
     "holders": 207,
@@ -648,8 +653,8 @@
    },
    "Quicksilver Reload": {
     "holders": 30,
-    "real_over_sim": 0.996,
-    "landing": 0.842
+    "real_over_sim": 0.817,
+    "landing": 0.746
    },
    "Ricochet": {
     "holders": 66,
@@ -723,8 +728,8 @@
    },
    "Quicksilver Reload": {
     "holders": 198,
-    "real_over_sim": 0.982,
-    "landing": 0.941
+    "real_over_sim": 0.899,
+    "landing": 0.854
    },
    "Tankbuster": {
     "holders": 196,
@@ -750,6 +755,11 @@
    }
   },
   "Mo & Krill": {
+   "Arctic Blast": {
+    "holders": 26,
+    "real_over_sim": 0.829,
+    "landing": 0.899
+   },
    "Cold Front": {
     "holders": 120,
     "real_over_sim": 0.965,
@@ -759,6 +769,11 @@
     "holders": 24,
     "real_over_sim": 1.008,
     "landing": 0.476
+   },
+   "Phantom Strike": {
+    "holders": 33,
+    "real_over_sim": 0.87,
+    "landing": 0.917
    },
    "Scourge": {
     "holders": 51,
@@ -955,6 +970,11 @@
     "holders": 25,
     "real_over_sim": 0.969,
     "landing": 0.899
+   },
+   "Quicksilver Reload": {
+    "holders": 82,
+    "real_over_sim": 0.825,
+    "landing": 0.857
    }
   },
   "Violet": {
@@ -982,8 +1002,8 @@
    },
    "Quicksilver Reload": {
     "holders": 31,
-    "real_over_sim": 0.929,
-    "landing": 0.433
+    "real_over_sim": 0.936,
+    "landing": 0.416
    },
    "Split Shot": {
     "holders": 69,
@@ -1004,8 +1024,8 @@
    },
    "Quicksilver Reload": {
     "holders": 25,
-    "real_over_sim": 1.123,
-    "landing": 0.797
+    "real_over_sim": 0.954,
+    "landing": 0.776
    }
   },
   "Wraith": {
@@ -1021,8 +1041,8 @@
    },
    "Quicksilver Reload": {
     "holders": 279,
-    "real_over_sim": 0.998,
-    "landing": 0.667
+    "real_over_sim": 0.865,
+    "landing": 0.583
    },
    "Ricochet": {
     "holders": 185,

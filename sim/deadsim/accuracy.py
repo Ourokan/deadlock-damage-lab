@@ -304,17 +304,44 @@ def item_use():
     return {n: r["factor"] for n, r in rows.items() if r["factor"] < 1.0}
 
 
+# An item real players get more from (landing >= 1) stays uncut by item_landing, but its length_corr < 1 (damage the
+# sim books late in a fight, real players deal up front: Arctic Blast 0.54, Phantom Strike 0.48) used to apply alone,
+# so these actives landed ~half their real damage per holder (Arctic Blast audit real/sim 1.42). With this on the
+# two multiply first and the cap at 1 comes after: min(1, landing x length_corr). Corrections above 1 (Spirit Burn,
+# Tankbuster: lifts the cap can't give) are kept as they are.
+CAP_AFTER_LENGTH = True
+# Not lifted: Return Fire. Its real damage per holder is 3x the sim's (the sim reflects at the holder's gun accuracy,
+# real reflects land at 0.81 of the incoming damage, from 2.2 attackers per activation in 260 replays), yet real
+# holders deal +5.8% damage, die +7.6% more, get no more kills or assists and lose 5.5 win points on every hero
+# (validation/return_fire.md). Lifting it doubles its score and sim_vs_win drops; the score can't yet price damage
+# that comes with being focused, so it keeps the old cut.
+LENGTH_CAP_SKIP = ("Return Fire",)
+
+
+def lifted(r):
+    """True if this item_landing.json row gets CAP_AFTER_LENGTH's min(1, landing x length_corr)."""
+    return (CAP_AFTER_LENGTH and r["landing"] >= 1.0 and r.get("length_corr", 1.0) < 1.0
+            and r["holders"] >= ITEM_LANDING_MIN_HOLDERS and r["name"] not in LENGTH_CAP_SKIP)
+
+
 def item_length_corr():
     """{item name: length_corr}: item_landing's factors (or 1 for an item left uncut) x this for fights that book
-    damage over real fight lengths (data/item_landing.json, scripts/fight_length/length_factors.py)."""
+    damage over real fight lengths (data/item_landing.json, scripts/fight_length/length_factors.py); for an uncut
+    item with a correction below 1, min(1, landing x length_corr) (CAP_AFTER_LENGTH)."""
     if not LENGTH_CORR:
         return {}
     try:
         rows = json.load(open(ITEM_LANDING))["items"]
     except (OSError, ValueError, KeyError):
         return {}
-    return {r["name"]: r["length_corr"] for r in rows.values()
-            if "length_corr" in r and r["holders"] >= ITEM_LANDING_MIN_HOLDERS}
+    out = {}
+    for r in rows.values():
+        if "length_corr" in r and r["holders"] >= ITEM_LANDING_MIN_HOLDERS:
+            c = r["length_corr"]
+            if lifted(r):
+                c = min(1.0, r["landing"] * c)
+            out[r["name"]] = c
+    return out
 
 
 def zone_exit_time(badge=None):
