@@ -2261,3 +2261,36 @@ project folder): rerun ability_area_phase.py --write and refit the 14 heroes' co
 Most of Nurse's pooled gain is the refit itself (her corrections were stale:
 held-out mix 0.009 / 0.014 with the term off and refit, 0.010 / 0.015 on); the term moves her damage between phases.
 sim_vs_win 27k all heroes: all pairs 0.181 -> 0.183, damage items 0.078 -> 0.080, clear edges Spearman 0.287 -> 0.291.
+
+## Apollo's ult on real readiness (2026-10-27)
+
+Re-ranking heroes after #147 / #150 / #153 (4 audit draws, weighted mix 0.0203): Viscous 0.054 (29 players),
+Celeste 0.049, Apollo 0.045, Ivy 0.044, Mirage 0.042, Calico 0.041. Viscous, Celeste and Ivy were judged noise before;
+Apollo's gap is steady in its mean shares: abilities 0.579 vs real 0.534, Itani Lo Sahn 0.120 vs 0.100.
+
+Cause: Itani Lo Sahn has no cast_timing hold (its own gate: target at or below 60% health), so every duel started
+with it ready. Apollo cast it in 92% of his audit duels by 20 s, real Phantom+ Apollos in 38% of pair fights
+(cast_timing_real.json; 1 / 3 / 6 / 20 s: real 0.01 / 0.04 / 0.10 / 0.38, sim 0.01 / 0.09 / 0.35 / 0.92). The
+replays' readiness rows (cdr_ready.py) say why: real Apollos start only 53% of fights with the ult off cooldown
+(time since the last cast >= its cooldown). Per cast the sim then dealt 0.80x the real damage (446 vs 556 per real
+cast, fight_length replays + real_casts, 276 casts of 43 Apollos), its landing correction having absorbed the
+extra casts.
+
+`Mechanics.gate_ready` (on): an ability in `mechanics.GATE_READY` (only Apollo's ult) starts a fight on cooldown
+past its real ready share (data/cdr_ready.json at 1 x cooldown, raised by cooldown items as cdr_ready). The cast curve
+becomes 0.01 / 0.05 / 0.20 / 0.52. Itani Lo Sahn's delayed hit is booked at the slash's fight weight
+(`fencer.FROZEN_BOOKED`, Engine.book_at): the target is frozen, the fight can't end before the hit. Itani's length
+correction refit to the audit (6 draws): 1.625 -> 1.93, per cast now 537 (0.97x real), 0.49 casts per duel (was 0.86).
+
+Lowering the gate to 40% health matches the real cast curve exactly (0.00 / 0.03 / 0.09 / 0.41) but Apollo's
+sim_vs_win fell 0.367 -> 0.350 with it, so the gate stays at 60%.
+
+Results: Apollo mix 0.045 -> 0.038 (4 draws; 0.034 over 6), per-source 0.040 -> 0.029; weighted audit 0.0203 ->
+0.0202. Split-half (correction fitted on one match-id half, 10 draws on the other): mix 0.046 -> 0.037 and 0.040 ->
+0.035 vs main; per-source 0.041 -> 0.035 on one half, 0.042 -> 0.048 on the other (the ult's share at ~50 casts per
+half swings). A plain correction refit on main (1.625 -> 1.33) scores about the same on the audit (mix 0.032) and
+sim_vs_win (0.370), but by making each of the extra casts smaller (0.65x real per cast). Apollo sim_vs_win 27k:
+all items 0.367 -> 0.375, within slot and tier 0.385 -> 0.390, clear edges 0.569 -> 0.578, damage items 0.238 ->
+0.236. Other gated ults cast too often (Seven's Storm Cloud 0.90 vs 0.57, Venator 0.84 vs 0.34, Yamato 0.99 vs 0.47,
+Grey Talon 1.00 vs 0.47, Mo & Krill 1.00 vs 0.49 by 20 s, cast_timing.md) are candidates for GATE_READY, each with
+its own correction refit.
