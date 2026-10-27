@@ -793,7 +793,7 @@ class Evaluator:
         rate = fight_value(loss, self.loss_pop[pool], build_stats(self.h, items, self.souls)["max_hp"], self.hp_pop,
                            self.souls)
         drate = death_rate_value(items, self.h, self.souls)
-        score = (dmg / self.dmg_norm[pool]) ** DAMAGE_ELASTICITY * move * mt * win * team * death * rate * drate \
+        score = (max(0.0, dmg) / self.dmg_norm[pool]) ** DAMAGE_ELASTICITY * move * mt * win * team * death * rate * drate \
             / self.norm[pool]
         if not detail:
             return score

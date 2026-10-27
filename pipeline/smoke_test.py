@@ -100,11 +100,21 @@ class _Ev4(_Ev):   # 4x the damage with one more item
 # damage elasticity: the score counts the damage ratio ^ DAMAGE_ELASTICITY, the other factors in full
 more = pop + [ids["Extra Health"]]
 _e = O.DAMAGE_ELASTICITY
-O.DAMAGE_ELASTICITY = 1.0
-full = _Ev4(1, 18000, {}).run(more)
-O.DAMAGE_ELASTICITY = 0.5
-assert abs(_Ev4(1, 18000, {}).run(more) - full / 2) < 1e-9, (full, _Ev4(1, 18000, {}).run(more))
-O.DAMAGE_ELASTICITY = _e
+try:
+    O.DAMAGE_ELASTICITY = 1.0
+    full = _Ev4(1, 18000, {}).run(more)
+    O.DAMAGE_ELASTICITY = 0.5
+    assert abs(_Ev4(1, 18000, {}).run(more) - full / 2) < 1e-9, (full, _Ev4(1, 18000, {}).run(more))
+finally:
+    O.DAMAGE_ELASTICITY = _e
+
+
+class _EvNeg(_Ev):   # damage net of the enemy's healing below 0: a real score of 0, not a complex number
+    def _rows(self, items, pool):
+        return [(1, 1.0, 900.0 if len(items) <= 3 else -50.0, 12.0, False)]
+
+
+assert _EvNeg(1, 18000, {}).run(more) == 0.0
 S.popular_build = _popular
 # real win-edge blend (overall_search.win_value): neutral without items, movement items left out, capped per item
 haze = G.hero("Haze").id
