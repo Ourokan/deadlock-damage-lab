@@ -2,9 +2,9 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-02 to 2026-10-25, 159,532 Ritualist+ matches (refreshed 2026-10-27T11:12:03Z).
+Edges: patch 09-29-2026, matches 2026-10-02 to 2026-10-25, 159,532 Ritualist+ matches (refreshed 2026-10-27T13:11:08Z).
 
-- Recommended item slots with data: 1980; mean edge +1.5 (popular builds +0.1); clearly positive 1378, clearly negative 10.
+- Recommended item slots with data: 1979; mean edge +1.5 (popular builds +0.1); clearly positive 1371, clearly negative 11.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
@@ -16,8 +16,9 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 
 | Item | slot/tier | builds | heroes (edge) |
 |---|---|---:|---|
-| Arcane Surge | spirit 2 | 5 | Grey Talon -4.9, Solomon -2.3, McGinnis -1.7 |
+| Arcane Surge | spirit 2 | 5 | Grey Talon -4.9, McGinnis -1.7 |
 | Stalker | weapon 2 | 4 | Billy -1.8 |
+| Kinetic Dash | weapon 2 | 1 | Haze -1.0 |
 | Guardian Ward | vitality 2 | 1 | Paige -0.9 |
 
 ## Strong items the sim never picks (edge >= +1.5, lower 95% bound > 0)
@@ -29,14 +30,14 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Duration Extender | spirit 2 | 6 | Rat King +3.4, Silver +2.8, Violet +2.5, Vindicta +2.3, McGinnis +1.7, Drifter +1.6 |
 | Magic Carpet | spirit 4 | 6 | Lash +5.6, Rem +4.2, Solomon +4.1, Sinclair +3.0, Venator +2.9, Graves +2.6 |
 | Sprint Boots | vitality 1 | 5 | Victor +3.1, Lady Geist +2.3, Kelvin +1.9, Venator +1.8, Infernus +1.6 |
+| Colossus | vitality 4 | 3 | Billy +1.9, Abrams +1.7, Yamato +1.6 |
 | Mystic Expansion | spirit 1 | 3 | Kelvin +1.9, Baba +1.8, Dynamo +1.6 |
 | Superior Cooldown | spirit 3 | 3 | Paradox +1.8, Baba +1.7, Holliday +1.7 |
 | Compress Cooldown | spirit 2 | 3 | Deadman Danny +1.8, Lash +1.7, Baba +1.6 |
-| Colossus | vitality 4 | 3 | Rat King +2.5, Billy +1.9, Yamato +1.6 |
+| Witchmail | vitality 4 | 3 | Kelvin +3.2, Bebop +2.2, Mo & Krill +1.9 |
 | Grit | vitality 1 | 3 | Rat King +2.9, Deadman Danny +1.7, Violet +1.6 |
 | Silencer | weapon 4 | 3 | Lady Geist +2.2, Haze +2.0, Graves +1.9 |
 | Spellslinger | weapon 4 | 3 | Venator +2.2, Wraith +1.9, Vindicta +1.8 |
-| Witchmail | vitality 4 | 2 | Bebop +2.2, Mo & Krill +1.9 |
 | Lucky Shot | weapon 4 | 2 | Holliday +1.9, Haze +1.6 |
 | Frenzy | weapon 4 | 2 | Lady Geist +2.0, Rat King +1.7 |
 | Refresher | spirit 4 | 2 | Yamato +1.9, Paige +1.6 |
@@ -44,12 +45,14 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Slowing Bullets | weapon 2 | 1 | Bebop +1.5 |
 | Spirit Burn | spirit 4 | 1 | Bebop +1.5 |
 | Indomitable | vitality 4 | 1 | Calico +1.8 |
-| Long Range | weapon 2 | 1 | Deadman Danny +1.7 |
+| Hollow Point | weapon 3 | 1 | Deadman Danny +2.3 |
 | Healing Tempo | vitality 4 | 1 | Dynamo +2.0 |
 | Enduring Speed | vitality 2 | 1 | Haze +1.6 |
 | Spellbreaker | vitality 4 | 1 | Infernus +1.7 |
 | Dispel Magic | vitality 3 | 1 | Ivy +2.1 |
 | Siphon Bullets | vitality 4 | 1 | Lash +2.1 |
+| Diviner's Kevlar | vitality 4 | 1 | Mina +2.0 |
+| Divine Barrier | vitality 4 | 1 | Rat King +5.0 |
 | Extra Stamina | vitality 1 | 1 | Rat King +2.9 |
 | Arcane Surge | spirit 2 | 1 | Rat King +2.9 |
 | Monster Rounds | weapon 1 | 1 | Seven +1.6 |
@@ -59,11 +62,11 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Warp Stone | vitality 3 | 1 | Victor +1.9 |
 | Extended Magazine | weapon 1 | 1 | Vindicta +2.1 |
 | Vampiric Burst | vitality 4 | 1 | Vindicta +1.6 |
-| Boundless Spirit | spirit 4 | 1 | Wraith +1.9 |
 
 ## Per hero
 
 ### Abrams
+- never picked: Colossus +1.7
 
 ### Apollo
 - never picked: Stamina Mastery +1.6
@@ -87,7 +90,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 ### Celeste
 
 ### Deadman Danny
-- never picked: Compress Cooldown +1.8, Long Range +1.7, Grit +1.7
+- never picked: Hollow Point +2.3, Compress Cooldown +1.8, Grit +1.7
 
 ### Drifter
 - never picked: Duration Extender +1.6
@@ -99,9 +102,11 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Magic Carpet +2.6, Silencer +1.9
 
 ### Grey Talon
+- 37k: Arcane Surge -4.9
 - 50k: Arcane Surge -4.9
 
 ### Haze
+- 37k: Kinetic Dash -1.0
 - never picked: Silencer +2.0, Enduring Speed +1.6, Lucky Shot +1.6
 
 ### Holliday
@@ -114,7 +119,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Dispel Magic +2.1
 
 ### Kelvin
-- never picked: Sprint Boots +1.9, Mystic Expansion +1.9
+- never picked: Witchmail +3.2, Sprint Boots +1.9, Mystic Expansion +1.9
 
 ### Lady Geist
 - never picked: Sprint Boots +2.3, Silencer +2.2, Frenzy +2.0
@@ -129,7 +134,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Duration Extender +1.7
 
 ### Mina
-- never picked: Ethereal Shift +2.5
+- never picked: Ethereal Shift +2.5, Diviner's Kevlar +2.0
 
 ### Mirage
 
@@ -149,7 +154,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Ethereal Shift +2.9
 
 ### Rat King
-- never picked: Duration Extender +3.4, Extra Stamina +2.9, Arcane Surge +2.9, Grit +2.9, Colossus +2.5, Frenzy +1.7, Fleetfoot +1.6
+- never picked: Divine Barrier +5.0, Duration Extender +3.4, Extra Stamina +2.9, Arcane Surge +2.9, Grit +2.9, Frenzy +1.7, Fleetfoot +1.6
 
 ### Rem
 - never picked: Magic Carpet +4.2
@@ -167,7 +172,6 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Magic Carpet +3.0
 
 ### Solomon
-- 27k: Arcane Surge -2.3
 - never picked: Magic Carpet +4.1, Mystic Reverb +2.4
 
 ### The Doorman
@@ -193,7 +197,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Fleetfoot +1.9
 
 ### Wraith
-- never picked: Spellslinger +1.9, Boundless Spirit +1.9
+- never picked: Spellslinger +1.9
 
 ### Yamato
 - never picked: Refresher +1.9, Colossus +1.6
