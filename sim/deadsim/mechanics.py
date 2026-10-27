@@ -181,6 +181,14 @@ class Mechanics:
     # back at +DeferredDamageBonusPercent and booked as the attacker's crash (nurse.AllyVapors). Set per duel by the
     # damage audit from the real teams (nurse.ally_vapors_share: a teammate Nurse); 0 elsewhere (no teams)
     ally_vapors: tuple = (0.0, 0.0)
+    # area abilities' extra heroes by game phase (2026-10-27): an ability's landing factor absorbs its pooled hits on
+    # the other enemies of real fights, but those grow with net worth (lane trades -> team fights: Lurking Terrors
+    # 2.6 heroes per main hit at 5k, 4.2 at 42k; the gun 1.2 -> 1.4). Its damage at the duel's net worth is x rel(nw)
+    # / pooled rel, rel = its hits per main hit over the gun's (ability_area_mult, data/ability_area_phase.json,
+    # scripts/team/ability_area_phase.py): the
+    # pooled level stays, the phase shape moves (Nurse's ult share real 0.15 / 0.36 / 0.45 at 30 / 60 / 90% of the
+    # match, sim 0.28 / 0.35 / 0.35 before)
+    ability_area_phase: bool = True
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
@@ -625,6 +633,32 @@ _NEAR = None
 
 _AREA = None
 _AREA_PHASE = None
+_ABIL_AREA = None
+
+
+def ability_area_mult(cls, souls):
+    """Mechanics.ability_area_phase: rel(souls) / pooled rel for an area ability (class name) with a
+    row in data/ability_area_phase.json, linear in ln net worth between its bins' mean net worths, flat outside;
+    1.0 without a row."""
+    global _ABIL_AREA
+    if _ABIL_AREA is None:
+        fn = os.path.join(os.path.dirname(__file__), "..", "data", "ability_area_phase.json")
+        _ABIL_AREA = {}
+        if os.path.exists(fn):
+            with open(fn) as fh:
+                for k, v in json.load(fh)["abilities"].items():
+                    _ABIL_AREA[k] = (v["pooled"], [(math.log(b["net_worth"]), b["rel"]) for b in v["bins"]])
+    row = _ABIL_AREA.get(cls)
+    if row is None or not souls:
+        return 1.0
+    base, pts = row
+    x = math.log(max(souls, 1.0))
+    if x <= pts[0][0]:
+        return pts[0][1] / base
+    for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+        if x <= x1:
+            return (y0 + (y1 - y0) * (x - x0) / max(1e-9, x1 - x0)) / base
+    return pts[-1][1] / base
 
 
 def area_extra(name, souls=None):
