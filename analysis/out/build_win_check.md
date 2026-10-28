@@ -2,9 +2,9 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-02 to 2026-10-26, 166,971 Ritualist+ matches (refreshed 2026-10-27T22:38:18Z).
+Edges: patch 09-29-2026, matches 2026-10-02 to 2026-10-26, 166,971 Ritualist+ matches (refreshed 2026-10-28T02:16:04Z).
 
-- Recommended item slots with data: 2004; mean edge +1.5 (popular builds +0.1); clearly positive 1414, clearly negative 13.
+- Recommended item slots with data: 2003; mean edge +1.5 (popular builds +0.1); clearly positive 1402, clearly negative 11.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
@@ -16,10 +16,10 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 
 | Item | slot/tier | builds | heroes (edge) |
 |---|---|---:|---|
-| Arcane Surge | spirit 2 | 7 | Grey Talon -4.8, Lash -2.7, Solomon -2.4, Warden -2.1, McGinnis -1.8 |
+| Arcane Surge | spirit 2 | 5 | Lash -2.7, Solomon -2.4, McGinnis -1.8 |
 | Stalker | weapon 2 | 3 | Billy -1.7 |
-| Guardian Ward | vitality 2 | 2 | Solomon -1.3, Paige -0.9 |
-| Kinetic Dash | weapon 2 | 1 | Deadman Danny -4.4 |
+| Kinetic Dash | weapon 2 | 2 | Deadman Danny -4.4 |
+| Guardian Ward | vitality 2 | 1 | Paige -0.9 |
 
 ## Strong items the sim never picks (edge >= +1.5, lower 95% bound > 0)
 
@@ -42,12 +42,13 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Dispel Magic | vitality 3 | 2 | Ivy +2.1, Drifter +1.6 |
 | Silencer | weapon 4 | 2 | Lady Geist +2.3, Haze +2.0 |
 | Lucky Shot | weapon 4 | 2 | Holliday +2.0, Haze +1.6 |
+| Spirit Burn | spirit 4 | 2 | Infernus +2.5, Mina +1.9 |
 | Warp Stone | vitality 3 | 2 | Victor +1.9, Infernus +1.5 |
 | Rapid Rounds | weapon 1 | 2 | Ivy +1.6, Wraith +1.6 |
 | Indomitable | vitality 4 | 2 | Lash +1.9, McGinnis +1.9 |
+| Mystic Reverb | spirit 4 | 2 | Violet +3.3, Solomon +2.5 |
 | Stamina Mastery | vitality 3 | 1 | Apollo +1.6 |
 | Slowing Bullets | weapon 2 | 1 | Bebop +1.7 |
-| Spirit Burn | spirit 4 | 1 | Calico +1.6 |
 | Hollow Point | weapon 3 | 1 | Deadman Danny +2.2 |
 | Grit | vitality 1 | 1 | Deadman Danny +1.7 |
 | Healing Tempo | vitality 4 | 1 | Dynamo +1.9 |
@@ -63,7 +64,6 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Monster Rounds | weapon 1 | 1 | Seven +1.5 |
 | Phantom Strike | vitality 4 | 1 | Silver +2.4 |
 | Extra Health | vitality 1 | 1 | Sinclair +1.6 |
-| Mystic Reverb | spirit 4 | 1 | Solomon +2.5 |
 | High-Velocity Rounds | weapon 1 | 1 | The Doorman +1.9 |
 | Extended Magazine | weapon 1 | 1 | Vindicta +2.2 |
 | Boundless Spirit | spirit 4 | 1 | Wraith +1.8 |
@@ -89,13 +89,13 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Ethereal Shift +2.3, Colossus +1.8, Mystic Expansion +1.6, Enduring Speed +1.5
 
 ### Calico
-- never picked: Spirit Burn +1.6
 
 ### Celeste
 - never picked: Mystic Expansion +1.5
 
 ### Deadman Danny
 - 18k: Kinetic Dash -4.4
+- 37k: Kinetic Dash -4.4
 - never picked: Hollow Point +2.2, Compress Cooldown +1.7, Grit +1.7
 
 ### Drifter
@@ -108,7 +108,6 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Magic Carpet +2.5, Spiritual Overflow +1.7
 
 ### Grey Talon
-- 50k: Arcane Surge -4.8
 
 ### Haze
 - never picked: Rapid Recharge +2.1, Silencer +2.0, Lucky Shot +1.6, Enduring Speed +1.5
@@ -117,7 +116,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Lucky Shot +2.0, Superior Cooldown +1.6
 
 ### Infernus
-- never picked: Sprint Boots +1.8, Spellbreaker +1.8, Warp Stone +1.5
+- never picked: Spirit Burn +2.5, Sprint Boots +1.8, Spellbreaker +1.8, Warp Stone +1.5
 
 ### Ivy
 - never picked: Dispel Magic +2.1, Rapid Rounds +1.6
@@ -139,7 +138,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Indomitable +1.9, Duration Extender +1.7
 
 ### Mina
-- never picked: Ethereal Shift +2.5
+- never picked: Ethereal Shift +2.5, Spirit Burn +1.9
 
 ### Mirage
 
@@ -177,7 +176,6 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Magic Carpet +2.9, Extra Health +1.6, Mystic Expansion +1.5
 
 ### Solomon
-- 10k: Guardian Ward -1.3
 - 27k: Arcane Surge -2.4
 - never picked: Magic Carpet +4.0, Mystic Reverb +2.5
 
@@ -194,7 +192,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Duration Extender +2.2, Extended Magazine +2.2, Fleetfoot +1.8, Spellslinger +1.6
 
 ### Violet
-- never picked: Duration Extender +2.4, Ethereal Shift +2.2, Witchmail +2.0
+- never picked: Mystic Reverb +3.3, Duration Extender +2.4, Ethereal Shift +2.2, Witchmail +2.0
 
 ### Viscous
 
@@ -202,7 +200,6 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Fleetfoot +1.9
 
 ### Warden
-- 37k: Arcane Surge -2.1
 - never picked: Fleetfoot +1.8
 
 ### Wraith
