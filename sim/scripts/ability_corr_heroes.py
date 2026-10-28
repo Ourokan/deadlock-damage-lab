@@ -33,6 +33,9 @@ import subprocess
 import sys
 import tempfile
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+from deadsim import game  # noqa: E402
+
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 PATH = os.path.join(ROOT, "data", "landing_rates_mech.json")
 PRIOR = 20
@@ -51,10 +54,13 @@ def fit(audit, heroes, prior=PRIOR):
             print(f"{h}: not in the audit or the landing file")
             continue
         w = a["players"] / (a["players"] + prior)
+        # rows written before the class field (Graves) are keyed by the ability's name only
+        by_name = {ab.name: ab.class_name for ab in game().hero(h).abilities}
         for name, r in rows.items():
-            if r.get("class") in UNSCALED or r.get("class") in SKIP:
+            cls = r.get("class") or by_name.get(name)
+            if cls in UNSCALED or cls in SKIP:
                 continue
-            src = a["sources"].get(r.get("class") or "")
+            src = a["sources"].get(cls or "")
             x = src and src.get("real_over_sim")
             if not x or x <= 0:
                 continue

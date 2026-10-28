@@ -2950,3 +2950,52 @@ Results: Viscous sample per-source 0.052 -> 0.039, mix 0.039 -> 0.023 (0.043 / 0
 phantom_sample's Viscous 0.056 -> 0.055, mix 0.027 -> 0.019; holders Tankbuster 1.17 -> 0.99, Mystic Burst 1.49 -> 1.28.
 Left: Spirit Snatch 1.48 under (needs the Punch count, above). sim_vs_win Viscous 27k + 37k: within slot and tier
 0.443 -> 0.443, all 0.451 -> 0.451. Other heroes unchanged (LANDING_PROCS and the Goo Ball draw are Viscous only).
+
+## Mo & Krill and Graves by game phase (2026-10-28)
+
+After the Viscous fixes, Mo & Krill (176 players) and Graves (151) had the widest per-source gaps left on the
+whole-match audit (0.032 each). Bigger samples: Phantom+ matches with each hero from aim_sample.jsonl.gz not in
+phantom_sample (fetch_validation.get + slim), 1,174 with Mo & Krill and 953 with Graves; kept in the project folder
+(analysis/work/hero_samples/mokrill_sample.jsonl.gz, graves_sample.jsonl.gz), not in the repo. By phase
+(scripts/phase_mix.py per source): Burrow over at 30% of the match (0.159 vs 0.135) and under at 60 / 90%; Graves'
+Grasping Hands over at 30% (0.118 vs 0.077), Jar of Dead over and the gun under at 90%.
+
+Replay states (scripts/fight_patterns/fetch_states.py: Burrow's m_bInGround and Jar of Dead's m_iRemainingCharges as
+change rows, plus cast times, for the 90 Mo & Krill and 73 Graves fight_length replays; analysis/work/krill_graves):
+- Mo & Krill (scripts/mechanics/krill_burrow.py, 2,577 fights): the sim opened every fight with Mo popping out of
+  Burrow on the target (deadsim.patterns prefight). Real Mos are underground at a fight's start in 6% of fights in the
+  first 15% of the match, 14% to 30%, then 22 / 25 / 32 / 30 / 29%. Otherwise their first Burrow comes out a median
+  7-13 s in, in 23-64% of those fights.
+- Graves (scripts/mechanics/graves_jars.py, 1,883 fights): a duel collects no deaths, so the sim opened every fight
+  with 2 stored jars and threw both. Real Graves hold 1.3 jars at the start of lane fights, ~1.9 later, but throw
+  0 / 1 / 2 / 3+ in 41 / 45 / 12 / 3% of fights before 30% of the match and ~28 / 49 / 17 / 6% after; Grasping Hands is
+  cast in 46% of lane fights vs 72-76% later (0.70x / 1.17x / 1.11x the match's share).
+
+Fix:
+- Mechanics.burrow_prefight (on): with cast_timing, Mo opens burrowed in the real share at his net worth
+  (data/burrow_prefight.json, `krill_burrow.py --write`: the bins at Mo's median net worth in phantom_sample, linear in
+  ln net worth); otherwise Burrow's first cast waits a hold from the non-negative part of its real hold (the negative
+  part is the burrowed starts). Mo & Krill's corrections refit (ability_corr_heroes --split, Mo & Krill sample):
+  Scorn 0.867 -> 0.771, Burrow 0.526 -> 1.212, Sand Blast 0.407 -> 0.375, Combo 0.494 -> 0.527.
+- Mechanics.graves_phase (opt-in, OFF): jars at the start drawn from the real throw shares at his net worth
+  (necro.JarOfDead), Grasping Hands' hold cast share x its phase mult (as ult_phase; data/graves_phase.json,
+  `graves_jars.py --write`). Graves keeps a plain refit: Jar of Dead 2.206 -> 1.697, Grasping Hands 1.927 -> 1.460,
+  Borrowed Decree 4.132 -> 4.216.
+- ability_corr_heroes.py maps a landing row without a "class" field to the ability by name (Graves' rows have none,
+  so his corrections were never refit before).
+
+Split-half (match-id halves of each hero's sample; held-out per-source / mix, each against the same refit without
+the change):
+- Mo & Krill: plain refit 0.024 / 0.011 and 0.026 / 0.020; with burrow_prefight 0.018 / 0.012 and 0.025 / 0.023
+  (main 0.037 / 0.019 and 0.038 / 0.017). Per-source better both halves; Burrow by phase 0.150 / 0.172 / 0.154 vs real
+  0.136 / 0.173 / 0.161 (plain refit 0.177 / 0.166 / 0.148), Scorn at 30% 0.267 vs 0.279 (0.259). Kept.
+- Graves: graves_phase alone beat main (0.054 / 0.036 -> 0.046 / 0.013 and 0.056 / 0.028 -> 0.051 / 0.027), but after a
+  refit it lost to the plain refit on both halves (0.023 / 0.017 vs 0.019 / 0.016, 0.027 / 0.027 vs 0.025 / 0.024).
+  Not kept. Its jar damage still grows faster with the phase than real (Jar per gun 1.04 / 1.26 / 1.23 real at 30 / 60
+  / 90%; sim 1.09 / 1.36 / 2.05 before, about the same shape with it), so the late gap is the size of a throw
+  (real 160 -> ~450 hero damage per throw), not the count.
+
+Results (phantom_sample, all heroes): mix 0.0179 -> 0.0174; Mo & Krill per-source 0.032 -> 0.014, mix 0.017 -> 0.013;
+Graves mix 0.035 -> 0.010, per-source 0.032 -> 0.032. sim_vs_win (27k + 37k): Mo & Krill all 0.355 -> 0.364, within
+slot and tier 0.347 -> 0.349; Graves all 0.469 -> 0.467, within 0.480 -> 0.479. Left: Graves' late Jar of Dead per
+throw; Mo & Krill's Torment Pulse over and Tankbuster under at 60%.

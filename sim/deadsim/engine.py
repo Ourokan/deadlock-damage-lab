@@ -317,6 +317,7 @@ class Fighter:
         self.items_fx = []
         self.abilities = []         # AbilityState
         self.plan = None            # deadsim.patterns.Plan (hero fight pattern), None = slot order
+        self.skip_prefight = False  # mechanics.burrow_prefight drew a fight that does not open with the prefight ability
         self.cast_order = None      # abilities in cast priority (plan.order)
         self.clip = stats.clip
         self.bonus_ammo = 0

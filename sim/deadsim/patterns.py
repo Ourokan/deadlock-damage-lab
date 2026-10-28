@@ -99,4 +99,6 @@ def fight_start(f):
     st = plan.prefight if plan else None
     if st is None or not st.unlocked or not f.skill.use_abilities or not hasattr(st.impl, "prefight"):
         return
+    if getattr(f, "skip_prefight", False):   # mechanics.burrow_prefight: not burrowed at this fight's start
+        return
     st.prefight()

@@ -203,6 +203,22 @@ class Mechanics:
     # pooled level stays, the phase shape moves (Nurse's ult share real 0.15 / 0.36 / 0.45 at 30 / 60 / 90% of the
     # match, sim 0.28 / 0.35 / 0.35 before)
     ability_area_phase: bool = True
+    # Mo & Krill's prefight Burrow by game phase (2026-10-28): the sim opened every fight with Mo emerging on the target
+    # (deadsim.patterns prefight). Real Phantom+ Mos are underground at the start of ~7% of lane fights and ~20% later
+    # (scripts/mechanics/krill_burrow.py, Burrow's m_bInGround in 90 replays). With cast_timing, Burrow opens burrowed in
+    # its real share at the fighter's net worth (data/burrow_prefight.json, linear in ln net worth); otherwise its first
+    # cast waits a hold drawn from the non-negative part of its real hold (cast_timing; the negative part is the
+    # burrowed starts)
+    burrow_prefight: bool = True
+    # Graves' jars and Grasping Hands by game phase (2026-10-28): a duel can't collect deaths, so Graves opened every
+    # fight with 2 stored jars and threw both, and cast Grasping Hands on its pooled hold. Real Phantom+ Graves throw
+    # 0 / 1 / 2 / 3+ jars in 41 / 45 / 12 / 3% of lane fights and ~28 / 49 / 17 / 6% later, and cast Grasping Hands
+    # in 0.70x the match's share of fights before 30% of it, ~1.1x after (scripts/mechanics/graves_jars.py, 73
+    # replays). With fight draws (phase or rng) the jars at the start are a draw from that share at the fighter's net
+    # worth (necro.JarOfDead) and Grasping Hands' hold cast share is x its mult (as ult_phase; data/graves_phase.json)
+    # Off: it beat main before a refit, but a plain Graves refit on the same halves did better held out (per-source
+    # 0.019 / 0.025 vs 0.023 / 0.027 with it), validation/README.md "Mo & Krill and Graves by game phase"
+    graves_phase: bool = False
     # melee by game phase (2026-10-27): real players melee most in the lane and less as the game goes on (the hero's
     # real melee share over the sim's, all heroes: 1.20x at 30% of the match, 0.91x at 60%, 0.74x at 90%; Calico 1.27 /
     # 1.15 / 1.03, while per hit sizes match the formula). The melee rate is fitted flat, so at the duel's net worth it
@@ -377,6 +393,24 @@ def cast_holds():
     return _CAST
 
 
+_PREFIGHT = None
+
+
+def prefight_share(hero_id, souls):
+    """Mechanics.burrow_prefight: the share of fights the hero opens with its prefight ability at net worth souls
+    (data/burrow_prefight.json, linear in ln net worth, flat outside), None without a row."""
+    global _PREFIGHT
+    if _PREFIGHT is None:
+        fn = os.path.join(os.path.dirname(__file__), "..", "data", "burrow_prefight.json")
+        _PREFIGHT = {}
+        if os.path.exists(fn):
+            with open(fn) as fh:
+                for k, v in json.load(fh)["heroes"].items():
+                    _PREFIGHT[k] = [(math.log(nw), x) for nw, x in v["points"]]
+    pts = _PREFIGHT.get(str(hero_id))
+    return _interp_ln(pts, souls) if pts else None
+
+
 def melee_holds():
     """{item class: {"fights", "holds": QBINS times (s) of a holder's opening melee proc, None = none}}
     (data/melee_timing.json)."""
@@ -445,9 +479,27 @@ def hold_first_casts(f):
     pre = f.plan.prefight if f.plan is not None else None
     hid = f.st.hero.id
     for ab in f.abilities:
-        if not ab.unlocked or ab is pre:
+        if not ab.unlocked:
             continue
         q = holds.get(f"{hid}:{ab.ab.class_name}")
+        if ab is pre:
+            if not (q and getattr(f.e.mech, "burrow_prefight", False)):
+                continue
+            share = prefight_share(hid, f.st.souls)
+            if share is None:
+                continue
+            if phase is not None:
+                u = (phase + zlib.crc32(f"{ab.ab.class_name}|{f.name}".encode()) / 2 ** 32) % 1.0
+            else:
+                u = rng.random()
+            if u < share:
+                continue   # opens burrowed (patterns.fight_start)
+            f.skip_prefight = True
+            pos = [h for h in q if h is None or h >= 0]   # the negative holds are the burrowed starts
+            h = pos[min(len(pos) - 1, int((u - share) / (1 - share) * len(pos)))]
+            ab.held_until = f.e.t + (math.inf if h is None else h)
+            ab.timed = True
+            continue
         if not q:
             if f"{hid}:{ab.ab.class_name}" in GATE_READY and getattr(f.e.mech, "gate_ready", False):
                 gate_ready(f, ab)
@@ -460,6 +512,8 @@ def hold_first_casts(f):
             u = cdr_ready_u(f, ab, u)
         if ab.ab.ultimate and getattr(f.e.mech, "ult_phase", False):
             u = ult_phase_u(f, ab, q, u)
+        if ab.ab.class_name == GRAVES_WALL and getattr(f.e.mech, "graves_phase", False):
+            u = share_u(q, u, _interp_ln(graves_phase()["wall_mult"], f.st.souls))
         h = q[min(len(q) - 1, int(u * len(q)))]
         ab.held_until = f.e.t + (math.inf if h is None else max(0.0, h))
         ab.timed = True
@@ -835,7 +889,53 @@ ULT_PHASE_CAP = 0.98
 def ult_phase_u(f, ab, q, u):
     """The hold quantile u with the hold's cast share c (its non-None values) at c x ult_phase_mult: holds in the cast
     part keep their order and stretch over the new share, the not-cast part shrinks into what is left."""
-    m = ult_phase_mult(f"{f.st.hero.id}:{ab.ab.class_name}", f.st.souls)
+    return share_u(q, u, ult_phase_mult(f"{f.st.hero.id}:{ab.ab.class_name}", f.st.souls))
+
+
+GRAVES_WALL = "ability_necro_zombiewall"
+_GRAVES = None
+
+
+def graves_phase():
+    """data/graves_phase.json as {"jar_throws": [(ln nw, [p0, p1, p2, p3])], "wall_mult": [(ln nw, mult)]}."""
+    global _GRAVES
+    if _GRAVES is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "graves_phase.json")) as fh:
+            d = json.load(fh)
+        _GRAVES = {"jar_throws": [(math.log(nw), p) for nw, p in d["jar_throws"]],
+                   "wall_mult": [(math.log(nw), m) for nw, m in d["wall_mult"]]}
+    return _GRAVES
+
+
+def jar_throws(f, name):
+    """Mechanics.graves_phase: the jars Graves throws this fight, drawn from the real share at his net worth (phase
+    draw or rng, as hold_first_casts); None for deterministic fights or with the mechanic off."""
+    if not (f.e.mech is not None and getattr(f.e.mech, "graves_phase", False) and getattr(f.e, "length", False)):
+        return None
+    phase, rng = f.skill.fight_phase, f.e.rng
+    if phase is None and rng is None:
+        return None
+    u = (phase + zlib.crc32(f"{name}|{f.name}".encode()) / 2 ** 32) % 1.0 if phase is not None else rng.random()
+    pts = graves_phase()["jar_throws"]
+    x = math.log(max(f.st.souls or 1.0, 1.0))
+    if x <= pts[0][0]:
+        ps = pts[0][1]
+    elif x >= pts[-1][0]:
+        ps = pts[-1][1]
+    else:
+        (x0, p0), (x1, p1) = next((a, b) for a, b in zip(pts, pts[1:]) if x <= b[0])
+        w = (x - x0) / max(1e-9, x1 - x0)
+        ps = [a + (b - a) * w for a, b in zip(p0, p1)]
+    acc = 0.0
+    for k, p in enumerate(ps):
+        acc += p / sum(ps)
+        if u < acc:
+            return k
+    return len(ps) - 1
+
+
+def share_u(q, u, m):
+    """The hold quantile u with the hold's cast share c (its non-None values) at min(CAP, c x m)."""
     c = sum(h is not None for h in q) / len(q)
     if abs(m - 1.0) < 1e-6 or c <= 0.0 or c >= 1.0:
         return u

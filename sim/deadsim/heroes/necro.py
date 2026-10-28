@@ -28,7 +28,7 @@ Assumptions:
 - Summon damage is booked under the summoning ability ("Grasping Hands (ghoul)", "Borrowed Decree (zombie)").
 """
 from deadsim.abilities import AbilityImpl, register
-from deadsim.mechanics import add_summon, alive
+from deadsim.mechanics import add_summon, alive, jar_throws
 
 JARS_AT_START = 2
 JAR_RANGE = 25.0
@@ -78,7 +78,9 @@ class JarOfDead(AbilityImpl):
     kind = "skillshot"
 
     def start(self, c):
-        c.state["jars"] = JARS_AT_START
+        # Mechanics.graves_phase: the real number of throws this fight at his net worth, else the stored-jar stand-in
+        n = jar_throws(c.me, self.s.ab.class_name)
+        c.state["jars"] = JARS_AT_START if n is None else n
 
     def should_cast(self, c):
         return c.state.get("jars", 0) > 0 and c.reach(JAR_RANGE)
