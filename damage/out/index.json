@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-28T11:50:17Z",
+ "generated": "2026-10-28T13:40:37Z",
  "patch": "09-29-2026",
  "objectives": {
   "burst_5s": "damage dealt to the dummy in the first 5 s",
@@ -624,16 +624,16 @@
    "budgets": {
     "10000": {
      "burst_5s": {
-      "best": 1042.6,
-      "popular": 528.8
+      "best": 1010.0,
+      "popular": 497.6
      },
      "fight_15s": {
-      "best": 1884.8,
-      "popular": 1144.1
+      "best": 1804.0,
+      "popular": 1132.0
      },
      "sustained_30s": {
-      "best": 2788.3,
-      "popular": 1643.8
+      "best": 2816.2,
+      "popular": 1596.1
      }
     },
     "18000": {
@@ -1840,16 +1840,16 @@
    "budgets": {
     "10000": {
      "burst_5s": {
-      "best": 848.6,
+      "best": 754.7,
       "popular": 349.0
      },
      "fight_15s": {
-      "best": 1761.1,
+      "best": 1665.6,
       "popular": 799.6
      },
      "sustained_30s": {
-      "best": 3640.3,
-      "popular": 1874.1
+      "best": 3450.7,
+      "popular": 1884.4
      }
     },
     "18000": {
@@ -1859,53 +1859,53 @@
      },
      "fight_15s": {
       "best": 2791.3,
-      "popular": 1423.0
+      "popular": 1417.7
      },
      "sustained_30s": {
       "best": 5893.1,
-      "popular": 3354.0
+      "popular": 3345.2
      }
     },
     "27000": {
      "burst_5s": {
-      "best": 1943.6,
+      "best": 1957.0,
       "popular": 759.3
      },
      "fight_15s": {
-      "best": 4013.7,
+      "best": 4094.7,
       "popular": 1859.9
      },
      "sustained_30s": {
-      "best": 9202.6,
-      "popular": 4039.5
+      "best": 9139.5,
+      "popular": 4139.2
      }
     },
     "37000": {
      "burst_5s": {
-      "best": 2562.0,
-      "popular": 801.2
+      "best": 2622.6,
+      "popular": 801.1
      },
      "fight_15s": {
-      "best": 6136.9,
-      "popular": 2096.2
+      "best": 6002.1,
+      "popular": 2106.8
      },
      "sustained_30s": {
-      "best": 14502.6,
-      "popular": 4746.2
+      "best": 13517.9,
+      "popular": 4865.4
      }
     },
     "50000": {
      "burst_5s": {
-      "best": 3031.4,
-      "popular": 848.2
+      "best": 3030.5,
+      "popular": 879.1
      },
      "fight_15s": {
-      "best": 8995.9,
+      "best": 9112.9,
       "popular": 2444.3
      },
      "sustained_30s": {
-      "best": 20920.5,
-      "popular": 5429.0
+      "best": 20406.1,
+      "popular": 5457.2
      }
     }
    }

@@ -370,41 +370,41 @@
     "reach_sim": 2.0,
     "budgets": {
      "10000": {
-      "value": 0.1639,
-      "se": 0.0149,
-      "swing_on": 240.3,
-      "swing_off": 91.3,
-      "holder_damage": 909.3,
+      "value": 0.1785,
+      "se": 0.0129,
+      "swing_on": 244.1,
+      "swing_off": 81.9,
+      "holder_damage": 908.7,
       "fights": 480
      },
      "18000": {
-      "value": 0.1945,
-      "se": 0.018,
-      "swing_on": 284.4,
-      "swing_off": 49.3,
-      "holder_damage": 1208.4,
+      "value": 0.1996,
+      "se": 0.0186,
+      "swing_on": 285.5,
+      "swing_off": 44.1,
+      "holder_damage": 1208.8,
       "fights": 480
      },
      "27000": {
-      "value": 0.186,
-      "se": 0.016,
-      "swing_on": 331.7,
-      "swing_off": 56.9,
-      "holder_damage": 1477.7,
+      "value": 0.1835,
+      "se": 0.0158,
+      "swing_on": 327.6,
+      "swing_off": 56.2,
+      "holder_damage": 1478.6,
       "fights": 480
      },
      "37000": {
-      "value": 0.1562,
-      "se": 0.0224,
-      "swing_on": 324.8,
-      "swing_off": 65.2,
-      "holder_damage": 1662.5,
+      "value": 0.1555,
+      "se": 0.0223,
+      "swing_on": 325.0,
+      "swing_off": 66.6,
+      "holder_damage": 1662.0,
       "fights": 480
      },
      "50000": {
-      "value": 0.1388,
-      "se": 0.021,
-      "swing_on": 313.4,
+      "value": 0.1416,
+      "se": 0.0207,
+      "swing_on": 318.7,
       "swing_off": 58.0,
       "holder_damage": 1840.3,
       "fights": 480
@@ -417,43 +417,43 @@
     "reach_sim": 2.0,
     "budgets": {
      "10000": {
-      "value": 0.6326,
-      "se": 0.0278,
-      "swing_on": 740.8,
-      "swing_off": 165.5,
-      "holder_damage": 909.3,
+      "value": 0.63,
+      "se": 0.0276,
+      "swing_on": 731.8,
+      "swing_off": 159.2,
+      "holder_damage": 908.7,
       "fights": 480
      },
      "18000": {
-      "value": 0.3595,
-      "se": 0.0279,
-      "swing_on": 618.1,
+      "value": 0.3734,
+      "se": 0.028,
+      "swing_on": 635.1,
       "swing_off": 184.1,
-      "holder_damage": 1207.1,
+      "holder_damage": 1207.5,
       "fights": 480
      },
      "27000": {
-      "value": 0.2687,
+      "value": 0.2655,
       "se": 0.0279,
-      "swing_on": 680.5,
-      "swing_off": 283.8,
-      "holder_damage": 1476.6,
+      "swing_on": 676.9,
+      "swing_off": 284.7,
+      "holder_damage": 1477.5,
       "fights": 480
      },
      "37000": {
-      "value": 0.2238,
-      "se": 0.0197,
-      "swing_on": 559.5,
-      "swing_off": 187.1,
-      "holder_damage": 1663.7,
+      "value": 0.2235,
+      "se": 0.0198,
+      "swing_on": 559.8,
+      "swing_off": 188.1,
+      "holder_damage": 1663.2,
       "fights": 480
      },
      "50000": {
-      "value": 0.1621,
+      "value": 0.162,
       "se": 0.0187,
-      "swing_on": 511.2,
+      "swing_on": 510.9,
       "swing_off": 213.1,
-      "holder_damage": 1838.5,
+      "holder_damage": 1838.6,
       "fights": 480
      }
     }
@@ -464,43 +464,43 @@
     "reach_sim": 1.0,
     "budgets": {
      "10000": {
-      "value": 0.18,
-      "se": 0.0229,
-      "swing_on": 255.3,
-      "swing_off": 91.6,
-      "holder_damage": 909.3,
+      "value": 0.1825,
+      "se": 0.0231,
+      "swing_on": 251.6,
+      "swing_off": 85.7,
+      "holder_damage": 908.7,
       "fights": 480
      },
      "18000": {
-      "value": 0.0959,
-      "se": 0.0246,
-      "swing_on": 248.4,
-      "swing_off": 132.6,
-      "holder_damage": 1207.1,
+      "value": 0.1077,
+      "se": 0.0254,
+      "swing_on": 262.5,
+      "swing_off": 132.4,
+      "holder_damage": 1207.5,
       "fights": 480
      },
      "27000": {
-      "value": 0.0254,
+      "value": 0.0226,
       "se": 0.0225,
-      "swing_on": 273.5,
-      "swing_off": 236.1,
-      "holder_damage": 1476.6,
+      "swing_on": 269.6,
+      "swing_off": 236.2,
+      "holder_damage": 1477.5,
       "fights": 480
      },
      "37000": {
-      "value": 0.0429,
-      "se": 0.0188,
+      "value": 0.0425,
+      "se": 0.019,
       "swing_on": 210.0,
-      "swing_off": 138.7,
-      "holder_damage": 1663.7,
+      "swing_off": 139.3,
+      "holder_damage": 1663.2,
       "fights": 480
      },
      "50000": {
-      "value": 0.0401,
+      "value": 0.0395,
       "se": 0.0188,
-      "swing_on": 253.7,
-      "swing_off": 180.1,
-      "holder_damage": 1838.5,
+      "swing_on": 253.0,
+      "swing_off": 180.3,
+      "holder_damage": 1838.6,
       "fights": 480
      }
     }
@@ -511,41 +511,41 @@
     "reach_sim": 1.0,
     "budgets": {
      "10000": {
-      "value": 0.402,
-      "se": 0.0285,
-      "swing_on": 516.5,
-      "swing_off": 151.0,
-      "holder_damage": 909.3,
+      "value": 0.4003,
+      "se": 0.0286,
+      "swing_on": 511.2,
+      "swing_off": 147.5,
+      "holder_damage": 908.7,
       "fights": 480
      },
      "18000": {
-      "value": 0.253,
+      "value": 0.2589,
       "se": 0.0291,
-      "swing_on": 493.7,
-      "swing_off": 188.4,
-      "holder_damage": 1207.1,
+      "swing_on": 500.9,
+      "swing_off": 188.3,
+      "holder_damage": 1207.5,
       "fights": 480
      },
      "27000": {
-      "value": 0.1849,
+      "value": 0.1839,
       "se": 0.0262,
-      "swing_on": 562.2,
-      "swing_off": 289.6,
-      "holder_damage": 1474.2,
+      "swing_on": 560.5,
+      "swing_off": 289.2,
+      "holder_damage": 1475.1,
       "fights": 480
      },
      "37000": {
-      "value": 0.1675,
-      "se": 0.0239,
-      "swing_on": 520.9,
-      "swing_off": 242.7,
-      "holder_damage": 1660.4,
+      "value": 0.1689,
+      "se": 0.024,
+      "swing_on": 523.9,
+      "swing_off": 243.5,
+      "holder_damage": 1659.9,
       "fights": 480
      },
      "50000": {
-      "value": 0.1408,
+      "value": 0.1406,
       "se": 0.0236,
-      "swing_on": 516.2,
+      "swing_on": 515.9,
       "swing_off": 259.3,
       "holder_damage": 1824.7,
       "fights": 480
@@ -558,43 +558,43 @@
     "reach_sim": 1.0,
     "budgets": {
      "10000": {
-      "value": 0.1787,
-      "se": 0.0202,
-      "swing_on": 275.7,
-      "swing_off": 113.1,
-      "holder_damage": 909.9,
+      "value": 0.1813,
+      "se": 0.0201,
+      "swing_on": 274.1,
+      "swing_off": 109.3,
+      "holder_damage": 909.2,
       "fights": 480
      },
      "18000": {
-      "value": 0.1284,
+      "value": 0.1299,
       "se": 0.0178,
-      "swing_on": 315.7,
-      "swing_off": 161.0,
-      "holder_damage": 1204.9,
+      "swing_on": 317.4,
+      "swing_off": 160.8,
+      "holder_damage": 1205.4,
       "fights": 480
      },
      "27000": {
-      "value": 0.0568,
-      "se": 0.0196,
-      "swing_on": 261.4,
-      "swing_off": 177.8,
-      "holder_damage": 1472.9,
+      "value": 0.0542,
+      "se": 0.0195,
+      "swing_on": 257.5,
+      "swing_off": 177.6,
+      "holder_damage": 1473.8,
       "fights": 480
      },
      "37000": {
-      "value": 0.046,
-      "se": 0.0172,
-      "swing_on": 190.1,
-      "swing_off": 113.8,
-      "holder_damage": 1661.8,
+      "value": 0.0474,
+      "se": 0.0175,
+      "swing_on": 193.0,
+      "swing_off": 114.2,
+      "holder_damage": 1661.3,
       "fights": 480
      },
      "50000": {
-      "value": 0.0764,
+      "value": 0.0762,
       "se": 0.0141,
-      "swing_on": 240.7,
+      "swing_on": 240.4,
       "swing_off": 100.3,
-      "holder_damage": 1838.5,
+      "holder_damage": 1838.6,
       "fights": 480
      }
     }
@@ -605,43 +605,43 @@
     "reach_sim": 1.0,
     "budgets": {
      "10000": {
-      "value": 0.1905,
-      "se": 0.0199,
-      "swing_on": 361.5,
-      "swing_off": 188.4,
-      "holder_damage": 909.3,
+      "value": 0.1869,
+      "se": 0.0197,
+      "swing_on": 354.1,
+      "swing_off": 184.3,
+      "holder_damage": 908.7,
       "fights": 480
      },
      "18000": {
-      "value": 0.111,
+      "value": 0.112,
       "se": 0.0174,
-      "swing_on": 290.4,
+      "swing_on": 291.6,
       "swing_off": 154.5,
-      "holder_damage": 1223.7,
+      "holder_damage": 1224.1,
       "fights": 480
      },
      "27000": {
-      "value": 0.0738,
+      "value": 0.0722,
       "se": 0.0204,
-      "swing_on": 372.9,
-      "swing_off": 264.1,
-      "holder_damage": 1475.8,
+      "swing_on": 370.4,
+      "swing_off": 263.7,
+      "holder_damage": 1476.7,
       "fights": 480
      },
      "37000": {
-      "value": 0.0599,
-      "se": 0.0158,
-      "swing_on": 298.1,
-      "swing_off": 198.5,
-      "holder_damage": 1661.3,
+      "value": 0.0608,
+      "se": 0.0159,
+      "swing_on": 299.9,
+      "swing_off": 198.9,
+      "holder_damage": 1660.8,
       "fights": 480
      },
      "50000": {
-      "value": 0.0548,
+      "value": 0.0547,
       "se": 0.0153,
-      "swing_on": 286.2,
-      "swing_off": 185.6,
-      "holder_damage": 1836.2,
+      "swing_on": 285.9,
+      "swing_off": 185.5,
+      "holder_damage": 1836.3,
       "fights": 480
      }
     }
@@ -652,43 +652,43 @@
     "reach_sim": 1.0,
     "budgets": {
      "10000": {
-      "value": 0.0282,
-      "se": 0.0112,
-      "swing_on": 199.4,
-      "swing_off": 173.8,
-      "holder_damage": 907.2,
+      "value": 0.0301,
+      "se": 0.0109,
+      "swing_on": 198.9,
+      "swing_off": 171.6,
+      "holder_damage": 906.6,
       "fights": 480
      },
      "18000": {
-      "value": 0.0453,
-      "se": 0.0169,
-      "swing_on": 158.7,
-      "swing_off": 104.7,
-      "holder_damage": 1194.1,
+      "value": 0.0543,
+      "se": 0.0164,
+      "swing_on": 169.6,
+      "swing_off": 104.8,
+      "holder_damage": 1194.6,
       "fights": 480
      },
      "27000": {
-      "value": 0.0335,
+      "value": 0.0332,
       "se": 0.0195,
-      "swing_on": 191.6,
-      "swing_off": 142.6,
-      "holder_damage": 1465.7,
+      "swing_on": 190.0,
+      "swing_off": 141.3,
+      "holder_damage": 1466.6,
       "fights": 480
      },
      "37000": {
-      "value": 0.0187,
+      "value": 0.0177,
       "se": 0.0143,
-      "swing_on": 48.7,
-      "swing_off": 17.5,
-      "holder_damage": 1667.7,
+      "swing_on": 48.0,
+      "swing_off": 18.5,
+      "holder_damage": 1667.2,
       "fights": 480
      },
      "50000": {
-      "value": -0.0217,
+      "value": -0.0229,
       "se": 0.0216,
-      "swing_on": 23.5,
+      "swing_on": 21.4,
       "swing_off": 63.5,
-      "holder_damage": 1840.0,
+      "holder_damage": 1840.1,
       "fights": 480
      }
     }
