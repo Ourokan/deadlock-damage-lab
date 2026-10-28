@@ -20,6 +20,8 @@ ids and audit the odd ones, then the reverse; keep only heroes whose held-out pe
 |real - sim| share over every source) is lower on both halves and whose mix distance is not worse by more than
 MIX_SLACK. The kept heroes are then fitted ROUNDS rounds on the whole sample and written; the rest keep their rows.
 
+--skip CLASS (repeatable) leaves that ability's row alone (e.g. an ult whose gap is a missing mechanic, not its level).
+
 usage: python3 scripts/ability_corr_heroes.py [--audit PATH] [--prior N] --hero NAME [--hero NAME ...] [--write]
        python3 scripts/ability_corr_heroes.py --split [--sample PATH] [--rounds N] --hero NAME [--hero NAME ...]
 """
@@ -37,6 +39,7 @@ PRIOR = 20
 KEEP_RANGE = (0.1, 10.0)   # as length_factors.py's keep mode
 # abilities whose damage skips its landing factor x length_corr (Mechanics.swap_full: Soul Exchange swaps whole)
 UNSCALED = {"ability_health_swap"}
+SKIP = set()   # --skip CLASS
 
 
 def fit(audit, heroes, prior=PRIOR):
@@ -49,7 +52,7 @@ def fit(audit, heroes, prior=PRIOR):
             continue
         w = a["players"] / (a["players"] + prior)
         for name, r in rows.items():
-            if r.get("class") in UNSCALED:
+            if r.get("class") in UNSCALED or r.get("class") in SKIP:
                 continue
             src = a["sources"].get(r.get("class") or "")
             x = src and src.get("real_over_sim")
@@ -130,6 +133,7 @@ def main():
     if "--prior" in args:
         prior = float(args[args.index("--prior") + 1])
     heroes = [args[i + 1] for i, a in enumerate(args) if a == "--hero"]
+    SKIP.update(args[i + 1] for i, a in enumerate(args) if a == "--skip")
     if "--split" in args:
         sample = os.path.join(ROOT, "validation", "phantom_sample.jsonl.gz")
         if "--sample" in args:

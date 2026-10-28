@@ -678,8 +678,8 @@ def execute_plans(f):
         return
     for ab in f.abilities:
         draw = getattr(ab.impl, "draw_plan", None)
-        if not ab.unlocked or draw is None:
-            continue
+        if not ab.unlocked or draw is None or not getattr(ab.impl, "plans", True):
+            continue   # plans False: an opt-in plan turned off draws nothing (the rng stream stays as without it)
         if phase is not None:
             u = (phase + zlib.crc32(f"plan|{ab.ab.class_name}|{f.name}".encode()) / 2 ** 32) % 1.0
         else:

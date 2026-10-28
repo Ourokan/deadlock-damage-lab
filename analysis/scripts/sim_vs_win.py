@@ -162,15 +162,17 @@ def main():
         by.setdefault(r[2], []).append(r)
     items = [(n, statistics.mean(r[3] for r in rs), statistics.mean(r[4] for r in rs), len(rs))
              for n, rs in by.items() if len(rs) >= 5]
+    if a.out:
+        with open(a.out, "w") as f:
+            json.dump(rows, f)
+    if len(items) < 3:
+        return   # one or two heroes: no item seen on 5 of them
     print(f"  per item (mean over heroes) n {len(items)}  Pearson "
           f"{pearson([i[1] for i in items], [i[2] for i in items]):+.3f}  Spearman "
           f"{spearman([i[1] for i in items], [i[2] for i in items]):+.3f}")
     print("  top sim gain per 1000 souls (mean over heroes) | real edge:")
     for n, s, e, k in sorted(items, key=lambda i: -i[1])[:15]:
         print(f"    {n:24s} {s:+.4f}  {e:+.2f} pt  ({k} heroes)")
-    if a.out:
-        with open(a.out, "w") as f:
-            json.dump(rows, f)
 
 
 if __name__ == "__main__":
