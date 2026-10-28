@@ -1,5 +1,5 @@
 {
   "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
-  "requested_at": "2026-10-28T04:40:00Z",
-  "reason": "Sinclair abilities refit on a 426-match Sinclair sample: Audience Participation's copies were 1.5x their real share, Vexing Bolt / Spectral Assistant under; Sinclair per-ability gap 0.103 -> 0.011"
+  "requested_at": "2026-10-28T04:30:00Z",
+  "reason": "Viscous: Splatter's landing factor above 1 also scales the Mystic Burst / Tankbuster charge its hits release, Goo Ball hits each hero 1.47x per cast as in replays (was 2), Goo Ball level refit; Viscous per-source gap 0.052 -> 0.039"
 }
