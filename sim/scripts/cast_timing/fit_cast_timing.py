@@ -70,6 +70,7 @@ PRECAST = True       # damage abilities: hold on when the damage lands (due), no
 # the pair fight's (its length booking, data/fight_length.json, is fitted on pair fights), and merged engagements put
 # a later-joining enemy's whole fight after t0 (the curve came out ~1 s later than the hits, opener_timing.md)
 MERGE = False
+BUILD_COLS = False   # real_rows rows also carry build_cols() of the fighter at the fight start (ability_lean.py)
 
 
 def cls_key(hid, cls):
@@ -119,6 +120,21 @@ def real_casts(rows):
     return out
 
 
+def build_cols(p, t, m, cache):
+    """(spirit item souls, net worth, global ability cooldown reduction, match id) of player p's real build at game time
+    t (per minute; ability_lean.py)."""
+    key = (p["slot"], int(t // 60))
+    if key not in cache:
+        import landing_rates as L
+        from deadsim import game
+        from deadsim.build import compute_stats
+        G = game()
+        items, souls = L.build_at(p, max(0.0, key[1] * 60.0))
+        st = compute_stats(G.hero(p["hero_id"]), [G.items[i] for i in items], souls=souls)
+        cache[key] = (sum(G.items[i].cost for i in items if G.items[i].slot == "spirit"), souls, st.cdr, m["match_id"])
+    return cache[key]
+
+
 def real_rows(args):
     """[(hero id, ability class, first cast s or None, fight length s, its hit s after the cast or None, first due s
     or None)] for one match. Due: when the first cast's damage lands (its own hit, else the cast + the ability's
@@ -128,7 +144,10 @@ def real_rows(args):
     hero, ev = OT.read(fn)   # FL.read's rows + the hit's ability id
     by_hero = {p["hero_id"]: p for p in m["players"]}
     casts = collections.defaultdict(list)
-    for r in real_casts([json.loads(line) for line in gzip.open(cast_fn, "rt")]):
+    rc = real_casts([json.loads(line) for line in gzip.open(cast_fn, "rt")])
+    off = statistics.median(r["tick"] / T - r["v"] for r in rc) if BUILD_COLS and rc else 0.0   # tick / T -> game time
+    cache = {}
+    for r in rc:
         casts[(r["a"], int(r["s"]))].append(r["tick"] / T)
     for v in casts.values():
         v.sort()
@@ -191,7 +210,10 @@ def real_rows(args):
                     if d >= t0 - PRE_S:
                         due = max(0.0, d - t0)
                         break
-                out.append((hid, cls, None if first is None else max(0.0, first - t0), t1 - t0, lag, due))
+                row = (hid, cls, None if first is None else max(0.0, first - t0), t1 - t0, lag, due)
+                if BUILD_COLS and hid in by_hero:
+                    row += build_cols(by_hero[hid], t0 - off, m, cache)
+                out.append(row)
     return out
 
 

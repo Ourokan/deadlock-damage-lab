@@ -323,6 +323,7 @@ class Fighter:
         self.bonus_ammo = 0
         self.reload_until = 0.0
         self.gun_uptime = 1.0       # share of the time the fighter shoots (Mechanics.gun_lean)
+        self.cast_hazard = 1.0      # hazard ratio of first casts and recasts vs the hero's real curves (Mechanics.ability_lean)
         self.shooting_since = 0.0   # start of continuous fire (Intensifying Magazine)
         self.hit_acc = Accum(engine.rng, 0.5)
         self.head_acc = Accum(engine.rng, 0.5)

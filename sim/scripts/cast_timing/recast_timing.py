@@ -118,7 +118,7 @@ def real_rows(args):
         casts[(r["a"], int(r["s"]))].append(r["tick"] / CT.T)
     for v in casts.values():
         v.sort()
-    out, cache = [], {}
+    out, cache, bcache = [], {}, {}
     for pawn, sp in pair_spans(hero, ev, by_hero).items():
         hid = hero.get(pawn)
         if hid not in abil or hid not in by_hero:
@@ -139,7 +139,8 @@ def real_rows(args):
                         continue
                     nxt = cs[k + 1] if k + 1 < len(cs) else None
                     d = nxt - ready if nxt is not None and nxt <= t1 else None
-                    out.append((hid, cls, d, t1 - ready, cd))
+                    row = (hid, cls, d, t1 - ready, cd)
+                    out.append(row + CT.build_cols(p, c - off, m, bcache) if CT.BUILD_COLS else row)
     return out
 
 

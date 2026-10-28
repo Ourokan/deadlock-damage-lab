@@ -3273,3 +3273,37 @@ items 0.370 -> 0.373, within slot and tier 0.384 -> 0.384, damage items 0.072 ->
 0.305 with abilities a little under there (Headshot Booster 1.8x over in the lane), and Djinn's Mark a little under
 in the lane / over late.
 phantom_sample's 45 Mirages (in sample for the old fit) 0.01 -> 0.03, weighted all heroes 0.0162 -> 0.0163.
+
+## Abilities by build (2026-10-28)
+
+The Ivy work found items over on spirit builds for every hero (whole-match shares by final build: items ~1.2x real
+above 60% spirit). Compared fairly (each player's duels against the real damage in the same fifth of the match,
+players of the same hero and fifth split at the median of their spirit item souls; phantom_sample and the
+out-of-sample ivy_sample agree): with more spirit item souls the sim's item share runs ~8-10% over real
+(1.00 -> 0.92 real/sim) and its ability share ~3-4% under (1.02 -> 1.05), gun flat. Each item on its own is not the
+cause: per item, holders' real/sim is flat with spirit item souls (pooled 0.99-1.02 over six spirit-souls bands), the
+count of damage items or actives held does nothing, and per-item or per-hero-item corrections from one half of the
+matches only cut a third of the item slope on the other half. The shares mostly trade against each other: abilities are
+~60% of a spirit build's damage, so 3-4% fewer ability damage is the 8-10% more item share.
+
+Replays (259 Phantom+ matches, fight_length pair fights and their ability casts, scripts/cast_timing/ability_lean.py):
+real players with more souls in spirit items open fights with their abilities sooner and recast them sooner once the
+cooldown is up, at the same net worth. A Cox model stratified by hero ability, each fighter's real build at that
+minute: first casts log hazard +0.0060 +- 0.0006 per 1000 spirit item souls with net worth (-0.0008) and cooldown
+reduction (+0.031 per 10%, which cdr_ready already models) in the model, +0.0079 / +0.0075 on the even / odd match ids
+without cdr; recasts +0.0101 +- 0.0021 (19k chances). The sim drew a build's first-cast holds (cast_timing) and recast
+waits (recast_timing) from one curve per ability, whatever the build.
+
+Mechanics.ability_lean (0.006 when on): each hold / wait draw u becomes 1 - (1 - u) ^ (1 / hr), hr = exp(0.006 x (spirit item
+souls - the hero's mean over its real first-cast chances) / 1000) (data/ability_lean.json), so each hero's average
+curve stays and a spirit build casts sooner, a gun build later. Fitted on replays, so both halves of the audit samples
+are held out. Ability slope (hi / lo spirit souls in the same hero and fifth), phantom_sample even / odd ids
+1.033 -> 1.025 / 1.025 -> 1.016, ivy_sample 1.052 -> 1.043 / 1.036 -> 1.028; item slope 0.910 -> 0.913 /
+0.922 -> 0.929 and 0.894 -> 0.900 / 0.910 -> 0.916. Whole audit (phantom_sample) mix 0.0161 -> 0.0162.
+
+sim_vs_win 27k (local pools, both runs alike): all items 0.307 -> 0.302, within slot and tier 0.343 -> 0.342, damage
+items 0.193 -> 0.195, edges clear of noise 0.433 -> 0.434 (Extra Charge, Mystic Shot, Healing Nova and Decay gain a
+little value). It lowers the win check, so it ships opt-in: Mechanics.ability_lean = 0.0, set 0.006 to turn it on
+(the scores and the site are unchanged). Left: the rest of the spirit-build gap (about three quarters of the ability
+slope and most of the item slope) is not in cast timing; candidates not yet checked are spirit power reaching
+abilities and items differently than in real games, and real spirit builds' fights against other targets.
