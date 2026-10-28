@@ -6,7 +6,9 @@ Assumptions:
   (hero light melee damage + per-boon growth, melee bonuses applied); T3 swaps that for the DamageHeavyMelee scale (0.55) x heavy
   melee damage (heavy grows with boons in proportion to light) and silences for DebuffDuration. Drifter can't shoot during cast + post-cast.
 - Stalker's Mark: skillshot (reach MARK_RANGE) bleed for AbilityDuration dealing DotHealthPercent % of the
-  target's max health per second (spirit scaling adds to the percent). T1 bullet shred and T3 healing penalty
+  target's CURRENT health per second (spirit scaling adds to the percent; MARK_CURRENT). Replays (82 matches, 1983
+  bleeds, first 6 min): a tick is 1.05% of the health the target had before it at every health level (0.9-1.0:
+  1.00% of max, 0.4-0.5: 0.47%), and 1 bleed in 2000 ends on a kill, so it is nonlethal. T1 bullet shred and T3 healing penalty
   last for the bleed. The teleport is movement (ignored).
 - Bloodscent: in a 1v1 the target is always isolated, so Drifter permanently deals AmpDamagePercent more damage.
   The extra is booked as its own "Bloodscent" hit (as the game's damage report does) after each damaging hit that
@@ -18,6 +20,7 @@ Assumptions:
 from deadsim.abilities import AbilityImpl, register
 
 MARK_RANGE = 30.0     # m, Stalker's Mark projectile reach (no range in data)
+MARK_CURRENT = True   # Stalker's Mark bleeds a share of current health (replays); False = of max health (old)
 DARK_MISS = 0.5       # share of shots a darkness-blinded target misses beyond its vision distance (guess)
 
 
@@ -53,8 +56,10 @@ class StalkersMark(AbilityImpl):
         d = c.dur("AbilityDuration")
         acc = c.me.skill.spirit_accuracy
         pct = c.val("DotHealthPercent") / 100
-        dps = pct * c.foe.max_hp
-        c.dot(dps, d, delay=delay, tick=c.raw("TickRate", 0.5), hit_chance=acc)
+        if MARK_CURRENT:
+            c.dot(pct, d, delay=delay, tick=c.raw("TickRate", 0.5), hit_chance=acc, cur_health=True, nonlethal=True)
+        else:
+            c.dot(pct * c.foe.max_hp, d, delay=delay, tick=c.raw("TickRate", 0.5), hit_chance=acc)
         if c.raw("BulletResistReduction"):
             c.debuff("bullet_shred", abs(c.raw("BulletResistReduction")) / 100 * acc, d, delay=delay)
         if c.raw("HealAmpReceivePenaltyPercent"):

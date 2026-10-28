@@ -3042,3 +3042,23 @@ corrections refit 3 rounds on one match-id half, 8 draws on the other, against t
 Kept. Refit on the whole sample: Jar of Dead 1.697 -> 1.604, Grasping Hands 1.460 -> 1.541, Borrowed Decree 4.216 ->
 3.962; in-sample mix (4 draws) 0.0140 -> 0.0145 (main was fitted on this sample). sim_vs_win Graves 27k+37k flat (all
 items 0.465 -> 0.464, within slot and tier 0.478 -> 0.478).
+
+### Drifter: Stalker's Mark bleeds current health (2026-10-28)
+
+The audit's largest gap after #188 with a real sample was Drifter (0.035, 186 players; Warden 0.064 and Dynamo 0.044
+fall to 0.03 on their own hero samples, 158 and 248 players). By phase the sim's gun share fell late (0.25 / 0.22 /
+0.20 at 30 / 60 / 90% vs real 0.25 / 0.25 / 0.26) because Stalker's Mark grew against the gun (sim 0.11 -> 0.17,
+real 0.13 -> 0.13). Replays (fight_length raw, 82 matches, 1983 bleeds): each tick is ~1.05% of the health the target
+had before it at every health level in the first 6 min (0.9-1.0 of max health: 1.00% of max; 0.4-0.5: 0.47%), and
+1 bleed in 2000 ends on a kill. So the bleed is DotHealthPercent of CURRENT health, nonlethal; the sim used max
+health. drifter.MARK_CURRENT (on) via Engine.dot(cur_health=True), which ticks from Fighter.item_hp (third parties'
+damage included, as Decay). Real bleeds also end early more often later (23% of bleeds lane, ~45% after 15 min,
+not by the teleport or a kill); left to the landing factor.
+
+Split-half (ability corrections refit 3 rounds on one match-id half, 6 draws on the other, against the same refit on
+main's code): held-out per-source 0.0239 -> 0.0232 / 0.0230 -> 0.0221, mix 0.0200 -> 0.0198 / 0.0228 -> 0.0225.
+Kept. Drifter's corrections were stale (a plain refit alone takes him 0.035 -> 0.018). Melee rate refit
+(melee_audit_fit.py --split) 0.0948 -> 0.080, held-out mix 0.015 -> 0.007 / 0.020 -> 0.012. Final corrections: Rend
+1.761 -> 1.468, Stalker's Mark 1.628 -> 2.137, Bloodscent 1.07 -> 1.147. Drifter mix 0.035 -> 0.01, whole audit
+0.0176 -> 0.0168. sim_vs_win Drifter 27k+37k: all items 0.321 -> 0.330, within slot and tier 0.313 -> 0.325, edges
+clear of noise 0.449 -> 0.471.

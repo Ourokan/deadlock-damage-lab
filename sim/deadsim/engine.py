@@ -913,10 +913,12 @@ class Engine:
 
     # ---- DoT --------------------------------------------------------------------------------------
     def dot(self, src, dst, dps, duration, source, kind="spirit", tick=0.5, tag=None, **kw):
-        """Damage over time; refreshing with the same tag replaces the running DoT."""
+        """Damage over time; refreshing with the same tag replaces the running DoT. cur_health=True: dps is a share of
+        the target's current health per second (Fighter.item_hp at each tick), not an amount."""
         if duration <= 0 or dps <= 0:
             return
         guard = kw.pop("guard", None)   # a summon: its DoT stops when it dies
+        cur = kw.pop("cur_health", False)
         buildup = kw.pop("buildup", False)   # re-applied by the enemy's gun (Fighter.buildup_dot)
         if self.mech is not None and (kw.get("is_ability") or kw.get("is_item")) and "spell_parry" in dst.counters:
             from .mechanics import spell_blocked
@@ -936,7 +938,7 @@ class Engine:
             if dst.counters.get(key) is not token or not dst.alive or (
                     guard is not None and not (guard.alive and guard.until > self.t)):
                 return
-            self.damage(src, dst, per, kind, source, is_dot=True, **kw)
+            self.damage(src, dst, per * dst.item_hp if cur else per, kind, source, is_dot=True, **kw)
             if i + 1 < n:
                 self.after(tick, tick_fn, i + 1)
         self.after(tick, tick_fn, 0)
