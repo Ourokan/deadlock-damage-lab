@@ -2846,3 +2846,30 @@ by match-id half Shiv 0.028 -> 0.019 / 0.032 -> 0.025, Yamato 0.025 -> 0.020 / 0
 read a little over now that items are right). sim_vs_win Shiv + Yamato 27k + 37k: all 0.300 -> 0.295, within slot and
 tier 0.325 -> 0.322, damage items up (Shiv 0.229 -> 0.249, Yamato 0.165 -> 0.176); the dip is Shiv's gun items
 (Extended / Titanic Magazine) gaining a little less beside a bigger Express Shot, about noise for two heroes.
+
+## Sinclair's copied ultimates (2026-10-28)
+
+After #180 Sinclair had the widest per-source gap of any hero (half the summed share gaps 0.10; class mix only 0.01):
+Audience Participation's copies 0.28-0.30 of her damage vs real 0.18-0.20, Vexing Bolt and Spectral Assistant
+1.15x / 1.3x under. Her phantom_sample has 55 players, so `validation/sinclair_sample.jsonl.gz` adds 370 Phantom+
+matches with a Sinclair (aim_sample ids not in phantom_sample, fetch_validation.get + slim): 0.103 on 368 players.
+
+Where the copy damage comes from (`scripts/mechanics/copy_ult.py`, real damage matrix: a copy is booked under the
+copied hero's class): real Sinclairs copy most enemy ultimates (0.5-0.9 of matches facing them) but get most of
+their copy damage from area ultimates: Lurking Terrors 0.043 of all her damage, Abstract Landscape 0.031, Storm Cloud
+0.018 (40 players facing Seven: ~7,000 a match, 18% of her damage), Rule Ratannia 0.013, Close The Deal 0.012. The
+sim's copies all took Audience Participation's one factor (0.60 x length_corr 4.8), so ultimates built around their
+owner's kit came out 3-7x their real share (Combo, Nox Nostra, Seismic Impact, Feed The Birds, Guided Owl, Paradoxical
+Swap, Bullet Dance) and Storm Cloud ~0.4x (copied late in the duel; its cast needs the target above 20% health).
+
+- Mechanics.copy_ult (opt-in, off): the copy's factor x a per-ultimate factor (data/copy_ult.json, fitted between
+  Audience Participation refits, normalised to keep the copy total). Split-half on the 426-match Sinclair sample (fit
+  on one half's match ids, audit the other), against the plain refit on the same half: copy split by ultimate
+  0.37 -> 0.19 / 0.20 (plain refit 0.37 / 0.36), per-source 0.0275 -> 0.0236 / 0.0369 -> 0.0440. sim_vs_win for
+  Sinclair (27k + 37k): within slot and tier 0.381 (main) / 0.380 (refit) / 0.366 (copy_ult), all items 0.360 /
+  0.358 / 0.349. Left off for that drop.
+- Kept: Sinclair's ability corrections refit on the Sinclair sample (ability_corr_heroes.py --split: held-out
+  per-source 0.085 -> 0.027 and 0.118 -> 0.037, mix +0.001): Vexing Bolt 1.135 -> 1.307, Spectral Assistant 1.661 ->
+  2.198, Audience Participation 4.562 -> 2.462, Rabbit Hex 2.461 -> 2.372. Sinclair 0.103 -> 0.011 per-source, mix
+  0.011 -> 0.008 (423 players).
+- Storm Cloud's opening lightning strike now books under the ability's own name (a copy was booked as "Storm Cloud").

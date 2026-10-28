@@ -762,6 +762,8 @@ class Engine:
             fac = src.skill.ability_landing.get(source)
             if fac is None and ability is not None:
                 fac = src.skill.ability_landing.get(getattr(ability.ab, "landing_key", None) or ability.ab.name)
+                if fac is not None:
+                    fac *= getattr(ability.ab, "landing_mult", 1.0)   # Sinclair's copied ultimate (Mechanics.copy_ult)
             if fac is not None:
                 amt *= fac
                 land *= fac

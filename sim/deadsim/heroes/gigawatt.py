@@ -110,7 +110,7 @@ class StormCloud(AbilityImpl):
             st["res_tag"] = ("storm_res", c.now)
             c.buff("bullet_resist", c.raw("BulletResistOnActive") / 100, chan, tag=st["res_tag"])
         if c.raw("LightningStrikes"):
-            c.spirit_hit(c.val("LightningStrikeDamage"), delay=c.raw("LightningStrikeDelay"), name="Storm Cloud")
+            c.spirit_hit(c.val("LightningStrikeDamage"), delay=c.raw("LightningStrikeDelay"), name=self.s.ab.name)
         c.after(c.raw("DamageInterval", 0.3), self.tick, c, st["start"])
 
     def tick(self, c, start):

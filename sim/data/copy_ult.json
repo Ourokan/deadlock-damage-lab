@@ -1,0 +1,315 @@
+{
+ "meta": {
+  "sample": "sin_all.jsonl.gz",
+  "prior": 40,
+  "floor": 0.1,
+  "clip": [
+   0.1,
+   10.0
+  ],
+  "script": "scripts/mechanics/copy_ult.py"
+ },
+ "ults": {
+  "ability_artist_bamboogrove": {
+   "name": "Abstract Landscape",
+   "players": 158,
+   "real_share": 0.031,
+   "sim_share": 0.03042,
+   "factor": 3.402
+  },
+  "ability_baba_ultimate_2": {
+   "name": "Feed The Birds",
+   "players": 55,
+   "real_share": 0.00364,
+   "sim_share": 0.00458,
+   "factor": 0.518
+  },
+  "ability_bookworm_knightcharge": {
+   "name": "Rallying Charge",
+   "players": 49,
+   "real_share": 0.00155,
+   "sim_share": 0.00201,
+   "factor": 0.501
+  },
+  "ability_bullet_flurry": {
+   "name": "Bullet Dance",
+   "players": 107,
+   "real_share": 0.00018,
+   "sim_share": 0.0071,
+   "factor": 0.1
+  },
+  "ability_chessmaster_queen": {
+   "name": "Develop Queen",
+   "players": 58,
+   "real_share": 0.00458,
+   "sim_share": 0.00554,
+   "factor": 0.681
+  },
+  "ability_deadpack_ultimate": {
+   "name": "Close The Deal",
+   "players": 155,
+   "real_share": 0.01238,
+   "sim_share": 0.01259,
+   "factor": 2.301
+  },
+  "ability_doorman_hotel": {
+   "name": "Hotel Guest",
+   "players": 14,
+   "real_share": 0.00065,
+   "sim_share": 0.00062,
+   "factor": 1.233
+  },
+  "ability_familiar_ability01": {
+   "name": "Naptime",
+   "players": 23,
+   "real_share": 0.00109,
+   "sim_share": 0.00101,
+   "factor": 1.465
+  },
+  "ability_fencer_ultimate": {
+   "name": "Itani Lo Sahn",
+   "players": 45,
+   "real_share": 0.00181,
+   "sim_share": 0.00191,
+   "factor": 1.825
+  },
+  "ability_fire_bomb": {
+   "name": "Concussive Combustion",
+   "players": 65,
+   "real_share": 0.00166,
+   "sim_share": 0.00197,
+   "factor": 0.634
+  },
+  "ability_frank_revive": {
+   "name": "Shocking Reanimation",
+   "players": 39,
+   "real_share": 0.00054,
+   "sim_share": 0.0,
+   "factor": 1.069
+  },
+  "ability_gravity_lasso": {
+   "name": "Spirit Lasso",
+   "players": 45,
+   "real_share": 0.00077,
+   "sim_share": 0.00106,
+   "factor": 0.394
+  },
+  "ability_guided_arrow": {
+   "name": "Guided Owl",
+   "players": 41,
+   "real_share": 0.0011,
+   "sim_share": 0.00169,
+   "factor": 0.306
+  },
+  "ability_health_swap": {
+   "name": "Soul Exchange",
+   "players": 20,
+   "real_share": 0.00202,
+   "sim_share": 0.00106,
+   "factor": 2.922
+  },
+  "ability_ice_dome": {
+   "name": "Frozen Shelter",
+   "players": 22,
+   "real_share": 0.0,
+   "sim_share": 0.0,
+   "factor": 1.069
+  },
+  "ability_nano_shadow_pulse": {
+   "name": "Return to Shadows",
+   "players": 27,
+   "real_share": 0.00074,
+   "sim_share": 0.00191,
+   "factor": 0.237
+  },
+  "ability_necro_gravestone": {
+   "name": "Borrowed Decree",
+   "players": 56,
+   "real_share": 0.00387,
+   "sim_share": 0.00558,
+   "factor": 0.493
+  },
+  "ability_nurse_fear": {
+   "name": "Lurking Terrors",
+   "players": 172,
+   "real_share": 0.04254,
+   "sim_share": 0.03983,
+   "factor": 2.334
+  },
+  "ability_priest_weaponswap": {
+   "name": "Ira Domini",
+   "players": 80,
+   "real_share": 0.00132,
+   "sim_share": 0.00186,
+   "factor": 0.318
+  },
+  "ability_punkgoat_tether": {
+   "name": "Chain Gang",
+   "players": 42,
+   "real_share": 0.00031,
+   "sim_share": 0.00067,
+   "factor": 0.115
+  },
+  "ability_ratking_standard_bearer": {
+   "name": "Rule, Ratannia!",
+   "players": 169,
+   "real_share": 0.01296,
+   "sim_share": 0.01402,
+   "factor": 1.443
+  },
+  "ability_ult_combo": {
+   "name": "Combo",
+   "players": 78,
+   "real_share": 0.0027,
+   "sim_share": 0.00343,
+   "factor": 0.309
+  },
+  "ability_unicorn_dazzlingorb": {
+   "name": "Shining Wonder",
+   "players": 46,
+   "real_share": 0.0039,
+   "sim_share": 0.00389,
+   "factor": 1.559
+  },
+  "ability_vampirebat_batswarm": {
+   "name": "Nox Nostra",
+   "players": 62,
+   "real_share": 0.00207,
+   "sim_share": 0.00459,
+   "factor": 0.135
+  },
+  "ability_viper_petrifybola": {
+   "name": "Petrifying Bola",
+   "players": 29,
+   "real_share": 0.00177,
+   "sim_share": 0.00221,
+   "factor": 0.784
+  },
+  "ability_warden_riot_protocol": {
+   "name": "Last Stand",
+   "players": 5,
+   "real_share": 0.00054,
+   "sim_share": 0.00157,
+   "factor": 0.776
+  },
+  "ability_werewolf_transformation": {
+   "name": "Lycan Curse",
+   "players": 32,
+   "real_share": 0.00385,
+   "sim_share": 0.0,
+   "factor": 1.069
+  },
+  "citadel_ability_bebop_laser_beam": {
+   "name": "Hyper Beam",
+   "players": 87,
+   "real_share": 0.01055,
+   "sim_share": 0.01941,
+   "factor": 0.333
+  },
+  "citadel_ability_bull_leap": {
+   "name": "Seismic Impact",
+   "players": 59,
+   "real_share": 0.00157,
+   "sim_share": 0.00205,
+   "factor": 0.388
+  },
+  "citadel_ability_chrono_swap": {
+   "name": "Paradoxical Swap",
+   "players": 41,
+   "real_share": 0.00064,
+   "sim_share": 0.0011,
+   "factor": 0.215
+  },
+  "citadel_ability_hornet_snipe": {
+   "name": "Assassinate",
+   "players": 48,
+   "real_share": 0.00024,
+   "sim_share": 0.00045,
+   "factor": 0.115
+  },
+  "citadel_ability_infinity_slash": {
+   "name": "Shadow Transformation",
+   "players": 63,
+   "real_share": 0.0,
+   "sim_share": 0.0,
+   "factor": 1.069
+  },
+  "citadel_ability_lash_ultimate": {
+   "name": "Death Slam",
+   "players": 93,
+   "real_share": 0.00351,
+   "sim_share": 0.00377,
+   "factor": 1.281
+  },
+  "citadel_ability_psychic_lift": {
+   "name": "Telekinesis",
+   "players": 111,
+   "real_share": 0.00302,
+   "sim_share": 0.00344,
+   "factor": 0.605
+  },
+  "citadel_ability_rocket_barrage": {
+   "name": "Heavy Barrage",
+   "players": 18,
+   "real_share": 9e-05,
+   "sim_share": 0.0013,
+   "factor": 0.125
+  },
+  "citadel_ability_self_vacuum": {
+   "name": "Singularity",
+   "players": 31,
+   "real_share": 0.00608,
+   "sim_share": 0.00669,
+   "factor": 1.157
+  },
+  "citadel_ability_shiv_killing_blow": {
+   "name": "Killing Blow",
+   "players": 70,
+   "real_share": 0.00116,
+   "sim_share": 0.00238,
+   "factor": 2.0
+  },
+  "citadel_ability_storm_cloud": {
+   "name": "Storm Cloud",
+   "players": 40,
+   "real_share": 0.0177,
+   "sim_share": 0.00891,
+   "factor": 5.449
+  },
+  "citadel_ability_tengu_airlift": {
+   "name": "Air Drop",
+   "players": 48,
+   "real_share": 0.00087,
+   "sim_share": 0.00125,
+   "factor": 0.309
+  },
+  "drifter_darkness": {
+   "name": "Eternal Night",
+   "players": 76,
+   "real_share": 0.0,
+   "sim_share": 0.0,
+   "factor": 1.069
+  },
+  "mirage_teleport": {
+   "name": "Traveler",
+   "players": 17,
+   "real_share": 0.0,
+   "sim_share": 0.0,
+   "factor": 1.069
+  },
+  "synth_affliction": {
+   "name": "Affliction",
+   "players": 44,
+   "real_share": 0.00344,
+   "sim_share": 0.00382,
+   "factor": 1.097
+  },
+  "viscous_goo_bowling_ball": {
+   "name": "Goo Ball",
+   "players": 16,
+   "real_share": 0.00014,
+   "sim_share": 0.0004,
+   "factor": 0.326
+  }
+ }
+}
