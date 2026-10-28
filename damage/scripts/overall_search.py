@@ -273,10 +273,17 @@ HEAL_DEATHS = False
 # 0.371 -> 0.429 (both hero halves, both match-id halves of the ratios; validation/deaths_per_engagement.md).
 # False = deaths per minute as before.
 DEATH_PER_KA = True
+# Melee Lifesteal (2026-10-28) was missing from the list though the sustain replays credit it with self healing
+# (71 HP/min), so its holders' low damage-taken ratio (0.945, z -21 at 27k) lifted it through focus_value as if it
+# were armour (+1.5 / +1.7 z over its real edge within slot and tier). Across healing items the edge doesn't fall
+# with damage taken (+2.3 win points per log taken ratio; other items -4.5) and Melee Lifesteal's low taken / low
+# edge sits with them. sim_vs_win 27k within slot and tier 0.337 -> 0.342, 37k 0.319 -> 0.324, gap +1.5 / +1.7 -> +0.2 / +0.7, every line up on
+# both hero halves (validation/melee_lifesteal_heal.md). Vampiric Burst stays out: its holders take more (1.08) and
+# win less like the other items, and adding it lowers every line.
 HEAL_ITEMS = frozenset((
     "Healing Nova", "Mystic Regeneration", "Radiant Regeneration", "Extra Regen", "Fortitude", "Restorative Locket",
     "Healing Booster", "Spirit Lifesteal", "Bullet Lifesteal", "Restorative Shot", "Healing Rite", "Rescue Beam",
-    "Leech", "Siphon Bullets", "Infuser"))
+    "Leech", "Siphon Bullets", "Infuser", "Melee Lifesteal"))
 
 # Focus cost (2026-10-27, Return Fire: real reflected damage is 3x the sim's, but holders lose 5.5 win points): the
 # duel's enemy hits every build the same (FOCUS), so a build never pays for drawing more of the enemy team's damage.
