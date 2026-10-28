@@ -1,5 +1,5 @@
 {
   "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
-  "requested_at": "2026-10-28T05:00:00Z",
-  "reason": "Viscous: Splatter's landing factor above 1 also scales the Mystic Burst / Tankbuster charge its hits release, Goo Ball hits each hero 1.47x per cast as in replays (was 2), Goo Ball level refit; Viscous per-source gap 0.052 -> 0.039"
+  "requested_at": "2026-10-28T06:10:00Z",
+  "reason": "Mo & Krill open fights burrowed in the real share by game phase (6% lane -> ~30% late, was every fight), Mo & Krill and Graves corrections refit on hero samples; per-source gap M&K 0.032 -> 0.014, Graves mix 0.035 -> 0.010"
 }

@@ -385,28 +385,28 @@
     "landing": 1.372,
     "real_share": 0.2162,
     "sim_share": 0.2556,
-    "length_corr": 0.867
+    "length_corr": 0.771
    },
    "Burrow": {
     "class": "ability_burrow",
     "landing": 0.7,
     "real_share": 0.1596,
     "sim_share": 0.1887,
-    "length_corr": 0.526
+    "length_corr": 1.212
    },
    "Sand Blast": {
     "class": "ability_throw_sand",
     "landing": 1.141,
     "real_share": 0.0438,
     "sim_share": 0.0518,
-    "length_corr": 0.407
+    "length_corr": 0.375
    },
    "Combo": {
     "class": "ability_ult_combo",
     "landing": 0.472,
     "real_share": 0.0628,
     "sim_share": 0.0743,
-    "length_corr": 0.494
+    "length_corr": 0.527
    }
   },
   "Shiv": {
@@ -1036,15 +1036,15 @@
   "Graves": {
    "Jar of Dead": {
     "landing": 0.38,
-    "length_corr": 2.206
+    "length_corr": 1.697
    },
    "Grasping Hands": {
     "landing": 0.15,
-    "length_corr": 1.927
+    "length_corr": 1.46
    },
    "Borrowed Decree": {
     "landing": 0.23,
-    "length_corr": 4.132
+    "length_corr": 4.216
    }
   },
   "Violet": {

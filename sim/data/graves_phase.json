@@ -1,0 +1,47 @@
+{
+ "source": "1883 Graves fights in Phantom+ replays (scripts/mechanics/graves_jars.py)",
+ "note": "jar_throws: share of fights with 0 / 1 / 2 / 3+ Jar of Dead throws; wall_mult: share of fights with a Grasping Hands cast over the whole match's; at Graves' median net worth in each match-fraction bin, linear in ln net worth between points (Mechanics.graves_phase)",
+ "jar_throws": [
+  [
+   3558,
+   [
+    0.409,
+    0.447,
+    0.117,
+    0.028
+   ]
+  ],
+  [
+   12957,
+   [
+    0.269,
+    0.527,
+    0.161,
+    0.044
+   ]
+  ],
+  [
+   28029,
+   [
+    0.29,
+    0.454,
+    0.172,
+    0.084
+   ]
+  ]
+ ],
+ "wall_mult": [
+  [
+   3558,
+   0.704
+  ],
+  [
+   12957,
+   1.166
+  ],
+  [
+   28029,
+   1.109
+  ]
+ ]
+}
