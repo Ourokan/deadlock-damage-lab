@@ -2791,3 +2791,34 @@ early duels rarely open a 0.6 gap). Whole-sample refit moved Geist's corrections
 Results: full audit (phantom sample, all heroes) 0.0184 -> 0.0184; Geist there (37 players) 0.015 -> 0.023, Soul
 Exchange 0.145 -> 0.121 (real 0.139). sim_vs_win Lady Geist 27k + 37k: all 0.405 -> 0.380, within slot and tier 0.402
 -> 0.380, edges clear of noise 0.604 -> 0.641 (one hero, 259 pairs). Left: early swaps (0.8x real).
+
+## Viscous: Express Shot on the alt fire (2026-10-28)
+
+Viscous was the hero furthest from real damage on the whole-match audit after #177: mix 0.068 (29 players), 0.077 on
+validation/viscous_sample.jsonl.gz, 410 Phantom+ matches with a Viscous (221 players; match ids from aim_sample.jsonl.gz not in
+phantom_sample, fetch_validation.get + slim, as the Geist sample). Express Shot read 2.7x under (0.069 of his damage
+real vs 0.026 sim), Spirit Snatch 1.7x, Melee Charge 1.5x, his abilities a little over.
+
+Cause (scripts/mechanics/viscous_alt_fire.py, 22 Viscous players in the fight_length replays):
+- Viscous has an alt fire (citadel_weapon_viscous_set_2: one 42-damage slow goo shot per 1.26 s) beside his
+  10.34-damage primary. Players holding Express Shot put a median 45% of their gun damage in it (4% without the item),
+  and its proc events sit at 1.3x an alt-fire hit (median 113 vs alt 88, primary 26): the proc rides the alt shot,
+  whose bonus is the item's ProcBaseAttackDamagePercentAltFire. Real damage per proc ~160 from the second fifth on;
+  the sim fired it as two primary bullets with +125%, ~50.
+- Spirit Snatch procs on 0.98 of landed Puddle Punch casts (286 / 292; 83% of the procs right after a Punch; Melee
+  Charge 99 / 124). The sim procced on-melee items on an ability melee hit in its landing factor's share
+  (min(1, landing)): Punch's landing x length_corr is 0.51, but it stands for a real hit about half the sim's full one
+  (real median ~125 vs ~280 before the factor), not for half the hits landing.
+
+Fix: items_fx.EXPRESS_ALT (Viscous): the proc shot's damage is the alt weapon's bullet over the primary's (raw
+items.json) with the alt-fire bonus; items_fx.FULL_MELEE_PROC (Puddle Punch) procs on-melee items in full. Sim
+landed damage per proc 111 / 150 / 167 at 0-40 / 40-70 / 70-100% of the match (real ~160 throughout). No refit:
+ability_corr_heroes --split on the phantom + Viscous sample (250 players) was worse on one half's mix, kept none.
+
+Results (Viscous, phantom + Viscous sample, 250 players): mix 0.076 -> 0.038; per-source distance by match-id half
+0.070 -> 0.048 / 0.083 -> 0.056 (mix 0.074 -> 0.034 / 0.077 -> 0.041); holders Express Shot real/sim 2.66 -> 1.03,
+Spirit Snatch 1.66 -> 1.45, Melee Charge 1.55 -> 1.24. Full audit 0.0184 -> 0.0185 (Viscous there 0.068 -> 0.027).
+sim_vs_win Viscous 27k + 37k: all 0.448 -> 0.453, within slot and tier 0.438 -> 0.444, damage items 0.408 -> 0.434.
+Left: his abilities still a little over (Splatter 0.31 vs 0.28), and the alt fire's own shots (non-proc) are not
+modelled: holders' gun is one primary weapon in the sim. Shiv and Yamato also have alt weapons and read Express Shot
+1.35x / ~1.2x under: the same check may apply.
