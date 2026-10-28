@@ -5,7 +5,7 @@
   "sample": "phantom_sample.jsonl.gz",
   "use": "deadsim realistic mode scales an item's own damage by min(1, landing)",
   "length": "fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x length_corr (the sim's source/gun in full / the same expected over real fight lengths, scripts/fight_length/length_factors.py, phantom_sample.jsonl.gz, 3 rounds)",
-  "heroes": "per-hero factors from the damage audit's hero x item rows (phantom_sample.jsonl.gz, >= 20 holders): current factor x (real/sim)^(n/(n+20)), capped 0.25-1; replace the pooled factor for that hero (scripts/item_landing_heroes.py)",
+  "heroes": "per-hero factors from the damage audit's hero x item rows (phantom_sample.jsonl.gz; Ivy from ivy_sample.jsonl.gz since 2026-10-28, >= 20 holders): current factor x (real/sim)^(n/(n+20)), capped 0.25-1; replace the pooled factor for that hero (scripts/item_landing_heroes.py)",
   "entry_hp_kept": "length_corr scaled so held first casts and Mechanics.entry_hp (as configured in the run) keep the expected levels of a target run at full health with the previous holds (length_factors.py --entry --target-holds)",
   "cast_timing_kept": "length_corr scaled so held first casts (Mechanics.cast_timing) keep the expected levels of cast-on-sight duels; rerun from the factors before"
  },
@@ -668,20 +668,80 @@
    }
   },
   "Ivy": {
+   "Alchemical Fire": {
+    "holders": 71,
+    "real_over_sim": 0.823,
+    "landing": 0.443
+   },
+   "Arctic Blast": {
+    "holders": 41,
+    "real_over_sim": 0.794,
+    "landing": 0.653
+   },
    "Capacitor": {
-    "holders": 62,
-    "real_over_sim": 1.056,
-    "landing": 0.804
+    "holders": 375,
+    "real_over_sim": 0.995,
+    "landing": 0.809
+   },
+   "Cold Front": {
+    "holders": 33,
+    "real_over_sim": 0.936,
+    "landing": 0.827
+   },
+   "Decay": {
+    "holders": 64,
+    "real_over_sim": 0.776,
+    "landing": 0.543
+   },
+   "Escalating Exposure": {
+    "holders": 68,
+    "real_over_sim": 0.904,
+    "landing": 0.407
+   },
+   "Headhunter": {
+    "holders": 84,
+    "real_over_sim": 0.957,
+    "landing": 0.733
+   },
+   "Headshot Booster": {
+    "holders": 67,
+    "real_over_sim": 0.949,
+    "landing": 0.853
+   },
+   "Ricochet": {
+    "holders": 20,
+    "real_over_sim": 0.641,
+    "landing": 0.565
    },
    "Siphon Bullets": {
-    "holders": 27,
-    "real_over_sim": 1.068,
-    "landing": 0.38
+    "holders": 147,
+    "real_over_sim": 0.969,
+    "landing": 0.333
+   },
+   "Spirit Burn": {
+    "holders": 30,
+    "real_over_sim": 0.884,
+    "landing": 0.83
+   },
+   "Stalker": {
+    "holders": 22,
+    "real_over_sim": 0.727,
+    "landing": 0.601
    },
    "Tesla Bullets": {
-    "holders": 71,
-    "real_over_sim": 1.007,
+    "holders": 350,
+    "real_over_sim": 1.14,
     "landing": 1.0
+   },
+   "Torment Pulse": {
+    "holders": 41,
+    "real_over_sim": 1.002,
+    "landing": 0.991
+   },
+   "Toxic Bullets": {
+    "holders": 71,
+    "real_over_sim": 0.97,
+    "landing": 0.576
    }
   },
   "Kelvin": {
