@@ -12,6 +12,10 @@ first ult cast weighted by Engine.length_w at the cast, duels with the ult unloc
 real / sim, scaled so the sim-duel weighted mean ratio is 1 (the level stays with the hold and the ult's corr; refit
 the corr after: scripts/ability_corr_heroes.py --hero). ROUNDS rounds, each from the last.
 
+Matched so far: Nurse Harrow, Dynamo (--rows), Violet, Sinclair (--sample validation/sinclair_sample.jsonl.gz);
+McGinnis and Pocket were tried and left out (validation/README.md "Ult casts per fight for four more heroes"). After a
+patch rerun this by hand for them (ult_phase.py fit keeps matched rows, CI doesn't redo them).
+
 usage: python3 ult_rate_match.py --hero "Nurse Harrow" [--parity even|odd] [--sample PATH] [--rows PATH] [--write]
        (--parity: real rows of that half of the matches by id; --sample: the audit sample for the sim side;
        --rows: real rows from more replays of the hero, ult_phase.py real_rows format, e.g. Dynamo:

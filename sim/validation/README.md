@@ -3125,3 +3125,33 @@ The order alone (no ult match) was better on mix and phase both halves but per-s
 0.023 vs 0.034). Phantom audit Dynamo 0.043 -> 0.030, whole audit 0.0168 -> 0.0166. sim_vs_win Dynamo 27k + 37k
 (Pearson): within slot and tier 0.229 -> 0.229, all items 0.167 -> 0.164, damage items 0.171 -> 0.164, clear of
 noise 0.262 -> 0.256.
+
+### Ult casts per fight for four more heroes (2026-10-28)
+
+Follow-up of Nurse's match (scripts/cast_timing/ult_rate_match.py) for the other heroes whose ult ran high early in
+scripts/phase_mix.py (window 0.05, ult share real / sim at 30%): Violet 0.113 / 0.160, Sinclair 0.125 / 0.202,
+McGinnis 0.090 / 0.201, Pocket 0.073 / 0.130. Ult casts per unlocked pair fight, real vs the audit's duels: Violet
+0.12 / 0.32 below 8k souls, 0.17-0.20 / 0.37-0.43 later; McGinnis 0.04-0.08 / 0.18-0.22, then 0.09-0.15 / 0.23-0.26;
+Sinclair 0.15-0.19 / 0.29-0.30, then 0.22-0.27 / 0.33-0.38. Pocket's Affliction has no cast_timing hold (with the
+holds off it waits on Barrage's lock, 0.57 cast by 2 s, so fit_cast_timing never judged it on sight): the duels cast
+it in 97% of unlocked fights vs real 20-29%.
+
+Split-half (match id halves; ref = 3 corr rounds on the fit half, new = ult_rate_match on that half's real rows and
+sample + the same 3 rounds; held-out half 4 draws; phase distance = mean of the hero's 30 / 60 / 90% mix distance):
+- Violet: phase 0.0668 -> 0.0599 / 0.0563 -> 0.0520, per-source 0.0131 -> 0.0127 / 0.0124 -> 0.0117, mix flat. Kept.
+- Sinclair (his 370-match sample, validation/sinclair_sample.jsonl.gz; on the 55 Phantom+ players it was mixed):
+  phase 0.0679 -> 0.0602 / 0.0869 -> 0.0825, per-source 0.0156 flat / 0.0161 -> 0.0159, mix 0.0097 -> 0.0092 /
+  0.0127 -> 0.0132. Kept, matched and refit on his sample.
+- McGinnis (49 players): phase 0.0604 -> 0.0766 / 0.0739 -> 0.0741. Not kept.
+- Pocket (a hold for Affliction from fit_cast_timing with on sight judged by 3 s, its ult_phase row, then the match):
+  phase better both halves (0.0452 -> 0.0394 / 0.0507 -> 0.0420) but the whole-match per-source distance worse both
+  (0.0186 -> 0.0242 / 0.0209 -> 0.0300). Not kept.
+
+Full sample: Violet points 0.78 at 5.5k souls, 0.62 at 6.8k, 1.04-1.11 at 10-17k, 0.95 at 23k, 1.20 at 32k; refit
+Abstract Landscape 1.617 -> 1.884, Living Ink 1.502 -> 1.684, Flow State 1.823 -> 2.168, Still Life 2.028 -> 2.163.
+Sinclair 0.73 at 4.5k ... 1.22 at 23k, 0.87 at 33k; Audience Participation 2.462 -> 2.245 (Rabbit Hex 2.372 ->
+2.432). Ult share at 30 / 60 / 90%: Violet 0.155 / 0.210 / 0.205 (real 0.113 / 0.180 / 0.229), Sinclair 0.178 /
+0.241 / 0.254 on the Phantom+ sample (real 0.125 / 0.206 / 0.292). Pooled phase distance 0.0495 / 0.0389 / 0.0507 ->
+0.0481 / 0.0393 / 0.0500; whole audit (players weighted) 0.0168 -> 0.0161, 0.0166 -> 0.0159 on main after #194 (Violet 0.025 -> 0.012, Sinclair 0.012 ->
+0.016 on 55 players). sim_vs_win 27k + 37k (Pearson): Violet within slot and tier 0.423 -> 0.426, all items 0.444 ->
+0.442; Sinclair within 0.382 -> 0.388, all items 0.360 -> 0.365.

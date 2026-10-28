@@ -622,18 +622,27 @@
    ],
    "points": [
     [
-     6892,
-     0.8828
+     4510,
+     0.7312
     ],
     [
-     17558,
-     1.0752
+     7129,
+     0.8876
     ],
     [
-     32316,
-     1.0133
+     15026,
+     1.1479
+    ],
+    [
+     23175,
+     1.2244
+    ],
+    [
+     33320,
+     0.8704
     ]
-   ]
+   ],
+   "matched": "scripts/cast_timing/ult_rate_match.py: points rewritten to the real ult casts per unlocked fight by net worth bin [6000, 8000, 11000, 14000, 20000, 27000] against the audit duels"
   },
   "85:ability_chessmaster_queen": {
    "name": "Solomon",
@@ -703,18 +712,35 @@
    ],
    "points": [
     [
-     6925,
-     0.8846
+     5473,
+     0.7847
     ],
     [
-     18148,
-     1.0509
+     6793,
+     0.6197
     ],
     [
-     30334,
-     1.0212
+     9597,
+     1.037
+    ],
+    [
+     12300,
+     1.1073
+    ],
+    [
+     16944,
+     1.1143
+    ],
+    [
+     23429,
+     0.9464
+    ],
+    [
+     31580,
+     1.1966
     ]
-   ]
+   ],
+   "matched": "scripts/cast_timing/ult_rate_match.py: points rewritten to the real ult casts per unlocked fight by net worth bin [6000, 8000, 11000, 14000, 20000, 27000] against the audit duels"
   },
   "35:viscous_goo_bowling_ball": {
    "name": "Viscous",
