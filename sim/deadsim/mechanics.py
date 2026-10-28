@@ -225,6 +225,17 @@ class Mechanics:
     # share of every enemy's debuff time, so the focused fighter's resist counts x focus (Fighter.status_resist,
     # at most 1): Debuff Reducer's 25% had half the duel value of the enemy team's debuffs it shortens
     status_focus: bool = True
+    # CC lands like the ability (2026-10-28): an ability's stun / silence / disarm / immobilize always went on the
+    # target in full while its damage counts x its landing (skillshot spirit accuracy, the fitted ability landing
+    # factor, the wait for the target to be in reach). Replays (scripts/fight_length/cc_time.py, pawn modifier state
+    # bits, 260 Phantom+ matches): a player is stunned or asleep 2.7% and silenced 2.2% of their combat time by ALL
+    # enemies (63% / 58% of it from their pair-fight foe), while damage_audit's duels had the ONE foe stun them 4.2% and
+    # silence them 3.1%. On: the CC's duration is x the ability's landing (capped at 1; items' CC is unchanged): sim
+    # stun 3.3%, most per-hero gaps close (Mo & Krill 26% -> 10% of combat time, real 6%); whole-match audit flat
+    # (0.0180 -> 0.0181); sim_vs_win 27k all 0.298 -> 0.301 but within slot and tier hero halves -0.001 / +0.000, 37k
+    # within 0.317 -> 0.316 in both halves: off (validation/cc_time.md). status_focus off instead: 27k within
+    # 0.333 -> 0.331, both halves
+    cc_landing: bool = False
     # gun time by build (2026-10-27): real players shoot less the more souls their build has in spirit items (real
     # over sim gun share, Phantom+ sample, scripts/gun_calib/gun_build.py: about 0.94 with < 2k spirit souls, 0.78 at
     # 10-16k, 0.65 past 24k, the same at 30 / 60 / 90% of the match for the same spirit souls; within a hero too: Ivy
