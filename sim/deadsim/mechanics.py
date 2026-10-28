@@ -557,7 +557,8 @@ GATE_READY = frozenset({"77:ability_fencer_ultimate", "27:citadel_ability_infini
 def gate_ready(f, ab):
     """Mechanics.gate_ready at the fight start: ab (no cast_timing hold, its own gate) is on cooldown for the whole
     fight past its real share of fights started ready (data/cdr_ready.json at 1 x the cooldown; cooldown items raise
-    it as cdr_ready_u). Draws like hold_first_casts."""
+    it as cdr_ready_u; an ult with a data/ult_phase.json row x its mult at the fighter's net worth, Mechanics.ult_phase).
+    Draws like hold_first_casts."""
     phase, rng = f.skill.fight_phase, f.e.rng
     if phase is not None:
         u = (phase + zlib.crc32(f"{ab.ab.class_name}|{f.name}".encode()) / 2 ** 32) % 1.0
@@ -566,8 +567,13 @@ def gate_ready(f, ab):
     if getattr(f.e.mech, "cdr_ready", False):
         u = cdr_ready_u(f, ab, u)
     d = cdr_ready_rows()
-    c = d["sources"].get(f"{f.st.hero.id}:{ab.ab.class_name}") or d["pooled"]["ult" if ab.ab.ultimate else "ability"]
-    if u >= c[-1]:
+    key = f"{f.st.hero.id}:{ab.ab.class_name}"
+    c = d["sources"].get(key) or d["pooled"]["ult" if ab.ab.ultimate else "ability"]
+    share = c[-1]
+    if ab.ab.ultimate and getattr(f.e.mech, "ult_phase", False):
+        # a gated ult with an ult_phase row (Apollo's, matched by ult_rate_match.py): its ready share by net worth
+        share = min(ULT_PHASE_CAP, share * ult_phase_mult(key, f.st.souls))
+    if u >= share:
         ab.held_until = math.inf
 
 

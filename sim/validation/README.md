@@ -3183,3 +3183,34 @@ corr rounds on the fit half, held-out half 4 draws): ref = main + refit, new = t
 length_corr 1.736 -> 1.992, Naptime 2.619 -> 2.839. Rem on rem_sample (2 draws): mix 0.037 -> 0.006, gun 0.205 ->
 0.185 (real 0.184), per-source 0.043 -> 0.038. phantom_sample audit flat 0.0159 (Rem 0.021 there). sim_vs_win Rem
 27k + 37k: all items 0.350 -> 0.360, within slot and tier 0.373 -> 0.389.
+
+### Apollo out of sample (2026-10-28)
+
+Second on the out-of-sample ranking after Rem (mix 0.039 on 2,400 fresh Phantom+ matches). validation/apollo_sample.jsonl.gz:
+every match with Apollo in phantom_sample (111) and aim_sample's ids (753 fetched), 864 matches, 742 Apollos. Audit
+there (2 draws): mix 0.039, melee 0.185 vs real 0.152, abilities 0.52 vs 0.55; by phase (phase_mix.py) melee over at
+30 / 60 / 90% (0.182 / 0.190 / 0.163 vs 0.150 / 0.165 / 0.138), the ult over in the lane and under late (0.141 / 0.097
+/ 0.086 vs 0.111 / 0.103 / 0.108). Apollo's corrections were fitted on the 92 phantom_sample players, whose real
+melee share is 0.171 (0.152 over all 742).
+
+Two mechanisms measured in replays, neither kept:
+- Riposte's follow-up melee (scripts/mechanics/riposte_follow_up.py: Riposte stun notifications in the cc_time
+  replays, then Apollo's basic melee on the stunned hero): 691 counters in 43 replays, followed up within 1.2 s after
+  53% (median 0.75 s); the follow-ups are 40% of his basic melee hits, 52% of their damage. The sim follows up every
+  counter at 0.2 s. fencer.FOLLOW_UP_RATE 0.53 + Apollo refit vs a plain refit, split-half (match id halves of
+  apollo_sample, melee rate 2 rounds + ability corrections 3 rounds + melee 1 round on the fit half, held-out half 4
+  draws): mix 0.0304 -> 0.0305 / 0.0228 -> 0.0204, per-source 0.0255 -> 0.0263 / 0.0238 -> 0.0215: one half only, rate stays 1.
+- Itani Lo Sahn's casts by net worth: real casts per unlocked pair fight 0.10 below 11k souls, 0.18 at 14-27k, 0.13
+  after; the audit duels' gated ult had no phase term. mechanics.gate_ready now multiplies the ready share by an
+  ult_phase.json row when the ult has one, and ult_rate_match.py starts a flat row for a gated ult. Matched for
+  Apollo (sim casts per bin to 0.63x real everywhere, the level stays with the corr) + refit: mix 0.0304 -> 0.0313 /
+  0.0228 -> 0.0237, per-source worse both halves: no row written. Both together: one half better.
+
+Plain refit (melee_audit_fit.py + ability_corr_heroes.py on apollo_sample), split-half against main: held-out mix
+0.0423 -> 0.0228 / 0.0350 -> 0.0304, per-source 0.0407 -> 0.0238 / 0.0319 -> 0.0255. Kept, fitted on all 742:
+melee rate 0.0783 -> 0.0606, Disengaging Sigil length_corr 1.130 -> 1.220, Flawless Advance 1.643 -> 1.844, Itani Lo
+Sahn 2.073 -> 2.250. Apollo on apollo_sample (2 draws): mix 0.039 -> 0.022, per-source 0.036 -> 0.019, melee 0.185 ->
+0.161. On phantom_sample's 92 Apollos (in sample for the old fit) 0.017 -> 0.033, weighted all heroes 0.0159 -> 0.0162.
+sim_vs_win Apollo 27k + 37k: all items 0.354 -> 0.362, within slot and tier 0.381 -> 0.383. The per-hero item refit
+(item_landing_heroes.py --hero Apollo) on top lowered them (0.354, 0.379): not kept. Left: items 0.16 vs real 0.18
+(Tankbuster 1.2x, Mystic Burst 1.4x under per holder).

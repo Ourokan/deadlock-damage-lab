@@ -159,6 +159,8 @@ def main():
     key = f"{h.id}:{ult.class_name}"
     with open(UP.OUT) as fh:
         data = json.load(fh)
+    if key not in data["sources"]:   # a gated ult (mechanics.GATE_READY: ult_phase.py fits held ults only) starts flat
+        data["sources"][key] = {"name": h.name, "points": [[10000, 1.0]]}
     src = data["sources"][key]
     jobs = []
     for line in gzip.open(sample, "rt"):
