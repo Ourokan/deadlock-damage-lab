@@ -2795,7 +2795,7 @@ Exchange 0.145 -> 0.121 (real 0.139). sim_vs_win Lady Geist 27k + 37k: all 0.405
 ## Viscous: Express Shot on the alt fire (2026-10-28)
 
 Viscous was the hero furthest from real damage on the whole-match audit after #177: mix 0.068 (29 players), 0.077 on
-a new sample of 410 Phantom+ matches with a Viscous (221 players; match ids from aim_sample.jsonl.gz not in
+validation/viscous_sample.jsonl.gz, 410 Phantom+ matches with a Viscous (221 players; match ids from aim_sample.jsonl.gz not in
 phantom_sample, fetch_validation.get + slim, as the Geist sample). Express Shot read 2.7x under (0.069 of his damage
 real vs 0.026 sim), Spirit Snatch 1.7x, Melee Charge 1.5x, his abilities a little over.
 
