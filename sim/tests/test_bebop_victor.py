@@ -1,5 +1,5 @@
-"""Bebop's Grapple Arm hit, Victor's Shocking Reanimation carried over from earlier fights and his Aura of Suffering
-already on at the fight start (deadsim/heroes/bebop.py, frank.py). Run from sim/:
+"""Bebop's Grapple Arm hit, Victor's Shocking Reanimation carried over from earlier fights, his Aura of Suffering
+already on at the fight start and his Pain Battery charged before it (opt-in) (deadsim/heroes/bebop.py, frank.py). Run from sim/:
     python3 -m unittest discover -s tests
 """
 import dataclasses
@@ -72,6 +72,62 @@ class VictorAura(unittest.TestCase):
         share = self.aura_at_start(mech, True)
         self.assertTrue(0.5 < share < 0.95, share)   # real late fights: 0.76 (data/aura_timing.json)
 
+
+class VictorBattery(unittest.TestCase):
+    def bolt_by(self, on, t=3.0):
+        """Share of duels with a Pain Battery hit by t s."""
+        frank.BATTERY_TIMING, old = on, frank.BATTERY_TIMING
+        mech = dataclasses.replace(DEFAULT, fight_length=real_length(30000))
+        try:
+            hit = 0
+            for i in range(40):
+                r = duel(Loadout("Victor", [], souls=30000), Loadout("Haze", [], souls=30000), distance=10,
+                         max_time=t, rng=random.Random(i), mechanics=mech)
+                hit += r.a_dmg.get("Pain Battery", 0.0) > 0
+            return hit / 40
+        finally:
+            frank.BATTERY_TIMING = old
+
+    def test_charged_before_the_fight(self):
+        # real mid / late fights: first bolt by 3 s in ~0.4 (data/battery_timing.json); an empty battery: ~0
+        self.assertLess(self.bolt_by(False), 0.15)
+        self.assertTrue(0.2 < self.bolt_by(True) < 0.7)
+
+    def test_off_draws_nothing(self):
+        # off, the plan takes no rng draw: the rng after the fight start is as with no battery plan at all, so every
+        # other draw (and the audit) is as before it existed
+        from deadsim import mechanics as M
+        orig = M.execute_plans
+
+        def state_after(strip):
+            seen = {}
+
+            def spy(f):
+                orig(f)
+                if f.st.hero.name == "Victor":
+                    seen["rng"] = f.e.rng.getstate()
+            plan = frank.PainBattery.draw_plan
+            M.execute_plans = spy
+            if strip:
+                frank.PainBattery.draw_plan = None
+            try:
+                mech = dataclasses.replace(DEFAULT, fight_length=real_length(30000))
+                duel(Loadout("Victor", [], souls=30000), Loadout("Haze", [], souls=30000), max_time=1,
+                     rng=random.Random(3), mechanics=mech)
+            finally:
+                M.execute_plans = orig
+                frank.PainBattery.draw_plan = plan
+            return seen["rng"]
+        frank.BATTERY_TIMING, old = False, frank.BATTERY_TIMING
+        try:
+            self.assertEqual(state_after(False), state_after(True))
+        finally:
+            frank.BATTERY_TIMING = old
+        frank.BATTERY_TIMING, old = True, frank.BATTERY_TIMING
+        try:
+            self.assertNotEqual(state_after(False), state_after(True))
+        finally:
+            frank.BATTERY_TIMING = old
 
 if __name__ == "__main__":
     unittest.main()

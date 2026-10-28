@@ -2873,3 +2873,34 @@ Swap, Bullet Dance) and Storm Cloud ~0.4x (copied late in the duel; its cast nee
   2.198, Audience Participation 4.562 -> 2.462, Rabbit Hex 2.461 -> 2.372. Sinclair 0.103 -> 0.011 per-source, mix
   0.011 -> 0.008 (423 players).
 - Storm Cloud's opening lightning strike now books under the ability's own name (a copy was booked as "Storm Cloud").
+
+## Pain Battery carried into fights (2026-10-28, opt-in)
+
+Re-ranking after #181 (half the summed |real - sim| share over every source, whole-match audit): Dynamo's 0.044 mix
+on 53 players was the sample: `validation/dynamo_sample.jsonl.gz` (450 Phantom+ matches with a Dynamo, aim_sample ids
+not in phantom_sample, fetch_validation.get + slim) reads 0.029 mix / 0.022 per-source on 248 players. Victor was the
+widest real gap: per-source 0.053 on 129 players, 0.060 on 511 (phantom_sample's Victors + `validation/victor_sample.jsonl.gz`,
+400 more matches): Aura of Suffering over (0.34 of his damage vs real 0.29), Pain Battery under (0.25 vs 0.28),
+Shocking Reanimation under (0.035 vs 0.063, the known revive gap, see "Victor's revive").
+
+Cause: Pain Battery charges from any damage Victor takes and keeps it between fights. Real Victors land its first
+bolt by 1 / 3 / 6 s of a pair fight in 0.16 / 0.39 / 0.58 of mid-game fights (`scripts/mechanics/battery_timing.py`
+on the fight-length replays: 3,048 fights, data/battery_timing.json per phase); the sim's duels start empty and fill
+it from the duel's own damage (opener_timing.py: used by 1 / 3 / 6 s 0.01 / 0.05 / 0.27, mean first hit 8.3 s vs
+real 5.0). Its length_corr (1.64) and the aura's had been fitted around the late bolt.
+
+- frank.BATTERY_TIMING (off): with Mechanics.execute_timing, each fight with an rng or a fight phase draws the first
+  bolt's time per phase and fires it then whatever the duel's charge; later bolts need a battery filled in the duel.
+  First bolt 0.16 / 0.36 / 0.53 by 1 / 3 / 6 s, mean 5.2 s (real 5.0). Off, nothing is drawn (Pain Battery's
+  `plans` is False, mechanics.execute_plans skips it), so the audit is identical to before.
+- Refit (ability_corr_heroes.py --split on the 536-match Victor sample, `--skip ability_frank_revive`: the ult's gap
+  is the revive, and refitting it hurt sim_vs_win before): Pain Battery 1.641 -> 1.024, Aura 1.045 -> 0.803.
+  Held-out per-source against the same refit with the old timing: 0.039 -> 0.032 and 0.031 -> 0.018, mix 0.042 ->
+  0.037 and 0.023 -> 0.022; whole sample per-source 0.060 -> 0.024 (Pain Battery 0.276 vs real 0.277, aura 0.290 vs
+  0.292), mix 0.018 -> 0.028 (abilities 0.61 vs 0.63: the old mix matched with the aura over making up the ult).
+- Not kept: sim_vs_win for Victor (27k + 37k) within slot and tier 0.298 -> 0.287, all items 0.300 -> 0.290 with that
+  refit; 0.288 with the timing alone or with a Pain-Battery-only refit (which also failed split-half), 0.270 with the
+  ult refit too. Damage items with negative real edges on Victor gain (Decay, Mystic Shot, Arctic Blast, Disarming Hex)
+  and Superior Cooldown loses (cooldown no longer speeds the first bolt).
+- `ability_corr_heroes.py --skip CLASS` leaves an ability's row alone; `analysis/scripts/sim_vs_win.py --heroes X`
+  for one or two heroes no longer crashes at the per-item table (and writes --out first).

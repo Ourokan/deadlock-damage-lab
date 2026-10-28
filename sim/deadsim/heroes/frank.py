@@ -17,6 +17,13 @@ Assumptions:
   hits: the ability's cooldown starts at the toggle-OFF, so the cast-timing curve can't time it). Each fight with an
   rng or a fight phase draws: on at the start with the ramp that far along, or toggled on at a real time (or not
   by 20 s). The self-damage taken before the fight is not booked. Other fights toggle it on in reach, as before.
+- Pain Battery keeps its charge between fights (BATTERY_TIMING, opt-in, off: with it and Pain Battery + Aura refit,
+  Victor's per-source audit 0.060 -> 0.024 but sim_vs_win 0.298 -> 0.287; with Mechanics.execute_timing): real Phantom+ Victors
+  land the first bolt by 1 / 3 / 6 s of a fight in ~0.16 / 0.39 / 0.58 of them (data/battery_timing.json,
+  scripts/mechanics/battery_timing.py), the duel's own damage filled it by then in 0.01 / 0.05 / 0.27. Each fight with
+  an rng or a fight phase draws the first bolt's time (per phase) and fires it then whatever the duel's charge (the
+  real time holds the charge carried in and the fight's own); later bolts, and fights drawn past 20 s, need a
+  battery filled in the duel.
 - Shocking Reanimation: on lethal damage Victor is invulnerable and can't act for RespawnDelay, then revives
   with RespawnHealthPercent and hits Damage + stun if the target is within Radius. T1: +BonusFireRate and
   BonusDamagePerBullet spirit damage per bullet hit (6 + 0.06 x spirit), only while the ult is on cooldown.
@@ -40,8 +47,10 @@ JUMPSTART_HP = 0.6       # cast Jumpstart below this health fraction
 SELF_TAG = "victor_self"
 CARRY_COOLDOWN = True
 AURA_TIMING = True
+BATTERY_TIMING = False   # opt-in: sim_vs_win for Victor 0.298 -> 0.287 with it (validation/README.md "Pain Battery carried into fights")
 _carry = None
 _aura = None
+_battery = None
 
 
 def souls_phase(f):
@@ -55,6 +64,14 @@ def aura_timing():
         with open(os.path.join(os.path.dirname(__file__), "..", "..", "data", "aura_timing.json")) as fh:
             _aura = json.load(fh)["phases"]
     return _aura
+
+
+def battery_timing():
+    global _battery
+    if _battery is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "..", "data", "battery_timing.json")) as fh:
+            _battery = json.load(fh)["phases"]
+    return _battery
 
 
 def carried_cooldown(c, s):
@@ -102,15 +119,33 @@ class PainBattery(AbilityImpl):
     def start(self, c):
         # with Mechanics.entry_hp: damage taken before the fight (its chip damage, survive's start_hp) has charged it
         c.state["stored"] = 0.0
+        c.state.pop("primed_at", None)
         mech = c.engine.mech
         if mech is not None and getattr(mech, "entry_hp", False):
             self.charge(c, max(0.0, c.me.max_hp - c.me.hp))
+
+    @property
+    def plans(self):
+        return BATTERY_TIMING
+
+    def draw_plan(self, c, u):
+        """Mechanics.execute_timing: the fight's first bolt at a real time from draw u (mechanics.execute_plans),
+        charged or not. A draw past the data's 20 s (None: censored, not "never") keeps the duel's own charge."""
+        q = battery_timing()[souls_phase(c.me)]["holds"]
+        h = q[min(len(q) - 1, int(u * len(q)))]
+        if h is None:
+            return
+        c.state["primed_at"] = c.now + max(0.0, h - c.raw("AbilityCastDelay"))
+        self.s.held_until = c.state["primed_at"]
 
     def charge(self, c, amount):
         gen = c.raw("BatteryGenerationPercent", 100) / 100 * (1.0 + c.me.st.cdr)
         c.state["stored"] = c.state.get("stored", 0.0) + amount * gen
 
     def full(self, c):
+        primed = c.state.get("primed_at")
+        if primed is not None:
+            return c.now >= primed - 1e-9   # the drawn first bolt: charged before or in the fight
         return c.state.get("stored", 0.0) >= c.raw("StoredDamageHealthPercentRequired", 40) / 100 * c.me.max_hp
 
     def on_damage_taken(self, c, attacker, hit):
@@ -121,6 +156,7 @@ class PainBattery(AbilityImpl):
 
     def cast(self, c):
         c.state["stored"] = 0.0
+        c.state.pop("primed_at", None)
         delay = c.raw("AbilityCastDelay")
         c.lock_gun(delay + c.raw("AbilityPostCastDuration"))
         c.spirit_hit(c.val("Damage"), delay=delay)
