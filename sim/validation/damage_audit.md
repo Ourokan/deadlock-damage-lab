@@ -13,6 +13,7 @@ Shares of damage to enemy heroes. Distance = half the summed absolute share gaps
 | Dynamo | 53 | 0.23 / 0.24 | 0.62 / 0.59 | 0.08 / 0.09 | 0.05 / 0.05 | 0.03 |
 | Calico | 110 | 0.13 / 0.12 | 0.38 / 0.40 | 0.31 / 0.32 | 0.15 / 0.15 | 0.03 |
 | Ivy | 116 | 0.32 / 0.31 | 0.36 / 0.35 | 0.26 / 0.29 | 0.04 / 0.03 | 0.03 |
+| Mirage | 45 | 0.31 / 0.30 | 0.48 / 0.50 | 0.17 / 0.16 | 0.02 / 0.03 | 0.03 |
 | Silver | 100 | 0.41 / 0.39 | 0.37 / 0.37 | 0.10 / 0.12 | 0.10 / 0.11 | 0.03 |
 | Celeste | 77 | 0.16 / 0.14 | 0.61 / 0.63 | 0.17 / 0.18 | 0.04 / 0.04 | 0.03 |
 | Grey Talon | 103 | 0.31 / 0.30 | 0.49 / 0.50 | 0.16 / 0.18 | 0.01 / 0.01 | 0.03 |
@@ -42,7 +43,6 @@ Shares of damage to enemy heroes. Distance = half the summed absolute share gaps
 | Vindicta | 131 | 0.44 / 0.43 | 0.49 / 0.50 | 0.05 / 0.05 | 0.01 / 0.01 | 0.01 |
 | Deadman Danny | 357 | 0.16 / 0.15 | 0.63 / 0.64 | 0.18 / 0.18 | 0.01 / 0.01 | 0.01 |
 | Solomon | 136 | 0.25 / 0.24 | 0.64 / 0.64 | 0.08 / 0.08 | 0.02 / 0.02 | 0.01 |
-| Mirage | 45 | 0.31 / 0.32 | 0.48 / 0.48 | 0.17 / 0.17 | 0.02 / 0.02 | 0.01 |
 | The Doorman | 38 | 0.16 / 0.17 | 0.62 / 0.61 | 0.17 / 0.17 | 0.03 / 0.04 | 0.01 |
 | Violet | 376 | 0.19 / 0.19 | 0.67 / 0.68 | 0.10 / 0.09 | 0.02 / 0.02 | 0.01 |
 | Graves | 151 | 0.20 / 0.19 | 0.50 / 0.50 | 0.27 / 0.28 | 0.02 / 0.02 | 0.01 |
@@ -67,7 +67,7 @@ real/sim = (real source dmg / real gun dmg) / (sim source dmg / sim gun dmg). Be
 | Billy | Bashdown | ability | 0.309 | 0.323 | 0.88 |
 | Dynamo | Kinetic Pulse | ability | 0.444 | 0.426 | 1.10 |
 | Victor | Aura of Suffering | ability | 0.306 | 0.336 | 0.89 |
-| Celeste | Radiant Daggers | ability | 0.184 | 0.201 | 0.82 |
+| Celeste | Radiant Daggers | ability | 0.184 | 0.201 | 0.83 |
 | Apollo | Flawless Advance | ability | 0.285 | 0.305 | 0.89 |
 | Rem | Pillow Toss | ability | 0.437 | 0.472 | 0.93 |
 | Viscous | Goo Ball | ability | 0.107 | 0.086 | 1.37 |
@@ -83,6 +83,7 @@ real/sim = (real source dmg / real gun dmg) / (sim source dmg / sim gun dmg). Be
 | Celeste | Shining Wonder | ability | 0.170 | 0.178 | 0.87 |
 | Deadman Danny | Chimera Mk1 | ability | 0.202 | 0.217 | 0.89 |
 | Victor | Shocking Reanimation | ability | 0.058 | 0.038 | 1.51 |
+| Mirage | Dust Devil | ability | 0.079 | 0.098 | 0.79 |
 | Paradox | Pulse Grenade | ability | 0.112 | 0.125 | 0.83 |
 | Bebop | Sticky Bomb | ability | 0.277 | 0.288 | 0.92 |
 | Dynamo | Singularity | ability | 0.179 | 0.167 | 1.13 |
@@ -98,7 +99,6 @@ real/sim = (real source dmg / real gun dmg) / (sim source dmg / sim gun dmg). Be
 | Calico | Leaping Slash | ability | 0.094 | 0.101 | 0.84 |
 | Pocket | Flying Cloak | ability | 0.114 | 0.123 | 0.86 |
 | Silver | MELEE | melee | 0.101 | 0.112 | 0.85 |
-| Calico | Return to Shadows | ability | 0.107 | 0.112 | 0.85 |
 
 ## Items (holders only, all heroes)
 
@@ -109,7 +109,7 @@ Item damage per all the player's damage while the item was owned (players who ha
 | Tankbuster | 1933 | 0.139 | 0.143 | 0.97 |
 | Mystic Burst | 1657 | 0.050 | 0.046 | 1.09 |
 | Quicksilver Reload | 1100 | 0.037 | 0.033 | 1.12 |
-| Toxic Bullets | 888 | 0.113 | 0.105 | 1.07 |
+| Toxic Bullets | 888 | 0.113 | 0.105 | 1.08 |
 | Spirit Snatch | 863 | 0.065 | 0.067 | 0.97 |
 | Torment Pulse | 822 | 0.154 | 0.151 | 1.02 |
 | Spirit Burn | 819 | 0.085 | 0.092 | 0.93 |
@@ -161,18 +161,18 @@ As above, per hero. The source table above compares the whole real match with du
 | Apollo | Mystic Burst | 65 | 0.052 | 0.036 | 1.44 |
 | Wraith | Ricochet | 198 | 0.041 | 0.058 | 0.70 |
 | Nurse Harrow | Ricochet | 140 | 0.025 | 0.036 | 0.71 |
-| Mirage | Ricochet | 34 | 0.041 | 0.057 | 0.72 |
 | Kelvin | Spirit Burn | 27 | 0.103 | 0.144 | 0.72 |
 | Grey Talon | Mystic Reverb | 26 | 0.154 | 0.209 | 0.74 |
 | Viscous | Spirit Snatch | 20 | 0.096 | 0.071 | 1.35 |
 | Nurse Harrow | Toxic Bullets | 85 | 0.152 | 0.115 | 1.33 |
 | Haze | Ricochet | 214 | 0.067 | 0.089 | 0.76 |
+| Mirage | Ricochet | 34 | 0.041 | 0.053 | 0.76 |
 | Shiv | Lucky Shot | 52 | 0.142 | 0.109 | 1.31 |
 | Grey Talon | Spirit Burn | 45 | 0.088 | 0.114 | 0.77 |
 | Lash | Mystic Burst | 201 | 0.061 | 0.047 | 1.29 |
 | Viscous | Mystic Burst | 20 | 0.064 | 0.050 | 1.29 |
 | Paradox | Headshot Booster | 44 | 0.043 | 0.034 | 1.28 |
-| Mirage | Escalating Exposure | 22 | 0.100 | 0.127 | 0.79 |
+| Mirage | Escalating Exposure | 22 | 0.100 | 0.128 | 0.79 |
 | Lash | Mystic Reverb | 22 | 0.170 | 0.211 | 0.81 |
 | Violet | Torment Pulse | 73 | 0.103 | 0.084 | 1.22 |
 | Deadman Danny | Toxic Bullets | 147 | 0.099 | 0.081 | 1.22 |
@@ -184,7 +184,7 @@ As above, per hero. The source table above compares the whole real match with du
 | Pocket | Spirit Burn | 99 | 0.082 | 0.097 | 0.84 |
 | Vyper | Split Shot | 70 | 0.144 | 0.122 | 1.18 |
 | Nurse Harrow | Decay | 41 | 0.220 | 0.188 | 1.17 |
+| Mirage | Toxic Bullets | 41 | 0.161 | 0.138 | 1.17 |
 | Paradox | Mystic Burst | 70 | 0.050 | 0.043 | 1.16 |
 | Vindicta | Mystic Burst | 24 | 0.037 | 0.043 | 0.86 |
 | Mo & Krill | Arctic Blast | 27 | 0.120 | 0.139 | 0.86 |
-| Grey Talon | Tankbuster | 90 | 0.129 | 0.149 | 0.87 |

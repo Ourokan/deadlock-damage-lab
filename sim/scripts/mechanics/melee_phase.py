@@ -15,8 +15,9 @@ frac: r = real melee share / sim melee share, times the multiplier already in us
 the pooled curve (heroes weighted by real melee damage) with SHRINK players of weight. Net worth of a point: the median of the hero's players at that frac.
 Rows for heroes with MIN_PLAYERS players and a real melee share >= MIN_SHARE at 30%.
 
-usage: python3 melee_phase.py [--sample PATH] [--parity even|odd] [--write]
-(--parity: fit on that half of the sample's matches by match_id, for split-half checks)
+usage: python3 melee_phase.py [--sample PATH] [--parity even|odd] [--hero NAME] [--write]
+(--parity: fit on that half of the sample's matches by match_id, for split-half checks; --hero: refit only that hero's
+row from a hero sample (e.g. validation/mirage_sample.jsonl.gz), shrunk to the file's pooled curve, other rows kept)
 """
 import collections
 import bisect
@@ -113,6 +114,9 @@ def main():
                     fh.write(line)
         sample = half
     write = "--write" in args
+    only = args[args.index("--hero") + 1] if "--hero" in args else None
+    if only:
+        os.environ["AUDIT_HEROES"] = only
     G = game()
     import damage_audit as D
     real, nws = real_phase(sample, G, D.kind)
@@ -140,6 +144,10 @@ def main():
         # weighted by real melee damage (players x share): heroes that barely melee have noisy ratios
         w = sum(p[i][4] * p[i][2] for p in rows.values())
         pooled[fr] = sum(p[i][4] * p[i][2] * math.log(p[i][2] / p[i][3] * p[i][5]) for p in rows.values()) / w
+    if only:   # one hero's sample: its own ratios would be the "pooled" curve, so shrink to the file's
+        old = json.load(open(OUT))
+        pooled = {fr: math.log(old["pooled"][str(fr)]) for fr in FRACS}
+        rows = {hid: p for hid, p in rows.items() if G.hero(hid).name == G.hero(only).name}
     out = {}
     for hid, pts in sorted(rows.items(), key=lambda x: G.hero(x[0]).name):
         n = pts[0][4]
@@ -153,7 +161,11 @@ def main():
         print(f"{G.hero(hid).name:14s} n{n:4d} real {' '.join(f'{p[2]:.3f}' for p in pts)}  sim "
               f"{' '.join(f'{p[3]:.3f}' for p in pts)}  mult {' '.join(f'{m:.2f}@{nw}' for nw, m in mults)}")
     print("pooled", {fr: round(math.exp(v), 3) for fr, v in pooled.items()})
-    if write:
+    if write and only:
+        old["heroes"].update(out)
+        json.dump(old, open(OUT, "w"), indent=1)
+        print("wrote", OUT, "row", only)
+    elif write:
         json.dump({"source": f"{os.path.basename(sample)} damage_series vs damage audit duels at {FRACS} "
                              "(scripts/mechanics/melee_phase.py)",
                    "note": "melee rate x mult at the duel's net worth, linear in ln net worth between points, flat "

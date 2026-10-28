@@ -3214,3 +3214,31 @@ Sahn 2.073 -> 2.250. Apollo on apollo_sample (2 draws): mix 0.039 -> 0.022, per-
 sim_vs_win Apollo 27k + 37k: all items 0.354 -> 0.362, within slot and tier 0.381 -> 0.383. The per-hero item refit
 (item_landing_heroes.py --hero Apollo) on top lowered them (0.354, 0.379): not kept. Left: items 0.16 vs real 0.18
 (Tankbuster 1.2x, Mystic Burst 1.4x under per holder).
+
+### Mirage out of sample (2026-10-28)
+
+On the 2,400-match out-of-sample ranking after Rem and Apollo, Mirage (mix 0.035). validation/mirage_sample.jsonl.gz:
+every match with Mirage in phantom_sample (46) and aim_sample's ids (338 fetched), 384 matches, 381 Mirages. His
+ability corrections and melee-by-phase row were fitted on the 45 phantom_sample players. Audit there (4 draws): mix
+0.030, Dust Devil 1.27x under, Fire Scarabs 1.13x under, melee 1.48x under, gun 0.32 vs 0.30. By phase (melee_phase
+windows, 2 draws): the lane holds most of it, gun 0.37 vs 0.305, melee 0.031 vs 0.044, Scarabs 0.117 vs 0.142; later
+phases within ~0.02.
+
+- Ability corrections (ability_corr_heroes.py --split --sample validation/mirage_sample.jsonl.gz): held-out mix
+  0.033 -> 0.018 / 0.028 -> 0.019, per-source 0.028 -> 0.017 / 0.029 -> 0.018. Kept, fitted on all 381: Fire Scarabs
+  length_corr 0.980 -> 1.107, Dust Devil 1.262 -> 1.634, Djinn's Mark 3.520 -> 3.604.
+- Melee: a plain rate refit (melee_audit_fit.py, 0.0138 -> 0.0205) brought the mix to 0.009 but made mid and late melee
+  over (0.025 / 0.016 vs real 0.020 / 0.011) and lowered sim_vs_win Mirage within slot and tier 0.384 -> 0.380: not kept.
+  The gap is the lane (real 0.044 vs sim 0.030 at 30%, 0.020 vs 0.017 at 60%, 0.011 vs 0.011 at 90%), so his
+  melee_phase row was refit instead (melee_phase.py --hero Mirage: only that row, shrunk to the file's pooled curve):
+  1.12 / 0.85 / 0.47 -> 1.60 / 0.99 / 0.50 at 6.2k / 15.3k / 28.6k souls. Split-half (row fitted on one half with
+  --parity, held-out half 4 draws, on top of the ability refit): mix 0.0165 -> 0.0123 on both halves, per-source
+  0.0229 -> 0.0197 / 0.0189 -> 0.0156. Kept.
+- Per-hero item rows (item_landing_heroes.py --hero Mirage, 2 rounds per half): per-source better both halves but mix
+  0.0090 -> 0.0085 / 0.0115 -> 0.0125: not kept. Ricochet stays 1.3x over and Escalating Exposure 1.2x over on him.
+
+Mirage on mirage_sample (4 draws): mix 0.029 -> 0.011, per-source 0.036 -> 0.015. sim_vs_win Mirage 27k + 37k: all
+items 0.370 -> 0.373, within slot and tier 0.384 -> 0.384, damage items 0.072 -> 0.079. Left: lane gun 0.35 vs real
+0.305 with abilities a little under there (Headshot Booster 1.8x over in the lane), and Djinn's Mark a little under
+in the lane / over late.
+phantom_sample's 45 Mirages (in sample for the old fit) 0.01 -> 0.03, weighted all heroes 0.0162 -> 0.0163.
