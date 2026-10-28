@@ -3026,3 +3026,19 @@ jar at 13 s still gains from longer fights), and after a Graves refit it lost sp
 (ability_corr_heroes --split, held-out per-source / mix: 0.0185 / 0.0160 -> 0.0186 / 0.0170 and 0.0251 / 0.0240 ->
 0.0255 / 0.0260 against the same refit without it). Not kept; no model change. Left: the late jar share is a
 build / play difference (Graves who skip Jar T3 throw less), not per-throw scaling.
+
+### Graves on the median order (2026-10-28)
+
+Follow-up of the Jar of Dead phase survey above: the popular order maxes Grasping Hands first and keeps Jar of Dead at
+tier 2 until 26k souls; the median order (151 players) has Jar at tier 3 by 18k. Graves joins `ORDER_HEROES` (the audit
+then gives his players their real tiers). Judged as for Ivy/Paige on the Graves sample (953 matches): ability
+corrections refit 3 rounds on one match-id half, 8 draws on the other, against the same refit on main's code.
+
+| held-out half | mix, main code -> median order | per-source |
+| --- | --- | --- |
+| 1 | 0.0138 -> 0.0125 | 0.0174 -> 0.0160 |
+| 0 | 0.0260 -> 0.0243 | 0.0257 -> 0.0242 |
+
+Kept. Refit on the whole sample: Jar of Dead 1.697 -> 1.604, Grasping Hands 1.460 -> 1.541, Borrowed Decree 4.216 ->
+3.962; in-sample mix (4 draws) 0.0140 -> 0.0145 (main was fitted on this sample). sim_vs_win Graves 27k+37k flat (all
+items 0.465 -> 0.464, within slot and tier 0.478 -> 0.478).
