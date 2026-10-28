@@ -129,6 +129,10 @@ def main():
                          "number of items held")
     ap.add_argument("--lead-lag", type=int, default=0, help="--match lead: the lead this many seconds earlier")
     a = ap.parse_args()
+    if a.lead_lag and a.match != "lead":
+        ap.error("--lead-lag needs --match lead")
+    if (a.match != "none" or a.lead_lag) and a.out == OUT:
+        ap.error("a matched variant needs --out (the shipped fight_rate.json is the unmatched fit)")
     R.METRICS = ITEM_KEYS
     items = R.shop_items()
     el = {p: Elasticity() for p in PHASES}
@@ -199,7 +203,7 @@ def main():
         "elasticities": elas,
         "items": tables,
     }
-    res["match"] = a.match if not a.lead_lag else f"{a.match} {a.lead_lag} s earlier"
+    res["match"] = a.match if not a.lead_lag else f"lead {a.lead_lag} s earlier"
     with open(a.out, "w") as f:
         json.dump(res, f, indent=1)
     if a.out == OUT:
