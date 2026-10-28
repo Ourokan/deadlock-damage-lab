@@ -19,10 +19,10 @@ def item(name):
 
 class FocusCost(unittest.TestCase):
     def setUp(self):
-        self.was = O.FOCUS_GAMMA
+        self.was = O.FOCUS_GAMMA, O.FOCUS_KEY
 
     def tearDown(self):
-        O.FOCUS_GAMMA = self.was
+        O.FOCUS_GAMMA, O.FOCUS_KEY = self.was
 
     def test_value(self):
         self.assertAlmostEqual(O.focus_value([], 27000), 1.0)
@@ -43,6 +43,18 @@ class FocusCost(unittest.TestCase):
         self.assertFalse(names & O.FOCUS_SKIP)
         for n in O.FOCUS_SKIP:    # the skip list names real items
             item(n)
+
+    def test_team_share(self):
+        # Debuff Reducer holders play bloodier games: their share of the team's damage taken grows less than their
+        # damage taken per minute; focus_value reads the share under FOCUS_KEY "tshare" (off by default)
+        dr = item("Debuff Reducer")
+        O.FOCUS_KEY = "taken"
+        per_min = O.taken_rates(27000)[dr]
+        O.FOCUS_KEY = "tshare"
+        share = O.taken_rates(27000)[dr]
+        self.assertLess(1.0, share)
+        self.assertLess(share, per_min)
+        self.assertAlmostEqual(O.focus_value([dr], 27000), share ** -O.FOCUS_GAMMA)
 
 
 if __name__ == "__main__":

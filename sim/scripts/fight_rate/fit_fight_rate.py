@@ -34,8 +34,10 @@ OUT = os.path.join(ROOT, "sim", "data", "fight_rate.json")
 MD = os.path.join(ROOT, "sim", "validation", "fight_rate.md")
 PHASES = {"lane": (0, 10000), "mid": (10000, 27001), "late": (27001, 10 ** 9)}
 KEYS = ("taken", "dealt", "deaths", "ka")
-# item tables also carry jungle souls per minute (stat key 17, souls from neutral camps): overall_search.farm_value
-ITEM_KEYS = KEYS + ("jungle",)
+# item tables also carry jungle souls per minute (stat key 17, souls from neutral camps): overall_search.farm_value,
+# and the player's share of the damage its team took in the interval (tshare: overall_search.focus_value, the
+# enemy team's output a player draws, net of how bloody the game is) and of its team's jungle souls (jshare)
+ITEM_KEYS = KEYS + ("jungle", "tshare", "jshare")
 GROUPS = 10
 BUDGETS = (10000, 18000, 27000, 37000, 50000)
 BAND = (0.75, 1.35)
@@ -79,6 +81,18 @@ class Elasticity:
         return num / den if den else 0.0
 
 
+def team_sums(m):
+    """{(team, t0, t1): (damage taken, jungle souls) summed over the team's players with that stat interval}."""
+    out = {}
+    for pl in m["players"]:
+        st = pl["stats"]
+        for s0, s1 in zip(st, st[1:]):
+            a = out.setdefault((pl["team"], s0[0], s1[0]), [0.0, 0.0])
+            a[0] += s1[3] - s0[3]
+            a[1] += s1[17] - s0[17]
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", default=R.SRC)
@@ -96,6 +110,7 @@ def main():
                     continue
                 n_m += 1
                 grp = m["match_id"] % GROUPS
+                team = team_sums(m)
                 for pl in m["players"]:
                     ab = pl.get("abandon_s") or 0
                     st = pl["stats"]
@@ -106,6 +121,9 @@ def main():
                         v = {"dealt": (s1[2] - s0[2]) / mins, "taken": (s1[3] - s0[3]) / mins,
                              "deaths": (s1[5] - s0[5]) / mins, "ka": (s1[4] + s1[6] - s0[4] - s0[6]) / mins,
                              "jungle": (s1[17] - s0[17]) / mins}
+                        tk, jg = team.get((pl["team"], s0[0], s1[0]), (0.0, 0.0))
+                        v["tshare"] = (s1[3] - s0[3]) / tk if tk > 0 else 0.0
+                        v["jshare"] = (s1[17] - s0[17]) / jg if jg > 0 else 0.0
                         el[phase_of(s0[1])].add((pl["hero_id"], s0[1] // R.NW_BIN, s0[0] // R.T_BIN), grp,
                                                 math.log(s0[7]), v)
                         held, part = R.held_sets(pl["items"], items, s0[0], s1[0])

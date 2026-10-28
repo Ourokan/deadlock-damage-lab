@@ -291,6 +291,14 @@ HEAL_ITEMS = frozenset((
 # 0.145; 37k within 0.250 -> 0.257 (validation/focus_cost.md). It does not rescue Return Fire's aim fix. 0 = off.
 FOCUS_GAMMA = 0.4
 FOCUS_SKIP = frozenset(("Cheat Death",))
+# Team share (2026-10-28, Debuff Reducer: real edge third of its tier, sim twelfth of 14), tried, OFF: holders' damage
+# taken per minute also rides on how bloody their games are (Debuff Reducer holders' enemy teams deal 1.029x / 1.042x
+# per minute at 27k / 37k, so half their 1.054x / 1.068x is the game). fight_rate.json "tshare" is the player's share
+# of the damage its team took in the interval (DR 1.028, Rebuttal 1.038, Return Fire 1.018, Fortitude 1.076).
+# FOCUS_KEY = "tshare": sim_vs_win 37k all 0.286 -> 0.291, within slot and tier 0.317 -> 0.319, per item 0.416 ->
+# 0.425, but 27k within 0.333 -> 0.331 (both hero halves), all 0.297 -> 0.296; Debuff Reducer stays 12th of 14 in its
+# tier (validation/focus_share.md). "taken" = per-minute ratios.
+FOCUS_KEY = "taken"
 _taken = {}
 
 # Farm value (2026-10-27, items ranked furthest from real wins within their slot and tier): the score counted only
@@ -427,19 +435,19 @@ def death_rate_value(items, hero, souls):
 
 
 def taken_rates(souls):
-    """{item id: real damage-taken-per-minute ratio of holders} for the fit budget nearest souls (|z| >=
-    DEATH_RATE_Z, movement, healing and FOCUS_SKIP items left out)."""
+    """{item id: real damage-taken ratio of holders (FOCUS_KEY: share of their team's damage taken, or per minute)}
+    for the fit budget nearest souls (|z| >= DEATH_RATE_Z, movement, healing and FOCUS_SKIP items left out)."""
     d = fight_rate_data()["items"]
     b = min(d, key=lambda k: abs(math.log(int(k) / souls)))
-    if b not in _taken:
+    if (b, FOCUS_KEY) not in _taken:
         movement_value(())   # loads _move
         moving = _move[2] | {i for row in _move[3].values() for i in row}
         lo, hi = DEATH_RATE_CLAMP
         by_name = {it.name: i for i, it in S.G().items.items()}
-        _taken[b] = {by_name[n]: max(lo, min(hi, e["taken"][0])) for n, e in d[b]["items"].items()
-                     if n in by_name and by_name[n] not in moving and n not in HEAL_ITEMS and n not in FOCUS_SKIP
-                     and abs(e["taken"][1]) >= DEATH_RATE_Z}
-    return _taken[b]
+        _taken[b, FOCUS_KEY] = {by_name[n]: max(lo, min(hi, e[FOCUS_KEY][0])) for n, e in d[b]["items"].items()
+                                if n in by_name and by_name[n] not in moving and n not in HEAL_ITEMS
+                                and n not in FOCUS_SKIP and abs(e[FOCUS_KEY][1]) >= DEATH_RATE_Z}
+    return _taken[b, FOCUS_KEY]
 
 
 def focus_value(items, souls):
