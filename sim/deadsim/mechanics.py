@@ -287,6 +287,14 @@ class Mechanics:
     # (within slot and tier 0.381 -> 0.366, all 0.360 -> 0.349) where the plain Audience Participation refit held
     # (0.380 / 0.358): kept off, the refit alone is in data/landing_rates_mech.json
     copy_ult: bool = False
+    # Ballistic Enchantment stacks (2026-10-28, items ranked furthest from real wins): +20% weapon damage per unique
+    # enemy hero the imbued ability damaged in the last 20 s, but a duel has one enemy, so the sim's holder had at most
+    # one stack. Real holders deal 1.15x the hero damage per minute of non-holders (27k, same hero, net worth and game
+    # time), the sim's build 1.055x: the item furthest under its real damage. In Phantom+ replays a player shooting
+    # with an area ability's hits fresh carries 1.5-2.8 of them (Malice 2.4, Aura of Suffering 2.6, Fixation 1.9),
+    # single-target abilities 1.0. On: a stack is worth WeaponPowerPerStack x that count (ballistic_stacks,
+    # data/ballistic_stacks.json, scripts/team/ballistic_stacks.py); 1 for abilities without a row
+    ballistic_stacks: bool = True
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
@@ -852,6 +860,22 @@ def ability_area_mult(cls, souls):
         if x <= x1:
             return (y0 + (y1 - y0) * (x - x0) / max(1e-9, x1 - x0)) / base
     return pts[-1][1] / base
+
+
+_BALLISTIC = None
+
+
+def ballistic_stacks(cls):
+    """Mechanics.ballistic_stacks: real unique heroes an ability (class name) damaged in the last 20 s at its user's
+    gun hits, given at least one (data/ballistic_stacks.json); 1.0 without a row."""
+    global _BALLISTIC
+    if _BALLISTIC is None:
+        fn = os.path.join(os.path.dirname(__file__), "..", "data", "ballistic_stacks.json")
+        _BALLISTIC = {}
+        if os.path.exists(fn):
+            with open(fn) as fh:
+                _BALLISTIC = {k: v["stacks"] for k, v in json.load(fh)["abilities"].items()}
+    return max(1.0, _BALLISTIC.get(cls, 1.0))
 
 
 _ULT_PHASE = None

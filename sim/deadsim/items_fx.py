@@ -1293,7 +1293,13 @@ class MysticReverb(FX):
 class BallisticEnchantment(FX):
     def on_damage_dealt(self, f, t, hit):
         if hit.ability is not None and self.item in hit.ability.imbues:
-            self.buff("weapon_pct", self.item.p("WeaponPowerPerStack") / 100, self.dur("AbilityDuration", 20))
+            stacks = 1.0
+            mech = f.e.mech
+            if mech is not None and mech.ballistic_stacks:
+                # the real fight's other heroes the ability tagged (Mechanics.ballistic_stacks)
+                from .mechanics import ballistic_stacks
+                stacks = ballistic_stacks(hit.ability.ab.class_name)
+            self.buff("weapon_pct", stacks * self.item.p("WeaponPowerPerStack") / 100, self.dur("AbilityDuration", 20))
 
 
 @handler("upgrade_ability_power_shard")
