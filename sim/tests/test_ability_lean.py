@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from deadsim import Loadout, game  # noqa: E402
 from deadsim.engine import Engine  # noqa: E402
 from deadsim.fight import make_fighter  # noqa: E402
-from deadsim.mechanics import Mechanics, lean_center, lean_u  # noqa: E402
+from deadsim.mechanics import Mechanics, lean_center, lean_u, recast_rows, recast_wait  # noqa: E402
 
 SPIRIT = ["Mystic Burst", "Improved Spirit", "Superior Duration"]
 WEAPON = ["Headshot Booster"]
@@ -44,6 +44,19 @@ class AbilityLean(unittest.TestCase):
         f.cast_hazard = 0.7
         self.assertGreater(lean_u(f, 0.4), 0.4)
         self.assertLess(lean_u(f, 0.999), 1.0)
+
+    def test_default_off(self):
+        self.assertEqual(Mechanics().ability_lean, 0.0)   # opt-in: the searches' scores don't move
+
+    def test_recast_wait_uses_hazard(self):
+        f = self.fighter(Mechanics(), SPIRIT)
+        f.skill = dataclasses.replace(f.skill, fight_phase=0.37)
+        ab = next(a for a in f.abilities if a.max_charges() == 1 and not a.ab.ultimate
+                  and f"{f.st.hero.id}:{a.ab.class_name}" not in recast_rows()["skip"])
+        base = recast_wait(ab)
+        f.cast_hazard = 5.0
+        self.assertLessEqual(recast_wait(ab), base)
+        self.assertLess(recast_wait(ab), max(base, 1e-9) if math.isfinite(base) else math.inf)
 
 
 if __name__ == "__main__":

@@ -9,7 +9,7 @@ real: the rows of fit_cast_timing.py real (first cast per pair fight) and recast
 with the fighter's real build at that minute (fit_cast_timing.build_cols: spirit item souls, net worth, cooldown
 reduction). A Cox model stratified by hero ability (Breslow ties) gives each covariate's log hazard ratio per 1000
 souls: first casts 0.0060 +- 0.0006 for spirit item souls with net worth (-0.0008) and cooldown reduction in the model
-(the sim already has cdr_ready), 0.0079 / 0.0075 in the even / odd match halves without cdr; recasts 0.0078 +- 0.0019.
+(the sim already has cdr_ready), 0.0079 / 0.0075 in the even / odd match halves without cdr; recasts 0.0101 +- 0.0021 with the same terms (one k and the first-cast centers serve both).
 --write: data/ability_lean.json (each hero's mean spirit item souls over its first-cast chances, the curve's center).
 
 usage: python3 -I ability_lean.py [--half 0|1] [--write] [--workers 4]

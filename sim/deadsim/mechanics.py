@@ -280,7 +280,7 @@ class Mechanics:
     # abilities by build (2026-10-28): real players with more souls in spirit items also open fights with their abilities
     # sooner and recast them sooner after cooldown (Phantom+ replays, stratified Cox per ability: hazard x exp(0.0060 per
     # 1000 spirit item souls) for first casts with net worth and cooldown reduction in the model, both halves of the
-    # matches 0.0079 / 0.0075 without cdr; recasts 0.0078 +- 0.0019), while the sim drew both from one curve per ability.
+    # matches 0.0079 / 0.0075 without cdr; recasts 0.0101 +- 0.0021 with the same terms), while the sim drew both from one curve per ability.
     # With cast_timing / recast_timing, each draw u becomes 1 - (1 - u) ^ (1 / hr), hr = exp(ability_lean x (spirit
     # item souls - the hero's mean over its real chances) / 1000) (data/ability_lean.json): the hero's pooled curve stays
     # its average, spirit builds cast sooner, gun builds later. The damage audit had every hero's ability share ~4% under
