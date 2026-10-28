@@ -281,11 +281,25 @@ class CastCtx:
         else:
             go()
 
+    def cc_land(self):
+        """Mechanics.cc_landing: the share of the ability's casts its CC lands on the target, as its damage counts
+        (skillshot spirit accuracy x fitted landing factor x reach wait), at most 1."""
+        f = self.me
+        land = f.skill.spirit_accuracy if self.s.impl.kind == "skillshot" else 1.0
+        fac = (f.skill.ability_landing or {}).get(getattr(self.s.ab, "landing_key", None) or self.s.ab.name)
+        if fac is not None:
+            land *= fac
+        land *= self.s.scratch.get("_avail", 1.0)
+        return max(0.0, min(1.0, land))
+
     def debuff(self, key, value, duration, tag=None, delay=0.0):
         """Effect on the enemy. Status resist shortens it."""
         e = self.foe
         tag = tag or (self.s.ab.class_name, key)
         dur = duration * (1.0 - e.status_resist())
+        if key in ("stun", "silence", "disarm", "immobilize") and self.me.e.mech is not None \
+                and getattr(self.me.e.mech, "cc_landing", False):
+            dur *= self.cc_land()
 
         def go():
             if not e.alive:
