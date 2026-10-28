@@ -4,6 +4,8 @@
   (data/execute_timing.json): spent at a real time without an execute, wait for the execute gate, or not cast; Soul
   Exchange's first cast is held to a real first cast time (or not cast), then its gap gate.
 - Mechanics.swap_full (on, 2026-10-28): the swap lands whole (no landing factor) on ghost.SWAP_LAND of casts.
+- Mechanics.swap_gap (on, 2026-10-28): each fight's swap waits for a gap (target - Geist) drawn from real swaps
+  (ghost.SWAP_GAPS) instead of SWAP_MIN_GAIN.
 - Mechanics.gate_assist (on): Soul Exchange's Geist sees her health short by a real entry deficit and by the real
   third parties' damage per damage she takes (Fighter.self_gate_frac); her health stays.
 Run: python3 -m unittest discover -s tests -v (from sim/)."""
@@ -153,6 +155,25 @@ class SoulExchange(unittest.TestCase):
             floor = max(0.4, se.ctx.raw("EnemyMinHealthPct") / 100) * g.max_hp
             se.impl.swap(se.ctx)
             self.assertAlmostEqual(before - g.hp, (before - floor) * (1.0 if whole else 0.5), delta=1.0)
+
+    def test_swap_waits_for_drawn_gap(self):
+        from deadsim.heroes import ghost
+        e, f, g = pair("Lady Geist")
+        se = ability(f, "Soul Exchange")
+        f.gate_assist, f.entry_gap = 0.0, 0.5             # gap 0.5: past SWAP_MIN_GAIN
+        hi = next(k / 10000 for k in range(10000) if math.modf(k / 10000 * 7919.0)[0] > 0.96)
+        lo = next(k / 10000 for k in range(1, 10000) if math.modf(k / 10000 * 7919.0)[0] < 0.04)
+        se.impl.draw_plan(se.ctx, hi)
+        self.assertEqual(se.swap_gap, ghost.SWAP_GAPS[-1])
+        self.assertFalse(se.impl.should_cast(se.ctx))     # waits for a 0.95 gap
+        se.impl.draw_plan(se.ctx, lo)
+        self.assertEqual(se.swap_gap, ghost.SWAP_GAPS[0])
+        self.assertTrue(se.impl.should_cast(se.ctx))
+        e, f, g = pair("Lady Geist")
+        e.mech = dataclasses.replace(e.mech, swap_gap=False)
+        se = ability(f, "Soul Exchange")
+        se.impl.draw_plan(se.ctx, hi)
+        self.assertFalse(hasattr(se, "swap_gap"))           # off: SWAP_MIN_GAIN as before
 
     def test_hold_draw(self):
         q = M.execute_timing_data()["soul_exchange"]["holds"]

@@ -1,5 +1,5 @@
 {
   "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
-  "requested_at": "2026-10-28T00:00:00Z",
-  "reason": "Replay readers after game pauses: area items' and area abilities' phase curves read net worth on the pause-adjusted game clock"
+  "requested_at": "2026-10-28T00:20:00Z",
+  "reason": "Soul Exchange waits for a real swap gap: real Geists swap at a ~0.6 health gap, the sim swapped at 0.3 (Mechanics.swap_gap), so Soul Exchange no longer runs high mid and late game"
 }

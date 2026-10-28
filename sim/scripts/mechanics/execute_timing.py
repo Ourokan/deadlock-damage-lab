@@ -13,7 +13,9 @@ SWAP_MIN_GAIN lower than her target. Against the real cast curves (validation/ca
   came ~3 s early, without it (entry deficit only) on real timing, so Killing Blow doesn't use it.
 - Soul Exchange's first cast in a fight: "soul_exchange" holds = the real first cast times (QBINS points of its
   curve, None = not cast; on hold_share of the fights, fitted on the sim duels so the cast share by 20 s matches:
-  the gap gate leaves some holds uncast); the swap waits for its hold, then for its gap (Geist's gate health).
+  the gap gate leaves some holds uncast); the swap waits for its hold, then for its gap (Geist's gate health; with
+  Mechanics.swap_gap a gap drawn from real swaps, so hold_share sits at its cap: validation/README.md "Soul Exchange
+  waits for a real swap gap").
 - half of the real first Killing Blows in a fight are no execute: cast on a target at ~55% health for the slash
   damage (or missed), and the ult then sits out its whole cooldown (next cast ~200 s later, vs ~10 s after an
   execute's recast). "killing_blow": competing-risk curves of the first cast in a fight (Kaplan-Meier, fight end
