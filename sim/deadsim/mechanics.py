@@ -221,6 +221,14 @@ class Mechanics:
     # Off: it beat main before a refit, but a plain Graves refit on the same halves did better held out (per-source
     # 0.019 / 0.025 vs 0.023 / 0.027 with it), validation/README.md "Mo & Krill and Graves by game phase"
     graves_phase: bool = False
+    # Rem's Tag Along (2026-10-28): it needs an ally, so the sim never cast it and Rem shot through every duel. Real
+    # Phantom+ Rems ride an ally for 5% of their lane combat time, 9-11% mid game and 14% late (attach state bit in 25
+    # replays, scripts/mechanics/rem_tag_along.py); while attached they deal no gun, Pillow Toss or melee damage and
+    # take ~8% of the damage (3 vs 38 per s), but their items and Naptime keep hitting. With fight draws (phase or
+    # rng) Rem is attached for windows drawn so the share of the duel matches data/tag_along.json at his net worth
+    # (lengths from its real quantiles, alternating with exponential free gaps): gun, melee and Pillow Toss locked,
+    # invulnerable (familiar.TAG_SAFE)
+    tag_along: bool = True
     # melee by game phase (2026-10-27): real players melee most in the lane and less as the game goes on (the hero's
     # real melee share over the sim's, all heroes: 1.20x at 30% of the match, 0.91x at 60%, 0.74x at 90%; Calico 1.27 /
     # 1.15 / 1.03, while per hit sizes match the formula). The melee rate is fitted flat, so at the duel's net worth it
@@ -927,6 +935,46 @@ def ult_phase_u(f, ab, q, u):
 
 
 GRAVES_WALL = "ability_necro_zombiewall"
+_TAG = None
+
+
+def tag_along_windows(f, name, horizon=60.0):
+    """Mechanics.tag_along: [(start s, length s)] of the duel's Tag Along windows (Rem on an ally), a stationary
+    alternating draw whose attached share is data/tag_along.json's at f's net worth; [] for deterministic fights or with
+    the mechanic off."""
+    global _TAG
+    if not (f.e.mech is not None and getattr(f.e.mech, "tag_along", False) and getattr(f.e, "length", False)):
+        return []
+    phase, rng = f.skill.fight_phase, f.e.rng
+    if phase is None and rng is None:
+        return []
+    if _TAG is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "tag_along.json")) as fh:
+            d = json.load(fh)
+        _TAG = ([(math.log(nw), x) for nw, x in d["points"]], d["lengths"])
+    pts, lens = _TAG
+    p = min(0.9, max(0.0, _interp_ln(pts, f.st.souls)))
+    if p <= 0:
+        return []
+    import random
+    seed = (phase + zlib.crc32(f"{name}|{f.name}".encode()) / 2 ** 32) % 1.0 if phase is not None else rng.random()
+    r = random.Random(int(seed * 2 ** 32))
+    mean_len = sum(lens) / len(lens)
+    gap = mean_len * (1 - p) / p   # mean free gap: attached share p
+    out, t = [], 0.0
+    if r.random() < p:   # attached at the fight start: the rest of a window
+        n = lens[min(len(lens) - 1, int(r.random() * len(lens)))] * r.random()
+        out.append((0.0, n))
+        t = n
+    while True:
+        t += r.expovariate(1.0 / gap)
+        if t >= horizon:
+            return out
+        n = lens[min(len(lens) - 1, int(r.random() * len(lens)))]
+        out.append((t, n))
+        t += n
+
+
 _GRAVES = None
 
 

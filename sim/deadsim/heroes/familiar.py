@@ -4,8 +4,10 @@ Assumptions:
 - Pillow Toss: skillshot that lands after cast delay + TossDuration. On a hit, Rem's other abilities have
   CDReduceOnPillowHit seconds taken off their cooldown (scaled by spirit_accuracy, as an expected value).
   T2: -FireRateSlow% fire rate for EffectDuration (the fading-slow window). The knockback is ignored.
-- Tag Along: it needs an ally (or a trooper with a Helper), which a 1v1 doesn't have, so it is never cast.
-  The heal and the T3 spirit power only happen while napping on an ally, which takes Rem out of the duel.
+- Tag Along: it needs an ally (or a trooper with a Helper), which a 1v1 doesn't have. With Mechanics.tag_along and
+  fight draws Rem spends the real share of the duel on an ally (mechanics.tag_along_windows, replays): no gun, melee
+  or Pillow Toss then, and invulnerable (TAG_SAFE; real attached Rems take ~8% of the damage, the ally soaks it).
+  Items and Naptime still work. The heal and the T3 spirit power are left out.
 - Lil Helpers: Rem sends a Helper to follow himself ("Follow a hero"), for a short burst of +TechArmorGain%
   spirit resist (+15% at T3) lasting HELPER_BURST (not in data). Each Helper then naps for HelperDowntimeDuration.
   HelperCount Helpers are used in turn. The trooper/box chores don't exist in a 1v1.
@@ -18,11 +20,20 @@ Assumptions:
 from deadsim.abilities import AbilityImpl, register
 
 HELPER_BURST = 3.0   # s of spirit resist from a Helper following a hero ("short burst", no duration in data)
+TAG_SAFE = True      # invulnerable while attached (Mechanics.tag_along)
+
+
+def attached(c):
+    """Rem is on an ally (Tag Along window, Mechanics.tag_along)."""
+    return c.now < c.me.counters.get("tag_along_until", 0.0)
 
 
 @register("ability_familiar_ability02")
 class PillowToss(AbilityImpl):
     kind = "skillshot"
+
+    def should_cast(self, c):
+        return not attached(c) and self.in_range(c)
 
     def cast(self, c):
         d = c.raw("AbilityCastDelay")
@@ -47,7 +58,20 @@ class PillowToss(AbilityImpl):
 
 @register("ability_familiar_attach")
 class TagAlong(AbilityImpl):
-    kind = "passive"   # ally-only; no ally in a 1v1
+    kind = "passive"   # never cast on its own (no ally in a 1v1); Mechanics.tag_along times it from replays
+
+    def start(self, c):
+        from deadsim.mechanics import tag_along_windows
+        for t, n in tag_along_windows(c.me, self.s.ab.class_name):
+            c.after(t, self.attach, c, n)
+
+    def attach(self, c, n):
+        if not (c.me.alive and c.foe.alive) or n <= 0:
+            return
+        c.me.counters["tag_along_until"] = c.now + n
+        c.lock_gun(n)
+        if TAG_SAFE:
+            c.buff("invulnerable", 1, n, tag="tag_along")
 
 
 @register("ability_familiar_helpinghands")
@@ -117,6 +141,6 @@ class Naptime(AbilityImpl):
             return
         st["asleep"] = False
         c.foe.mods.remove("stun", "naptime_sleep")
-        c.me.gun_locked_until = min(c.me.gun_locked_until, c.now)
+        c.me.gun_locked_until = min(c.me.gun_locked_until, max(c.now, c.me.counters.get("tag_along_until", 0.0)))
         if c.me.alive:
             c.spirit_hit(c.val("AwakeDamage"))
