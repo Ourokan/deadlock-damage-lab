@@ -5,7 +5,7 @@
   "sample": "phantom_sample.jsonl.gz",
   "use": "deadsim realistic mode scales an item's own damage by min(1, landing)",
   "length": "fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x length_corr (the sim's source/gun in full / the same expected over real fight lengths, scripts/fight_length/length_factors.py, phantom_sample.jsonl.gz, 3 rounds)",
-  "heroes": "per-hero factors from the damage audit's hero x item rows (phantom_sample.jsonl.gz; Ivy from ivy_sample.jsonl.gz, Kelvin/Billy/Celeste from the 3,661-match small_heroes_sample.jsonl.gz since 2026-10-28, Kelvin keeping the pooled Mystic Reverb; >= 20 holders): current factor x (real/sim)^(n/(n+20)), capped 0.25-1; replace the pooled factor for that hero (scripts/item_landing_heroes.py)",
+  "heroes": "per-hero factors from the damage audit's hero x item rows (small_heroes_sample.jsonl.gz, >= 20 holders): current factor x (real/sim)^(n/(n+20)), capped 0.25-1; replace the pooled factor for that hero (scripts/item_landing_heroes.py)",
   "entry_hp_kept": "length_corr scaled so held first casts and Mechanics.entry_hp (as configured in the run) keep the expected levels of a target run at full health with the previous holds (length_factors.py --entry --target-holds)",
   "cast_timing_kept": "length_corr scaled so held first casts (Mechanics.cast_timing) keep the expected levels of cast-on-sight duels; rerun from the factors before"
  },
@@ -926,35 +926,45 @@
    }
   },
   "Paradox": {
+   "Alchemical Fire": {
+    "holders": 30,
+    "real_over_sim": 0.898,
+    "landing": 0.598
+   },
    "Express Shot": {
-    "holders": 143,
-    "real_over_sim": 0.973,
-    "landing": 0.352
+    "holders": 845,
+    "real_over_sim": 0.97,
+    "landing": 0.331
    },
    "Headhunter": {
-    "holders": 41,
-    "real_over_sim": 1.018,
-    "landing": 0.893
+    "holders": 318,
+    "real_over_sim": 0.988,
+    "landing": 0.923
+   },
+   "Mystic Burst": {
+    "holders": 422,
+    "real_over_sim": 0.996,
+    "landing": 0.991
    },
    "Mystic Reverb": {
-    "holders": 86,
-    "real_over_sim": 0.956,
-    "landing": 0.278
+    "holders": 555,
+    "real_over_sim": 0.881,
+    "landing": 0.25
    },
    "Mystic Shot": {
-    "holders": 62,
-    "real_over_sim": 1.122,
+    "holders": 387,
+    "real_over_sim": 1.071,
     "landing": 1.0
    },
    "Spirit Burn": {
-    "holders": 38,
-    "real_over_sim": 0.905,
-    "landing": 0.823
+    "holders": 295,
+    "real_over_sim": 0.948,
+    "landing": 0.698
    },
    "Tankbuster": {
-    "holders": 146,
-    "real_over_sim": 0.97,
-    "landing": 0.974
+    "holders": 875,
+    "real_over_sim": 0.964,
+    "landing": 0.815
    }
   },
   "Pocket": {

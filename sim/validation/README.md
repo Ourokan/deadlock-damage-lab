@@ -1056,6 +1056,9 @@ data: Phantom+ replays (89 matches, 31 with a Baba, 868 fights) and 151 Baba pla
 - sim_vs_win (blend off, 27k + 37k, within slot and tier): Kelvin 0.432 -> 0.426, Billy 0.276 -> 0.274, Celeste
   0.453 -> 0.450: the cut items include ones with positive real win edges (Spirit Burn, Mystic Burst) that the sim
   overrates in damage. Shipped on Tyler's call (damage accuracy first; the real win blend carries the edge).
+- Paradox on the same call (the refit from "Pulse Grenade hits", held split-half there): ability corrections
+  (`ability_corr_heroes.py`, 3 rounds) then item rows (2 rounds) on the fresh sample, mix 0.032 -> 0.013; sim_vs_win
+  Paradox within 0.307 -> 0.302.
 
 ## Known gaps (not yet modeled)
 
