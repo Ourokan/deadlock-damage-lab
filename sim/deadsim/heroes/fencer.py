@@ -31,6 +31,12 @@ PERFECT_RATE = 0.7
 ULT_HP = 0.6
 # the delayed hit is booked at the slash's fight weight (Engine.book_at): the frozen target can't leave the fight
 FROZEN_BOOKED = True
+# Riposte's follow-up melee: real Phantom+ Apollos land one on the stunned hero after only 53% of their counters (median
+# 0.75 s after the stun; 691 counters in 43 replays, scripts/mechanics/riposte_follow_up.py). The sim lands every one
+# at 0.2 s: 0.53 with Apollo refit on each half held up on one half only (validation/README.md "Apollo out of sample"),
+# so it stays at 1
+FOLLOW_UP_RATE = 1.0
+FOLLOW_UP_DELAY = 0.75 if FOLLOW_UP_RATE < 1 else 0.2
 
 
 @register("ability_fencer_throwblade")
@@ -94,7 +100,8 @@ class Riposte(AbilityImpl):
         def follow_up():
             if f.alive and f.enemy.alive:
                 f.e.melee_hit(f, f.acc("melee_heavy").take(f.skill.heavy_share, 1) > 0, 1.0)
-        f.e.after(0.2, follow_up)
+        if FOLLOW_UP_RATE >= 1 or f.acc("riposte_follow").take(FOLLOW_UP_RATE, 1) > 0:
+            f.e.after(FOLLOW_UP_DELAY, follow_up)
         if c.tier >= 3:
             ls = c.raw("TargetLifesteal") / 100
             d = c.raw("TargetLifestealDuration")
