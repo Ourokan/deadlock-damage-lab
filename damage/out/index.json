@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-28T09:58:56Z",
+ "generated": "2026-10-28T11:50:17Z",
  "patch": "09-29-2026",
  "objectives": {
   "burst_5s": "damage dealt to the dummy in the first 5 s",
@@ -2068,72 +2068,72 @@
    "budgets": {
     "10000": {
      "burst_5s": {
-      "best": 1092.2,
-      "popular": 688.1
+      "best": 1052.5,
+      "popular": 654.7
      },
      "fight_15s": {
-      "best": 2109.8,
-      "popular": 1658.3
+      "best": 1994.1,
+      "popular": 1570.8
      },
      "sustained_30s": {
-      "best": 4064.2,
-      "popular": 3242.1
+      "best": 3797.9,
+      "popular": 3039.0
      }
     },
     "18000": {
      "burst_5s": {
-      "best": 1909.1,
-      "popular": 1122.8
+      "best": 1809.3,
+      "popular": 1042.4
      },
      "fight_15s": {
-      "best": 4142.3,
-      "popular": 2549.6
+      "best": 3946.2,
+      "popular": 2349.5
      },
      "sustained_30s": {
-      "best": 7812.6,
-      "popular": 4952.2
+      "best": 7237.1,
+      "popular": 4521.6
      }
     },
     "27000": {
      "burst_5s": {
-      "best": 3200.3,
-      "popular": 1491.4
+      "best": 2964.8,
+      "popular": 1440.2
      },
      "fight_15s": {
-      "best": 6116.2,
-      "popular": 3144.6
+      "best": 5724.9,
+      "popular": 2876.8
      },
      "sustained_30s": {
-      "best": 12630.1,
-      "popular": 6175.3
+      "best": 11262.5,
+      "popular": 5646.0
      }
     },
     "37000": {
      "burst_5s": {
-      "best": 3848.5,
-      "popular": 1739.7
+      "best": 3692.0,
+      "popular": 1607.2
      },
      "fight_15s": {
-      "best": 8235.4,
-      "popular": 3776.1
+      "best": 7759.0,
+      "popular": 3347.5
      },
      "sustained_30s": {
-      "best": 16283.6,
-      "popular": 6963.7
+      "best": 14731.7,
+      "popular": 6207.6
      }
     },
     "50000": {
      "burst_5s": {
-      "best": 5529.5,
-      "popular": 1757.1
+      "best": 5042.5,
+      "popular": 1558.6
      },
      "fight_15s": {
-      "best": 11476.3,
-      "popular": 4025.0
+      "best": 10631.4,
+      "popular": 3147.8
      },
      "sustained_30s": {
-      "best": 22948.6,
-      "popular": 7416.7
+      "best": 19279.7,
+      "popular": 6705.5
      }
     }
    }
