@@ -1,45 +1,45 @@
 {
  "source": "260 Phantom+ replays, hero-vs-hero DamageEvent (scripts/team/area_hits.py)",
- "baseline_other_per_main": 0.438,
+ "baseline_other_per_main": 0.43,
  "items": {
   "Mystic Reverb": {
    "other_per_main": 1.427,
-   "extra_per_main": 0.989,
+   "extra_per_main": 0.996,
    "damage": 331585
   },
   "Alchemical Fire": {
-   "other_per_main": 1.374,
-   "extra_per_main": 0.936,
-   "damage": 93794
+   "other_per_main": 1.569,
+   "extra_per_main": 1.139,
+   "damage": 125330
   },
   "Tesla Bullets": {
    "other_per_main": 0.508,
-   "extra_per_main": 0.07,
+   "extra_per_main": 0.077,
    "damage": 667061
   },
   "Capacitor": {
    "other_per_main": 0.698,
-   "extra_per_main": 0.26,
+   "extra_per_main": 0.268,
    "damage": 880465
   },
   "Scourge": {
-   "other_per_main": 1.056,
-   "extra_per_main": 0.618,
-   "damage": 180400
+   "other_per_main": 1.084,
+   "extra_per_main": 0.654,
+   "damage": 187033
   },
   "Torment Pulse": {
-   "other_per_main": 0.921,
-   "extra_per_main": 0.483,
-   "damage": 1150142
+   "other_per_main": 0.951,
+   "extra_per_main": 0.521,
+   "damage": 1471530
   },
   "Cold Front": {
-   "other_per_main": 0.626,
-   "extra_per_main": 0.189,
-   "damage": 317560
+   "other_per_main": 0.624,
+   "extra_per_main": 0.193,
+   "damage": 320086
   },
   "Arctic Blast": {
    "other_per_main": 0.617,
-   "extra_per_main": 0.18,
+   "extra_per_main": 0.187,
    "damage": 174440
   }
  },
@@ -47,81 +47,81 @@
   "note": "extra hits at fight net worth nw = items[name].extra_per_main x the bins' fit, linear in ln net worth between bins, flat outside; one curve for every area item",
   "bins": [
    {
-    "net_worth": 7489,
-    "baseline": 0.379,
-    "observed": 0.214,
-    "fit": 0.214,
+    "net_worth": 7746,
+    "baseline": 0.337,
+    "observed": 0.366,
+    "fit": 0.366,
     "fit_95": [
-     -0.169,
-     0.578
+     0.062,
+     0.712
     ],
-    "predicted_extra_damage": 29033
+    "predicted_extra_damage": 27963
    },
    {
-    "net_worth": 12609,
-    "baseline": 0.312,
-    "observed": 0.724,
-    "fit": 0.724,
+    "net_worth": 12593,
+    "baseline": 0.299,
+    "observed": 0.787,
+    "fit": 0.787,
     "fit_95": [
-     0.442,
-     0.965
+     0.565,
+     0.959
     ],
-    "predicted_extra_damage": 61158
+    "predicted_extra_damage": 68265
    },
    {
-    "net_worth": 17441,
-    "baseline": 0.357,
-    "observed": 0.925,
-    "fit": 0.925,
+    "net_worth": 17519,
+    "baseline": 0.331,
+    "observed": 0.978,
+    "fit": 0.978,
     "fit_95": [
-     0.681,
-     1.105
+     0.815,
+     1.078
     ],
-    "predicted_extra_damage": 96903
+    "predicted_extra_damage": 116234
    },
    {
-    "net_worth": 22413,
-    "baseline": 0.362,
-    "observed": 1.243,
-    "fit": 1.123,
+    "net_worth": 22475,
+    "baseline": 0.374,
+    "observed": 1.077,
+    "fit": 1.051,
     "fit_95": [
-     1.016,
-     1.182
+     0.924,
+     1.101
     ],
-    "predicted_extra_damage": 106276
+    "predicted_extra_damage": 129978
    },
    {
-    "net_worth": 28481,
-    "baseline": 0.475,
-    "observed": 1.067,
-    "fit": 1.123,
+    "net_worth": 28526,
+    "baseline": 0.47,
+    "observed": 1.035,
+    "fit": 1.051,
     "fit_95": [
-     1.024,
-     1.196
+     0.981,
+     1.151
     ],
-    "predicted_extra_damage": 184267
+    "predicted_extra_damage": 218502
    },
    {
-    "net_worth": 35628,
-    "baseline": 0.487,
-    "observed": 1.106,
-    "fit": 1.123,
+    "net_worth": 35640,
+    "baseline": 0.488,
+    "observed": 1.136,
+    "fit": 1.116,
     "fit_95": [
-     1.044,
-     1.266
+     1.036,
+     1.228
     ],
-    "predicted_extra_damage": 154079
+    "predicted_extra_damage": 183829
    },
    {
-    "net_worth": 47400,
-    "baseline": 0.596,
-    "observed": 1.151,
-    "fit": 1.151,
+    "net_worth": 47009,
+    "baseline": 0.588,
+    "observed": 1.088,
+    "fit": 1.116,
     "fit_95": [
-     1.086,
-     1.447
+     1.062,
+     1.321
     ],
-    "predicted_extra_damage": 105921
+    "predicted_extra_damage": 129753
    }
   ]
  }

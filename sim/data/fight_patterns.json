@@ -1,5 +1,5 @@
 {
- "_doc": "Per-hero fight behaviour (deadsim.patterns). order: cast priority once the fight is on (abilities not listed follow in slot order). ult_after: the ultimate waits until one of these setup abilities was cast this fight (or SETUP_WAIT s pass). prefight: ability used before the fight starts (its impl's prefight hook runs at t=0). order and ult_after come from 158 Phantom+ replays (Oct 2026, Deadlock API demo extracts, 'replay' block): a fight is a run of hero-vs-hero damage with gaps under 8 s and at least 300 damage; order ranks abilities cast in >= 10% of fights by which one usually comes first; ult_after lists abilities cast before the ultimate in >= 60% of fights with an ultimate. engage_share / start_distance_m: real match_paths (300 matches): share of fight starts during ability movement, median distance to the nearest enemy when the fight starts. guide_* and the other research fields (engage, ult, holds, range, notes, sources, confidence) come from web guides, kept for reference. A combo is used only when it fits the real damage mix (scripts/landing_rates.py, mechanics on) within 0.05 of slot order's mean |log landing factor| (fit_error); otherwise order is empty and 'dropped' says why. Mo & Krill's burrow opener stays on (Tyler). Since cast timing (2026-10-25) a dropped combo comes back on when scripts/fight_patterns/combo_check.py, with 20+ audit players with gun data, gives the replay variant an ability log error and a damage mix distance no worse than slot order and a timing error at least 0.03 better (a margin beyond run-to-run noise); 'combo_check' records the numbers. Sinclair (20 players, timing 0.429 -> 0.418, log error 0.146 -> 0.141; an earlier run gave 0.373 -> 0.362) and Apollo (6 players) don't pass, so both keep slot order.",
+ "_doc": "Per-hero fight behaviour (deadsim.patterns). order: cast priority once the fight is on (abilities not listed follow in slot order). ult_after: the ultimate waits until one of these setup abilities was cast this fight (or SETUP_WAIT s pass). prefight: ability used before the fight starts (its impl's prefight hook runs at t=0). order and ult_after come from 158 Phantom+ replays (Oct 2026, Deadlock API demo extracts); the 'replay' block (cast / first / pre shares, first cast times, top openers) is from 259 Phantom+ replays (Oct 25, scripts/fight_patterns/replay_openers.py --split, casts after pauses counted since 2026-10-28): a fight is a run of hero-vs-hero damage with gaps under 8 s and at least 300 damage; order ranks abilities cast in >= 10% of fights by which one usually comes first; ult_after lists abilities cast before the ultimate in >= 60% of fights with an ultimate. engage_share / start_distance_m: real match_paths (300 matches): share of fight starts during ability movement, median distance to the nearest enemy when the fight starts. guide_* and the other research fields (engage, ult, holds, range, notes, sources, confidence) come from web guides, kept for reference. A combo is used only when it fits the real damage mix (scripts/landing_rates.py, mechanics on) within 0.05 of slot order's mean |log landing factor| (fit_error); otherwise order is empty and 'dropped' says why. Mo & Krill's burrow opener stays on (Tyler). Since cast timing (2026-10-25) a dropped combo comes back on when scripts/fight_patterns/combo_check.py, with 20+ audit players with gun data, gives the replay variant an ability log error and a damage mix distance no worse than slot order and a timing error at least 0.03 better (a margin beyond run-to-run noise); 'combo_check' records the numbers. Sinclair (20 players, timing 0.429 -> 0.418, log error 0.146 -> 0.141; an earlier run gave 0.373 -> 0.362) and Apollo (6 players) don't pass, so both keep slot order.",
  "heroes": {
   "1": {
    "name": "Infernus",
@@ -36,22 +36,22 @@
     "https://deadlock.wiki/Napalm"
    ],
    "replay": {
-    "matches": 47,
-    "fights": 1109,
+    "matches": 72,
+    "fights": 1779,
     "abilities": {
      "Napalm": {
-      "cast_share": 0.724,
-      "first_share": 0.511,
-      "pre_share": 0.077,
-      "median_first_cast_s": 2.27,
-      "ult_after_share": 0.535
+      "cast_share": 0.71,
+      "first_share": 0.485,
+      "pre_share": 0.087,
+      "median_first_cast_s": 2.28,
+      "ult_after_share": 0.546
      },
      "Flame Dash": {
-      "cast_share": 0.684,
-      "first_share": 0.251,
-      "pre_share": 0.083,
-      "median_first_cast_s": 4.77,
-      "ult_after_share": 0.487
+      "cast_share": 0.709,
+      "first_share": 0.282,
+      "pre_share": 0.076,
+      "median_first_cast_s": 4.88,
+      "ult_after_share": 0.515
      },
      "Afterburn": {
       "cast_share": 0.0,
@@ -61,10 +61,10 @@
       "ult_after_share": 0.0
      },
      "Concussive Combustion": {
-      "cast_share": 0.244,
-      "first_share": 0.078,
-      "pre_share": 0.044,
-      "median_first_cast_s": 4.55,
+      "cast_share": 0.239,
+      "first_share": 0.073,
+      "pre_share": 0.042,
+      "median_first_cast_s": 4.16,
       "ult_after_share": null
      }
     },
@@ -74,19 +74,20 @@
        "Napalm",
        "Flame Dash"
       ],
-      0.264
+      0.258
      ],
      [
       [
        "Napalm"
       ],
-      0.14
+      0.119
      ],
      [
       [
-       "Flame Dash"
+       "Flame Dash",
+       "Napalm"
       ],
-      0.099
+      0.113
      ]
     ]
    },
@@ -146,35 +147,35 @@
     "https://deadlockmod.com/guides/seven-hero-guide-lightning-teamfighter"
    ],
    "replay": {
-    "matches": 24,
-    "fights": 526,
+    "matches": 42,
+    "fights": 996,
     "abilities": {
      "Lightning Ball": {
-      "cast_share": 0.798,
-      "first_share": 0.338,
-      "pre_share": 0.219,
-      "median_first_cast_s": 0.9,
-      "ult_after_share": 0.651
+      "cast_share": 0.78,
+      "first_share": 0.301,
+      "pre_share": 0.184,
+      "median_first_cast_s": 1.83,
+      "ult_after_share": 0.814
      },
      "Static Charge": {
-      "cast_share": 0.717,
-      "first_share": 0.232,
-      "pre_share": 0.106,
-      "median_first_cast_s": 1.36,
-      "ult_after_share": 0.645
+      "cast_share": 0.708,
+      "first_share": 0.28,
+      "pre_share": 0.118,
+      "median_first_cast_s": 1.45,
+      "ult_after_share": 0.771
      },
      "Power Surge": {
-      "cast_share": 0.709,
-      "first_share": 0.34,
-      "pre_share": 0.224,
-      "median_first_cast_s": 1.22,
-      "ult_after_share": 0.638
+      "cast_share": 0.67,
+      "first_share": 0.326,
+      "pre_share": 0.227,
+      "median_first_cast_s": 1.28,
+      "ult_after_share": 0.585
      },
      "Storm Cloud": {
-      "cast_share": 0.289,
-      "first_share": 0.048,
-      "pre_share": 0.027,
-      "median_first_cast_s": 5.45,
+      "cast_share": 0.189,
+      "first_share": 0.02,
+      "pre_share": 0.014,
+      "median_first_cast_s": 8.65,
       "ult_after_share": null
      }
     },
@@ -185,7 +186,7 @@
        "Static Charge",
        "Lightning Ball"
       ],
-      0.095
+      0.114
      ],
      [
       [
@@ -193,15 +194,15 @@
        "Lightning Ball",
        "Static Charge"
       ],
-      0.086
+      0.079
      ],
      [
       [
-       "Lightning Ball",
        "Static Charge",
+       "Lightning Ball",
        "Power Surge"
       ],
-      0.086
+      0.069
      ]
     ]
    },
@@ -249,35 +250,35 @@
     "https://mobalytics.gg/deadlock/vindicta-guide"
    ],
    "replay": {
-    "matches": 42,
-    "fights": 1157,
+    "matches": 48,
+    "fights": 1502,
     "abilities": {
      "Stake": {
-      "cast_share": 0.718,
-      "first_share": 0.297,
-      "pre_share": 0.217,
-      "median_first_cast_s": 0.58,
-      "ult_after_share": 0.633
+      "cast_share": 0.738,
+      "first_share": 0.281,
+      "pre_share": 0.197,
+      "median_first_cast_s": 0.78,
+      "ult_after_share": 0.676
      },
      "Flight": {
       "cast_share": 0.589,
-      "first_share": 0.248,
-      "pre_share": 0.172,
-      "median_first_cast_s": 1.27,
-      "ult_after_share": 0.473
+      "first_share": 0.234,
+      "pre_share": 0.155,
+      "median_first_cast_s": 1.5,
+      "ult_after_share": 0.456
      },
      "Crow Familiar": {
-      "cast_share": 0.834,
-      "first_share": 0.295,
-      "pre_share": 0.135,
-      "median_first_cast_s": 0.73,
-      "ult_after_share": 0.66
+      "cast_share": 0.85,
+      "first_share": 0.346,
+      "pre_share": 0.17,
+      "median_first_cast_s": 0.56,
+      "ult_after_share": 0.725
      },
      "Assassinate": {
-      "cast_share": 0.508,
-      "first_share": 0.111,
-      "pre_share": 0.045,
-      "median_first_cast_s": 3.62,
+      "cast_share": 0.464,
+      "first_share": 0.087,
+      "pre_share": 0.019,
+      "median_first_cast_s": 4.39,
       "ult_after_share": null
      }
     },
@@ -288,13 +289,13 @@
        "Stake",
        "Crow Familiar"
       ],
-      0.131
+      0.127
      ],
      [
       [
        "Crow Familiar"
       ],
-      0.086
+      0.091
      ],
      [
       [
@@ -302,7 +303,7 @@
        "Crow Familiar",
        "Assassinate"
       ],
-      0.067
+      0.073
      ]
     ]
    },
@@ -365,35 +366,35 @@
     "https://mobalytics.gg/deadlock/lady-geist-guide"
    ],
    "replay": {
-    "matches": 21,
-    "fights": 535,
+    "matches": 33,
+    "fights": 856,
     "abilities": {
      "Essence Bomb": {
-      "cast_share": 0.895,
-      "first_share": 0.548,
-      "pre_share": 0.404,
-      "median_first_cast_s": 0.03,
-      "ult_after_share": 0.758
+      "cast_share": 0.919,
+      "first_share": 0.527,
+      "pre_share": 0.409,
+      "median_first_cast_s": -0.11,
+      "ult_after_share": 0.833
      },
      "Life Drain": {
-      "cast_share": 0.72,
-      "first_share": 0.151,
-      "pre_share": 0.084,
-      "median_first_cast_s": 1.53,
-      "ult_after_share": 0.663
+      "cast_share": 0.717,
+      "first_share": 0.13,
+      "pre_share": 0.076,
+      "median_first_cast_s": 1.79,
+      "ult_after_share": 0.732
      },
      "Malice": {
-      "cast_share": 0.802,
-      "first_share": 0.234,
-      "pre_share": 0.168,
-      "median_first_cast_s": 0.44,
-      "ult_after_share": 0.726
+      "cast_share": 0.829,
+      "first_share": 0.307,
+      "pre_share": 0.22,
+      "median_first_cast_s": 0.12,
+      "ult_after_share": 0.87
      },
      "Soul Exchange": {
-      "cast_share": 0.178,
-      "first_share": 0.036,
-      "pre_share": 0.002,
-      "median_first_cast_s": 10.52,
+      "cast_share": 0.161,
+      "first_share": 0.018,
+      "pre_share": 0.0,
+      "median_first_cast_s": 14.06,
       "ult_after_share": null
      }
     },
@@ -404,7 +405,7 @@
        "Malice",
        "Life Drain"
       ],
-      0.155
+      0.189
      ],
      [
       [
@@ -412,14 +413,15 @@
        "Life Drain",
        "Malice"
       ],
-      0.142
+      0.118
      ],
      [
       [
+       "Malice",
        "Essence Bomb",
-       "Malice"
+       "Life Drain"
       ],
-      0.101
+      0.107
      ]
     ]
    },
@@ -476,22 +478,22 @@
     "https://games.gg/deadlock/guides/deadlock-abrams-guide/"
    ],
    "replay": {
-    "matches": 44,
-    "fights": 1133,
+    "matches": 53,
+    "fights": 1474,
     "abilities": {
      "Siphon Life": {
-      "cast_share": 0.645,
-      "first_share": 0.214,
-      "pre_share": 0.076,
-      "median_first_cast_s": 2.02,
-      "ult_after_share": 0.631
+      "cast_share": 0.617,
+      "first_share": 0.261,
+      "pre_share": 0.099,
+      "median_first_cast_s": 2.0,
+      "ult_after_share": 0.601
      },
      "Shoulder Charge": {
-      "cast_share": 0.795,
-      "first_share": 0.576,
-      "pre_share": 0.143,
-      "median_first_cast_s": 1.47,
-      "ult_after_share": 0.71
+      "cast_share": 0.761,
+      "first_share": 0.487,
+      "pre_share": 0.125,
+      "median_first_cast_s": 1.84,
+      "ult_after_share": 0.675
      },
      "Infernal Resilience": {
       "cast_share": 0.0,
@@ -501,10 +503,10 @@
       "ult_after_share": 0.0
      },
      "Seismic Impact": {
-      "cast_share": 0.213,
-      "first_share": 0.05,
-      "pre_share": 0.033,
-      "median_first_cast_s": 6.62,
+      "cast_share": 0.194,
+      "first_share": 0.058,
+      "pre_share": 0.027,
+      "median_first_cast_s": 6.91,
       "ult_after_share": null
      }
     },
@@ -514,20 +516,20 @@
        "Shoulder Charge",
        "Siphon Life"
       ],
-      0.285
-     ],
-     [
-      [
-       "Shoulder Charge"
-      ],
-      0.175
+      0.24
      ],
      [
       [
        "Siphon Life",
        "Shoulder Charge"
       ],
-      0.132
+      0.173
+     ],
+     [
+      [
+       "Shoulder Charge"
+      ],
+      0.164
      ]
     ]
    },
@@ -571,35 +573,35 @@
     "https://bo3.gg/games/articles/wraith-guide-deadlock"
    ],
    "replay": {
-    "matches": 67,
-    "fights": 1462,
+    "matches": 129,
+    "fights": 3045,
     "abilities": {
      "Card Trick": {
-      "cast_share": 0.841,
-      "first_share": 0.347,
-      "pre_share": 0.093,
-      "median_first_cast_s": 2.0,
-      "ult_after_share": 0.484
+      "cast_share": 0.836,
+      "first_share": 0.334,
+      "pre_share": 0.091,
+      "median_first_cast_s": 1.67,
+      "ult_after_share": 0.471
      },
      "Project Mind": {
-      "cast_share": 0.332,
-      "first_share": 0.113,
-      "pre_share": 0.036,
-      "median_first_cast_s": 6.7,
-      "ult_after_share": 0.295
+      "cast_share": 0.328,
+      "first_share": 0.106,
+      "pre_share": 0.045,
+      "median_first_cast_s": 7.52,
+      "ult_after_share": 0.282
      },
      "Full Auto": {
-      "cast_share": 0.648,
-      "first_share": 0.352,
-      "pre_share": 0.178,
-      "median_first_cast_s": 1.22,
-      "ult_after_share": 0.422
+      "cast_share": 0.661,
+      "first_share": 0.353,
+      "pre_share": 0.164,
+      "median_first_cast_s": 1.2,
+      "ult_after_share": 0.421
      },
      "Telekinesis": {
-      "cast_share": 0.297,
-      "first_share": 0.096,
-      "pre_share": 0.035,
-      "median_first_cast_s": 3.95,
+      "cast_share": 0.278,
+      "first_share": 0.1,
+      "pre_share": 0.037,
+      "median_first_cast_s": 3.44,
       "ult_after_share": null
      }
     },
@@ -609,20 +611,20 @@
        "Full Auto",
        "Card Trick"
       ],
-      0.183
+      0.186
      ],
      [
       [
        "Card Trick"
       ],
-      0.154
+      0.142
      ],
      [
       [
        "Card Trick",
        "Full Auto"
       ],
-      0.079
+      0.083
      ]
     ]
    },
@@ -684,35 +686,35 @@
     "https://deadlock.wiki/Heavy_Barrage"
    ],
    "replay": {
-    "matches": 13,
-    "fights": 304,
+    "matches": 21,
+    "fights": 549,
     "abilities": {
      "Mini Turret": {
-      "cast_share": 0.829,
-      "first_share": 0.543,
-      "pre_share": 0.332,
-      "median_first_cast_s": 0.66,
-      "ult_after_share": 0.747
+      "cast_share": 0.845,
+      "first_share": 0.621,
+      "pre_share": 0.439,
+      "median_first_cast_s": -0.41,
+      "ult_after_share": 0.843
      },
      "Medicinal Specter": {
-      "cast_share": 0.562,
-      "first_share": 0.102,
-      "pre_share": 0.039,
-      "median_first_cast_s": 5.59,
-      "ult_after_share": 0.446
+      "cast_share": 0.552,
+      "first_share": 0.1,
+      "pre_share": 0.04,
+      "median_first_cast_s": 6.39,
+      "ult_after_share": 0.491
      },
      "Spectral Wall": {
-      "cast_share": 0.717,
-      "first_share": 0.28,
-      "pre_share": 0.145,
-      "median_first_cast_s": 1.71,
-      "ult_after_share": 0.687
+      "cast_share": 0.732,
+      "first_share": 0.199,
+      "pre_share": 0.106,
+      "median_first_cast_s": 2.37,
+      "ult_after_share": 0.713
      },
      "Heavy Barrage": {
-      "cast_share": 0.273,
-      "first_share": 0.026,
-      "pre_share": 0.02,
-      "median_first_cast_s": 7.44,
+      "cast_share": 0.197,
+      "first_share": 0.016,
+      "pre_share": 0.013,
+      "median_first_cast_s": 8.8,
       "ult_after_share": null
      }
     },
@@ -723,20 +725,22 @@
        "Spectral Wall",
        "Medicinal Specter"
       ],
-      0.115
+      0.18
      ],
      [
       [
        "Mini Turret",
        "Spectral Wall"
       ],
-      0.102
+      0.137
      ],
      [
       [
-       "Mini Turret"
+       "Mini Turret",
+       "Medicinal Specter",
+       "Spectral Wall"
       ],
-      0.095
+      0.097
      ]
     ]
    },
@@ -795,35 +799,35 @@
     "https://mobalytics.gg/deadlock/paradox-guide"
    ],
    "replay": {
-    "matches": 50,
-    "fights": 1526,
+    "matches": 70,
+    "fights": 2319,
     "abilities": {
      "Pulse Grenade": {
-      "cast_share": 0.635,
-      "first_share": 0.28,
-      "pre_share": 0.117,
-      "median_first_cast_s": 2.61,
-      "ult_after_share": 0.529
+      "cast_share": 0.653,
+      "first_share": 0.294,
+      "pre_share": 0.127,
+      "median_first_cast_s": 2.42,
+      "ult_after_share": 0.585
      },
      "Time Wall": {
-      "cast_share": 0.524,
-      "first_share": 0.114,
-      "pre_share": 0.036,
+      "cast_share": 0.519,
+      "first_share": 0.106,
+      "pre_share": 0.037,
       "median_first_cast_s": 3.17,
-      "ult_after_share": 0.606
+      "ult_after_share": 0.656
      },
      "Kinetic Carbine": {
       "cast_share": 0.73,
-      "first_share": 0.455,
-      "pre_share": 0.325,
-      "median_first_cast_s": 0.8,
-      "ult_after_share": 0.599
+      "first_share": 0.458,
+      "pre_share": 0.333,
+      "median_first_cast_s": 0.44,
+      "ult_after_share": 0.585
      },
      "Paradoxical Swap": {
-      "cast_share": 0.307,
-      "first_share": 0.033,
-      "pre_share": 0.008,
-      "median_first_cast_s": 3.83,
+      "cast_share": 0.296,
+      "first_share": 0.028,
+      "pre_share": 0.004,
+      "median_first_cast_s": 4.2,
       "ult_after_share": null
      }
     },
@@ -832,7 +836,7 @@
       [
        "Kinetic Carbine"
       ],
-      0.14
+      0.141
      ],
      [
       [
@@ -840,14 +844,14 @@
        "Pulse Grenade",
        "Time Wall"
       ],
-      0.087
+      0.092
      ],
      [
       [
        "Kinetic Carbine",
        "Pulse Grenade"
       ],
-      0.067
+      0.078
      ]
     ]
    },
@@ -907,35 +911,35 @@
     "https://deadlock.wiki/Kinetic_Pulse"
    ],
    "replay": {
-    "matches": 32,
-    "fights": 789,
+    "matches": 34,
+    "fights": 945,
     "abilities": {
      "Kinetic Pulse": {
-      "cast_share": 0.84,
-      "first_share": 0.651,
-      "pre_share": 0.275,
-      "median_first_cast_s": 0.81,
-      "ult_after_share": 0.601
+      "cast_share": 0.888,
+      "first_share": 0.701,
+      "pre_share": 0.301,
+      "median_first_cast_s": 0.56,
+      "ult_after_share": 0.642
      },
      "Quantum Entanglement": {
-      "cast_share": 0.432,
-      "first_share": 0.113,
-      "pre_share": 0.033,
-      "median_first_cast_s": 6.45,
-      "ult_after_share": 0.298
+      "cast_share": 0.422,
+      "first_share": 0.104,
+      "pre_share": 0.037,
+      "median_first_cast_s": 6.7,
+      "ult_after_share": 0.257
      },
      "Rejuvenating Aurora": {
-      "cast_share": 0.432,
-      "first_share": 0.104,
-      "pre_share": 0.061,
-      "median_first_cast_s": 5.67,
-      "ult_after_share": 0.31
+      "cast_share": 0.448,
+      "first_share": 0.087,
+      "pre_share": 0.047,
+      "median_first_cast_s": 7.36,
+      "ult_after_share": 0.358
      },
      "Singularity": {
-      "cast_share": 0.213,
-      "first_share": 0.063,
-      "pre_share": 0.009,
-      "median_first_cast_s": 4.51,
+      "cast_share": 0.198,
+      "first_share": 0.056,
+      "pre_share": 0.002,
+      "median_first_cast_s": 6.19,
       "ult_after_share": null
      }
     },
@@ -944,21 +948,22 @@
       [
        "Kinetic Pulse"
       ],
-      0.285
+      0.313
+     ],
+     [
+      [
+       "Kinetic Pulse",
+       "Quantum Entanglement",
+       "Rejuvenating Aurora"
+      ],
+      0.085
      ],
      [
       [
        "Kinetic Pulse",
        "Rejuvenating Aurora"
       ],
-      0.086
-     ],
-     [
-      [
-       "Kinetic Pulse",
-       "Quantum Entanglement"
-      ],
-      0.079
+      0.085
      ]
     ]
    },
@@ -1018,35 +1023,35 @@
     "https://mobalytics.gg/deadlock/kelvin-guide"
    ],
    "replay": {
-    "matches": 34,
-    "fights": 848,
+    "matches": 43,
+    "fights": 1175,
     "abilities": {
      "Frost Grenade": {
-      "cast_share": 0.894,
-      "first_share": 0.493,
-      "pre_share": 0.281,
-      "median_first_cast_s": 0.7,
-      "ult_after_share": 0.808
+      "cast_share": 0.847,
+      "first_share": 0.48,
+      "pre_share": 0.289,
+      "median_first_cast_s": 0.62,
+      "ult_after_share": 0.862
      },
      "Ice Path": {
-      "cast_share": 0.612,
-      "first_share": 0.267,
-      "pre_share": 0.192,
-      "median_first_cast_s": 1.09,
-      "ult_after_share": 0.616
+      "cast_share": 0.578,
+      "first_share": 0.244,
+      "pre_share": 0.175,
+      "median_first_cast_s": 1.23,
+      "ult_after_share": 0.621
      },
      "Arctic Beam": {
-      "cast_share": 0.782,
-      "first_share": 0.185,
-      "pre_share": 0.071,
-      "median_first_cast_s": 0.58,
-      "ult_after_share": 0.709
+      "cast_share": 0.804,
+      "first_share": 0.22,
+      "pre_share": 0.087,
+      "median_first_cast_s": 0.41,
+      "ult_after_share": 0.705
      },
      "Frozen Shelter": {
-      "cast_share": 0.239,
-      "first_share": 0.029,
-      "pre_share": 0.015,
-      "median_first_cast_s": 8.0,
+      "cast_share": 0.191,
+      "first_share": 0.013,
+      "pre_share": 0.003,
+      "median_first_cast_s": 8.02,
       "ult_after_share": null
      }
     },
@@ -1054,23 +1059,25 @@
      [
       [
        "Frost Grenade",
-       "Arctic Beam"
+       "Arctic Beam",
+       "Ice Path"
       ],
-      0.119
-     ],
-     [
-      [
-       "Frost Grenade"
-      ],
-      0.114
+      0.124
      ],
      [
       [
        "Frost Grenade",
-       "Arctic Beam",
-       "Ice Path"
+       "Arctic Beam"
       ],
-      0.112
+      0.117
+     ],
+     [
+      [
+       "Ice Path",
+       "Frost Grenade",
+       "Arctic Beam"
+      ],
+      0.115
      ]
     ]
    },
@@ -1111,22 +1118,22 @@
     "https://www.destructoid.com/deadlock-best-haze-build/"
    ],
    "replay": {
-    "matches": 90,
-    "fights": 2139,
+    "matches": 132,
+    "fights": 3366,
     "abilities": {
      "Sleep Dagger": {
-      "cast_share": 0.823,
-      "first_share": 0.71,
-      "pre_share": 0.238,
+      "cast_share": 0.795,
+      "first_share": 0.685,
+      "pre_share": 0.243,
       "median_first_cast_s": 1.0,
-      "ult_after_share": 0.876
+      "ult_after_share": 0.878
      },
      "Smoke Bomb": {
-      "cast_share": 0.336,
+      "cast_share": 0.346,
       "first_share": 0.128,
-      "pre_share": 0.063,
-      "median_first_cast_s": 6.48,
-      "ult_after_share": 0.253
+      "pre_share": 0.076,
+      "median_first_cast_s": 6.24,
+      "ult_after_share": 0.274
      },
      "Fixation": {
       "cast_share": 0.0,
@@ -1136,10 +1143,10 @@
       "ult_after_share": 0.0
      },
      "Bullet Dance": {
-      "cast_share": 0.234,
-      "first_share": 0.026,
-      "pre_share": 0.013,
-      "median_first_cast_s": 4.67,
+      "cast_share": 0.219,
+      "first_share": 0.023,
+      "pre_share": 0.007,
+      "median_first_cast_s": 5.17,
       "ult_after_share": null
      }
     },
@@ -1148,21 +1155,21 @@
       [
        "Sleep Dagger"
       ],
-      0.401
+      0.382
      ],
      [
       [
        "Sleep Dagger",
        "Smoke Bomb"
       ],
-      0.131
+      0.136
      ],
      [
       [
        "Sleep Dagger",
        "Bullet Dance"
       ],
-      0.108
+      0.094
      ]
     ]
    },
@@ -1218,59 +1225,59 @@
     "https://beebom.com/deadlock-holliday-build-guide/amp/"
    ],
    "replay": {
-    "matches": 36,
-    "fights": 1033,
+    "matches": 51,
+    "fights": 1655,
     "abilities": {
      "Powder Keg": {
-      "cast_share": 0.898,
-      "first_share": 0.493,
-      "pre_share": 0.344,
-      "median_first_cast_s": -0.19,
-      "ult_after_share": 0.755
+      "cast_share": 0.889,
+      "first_share": 0.497,
+      "pre_share": 0.324,
+      "median_first_cast_s": -0.14,
+      "ult_after_share": 0.778
      },
      "Bounce Pad": {
-      "cast_share": 0.679,
-      "first_share": 0.27,
-      "pre_share": 0.215,
-      "median_first_cast_s": 2.05,
-      "ult_after_share": 0.498
+      "cast_share": 0.703,
+      "first_share": 0.31,
+      "pre_share": 0.234,
+      "median_first_cast_s": 1.64,
+      "ult_after_share": 0.607
      },
      "Crackshot": {
-      "cast_share": 0.597,
-      "first_share": 0.167,
-      "pre_share": 0.047,
-      "median_first_cast_s": 2.97,
-      "ult_after_share": 0.325
+      "cast_share": 0.501,
+      "first_share": 0.102,
+      "pre_share": 0.012,
+      "median_first_cast_s": 4.08,
+      "ult_after_share": 0.218
      },
      "Spirit Lasso": {
-      "cast_share": 0.313,
-      "first_share": 0.05,
-      "pre_share": 0.026,
-      "median_first_cast_s": 2.94,
+      "cast_share": 0.286,
+      "first_share": 0.045,
+      "pre_share": 0.024,
+      "median_first_cast_s": 3.2,
       "ult_after_share": null
      }
     },
     "top_openers": [
      [
       [
+       "Powder Keg"
+      ],
+      0.103
+     ],
+     [
+      [
+       "Powder Keg",
+       "Bounce Pad"
+      ],
+      0.097
+     ],
+     [
+      [
        "Bounce Pad",
        "Powder Keg",
        "Crackshot"
       ],
-      0.108
-     ],
-     [
-      [
-       "Powder Keg"
-      ],
-      0.104
-     ],
-     [
-      [
-       "Powder Keg",
-       "Crackshot"
-      ],
-      0.083
+      0.095
      ]
     ]
    },
@@ -1318,35 +1325,35 @@
     "https://deadlock.wiki/Hyper_Beam"
    ],
    "replay": {
-    "matches": 75,
-    "fights": 2046,
+    "matches": 112,
+    "fights": 3190,
     "abilities": {
      "Exploding Uppercut": {
-      "cast_share": 0.758,
-      "first_share": 0.053,
-      "pre_share": 0.02,
-      "median_first_cast_s": 1.58,
-      "ult_after_share": 0.583
+      "cast_share": 0.731,
+      "first_share": 0.054,
+      "pre_share": 0.023,
+      "median_first_cast_s": 1.62,
+      "ult_after_share": 0.566
      },
      "Sticky Bomb": {
-      "cast_share": 0.833,
-      "first_share": 0.3,
-      "pre_share": 0.145,
-      "median_first_cast_s": 0.94,
-      "ult_after_share": 0.635
+      "cast_share": 0.8,
+      "first_share": 0.258,
+      "pre_share": 0.107,
+      "median_first_cast_s": 1.09,
+      "ult_after_share": 0.619
      },
      "Grapple Arm": {
-      "cast_share": 0.771,
-      "first_share": 0.544,
-      "pre_share": 0.315,
-      "median_first_cast_s": 0.36,
-      "ult_after_share": 0.64
+      "cast_share": 0.785,
+      "first_share": 0.581,
+      "pre_share": 0.335,
+      "median_first_cast_s": 0.33,
+      "ult_after_share": 0.679
      },
      "Hyper Beam": {
-      "cast_share": 0.197,
-      "first_share": 0.054,
-      "pre_share": 0.022,
-      "median_first_cast_s": 5.19,
+      "cast_share": 0.188,
+      "first_share": 0.049,
+      "pre_share": 0.017,
+      "median_first_cast_s": 6.34,
       "ult_after_share": null
      }
     },
@@ -1357,7 +1364,7 @@
        "Sticky Bomb",
        "Exploding Uppercut"
       ],
-      0.285
+      0.308
      ],
      [
       [
@@ -1365,7 +1372,7 @@
        "Exploding Uppercut",
        "Sticky Bomb"
       ],
-      0.139
+      0.12
      ],
      [
       [
@@ -1373,7 +1380,7 @@
        "Exploding Uppercut",
        "Grapple Arm"
       ],
-      0.085
+      0.07
      ]
     ]
    },
@@ -1420,35 +1427,35 @@
     "https://beebom.com/deadlock-calico-build-guide/"
    ],
    "replay": {
-    "matches": 33,
-    "fights": 904,
+    "matches": 57,
+    "fights": 1680,
     "abilities": {
      "Gloom Bombs": {
-      "cast_share": 0.832,
-      "first_share": 0.195,
-      "pre_share": 0.121,
-      "median_first_cast_s": 1.09,
-      "ult_after_share": 0.929
+      "cast_share": 0.865,
+      "first_share": 0.251,
+      "pre_share": 0.136,
+      "median_first_cast_s": 1.02,
+      "ult_after_share": 0.952
      },
      "Leaping Slash": {
-      "cast_share": 0.91,
-      "first_share": 0.585,
-      "pre_share": 0.345,
-      "median_first_cast_s": 0.14,
-      "ult_after_share": 0.939
+      "cast_share": 0.92,
+      "first_share": 0.557,
+      "pre_share": 0.328,
+      "median_first_cast_s": 0.16,
+      "ult_after_share": 0.971
      },
      "Ava": {
-      "cast_share": 0.652,
-      "first_share": 0.202,
-      "pre_share": 0.041,
-      "median_first_cast_s": 2.33,
-      "ult_after_share": 0.597
+      "cast_share": 0.562,
+      "first_share": 0.173,
+      "pre_share": 0.037,
+      "median_first_cast_s": 2.58,
+      "ult_after_share": 0.492
      },
      "Return to Shadows": {
-      "cast_share": 0.326,
-      "first_share": 0.003,
-      "pre_share": 0.001,
-      "median_first_cast_s": 5.38,
+      "cast_share": 0.308,
+      "first_share": 0.001,
+      "pre_share": 0.0,
+      "median_first_cast_s": 5.98,
       "ult_after_share": null
      }
     },
@@ -1456,17 +1463,17 @@
      [
       [
        "Leaping Slash",
-       "Gloom Bombs",
-       "Ava"
+       "Gloom Bombs"
       ],
-      0.168
+      0.198
      ],
      [
       [
        "Leaping Slash",
-       "Gloom Bombs"
+       "Gloom Bombs",
+       "Ava"
       ],
-      0.15
+      0.121
      ],
      [
       [
@@ -1474,7 +1481,7 @@
        "Gloom Bombs",
        "Return to Shadows"
       ],
-      0.097
+      0.101
      ]
     ]
    },
@@ -1521,35 +1528,35 @@
     "https://mobalytics.gg/deadlock/grey-talon-guide"
    ],
    "replay": {
-    "matches": 27,
-    "fights": 781,
+    "matches": 42,
+    "fights": 1403,
     "abilities": {
      "Charged Shot": {
-      "cast_share": 0.816,
-      "first_share": 0.403,
-      "pre_share": 0.241,
-      "median_first_cast_s": 0.36,
-      "ult_after_share": 0.719
+      "cast_share": 0.834,
+      "first_share": 0.421,
+      "pre_share": 0.252,
+      "median_first_cast_s": 0.29,
+      "ult_after_share": 0.709
      },
      "Rain of Arrows": {
-      "cast_share": 0.625,
-      "first_share": 0.23,
-      "pre_share": 0.145,
-      "median_first_cast_s": 1.38,
-      "ult_after_share": 0.455
+      "cast_share": 0.654,
+      "first_share": 0.246,
+      "pre_share": 0.148,
+      "median_first_cast_s": 1.44,
+      "ult_after_share": 0.46
      },
      "Spirit Snare": {
-      "cast_share": 0.515,
-      "first_share": 0.187,
-      "pre_share": 0.149,
-      "median_first_cast_s": 2.06,
-      "ult_after_share": 0.5
+      "cast_share": 0.537,
+      "first_share": 0.196,
+      "pre_share": 0.148,
+      "median_first_cast_s": 2.14,
+      "ult_after_share": 0.517
      },
      "Guided Owl": {
-      "cast_share": 0.228,
-      "first_share": 0.055,
-      "pre_share": 0.044,
-      "median_first_cast_s": 5.45,
+      "cast_share": 0.189,
+      "first_share": 0.048,
+      "pre_share": 0.043,
+      "median_first_cast_s": 5.5,
       "ult_after_share": null
      }
     },
@@ -1558,20 +1565,19 @@
       [
        "Charged Shot"
       ],
-      0.12
-     ],
-     [
-      [
-       "Charged Shot",
-       "Rain of Arrows",
-       "Spirit Snare"
-      ],
-      0.086
+      0.118
      ],
      [
       [
        "Charged Shot",
        "Rain of Arrows"
+      ],
+      0.092
+     ],
+     [
+      [
+       "Rain of Arrows",
+       "Charged Shot"
       ],
       0.081
      ]
@@ -1632,35 +1638,35 @@
     "https://hawk.live/posts/deadlock-mo-krill-ultimate-guide"
    ],
    "replay": {
-    "matches": 42,
-    "fights": 1133,
+    "matches": 89,
+    "fights": 2638,
     "abilities": {
      "Scorn": {
-      "cast_share": 0.931,
-      "first_share": 0.523,
+      "cast_share": 0.887,
+      "first_share": 0.497,
       "pre_share": 0.078,
-      "median_first_cast_s": 0.78,
-      "ult_after_share": 0.763
+      "median_first_cast_s": 0.86,
+      "ult_after_share": 0.687
      },
      "Burrow": {
-      "cast_share": 0.572,
-      "first_share": 0.226,
-      "pre_share": 0.164,
-      "median_first_cast_s": 4.05,
-      "ult_after_share": 0.438
+      "cast_share": 0.556,
+      "first_share": 0.22,
+      "pre_share": 0.155,
+      "median_first_cast_s": 4.5,
+      "ult_after_share": 0.378
      },
      "Sand Blast": {
-      "cast_share": 0.615,
-      "first_share": 0.149,
-      "pre_share": 0.075,
-      "median_first_cast_s": 3.61,
-      "ult_after_share": 0.429
+      "cast_share": 0.597,
+      "first_share": 0.139,
+      "pre_share": 0.063,
+      "median_first_cast_s": 3.81,
+      "ult_after_share": 0.388
      },
      "Combo": {
-      "cast_share": 0.312,
-      "first_share": 0.059,
+      "cast_share": 0.262,
+      "first_share": 0.07,
       "pre_share": 0.013,
-      "median_first_cast_s": 4.7,
+      "median_first_cast_s": 4.33,
       "ult_after_share": null
      }
     },
@@ -1669,7 +1675,14 @@
       [
        "Scorn"
       ],
-      0.169
+      0.154
+     ],
+     [
+      [
+       "Scorn",
+       "Sand Blast"
+      ],
+      0.094
      ],
      [
       [
@@ -1677,14 +1690,7 @@
        "Scorn",
        "Sand Blast"
       ],
-      0.096
-     ],
-     [
-      [
-       "Scorn",
-       "Sand Blast"
-      ],
-      0.086
+      0.083
      ]
     ],
     "burrow_opener": {
@@ -1746,35 +1752,35 @@
     "https://mobalytics.gg/deadlock/shiv-guide"
    ],
    "replay": {
-    "matches": 59,
-    "fights": 1438,
+    "matches": 88,
+    "fights": 2167,
     "abilities": {
      "Serrated Knives": {
-      "cast_share": 0.926,
-      "first_share": 0.763,
-      "pre_share": 0.344,
-      "median_first_cast_s": 0.28,
-      "ult_after_share": 0.88
+      "cast_share": 0.932,
+      "first_share": 0.795,
+      "pre_share": 0.358,
+      "median_first_cast_s": 0.39,
+      "ult_after_share": 0.905
      },
      "Slice and Dice": {
-      "cast_share": 0.795,
-      "first_share": 0.154,
-      "pre_share": 0.063,
-      "median_first_cast_s": 3.53,
-      "ult_after_share": 0.828
+      "cast_share": 0.774,
+      "first_share": 0.139,
+      "pre_share": 0.05,
+      "median_first_cast_s": 3.95,
+      "ult_after_share": 0.826
      },
      "Bloodletting": {
-      "cast_share": 0.476,
-      "first_share": 0.04,
-      "pre_share": 0.003,
-      "median_first_cast_s": 9.73,
-      "ult_after_share": 0.284
+      "cast_share": 0.432,
+      "first_share": 0.034,
+      "pre_share": 0.006,
+      "median_first_cast_s": 10.95,
+      "ult_after_share": 0.339
      },
      "Killing Blow": {
-      "cast_share": 0.284,
-      "first_share": 0.018,
-      "pre_share": 0.007,
-      "median_first_cast_s": 10.15,
+      "cast_share": 0.223,
+      "first_share": 0.012,
+      "pre_share": 0.004,
+      "median_first_cast_s": 13.37,
       "ult_after_share": null
      }
     },
@@ -1784,7 +1790,7 @@
        "Serrated Knives",
        "Slice and Dice"
       ],
-      0.209
+      0.256
      ],
      [
       [
@@ -1792,13 +1798,13 @@
        "Slice and Dice",
        "Bloodletting"
       ],
-      0.204
+      0.191
      ],
      [
       [
        "Serrated Knives"
       ],
-      0.124
+      0.154
      ]
     ]
    },
@@ -1845,35 +1851,35 @@
     "https://deadlock.wiki/Air_Drop"
    ],
    "replay": {
-    "matches": 33,
-    "fights": 809,
+    "matches": 57,
+    "fights": 1497,
     "abilities": {
      "Entangling Thorns": {
-      "cast_share": 0.729,
-      "first_share": 0.413,
-      "pre_share": 0.214,
-      "median_first_cast_s": 2.5,
-      "ult_after_share": 0.403
+      "cast_share": 0.702,
+      "first_share": 0.474,
+      "pre_share": 0.199,
+      "median_first_cast_s": 2.09,
+      "ult_after_share": 0.377
      },
      "Kudzu Connection": {
-      "cast_share": 0.282,
-      "first_share": 0.07,
-      "pre_share": 0.036,
-      "median_first_cast_s": 4.66,
-      "ult_after_share": 0.11
+      "cast_share": 0.23,
+      "first_share": 0.075,
+      "pre_share": 0.035,
+      "median_first_cast_s": 4.83,
+      "ult_after_share": 0.102
      },
      "Stone Form": {
-      "cast_share": 0.7,
-      "first_share": 0.215,
-      "pre_share": 0.069,
-      "median_first_cast_s": 3.84,
-      "ult_after_share": 0.235
+      "cast_share": 0.625,
+      "first_share": 0.2,
+      "pre_share": 0.046,
+      "median_first_cast_s": 4.53,
+      "ult_after_share": 0.281
      },
      "Air Drop": {
-      "cast_share": 0.447,
-      "first_share": 0.226,
-      "pre_share": 0.057,
-      "median_first_cast_s": 0.65,
+      "cast_share": 0.242,
+      "first_share": 0.128,
+      "pre_share": 0.032,
+      "median_first_cast_s": 1.31,
       "ult_after_share": null
      }
     },
@@ -1883,20 +1889,20 @@
        "Entangling Thorns",
        "Stone Form"
       ],
-      0.13
+      0.167
      ],
      [
       [
        "Entangling Thorns"
       ],
-      0.072
+      0.144
      ],
      [
       [
        "Stone Form",
        "Entangling Thorns"
       ],
-      0.069
+      0.076
      ]
     ]
    },
@@ -1946,35 +1952,35 @@
     "https://www.dexerto.com/wikis/deadlock/warden/"
    ],
    "replay": {
-    "matches": 10,
-    "fights": 235,
+    "matches": 15,
+    "fights": 355,
     "abilities": {
      "Alchemical Flask": {
-      "cast_share": 0.911,
-      "first_share": 0.591,
-      "pre_share": 0.264,
-      "median_first_cast_s": 0.56,
-      "ult_after_share": 0.852
+      "cast_share": 0.913,
+      "first_share": 0.648,
+      "pre_share": 0.332,
+      "median_first_cast_s": 0.37,
+      "ult_after_share": 0.768
      },
      "Willpower": {
-      "cast_share": 0.66,
-      "first_share": 0.187,
-      "pre_share": 0.089,
-      "median_first_cast_s": 2.86,
-      "ult_after_share": 0.721
+      "cast_share": 0.634,
+      "first_share": 0.124,
+      "pre_share": 0.054,
+      "median_first_cast_s": 2.78,
+      "ult_after_share": 0.549
      },
      "Binding Word": {
-      "cast_share": 0.723,
-      "first_share": 0.132,
+      "cast_share": 0.687,
+      "first_share": 0.11,
       "pre_share": 0.068,
-      "median_first_cast_s": 1.72,
-      "ult_after_share": 0.754
+      "median_first_cast_s": 1.83,
+      "ult_after_share": 0.585
      },
      "Last Stand": {
-      "cast_share": 0.26,
-      "first_share": 0.026,
-      "pre_share": 0.017,
-      "median_first_cast_s": 10.77,
+      "cast_share": 0.231,
+      "first_share": 0.048,
+      "pre_share": 0.014,
+      "median_first_cast_s": 9.14,
       "ult_after_share": null
      }
     },
@@ -1985,21 +1991,21 @@
        "Binding Word",
        "Willpower"
       ],
-      0.209
+      0.183
      ],
      [
       [
        "Alchemical Flask"
       ],
-      0.132
+      0.144
      ],
      [
       [
-       "Willpower",
        "Alchemical Flask",
+       "Willpower",
        "Binding Word"
       ],
-      0.098
+      0.13
      ]
     ]
    },
@@ -2048,35 +2054,35 @@
     "https://destructoid.com/?p=590672"
    ],
    "replay": {
-    "matches": 60,
-    "fights": 1515,
+    "matches": 85,
+    "fights": 2194,
     "abilities": {
      "Power Slash": {
-      "cast_share": 0.604,
-      "first_share": 0.158,
-      "pre_share": 0.036,
-      "median_first_cast_s": 4.48,
-      "ult_after_share": 0.595
+      "cast_share": 0.588,
+      "first_share": 0.123,
+      "pre_share": 0.032,
+      "median_first_cast_s": 4.36,
+      "ult_after_share": 0.554
      },
      "Flying Slash": {
-      "cast_share": 0.736,
-      "first_share": 0.457,
-      "pre_share": 0.304,
-      "median_first_cast_s": 0.44,
-      "ult_after_share": 0.8
+      "cast_share": 0.737,
+      "first_share": 0.474,
+      "pre_share": 0.324,
+      "median_first_cast_s": 0.36,
+      "ult_after_share": 0.776
      },
      "Crimson Slash": {
-      "cast_share": 0.849,
+      "cast_share": 0.859,
       "first_share": 0.314,
-      "pre_share": 0.033,
-      "median_first_cast_s": 2.05,
-      "ult_after_share": 0.833
+      "pre_share": 0.034,
+      "median_first_cast_s": 1.98,
+      "ult_after_share": 0.832
      },
      "Shadow Transformation": {
-      "cast_share": 0.261,
-      "first_share": 0.017,
+      "cast_share": 0.253,
+      "first_share": 0.026,
       "pre_share": 0.009,
-      "median_first_cast_s": 8.95,
+      "median_first_cast_s": 8.47,
       "ult_after_share": null
      }
     },
@@ -2087,20 +2093,20 @@
        "Crimson Slash",
        "Power Slash"
       ],
-      0.212
+      0.248
      ],
      [
       [
        "Crimson Slash"
       ],
-      0.1
+      0.12
      ],
      [
       [
        "Flying Slash",
        "Crimson Slash"
       ],
-      0.099
+      0.104
      ]
     ]
    },
@@ -2169,46 +2175,45 @@
     "https://mobalytics.gg/deadlock/lash-guide"
    ],
    "replay": {
-    "matches": 73,
-    "fights": 2100,
+    "matches": 100,
+    "fights": 2965,
     "abilities": {
      "Ground Strike": {
-      "cast_share": 0.824,
-      "first_share": 0.334,
-      "pre_share": 0.27,
-      "median_first_cast_s": 0.06,
-      "ult_after_share": 0.36
+      "cast_share": 0.82,
+      "first_share": 0.36,
+      "pre_share": 0.291,
+      "median_first_cast_s": 0.0,
+      "ult_after_share": 0.308
      },
      "Grapple": {
-      "cast_share": 0.634,
-      "first_share": 0.288,
-      "pre_share": 0.213,
-      "median_first_cast_s": 1.62,
-      "ult_after_share": 0.616
+      "cast_share": 0.623,
+      "first_share": 0.274,
+      "pre_share": 0.197,
+      "median_first_cast_s": 1.78,
+      "ult_after_share": 0.579
      },
      "Flog": {
-      "cast_share": 0.849,
-      "first_share": 0.264,
-      "pre_share": 0.04,
+      "cast_share": 0.855,
+      "first_share": 0.261,
+      "pre_share": 0.029,
       "median_first_cast_s": 1.0,
-      "ult_after_share": 0.452
+      "ult_after_share": 0.39
      },
      "Death Slam": {
-      "cast_share": 0.243,
-      "first_share": 0.071,
-      "pre_share": 0.063,
-      "median_first_cast_s": 1.28,
+      "cast_share": 0.209,
+      "first_share": 0.075,
+      "pre_share": 0.065,
+      "median_first_cast_s": 0.71,
       "ult_after_share": null
      }
     },
     "top_openers": [
      [
       [
-       "Grapple",
        "Ground Strike",
        "Flog"
       ],
-      0.126
+      0.131
      ],
      [
       [
@@ -2216,14 +2221,15 @@
        "Flog",
        "Grapple"
       ],
-      0.123
+      0.127
      ],
      [
       [
+       "Grapple",
        "Ground Strike",
        "Flog"
       ],
-      0.113
+      0.112
      ]
     ]
    },
@@ -2280,58 +2286,58 @@
     "https://mobalytics.gg/deadlock/viscous-guide"
    ],
    "replay": {
-    "matches": 13,
-    "fights": 365,
+    "matches": 22,
+    "fights": 698,
     "abilities": {
      "Splatter": {
-      "cast_share": 0.896,
-      "first_share": 0.479,
-      "pre_share": 0.318,
-      "median_first_cast_s": 0.22,
-      "ult_after_share": 0.676
+      "cast_share": 0.885,
+      "first_share": 0.585,
+      "pre_share": 0.358,
+      "median_first_cast_s": -0.02,
+      "ult_after_share": 0.825
      },
      "The Cube": {
-      "cast_share": 0.395,
-      "first_share": 0.085,
-      "pre_share": 0.049,
-      "median_first_cast_s": 5.36,
-      "ult_after_share": 0.463
+      "cast_share": 0.404,
+      "first_share": 0.072,
+      "pre_share": 0.032,
+      "median_first_cast_s": 6.39,
+      "ult_after_share": 0.446
      },
      "Puddle Punch": {
-      "cast_share": 0.773,
-      "first_share": 0.362,
-      "pre_share": 0.236,
-      "median_first_cast_s": 0.52,
-      "ult_after_share": 0.657
+      "cast_share": 0.701,
+      "first_share": 0.277,
+      "pre_share": 0.181,
+      "median_first_cast_s": 1.55,
+      "ult_after_share": 0.711
      },
      "Goo Ball": {
-      "cast_share": 0.296,
-      "first_share": 0.044,
-      "pre_share": 0.027,
-      "median_first_cast_s": 6.1,
+      "cast_share": 0.238,
+      "first_share": 0.026,
+      "pre_share": 0.019,
+      "median_first_cast_s": 9.36,
       "ult_after_share": null
      }
     },
     "top_openers": [
      [
       [
+       "Splatter"
+      ],
+      0.182
+     ],
+     [
+      [
        "Splatter",
        "Puddle Punch"
       ],
-      0.156
+      0.138
      ],
      [
       [
        "Puddle Punch",
        "Splatter"
       ],
-      0.142
-     ],
-     [
-      [
-       "Splatter"
-      ],
-      0.14
+      0.113
      ]
     ]
    },
@@ -2382,35 +2388,35 @@
     "https://mobalytics.gg/deadlock/pocket-guide"
    ],
    "replay": {
-    "matches": 33,
-    "fights": 855,
+    "matches": 52,
+    "fights": 1448,
     "abilities": {
      "Barrage": {
-      "cast_share": 0.73,
-      "first_share": 0.53,
-      "pre_share": 0.385,
-      "median_first_cast_s": -0.19,
-      "ult_after_share": 0.665
+      "cast_share": 0.704,
+      "first_share": 0.544,
+      "pre_share": 0.412,
+      "median_first_cast_s": -0.27,
+      "ult_after_share": 0.709
      },
      "Flying Cloak": {
-      "cast_share": 0.875,
-      "first_share": 0.29,
-      "pre_share": 0.12,
-      "median_first_cast_s": 2.49,
-      "ult_after_share": 0.527
+      "cast_share": 0.854,
+      "first_share": 0.289,
+      "pre_share": 0.128,
+      "median_first_cast_s": 2.48,
+      "ult_after_share": 0.545
      },
      "Enchanter's Satchel": {
-      "cast_share": 0.816,
+      "cast_share": 0.821,
       "first_share": 0.087,
-      "pre_share": 0.033,
-      "median_first_cast_s": 2.73,
-      "ult_after_share": 0.458
+      "pre_share": 0.032,
+      "median_first_cast_s": 2.66,
+      "ult_after_share": 0.509
      },
      "Affliction": {
-      "cast_share": 0.304,
-      "first_share": 0.061,
-      "pre_share": 0.007,
-      "median_first_cast_s": 4.27,
+      "cast_share": 0.228,
+      "first_share": 0.041,
+      "pre_share": 0.003,
+      "median_first_cast_s": 5.27,
       "ult_after_share": null
      }
     },
@@ -2421,14 +2427,14 @@
        "Flying Cloak",
        "Enchanter's Satchel"
       ],
-      0.308
+      0.338
      ],
      [
       [
        "Flying Cloak",
        "Enchanter's Satchel"
       ],
-      0.103
+      0.137
      ],
      [
       [
@@ -2436,7 +2442,7 @@
        "Enchanter's Satchel",
        "Barrage"
       ],
-      0.065
+      0.061
      ]
     ]
    },
@@ -2484,35 +2490,35 @@
     "https://mobalytics.gg/deadlock/mirage-guide"
    ],
    "replay": {
-    "matches": 14,
-    "fights": 346,
+    "matches": 18,
+    "fights": 420,
     "abilities": {
      "Fire Scarabs": {
-      "cast_share": 0.806,
-      "first_share": 0.564,
-      "pre_share": 0.127,
-      "median_first_cast_s": 2.2,
-      "ult_after_share": 0.415
+      "cast_share": 0.883,
+      "first_share": 0.669,
+      "pre_share": 0.09,
+      "median_first_cast_s": 2.27,
+      "ult_after_share": 0.41
      },
      "Dust Devil": {
-      "cast_share": 0.575,
-      "first_share": 0.098,
-      "pre_share": 0.014,
-      "median_first_cast_s": 8.52,
-      "ult_after_share": 0.34
+      "cast_share": 0.638,
+      "first_share": 0.079,
+      "pre_share": 0.012,
+      "median_first_cast_s": 9.14,
+      "ult_after_share": 0.377
      },
      "Djinn's Mark": {
-      "cast_share": 0.46,
-      "first_share": 0.147,
-      "pre_share": 0.023,
-      "median_first_cast_s": 9.66,
-      "ult_after_share": 0.283
+      "cast_share": 0.502,
+      "first_share": 0.114,
+      "pre_share": 0.045,
+      "median_first_cast_s": 11.19,
+      "ult_after_share": 0.311
      },
      "Traveler": {
-      "cast_share": 0.153,
-      "first_share": 0.084,
-      "pre_share": 0.069,
-      "median_first_cast_s": 4.16,
+      "cast_share": 0.145,
+      "first_share": 0.076,
+      "pre_share": 0.074,
+      "median_first_cast_s": -2.02,
       "ult_after_share": null
      }
     },
@@ -2520,23 +2526,23 @@
      [
       [
        "Fire Scarabs",
+       "Dust Devil",
+       "Djinn's Mark"
+      ],
+      0.19
+     ],
+     [
+      [
+       "Fire Scarabs",
        "Dust Devil"
       ],
-      0.156
+      0.19
      ],
      [
       [
        "Fire Scarabs"
       ],
-      0.147
-     ],
-     [
-      [
-       "Fire Scarabs",
-       "Dust Devil",
-       "Djinn's Mark"
-      ],
-      0.116
+      0.145
      ]
     ]
    },
@@ -2582,34 +2588,34 @@
     "https://deadlock.wiki/Viper"
    ],
    "replay": {
-    "matches": 21,
-    "fights": 471,
+    "matches": 44,
+    "fights": 1076,
     "abilities": {
      "Screwjab Dagger": {
-      "cast_share": 0.839,
-      "first_share": 0.497,
-      "pre_share": 0.225,
-      "median_first_cast_s": 0.52,
-      "ult_after_share": 0.722
+      "cast_share": 0.829,
+      "first_share": 0.483,
+      "pre_share": 0.218,
+      "median_first_cast_s": 0.45,
+      "ult_after_share": 0.744
      },
      "Lethal Venom": {
-      "cast_share": 0.605,
-      "first_share": 0.096,
-      "pre_share": 0.03,
-      "median_first_cast_s": 3.34,
-      "ult_after_share": 0.506
+      "cast_share": 0.492,
+      "first_share": 0.073,
+      "pre_share": 0.017,
+      "median_first_cast_s": 4.16,
+      "ult_after_share": 0.381
      },
      "Slither": {
-      "cast_share": 0.584,
-      "first_share": 0.293,
-      "pre_share": 0.221,
-      "median_first_cast_s": 0.53,
-      "ult_after_share": 0.593
+      "cast_share": 0.574,
+      "first_share": 0.316,
+      "pre_share": 0.209,
+      "median_first_cast_s": 0.64,
+      "ult_after_share": 0.588
      },
      "Petrifying Bola": {
-      "cast_share": 0.344,
-      "first_share": 0.057,
-      "pre_share": 0.028,
+      "cast_share": 0.305,
+      "first_share": 0.046,
+      "pre_share": 0.024,
       "median_first_cast_s": 5.21,
       "ult_after_share": null
      }
@@ -2619,22 +2625,21 @@
       [
        "Screwjab Dagger"
       ],
-      0.117
+      0.12
+     ],
+     [
+      [
+       "Screwjab Dagger",
+       "Lethal Venom"
+      ],
+      0.108
      ],
      [
       [
        "Slither",
-       "Screwjab Dagger",
-       "Lethal Venom"
+       "Screwjab Dagger"
       ],
-      0.115
-     ],
-     [
-      [
-       "Screwjab Dagger",
-       "Lethal Venom"
-      ],
-      0.11
+      0.094
      ]
     ]
    },
@@ -2682,35 +2687,35 @@
     "https://mobalytics.gg/deadlock/sinclair-guide"
    ],
    "replay": {
-    "matches": 15,
-    "fights": 429,
+    "matches": 25,
+    "fights": 706,
     "abilities": {
      "Vexing Bolt": {
-      "cast_share": 0.786,
-      "first_share": 0.168,
-      "pre_share": 0.121,
-      "median_first_cast_s": 0.58,
-      "ult_after_share": 0.52
+      "cast_share": 0.793,
+      "first_share": 0.161,
+      "pre_share": 0.11,
+      "median_first_cast_s": 0.64,
+      "ult_after_share": 0.482
      },
      "Spectral Assistant": {
-      "cast_share": 0.807,
-      "first_share": 0.443,
-      "pre_share": 0.298,
-      "median_first_cast_s": 0.75,
-      "ult_after_share": 0.507
+      "cast_share": 0.742,
+      "first_share": 0.46,
+      "pre_share": 0.28,
+      "median_first_cast_s": 0.29,
+      "ult_after_share": 0.5
      },
      "Rabbit Hex": {
-      "cast_share": 0.634,
-      "first_share": 0.256,
-      "pre_share": 0.152,
-      "median_first_cast_s": 1.8,
-      "ult_after_share": 0.539
+      "cast_share": 0.572,
+      "first_share": 0.228,
+      "pre_share": 0.146,
+      "median_first_cast_s": 2.01,
+      "ult_after_share": 0.432
      },
      "Audience Participation": {
-      "cast_share": 0.354,
-      "first_share": 0.093,
-      "pre_share": 0.07,
-      "median_first_cast_s": 4.25,
+      "cast_share": 0.314,
+      "first_share": 0.099,
+      "pre_share": 0.075,
+      "median_first_cast_s": 2.11,
       "ult_after_share": null
      }
     },
@@ -2720,7 +2725,7 @@
        "Spectral Assistant",
        "Vexing Bolt"
       ],
-      0.145
+      0.183
      ],
      [
       [
@@ -2728,7 +2733,7 @@
        "Vexing Bolt",
        "Rabbit Hex"
       ],
-      0.128
+      0.137
      ],
      [
       [
@@ -2800,22 +2805,22 @@
     "https://www.shacknews.com/article/145592/mina-abilities-deadlock"
    ],
    "replay": {
-    "matches": 58,
-    "fights": 1612,
+    "matches": 94,
+    "fights": 2749,
     "abilities": {
      "Rake": {
-      "cast_share": 0.779,
-      "first_share": 0.62,
-      "pre_share": 0.072,
-      "median_first_cast_s": 2.03,
-      "ult_after_share": 0.476
+      "cast_share": 0.789,
+      "first_share": 0.657,
+      "pre_share": 0.073,
+      "median_first_cast_s": 1.95,
+      "ult_after_share": 0.581
      },
      "Sanguine Retreat": {
-      "cast_share": 0.478,
-      "first_share": 0.13,
-      "pre_share": 0.027,
-      "median_first_cast_s": 5.41,
-      "ult_after_share": 0.3
+      "cast_share": 0.487,
+      "first_share": 0.118,
+      "pre_share": 0.019,
+      "median_first_cast_s": 5.67,
+      "ult_after_share": 0.337
      },
      "Love Bites": {
       "cast_share": 0.0,
@@ -2825,10 +2830,10 @@
       "ult_after_share": 0.0
      },
      "Nox Nostra": {
-      "cast_share": 0.285,
-      "first_share": 0.123,
-      "pre_share": 0.075,
-      "median_first_cast_s": 2.65,
+      "cast_share": 0.266,
+      "first_share": 0.097,
+      "pre_share": 0.057,
+      "median_first_cast_s": 5.08,
       "ult_after_share": null
      }
     },
@@ -2837,14 +2842,14 @@
       [
        "Rake"
       ],
-      0.306
+      0.307
      ],
      [
       [
        "Rake",
        "Sanguine Retreat"
       ],
-      0.188
+      0.209
      ],
      [
       [
@@ -2852,7 +2857,7 @@
        "Sanguine Retreat",
        "Nox Nostra"
       ],
-      0.05
+      0.061
      ]
     ]
    },
@@ -2899,22 +2904,22 @@
     "https://deadlock.wiki/Stalker%27s_Mark"
    ],
    "replay": {
-    "matches": 65,
-    "fights": 1826,
+    "matches": 82,
+    "fights": 2429,
     "abilities": {
      "Rend": {
-      "cast_share": 0.882,
-      "first_share": 0.365,
-      "pre_share": 0.044,
-      "median_first_cast_s": 1.28,
-      "ult_after_share": 0.466
+      "cast_share": 0.825,
+      "first_share": 0.33,
+      "pre_share": 0.025,
+      "median_first_cast_s": 1.25,
+      "ult_after_share": 0.461
      },
      "Stalker's Mark": {
-      "cast_share": 0.802,
-      "first_share": 0.51,
-      "pre_share": 0.25,
-      "median_first_cast_s": 0.53,
-      "ult_after_share": 0.534
+      "cast_share": 0.793,
+      "first_share": 0.519,
+      "pre_share": 0.266,
+      "median_first_cast_s": 0.39,
+      "ult_after_share": 0.5
      },
      "Bloodscent": {
       "cast_share": 0.0,
@@ -2924,10 +2929,10 @@
       "ult_after_share": 0.0
      },
      "Eternal Night": {
-      "cast_share": 0.194,
-      "first_share": 0.083,
-      "pre_share": 0.07,
-      "median_first_cast_s": 4.1,
+      "cast_share": 0.18,
+      "first_share": 0.081,
+      "pre_share": 0.068,
+      "median_first_cast_s": 3.48,
       "ult_after_share": null
      }
     },
@@ -2937,20 +2942,20 @@
        "Stalker's Mark",
        "Rend"
       ],
-      0.373
+      0.361
      ],
      [
       [
        "Rend",
        "Stalker's Mark"
       ],
-      0.188
+      0.182
      ],
      [
       [
        "Rend"
       ],
-      0.142
+      0.121
      ]
     ]
    },
@@ -2997,35 +3002,35 @@
     "https://games.gg/deadlock/guides/deadlock-venator-build-guide/"
    ],
    "replay": {
-    "matches": 60,
-    "fights": 1434,
+    "matches": 103,
+    "fights": 2515,
     "abilities": {
      "Consecrating Grenade": {
-      "cast_share": 0.768,
-      "first_share": 0.357,
-      "pre_share": 0.136,
-      "median_first_cast_s": 2.0,
-      "ult_after_share": 0.706
+      "cast_share": 0.752,
+      "first_share": 0.342,
+      "pre_share": 0.128,
+      "median_first_cast_s": 2.28,
+      "ult_after_share": 0.676
      },
      "Gutshot": {
-      "cast_share": 0.729,
-      "first_share": 0.289,
-      "pre_share": 0.018,
-      "median_first_cast_s": 4.03,
-      "ult_after_share": 0.554
+      "cast_share": 0.691,
+      "first_share": 0.276,
+      "pre_share": 0.014,
+      "median_first_cast_s": 3.98,
+      "ult_after_share": 0.545
      },
      "Hex-Lined Snap Trap": {
-      "cast_share": 0.544,
-      "first_share": 0.252,
-      "pre_share": 0.149,
-      "median_first_cast_s": 3.47,
-      "ult_after_share": 0.456
+      "cast_share": 0.554,
+      "first_share": 0.245,
+      "pre_share": 0.15,
+      "median_first_cast_s": 3.72,
+      "ult_after_share": 0.478
      },
      "Ira Domini": {
-      "cast_share": 0.271,
-      "first_share": 0.046,
-      "pre_share": 0.032,
-      "median_first_cast_s": 5.75,
+      "cast_share": 0.263,
+      "first_share": 0.051,
+      "pre_share": 0.031,
+      "median_first_cast_s": 5.52,
       "ult_after_share": null
      }
     },
@@ -3035,19 +3040,21 @@
        "Gutshot",
        "Consecrating Grenade"
       ],
-      0.083
-     ],
-     [
-      [
-       "Gutshot"
-      ],
-      0.075
+      0.076
      ],
      [
       [
        "Consecrating Grenade"
       ],
-      0.073
+      0.07
+     ],
+     [
+      [
+       "Hex-Lined Snap Trap",
+       "Gutshot",
+       "Consecrating Grenade"
+      ],
+      0.067
      ]
     ]
    },
@@ -3095,35 +3102,35 @@
     "https://deadlock.wiki/Shocking_Reanimation"
    ],
    "replay": {
-    "matches": 32,
-    "fights": 720,
+    "matches": 59,
+    "fights": 1463,
     "abilities": {
      "Pain Battery": {
       "cast_share": 0.861,
-      "first_share": 0.562,
-      "pre_share": 0.099,
-      "median_first_cast_s": 2.5,
-      "ult_after_share": 0.845
+      "first_share": 0.56,
+      "pre_share": 0.091,
+      "median_first_cast_s": 2.59,
+      "ult_after_share": 0.914
      },
      "Jumpstart": {
-      "cast_share": 0.711,
-      "first_share": 0.237,
-      "pre_share": 0.075,
-      "median_first_cast_s": 3.58,
-      "ult_after_share": 0.729
+      "cast_share": 0.675,
+      "first_share": 0.214,
+      "pre_share": 0.066,
+      "median_first_cast_s": 3.93,
+      "ult_after_share": 0.774
      },
      "Aura of Suffering": {
-      "cast_share": 0.59,
-      "first_share": 0.135,
-      "pre_share": 0.047,
-      "median_first_cast_s": 6.33,
-      "ult_after_share": 0.929
+      "cast_share": 0.606,
+      "first_share": 0.151,
+      "pre_share": 0.051,
+      "median_first_cast_s": 6.09,
+      "ult_after_share": 0.952
      },
      "Shocking Reanimation": {
-      "cast_share": 0.215,
-      "first_share": 0.007,
-      "pre_share": 0.004,
-      "median_first_cast_s": 12.83,
+      "cast_share": 0.2,
+      "first_share": 0.003,
+      "pre_share": 0.0,
+      "median_first_cast_s": 16.75,
       "ult_after_share": null
      }
     },
@@ -3134,20 +3141,21 @@
        "Jumpstart",
        "Aura of Suffering"
       ],
-      0.19
+      0.187
      ],
      [
       [
        "Pain Battery"
       ],
-      0.133
+      0.14
      ],
      [
       [
+       "Jumpstart",
        "Pain Battery",
-       "Jumpstart"
+       "Aura of Suffering"
       ],
-      0.107
+      0.103
      ]
     ]
    },
@@ -3193,35 +3201,35 @@
     "https://deadlock.wiki/Bookworm"
    ],
    "replay": {
-    "matches": 55,
-    "fights": 1400,
+    "matches": 56,
+    "fights": 1450,
     "abilities": {
      "Bookwyrm": {
-      "cast_share": 0.756,
-      "first_share": 0.236,
-      "pre_share": 0.184,
+      "cast_share": 0.73,
+      "first_share": 0.253,
+      "pre_share": 0.192,
       "median_first_cast_s": 0.25,
-      "ult_after_share": 0.648
+      "ult_after_share": 0.599
      },
      "Plot Armor": {
-      "cast_share": 0.662,
-      "first_share": 0.256,
-      "pre_share": 0.136,
-      "median_first_cast_s": 2.03,
-      "ult_after_share": 0.506
+      "cast_share": 0.651,
+      "first_share": 0.214,
+      "pre_share": 0.106,
+      "median_first_cast_s": 2.22,
+      "ult_after_share": 0.502
      },
      "Captivating Read": {
-      "cast_share": 0.805,
+      "cast_share": 0.77,
       "first_share": 0.399,
-      "pre_share": 0.266,
-      "median_first_cast_s": 0.28,
-      "ult_after_share": 0.645
+      "pre_share": 0.268,
+      "median_first_cast_s": 0.3,
+      "ult_after_share": 0.684
      },
      "Rallying Charge": {
-      "cast_share": 0.251,
-      "first_share": 0.055,
-      "pre_share": 0.043,
-      "median_first_cast_s": 3.74,
+      "cast_share": 0.227,
+      "first_share": 0.05,
+      "pre_share": 0.036,
+      "median_first_cast_s": 3.81,
       "ult_after_share": null
      }
     },
@@ -3232,7 +3240,14 @@
        "Bookwyrm",
        "Plot Armor"
       ],
-      0.121
+      0.139
+     ],
+     [
+      [
+       "Captivating Read",
+       "Bookwyrm"
+      ],
+      0.087
      ],
      [
       [
@@ -3240,14 +3255,7 @@
        "Captivating Read",
        "Bookwyrm"
       ],
-      0.105
-     ],
-     [
-      [
-       "Captivating Read",
-       "Bookwyrm"
-      ],
-      0.101
+      0.07
      ]
     ]
    },
@@ -3293,35 +3301,35 @@
     "https://www.exitlag.com/blog/doorman-deadlock/"
    ],
    "replay": {
-    "matches": 22,
-    "fights": 642,
+    "matches": 19,
+    "fights": 574,
     "abilities": {
      "Call Bell": {
-      "cast_share": 0.894,
-      "first_share": 0.682,
-      "pre_share": 0.383,
-      "median_first_cast_s": 0.11,
-      "ult_after_share": 0.664
+      "cast_share": 0.897,
+      "first_share": 0.695,
+      "pre_share": 0.411,
+      "median_first_cast_s": 0.02,
+      "ult_after_share": 0.692
      },
      "Doorway": {
-      "cast_share": 0.332,
-      "first_share": 0.101,
-      "pre_share": 0.075,
-      "median_first_cast_s": 4.0,
-      "ult_after_share": 0.257
+      "cast_share": 0.317,
+      "first_share": 0.108,
+      "pre_share": 0.054,
+      "median_first_cast_s": 4.7,
+      "ult_after_share": 0.217
      },
      "Luggage Cart": {
-      "cast_share": 0.551,
-      "first_share": 0.111,
-      "pre_share": 0.044,
-      "median_first_cast_s": 4.33,
-      "ult_after_share": 0.395
+      "cast_share": 0.505,
+      "first_share": 0.12,
+      "pre_share": 0.042,
+      "median_first_cast_s": 4.54,
+      "ult_after_share": 0.308
      },
      "Hotel Guest": {
-      "cast_share": 0.237,
-      "first_share": 0.062,
-      "pre_share": 0.033,
-      "median_first_cast_s": 4.7,
+      "cast_share": 0.209,
+      "first_share": 0.042,
+      "pre_share": 0.012,
+      "median_first_cast_s": 3.57,
       "ult_after_share": null
      }
     },
@@ -3330,21 +3338,21 @@
       [
        "Call Bell"
       ],
-      0.313
+      0.329
      ],
      [
       [
        "Call Bell",
        "Luggage Cart"
       ],
-      0.143
+      0.145
      ],
      [
       [
        "Luggage Cart",
        "Call Bell"
       ],
-      0.047
+      0.056
      ]
     ]
    },
@@ -3396,35 +3404,35 @@
     "https://deadlock.wiki/Chain_Gang"
    ],
    "replay": {
-    "matches": 28,
-    "fights": 627,
+    "matches": 37,
+    "fights": 944,
     "abilities": {
      "Bashdown": {
-      "cast_share": 0.831,
-      "first_share": 0.362,
-      "pre_share": 0.054,
-      "median_first_cast_s": 1.78,
-      "ult_after_share": 0.567
+      "cast_share": 0.789,
+      "first_share": 0.322,
+      "pre_share": 0.034,
+      "median_first_cast_s": 1.77,
+      "ult_after_share": 0.605
      },
      "Rising Ram": {
-      "cast_share": 0.699,
-      "first_share": 0.399,
-      "pre_share": 0.174,
-      "median_first_cast_s": 2.21,
-      "ult_after_share": 0.582
+      "cast_share": 0.629,
+      "first_share": 0.403,
+      "pre_share": 0.197,
+      "median_first_cast_s": 1.52,
+      "ult_after_share": 0.556
      },
      "Blasted": {
-      "cast_share": 0.386,
-      "first_share": 0.056,
-      "pre_share": 0.021,
-      "median_first_cast_s": 15.31,
-      "ult_after_share": 0.095
+      "cast_share": 0.345,
+      "first_share": 0.043,
+      "pre_share": 0.02,
+      "median_first_cast_s": 15.12,
+      "ult_after_share": 0.068
      },
      "Chain Gang": {
-      "cast_share": 0.321,
-      "first_share": 0.091,
-      "pre_share": 0.059,
-      "median_first_cast_s": 3.97,
+      "cast_share": 0.282,
+      "first_share": 0.078,
+      "pre_share": 0.035,
+      "median_first_cast_s": 4.41,
       "ult_after_share": null
      }
     },
@@ -3434,13 +3442,13 @@
        "Rising Ram",
        "Bashdown"
       ],
-      0.158
+      0.171
      ],
      [
       [
        "Bashdown"
       ],
-      0.1
+      0.113
      ],
      [
       [
@@ -3448,7 +3456,7 @@
        "Bashdown",
        "Chain Gang"
       ],
-      0.088
+      0.087
      ]
     ]
    },
@@ -3492,22 +3500,22 @@
     "https://games.gg/deadlock/guides/deadlock-graves-guide/"
    ],
    "replay": {
-    "matches": 24,
-    "fights": 578,
+    "matches": 72,
+    "fights": 1858,
     "abilities": {
      "Jar of Dead": {
-      "cast_share": 0.768,
-      "first_share": 0.298,
-      "pre_share": 0.161,
-      "median_first_cast_s": 0.57,
-      "ult_after_share": 0.449
+      "cast_share": 0.776,
+      "first_share": 0.336,
+      "pre_share": 0.163,
+      "median_first_cast_s": 0.61,
+      "ult_after_share": 0.479
      },
      "Grasping Hands": {
-      "cast_share": 0.753,
-      "first_share": 0.495,
-      "pre_share": 0.31,
-      "median_first_cast_s": 0.3,
-      "ult_after_share": 0.565
+      "cast_share": 0.734,
+      "first_share": 0.471,
+      "pre_share": 0.297,
+      "median_first_cast_s": 0.25,
+      "ult_after_share": 0.524
      },
      "Essence Theft": {
       "cast_share": 0.0,
@@ -3517,10 +3525,10 @@
       "ult_after_share": 0.0
      },
      "Borrowed Decree": {
-      "cast_share": 0.254,
-      "first_share": 0.097,
-      "pre_share": 0.062,
-      "median_first_cast_s": 3.44,
+      "cast_share": 0.216,
+      "first_share": 0.08,
+      "pre_share": 0.058,
+      "median_first_cast_s": 2.81,
       "ult_after_share": null
      }
     },
@@ -3530,20 +3538,20 @@
        "Grasping Hands",
        "Jar of Dead"
       ],
-      0.301
+      0.286
      ],
      [
       [
        "Jar of Dead",
        "Grasping Hands"
       ],
-      0.144
+      0.156
      ],
      [
       [
        "Jar of Dead"
       ],
-      0.114
+      0.133
      ]
     ]
    },
@@ -3596,52 +3604,52 @@
     "https://deadlock.wiki/Itani_Lo_Sahn"
    ],
    "replay": {
-    "matches": 28,
-    "fights": 762,
+    "matches": 43,
+    "fights": 1183,
     "abilities": {
      "Disengaging Sigil": {
-      "cast_share": 0.776,
-      "first_share": 0.37,
-      "pre_share": 0.063,
-      "median_first_cast_s": 3.11,
-      "ult_after_share": 0.709
+      "cast_share": 0.762,
+      "first_share": 0.384,
+      "pre_share": 0.046,
+      "median_first_cast_s": 2.84,
+      "ult_after_share": 0.684
      },
      "Riposte": {
-      "cast_share": 0.631,
-      "first_share": 0.228,
-      "pre_share": 0.063,
-      "median_first_cast_s": 4.16,
-      "ult_after_share": 0.566
+      "cast_share": 0.626,
+      "first_share": 0.27,
+      "pre_share": 0.043,
+      "median_first_cast_s": 4.05,
+      "ult_after_share": 0.616
      },
      "Flawless Advance": {
-      "cast_share": 0.702,
-      "first_share": 0.285,
-      "pre_share": 0.028,
-      "median_first_cast_s": 5.2,
-      "ult_after_share": 0.686
+      "cast_share": 0.701,
+      "first_share": 0.246,
+      "pre_share": 0.019,
+      "median_first_cast_s": 6.02,
+      "ult_after_share": 0.7
      },
      "Itani Lo Sahn": {
-      "cast_share": 0.23,
-      "first_share": 0.039,
-      "pre_share": 0.02,
-      "median_first_cast_s": 9.38,
+      "cast_share": 0.211,
+      "first_share": 0.031,
+      "pre_share": 0.019,
+      "median_first_cast_s": 10.25,
       "ult_after_share": null
      }
     },
     "top_openers": [
      [
       [
+       "Disengaging Sigil"
+      ],
+      0.096
+     ],
+     [
+      [
        "Disengaging Sigil",
        "Flawless Advance",
        "Riposte"
       ],
-      0.085
-     ],
-     [
-      [
-       "Disengaging Sigil"
-      ],
-      0.084
+      0.095
      ],
      [
       [
@@ -3649,7 +3657,7 @@
        "Disengaging Sigil",
        "Flawless Advance"
       ],
-      0.076
+      0.09
      ]
     ]
    },
@@ -3716,35 +3724,35 @@
     "https://mobalytics.gg/deadlock/deadman-danny-guide"
    ],
    "replay": {
-    "matches": 139,
-    "fights": 3719,
+    "matches": 152,
+    "fights": 4505,
     "abilities": {
      "Strix Salvo": {
-      "cast_share": 0.803,
-      "first_share": 0.571,
-      "pre_share": 0.392,
-      "median_first_cast_s": -0.12,
-      "ult_after_share": 0.714
+      "cast_share": 0.856,
+      "first_share": 0.713,
+      "pre_share": 0.516,
+      "median_first_cast_s": -0.69,
+      "ult_after_share": 0.811
      },
      "Chimera Mk1": {
-      "cast_share": 0.569,
-      "first_share": 0.183,
-      "pre_share": 0.056,
-      "median_first_cast_s": 5.05,
-      "ult_after_share": 0.655
+      "cast_share": 0.355,
+      "first_share": 0.065,
+      "pre_share": 0.02,
+      "median_first_cast_s": 6.75,
+      "ult_after_share": 0.323
      },
      "Jettison Fuel": {
-      "cast_share": 0.649,
-      "first_share": 0.163,
-      "pre_share": 0.052,
-      "median_first_cast_s": 2.76,
-      "ult_after_share": 0.526
+      "cast_share": 0.539,
+      "first_share": 0.133,
+      "pre_share": 0.012,
+      "median_first_cast_s": 5.72,
+      "ult_after_share": 0.453
      },
      "Close The Deal": {
-      "cast_share": 0.259,
-      "first_share": 0.027,
+      "cast_share": 0.248,
+      "first_share": 0.028,
       "pre_share": 0.014,
-      "median_first_cast_s": 7.56,
+      "median_first_cast_s": 7.75,
       "ult_after_share": null
      }
     },
@@ -3753,14 +3761,14 @@
       [
        "Strix Salvo"
       ],
-      0.131
+      0.244
      ],
      [
       [
        "Strix Salvo",
        "Jettison Fuel"
       ],
-      0.105
+      0.132
      ],
      [
       [
@@ -3768,7 +3776,7 @@
        "Jettison Fuel",
        "Chimera Mk1"
       ],
-      0.105
+      0.067
      ]
     ]
    },
@@ -3824,62 +3832,58 @@
     "https://deadlock.wiki/Naptime"
    ],
    "replay": {
-    "matches": 27,
-    "fights": 674,
+    "matches": 25,
+    "fights": 641,
     "abilities": {
      "Pillow Toss": {
-      "cast_share": 0.822,
-      "first_share": 0.444,
-      "pre_share": 0.252,
-      "median_first_cast_s": 0.38,
-      "ult_after_share": 0.748
+      "cast_share": 0.824,
+      "first_share": 0.488,
+      "pre_share": 0.265,
+      "median_first_cast_s": 0.43,
+      "ult_after_share": 0.574
      },
      "Tag Along": {
-      "cast_share": 0.795,
-      "first_share": 0.205,
-      "pre_share": 0.147,
-      "median_first_cast_s": 0.16,
-      "ult_after_share": 0.82
+      "cast_share": 0.412,
+      "first_share": 0.212,
+      "pre_share": 0.131,
+      "median_first_cast_s": 5.52,
+      "ult_after_share": 0.361
      },
      "Lil Helpers": {
-      "cast_share": 0.389,
-      "first_share": 0.169,
-      "pre_share": 0.12,
-      "median_first_cast_s": 1.65,
-      "ult_after_share": 0.217
+      "cast_share": 0.248,
+      "first_share": 0.098,
+      "pre_share": 0.083,
+      "median_first_cast_s": 3.06,
+      "ult_after_share": 0.154
      },
      "Naptime": {
-      "cast_share": 0.677,
-      "first_share": 0.095,
-      "pre_share": 0.061,
-      "median_first_cast_s": 0.33,
+      "cast_share": 0.264,
+      "first_share": 0.084,
+      "pre_share": 0.053,
+      "median_first_cast_s": 3.97,
       "ult_after_share": null
      }
     },
     "top_openers": [
      [
       [
-       "Pillow Toss",
-       "Tag Along",
-       "Naptime"
+       "Pillow Toss"
       ],
-      0.291
+      0.282
      ],
      [
       [
        "Tag Along",
-       "Pillow Toss",
-       "Naptime"
+       "Pillow Toss"
       ],
-      0.088
+      0.109
      ],
      [
       [
-       "Lil Helpers",
        "Pillow Toss",
        "Tag Along"
       ],
-      0.065
+      0.05
      ]
     ]
    },
@@ -3937,35 +3941,35 @@
     "https://deadlock.wiki/Lycan_Curse"
    ],
    "replay": {
-    "matches": 25,
-    "fights": 583,
+    "matches": 50,
+    "fights": 1352,
     "abilities": {
      "Slam Fire": {
-      "cast_share": 0.801,
-      "first_share": 0.141,
-      "pre_share": 0.038,
-      "median_first_cast_s": 2.73,
-      "ult_after_share": 0.876
+      "cast_share": 0.817,
+      "first_share": 0.138,
+      "pre_share": 0.044,
+      "median_first_cast_s": 2.66,
+      "ult_after_share": 0.873
      },
      "Boot Kick": {
-      "cast_share": 0.808,
-      "first_share": 0.247,
-      "pre_share": 0.074,
-      "median_first_cast_s": 2.19,
-      "ult_after_share": 0.86
+      "cast_share": 0.784,
+      "first_share": 0.227,
+      "pre_share": 0.053,
+      "median_first_cast_s": 2.23,
+      "ult_after_share": 0.853
      },
      "Entangling Bola": {
-      "cast_share": 0.753,
-      "first_share": 0.532,
-      "pre_share": 0.225,
-      "median_first_cast_s": 0.84,
-      "ult_after_share": 0.881
+      "cast_share": 0.768,
+      "first_share": 0.539,
+      "pre_share": 0.234,
+      "median_first_cast_s": 0.98,
+      "ult_after_share": 0.859
      },
      "Lycan Curse": {
-      "cast_share": 0.331,
-      "first_share": 0.029,
-      "pre_share": 0.009,
-      "median_first_cast_s": 8.48,
+      "cast_share": 0.362,
+      "first_share": 0.039,
+      "pre_share": 0.013,
+      "median_first_cast_s": 9.87,
       "ult_after_share": null
      }
     },
@@ -3976,7 +3980,7 @@
        "Boot Kick",
        "Slam Fire"
       ],
-      0.292
+      0.298
      ],
      [
       [
@@ -3984,7 +3988,7 @@
        "Slam Fire",
        "Boot Kick"
       ],
-      0.127
+      0.125
      ],
      [
       [
@@ -3992,7 +3996,7 @@
        "Entangling Bola",
        "Slam Fire"
       ],
-      0.098
+      0.084
      ]
     ]
    },
@@ -4040,35 +4044,35 @@
     "https://deadlock.wiki/Shining_Wonder"
    ],
    "replay": {
-    "matches": 32,
-    "fights": 752,
+    "matches": 71,
+    "fights": 1904,
     "abilities": {
      "Light Eater": {
-      "cast_share": 0.867,
-      "first_share": 0.229,
-      "pre_share": 0.044,
-      "median_first_cast_s": 0.75,
-      "ult_after_share": 0.769
+      "cast_share": 0.857,
+      "first_share": 0.212,
+      "pre_share": 0.033,
+      "median_first_cast_s": 0.77,
+      "ult_after_share": 0.771
      },
      "Dazzling Trick": {
-      "cast_share": 0.657,
-      "first_share": 0.068,
-      "pre_share": 0.017,
-      "median_first_cast_s": 2.56,
-      "ult_after_share": 0.62
+      "cast_share": 0.648,
+      "first_share": 0.05,
+      "pre_share": 0.014,
+      "median_first_cast_s": 2.45,
+      "ult_after_share": 0.557
      },
      "Radiant Daggers": {
-      "cast_share": 0.878,
-      "first_share": 0.654,
-      "pre_share": 0.517,
-      "median_first_cast_s": -0.41,
-      "ult_after_share": 0.886
+      "cast_share": 0.86,
+      "first_share": 0.684,
+      "pre_share": 0.504,
+      "median_first_cast_s": -0.38,
+      "ult_after_share": 0.913
      },
      "Shining Wonder": {
-      "cast_share": 0.305,
-      "first_share": 0.021,
-      "pre_share": 0.011,
-      "median_first_cast_s": 7.02,
+      "cast_share": 0.255,
+      "first_share": 0.011,
+      "pre_share": 0.005,
+      "median_first_cast_s": 7.23,
       "ult_after_share": null
      }
     },
@@ -4079,14 +4083,14 @@
        "Light Eater",
        "Dazzling Trick"
       ],
-      0.274
+      0.301
      ],
      [
       [
        "Radiant Daggers",
        "Light Eater"
       ],
-      0.13
+      0.123
      ],
      [
       [
@@ -4094,7 +4098,7 @@
        "Dazzling Trick",
        "Light Eater"
       ],
-      0.074
+      0.076
      ]
     ]
    },
@@ -4138,35 +4142,35 @@
     "https://www.positioniseverything.net/rat-king-abilities-and-beginner-guide-for-deadlock/"
    ],
    "replay": {
-    "matches": 134,
-    "fights": 3290,
+    "matches": 181,
+    "fights": 4703,
     "abilities": {
      "Scrap Grenade": {
-      "cast_share": 0.878,
-      "first_share": 0.483,
-      "pre_share": 0.308,
-      "median_first_cast_s": 0.9,
-      "ult_after_share": 0.588
+      "cast_share": 0.862,
+      "first_share": 0.472,
+      "pre_share": 0.281,
+      "median_first_cast_s": 1.03,
+      "ult_after_share": 0.612
      },
      "Rat Swarm": {
-      "cast_share": 0.781,
-      "first_share": 0.234,
-      "pre_share": 0.123,
-      "median_first_cast_s": 1.23,
-      "ult_after_share": 0.57
+      "cast_share": 0.778,
+      "first_share": 0.259,
+      "pre_share": 0.133,
+      "median_first_cast_s": 1.11,
+      "ult_after_share": 0.61
      },
      "Royal Pestments": {
-      "cast_share": 0.761,
-      "first_share": 0.182,
-      "pre_share": 0.059,
-      "median_first_cast_s": 2.38,
-      "ult_after_share": 0.541
+      "cast_share": 0.736,
+      "first_share": 0.165,
+      "pre_share": 0.06,
+      "median_first_cast_s": 2.45,
+      "ult_after_share": 0.558
      },
      "Rule, Ratannia!": {
-      "cast_share": 0.199,
-      "first_share": 0.058,
-      "pre_share": 0.041,
-      "median_first_cast_s": 5.55,
+      "cast_share": 0.189,
+      "first_share": 0.05,
+      "pre_share": 0.034,
+      "median_first_cast_s": 7.11,
       "ult_after_share": null
      }
     },
@@ -4177,15 +4181,7 @@
        "Rat Swarm",
        "Royal Pestments"
       ],
-      0.193
-     ],
-     [
-      [
-       "Scrap Grenade",
-       "Royal Pestments",
-       "Rat Swarm"
-      ],
-      0.09
+      0.186
      ],
      [
       [
@@ -4193,7 +4189,15 @@
        "Scrap Grenade",
        "Royal Pestments"
       ],
-      0.089
+      0.09
+     ],
+     [
+      [
+       "Scrap Grenade",
+       "Royal Pestments",
+       "Rat Swarm"
+      ],
+      0.087
      ]
     ]
    },
@@ -4246,59 +4250,58 @@
     "https://steamdb.com/en/deadlock/heroes/solomon"
    ],
    "replay": {
-    "matches": 80,
-    "fights": 2019,
+    "matches": 66,
+    "fights": 1924,
     "abilities": {
      "Setup Bishop": {
-      "cast_share": 0.549,
-      "first_share": 0.279,
-      "pre_share": 0.18,
-      "median_first_cast_s": 1.41,
-      "ult_after_share": 0.544
+      "cast_share": 0.374,
+      "first_share": 0.175,
+      "pre_share": 0.101,
+      "median_first_cast_s": 4.7,
+      "ult_after_share": 0.35
      },
      "Kingside Knight": {
-      "cast_share": 0.621,
-      "first_share": 0.278,
-      "pre_share": 0.108,
-      "median_first_cast_s": 3.77,
-      "ult_after_share": 0.657
+      "cast_share": 0.62,
+      "first_share": 0.33,
+      "pre_share": 0.11,
+      "median_first_cast_s": 3.7,
+      "ult_after_share": 0.706
      },
      "Rook Battery": {
-      "cast_share": 0.687,
-      "first_share": 0.309,
-      "pre_share": 0.128,
-      "median_first_cast_s": 1.97,
-      "ult_after_share": 0.699
+      "cast_share": 0.654,
+      "first_share": 0.338,
+      "pre_share": 0.131,
+      "median_first_cast_s": 2.1,
+      "ult_after_share": 0.761
      },
      "Develop Queen": {
-      "cast_share": 0.163,
-      "first_share": 0.023,
-      "pre_share": 0.009,
-      "median_first_cast_s": 12.27,
+      "cast_share": 0.102,
+      "first_share": 0.012,
+      "pre_share": 0.004,
+      "median_first_cast_s": 19.14,
       "ult_after_share": null
      }
     },
     "top_openers": [
      [
       [
-       "Rook Battery"
-      ],
-      0.087
-     ],
-     [
-      [
        "Kingside Knight",
        "Rook Battery"
       ],
-      0.078
+      0.122
      ],
      [
       [
-       "Setup Bishop",
+       "Rook Battery"
+      ],
+      0.115
+     ],
+     [
+      [
        "Rook Battery",
        "Kingside Knight"
       ],
-      0.071
+      0.105
      ]
     ]
    },
@@ -4326,61 +4329,59 @@
     "Deadlock API demo extracts"
    ],
    "replay": {
-    "matches": 32,
-    "fights": 939,
+    "matches": 171,
+    "fights": 4989,
     "abilities": {
      "Living Ink": {
-      "cast_share": 0.668,
-      "first_share": 0.316,
-      "pre_share": 0.224,
-      "median_first_cast_s": 2.17,
-      "ult_after_share": 0.554
+      "cast_share": 0.823,
+      "first_share": 0.376,
+      "pre_share": 0.254,
+      "median_first_cast_s": 2.52,
+      "ult_after_share": 0.562
      },
      "Flow State": {
-      "cast_share": 0.459,
-      "first_share": 0.102,
-      "pre_share": 0.072,
-      "median_first_cast_s": 5.61,
-      "ult_after_share": 0.333
+      "cast_share": 0.521,
+      "first_share": 0.131,
+      "pre_share": 0.093,
+      "median_first_cast_s": 6.34,
+      "ult_after_share": 0.297
      },
      "Still Life": {
-      "cast_share": 0.614,
-      "first_share": 0.279,
-      "pre_share": 0.016,
-      "median_first_cast_s": 0.97,
-      "ult_after_share": 0.508
+      "cast_share": 0.764,
+      "first_share": 0.352,
+      "pre_share": 0.021,
+      "median_first_cast_s": 1.13,
+      "ult_after_share": 0.5
      },
      "Abstract Landscape": {
-      "cast_share": 0.208,
-      "first_share": 0.063,
-      "pre_share": 0.039,
-      "median_first_cast_s": 4.16,
+      "cast_share": 0.259,
+      "first_share": 0.084,
+      "pre_share": 0.055,
+      "median_first_cast_s": 4.8,
       "ult_after_share": null
      }
     },
     "top_openers": [
      [
       [
-       "Living Ink",
-       "Still Life",
-       "Flow State"
-      ],
-      0.087
-     ],
-     [
-      [
-       "Still Life",
-       "Living Ink",
-       "Flow State"
-      ],
-      0.084
-     ],
-     [
-      [
        "Still Life",
        "Living Ink"
       ],
-      0.077
+      0.108
+     ],
+     [
+      [
+       "Still Life",
+       "Living Ink",
+       "Flow State"
+      ],
+      0.098
+     ],
+     [
+      [
+       "Living Ink"
+      ],
+      0.089
      ]
     ]
    },
@@ -4440,35 +4441,35 @@
     "Deadlock API demo extracts"
    ],
    "replay": {
-    "matches": 31,
-    "fights": 868,
+    "matches": 59,
+    "fights": 1484,
     "abilities": {
      "Threadsap": {
-      "cast_share": 0.713,
-      "first_share": 0.276,
-      "pre_share": 0.156,
-      "median_first_cast_s": 0.42,
-      "ult_after_share": 0.851
+      "cast_share": 0.93,
+      "first_share": 0.442,
+      "pre_share": 0.255,
+      "median_first_cast_s": 0.19,
+      "ult_after_share": 0.843
      },
      "Granny Long Legs": {
-      "cast_share": 0.538,
-      "first_share": 0.13,
-      "pre_share": 0.101,
-      "median_first_cast_s": 2.17,
-      "ult_after_share": 0.682
+      "cast_share": 0.715,
+      "first_share": 0.22,
+      "pre_share": 0.173,
+      "median_first_cast_s": 1.91,
+      "ult_after_share": 0.71
      },
      "Baba's Brew": {
-      "cast_share": 0.607,
-      "first_share": 0.326,
-      "pre_share": 0.224,
-      "median_first_cast_s": 0.98,
-      "ult_after_share": 0.785
+      "cast_share": 0.723,
+      "first_share": 0.295,
+      "pre_share": 0.208,
+      "median_first_cast_s": 3.5,
+      "ult_after_share": 0.653
      },
      "Feed The Birds": {
-      "cast_share": 0.225,
-      "first_share": 0.014,
-      "pre_share": 0.006,
-      "median_first_cast_s": 10.31,
+      "cast_share": 0.288,
+      "first_share": 0.022,
+      "pre_share": 0.01,
+      "median_first_cast_s": 10.14,
       "ult_after_share": null
      }
     },
@@ -4479,14 +4480,7 @@
        "Threadsap",
        "Granny Long Legs"
       ],
-      0.137
-     ],
-     [
-      [
-       "Baba's Brew",
-       "Threadsap"
-      ],
-      0.082
+      0.13
      ],
      [
       [
@@ -4494,7 +4488,13 @@
        "Granny Long Legs",
        "Baba's Brew"
       ],
-      0.068
+      0.115
+     ],
+     [
+      [
+       "Threadsap"
+      ],
+      0.097
      ]
     ]
    }
