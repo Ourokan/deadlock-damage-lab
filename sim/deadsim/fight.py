@@ -228,6 +228,11 @@ def make_fighter(engine, lo: Loadout, name=None):
     if engine.mech is not None and getattr(engine.mech, "gun_lean", 0.0):
         spirit = sum(it.cost for it in items if it.slot == "spirit")
         f.gun_uptime = math.exp(-engine.mech.gun_lean * spirit / 1000.0)
+    if engine.mech is not None and getattr(engine.mech, "ability_lean", 0.0):
+        from .mechanics import lean_center
+        spirit, c = sum(it.cost for it in items if it.slot == "spirit"), lean_center(hero.id)
+        if c is not None:
+            f.cast_hazard = math.exp(engine.mech.ability_lean * (spirit - c) / 1000.0)
     if lo.ability_order:
         tiers, unlocked = abilities_for_order(hero, lo.ability_order, st.souls)
     else:

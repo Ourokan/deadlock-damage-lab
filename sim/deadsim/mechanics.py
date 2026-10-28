@@ -277,6 +277,18 @@ class Mechanics:
     # interval and reload time are / exp(-gun_lean x spirit item souls / 1000) (the gun's whole timeline slows, so its
     # damage per second drops by that factor)
     gun_lean: float = 0.028
+    # abilities by build (2026-10-28): real players with more souls in spirit items also open fights with their abilities
+    # sooner and recast them sooner after cooldown (Phantom+ replays, stratified Cox per ability: hazard x exp(0.0060 per
+    # 1000 spirit item souls) for first casts with net worth and cooldown reduction in the model, both halves of the
+    # matches 0.0079 / 0.0075 without cdr; recasts 0.0078 +- 0.0019), while the sim drew both from one curve per ability.
+    # With cast_timing / recast_timing, each draw u becomes 1 - (1 - u) ^ (1 / hr), hr = exp(ability_lean x (spirit
+    # item souls - the hero's mean over its real chances) / 1000) (data/ability_lean.json): the hero's pooled curve stays
+    # its average, spirit builds cast sooner, gun builds later. The damage audit had every hero's ability share ~4% under
+    # and item share ~10% over on spirit builds (same hero, same fifth of the match), items alone fine
+    # (scripts/cast_timing/ability_lean.py, validation/README.md "Abilities by build"). Opt-in (0.006 = the replay fit):
+    # it cut a quarter of that ability gap on held-out halves, but sim_vs_win 27k all 0.307 -> 0.302, within slot and
+    # tier 0.343 -> 0.342 (spirit power and charge items gain value), so the searches keep it off
+    ability_lean: float = 0.0
     # Soul Exchange swaps whole (2026-10-28): the swap is a health swap, not a hit that lands part of the time, yet it
     # took its fitted landing factor x length_corr (1.42 x 0.41 = 0.58), so the target lost ~0.20 of its max health per
     # swap vs ~0.50 in real Phantom+ replays (scripts/mechanics/swap_real.py) and the audit had it at half its real
@@ -540,6 +552,7 @@ def hold_first_casts(f):
             u = ult_phase_u(f, ab, q, u)
         if ab.ab.class_name == GRAVES_WALL and getattr(f.e.mech, "graves_phase", False):
             u = share_u(q, u, _interp_ln(graves_phase()["wall_mult"], f.st.souls))
+        u = lean_u(f, u)
         h = q[min(len(q) - 1, int(u * len(q)))]
         ab.held_until = f.e.t + (math.inf if h is None else max(0.0, h))
         ab.timed = True
@@ -622,6 +635,34 @@ def cdr_ready_u(f, ab, u):
     return u * r1 / r if u < r else r1 + (u - r) * (1.0 - r1) / (1.0 - r)
 
 
+_LEAN = None
+
+
+def lean_center(hero_id):
+    """Mechanics.ability_lean: the hero's mean spirit item souls over its real first-cast chances (data/ability_lean.json),
+    the pooled mean for a hero without one, None without the file."""
+    global _LEAN
+    if _LEAN is None:
+        fn = os.path.join(os.path.dirname(__file__), "..", "data", "ability_lean.json")
+        _LEAN = {}
+        if os.path.exists(fn):
+            with open(fn) as fh:
+                _LEAN = json.load(fh)["center"]
+    if not _LEAN:
+        return None
+    c = _LEAN.get(str(hero_id))
+    return c if c is not None else sum(_LEAN.values()) / len(_LEAN)
+
+
+def lean_u(f, u):
+    """Mechanics.ability_lean: a hold / wait quantile u at the fighter's cast hazard ratio (proportional hazards on the
+    real curve: P(by t) = 1 - (1 - P(t)) ^ hr)."""
+    hr = f.cast_hazard
+    if hr == 1.0:
+        return u
+    return 1.0 - (1.0 - u) ** (1.0 / hr)
+
+
 _RECAST = None
 
 
@@ -685,6 +726,7 @@ def recast_wait(ab, cls=None, n=None, finite=False):
         u = (phase + zlib.crc32(f"recast|{cls}|{f.name}|{ab.casts if n is None else n}".encode()) / 2 ** 32) % 1.0
     else:
         u = rng.random()
+    u = lean_u(f, u)
     if finite:
         q = [h for h in q if h is not None] or [0.0]
     h = q[min(len(q) - 1, int(u * len(q)))]
