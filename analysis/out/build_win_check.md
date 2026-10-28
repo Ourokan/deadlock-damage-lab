@@ -2,9 +2,9 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-02 to 2026-10-26, 166,971 Ritualist+ matches (refreshed 2026-10-28T02:16:04Z).
+Edges: patch 09-29-2026, matches 2026-10-02 to 2026-10-26, 166,971 Ritualist+ matches (refreshed 2026-10-28T04:19:16Z).
 
-- Recommended item slots with data: 2003; mean edge +1.5 (popular builds +0.1); clearly positive 1402, clearly negative 11.
+- Recommended item slots with data: 2001; mean edge +1.5 (popular builds +0.1); clearly positive 1403, clearly negative 10.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
@@ -17,7 +17,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Item | slot/tier | builds | heroes (edge) |
 |---|---|---:|---|
 | Arcane Surge | spirit 2 | 5 | Lash -2.7, Solomon -2.4, McGinnis -1.8 |
-| Stalker | weapon 2 | 3 | Billy -1.7 |
+| Stalker | weapon 2 | 2 | Billy -1.7 |
 | Kinetic Dash | weapon 2 | 2 | Deadman Danny -4.4 |
 | Guardian Ward | vitality 2 | 1 | Paige -0.9 |
 
@@ -44,7 +44,6 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Lucky Shot | weapon 4 | 2 | Holliday +2.0, Haze +1.6 |
 | Spirit Burn | spirit 4 | 2 | Infernus +2.5, Mina +1.9 |
 | Warp Stone | vitality 3 | 2 | Victor +1.9, Infernus +1.5 |
-| Rapid Rounds | weapon 1 | 2 | Ivy +1.6, Wraith +1.6 |
 | Indomitable | vitality 4 | 2 | Lash +1.9, McGinnis +1.9 |
 | Mystic Reverb | spirit 4 | 2 | Violet +3.3, Solomon +2.5 |
 | Stamina Mastery | vitality 3 | 1 | Apollo +1.6 |
@@ -55,6 +54,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Spiritual Overflow | weapon 4 | 1 | Graves +1.7 |
 | Rapid Recharge | spirit 3 | 1 | Haze +2.1 |
 | Spellbreaker | vitality 4 | 1 | Infernus +1.8 |
+| Rapid Rounds | weapon 1 | 1 | Ivy +1.6 |
 | Infuser | vitality 4 | 1 | Lady Geist +3.1 |
 | Siphon Bullets | vitality 4 | 1 | Lash +1.9 |
 | Glass Cannon | weapon 4 | 1 | Paradox +1.5 |
@@ -84,7 +84,6 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 
 ### Billy
 - 27k: Stalker -1.7
-- 37k: Stalker -1.7
 - 50k: Stalker -1.7
 - never picked: Ethereal Shift +2.3, Colossus +1.8, Mystic Expansion +1.6, Enduring Speed +1.5
 
@@ -203,7 +202,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Fleetfoot +1.8
 
 ### Wraith
-- never picked: Spellslinger +1.9, Boundless Spirit +1.8, Rapid Rounds +1.6
+- never picked: Spellslinger +1.9, Boundless Spirit +1.8
 
 ### Yamato
 - never picked: Refresher +2.0, Colossus +1.7

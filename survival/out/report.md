@@ -7,9 +7,9 @@
 | 10k | 0% | 20.0 | 22.8 | +0% | Melee Charge, Stalker, Close Quarters, Melee Lifesteal, Bullet Resist Shredder, Restorative Shot | Extra Regen | Grit |
 | 10k | 10% | 20.0 | 22.8 | +0% | Melee Charge, Stalker, Close Quarters, Melee Lifesteal, Bullet Resist Shredder, Restorative Shot | Extra Regen | Grit |
 | 10k | 25% | 20.0 | 22.8 | +0% | Melee Charge, Stalker, Close Quarters, Melee Lifesteal, Bullet Resist Shredder, Restorative Shot | Extra Regen | Grit |
-| 18k | 0% | 22.5 | 39.5 | +4% | Melee Charge, Stalker, Close Quarters, Melee Lifesteal, Hunter's Aura, Bullet Resist Shredder | Monster Rounds, Melee Lifesteal (upgraded to Lifestrike), Extra Regen (upgraded to Healing Booster), Warp Stone, Restorative Shot | Lifestrike, Healing Booster, Enchanter's Emblem |
-| 18k | 10% | 22.5 | 39.5 | +4% | Melee Charge, Stalker, Close Quarters, Melee Lifesteal, Hunter's Aura, Bullet Resist Shredder | Monster Rounds, Melee Lifesteal (upgraded to Lifestrike), Extra Regen (upgraded to Healing Booster), Warp Stone, Restorative Shot | Lifestrike, Healing Booster, Enchanter's Emblem |
-| 18k | 25% | 22.5 | 39.5 | +4% | Melee Charge, Stalker, Close Quarters, Melee Lifesteal, Hunter's Aura, Bullet Resist Shredder | Monster Rounds, Melee Lifesteal (upgraded to Lifestrike), Extra Regen (upgraded to Healing Booster), Warp Stone, Restorative Shot | Lifestrike, Healing Booster, Enchanter's Emblem |
+| 18k | 0% | 22.6 | 39.5 | +4% | Melee Charge, Stalker, Close Quarters, Melee Lifesteal, Hunter's Aura, Bullet Resist Shredder | Monster Rounds, Melee Lifesteal (upgraded to Lifestrike), Extra Regen (upgraded to Healing Booster), Warp Stone, Restorative Shot | Lifestrike, Healing Booster, Enchanter's Emblem |
+| 18k | 10% | 22.6 | 39.5 | +4% | Melee Charge, Stalker, Close Quarters, Melee Lifesteal, Hunter's Aura, Bullet Resist Shredder | Monster Rounds, Melee Lifesteal (upgraded to Lifestrike), Extra Regen (upgraded to Healing Booster), Warp Stone, Restorative Shot | Lifestrike, Healing Booster, Enchanter's Emblem |
+| 18k | 25% | 22.6 | 39.5 | +4% | Melee Charge, Stalker, Close Quarters, Melee Lifesteal, Hunter's Aura, Bullet Resist Shredder | Monster Rounds, Melee Lifesteal (upgraded to Lifestrike), Extra Regen (upgraded to Healing Booster), Warp Stone, Restorative Shot | Lifestrike, Healing Booster, Enchanter's Emblem |
 | 27k | 0% | 39.0 | 46.7 | +2% | Melee Charge, Stalker, Close Quarters, Hunter's Aura, Bullet Resist Shredder, Warp Stone | Healing Booster, Superior Duration | Spirit Resilience, Enchanter's Emblem |
 | 27k | 10% | 39.0 | 47.9 | -5% | Melee Charge, Stalker, Close Quarters, Hunter's Aura, Bullet Resist Shredder, Warp Stone | Superior Duration | Spirit Resilience |
 | 27k | 25% | 39.0 | 47.9 | -5% | Melee Charge, Stalker, Close Quarters, Hunter's Aura, Bullet Resist Shredder, Warp Stone | Superior Duration | Spirit Resilience |
@@ -24,9 +24,9 @@
 
 | Souls | Margin | Popular alive (s) | Best alive (s) | Damage vs popular | Core (kept) | Swapped out | Added |
 |---|---|---|---|---|---|---|---|
-| 10k | 0% | 11.4 | 13.8 | +0% | Spirit Strike, Extra Regen | - | Extra Health |
-| 10k | 10% | 11.4 | 25.3 | -4% | Spirit Strike, Extra Regen | Stalker, Spirit Strike (upgraded to Spirit Snatch), Mystic Burst, Headhunter | Spirit Shielding, Melee Lifesteal, Spirit Snatch, Enchanter's Emblem |
-| 10k | 25% | 11.4 | 25.3 | -4% | Spirit Strike, Extra Regen | Stalker, Spirit Strike (upgraded to Spirit Snatch), Mystic Burst, Headhunter | Spirit Shielding, Melee Lifesteal, Spirit Snatch, Enchanter's Emblem |
+| 10k | 0% | 11.5 | 13.8 | +0% | Spirit Strike, Extra Regen | - | Extra Health |
+| 10k | 10% | 11.5 | 25.4 | -4% | Spirit Strike, Extra Regen | Stalker, Spirit Strike (upgraded to Spirit Snatch), Mystic Burst, Headhunter | Spirit Shielding, Melee Lifesteal, Spirit Snatch, Enchanter's Emblem |
+| 10k | 25% | 11.5 | 25.4 | -4% | Spirit Strike, Extra Regen | Stalker, Spirit Strike (upgraded to Spirit Snatch), Mystic Burst, Headhunter | Spirit Shielding, Melee Lifesteal, Spirit Snatch, Enchanter's Emblem |
 | 18k | 0% | 14.1 | 43.0 | +1% | Spirit Snatch, Headhunter | Stalker, Slowing Hex, Mystic Burst, Enduring Speed, Extra Regen (upgraded to Healing Booster), Trophy Collector | Spirit Sap, Metal Skin, Melee Lifesteal, Healing Booster, Enchanter's Emblem |
 | 18k | 10% | 14.1 | 43.2 | -2% | Spirit Snatch, Headhunter | Stalker, Slowing Hex, Mystic Burst, Enduring Speed, Extra Regen (upgraded to Healing Booster), Trophy Collector | Spirit Sap, Metal Skin, Healing Booster, Extra Health, Enchanter's Emblem |
 | 18k | 25% | 14.1 | 43.8 | -12% | Spirit Snatch, Headhunter | Stalker, Slowing Hex, Mystic Burst, Enduring Speed, Extra Regen (upgraded to Healing Booster), Trophy Collector | Metal Skin, Restorative Locket, Healing Booster, Enchanter's Emblem, Rebuttal |
@@ -64,17 +64,17 @@
 
 | Souls | Margin | Popular alive (s) | Best alive (s) | Damage vs popular | Core (kept) | Swapped out | Added |
 |---|---|---|---|---|---|---|---|
-| 10k | 0% | 13.6 | 13.7 | +0% | Mystic Expansion, Healing Booster, Radiant Regeneration, High-Velocity Rounds | Grit | Extra Health |
-| 10k | 10% | 13.6 | 15.3 | -6% | Mystic Expansion, Healing Booster, Radiant Regeneration, High-Velocity Rounds | Mystic Burst | Rusted Barrel |
-| 10k | 25% | 13.6 | 15.8 | -14% | Mystic Expansion, Healing Booster, Radiant Regeneration, High-Velocity Rounds | Mystic Burst | Extra Health |
+| 10k | 0% | 13.7 | 13.7 | +0% | Mystic Expansion, Healing Booster, Radiant Regeneration, High-Velocity Rounds | Grit | Extra Health |
+| 10k | 10% | 13.7 | 15.4 | -6% | Mystic Expansion, Healing Booster, Radiant Regeneration, High-Velocity Rounds | Mystic Burst | Rusted Barrel |
+| 10k | 25% | 13.7 | 15.8 | -14% | Mystic Expansion, Healing Booster, Radiant Regeneration, High-Velocity Rounds | Mystic Burst | Extra Health |
 | 18k | 0% | 20.5 | 21.6 | +3% | Spirit Shielding, Torment Pulse, Mystic Expansion, Restorative Locket, Healing Booster, Radiant Regeneration, High-Velocity Rounds | Suppressor | Enchanter's Emblem |
 | 18k | 10% | 20.5 | 23.2 | -1% | Spirit Shielding, Torment Pulse, Mystic Expansion, Restorative Locket, Healing Booster, Radiant Regeneration, High-Velocity Rounds | Suppressor, Mystic Burst | Rusted Barrel, Enchanter's Emblem |
 | 18k | 25% | 20.5 | 23.2 | -1% | Spirit Shielding, Torment Pulse, Mystic Expansion, Restorative Locket, Healing Booster, Radiant Regeneration, High-Velocity Rounds | Suppressor, Mystic Burst | Rusted Barrel, Enchanter's Emblem |
-| 27k | 0% | 17.6 | 38.1 | +2% | Spirit Shielding, Torment Pulse, Greater Expansion, Restorative Locket, Healing Booster, Radiant Regeneration | Stamina Mastery, Mystic Burst, Opening Rounds, Healbane | Spirit Lifesteal, Spirit Shredder, Spirit Resilience, Enchanter's Emblem |
+| 27k | 0% | 17.6 | 38.2 | +2% | Spirit Shielding, Torment Pulse, Greater Expansion, Restorative Locket, Healing Booster, Radiant Regeneration | Stamina Mastery, Mystic Burst, Opening Rounds, Healbane | Spirit Lifesteal, Spirit Shredder, Spirit Resilience, Enchanter's Emblem |
 | 27k | 10% | 17.6 | 39.6 | -7% | Spirit Shielding, Torment Pulse, Greater Expansion, Restorative Locket, Healing Booster, Radiant Regeneration | Stamina Mastery, Mystic Burst, Opening Rounds, Healbane | Spirit Resilience, Bullet Resilience, Enchanter's Emblem |
 | 27k | 25% | 17.6 | 39.6 | -7% | Spirit Shielding, Torment Pulse, Greater Expansion, Restorative Locket, Healing Booster, Radiant Regeneration | Stamina Mastery, Mystic Burst, Opening Rounds, Healbane | Spirit Resilience, Bullet Resilience, Enchanter's Emblem |
-| 37k | 0% | 18.9 | 34.3 | +7% | Spirit Shielding, Torment Pulse, Greater Expansion, Restorative Locket, Opening Rounds, Healing Booster, Radiant Regeneration, Witchmail | Stamina Mastery, Tankbuster, Healbane | Spirit Resilience, Enchanter's Emblem, Headhunter |
-| 37k | 10% | 18.9 | 35.3 | -9% | Spirit Shielding, Torment Pulse, Greater Expansion, Restorative Locket, Opening Rounds, Healing Booster, Radiant Regeneration, Witchmail | Stamina Mastery, Tankbuster, Healbane | Spirit Shredder, Spirit Resilience, Bullet Resilience |
+| 37k | 0% | 18.9 | 34.5 | +7% | Spirit Shielding, Torment Pulse, Greater Expansion, Restorative Locket, Opening Rounds, Healing Booster, Radiant Regeneration, Witchmail | Stamina Mastery, Tankbuster, Healbane | Spirit Resilience, Enchanter's Emblem, Headhunter |
+| 37k | 10% | 18.9 | 35.4 | -9% | Spirit Shielding, Torment Pulse, Greater Expansion, Restorative Locket, Opening Rounds, Healing Booster, Radiant Regeneration, Witchmail | Stamina Mastery, Tankbuster, Healbane | Spirit Shredder, Spirit Resilience, Bullet Resilience |
 | 37k | 25% | 18.9 | 37.5 | -10% | Spirit Shielding, Torment Pulse, Greater Expansion, Restorative Locket, Opening Rounds, Healing Booster, Radiant Regeneration, Witchmail | Stamina Mastery, Tankbuster, Healbane | Spirit Resilience, Bullet Resilience, Enchanter's Emblem |
 | 50k | 0% | 19.4 | 37.4 | +20% | Torment Pulse, Greater Expansion, Restorative Locket, Opening Rounds, Healing Booster, Radiant Regeneration, Escalating Exposure, Witchmail | Spirit Shielding, Tankbuster, Healbane | Siphon Bullets, Infuser, Enchanter's Emblem |
 | 50k | 10% | 19.4 | 37.4 | +20% | Torment Pulse, Greater Expansion, Restorative Locket, Opening Rounds, Healing Booster, Radiant Regeneration, Escalating Exposure, Witchmail | Spirit Shielding, Tankbuster, Healbane | Siphon Bullets, Infuser, Enchanter's Emblem |
@@ -84,9 +84,9 @@
 
 | Souls | Margin | Popular alive (s) | Best alive (s) | Damage vs popular | Core (kept) | Swapped out | Added |
 |---|---|---|---|---|---|---|---|
-| 10k | 0% | 18.6 | 31.9 | +3% | Trophy Collector, Extra Charge | Compress Cooldown, Mystic Expansion, Arcane Surge, Mystic Burst, Extra Regen | Spirit Sap, Battle Vest, Grit, Enchanter's Emblem |
+| 10k | 0% | 18.6 | 32.0 | +3% | Trophy Collector, Extra Charge | Compress Cooldown, Mystic Expansion, Arcane Surge, Mystic Burst, Extra Regen | Spirit Sap, Battle Vest, Grit, Enchanter's Emblem |
 | 10k | 10% | 18.6 | 32.7 | -8% | Trophy Collector, Extra Charge | Compress Cooldown, Mystic Expansion, Arcane Surge, Mystic Burst, Extra Regen | Battle Vest, Spirit Resilience, Extra Health |
-| 10k | 25% | 18.6 | 33.3 | -11% | Trophy Collector, Extra Charge | Compress Cooldown, Mystic Expansion, Arcane Surge, Mystic Burst, Extra Regen | Spirit Shielding, Spirit Resilience, Restorative Shot |
+| 10k | 25% | 18.6 | 33.4 | -11% | Trophy Collector, Extra Charge | Compress Cooldown, Mystic Expansion, Arcane Surge, Mystic Burst, Extra Regen | Spirit Shielding, Spirit Resilience, Restorative Shot |
 | 18k | 0% | 27.6 | 35.9 | +2% | Mystic Expansion, Arcane Surge, Trophy Collector, Warp Stone | Compress Cooldown, Healing Booster, Duration Extender | Spirit Resilience, Enchanter's Emblem |
 | 18k | 10% | 27.6 | 35.9 | -3% | Mystic Expansion, Arcane Surge, Trophy Collector, Warp Stone | Compress Cooldown, Healing Booster, Duration Extender | Restorative Locket, Spirit Resilience |
 | 18k | 25% | 27.6 | 40.3 | -22% | Mystic Expansion, Arcane Surge, Trophy Collector, Warp Stone | Compress Cooldown, Rapid Recharge, Duration Extender | Spirit Resilience, Headhunter |
@@ -124,18 +124,18 @@
 
 | Souls | Margin | Popular alive (s) | Best alive (s) | Damage vs popular | Core (kept) | Swapped out | Added |
 |---|---|---|---|---|---|---|---|
-| 10k | 0% | 19.3 | 25.2 | +4% | Cultist Sacrifice, Opening Rounds, Extra Health | Extended Magazine, Enduring Speed | Battle Vest, Rebuttal |
-| 10k | 10% | 19.3 | 26.0 | -1% | Cultist Sacrifice, Opening Rounds, Extra Health | Extended Magazine, Enduring Speed | Bullet Lifesteal, Rebuttal |
-| 10k | 25% | 19.3 | 26.0 | -1% | Cultist Sacrifice, Opening Rounds, Extra Health | Extended Magazine, Enduring Speed | Bullet Lifesteal, Rebuttal |
+| 10k | 0% | 19.3 | 25.3 | +4% | Cultist Sacrifice, Opening Rounds, Extra Health | Extended Magazine, Enduring Speed | Battle Vest, Rebuttal |
+| 10k | 10% | 19.3 | 26.1 | -1% | Cultist Sacrifice, Opening Rounds, Extra Health | Extended Magazine, Enduring Speed | Bullet Lifesteal, Rebuttal |
+| 10k | 25% | 19.3 | 26.1 | -1% | Cultist Sacrifice, Opening Rounds, Extra Health | Extended Magazine, Enduring Speed | Bullet Lifesteal, Rebuttal |
 | 18k | 0% | 22.7 | 24.6 | +2% | Cultist Sacrifice, Opening Rounds, Enduring Speed, Fleetfoot, Fortitude, Swift Striker | Close Quarters, Extra Regen | Battle Vest |
 | 18k | 10% | 22.7 | 26.0 | -2% | Cultist Sacrifice, Opening Rounds, Enduring Speed, Fleetfoot, Fortitude, Swift Striker | Close Quarters, Extra Regen | Enchanter's Emblem |
 | 18k | 25% | 22.7 | 28.1 | -12% | Cultist Sacrifice, Opening Rounds, Enduring Speed, Fleetfoot, Fortitude, Swift Striker | Close Quarters, Extended Magazine, Extra Regen | Rusted Barrel, Enchanter's Emblem |
-| 27k | 0% | 26.2 | 26.2 | +0% | Cultist Sacrifice, Berserker, Opening Rounds, Enduring Speed, Ballistic Enchantment, Fleetfoot, Fortitude, Swift Striker | - | - |
-| 27k | 10% | 26.2 | 26.2 | +0% | Cultist Sacrifice, Berserker, Opening Rounds, Enduring Speed, Ballistic Enchantment, Fleetfoot, Fortitude, Swift Striker | - | - |
-| 27k | 25% | 26.2 | 29.5 | -15% | Cultist Sacrifice, Berserker, Opening Rounds, Enduring Speed, Ballistic Enchantment, Fleetfoot, Fortitude, Swift Striker | Titanic Magazine | Enchanter's Emblem |
+| 27k | 0% | 26.3 | 26.3 | +0% | Cultist Sacrifice, Berserker, Opening Rounds, Enduring Speed, Ballistic Enchantment, Fleetfoot, Fortitude, Swift Striker | - | - |
+| 27k | 10% | 26.3 | 26.3 | +0% | Cultist Sacrifice, Berserker, Opening Rounds, Enduring Speed, Ballistic Enchantment, Fleetfoot, Fortitude, Swift Striker | - | - |
+| 27k | 25% | 26.3 | 29.6 | -15% | Cultist Sacrifice, Berserker, Opening Rounds, Enduring Speed, Ballistic Enchantment, Fleetfoot, Fortitude, Swift Striker | Titanic Magazine | Enchanter's Emblem |
 | 37k | 0% | 44.9 | 46.9 | +1% | Cultist Sacrifice, Siphon Bullets, Berserker, Opening Rounds, Spirit Resilience, Enduring Speed, Ballistic Enchantment, Fleetfoot, Fortitude, Swift Striker | - | Rebuttal |
 | 37k | 10% | 44.9 | 47.0 | -0% | Cultist Sacrifice, Siphon Bullets, Berserker, Opening Rounds, Spirit Resilience, Enduring Speed, Ballistic Enchantment, Fleetfoot, Fortitude, Swift Striker | Escalating Resilience | Headhunter, Rebuttal |
-| 37k | 25% | 44.9 | 47.8 | -16% | Cultist Sacrifice, Siphon Bullets, Berserker, Opening Rounds, Spirit Resilience, Enduring Speed, Ballistic Enchantment, Fleetfoot, Fortitude, Swift Striker | Escalating Resilience | Superior Cooldown, Rebuttal |
+| 37k | 25% | 44.9 | 47.9 | -16% | Cultist Sacrifice, Siphon Bullets, Berserker, Opening Rounds, Spirit Resilience, Enduring Speed, Ballistic Enchantment, Fleetfoot, Fortitude, Swift Striker | Escalating Resilience | Superior Cooldown, Rebuttal |
 | 50k | 0% | 47.7 | 54.9 | +3% | Cultist Sacrifice, Siphon Bullets, Berserker, Spirit Resilience, Ballistic Enchantment, Fleetfoot, Fortitude, Swift Striker | Juggernaut, Opening Rounds, Superior Cooldown | Leech, Spellbreaker, Enchanter's Emblem |
 | 50k | 10% | 47.7 | 54.9 | +3% | Cultist Sacrifice, Siphon Bullets, Berserker, Spirit Resilience, Ballistic Enchantment, Fleetfoot, Fortitude, Swift Striker | Juggernaut, Opening Rounds, Superior Cooldown | Leech, Spellbreaker, Enchanter's Emblem |
 | 50k | 25% | 47.7 | 54.9 | +3% | Cultist Sacrifice, Siphon Bullets, Berserker, Spirit Resilience, Ballistic Enchantment, Fleetfoot, Fortitude, Swift Striker | Juggernaut, Opening Rounds, Superior Cooldown | Leech, Spellbreaker, Enchanter's Emblem |
@@ -147,9 +147,9 @@
 | 10k | 0% | 22.3 | 26.5 | +9% | Stalker, Close Quarters, Melee Lifesteal, Restorative Shot | Grit, Hunter's Aura | Spirit Snatch, Extra Health |
 | 10k | 10% | 22.3 | 26.5 | +9% | Stalker, Close Quarters, Melee Lifesteal, Restorative Shot | Grit, Hunter's Aura | Spirit Snatch, Extra Health |
 | 10k | 25% | 22.3 | 34.2 | -23% | Stalker, Close Quarters, Melee Lifesteal, Restorative Shot | Grit, Hunter's Aura | Spirit Resilience, Extra Health |
-| 18k | 0% | 35.7 | 46.3 | +2% | Stalker, Lifestrike, Close Quarters, Hunter's Aura, Restorative Shot | Spirit Shielding, Slowing Hex, Healing Booster | Bullet Lifesteal, Spirit Resilience, Rebuttal |
-| 18k | 10% | 35.7 | 46.8 | -0% | Stalker, Lifestrike, Close Quarters, Hunter's Aura, Restorative Shot | Spirit Shielding, Slowing Hex | Spirit Resilience, Rebuttal |
-| 18k | 25% | 35.7 | 46.8 | -0% | Stalker, Lifestrike, Close Quarters, Hunter's Aura, Restorative Shot | Spirit Shielding, Slowing Hex | Spirit Resilience, Rebuttal |
+| 18k | 0% | 35.8 | 46.3 | +2% | Stalker, Lifestrike, Close Quarters, Hunter's Aura, Restorative Shot | Spirit Shielding, Slowing Hex, Healing Booster | Bullet Lifesteal, Spirit Resilience, Rebuttal |
+| 18k | 10% | 35.8 | 46.8 | -0% | Stalker, Lifestrike, Close Quarters, Hunter's Aura, Restorative Shot | Spirit Shielding, Slowing Hex | Spirit Resilience, Rebuttal |
+| 18k | 25% | 35.8 | 46.8 | -0% | Stalker, Lifestrike, Close Quarters, Hunter's Aura, Restorative Shot | Spirit Shielding, Slowing Hex | Spirit Resilience, Rebuttal |
 | 27k | 0% | 36.9 | 50.1 | +2% | Stalker, Lifestrike, Hunter's Aura, Weighted Shots, Restorative Shot | Spirit Shielding, Debuff Reducer, Berserker, Slowing Hex | Bullet Lifesteal, Healing Booster, Bullet Resilience, Enchanter's Emblem |
 | 27k | 10% | 36.9 | 50.1 | +2% | Stalker, Lifestrike, Hunter's Aura, Weighted Shots, Restorative Shot | Spirit Shielding, Debuff Reducer, Berserker, Slowing Hex | Bullet Lifesteal, Healing Booster, Bullet Resilience, Enchanter's Emblem |
 | 27k | 25% | 36.9 | 50.1 | +2% | Stalker, Lifestrike, Hunter's Aura, Weighted Shots, Restorative Shot | Spirit Shielding, Debuff Reducer, Berserker, Slowing Hex | Bullet Lifesteal, Healing Booster, Bullet Resilience, Enchanter's Emblem |
@@ -188,11 +188,11 @@
 | 10k | 10% | 34.9 | 38.9 | +0% | Improved Spirit, Extra Regen | Sprint Boots | Extra Health |
 | 10k | 25% | 34.9 | 47.5 | -24% | Improved Spirit, Extra Regen | Torment Pulse, Sprint Boots | Spirit Resilience, Rebuttal |
 | 18k | 0% | 42.1 | 46.1 | +8% | Improved Spirit, Torment Pulse, Mystic Expansion, Spirit Lifesteal, Mystic Vulnerability, Enduring Speed, Healing Booster | Radiant Regeneration | Suppressor, Enchanter's Emblem |
-| 18k | 10% | 42.1 | 47.0 | -3% | Improved Spirit, Torment Pulse, Mystic Expansion, Spirit Lifesteal, Mystic Vulnerability, Enduring Speed, Healing Booster | Radiant Regeneration | Spirit Resilience |
-| 18k | 25% | 42.1 | 47.0 | -3% | Improved Spirit, Torment Pulse, Mystic Expansion, Spirit Lifesteal, Mystic Vulnerability, Enduring Speed, Healing Booster | Radiant Regeneration | Spirit Resilience |
-| 27k | 0% | 48.4 | 55.1 | +2% | Improved Spirit, Torment Pulse, Mystic Expansion, Infuser, Enduring Speed, Healing Booster | Compress Cooldown, Healbane, Radiant Regeneration | Suppressor, Spirit Resilience, Enchanter's Emblem |
-| 27k | 10% | 48.4 | 55.2 | -6% | Improved Spirit, Torment Pulse, Mystic Expansion, Infuser, Enduring Speed, Healing Booster | Compress Cooldown, Mystic Vulnerability, Healbane | Suppressor, Spirit Resilience |
-| 27k | 25% | 48.4 | 55.2 | -6% | Improved Spirit, Torment Pulse, Mystic Expansion, Infuser, Enduring Speed, Healing Booster | Compress Cooldown, Mystic Vulnerability, Healbane | Suppressor, Spirit Resilience |
+| 18k | 10% | 42.1 | 46.9 | -3% | Improved Spirit, Torment Pulse, Mystic Expansion, Spirit Lifesteal, Mystic Vulnerability, Enduring Speed, Healing Booster | Radiant Regeneration | Spirit Resilience |
+| 18k | 25% | 42.1 | 46.9 | -3% | Improved Spirit, Torment Pulse, Mystic Expansion, Spirit Lifesteal, Mystic Vulnerability, Enduring Speed, Healing Booster | Radiant Regeneration | Spirit Resilience |
+| 27k | 0% | 48.5 | 55.1 | +2% | Improved Spirit, Torment Pulse, Mystic Expansion, Infuser, Enduring Speed, Healing Booster | Compress Cooldown, Healbane, Radiant Regeneration | Suppressor, Spirit Resilience, Enchanter's Emblem |
+| 27k | 10% | 48.5 | 55.2 | -6% | Improved Spirit, Torment Pulse, Mystic Expansion, Infuser, Enduring Speed, Healing Booster | Compress Cooldown, Mystic Vulnerability, Healbane | Suppressor, Spirit Resilience |
+| 27k | 25% | 48.5 | 55.2 | -6% | Improved Spirit, Torment Pulse, Mystic Expansion, Infuser, Enduring Speed, Healing Booster | Compress Cooldown, Mystic Vulnerability, Healbane | Suppressor, Spirit Resilience |
 | 37k | 0% | 48.7 | 56.7 | +6% | Improved Spirit, Torment Pulse, Greater Expansion, Infuser, Enduring Speed, Healing Booster, Escalating Exposure | Healbane, Radiant Regeneration, Warp Stone | Spirit Shredder, Metal Skin, Spirit Resilience, Rebuttal |
 | 37k | 10% | 48.7 | 56.7 | +6% | Improved Spirit, Torment Pulse, Greater Expansion, Infuser, Enduring Speed, Healing Booster, Escalating Exposure | Healbane, Radiant Regeneration, Warp Stone | Spirit Shredder, Metal Skin, Spirit Resilience, Rebuttal |
 | 37k | 25% | 48.7 | 56.7 | +6% | Improved Spirit, Torment Pulse, Greater Expansion, Infuser, Enduring Speed, Healing Booster, Escalating Exposure | Healbane, Radiant Regeneration, Warp Stone | Spirit Shredder, Metal Skin, Spirit Resilience, Rebuttal |
