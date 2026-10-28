@@ -2,9 +2,9 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-02 to 2026-10-26, 166,971 Ritualist+ matches (refreshed 2026-10-28T12:07:06Z).
+Edges: patch 09-29-2026, matches 2026-10-02 to 2026-10-26, 166,971 Ritualist+ matches (refreshed 2026-10-28T13:59:10Z).
 
-- Recommended item slots with data: 1997; mean edge +1.5 (popular builds +0.1); clearly positive 1402, clearly negative 9.
+- Recommended item slots with data: 1995; mean edge +1.5 (popular builds +0.1); clearly positive 1406, clearly negative 9.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
@@ -35,11 +35,11 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Superior Cooldown | spirit 3 | 3 | Paradox +1.7, Baba +1.6, Holliday +1.6 |
 | Compress Cooldown | spirit 2 | 3 | Lash +1.7, Deadman Danny +1.7, Baba +1.6 |
 | Enduring Speed | vitality 2 | 3 | Billy +1.5, Haze +1.5, Lady Geist +1.5 |
-| Witchmail | vitality 4 | 3 | Dynamo +3.0, Violet +2.0, Mo & Krill +2.0 |
+| Spirit Burn | spirit 4 | 3 | Infernus +2.5, Mina +1.9, Calico +1.6 |
 | Refresher | spirit 4 | 3 | Yamato +2.0, Paige +1.6, Victor +1.6 |
 | Spellslinger | weapon 4 | 3 | Venator +2.1, Wraith +1.9, Vindicta +1.6 |
-| Spirit Burn | spirit 4 | 2 | Mina +1.9, Calico +1.6 |
 | Frenzy | weapon 4 | 2 | Drifter +2.2, Lady Geist +1.9 |
+| Witchmail | vitality 4 | 2 | Dynamo +3.0, Mo & Krill +2.0 |
 | Lucky Shot | weapon 4 | 2 | Holliday +2.0, Haze +1.6 |
 | Warp Stone | vitality 3 | 2 | Victor +1.9, Infernus +1.5 |
 | Indomitable | vitality 4 | 2 | Lash +1.9, McGinnis +1.9 |
@@ -116,7 +116,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Lucky Shot +2.0, Superior Cooldown +1.6
 
 ### Infernus
-- never picked: Sprint Boots +1.8, Spellbreaker +1.8, Warp Stone +1.5
+- never picked: Spirit Burn +2.5, Sprint Boots +1.8, Spellbreaker +1.8, Warp Stone +1.5
 
 ### Ivy
 - never picked: Dispel Magic +2.1, Rapid Rounds +1.6
@@ -191,7 +191,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Duration Extender +2.2, Extended Magazine +2.2, Fleetfoot +1.8, Spellslinger +1.6
 
 ### Violet
-- never picked: Mystic Reverb +3.3, Duration Extender +2.4, Ethereal Shift +2.2, Witchmail +2.0
+- never picked: Mystic Reverb +3.3, Duration Extender +2.4, Ethereal Shift +2.2
 
 ### Viscous
 
