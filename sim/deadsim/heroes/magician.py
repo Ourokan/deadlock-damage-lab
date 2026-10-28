@@ -10,14 +10,34 @@ Assumptions:
 - Rabbit Hex: after DetonationDelay the target is a rabbit for HexDuration: it can't shoot or cast (stun) and
   takes DamageAmpPercentage more damage. Skillshot: both are scaled by spirit accuracy.
 - Audience Participation: copies the enemy's ultimate (with this ability's upgrade tier) and Sinclair casts the
-  copy as soon as its own cast condition is met within CopiedUltWindow.
+  copy as soon as its own cast condition is met within CopiedUltWindow. With Mechanics.copy_ult (off: sim_vs_win) the copy's landing
+  factor (Audience Participation's) is also x copy_ult_factors() of the copied ultimate: how much more or less of
+  Sinclair's real damage that ultimate's copies make than the sim's copies of it, relative to all her copies
+  (data/copy_ult.json, scripts/mechanics/copy_ult.py). Real Sinclairs get most of their copy damage from area
+  ultimates (Lurking Terrors, Abstract Landscape, Storm Cloud) and little from ones built around the owner's kit
+  (Combo, Seismic Impact, Nox Nostra).
 """
 import copy
+import json
+import os
 
 from deadsim.abilities import AbilityImpl, AbilityState, register
 from deadsim.data import UNITS_PER_METER
 
 ASSISTANT_KEY = "sinclair_assistant_until"
+_copy_factors = None
+
+
+def copy_ult_factors():
+    """{copied ultimate class: factor} (Mechanics.copy_ult), {} without the file."""
+    global _copy_factors
+    if _copy_factors is None:
+        try:
+            with open(os.path.join(os.path.dirname(__file__), "..", "..", "data", "copy_ult.json")) as fh:
+                _copy_factors = {k: r["factor"] for k, r in json.load(fh)["ults"].items()}
+        except (OSError, KeyError, ValueError):
+            _copy_factors = {}
+    return _copy_factors
 
 
 @register("ability_magician_magicbolt")
@@ -92,6 +112,8 @@ class AudienceParticipation(AbilityImpl):
         ab = copy.copy(foe_ult.ab)
         ab.name = f"{self.s.ab.name} ({ab.name})"
         ab.landing_key = self.s.ab.name   # real games book it under the copied hero's class; fitted as one source
+        if getattr(c.engine.mech, "copy_ult", False):
+            ab.landing_mult = copy_ult_factors().get(foe_ult.ab.class_name, 1.0)
         cp = AbilityState(c.me, ab, tier=c.tier, unlocked=True)
         cp.start()
         until = c.now + c.dur("CopiedUltWindow", 9.0)

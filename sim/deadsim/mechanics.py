@@ -242,6 +242,16 @@ class Mechanics:
     # so the sim swapped ~1.3x as often per damage dealt for ~0.75x the health each, and Soul Exchange read ~1.25x real
     # in mid and late game. On: each fight's swap (Mechanics.execute_timing's plan) waits for a gap drawn from ghost.SWAP_GAPS
     swap_gap: bool = True
+    # Sinclair's copied ultimates by ultimate (2026-10-28): Audience Participation's copy took one landing factor x
+    # length_corr (0.60 x 4.8) whatever ultimate it copied, so the copies real Sinclairs get little from (Combo, Seismic
+    # Impact, Nox Nostra, Feed The Birds: ~0.15-0.25x the sim's share in Phantom+ matches) carried as much as the area
+    # ultimates that make most of her real copy damage (Lurking Terrors, Abstract Landscape, Storm Cloud), and the
+    # copy read 1.5x its real share of her damage. On: the copy's factor also x the copied ultimate's real/sim ratio
+    # (magician.copy_ult_factors, data/copy_ult.json, scripts/mechanics/copy_ult.py). Split-half: the held-out split of
+    # her copy damage by ultimate 0.37 -> 0.19 / 0.20 (half the summed share gaps), but sim_vs_win for Sinclair dropped
+    # (within slot and tier 0.381 -> 0.366, all 0.360 -> 0.349) where the plain Audience Participation refit held
+    # (0.380 / 0.358): kept off, the refit alone is in data/landing_rates_mech.json
+    copy_ult: bool = False
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut

@@ -3,7 +3,7 @@
   "source": "3628 player-matches x 3 duels, 20 s max, real builds both sides",
   "formula": "(real ability dmg / real gun dmg) / (sim ability dmg / sim gun dmg)",
   "length": "fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x length_corr (the sim's source/gun in full / the same expected over real fight lengths, scripts/fight_length/length_factors.py, phantom_sample.jsonl.gz, 3 rounds)",
-  "audit_corr_heroes": "length_corr fitted straight to the damage audit (scripts/ability_corr_heroes.py, phantom_sample.jsonl.gz, 3 rounds) after a Phantom+ landing refit for: Venator, Infernus, Victor, Silver, Seven, Vyper, Paige, Mirage, Ivy, Kelvin, Bebop (2026-10-25, validation/README.md), Deadman Danny (2026-10-25, per-ability check); Apollo with no landing refit after his cast timing rows (2026-10-25); Violet, The Doorman, Solomon the same once landing_rates.SLOW_GUNS let their players in (2026-10-25); Paradox with no landing refit (2026-10-26, validation/README.md \"Paradox's Carbine count\"); Haze, Mina (2026-10-26, split-half sweep of all heroes, validation/README.md \"Stale ability corrections\"); McGinnis with no landing refit after Mini Turret pacing, fitted on 4 audit draws (2026-10-26, validation/README.md \"McGinnis's Mini Turret\"); Mirage again after Djinn's Mark marks outlast a disengage (mirage.MARKS_OUTLAST), with his item rows (2026-10-27, validation/README.md \"Djinn's Mark after the fight\"); Yamato with no landing refit after Shadow Transformation starts fights on cooldown at the real ready share (mechanics.GATE_READY), fitted on 6 audit draws (2026-10-27, validation/README.md \"More gated ults on real readiness\")",
+  "audit_corr_heroes": "length_corr fitted straight to the damage audit (scripts/ability_corr_heroes.py, phantom_sample.jsonl.gz, 3 rounds) after a Phantom+ landing refit for: Venator, Infernus, Victor, Silver, Seven, Vyper, Paige, Mirage, Ivy, Kelvin, Bebop (2026-10-25, validation/README.md), Deadman Danny (2026-10-25, per-ability check); Apollo with no landing refit after his cast timing rows (2026-10-25); Violet, The Doorman, Solomon the same once landing_rates.SLOW_GUNS let their players in (2026-10-25); Paradox with no landing refit (2026-10-26, validation/README.md \"Paradox's Carbine count\"); Haze, Mina (2026-10-26, split-half sweep of all heroes, validation/README.md \"Stale ability corrections\"); McGinnis with no landing refit after Mini Turret pacing, fitted on 4 audit draws (2026-10-26, validation/README.md \"McGinnis's Mini Turret\"); Mirage again after Djinn's Mark marks outlast a disengage (mirage.MARKS_OUTLAST), with his item rows (2026-10-27, validation/README.md \"Djinn's Mark after the fight\"); Yamato with no landing refit after Shadow Transformation starts fights on cooldown at the real ready share (mechanics.GATE_READY), fitted on 6 audit draws (2026-10-27, validation/README.md \"More gated ults on real readiness\"); Sinclair with no landing refit on a 426-match Sinclair sample (validation/sinclair_sample.jsonl.gz + phantom_sample), split-half kept (2026-10-28, validation/README.md \"Sinclair's copied ultimates\")",
   "entry_hp_kept": "length_corr scaled so held first casts and Mechanics.entry_hp (as configured in the run) keep the expected levels of a target run at full health with the previous holds (length_factors.py --entry --target-holds)",
   "cast_timing_kept": "length_corr scaled so held first casts (Mechanics.cast_timing) keep the expected levels of cast-on-sight duels; rerun from the factors before"
  },
@@ -629,26 +629,26 @@
     "landing": 0.63,
     "real_share": 0.3224,
     "sim_share": 0.2603,
-    "length_corr": 1.161
+    "length_corr": 1.307
    },
    "Spectral Assistant": {
     "class": "ability_magician_cloneturret",
     "landing": 0.41,
     "real_share": 0.2117,
     "sim_share": 0.1711,
-    "length_corr": 1.7
+    "length_corr": 2.198
    },
    "Audience Participation": {
     "class": "ability_magician_copyult",
     "landing": 0.6,
     "real_share": 0.0,
     "sim_share": 0.3541,
-    "length_corr": 4.798
+    "length_corr": 2.462
    },
    "Rabbit Hex": {
     "landing": 0.51,
     "class": "ability_magician_animalhexarea",
-    "length_corr": 2.557
+    "length_corr": 2.372
    }
   },
   "Mina": {
