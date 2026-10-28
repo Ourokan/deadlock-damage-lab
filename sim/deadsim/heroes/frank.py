@@ -22,7 +22,8 @@ Assumptions:
   land the first bolt by 1 / 3 / 6 s of a fight in ~0.16 / 0.39 / 0.58 of them (data/battery_timing.json,
   scripts/mechanics/battery_timing.py), the duel's own damage filled it by then in 0.01 / 0.05 / 0.27. Each fight with
   an rng or a fight phase draws the first bolt's time (per phase) and fires it then whatever the duel's charge (the
-  real time holds the charge carried in and the fight's own); later bolts need a battery filled in the duel.
+  real time holds the charge carried in and the fight's own); later bolts, and fights drawn past 20 s, need a
+  battery filled in the duel.
 - Shocking Reanimation: on lethal damage Victor is invulnerable and can't act for RespawnDelay, then revives
   with RespawnHealthPercent and hits Damage + stun if the target is within Radius. T1: +BonusFireRate and
   BonusDamagePerBullet spirit damage per bullet hit (6 + 0.06 x spirit), only while the ult is on cooldown.
@@ -129,10 +130,12 @@ class PainBattery(AbilityImpl):
 
     def draw_plan(self, c, u):
         """Mechanics.execute_timing: the fight's first bolt at a real time from draw u (mechanics.execute_plans),
-        charged or not (inf: not in this fight)."""
+        charged or not. A draw past the data's 20 s (None: censored, not "never") keeps the duel's own charge."""
         q = battery_timing()[souls_phase(c.me)]["holds"]
         h = q[min(len(q) - 1, int(u * len(q)))]
-        c.state["primed_at"] = c.now + (math.inf if h is None else max(0.0, h - c.raw("AbilityCastDelay")))
+        if h is None:
+            return
+        c.state["primed_at"] = c.now + max(0.0, h - c.raw("AbilityCastDelay"))
         self.s.held_until = c.state["primed_at"]
 
     def charge(self, c, amount):
