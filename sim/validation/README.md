@@ -2752,3 +2752,42 @@ pauses, 75th percentile 46 s). #172 found victor_revive.py dropped every cast af
 - `nurse/nurse_replays.py` (report only, its leech extracts are not kept) has the same one-offset net worth; left.
 - `fight_patterns/replay_imbues.py` and `mechanics/split_shot_replays.py` only compare damage ticks with each other
   (no game clock): not affected.
+
+## Soul Exchange waits for a real swap gap (2026-10-28)
+
+After the whole swap (#173) Soul Exchange matched the whole match (0.145 vs 0.139) but not the phases: on the Geist
+sample (238 players) real ult share 0.142 / 0.134 / 0.145 at 30 / 60 / 90% (flat), sim 0.154 / 0.174 / 0.182 (real /
+sim 0.92 / 0.77 / 0.80, scripts/phase_mix.py).
+
+Replays (swap_real.py, now also printing the gap at each swap): a real swap takes the same ~0.48 of the target's max
+health at every phase (0.49 / 0.47 / 0.48), 0.89-0.98 of casts hit. The sim's swap took 0.30 / 0.35 / 0.34, and it
+swapped ~1.3x as often per damage Geist dealt (pair fights: real swaps per Geist damage in target max healths 0.32 /
+0.36 mid / late, sim duels ~0.45 at every phase): two errors that cancel early and not later. Why: the sim swapped as
+soon as Geist was SWAP_MIN_GAIN 0.3 below her target (gap at swap median 0.43, target 0.79), real Geists wait for a
+bigger gap (median 0.61, quartiles 0.45 / 0.75; target 0.88, Geist 0.25; the halves agree within 0.03).
+
+Mechanics.swap_gap (on): each fight's swap (Mechanics.execute_timing's plan, SoulExchange.draw_plan) waits for a gap
+drawn from the real swaps' gaps (ghost.SWAP_GAPS, 20 quantiles; a draw independent of the hold's) instead of 0.3. The
+sim's gaps at swap then match real (median 0.59, quartiles 0.47 / 0.74). Fewer duels reach their gap, so the hold
+share was refit (execute_timing.py --se-only --write, new option: keeps Killing Blow's rows): 0.789 -> 0.992, at its
+cap: the sim's cast by 20 s is 0.33 vs real 0.42 (the duels don't open a real gap as often as real fights with fresh
+third parties do). Swap size per cast 0.37 / 0.40 / 0.47.
+
+Tried first, dropped: Geist's area abilities on Mechanics.ability_area_phase (Essence Bomb 0.86 -> 1.20, Malice 0.89
+-> 1.03 by net worth): late phase better, early much worse, held-out phase distance worse on both halves.
+
+Split-half (phantom + Geist samples, 507 matches; Geist corrections refit 3 rounds on one match-id half, audit the
+other; reference = main's model refit the same way):
+| held-out | per-source | whole mix | phase mix 30 / 60 / 90% | ult real / sim 30 / 60 / 90% |
+|---|---|---|---|---|
+| odd, main | 0.0285 | 0.0160 | 0.011 / 0.078 / 0.084 | 0.95 / 0.74 / 0.78 |
+| odd, swap_gap | 0.0223 | 0.0210 | 0.038 / 0.037 / 0.073 | 1.25 / 0.93 / 0.83 |
+| even, main | 0.0258 | 0.0250 | 0.029 / 0.049 / 0.067 | 0.93 / 0.80 / 0.84 |
+| even, swap_gap | 0.0234 | 0.0130 | 0.032 / 0.033 / 0.056 | 1.23 / 0.99 / 0.94 |
+
+Per source and summed phase distance better on both halves; mid game now right, late closer, early now under (the
+early duels rarely open a 0.6 gap). Whole-sample refit moved Geist's corrections by < 0.003.
+
+Results: full audit (phantom sample, all heroes) 0.0184 -> 0.0184; Geist there (37 players) 0.015 -> 0.023, Soul
+Exchange 0.145 -> 0.121 (real 0.139). sim_vs_win Lady Geist 27k + 37k: all 0.405 -> 0.380, within slot and tier 0.402
+-> 0.380, edges clear of noise 0.604 -> 0.641 (one hero, 259 pairs). Left: early swaps (0.8x real).

@@ -237,6 +237,11 @@ class Mechanics:
     # swap vs ~0.50 in real Phantom+ replays (scripts/mechanics/swap_real.py) and the audit had it at half its real
     # share. On: the swap skips those factors and lands on ghost.SWAP_LAND of casts (real hits per cast)
     swap_full: bool = True
+    # Soul Exchange's gap from replays (2026-10-28): the sim swapped as soon as Geist was SWAP_MIN_GAIN 0.3 below her
+    # target (gap at swap median 0.43, target 0.79), real Geists wait for more (median 0.61, target 0.88; swap_real.py),
+    # so the sim swapped ~1.3x as often per damage dealt for ~0.75x the health each, and Soul Exchange read ~1.25x real
+    # in mid and late game. On: each fight's swap (Mechanics.execute_timing's plan) waits for a gap drawn from ghost.SWAP_GAPS
+    swap_gap: bool = True
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut

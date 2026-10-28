@@ -18,7 +18,8 @@ Assumptions:
   side of the swap is her gate health (Fighter.self_gate_frac: short by her real entry deficit and the damage the real
   fight's other enemies add, Mechanics.entry_gate / gate_assist): real Geists swap at ~25% health on a ~90% target.
   With Mechanics.swap_full the swap lands whole on SWAP_LAND of casts (no landing factor: real swaps take ~half the
-  target's max health, the factor had cut that to ~0.2). First cast held to a real first cast time (Mechanics.execute_timing, data/execute_timing.json; None: not cast in
+  target's max health, the factor had cut that to ~0.2). With Mechanics.swap_gap each fight's swap waits for a gap drawn
+  from the real swaps' gaps (SWAP_GAPS, median 0.6) instead of SWAP_MIN_GAIN. First cast held to a real first cast time (Mechanics.execute_timing, data/execute_timing.json; None: not cast in
   this fight), then the gap gate.
 """
 import math
@@ -29,6 +30,9 @@ PUDDLE_UPTIME = 0.5
 SWAP_MIN_GAIN = 0.3
 SWAP_APPROACH = 10.0    # m Geist walks in to reach Soul Exchange's 5.5 m cast range (she keeps shooting meanwhile)
 SWAP_LAND = 0.93       # Mechanics.swap_full: real Soul Exchange hits per cast (scripts/mechanics/swap_real.py)
+# Mechanics.swap_gap: the health gap (target - Geist) a real swap went out at, 20 quantiles (scripts/mechanics/swap_real.py)
+SWAP_GAPS = (0.09, 0.17, 0.25, 0.34, 0.44, 0.47, 0.5, 0.52, 0.55, 0.59, 0.63, 0.65, 0.67, 0.7, 0.74, 0.76, 0.79, 0.82,
+             0.87, 0.95)
 HERO_WIDTH = 1.5        # m, hittable width of a hero for Malice's shard fan
 
 
@@ -129,9 +133,14 @@ class SoulExchange(AbilityImpl):
         q = execute_timing_data()["soul_exchange"]["holds"]
         h = q[min(len(q) - 1, int(u * len(q)))]
         self.s.held_until = c.now + (math.inf if h is None else h)
+        if getattr(c.engine.mech, "swap_gap", False):
+            # Mechanics.swap_gap: the gap this fight's swap waits for, on a draw independent of the hold's
+            self.s.swap_gap = SWAP_GAPS[min(len(SWAP_GAPS) - 1, int(math.modf(u * 7919.0)[0] * len(SWAP_GAPS)))]
 
     def should_cast(self, c):
-        return self.in_range(c) and c.foe.hp_frac - c.me.self_gate_frac >= max(SWAP_MIN_GAIN, c.raw("MinDiffToCast"))
+        gap = getattr(self.s, "swap_gap", None)
+        need = max(SWAP_MIN_GAIN if gap is None else gap, c.raw("MinDiffToCast"))
+        return self.in_range(c) and c.foe.hp_frac - c.me.self_gate_frac >= need
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay")

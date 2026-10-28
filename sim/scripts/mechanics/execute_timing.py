@@ -13,7 +13,9 @@ SWAP_MIN_GAIN lower than her target. Against the real cast curves (validation/ca
   came ~3 s early, without it (entry deficit only) on real timing, so Killing Blow doesn't use it.
 - Soul Exchange's first cast in a fight: "soul_exchange" holds = the real first cast times (QBINS points of its
   curve, None = not cast; on hold_share of the fights, fitted on the sim duels so the cast share by 20 s matches:
-  the gap gate leaves some holds uncast); the swap waits for its hold, then for its gap (Geist's gate health).
+  the gap gate leaves some holds uncast); the swap waits for its hold, then for its gap (Geist's gate health; with
+  Mechanics.swap_gap a gap drawn from real swaps, so hold_share sits at its cap: validation/README.md "Soul Exchange
+  waits for a real swap gap").
 - half of the real first Killing Blows in a fight are no execute: cast on a target at ~55% health for the slash
   damage (or missed), and the ult then sits out its whole cooldown (next cast ~200 s later, vs ~10 s after an
   execute's recast). "killing_blow": competing-risk curves of the first cast in a fight (Kaplan-Meier, fight end
@@ -25,7 +27,8 @@ Fights as fit_length.py (two enemy heroes trading, gaps < 5 s, >= 4 hits both wa
 fit_cast_timing.py real (PRE_S before the first hit counts as 0; never cast before in the match = not unlocked: left
 out). Rows "all" plus "even" / "odd" match id halves for the split-half check.
 
-usage: python3 -I execute_timing.py [--write]   (real side, then the sim fits on Shiv's / Geist's audit duels)
+usage: python3 -I execute_timing.py [--se-only] [--write]   (real side, then the sim fits on Shiv's / Geist's audit
+       duels; --se-only refits Soul Exchange's hold_share and keeps the file's Killing Blow rows)
 """
 import bisect
 import collections
@@ -208,7 +211,12 @@ def bisect_fit(set_x, target, steps=FIT_STEPS):
 
 def main():
     write = "--write" in sys.argv
+    se_only = "--se-only" in sys.argv
     res = real()
+    if se_only:
+        old = json.load(open(OUT))
+        for half, r in res.items():
+            r["killing_blow"] = old[half]["killing_blow"]
     for half, r in res.items():
         k = r["killing_blow"]
         print(half, "assist", r["assist"], "KB target", r["assist_kb_target"], "KB fights", k["fights"],
@@ -229,7 +237,8 @@ def main():
             se["holds"] = commit_holds([v / top * x for v in real_se])
             return sim_top(r, GEIST, SE_CLASS)
         target = k["exec_by"][-1] + k["spent_by"][-1]
-        k["exec_share"] = bisect_fit(kb_at, target)
+        if not se_only:
+            k["exec_share"] = bisect_fit(kb_at, target)
         se["hold_share"] = bisect_fit(se_at, real_se[-1])
         se_at(se["hold_share"])
         print(half, f"Killing Blow by 20 s target {target:.3f}: exec_share {k['exec_share']} -> "
