@@ -17,7 +17,7 @@ hold only (cast_timing.json); gated ults keep their own timing.
 In the sim (mechanics.hold_first_casts): the hold's cast share c becomes min(CAP, c x mult(net worth)), holds in the
 cast part keep their order and stretch over the new share, the not-cast part shrinks into what is left.
 
-Rows with "matched" (scripts/cast_timing/ult_rate_match.py: Nurse Harrow, Dynamo) are kept as they are by fit --write.
+Rows with "matched" (scripts/cast_timing/ult_rate_match.py: Nurse Harrow, Dynamo, Violet, Sinclair) are kept as they are by fit --write.
 
 usage: python3 -I ult_phase.py real [workers]   -> /mnt/project-files/analysis/work/ult_phase/rows.pkl
        python3 -I ult_phase.py fit [--parity even|odd] [--write]   (--parity: fit on that half of the matches by id)

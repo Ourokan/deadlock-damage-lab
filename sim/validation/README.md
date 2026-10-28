@@ -3125,6 +3125,7 @@ The order alone (no ult match) was better on mix and phase both halves but per-s
 0.023 vs 0.034). Phantom audit Dynamo 0.043 -> 0.030, whole audit 0.0168 -> 0.0166. sim_vs_win Dynamo 27k + 37k
 (Pearson): within slot and tier 0.229 -> 0.229, all items 0.167 -> 0.164, damage items 0.171 -> 0.164, clear of
 noise 0.262 -> 0.256.
+
 ### Ult casts per fight for four more heroes (2026-10-28)
 
 Follow-up of Nurse's match (scripts/cast_timing/ult_rate_match.py) for the other heroes whose ult ran high early in
@@ -3151,6 +3152,6 @@ Abstract Landscape 1.617 -> 1.884, Living Ink 1.502 -> 1.684, Flow State 1.823 -
 Sinclair 0.73 at 4.5k ... 1.22 at 23k, 0.87 at 33k; Audience Participation 2.462 -> 2.245 (Rabbit Hex 2.372 ->
 2.432). Ult share at 30 / 60 / 90%: Violet 0.155 / 0.210 / 0.205 (real 0.113 / 0.180 / 0.229), Sinclair 0.178 /
 0.241 / 0.254 on the Phantom+ sample (real 0.125 / 0.206 / 0.292). Pooled phase distance 0.0495 / 0.0389 / 0.0507 ->
-0.0481 / 0.0393 / 0.0500; whole audit (players weighted) 0.0168 -> 0.0161, 0.0166 -> 0.0159 on main after #194 (Violet 0.025 -> 0.011, Sinclair 0.012 ->
+0.0481 / 0.0393 / 0.0500; whole audit (players weighted) 0.0168 -> 0.0161, 0.0166 -> 0.0159 on main after #194 (Violet 0.025 -> 0.012, Sinclair 0.012 ->
 0.016 on 55 players). sim_vs_win 27k + 37k (Pearson): Violet within slot and tier 0.423 -> 0.426, all items 0.444 ->
 0.442; Sinclair within 0.382 -> 0.388, all items 0.360 -> 0.365.
