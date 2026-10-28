@@ -9,7 +9,7 @@ movement items (their real value is in movement_value already) are skipped.
 Prints Pearson / Spearman over every (hero, item) pair, over items that deal damage (kill_weight.json rows) and
 per-item mean sim gain vs mean edge, over (hero, item) pairs with the sim gain centred on the hero's other items of
 the same slot and tier (as the edge is), with the overall score's KILL_WEIGHT and DEATH_COST as set (--no-kill to turn the
-kill weight off, --elasticity for DAMAGE_ELASTICITY, --focus-gamma for FOCUS_GAMMA, --farm-gamma for FARM_GAMMA, --deaths-per-minute for death ratios per minute, --death to turn the opt-in death cost on, --bounty for DEATH_BOUNTY, --no-death-rate to
+kill weight off, --elasticity for DAMAGE_ELASTICITY, --focus-gamma for FOCUS_GAMMA, --focus-key for FOCUS_KEY, --farm-gamma for FARM_GAMMA, --deaths-per-minute for death ratios per minute, --death to turn the opt-in death cost on, --bounty for DEATH_BOUNTY, --no-death-rate to
 turn the real death rate value off, --fight-rate for the opt-in fight rate). Rows in --out also carry the popular build's and the
 item build's sim death chance (overall_search.death_chance), for analysis/scripts/death_check.py, then health lost
 per fight and max health of both builds and both scores (for offline fight-rate variants), the item cost and both builds' damage before death.
@@ -38,8 +38,10 @@ KILL = os.path.join(ROOT, "sim", "data", "kill_weight.json")
 
 
 def setup(kill, death=False, bounty=None, death_rate=True, fight_rate=False, elasticity=None, focus=None, farm=None,
-          per_ka=True):
+          per_ka=True, focus_key=None):
     O.WIN_K = 0.0
+    if focus_key:
+        O.FOCUS_KEY = focus_key
     O.DEATH_PER_KA = per_ka
     if farm is not None:
         O.FARM_GAMMA = farm
@@ -57,8 +59,8 @@ def setup(kill, death=False, bounty=None, death_rate=True, fight_rate=False, ela
 
 
 def job(args):
-    hero, b, kill, death, bounty, death_rate, fight_rate, elasticity, focus, farm, per_ka = args
-    setup(kill, death, bounty, death_rate, fight_rate, elasticity, focus, farm, per_ka)
+    hero, b, kill, death, bounty, death_rate, fight_rate, elasticity, focus, farm, per_ka, focus_key = args
+    setup(kill, death, bounty, death_rate, fight_rate, elasticity, focus, farm, per_ka, focus_key)
     with open(EDGE) as f:
         edges = json.load(f)["heroes"].get(str(hero), {})
     O.movement_value(())
@@ -119,6 +121,7 @@ def main():
     ap.add_argument("--fight-rate", action="store_true", help="turn the opt-in fight rate (HP budget) on")
     ap.add_argument("--elasticity", type=float, default=None, help="overall_search.DAMAGE_ELASTICITY (1 = old score)")
     ap.add_argument("--focus-gamma", type=float, default=None, help="overall_search.FOCUS_GAMMA (0 = no focus cost)")
+    ap.add_argument("--focus-key", default=None, help="overall_search.FOCUS_KEY (taken = per-minute ratios)")
     ap.add_argument("--farm-gamma", type=float, default=None, help="overall_search.FARM_GAMMA (0 = no farm value)")
     ap.add_argument("--deaths-per-minute", action="store_true",
                     help="real death ratios per minute, not per kills + assists (DEATH_PER_KA off)")
@@ -127,7 +130,7 @@ def main():
     g = S.G()
     heroes = [g.hero(int(h) if h.isdigit() else h).id for h in a.heroes.split(",") if h] or sorted(g.heroes)
     jobs = [(h, int(b), not a.no_kill, a.death, a.bounty, not a.no_death_rate, a.fight_rate, a.elasticity,
-             a.focus_gamma, a.farm_gamma, not a.deaths_per_minute)
+             a.focus_gamma, a.farm_gamma, not a.deaths_per_minute, a.focus_key)
             for b in a.budgets.split(",") for h in heroes]
     rows = []
     with Pool(a.workers) as p:
@@ -139,7 +142,7 @@ def main():
           f"{'off' if a.no_death_rate else ('per minute' if a.deaths_per_minute else 'per kills + assists')}, fight rate {'on' if a.fight_rate else 'off'}"
           f"{'' if a.bounty is None else f' (bounty {a.bounty:g})'}, damage elasticity "
           f"{O.DAMAGE_ELASTICITY if a.elasticity is None else a.elasticity:g}, focus cost "
-          f"{O.FOCUS_GAMMA if a.focus_gamma is None else a.focus_gamma:g}, farm value "
+          f"{O.FOCUS_GAMMA if a.focus_gamma is None else a.focus_gamma:g} ({a.focus_key or O.FOCUS_KEY}), farm value "
           f"{O.FARM_GAMMA if a.farm_gamma is None else a.farm_gamma:g}; {len(rows)} (hero, item) pairs")
     for label, rs in (("all items", rows), ("damage items", [r for r in rows if r[2] in dmg_items]),
                       ("edges clear of noise", [r for r in rows if abs(r[4]) > 1.96 * r[5]])):
