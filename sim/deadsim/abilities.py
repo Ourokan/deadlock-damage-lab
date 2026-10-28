@@ -299,6 +299,7 @@ class CastCtx:
         dur = duration * (1.0 - e.status_resist())
         if key in ("stun", "silence", "disarm", "immobilize") and self.me.e.mech is not None \
                 and getattr(self.me.e.mech, "cc_landing", False):
+            # expected CC time: a miss is a shorter CC, not none, so on-CC item hooks still fire every cast
             dur *= self.cc_land()
 
         def go():

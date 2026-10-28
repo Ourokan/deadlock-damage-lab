@@ -14,7 +14,7 @@ from deadsim import Loadout, duel, mechanics  # noqa: E402
 from deadsim.engine import Mods  # noqa: E402
 
 
-def cc_given(flag, hero="Warden"):
+def cc_given(flag, hero="Warden", mech=None):
     """Seconds of CC hero's abilities put on the foe in one 20 s duel (before status resist, which the foe lacks)."""
     seen = []
     add = Mods.add
@@ -23,7 +23,7 @@ def cc_given(flag, hero="Warden"):
         if key in ("stun", "silence", "disarm", "immobilize") and isinstance(tag, tuple) and str(tag[0]).startswith("ability_"):
             seen.append(duration)
         return add(self, key, value, duration, tag)
-    mech = dataclasses.replace(mechanics.DEFAULT, cc_landing=flag)
+    mech = mech or dataclasses.replace(mechanics.DEFAULT, cc_landing=flag)
     with mock.patch.object(Mods, "add", spy):
         duel(Loadout(hero, [], souls=20000), Loadout("Abrams", [], souls=20000), max_time=20.0,
              rng=random.Random(1), mechanics=mech)
@@ -37,6 +37,11 @@ class CCLanding(unittest.TestCase):
         self.assertTrue(on)
         self.assertLess(max(on), max(off) + 1e-9)
         self.assertLess(sum(on) / len(on), sum(off) / len(off))
+
+    def test_off_is_the_default_and_unchanged(self):
+        # the default (off) leaves every CC duration as it was before the flag existed
+        self.assertFalse(mechanics.DEFAULT.cc_landing)
+        self.assertEqual(cc_given(False), cc_given(None, mech=mechanics.DEFAULT))
 
 
 if __name__ == "__main__":
