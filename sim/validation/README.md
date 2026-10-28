@@ -3410,3 +3410,25 @@ or below the median spirit item souls, geometric mean of the ratios (real hi/lo 
 
 Left: range items add hits per cast in real (bigger zones, longer inside) but only shorten the walk-in in the sim;
 Duration Extender on other heroes is noisy at 259 replays; map pickups.
+
+## Range items and hits per cast (2026-10-28, no model change)
+
+Follow-up of the last line above. scripts/team/range_hits.py (260 replays; casts_by_build.py's real and sim rows). The
+1.18 vs 1.07 holders' damage per cast was mostly the holders' spirit investment (1.66x the spirit item souls of
+non-holders in the same hero ability x bin), which the sim already prices per hit.
+
+- area: hits on heroes other than the fight's main target, per main-target damage, over the gun's in the same fights,
+  holders / non-holders (even / odd match ids). Greater Expansion: area abilities 1.113 (1.166 / 1.091), single-target
+  1.015 (1.109 / 0.948); Mystic Expansion (one imbued ability, diluted): area 1.036 (1.046 / 1.024), single 1.029.
+  Range does widen area abilities' reach to other heroes a little.
+- casts: holders vs non-holders with at least 0.7x the holders' median spirit item souls, damage per cast real / sim:
+  Greater Expansion 0.937 / 0.957 = 0.98 (0.91 / 0.97), hits per cast 0.916 / 0.987; Mystic Expansion 1.012 / 0.968 =
+  1.05 (1.16 / 1.07). The wider reach does not show up as more damage per cast: Greater Expansion holders (+30% range
+  and radius on every ability) deal no more per cast than the sim already gives them (fewer main-target hits offset
+  the other heroes). Mystic Expansion's lift sits on one ability per hero, the one real players imbue (casts_by_build.py
+  imbues "Mystic Expansion": Nurse Lurking Terrors, Pocket Affliction, Danny Strix Salvo, Mina Nox Nostra in both
+  halves); with Greater Expansion flat it reads as which ability they imbue (the one they lean on), not as range.
+- So no range term: a hits-per-cast lift from range would move Greater Expansion holders further from real. Not refit.
+- Duration Extender after #205 (same check): real 1.217 (1.516 / 1.335), sim 0.924: still the largest holder gap, on the
+  imbued ability (heroes other than Nurse and Graves keep the usual slot in the sim). Lead, small samples per hero.
+
