@@ -361,19 +361,24 @@ class ArmorPiercer(FX):
 # replays): players holding it put ~45% of their gun damage in his slow 42-damage goo shot (4% without it), and its
 # proc events sit at 1.2-1.4x an alt-fire hit (median ~110, ~160 per proc) against ~25 for a primary hit; the sim
 # fired it as two 10-damage primary bullets (~50 per proc), so Express Shot read 2.7x under in the audit.
-EXPRESS_ALT = {35: "citadel_weapon_viscous_set_2"}
+# Shiv and Yamato (2026-10-28, fight_length replays, scripts/mechanics/express_alt_fire.py): the same, their alt fire is
+# most of a holder's gun damage (Shiv 0.85 vs 0.38 without the item, Yamato 0.84 vs 0.78) and the proc runs ~250 a
+# proc from mid game. Shiv's alt is a 12-pellet blast (the primary 6), Yamato's one 50-damage shot (the primary 5
+# pellets): the ratio is per whole shot, spread over the primary's pellets.
+EXPRESS_ALT = {35: "citadel_weapon_viscous_set_2", 19: "citadel_weapon_shiv_alt", 27: "citadel_weapon_yamato_alt"}
 _alt_ratio = {}
 
 
 def alt_bullet_ratio(hero_id):
-    """The alt weapon's bullet damage over the primary's (raw items.json), or None."""
+    """The alt weapon's shot damage over the primary's (bullet damage x bullets, raw items.json), or None."""
     cls = EXPRESS_ALT.get(hero_id)
     if cls is None:
         return None
     if hero_id not in _alt_ratio:
-        alt = next((x for x in _load("raw/items.json") if x.get("class_name") == cls), {})
-        prim = game().heroes[hero_id].weapon.get("bullet_damage") or 0
-        dmg = (alt.get("weapon_info") or {}).get("bullet_damage")
+        alt = (next((x for x in _load("raw/items.json") if x.get("class_name") == cls), {}).get("weapon_info") or {})
+        w = game().heroes[hero_id].weapon
+        prim = (w.get("bullet_damage") or 0) * (w.get("bullets") or 1)
+        dmg = (alt.get("bullet_damage") or 0) * (alt.get("bullets") or 1)
         _alt_ratio[hero_id] = dmg / prim if dmg and prim else None
     return _alt_ratio[hero_id]
 

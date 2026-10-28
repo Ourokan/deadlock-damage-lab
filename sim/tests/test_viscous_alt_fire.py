@@ -22,6 +22,8 @@ def proc_over_gun(hero):
     b = make_fighter(e, Loadout("Abrams", [], souls=20000))
     a.enemy, b.enemy = b, a
     a.skill = a.skill.__class__(accuracy=1.0, headshot=0.0)
+    for ab in a.abilities:   # Shiv's rage counter
+        ab.start()
     e.fire(a)
     es = a.dmg_out.get("Express Shot", 0.0)
     e.fire(a)
@@ -32,10 +34,18 @@ class ExpressShotAltFire(unittest.TestCase):
     def test_alt_ratio_from_data(self):
         self.assertAlmostEqual(items_fx.alt_bullet_ratio(game().hero("Viscous").id), 42.0 / 10.34, delta=1.0)
         self.assertIsNone(items_fx.alt_bullet_ratio(game().hero("Haze").id))
+        # per whole shot: Shiv's 12-pellet alt blast over his 6-pellet primary, Yamato's one 50 over her 5 pellets
+        self.assertAlmostEqual(items_fx.alt_bullet_ratio(game().hero("Shiv").id), 12 * 4.53 / (6 * 4.8), delta=0.3)
+        self.assertAlmostEqual(items_fx.alt_bullet_ratio(game().hero("Yamato").id), 50 / (5 * 5.31), delta=0.3)
 
     def test_viscous_proc_is_the_alt_shot(self):
         # two alt shots at ~4x a primary bullet each, against two primary bullets with +125% for a one-bullet gun
         self.assertGreater(proc_over_gun("Viscous"), 1.8 * proc_over_gun("Seven"))
+
+    def test_shiv_yamato_proc_is_the_alt_shot(self):
+        # the alt shot (~1.9x a primary shot) with +40% beats the primary shot with +125%
+        for hero in ("Shiv", "Yamato"):
+            self.assertGreater(proc_over_gun(hero), 1.1 * proc_over_gun("Seven"), hero)
 
 
 class PuddlePunchProcs(unittest.TestCase):
