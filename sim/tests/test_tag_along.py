@@ -82,7 +82,7 @@ class OneWindow(unittest.TestCase):
         e, a = self.fight(1.0)
         from deadsim.heroes import familiar as F
         self.assertGreaterEqual(a.gun_locked_until, 5.5 - 1e-9)    # gun and melee (melee waits on the gun lock)
-        self.assertAlmostEqual(a.stat("damage_taken_amp"), F.TAG_TAKEN - 1.0)
+        self.assertEqual(a.mods.values("damage_taken_mult"), [F.TAG_TAKEN])   # x, not + foe amps
         pillow = next(ab for ab in a.abilities if ab.ab.class_name == "ability_familiar_ability02")
         self.assertFalse(pillow.impl.should_cast(pillow.ctx))
 
@@ -96,7 +96,7 @@ class OneWindow(unittest.TestCase):
 
     def test_free_after_the_window(self):
         e, a = self.fight(6.0)
-        self.assertAlmostEqual(a.stat("damage_taken_amp"), 0.0)
+        self.assertEqual(a.mods.values("damage_taken_mult"), [])
         self.assertLess(a.counters["tag_along_until"], e.t)
 
 

@@ -3175,7 +3175,7 @@ Decay, Scourge, Torment Pulse cast from the ally); damage taken 38.2 -> 3.2 per 
 Mechanics.tag_along (on, data/tag_along.json): with fight draws Rem is on an ally for windows drawn so the share of
 the duel matches the real share at his net worth (lengths from the real quantiles, exponential free gaps, attached at
 the start with that share): gun, melee and Pillow Toss locked (a held Pillow charge goes out after), damage
-taken x familiar.TAG_TAKEN 0.084 (the replays' 3.2 / 38.2; this moves Rem's survival and search results too). Heal, T3 spirit power and Lil Helpers' damage (real 1.6% of Rem's, sim 0) are left out.
+taken x familiar.TAG_TAKEN 0.084, a multiplier (Mods "damage_taken_mult") on top of any foe amps (the replays' 3.2 / 38.2; this moves Rem's survival and search results too). Heal, T3 spirit power and Lil Helpers' damage (real 1.6% of Rem's, sim 0) are left out.
 
 Split-half on his 325 players (validation/rem_sample.jsonl.gz: his matches of both samples; match id halves, 3
 corr rounds on the fit half, held-out half 4 draws): ref = main + refit, new = tag_along + refit. Per-source 0.0422

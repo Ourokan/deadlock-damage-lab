@@ -70,7 +70,7 @@ class TagAlong(AbilityImpl):
             return
         c.me.counters["tag_along_until"] = c.now + n
         c.lock_gun(n)
-        c.buff("damage_taken_amp", TAG_TAKEN - 1.0, n, tag="tag_along")
+        c.buff("damage_taken_mult", TAG_TAKEN, n, tag="tag_along")
 
 
 @register("ability_familiar_helpinghands")

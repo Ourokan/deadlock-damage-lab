@@ -791,6 +791,8 @@ class Engine:
             amt *= (1.0 + dst.stat("bullet_amp_taken"))
         if not pure:
             amt *= (1.0 + dst.stat("damage_taken_amp"))
+            for v in dst.mods.values("damage_taken_mult"):   # e.g. Rem on an ally (familiar.TAG_TAKEN)
+                amt *= v
         if not (ignore_resist or pure):
             if kind == "bullet":
                 shred = dst.mods.values("bullet_shred")
