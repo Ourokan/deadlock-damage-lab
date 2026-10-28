@@ -121,3 +121,31 @@ class TestMysticReverb(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestBallisticEnchantment(unittest.TestCase):
+    """Mechanics.ballistic_stacks: a stack per unique hero the imbued ability tagged in the last 20 s; a duel has one
+    enemy, so an area ability's stack counts as its real heroes tagged (data/ballistic_stacks.json)."""
+
+    def buff(self, hero, flag=True):
+        import dataclasses
+        from types import SimpleNamespace
+        from deadsim import mechanics
+        e, f, g = pair(["Ballistic Enchantment"], hero=hero)
+        e.mech = dataclasses.replace(e.mech or mechanics.DEFAULT, ballistic_stacks=flag)
+        fx = next(x for x in f.items_fx if x.name == "Ballistic Enchantment")
+        ab = next(s for s in f.abilities if any(i.name == "Ballistic Enchantment" for i in s.imbues))
+        fx.on_damage_dealt(f, g, SimpleNamespace(ability=ab))
+        return sum(f.mods.values("weapon_pct")), mechanics.ballistic_stacks(ab.ab.class_name), fx.item
+
+    def test_area_ability_carries_its_real_stacks(self):
+        got, stacks, it = self.buff("Lady Geist")
+        per = it.p("WeaponPowerPerStack") / 100
+        self.assertGreater(stacks, 1.2)
+        self.assertAlmostEqual(got, stacks * per, places=6)
+        off, _, _ = self.buff("Lady Geist", flag=False)
+        self.assertAlmostEqual(off, per, places=6)
+
+    def test_unknown_ability_is_one_stack(self):
+        from deadsim import mechanics
+        self.assertEqual(mechanics.ballistic_stacks("no_such_ability"), 1.0)

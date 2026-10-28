@@ -1,0 +1,1612 @@
+{
+ "source": "260 Phantom+ replays, hero-vs-hero DamageEvent (scripts/team/ballistic_stacks.py)",
+ "window_s": 20.0,
+ "abilities": {
+  "drifter_blood_blast": {
+   "hero": "Drifter",
+   "name": "Rend",
+   "stacks": 1.27,
+   "halves": [
+    1.248,
+    1.287
+   ],
+   "p_any": 0.7,
+   "gun_damage": 542997
+  },
+  "drifter_shadow_mark": {
+   "hero": "Drifter",
+   "name": "Stalker's Mark",
+   "stacks": 1.08,
+   "halves": [
+    1.063,
+    1.094
+   ],
+   "p_any": 0.624,
+   "gun_damage": 467030
+  },
+  "ability_drifter_hunger": {
+   "hero": "Drifter",
+   "name": "Bloodscent",
+   "stacks": 1.332,
+   "halves": [
+    1.297,
+    1.36
+   ],
+   "p_any": 0.852,
+   "gun_damage": 629853
+  },
+  "ability_charged_shot": {
+   "hero": "Grey Talon",
+   "name": "Charged Shot",
+   "stacks": 1.294,
+   "halves": [
+    1.276,
+    1.309
+   ],
+   "p_any": 0.654,
+   "gun_damage": 302273
+  },
+  "ability_immobilize_trap": {
+   "hero": "Grey Talon",
+   "name": "Spirit Snare",
+   "stacks": 1.185,
+   "halves": [
+    1.193,
+    1.179
+   ],
+   "p_any": 0.313,
+   "gun_damage": 131567
+  },
+  "ability_guided_arrow": {
+   "hero": "Grey Talon",
+   "name": "Guided Owl",
+   "stacks": 1.346,
+   "halves": [
+    1.369,
+    1.327
+   ],
+   "p_any": 0.204,
+   "gun_damage": 80470
+  },
+  "citadel_ability_sticky_bomb": {
+   "hero": "Bebop",
+   "name": "Sticky Bomb",
+   "stacks": 1.215,
+   "halves": [
+    1.252,
+    1.172
+   ],
+   "p_any": 0.475,
+   "gun_damage": 319609
+  },
+  "citadel_ability_hook": {
+   "hero": "Bebop",
+   "name": "Grapple Arm",
+   "stacks": 1.074,
+   "halves": [
+    1.084,
+    1.063
+   ],
+   "p_any": 0.591,
+   "gun_damage": 392972
+  },
+  "citadel_ability_uppercut": {
+   "hero": "Bebop",
+   "name": "Exploding Uppercut",
+   "stacks": 1.239,
+   "halves": [
+    1.234,
+    1.245
+   ],
+   "p_any": 0.695,
+   "gun_damage": 464067
+  },
+  "citadel_ability_bebop_laser_beam": {
+   "hero": "Bebop",
+   "name": "Hyper Beam",
+   "stacks": 2.106,
+   "halves": [
+    2.263,
+    1.93
+   ],
+   "p_any": 0.099,
+   "gun_damage": 57076
+  },
+  "ability_intimidate": {
+   "hero": "Mo & Krill",
+   "name": "Scorn",
+   "stacks": 1.468,
+   "halves": [
+    1.455,
+    1.476
+   ],
+   "p_any": 0.805,
+   "gun_damage": 162428
+  },
+  "ability_throw_sand": {
+   "hero": "Mo & Krill",
+   "name": "Sand Blast",
+   "stacks": 1.208,
+   "halves": [
+    1.241,
+    1.19
+   ],
+   "p_any": 0.493,
+   "gun_damage": 90874
+  },
+  "ability_ult_combo": {
+   "hero": "Mo & Krill",
+   "name": "Combo",
+   "stacks": 1.0,
+   "halves": [
+    1.0,
+    1.0
+   ],
+   "p_any": 0.29,
+   "gun_damage": 45902
+  },
+  "ability_burrow": {
+   "hero": "Mo & Krill",
+   "name": "Burrow",
+   "stacks": 1.304,
+   "halves": [
+    1.25,
+    1.337
+   ],
+   "p_any": 0.544,
+   "gun_damage": 91219
+  },
+  "ability_ratking_scrap_grenade": {
+   "hero": "Rat King",
+   "name": "Scrap Grenade",
+   "stacks": 1.694,
+   "halves": [
+    1.736,
+    1.654
+   ],
+   "p_any": 0.622,
+   "gun_damage": 1371880
+  },
+  "ability_ratking_ratarmor": {
+   "hero": "Rat King",
+   "name": "Royal Pestments",
+   "stacks": 1.31,
+   "halves": [
+    1.287,
+    1.333
+   ],
+   "p_any": 0.422,
+   "gun_damage": 877626
+  },
+  "ability_ratking_ratnibble": {
+   "hero": "Rat King",
+   "name": "Rat Swarm",
+   "stacks": 1.685,
+   "halves": [
+    1.65,
+    1.718
+   ],
+   "p_any": 0.735,
+   "gun_damage": 1585014
+  },
+  "ability_ratking_standard_bearer": {
+   "hero": "Rat King",
+   "name": "Rule, Ratannia!",
+   "stacks": 1.962,
+   "halves": [
+    1.924,
+    1.997
+   ],
+   "p_any": 0.192,
+   "gun_damage": 356377
+  },
+  "ability_deadpack_rocketeer": {
+   "hero": "Deadman Danny",
+   "name": "Chimera Mk1",
+   "stacks": 1.295,
+   "halves": [
+    1.284,
+    1.307
+   ],
+   "p_any": 0.423,
+   "gun_damage": 485654
+  },
+  "ability_deadpack_chargeblast": {
+   "hero": "Deadman Danny",
+   "name": "Strix Salvo",
+   "stacks": 1.453,
+   "halves": [
+    1.456,
+    1.451
+   ],
+   "p_any": 0.653,
+   "gun_damage": 787130
+  },
+  "ability_deadpack_flamethrower": {
+   "hero": "Deadman Danny",
+   "name": "Jettison Fuel",
+   "stacks": 1.26,
+   "halves": [
+    1.261,
+    1.258
+   ],
+   "p_any": 0.416,
+   "gun_damage": 479119
+  },
+  "ability_deadpack_ultimate": {
+   "hero": "Deadman Danny",
+   "name": "Close The Deal",
+   "stacks": 1.97,
+   "halves": [
+    1.973,
+    1.966
+   ],
+   "p_any": 0.158,
+   "gun_damage": 162876
+  },
+  "ability_afterburn": {
+   "hero": "Infernus",
+   "name": "Afterburn",
+   "stacks": 1.263,
+   "halves": [
+    1.257,
+    1.269
+   ],
+   "p_any": 0.529,
+   "gun_damage": 290227
+  },
+  "ability_flame_dash": {
+   "hero": "Infernus",
+   "name": "Flame Dash",
+   "stacks": 1.628,
+   "halves": [
+    1.737,
+    1.507
+   ],
+   "p_any": 0.382,
+   "gun_damage": 200956
+  },
+  "ability_incendiary_projectile": {
+   "hero": "Infernus",
+   "name": "Napalm",
+   "stacks": 1.197,
+   "halves": [
+    1.203,
+    1.19
+   ],
+   "p_any": 0.593,
+   "gun_damage": 304800
+  },
+  "ability_fire_bomb": {
+   "hero": "Infernus",
+   "name": "Concussive Combustion",
+   "stacks": 1.353,
+   "halves": [
+    1.389,
+    1.315
+   ],
+   "p_any": 0.151,
+   "gun_damage": 63777
+  },
+  "ability_familiar_ability02": {
+   "hero": "Rem",
+   "name": "Pillow Toss",
+   "stacks": 1.256,
+   "halves": [
+    1.219,
+    1.305
+   ],
+   "p_any": 0.65,
+   "gun_damage": 50927
+  },
+  "ability_familiar_helpinghands": {
+   "hero": "Rem",
+   "name": "Lil Helpers",
+   "stacks": 1.204,
+   "halves": [
+    1.242,
+    1.173
+   ],
+   "p_any": 0.152,
+   "gun_damage": 10451
+  },
+  "ability_familiar_ability01": {
+   "hero": "Rem",
+   "name": "Naptime",
+   "stacks": 1.337,
+   "halves": [
+    1.323,
+    1.358
+   ],
+   "p_any": 0.2,
+   "gun_damage": 11827
+  },
+  "ability_chessmaster_throwbishop": {
+   "hero": "Solomon",
+   "name": "Setup Bishop",
+   "stacks": 1.657,
+   "halves": [
+    1.63,
+    1.676
+   ],
+   "p_any": 0.438,
+   "gun_damage": 250484
+  },
+  "ability_chessmaster_forkpiece": {
+   "hero": "Solomon",
+   "name": "Rook Battery",
+   "stacks": 1.28,
+   "halves": [
+    1.267,
+    1.288
+   ],
+   "p_any": 0.408,
+   "gun_damage": 213391
+  },
+  "ability_chessmaster_queen": {
+   "hero": "Solomon",
+   "name": "Develop Queen",
+   "stacks": 2.145,
+   "halves": [
+    2.144,
+    2.147
+   ],
+   "p_any": 0.212,
+   "gun_damage": 100631
+  },
+  "ability_lash_flog": {
+   "hero": "Lash",
+   "name": "Flog",
+   "stacks": 1.353,
+   "halves": [
+    1.366,
+    1.343
+   ],
+   "p_any": 0.757,
+   "gun_damage": 302087
+  },
+  "citadel_ability_lash_down_strike": {
+   "hero": "Lash",
+   "name": "Ground Strike",
+   "stacks": 1.34,
+   "halves": [
+    1.336,
+    1.342
+   ],
+   "p_any": 0.679,
+   "gun_damage": 271258
+  },
+  "citadel_ability_lash_ultimate": {
+   "hero": "Lash",
+   "name": "Death Slam",
+   "stacks": 1.751,
+   "halves": [
+    1.812,
+    1.714
+   ],
+   "p_any": 0.216,
+   "gun_damage": 69626
+  },
+  "ability_punkgoat_ult": {
+   "hero": "Billy",
+   "name": "Bashdown",
+   "stacks": 1.447,
+   "halves": [
+    1.42,
+    1.475
+   ],
+   "p_any": 0.79,
+   "gun_damage": 173062
+  },
+  "ability_punkgoat_goatflip": {
+   "hero": "Billy",
+   "name": "Rising Ram",
+   "stacks": 1.03,
+   "halves": [
+    1.032,
+    1.027
+   ],
+   "p_any": 0.44,
+   "gun_damage": 89134
+  },
+  "ability_punkgoat_blasted": {
+   "hero": "Billy",
+   "name": "Blasted",
+   "stacks": 1.288,
+   "halves": [
+    1.266,
+    1.306
+   ],
+   "p_any": 0.587,
+   "gun_damage": 126781
+  },
+  "ability_punkgoat_tether": {
+   "hero": "Billy",
+   "name": "Chain Gang",
+   "stacks": 1.485,
+   "halves": [
+    1.443,
+    1.537
+   ],
+   "p_any": 0.2,
+   "gun_damage": 38718
+  },
+  "ability_vampirebat_lovebites": {
+   "hero": "Mina",
+   "name": "Love Bites",
+   "stacks": 1.689,
+   "halves": [
+    1.729,
+    1.636
+   ],
+   "p_any": 0.999,
+   "gun_damage": 387887
+  },
+  "ability_vampirebat_steallife": {
+   "hero": "Mina",
+   "name": "Rake",
+   "stacks": 1.262,
+   "halves": [
+    1.286,
+    1.23
+   ],
+   "p_any": 0.562,
+   "gun_damage": 204797
+  },
+  "ability_vampirebat_batswarm": {
+   "hero": "Mina",
+   "name": "Nox Nostra",
+   "stacks": 1.653,
+   "halves": [
+    1.659,
+    1.645
+   ],
+   "p_any": 0.188,
+   "gun_damage": 63277
+  },
+  "citadel_ability_shiv_defer_damage": {
+   "hero": "Shiv",
+   "name": "Bloodletting",
+   "stacks": 1.0,
+   "halves": [
+    1.0,
+    1.0
+   ],
+   "p_any": 0.279,
+   "gun_damage": 797780
+  },
+  "citadel_ability_fissure_wall": {
+   "hero": "McGinnis",
+   "name": "Spectral Wall",
+   "stacks": 1.218,
+   "halves": [
+    1.241,
+    1.151
+   ],
+   "p_any": 0.32,
+   "gun_damage": 54115
+  },
+  "citadel_ability_shieldedsentry": {
+   "hero": "McGinnis",
+   "name": "Mini Turret",
+   "stacks": 1.947,
+   "halves": [
+    1.943,
+    1.958
+   ],
+   "p_any": 0.853,
+   "gun_damage": 144250
+  },
+  "citadel_ability_rocket_barrage": {
+   "hero": "McGinnis",
+   "name": "Heavy Barrage",
+   "stacks": 1.951,
+   "halves": [
+    2.197,
+    1.625
+   ],
+   "p_any": 0.073,
+   "gun_damage": 10761
+  },
+  "citadel_ability_chrono_kinetic_carbine": {
+   "hero": "Paradox",
+   "name": "Kinetic Carbine",
+   "stacks": 1.159,
+   "halves": [
+    1.152,
+    1.165
+   ],
+   "p_any": 0.724,
+   "gun_damage": 468367
+  },
+  "citadel_ability_chrono_pulse_grenade": {
+   "hero": "Paradox",
+   "name": "Pulse Grenade",
+   "stacks": 1.302,
+   "halves": [
+    1.381,
+    1.232
+   ],
+   "p_any": 0.477,
+   "gun_damage": 309568
+  },
+  "citadel_ability_chrono_swap": {
+   "hero": "Paradox",
+   "name": "Paradoxical Swap",
+   "stacks": 1.042,
+   "halves": [
+    1.028,
+    1.051
+   ],
+   "p_any": 0.214,
+   "gun_damage": 116169
+  },
+  "citadel_ability_shiv_dagger": {
+   "hero": "Shiv",
+   "name": "Serrated Knives",
+   "stacks": 1.335,
+   "halves": [
+    1.322,
+    1.346
+   ],
+   "p_any": 0.682,
+   "gun_damage": 150515
+  },
+  "citadel_ability_shiv_dash": {
+   "hero": "Shiv",
+   "name": "Slice and Dice",
+   "stacks": 1.197,
+   "halves": [
+    1.179,
+    1.212
+   ],
+   "p_any": 0.398,
+   "gun_damage": 82143
+  },
+  "citadel_ability_shiv_killing_blow": {
+   "hero": "Shiv",
+   "name": "Killing Blow",
+   "stacks": 1.152,
+   "halves": [
+    1.138,
+    1.162
+   ],
+   "p_any": 0.102,
+   "gun_damage": 15972
+  },
+  "citadel_ability_healing_slash": {
+   "hero": "Yamato",
+   "name": "Crimson Slash",
+   "stacks": 1.353,
+   "halves": [
+    1.331,
+    1.385
+   ],
+   "p_any": 0.698,
+   "gun_damage": 143458
+  },
+  "citadel_ability_flying_strike": {
+   "hero": "Yamato",
+   "name": "Flying Slash",
+   "stacks": 1.218,
+   "halves": [
+    1.223,
+    1.212
+   ],
+   "p_any": 0.643,
+   "gun_damage": 125743
+  },
+  "citadel_ability_power_slash": {
+   "hero": "Yamato",
+   "name": "Power Slash",
+   "stacks": 1.135,
+   "halves": [
+    1.116,
+    1.172
+   ],
+   "p_any": 0.445,
+   "gun_damage": 86202
+  },
+  "ability_stacking_damage": {
+   "hero": "Haze",
+   "name": "Fixation",
+   "stacks": 1.942,
+   "halves": [
+    1.958,
+    1.929
+   ],
+   "p_any": 0.971,
+   "gun_damage": 1626843
+  },
+  "ability_sleep_dagger": {
+   "hero": "Haze",
+   "name": "Sleep Dagger",
+   "stacks": 1.055,
+   "halves": [
+    1.056,
+    1.054
+   ],
+   "p_any": 0.54,
+   "gun_damage": 878655
+  },
+  "ability_bullet_flurry": {
+   "hero": "Haze",
+   "name": "Bullet Dance",
+   "stacks": 1.572,
+   "halves": [
+    1.526,
+    1.614
+   ],
+   "p_any": 0.131,
+   "gun_damage": 192425
+  },
+  "synth_plasma_flux": {
+   "hero": "Pocket",
+   "name": "Flying Cloak",
+   "stacks": 1.268,
+   "halves": [
+    1.354,
+    1.169
+   ],
+   "p_any": 0.55,
+   "gun_damage": 167659
+  },
+  "synth_pulse": {
+   "hero": "Pocket",
+   "name": "Enchanter's Satchel",
+   "stacks": 1.476,
+   "halves": [
+    1.581,
+    1.352
+   ],
+   "p_any": 0.665,
+   "gun_damage": 197819
+  },
+  "synth_barrage": {
+   "hero": "Pocket",
+   "name": "Barrage",
+   "stacks": 2.027,
+   "halves": [
+    2.19,
+    1.831
+   ],
+   "p_any": 0.788,
+   "gun_damage": 229016
+  },
+  "synth_affliction": {
+   "hero": "Pocket",
+   "name": "Affliction",
+   "stacks": 1.631,
+   "halves": [
+    1.624,
+    1.642
+   ],
+   "p_any": 0.309,
+   "gun_damage": 75455
+  },
+  "citadel_ability_card_toss": {
+   "hero": "Wraith",
+   "name": "Card Trick",
+   "stacks": 1.502,
+   "halves": [
+    1.544,
+    1.444
+   ],
+   "p_any": 0.728,
+   "gun_damage": 1175036
+  },
+  "citadel_ability_wraith_rapidfire": {
+   "hero": "Wraith",
+   "name": "Full Auto",
+   "stacks": 1.789,
+   "halves": [
+    1.84,
+    1.716
+   ],
+   "p_any": 0.817,
+   "gun_damage": 1278217
+  },
+  "citadel_ability_psychic_lift": {
+   "hero": "Wraith",
+   "name": "Telekinesis",
+   "stacks": 1.0,
+   "halves": [
+    1.0,
+    1.0
+   ],
+   "p_any": 0.25,
+   "gun_damage": 367305
+  },
+  "ability_ice_grenade": {
+   "hero": "Kelvin",
+   "name": "Frost Grenade",
+   "stacks": 1.402,
+   "halves": [
+    1.391,
+    1.41
+   ],
+   "p_any": 0.693,
+   "gun_damage": 77825
+  },
+  "ability_icebeam": {
+   "hero": "Kelvin",
+   "name": "Arctic Beam",
+   "stacks": 1.642,
+   "halves": [
+    1.691,
+    1.606
+   ],
+   "p_any": 0.746,
+   "gun_damage": 77855
+  },
+  "citadel_ability_hornet_sting": {
+   "hero": "Vindicta",
+   "name": "Crow Familiar",
+   "stacks": 1.258,
+   "halves": [
+    1.207,
+    1.296
+   ],
+   "p_any": 0.673,
+   "gun_damage": 586384
+  },
+  "citadel_ability_hornet_leap": {
+   "hero": "Vindicta",
+   "name": "Flight",
+   "stacks": 1.727,
+   "halves": [
+    1.718,
+    1.734
+   ],
+   "p_any": 0.689,
+   "gun_damage": 584041
+  },
+  "citadel_ability_hornet_chain": {
+   "hero": "Vindicta",
+   "name": "Stake",
+   "stacks": 1.238,
+   "halves": [
+    1.247,
+    1.233
+   ],
+   "p_any": 0.532,
+   "gun_damage": 452930
+  },
+  "citadel_ability_hornet_snipe": {
+   "hero": "Vindicta",
+   "name": "Assassinate",
+   "stacks": 1.182,
+   "halves": [
+    1.153,
+    1.205
+   ],
+   "p_any": 0.326,
+   "gun_damage": 259607
+  },
+  "ability_nurse_adrenaline_rush": {
+   "hero": "Nurse Harrow",
+   "name": "Wretched Vapors",
+   "stacks": 1.0,
+   "halves": [
+    1.0,
+    1.0
+   ],
+   "p_any": 0.064,
+   "gun_damage": 268109
+  },
+  "ability_necro_hauntingskull": {
+   "hero": "Graves",
+   "name": "Jar of Dead",
+   "stacks": 1.415,
+   "halves": [
+    1.412,
+    1.418
+   ],
+   "p_any": 0.722,
+   "gun_damage": 394860
+  },
+  "ability_necro_zombiewall": {
+   "hero": "Graves",
+   "name": "Grasping Hands",
+   "stacks": 1.328,
+   "halves": [
+    1.286,
+    1.372
+   ],
+   "p_any": 0.302,
+   "gun_damage": 144150
+  },
+  "ability_necro_gravestone": {
+   "hero": "Graves",
+   "name": "Borrowed Decree",
+   "stacks": 1.384,
+   "halves": [
+    1.342,
+    1.432
+   ],
+   "p_any": 0.413,
+   "gun_damage": 212947
+  },
+  "ability_nurse_leech_therapy": {
+   "hero": "Nurse Harrow",
+   "name": "Leech Therapy",
+   "stacks": 1.215,
+   "halves": [
+    1.235,
+    1.197
+   ],
+   "p_any": 0.528,
+   "gun_damage": 448706
+  },
+  "ability_nurse_fear": {
+   "hero": "Nurse Harrow",
+   "name": "Lurking Terrors",
+   "stacks": 2.709,
+   "halves": [
+    2.616,
+    2.784
+   ],
+   "p_any": 0.118,
+   "gun_damage": 66755
+  },
+  "ability_artist_tether": {
+   "hero": "Violet",
+   "name": "Still Life",
+   "stacks": 1.033,
+   "halves": [
+    1.031,
+    1.035
+   ],
+   "p_any": 0.731,
+   "gun_damage": 792078
+  },
+  "ability_artist_homingbrush": {
+   "hero": "Violet",
+   "name": "Living Ink",
+   "stacks": 1.486,
+   "halves": [
+    1.476,
+    1.499
+   ],
+   "p_any": 0.897,
+   "gun_damage": 965430
+  },
+  "ability_artist_rollingprojectile": {
+   "hero": "Violet",
+   "name": "Flow State",
+   "stacks": 1.211,
+   "halves": [
+    1.237,
+    1.172
+   ],
+   "p_any": 0.334,
+   "gun_damage": 308518
+  },
+  "ability_artist_bamboogrove": {
+   "hero": "Violet",
+   "name": "Abstract Landscape",
+   "stacks": 1.975,
+   "halves": [
+    1.949,
+    2.01
+   ],
+   "p_any": 0.292,
+   "gun_damage": 249329
+  },
+  "ability_bookworm_aoemagic": {
+   "hero": "Paige",
+   "name": "Captivating Read",
+   "stacks": 1.338,
+   "halves": [
+    1.253,
+    1.406
+   ],
+   "p_any": 0.456,
+   "gun_damage": 161642
+  },
+  "ability_bookworm_dragonfire": {
+   "hero": "Paige",
+   "name": "Bookwyrm",
+   "stacks": 1.791,
+   "halves": [
+    1.688,
+    1.856
+   ],
+   "p_any": 0.566,
+   "gun_damage": 206342
+  },
+  "ability_bookworm_knightcharge": {
+   "hero": "Paige",
+   "name": "Rallying Charge",
+   "stacks": 1.724,
+   "halves": [
+    1.579,
+    1.833
+   ],
+   "p_any": 0.176,
+   "gun_damage": 52819
+  },
+  "ability_viper_venom": {
+   "hero": "Vyper",
+   "name": "Lethal Venom",
+   "stacks": 1.115,
+   "halves": [
+    1.108,
+    1.12
+   ],
+   "p_any": 0.299,
+   "gun_damage": 188779
+  },
+  "ability_viper_debuffdagger": {
+   "hero": "Vyper",
+   "name": "Screwjab Dagger",
+   "stacks": 1.195,
+   "halves": [
+    1.198,
+    1.193
+   ],
+   "p_any": 0.546,
+   "gun_damage": 351243
+  },
+  "ability_viper_petrifybola": {
+   "hero": "Vyper",
+   "name": "Petrifying Bola",
+   "stacks": 1.427,
+   "halves": [
+    1.366,
+    1.473
+   ],
+   "p_any": 0.175,
+   "gun_damage": 105216
+  },
+  "ability_explosive_barrel": {
+   "hero": "Holliday",
+   "name": "Powder Keg",
+   "stacks": 1.49,
+   "halves": [
+    1.475,
+    1.503
+   ],
+   "p_any": 0.789,
+   "gun_damage": 327020
+  },
+  "ability_crackshot": {
+   "hero": "Holliday",
+   "name": "Crackshot",
+   "stacks": 1.082,
+   "halves": [
+    1.018,
+    1.141
+   ],
+   "p_any": 0.459,
+   "gun_damage": 184181
+  },
+  "ability_gravity_lasso": {
+   "hero": "Holliday",
+   "name": "Spirit Lasso",
+   "stacks": 1.0,
+   "halves": [
+    1.0,
+    1.0
+   ],
+   "p_any": 0.133,
+   "gun_damage": 45183
+  },
+  "ability_bounce_pad": {
+   "hero": "Holliday",
+   "name": "Bounce Pad",
+   "stacks": 1.129,
+   "halves": [
+    1.162,
+    1.088
+   ],
+   "p_any": 0.23,
+   "gun_damage": 81278
+  },
+  "ability_baba_bubbling_brew": {
+   "hero": "Baba",
+   "name": "Threadsap",
+   "stacks": 1.828,
+   "halves": [
+    1.868,
+    1.786
+   ],
+   "p_any": 0.837,
+   "gun_damage": 100138
+  },
+  "ability_baba_bench_run": {
+   "hero": "Baba",
+   "name": "Granny Long Legs",
+   "stacks": 1.285,
+   "halves": [
+    1.246,
+    1.327
+   ],
+   "p_any": 0.342,
+   "gun_damage": 34209
+  },
+  "ability_baba_hexing_brew": {
+   "hero": "Baba",
+   "name": "Baba's Brew",
+   "stacks": 1.349,
+   "halves": [
+    1.369,
+    1.311
+   ],
+   "p_any": 0.297,
+   "gun_damage": 23933
+  },
+  "ability_baba_ultimate_2": {
+   "hero": "Baba",
+   "name": "Feed The Birds",
+   "stacks": 1.976,
+   "halves": [
+    2.103,
+    1.843
+   ],
+   "p_any": 0.243,
+   "gun_damage": 22343
+  },
+  "citadel_ability_bull_charge": {
+   "hero": "Abrams",
+   "name": "Shoulder Charge",
+   "stacks": 1.139,
+   "halves": [
+    1.146,
+    1.129
+   ],
+   "p_any": 0.653,
+   "gun_damage": 229240
+  },
+  "citadel_ability_bull_heal": {
+   "hero": "Abrams",
+   "name": "Siphon Life",
+   "stacks": 1.462,
+   "halves": [
+    1.435,
+    1.502
+   ],
+   "p_any": 0.634,
+   "gun_damage": 216208
+  },
+  "citadel_ability_bull_leap": {
+   "hero": "Abrams",
+   "name": "Seismic Impact",
+   "stacks": 1.548,
+   "halves": [
+    1.539,
+    1.561
+   ],
+   "p_any": 0.163,
+   "gun_damage": 40863
+  },
+  "citadel_ability_stomp": {
+   "hero": "Dynamo",
+   "name": "Kinetic Pulse",
+   "stacks": 1.407,
+   "halves": [
+    1.464,
+    1.271
+   ],
+   "p_any": 0.744,
+   "gun_damage": 136796
+  },
+  "citadel_ability_self_vacuum": {
+   "hero": "Dynamo",
+   "name": "Singularity",
+   "stacks": 1.79,
+   "halves": [
+    1.737,
+    1.906
+   ],
+   "p_any": 0.134,
+   "gun_damage": 18781
+  },
+  "ability_warden_crowd_control": {
+   "hero": "Warden",
+   "name": "Alchemical Flask",
+   "stacks": 1.333,
+   "halves": [
+    1.197,
+    1.469
+   ],
+   "p_any": 0.683,
+   "gun_damage": 138423
+  },
+  "ability_warden_lock_down": {
+   "hero": "Warden",
+   "name": "Binding Word",
+   "stacks": 1.0,
+   "halves": [
+    1.0,
+    1.0
+   ],
+   "p_any": 0.168,
+   "gun_damage": 30716
+  },
+  "ability_warden_riot_protocol": {
+   "hero": "Warden",
+   "name": "Last Stand",
+   "stacks": 1.81,
+   "halves": [
+    1.938,
+    1.644
+   ],
+   "p_any": 0.248,
+   "gun_damage": 41583
+  },
+  "ability_unicorn_radiantblast": {
+   "hero": "Celeste",
+   "name": "Light Eater",
+   "stacks": 1.455,
+   "halves": [
+    1.46,
+    1.446
+   ],
+   "p_any": 0.833,
+   "gun_damage": 342638
+  },
+  "ability_unicorn_luminousstrike": {
+   "hero": "Celeste",
+   "name": "Radiant Daggers",
+   "stacks": 1.638,
+   "halves": [
+    1.693,
+    1.547
+   ],
+   "p_any": 0.644,
+   "gun_damage": 243605
+  },
+  "ability_unicorn_prismaticguard": {
+   "hero": "Celeste",
+   "name": "Dazzling Trick",
+   "stacks": 1.387,
+   "halves": [
+    1.399,
+    1.37
+   ],
+   "p_any": 0.241,
+   "gun_damage": 88198
+  },
+  "ability_unicorn_dazzlingorb": {
+   "hero": "Celeste",
+   "name": "Shining Wonder",
+   "stacks": 2.038,
+   "halves": [
+    2.087,
+    1.963
+   ],
+   "p_any": 0.274,
+   "gun_damage": 88736
+  },
+  "ability_frank_shocktarget2": {
+   "hero": "Victor",
+   "name": "Pain Battery",
+   "stacks": 1.299,
+   "halves": [
+    1.282,
+    1.318
+   ],
+   "p_any": 0.622,
+   "gun_damage": 229112
+  },
+  "ability_frank_selfzap": {
+   "hero": "Victor",
+   "name": "Jumpstart",
+   "stacks": 1.0,
+   "halves": [
+    1.0,
+    1.0
+   ],
+   "p_any": 0.67,
+   "gun_damage": 232164
+  },
+  "ability_frank_painaura": {
+   "hero": "Victor",
+   "name": "Aura of Suffering",
+   "stacks": 2.598,
+   "halves": [
+    2.61,
+    2.585
+   ],
+   "p_any": 0.917,
+   "gun_damage": 307763
+  },
+  "ability_frank_revive": {
+   "hero": "Victor",
+   "name": "Shocking Reanimation",
+   "stacks": 1.696,
+   "halves": [
+    1.729,
+    1.652
+   ],
+   "p_any": 0.566,
+   "gun_damage": 170701
+  },
+  "ability_nano_dash": {
+   "hero": "Calico",
+   "name": "Leaping Slash",
+   "stacks": 1.134,
+   "halves": [
+    1.126,
+    1.14
+   ],
+   "p_any": 0.65,
+   "gun_damage": 186445
+  },
+  "ability_nano_clustergrenade": {
+   "hero": "Calico",
+   "name": "Gloom Bombs",
+   "stacks": 1.195,
+   "halves": [
+    1.183,
+    1.204
+   ],
+   "p_any": 0.513,
+   "gun_damage": 140883
+  },
+  "ability_nano_shadow_pulse": {
+   "hero": "Calico",
+   "name": "Return to Shadows",
+   "stacks": 1.441,
+   "halves": [
+    1.438,
+    1.442
+   ],
+   "p_any": 0.171,
+   "gun_damage": 40326
+  },
+  "ability_werewolf_unloadgun": {
+   "hero": "Silver",
+   "name": "Slam Fire",
+   "stacks": 1.056,
+   "halves": [
+    1.049,
+    1.063
+   ],
+   "p_any": 0.705,
+   "gun_damage": 307276
+  },
+  "ability_werewolf_kickflip": {
+   "hero": "Silver",
+   "name": "Boot Kick",
+   "stacks": 1.022,
+   "halves": [
+    1.02,
+    1.023
+   ],
+   "p_any": 0.468,
+   "gun_damage": 192598
+  },
+  "ability_werewolf_netshot": {
+   "hero": "Silver",
+   "name": "Entangling Bola",
+   "stacks": 1.033,
+   "halves": [
+    1.032,
+    1.035
+   ],
+   "p_any": 0.572,
+   "gun_damage": 223837
+  },
+  "ability_fencer_lunge": {
+   "hero": "Apollo",
+   "name": "Flawless Advance",
+   "stacks": 1.291,
+   "halves": [
+    1.234,
+    1.339
+   ],
+   "p_any": 0.578,
+   "gun_damage": 68307
+  },
+  "ability_fencer_throwblade": {
+   "hero": "Apollo",
+   "name": "Disengaging Sigil",
+   "stacks": 1.249,
+   "halves": [
+    1.212,
+    1.277
+   ],
+   "p_any": 0.596,
+   "gun_damage": 72474
+  },
+  "ability_fencer_ultimate": {
+   "hero": "Apollo",
+   "name": "Itani Lo Sahn",
+   "stacks": 1.42,
+   "halves": [
+    1.329,
+    1.501
+   ],
+   "p_any": 0.127,
+   "gun_damage": 12907
+  },
+  "citadel_ability_static_charge": {
+   "hero": "Seven",
+   "name": "Static Charge",
+   "stacks": 1.096,
+   "halves": [
+    1.079,
+    1.113
+   ],
+   "p_any": 0.383,
+   "gun_damage": 115455
+  },
+  "ability_power_surge": {
+   "hero": "Seven",
+   "name": "Power Surge",
+   "stacks": 1.766,
+   "halves": [
+    1.774,
+    1.759
+   ],
+   "p_any": 0.903,
+   "gun_damage": 287074
+  },
+  "citadel_ability_lightning_ball": {
+   "hero": "Seven",
+   "name": "Lightning Ball",
+   "stacks": 1.444,
+   "halves": [
+    1.457,
+    1.434
+   ],
+   "p_any": 0.598,
+   "gun_damage": 176090
+  },
+  "citadel_ability_storm_cloud": {
+   "hero": "Seven",
+   "name": "Storm Cloud",
+   "stacks": 2.81,
+   "halves": [
+    2.983,
+    2.632
+   ],
+   "p_any": 0.103,
+   "gun_damage": 25286
+  },
+  "ability_priest_knockback": {
+   "hero": "Venator",
+   "name": "Gutshot",
+   "stacks": 1.149,
+   "halves": [
+    1.169,
+    1.131
+   ],
+   "p_any": 0.451,
+   "gun_damage": 609523
+  },
+  "ability_priest_flashbang": {
+   "hero": "Venator",
+   "name": "Consecrating Grenade",
+   "stacks": 1.449,
+   "halves": [
+    1.463,
+    1.436
+   ],
+   "p_any": 0.479,
+   "gun_damage": 633697
+  },
+  "ability_priest_weaponswap": {
+   "hero": "Venator",
+   "name": "Ira Domini",
+   "stacks": 1.326,
+   "halves": [
+    1.304,
+    1.345
+   ],
+   "p_any": 0.166,
+   "gun_damage": 202416
+  },
+  "ability_priest_beartrap": {
+   "hero": "Venator",
+   "name": "Hex-Lined Snap Trap",
+   "stacks": 1.052,
+   "halves": [
+    1.058,
+    1.046
+   ],
+   "p_any": 0.174,
+   "gun_damage": 192106
+  },
+  "citadel_ability_tengu_urn": {
+   "hero": "Ivy",
+   "name": "Entangling Thorns",
+   "stacks": 1.538,
+   "halves": [
+    1.548,
+    1.525
+   ],
+   "p_any": 0.463,
+   "gun_damage": 272607
+  },
+  "citadel_ability_tengu_stone_form": {
+   "hero": "Ivy",
+   "name": "Stone Form",
+   "stacks": 1.195,
+   "halves": [
+    1.162,
+    1.239
+   ],
+   "p_any": 0.231,
+   "gun_damage": 130623
+  },
+  "citadel_ability_tengu_airlift": {
+   "hero": "Ivy",
+   "name": "Air Drop",
+   "stacks": 1.55,
+   "halves": [
+    1.59,
+    1.492
+   ],
+   "p_any": 0.254,
+   "gun_damage": 132772
+  },
+  "ability_blood_bomb": {
+   "hero": "Lady Geist",
+   "name": "Essence Bomb",
+   "stacks": 1.959,
+   "halves": [
+    1.941,
+    1.981
+   ],
+   "p_any": 0.947,
+   "gun_damage": 272065
+  },
+  "ability_life_drain": {
+   "hero": "Lady Geist",
+   "name": "Life Drain",
+   "stacks": 1.386,
+   "halves": [
+    1.341,
+    1.439
+   ],
+   "p_any": 0.784,
+   "gun_damage": 221647
+  },
+  "ability_blood_shards": {
+   "hero": "Lady Geist",
+   "name": "Malice",
+   "stacks": 2.404,
+   "halves": [
+    2.391,
+    2.419
+   ],
+   "p_any": 0.956,
+   "gun_damage": 261484
+  },
+  "ability_health_swap": {
+   "hero": "Lady Geist",
+   "name": "Soul Exchange",
+   "stacks": 1.011,
+   "halves": [
+    1.025,
+    1.0
+   ],
+   "p_any": 0.156,
+   "gun_damage": 38542
+  },
+  "mirage_sand_phantom": {
+   "hero": "Mirage",
+   "name": "Djinn's Mark",
+   "stacks": 1.705,
+   "halves": [
+    1.732,
+    1.655
+   ],
+   "p_any": 0.606,
+   "gun_damage": 117328
+  },
+  "mirage_fire_beetles": {
+   "hero": "Mirage",
+   "name": "Fire Scarabs",
+   "stacks": 1.15,
+   "halves": [
+    1.166,
+    1.126
+   ],
+   "p_any": 0.692,
+   "gun_damage": 133214
+  },
+  "mirage_tornado": {
+   "hero": "Mirage",
+   "name": "Dust Devil",
+   "stacks": 1.279,
+   "halves": [
+    1.278,
+    1.279
+   ],
+   "p_any": 0.314,
+   "gun_damage": 55138
+  },
+  "ability_doorman_bomb": {
+   "hero": "The Doorman",
+   "name": "Call Bell",
+   "stacks": 1.564,
+   "halves": [
+    1.523,
+    1.598
+   ],
+   "p_any": 0.798,
+   "gun_damage": 63952
+  },
+  "ability_doorman_luggage_cart": {
+   "hero": "The Doorman",
+   "name": "Luggage Cart",
+   "stacks": 1.18,
+   "halves": [
+    1.106,
+    1.247
+   ],
+   "p_any": 0.374,
+   "gun_damage": 25382
+  },
+  "ability_doorman_hotel": {
+   "hero": "The Doorman",
+   "name": "Hotel Guest",
+   "stacks": 1.0,
+   "halves": [
+    1.0,
+    1.0
+   ],
+   "p_any": 0.156,
+   "gun_damage": 9765
+  },
+  "viscous_goo_grenade": {
+   "hero": "Viscous",
+   "name": "Splatter",
+   "stacks": 1.284,
+   "halves": [
+    1.253,
+    1.393
+   ],
+   "p_any": 0.63,
+   "gun_damage": 35471
+  },
+  "viscous_telepunch": {
+   "hero": "Viscous",
+   "name": "Puddle Punch",
+   "stacks": 1.377,
+   "halves": [
+    1.339,
+    1.56
+   ],
+   "p_any": 0.494,
+   "gun_damage": 24719
+  },
+  "ability_magician_magicbolt": {
+   "hero": "Sinclair",
+   "name": "Vexing Bolt",
+   "stacks": 1.248,
+   "halves": [
+    1.247,
+    1.249
+   ],
+   "p_any": 0.514,
+   "gun_damage": 43995
+  },
+  "ability_magician_cloneturret": {
+   "hero": "Sinclair",
+   "name": "Spectral Assistant",
+   "stacks": 1.328,
+   "halves": [
+    1.299,
+    1.391
+   ],
+   "p_any": 0.692,
+   "gun_damage": 63057
+  },
+  "ability_magician_animalhexarea": {
+   "hero": "Sinclair",
+   "name": "Rabbit Hex",
+   "stacks": 1.158,
+   "halves": [
+    1.168,
+    1.14
+   ],
+   "p_any": 0.296,
+   "gun_damage": 19963
+  }
+ }
+}
