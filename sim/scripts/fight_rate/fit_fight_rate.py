@@ -15,9 +15,10 @@ health at its start and the items held through it.
 Writes sim/data/fight_rate.json and sim/validation/fight_rate.md. Static snapshot (the timelines live in the shared
 folder, CI can't refit it). ~10 min, ~3 GB.
 
-usage: python3 -I fit_fight_rate.py [--src DIR]
+usage: python3 -I fit_fight_rate.py [--src DIR] [--out FILE] [--match none|lead|items]
 """
 import argparse
+import bisect
 import glob
 import gzip
 import json
@@ -42,6 +43,11 @@ GROUPS = 10
 BUDGETS = (10000, 18000, 27000, 37000, 50000)
 BAND = (0.75, 1.35)
 MIN_HOLDERS = 300
+# --match lead / items (2026-10-28, tier-1 items' death rate bonus, validation/tier1_death_rate.md): item tables also
+# matched on the team's net worth lead (bins of LEAD_BIN, clamped to +-LEAD_BINS) or on the number of items held. At
+# the same own net worth, late holders of cheap items are mostly low-farm players of teams that are ahead, which is
+# most of their extra kills + assists; both refits lower sim_vs_win, so the shipped tables are unmatched (none).
+LEAD_BIN, LEAD_BINS = 8000, 4
 
 
 def phase_of(nw):
@@ -93,9 +99,31 @@ def team_sums(m):
     return out
 
 
+def team_leads(m):
+    """lead(team, t): the team's summed net worth minus the enemy team's at time t (each player's last snapshot at or
+    before t)."""
+    snaps = [(pl["team"], [s[0] for s in pl["stats"]], [s[1] for s in pl["stats"]]) for pl in m["players"]]
+
+    def lead(team, t):
+        out = 0
+        for tm, ts, nw in snaps:
+            k = bisect.bisect_right(ts, t) - 1
+            out += (1 if tm == team else -1) * nw[max(0, k)]
+        return out
+    return lead
+
+
+def lead_bin(x):
+    return max(-LEAD_BINS, min(LEAD_BINS, int(x // LEAD_BIN)))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--src", default=R.SRC)
+    ap.add_argument("--out", default=OUT)
+    ap.add_argument("--match", choices=("none", "lead", "items"), default="none",
+                    help="extra item-table stratum: none (the shipped fight_rate.json), team net worth lead or the "
+                         "number of items held")
     a = ap.parse_args()
     R.METRICS = ITEM_KEYS
     items = R.shop_items()
@@ -111,6 +139,7 @@ def main():
                 n_m += 1
                 grp = m["match_id"] % GROUPS
                 team = team_sums(m)
+                lead = team_leads(m)
                 for pl in m["players"]:
                     ab = pl.get("abandon_s") or 0
                     st = pl["stats"]
@@ -127,9 +156,11 @@ def main():
                         el[phase_of(s0[1])].add((pl["hero_id"], s0[1] // R.NW_BIN, s0[0] // R.T_BIN), grp,
                                                 math.log(s0[7]), v)
                         held, part = R.held_sets(pl["items"], items, s0[0], s1[0])
+                        key = {"none": pl["hero_id"], "items": (pl["hero_id"], len(held)),
+                               "lead": (pl["hero_id"], lead_bin(lead(pl["team"], s0[0])))}[a.match]
                         for b, strata in bands.items():
                             if BAND[0] * b <= s0[1] < BAND[1] * b:
-                                strata.add((pl["hero_id"], s0[1], s0[0], mins, v, held, part))
+                                strata.add((key, s0[1], s0[0], mins, v, held, part))
     elas = {}
     for ph, e in el.items():
         elas[ph] = {"intervals": e.n}
@@ -164,9 +195,11 @@ def main():
         "elasticities": elas,
         "items": tables,
     }
-    with open(OUT, "w") as f:
+    res["match"] = a.match
+    with open(a.out, "w") as f:
         json.dump(res, f, indent=1)
-    write_md(res)
+    if a.out == OUT:
+        write_md(res)
     print(json.dumps(elas, indent=1))
 
 

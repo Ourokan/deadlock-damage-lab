@@ -63,7 +63,8 @@ Enchantment's damage gain up to the real 1.15x lifts within slot and tier 0.333 
   halves; gating on the deaths / ka ratio's own z instead of the deaths z drops it to 0.280 / 0.260; ka centred
   within tier or slot and tier 0.329-0.331 / 0.313-0.315; cost-scaled exponents (cost / 3200 or / 6400) worse at 27k.
   The tier-1 halving has no mechanism behind it (picked by the check), so it is not shipped; the lead is why
-  late tier-1 holders fight more (who keeps a cheap item at 27k+).
+  late tier-1 holders fight more (who keeps a cheap item at 27k+). Followed up in `tier1_death_rate.md`: they are
+  low-farm players on teams that are ahead; no principled fix keeps sim_vs_win.
 - **High-Velocity Rounds** (+60% bullet speed is not modelled): real holders deal 1.003 / 1.010x (sim 1.018x), so
   the sim does not under-count its damage; its real edge comes with more kills + assists (1.04 / 1.07x), which
   only the death-rate gate above touches.
