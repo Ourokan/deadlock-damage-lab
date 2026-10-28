@@ -17,7 +17,7 @@ OFF = dict(use_abilities=False, use_actives=False)
 def _split_main(hero):
     """Split Shot copies on the main target per landed gun bullet for the hero (Mechanics.split_range on)."""
     from deadsim.accuracy import default_distance
-    return M.SPLIT_PRIMARY_HIT * M.SPLIT_REF_M / default_distance(hero)
+    return M.SPLIT_PRIMARY_HIT * M.SPLIT_REF_M / max(M.SPLIT_MIN_M, default_distance(hero))
 
 
 class TestOff(unittest.TestCase):

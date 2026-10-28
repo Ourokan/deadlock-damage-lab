@@ -82,6 +82,7 @@ SUMMON_ACC_MAX = 0.9        # cap on accuracy against a summon (acc_mult x hero 
 SPLIT_PRIMARY_HIT = 0.73    # Split Shot copies landing on the main target per landed gun bullet (replays)
 SPLIT_SECONDARY_COVER = 0.73  # copies on other enemies per landed gun bullet per nearby enemy (replays)
 SPLIT_REF_M = 11.5          # holder's median fight distance at which SPLIT_PRIMARY_HIT holds (Mechanics.split_range)
+SPLIT_MIN_M = 8.2           # closest fitted median distance (Yamato): closer heroes (Abrams 7.5) don't extrapolate
 WARP_AWAY = 0.3             # share of Warp Stone's teleport range that ends up as extra gap when running (fit)
 MELEE_REACH = 6.0           # beyond this gap (+ start distance) rotation melees don't land
 FLEE_RECOVER = 0.25         # stop running once health is this much above flee_hp (heals)
@@ -300,7 +301,8 @@ class Mechanics:
     # share that lands on the main target falls with distance like its angular size. Real copies per landed gun bullet
     # (scripts/mechanics/split_shot_replays.py): Yamato 1.10 at an 8.2 m median fight distance, Vyper 0.76 at 10.9,
     # Wraith 0.59 at 15.6 (Paige 0.73 at 15.8 on 6 activations) = 8.4 / distance (activation weighted). On: the main
-    # target takes SPLIT_PRIMARY_HIT x SPLIT_REF_M / the holder's median distance (skill_defaults.json) copies, so a
+    # target takes SPLIT_PRIMARY_HIT x SPLIT_REF_M / the holder's median distance (skill_defaults.json, the hero's real
+    # median, not the duel's current gap; at least SPLIT_MIN_M, the fit's closest hero) copies, so a
     # far hero (Vindicta 25.8 m: 0.33) no longer gets close-range Vyper's 0.73; off: SPLIT_PRIMARY_HIT for everyone
     split_range: bool = True
 
@@ -1564,7 +1566,7 @@ def split_primary_hit(f):
     if h.id not in _split_dist:
         from .accuracy import default_distance
         _split_dist[h.id] = default_distance(h.id)
-    return SPLIT_PRIMARY_HIT * SPLIT_REF_M / max(1.0, _split_dist[h.id])
+    return SPLIT_PRIMARY_HIT * SPLIT_REF_M / max(SPLIT_MIN_M, _split_dist[h.id])
 
 
 @mech_handler("upgrade_split_shot", need="any")
