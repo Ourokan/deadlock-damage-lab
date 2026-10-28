@@ -15,7 +15,7 @@ health at its start and the items held through it.
 Writes sim/data/fight_rate.json and sim/validation/fight_rate.md. Static snapshot (the timelines live in the shared
 folder, CI can't refit it). ~10 min, ~3 GB.
 
-usage: python3 -I fit_fight_rate.py [--src DIR] [--out FILE] [--match none|lead|items]
+usage: python3 -I fit_fight_rate.py [--src DIR] [--out FILE] [--match none|lead|items] [--lead-lag S]
 """
 import argparse
 import bisect
@@ -48,6 +48,9 @@ MIN_HOLDERS = 300
 # the same own net worth, late holders of cheap items are mostly low-farm players of teams that are ahead, which is
 # most of their extra kills + assists; both refits lower sim_vs_win, so the shipped tables are unmatched (none).
 LEAD_BIN, LEAD_BINS = 8000, 4
+# --lead-lag S (2026-10-28, validation/team_lead_edges.md): --match lead on the lead S seconds before the interval.
+# 600 s keeps a third of the tier-1 kills + assists shift, 1200 s none: the lead the ratios carry is built in the last
+# ~10 min, along with the item's own fights.
 
 
 def phase_of(nw):
@@ -124,6 +127,7 @@ def main():
     ap.add_argument("--match", choices=("none", "lead", "items"), default="none",
                     help="extra item-table stratum: none (the shipped fight_rate.json), team net worth lead or the "
                          "number of items held")
+    ap.add_argument("--lead-lag", type=int, default=0, help="--match lead: the lead this many seconds earlier")
     a = ap.parse_args()
     R.METRICS = ITEM_KEYS
     items = R.shop_items()
@@ -157,7 +161,7 @@ def main():
                                                 math.log(s0[7]), v)
                         held, part = R.held_sets(pl["items"], items, s0[0], s1[0])
                         key = {"none": pl["hero_id"], "items": (pl["hero_id"], len(held)),
-                               "lead": (pl["hero_id"], lead_bin(lead(pl["team"], s0[0])))}[a.match]
+                               "lead": (pl["hero_id"], lead_bin(lead(pl["team"], max(0, s0[0] - a.lead_lag))))}[a.match]
                         for b, strata in bands.items():
                             if BAND[0] * b <= s0[1] < BAND[1] * b:
                                 strata.add((key, s0[1], s0[0], mins, v, held, part))
@@ -195,7 +199,7 @@ def main():
         "elasticities": elas,
         "items": tables,
     }
-    res["match"] = a.match
+    res["match"] = a.match if not a.lead_lag else f"{a.match} {a.lead_lag} s earlier"
     with open(a.out, "w") as f:
         json.dump(res, f, indent=1)
     if a.out == OUT:
