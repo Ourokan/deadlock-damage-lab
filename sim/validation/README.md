@@ -2822,3 +2822,27 @@ sim_vs_win Viscous 27k + 37k: all 0.448 -> 0.453, within slot and tier 0.438 -> 
 Left: his abilities still a little over (Splatter 0.31 vs 0.28), and the alt fire's own shots (non-proc) are not
 modelled: holders' gun is one primary weapon in the sim. Shiv and Yamato also have alt weapons and read Express Shot
 1.35x / ~1.2x under: the same check may apply.
+
+## Shiv and Yamato: Express Shot on the alt fire (2026-10-28)
+
+Follow-up of the Viscous check: Shiv and Yamato also have a secondary weapon (raw heroes.json items.weapon_secondary)
+and Express Shot read 1.33x (Shiv, 125 holders) and 1.40x (Yamato, 47) under in the holder table.
+
+Cause (scripts/mechanics/express_alt_fire.py, fight_length replays: 88 Shiv and 85 Yamato players):
+- Both heroes' alt fire is most of a holder's gun damage: Shiv 0.85 with Express Shot (0.38 without), Yamato 0.84
+  (0.78 without). Shiv's alt (citadel_weapon_shiv_alt) is a 12 x 4.53 blast per 1.26 s beside his 6 x 4.8 primary;
+  Yamato's (citadel_weapon_yamato_alt) one 50-damage shot per 1.05 s beside her 5 x 5.31 primary. Real Express Shot
+  runs ~250 per proc from mid game on both (Shiv 245 / 240 / 284 by fifth 3-5, Yamato 250 / 250 / 246); the sim fired
+  it as two primary shots with +125%.
+
+Fix: items_fx.EXPRESS_ALT adds both heroes. alt_bullet_ratio is now the alt shot over the primary shot (bullet damage x
+bullets: Shiv 1.89, Yamato 1.88, Viscous unchanged 4.06), spread over the primary's pellets, with the item's alt-fire
+bonus (+40%) in place of +125%.
+
+Results (phantom sample): holders' Express Shot real/sim Shiv 1.33 -> 1.04, Yamato 1.40 -> 1.05; per-source distance
+by match-id half Shiv 0.028 -> 0.019 / 0.032 -> 0.025, Yamato 0.025 -> 0.020 / 0.031 -> 0.026. ability_corr_heroes
+--split: Shiv kept (held-out sources 0.019 -> 0.013 / 0.025 -> 0.020; Serrated Knives corr 1.67 -> 1.73), Yamato not
+(one half 0.020 -> 0.035). Full audit 0.0185 -> 0.0180 (Shiv 0.026 -> 0.010, Yamato 0.024 -> 0.026: her abilities
+read a little over now that items are right). sim_vs_win Shiv + Yamato 27k + 37k: all 0.300 -> 0.295, within slot and
+tier 0.325 -> 0.322, damage items up (Shiv 0.229 -> 0.249, Yamato 0.165 -> 0.176); the dip is Shiv's gun items
+(Extended / Titanic Magazine) gaining a little less beside a bigger Express Shot, about noise for two heroes.
