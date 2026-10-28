@@ -227,7 +227,7 @@ class Mechanics:
     # take ~8% of the damage (3 vs 38 per s), but their items and Naptime keep hitting. With fight draws (phase or
     # rng) Rem is attached for windows drawn so the share of the duel matches data/tag_along.json at his net worth
     # (lengths from its real quantiles, alternating with exponential free gaps): gun, melee and Pillow Toss locked,
-    # invulnerable (familiar.TAG_SAFE)
+    # damage taken x familiar.TAG_TAKEN
     tag_along: bool = True
     # melee by game phase (2026-10-27): real players melee most in the lane and less as the game goes on (the hero's
     # real melee share over the sim's, all heroes: 1.20x at 30% of the match, 0.91x at 60%, 0.74x at 90%; Calico 1.27 /
@@ -962,8 +962,9 @@ def tag_along_windows(f, name, horizon=60.0):
     mean_len = sum(lens) / len(lens)
     gap = mean_len * (1 - p) / p   # mean free gap: attached share p
     out, t = [], 0.0
-    if r.random() < p:   # attached at the fight start: the rest of a window
-        n = lens[min(len(lens) - 1, int(r.random() * len(lens)))] * r.random()
+    if r.random() < p:   # attached at the fight start: the rest of a window, drawn length-biased
+        u, acc = r.random() * sum(lens), 0.0
+        n = next((x for x in lens if (acc := acc + x) >= u), lens[-1]) * r.random()
         out.append((0.0, n))
         t = n
     while True:

@@ -6,7 +6,7 @@ Assumptions:
   T2: -FireRateSlow% fire rate for EffectDuration (the fading-slow window). The knockback is ignored.
 - Tag Along: it needs an ally (or a trooper with a Helper), which a 1v1 doesn't have. With Mechanics.tag_along and
   fight draws Rem spends the real share of the duel on an ally (mechanics.tag_along_windows, replays): no gun, melee
-  or Pillow Toss then, and invulnerable (TAG_SAFE; real attached Rems take ~8% of the damage, the ally soaks it).
+  or Pillow Toss then, and he takes TAG_TAKEN of the damage (real attached Rems take ~8% of it, the ally soaks it).
   Items and Naptime still work. The heal and the T3 spirit power are left out.
 - Lil Helpers: Rem sends a Helper to follow himself ("Follow a hero"), for a short burst of +TechArmorGain%
   spirit resist (+15% at T3) lasting HELPER_BURST (not in data). Each Helper then naps for HelperDowntimeDuration.
@@ -20,7 +20,7 @@ Assumptions:
 from deadsim.abilities import AbilityImpl, register
 
 HELPER_BURST = 3.0   # s of spirit resist from a Helper following a hero ("short burst", no duration in data)
-TAG_SAFE = True      # invulnerable while attached (Mechanics.tag_along)
+TAG_TAKEN = 0.084    # share of damage taken while attached (Mechanics.tag_along; replays 3.2 vs 38.2 per s free)
 
 
 def attached(c):
@@ -70,8 +70,7 @@ class TagAlong(AbilityImpl):
             return
         c.me.counters["tag_along_until"] = c.now + n
         c.lock_gun(n)
-        if TAG_SAFE:
-            c.buff("invulnerable", 1, n, tag="tag_along")
+        c.buff("damage_taken_amp", TAG_TAKEN - 1.0, n, tag="tag_along")
 
 
 @register("ability_familiar_helpinghands")
