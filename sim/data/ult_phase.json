@@ -453,18 +453,35 @@
    ],
    "points": [
     [
-     6335,
-     0.8728
+     5560,
+     0.6364
     ],
     [
-     16424,
-     1.0804
+     6468,
+     0.7057
     ],
     [
-     27898,
-     1.0242
+     10180,
+     0.9985
+    ],
+    [
+     11972,
+     1.0053
+    ],
+    [
+     16614,
+     1.1698
+    ],
+    [
+     23271,
+     1.135
+    ],
+    [
+     31605,
+     1.1922
     ]
-   ]
+   ],
+   "matched": "scripts/cast_timing/ult_rate_match.py: points rewritten to the real ult casts per unlocked fight by net worth bin [6000, 8000, 11000, 14000, 20000, 27000] against the audit duels"
   },
   "67:ability_bookworm_knightcharge": {
    "name": "Paige",

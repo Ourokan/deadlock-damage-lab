@@ -17,6 +17,8 @@ hold only (cast_timing.json); gated ults keep their own timing.
 In the sim (mechanics.hold_first_casts): the hold's cast share c becomes min(CAP, c x mult(net worth)), holds in the
 cast part keep their order and stretch over the new share, the not-cast part shrinks into what is left.
 
+Rows with "matched" (scripts/cast_timing/ult_rate_match.py: Nurse Harrow) are kept as they are by fit --write.
+
 usage: python3 -I ult_phase.py real [workers]   -> /mnt/project-files/analysis/work/ult_phase/rows.pkl
        python3 -I ult_phase.py fit [--parity even|odd] [--write]   (--parity: fit on that half of the matches by id)
 """
@@ -154,6 +156,10 @@ def fit(parity=None, write=False):
               f"{' '.join(f'{math.exp(lr):.2f}' for _, _, lr in row)}  mult {' '.join(f'{m:.2f}@{nw}' for nw, m in mults)}")
     print("pooled", [round(math.exp(v), 3) for v in pooled])
     if write:
+        if os.path.exists(OUT):   # rows matched to the sim's own response (ult_rate_match.py) keep their points
+            with open(OUT) as fh:
+                old = json.load(fh)["sources"]
+            out.update({k: v for k, v in old.items() if v.get("matched")})
         with open(OUT, "w") as fh:
             json.dump({"source": "Phantom+ fight-length replays, pair fights, P(ult cast by "
                                  f"{CT.HORIZON:.0f} s) per match-fraction bin {list(BINS[:-1])} over the whole match "

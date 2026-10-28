@@ -53,6 +53,13 @@ class UltPhaseTest(unittest.TestCase):
         cast = sum(q[min(len(q) - 1, int(x * len(q)))] is not None for x in mapped) / len(us)
         self.assertAlmostEqual(cast, 0.4 * m, delta=0.01)
 
+    def test_nurse_ult_matched_to_real_fights(self):
+        # scripts/cast_timing/ult_rate_match.py: real Nurses cast Lurking Terrors in 16% of lane fights, ~27% later
+        row = DATA["sources"]["87:ability_nurse_fear"]
+        self.assertIn("matched", row)
+        self.assertLess(M.ult_phase_mult("87:ability_nurse_fear", 5000), 0.75)
+        self.assertGreater(M.ult_phase_mult("87:ability_nurse_fear", 30000), 1.0)
+
 
 if __name__ == "__main__":
     unittest.main()
