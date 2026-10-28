@@ -3062,3 +3062,31 @@ Kept. Drifter's corrections were stale (a plain refit alone takes him 0.035 -> 0
 1.761 -> 1.468, Stalker's Mark 1.628 -> 2.137, Bloodscent 1.07 -> 1.147. Drifter mix 0.035 -> 0.01, whole audit
 0.0176 -> 0.0168. sim_vs_win Drifter 27k+37k: all items 0.321 -> 0.330, within slot and tier 0.313 -> 0.325, edges
 clear of noise 0.449 -> 0.471.
+
+### Nurse's ult casts per fight by net worth (2026-10-28)
+
+The whole-match audit has Nurse Harrow close (0.013, 347 players), but by phase (scripts/phase_mix.py, window 0.05) she
+was the furthest well-sampled hero: Lurking Terrors 0.222 of her damage at 30% of the match vs real 0.147, 0.402 vs
+0.447 at 90%, Leech Therapy 0.323 vs 0.262 late. Replays (fight_length raw + cast_timing raw, pair fights): damage per
+Terrors cast follows real by phase (sim / real 1.25-1.4 at every net worth bin, the level the corrections absorb), and
+Leech casts per fight are a flat 1.55x real. The ult's casts per fight are not: real Nurses cast it in 16% of their
+pair fights with the ult unlocked below 8k souls and 25-28% later; the audit's duels (first cast weighted by
+Engine.length_w at the cast) 29-30% and 32-36%. ult_phase's match-fraction bins put the lane in one 0.87 point (the
+early bin runs to 45% of the match, where Nurse is already at 1.26x); its points by net worth instead (an
+ult_phase.py variant, all heroes) moved her lane ult only 0.222 -> 0.204, phase distance 0.0522 -> 0.0516: not kept.
+
+scripts/cast_timing/ult_rate_match.py rewrites one hero's ult_phase points from the sim's own response: per net worth
+bin new mult = old x real / sim rate, scaled to keep the sim-duel weighted mean, two rounds (sim / real then a flat
+1.34-1.36 in every bin). The row carries "matched" and ult_phase.py fit --write keeps it. Nurse: 0.64 at 5.6k souls,
+1.0 at 10-12k, 1.13-1.19 from 16k. Lurking Terrors corr refit 1.844 -> 1.723 (Leech 1.419 -> 1.416).
+
+Split-half (match id halves: real rows and the audit sample of one half for the match + 3 corr rounds, 4 draws on the
+other, against the same corr refit on main): held-out phase distance (mean of 30 / 60 / 90%) 0.0615 -> 0.0503 and
+0.0793 -> 0.0650 (30% 0.066 -> 0.028 / 0.102 -> 0.058; 60% a bit worse both ways, 0.033 -> 0.049 / 0.082 -> 0.091),
+per-source whole-match 0.0257 -> 0.0259 / 0.0359 -> 0.0359, mix 0.0348 -> 0.0345 / 0.0200 -> 0.0217. Kept on the
+phase-matched halves (as melee_phase and ability_area_phase). Full sample: Nurse ult 0.166 / 0.381 / 0.418 at
+30 / 60 / 90% (real 0.147 / 0.362 / 0.447); pooled phase distance 0.0522 / 0.0389 / 0.0508 -> 0.0495 / 0.0389 / 0.0507;
+whole audit 0.0168 flat (Nurse 0.013 -> 0.014). sim_vs_win Nurse 27k + 37k (Pearson): within slot and tier 0.380 ->
+0.389, clear of noise 0.465 -> 0.469, damage items 0.424 -> 0.425, all items 0.373 -> 0.367 (Spearman a bit lower).
+Left: Leech Therapy still over late (0.318 vs 0.262), Nurse's weapon/spirit items under at 60-90% (Quicksilver Reload
+2.1x under).
