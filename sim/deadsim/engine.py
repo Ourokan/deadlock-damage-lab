@@ -777,6 +777,11 @@ class Engine:
             ph = ability_area_mult(ability.ab.class_name, src.st.souls)
             amt *= ph
             land *= ph
+        if is_ability and ability is not None and self.mech is not None and self.mech.range_reach:
+            # range items' wider reach catches more heroes per cast (Mechanics.range_reach)
+            ph = (1.0 + ability.range_pct()) ** self.mech.range_reach
+            amt *= ph
+            land *= ph
         if is_ability and ability is not None:
             av = ability.scratch.get("_avail", 1.0)   # expected wait for the target to be in reach (spread)
             amt *= av
