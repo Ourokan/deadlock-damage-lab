@@ -12,7 +12,6 @@ Shares of damage to enemy heroes. Distance = half the summed absolute share gaps
 | Apollo | 92 | 0.11 / 0.10 | 0.53 / 0.57 | 0.17 / 0.16 | 0.17 / 0.16 | 0.03 |
 | Dynamo | 53 | 0.23 / 0.24 | 0.62 / 0.59 | 0.08 / 0.09 | 0.05 / 0.05 | 0.03 |
 | Calico | 110 | 0.13 / 0.12 | 0.38 / 0.40 | 0.31 / 0.32 | 0.15 / 0.15 | 0.03 |
-| Ivy | 116 | 0.32 / 0.31 | 0.36 / 0.35 | 0.26 / 0.29 | 0.04 / 0.03 | 0.03 |
 | Mirage | 45 | 0.31 / 0.30 | 0.48 / 0.50 | 0.17 / 0.16 | 0.02 / 0.03 | 0.03 |
 | Silver | 100 | 0.41 / 0.39 | 0.37 / 0.37 | 0.10 / 0.12 | 0.10 / 0.11 | 0.03 |
 | Celeste | 77 | 0.16 / 0.14 | 0.61 / 0.63 | 0.17 / 0.18 | 0.04 / 0.04 | 0.03 |
@@ -33,6 +32,7 @@ Shares of damage to enemy heroes. Distance = half the summed absolute share gaps
 | Bebop | 254 | 0.18 / 0.17 | 0.56 / 0.57 | 0.19 / 0.20 | 0.05 / 0.05 | 0.02 |
 | Lash | 216 | 0.13 / 0.14 | 0.58 / 0.59 | 0.25 / 0.24 | 0.03 / 0.03 | 0.02 |
 | Holliday | 73 | 0.27 / 0.27 | 0.54 / 0.53 | 0.13 / 0.14 | 0.05 / 0.06 | 0.02 |
+| Ivy | 116 | 0.32 / 0.32 | 0.36 / 0.36 | 0.26 / 0.27 | 0.04 / 0.04 | 0.02 |
 | Sinclair | 55 | 0.12 / 0.13 | 0.79 / 0.78 | 0.04 / 0.04 | 0.03 / 0.04 | 0.02 |
 | Pocket | 117 | 0.14 / 0.13 | 0.66 / 0.66 | 0.16 / 0.18 | 0.02 / 0.02 | 0.01 |
 | Haze | 324 | 0.35 / 0.35 | 0.50 / 0.50 | 0.12 / 0.12 | 0.02 / 0.01 | 0.01 |
@@ -76,8 +76,8 @@ real/sim = (real source dmg / real gun dmg) / (sim source dmg / sim gun dmg). Be
 | Baba | MELEE | melee | 0.124 | 0.141 | 0.82 |
 | Grey Talon | Charged Shot | ability | 0.351 | 0.359 | 0.93 |
 | Billy | MELEE | melee | 0.223 | 0.230 | 0.89 |
-| The Doorman | Call Bell | ability | 0.474 | 0.467 | 1.06 |
 | Wraith | Card Trick | ability | 0.280 | 0.296 | 0.92 |
+| The Doorman | Call Bell | ability | 0.474 | 0.467 | 1.06 |
 | Paradox | Kinetic Carbine | ability | 0.318 | 0.323 | 0.92 |
 | Calico | Gloom Bombs | ability | 0.182 | 0.187 | 0.87 |
 | Celeste | Shining Wonder | ability | 0.170 | 0.178 | 0.87 |
@@ -118,7 +118,7 @@ Item damage per all the player's damage while the item was owned (players who ha
 | Escalating Exposure | 694 | 0.109 | 0.115 | 0.95 |
 | Mystic Shot | 676 | 0.062 | 0.061 | 1.01 |
 | Spirit Strike | 648 | 0.046 | 0.046 | 0.98 |
-| Siphon Bullets | 592 | 0.086 | 0.099 | 0.86 |
+| Siphon Bullets | 592 | 0.086 | 0.099 | 0.87 |
 | Express Shot | 563 | 0.121 | 0.119 | 1.02 |
 | Cold Front | 526 | 0.056 | 0.059 | 0.96 |
 | Tesla Bullets | 505 | 0.138 | 0.128 | 1.08 |
@@ -130,15 +130,15 @@ Item damage per all the player's damage while the item was owned (players who ha
 | Mystic Reverb | 242 | 0.166 | 0.216 | 0.77 |
 | Rebuttal | 238 | 0.013 | 0.015 | 0.85 |
 | Lucky Shot | 229 | 0.142 | 0.107 | 1.32 |
-| Arctic Blast | 184 | 0.139 | 0.144 | 0.96 |
+| Arctic Blast | 184 | 0.139 | 0.142 | 0.98 |
 | Split Shot | 181 | 0.089 | 0.081 | 1.10 |
 | Crushing Fists | 170 | 0.055 | 0.053 | 1.04 |
-| Scourge | 151 | 0.159 | 0.176 | 0.90 |
+| Scourge | 151 | 0.159 | 0.177 | 0.90 |
 | Phantom Strike | 141 | 0.050 | 0.054 | 0.93 |
-| Decay | 135 | 0.173 | 0.178 | 0.97 |
-| Alchemical Fire | 113 | 0.127 | 0.151 | 0.84 |
+| Decay | 135 | 0.173 | 0.174 | 1.00 |
+| Alchemical Fire | 113 | 0.127 | 0.142 | 0.89 |
 | Return Fire | 99 | 0.093 | 0.025 | 3.71 |
-| Lightning Scroll | 59 | 0.039 | 0.036 | 1.07 |
+| Lightning Scroll | 59 | 0.039 | 0.037 | 1.07 |
 | Focus Lens | 45 | 0.105 | 0.104 | 1.01 |
 | Silence Wave | 33 | 0.046 | 0.051 | 0.90 |
 
@@ -167,7 +167,7 @@ As above, per hero. The source table above compares the whole real match with du
 | Nurse Harrow | Toxic Bullets | 85 | 0.152 | 0.115 | 1.33 |
 | Haze | Ricochet | 214 | 0.067 | 0.089 | 0.76 |
 | Mirage | Ricochet | 34 | 0.041 | 0.053 | 0.76 |
-| Shiv | Lucky Shot | 52 | 0.142 | 0.109 | 1.31 |
+| Shiv | Lucky Shot | 52 | 0.142 | 0.108 | 1.31 |
 | Grey Talon | Spirit Burn | 45 | 0.088 | 0.114 | 0.77 |
 | Lash | Mystic Burst | 201 | 0.061 | 0.047 | 1.29 |
 | Viscous | Mystic Burst | 20 | 0.064 | 0.050 | 1.29 |
