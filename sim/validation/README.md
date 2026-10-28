@@ -2999,3 +2999,30 @@ Results (phantom_sample, all heroes): mix 0.0179 -> 0.0174; Mo & Krill per-sourc
 Graves mix 0.035 -> 0.010, per-source 0.032 -> 0.032. sim_vs_win (27k + 37k): Mo & Krill all 0.355 -> 0.364, within
 slot and tier 0.347 -> 0.349; Graves all 0.469 -> 0.467, within 0.480 -> 0.479. Left: Graves' late Jar of Dead per
 throw; Mo & Krill's Torment Pulse over and Tankbuster under at 60%.
+
+## Graves' Jar of Dead by phase (2026-10-28, opt-in)
+
+Follow-up of the section above: by phase (Graves sample, real window +- 0.15 vs the audit's duels at one fraction)
+Jar of Dead is 0.212 / 0.188 / 0.227 of Graves' damage at 30 / 60 / 90% of the match vs real 0.236 / 0.212 / 0.199.
+The size of a throw is not the cause (scripts/mechanics/graves_jar_hits.py, the 73 Graves replays in phantom_sample):
+- Real damage per Deadhead hit on a hero is the formula Damage + 0.25 x spirit power at the throw's build: 1.03 / 1.02
+  / 0.94-1.00 of it in lane / mid / late (resist and amps cancel). The sim's applied hit over the same formula is 0.68 /
+  0.69 / 0.61 (landing x corr in it), the same slope.
+- Real hero hits per throw are flat over the match by Jar tier: ~4 below T3 (4.1 / 3.9 / 4.4), ~7 at T3 (7.0 / 7.4),
+  so damage per throw grows only with spirit power (85 -> 163 below T3, 245 -> 295 at T3). Real hits decay after the
+  throw (1.5 / 1.1 / 0.7 / 0.5 / 0.3 per 2 s below T3) and run to 14 s at T3.
+- Sim throws per duel are flat (1.4-1.5) and its in-full damage per throw grows like real (229 -> 308 below T3, 408 ->
+  489 at T3, real 118 -> 163, 245 -> 295).
+- With each player's real Jar tier the late over is mostly late Graves without Jar T3 (sim 0.211 vs real 0.153; T3
+  0.231 vs 0.214; 60%: 0.187 / 0.257 vs 0.181 / 0.253). Those players also throw fewer jars in real fights (0.50 vs
+  0.72 at T3). The sim's default ability order has Jar T3 at 5% of Graves at 60% of the match vs real 39% (70% vs 72%
+  at 90%), which is why the sim is under at 60% on the audit.
+
+One per-throw difference: Deadhead hits are weighted by the fight still going at each hit, so the sim's expected hits
+per throw grow 1.31x from lane to late below T3 (longer late fights) while real stay flat. necro.SKULLS_OUTLAST
+(opt-in, env GRAVES_SKULLS_OUTLAST=1) books them at the throw's fight weight (Engine.book_at), as skulls chase a
+target that disengages. It lifts Jar of Dead's level (refit corr 1.697 -> ~1.11) but not its phase shape (the second
+jar at 13 s still gains from longer fights), and after a Graves refit it lost split-half on both halves
+(ability_corr_heroes --split, held-out per-source / mix: 0.0185 / 0.0160 -> 0.0186 / 0.0170 and 0.0251 / 0.0240 ->
+0.0255 / 0.0260 against the same refit without it). Not kept; no model change. Left: the late jar share is a
+build / play difference (Graves who skip Jar T3 throw less), not per-throw scaling.

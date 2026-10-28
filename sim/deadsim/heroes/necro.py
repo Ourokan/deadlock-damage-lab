@@ -5,7 +5,11 @@ Assumptions:
   Graves starts with JARS_AT_START stored jars and gains none. Throws are AbilityCooldownBetweenCharge apart,
   reach JAR_RANGE. Each Deadhead hits once per SKULL_INTERVAL (DelayBeforeRespawning + mean target-search delay)
   for SkullLifetime. With deadsim.mechanics summons on, each Deadhead has SummonHealth (+ boons) and the enemy
-  can shoot it down (targeting fitted to replays, data/summon_targeting.json).
+  can shoot it down (targeting fitted to replays, data/summon_targeting.json). SKULLS_OUTLAST (opt-in, off): Deadhead
+  hits book at the throw's fight weight (Engine.book_at), as skulls chase a target that disengages: real hero hits
+  per throw are flat from lane to late (~4 below T3, ~7 at T3; scripts/mechanics/graves_jar_hits.py) while the sim's,
+  weighted by the fight still going, grow 1.3x as late fights run longer. After a Graves refit it lost split-half
+  (validation/README.md "Graves' Jar of Dead by phase").
 - Grasping Hands: the wall is placed on the target: one Damage hit (skillshot) + immobilize after
   ZombieWallDeployTime. Each Ghoul (SummonCount) melees for the Borrowed Decree SummonMeleeDamage (base values
   from the ult's data if the ult isn't known) every GHOUL_INTERVAL s for AbilityDuration x GHOUL_UPTIME. With
@@ -27,6 +31,8 @@ Assumptions:
   of current health. Summon melee is spirit damage.
 - Summon damage is booked under the summoning ability ("Grasping Hands (ghoul)", "Borrowed Decree (zombie)").
 """
+import os
+
 from deadsim.abilities import AbilityImpl, register
 from deadsim.mechanics import add_summon, alive, jar_throws
 
@@ -36,6 +42,7 @@ GHOUL_INTERVAL = 1.5
 GHOUL_UPTIME = 0.6
 ZOMBIE_LIFE = 4.5
 ZOMBIE_CAP = 2
+SKULLS_OUTLAST = os.environ.get("GRAVES_SKULLS_OUTLAST", "0") == "1"   # opt-in (env, so audit workers see it)
 SUMMON_MELEE_FALLBACK = (40.0, 0.5)   # Borrowed Decree SummonMeleeDamage base / spirit scaling
 SUMMON_HEALTH_FALLBACK = (180.0, 8.0)  # Borrowed Decree SummonHealth base / per boon
 
@@ -67,9 +74,17 @@ def summon_health(c):
     return SUMMON_HEALTH_FALLBACK[0] + SUMMON_HEALTH_FALLBACK[1] * c.me.st.boons
 
 
-def summon_hit(c, amount, name, buildup_prop, guard=None):
+def summon_hit(c, amount, name, buildup_prop, guard=None, book_at=None):
     if c.me.alive and c.foe.alive and alive(guard):
-        c.spirit_hit(amount, name=name, hit_chance=1.0)
+        e = c.engine
+        if book_at is not None and getattr(e, "length", None) is not None:
+            e.book_at = book_at
+            try:
+                c.spirit_hit(amount, name=name, hit_chance=1.0)
+            finally:
+                e.book_at = None
+        else:
+            c.spirit_hit(amount, name=name, hit_chance=1.0)
         theft_feed(c, buildup_prop)
 
 
@@ -94,11 +109,12 @@ class JarOfDead(AbilityImpl):
         life = c.val("SkullLifetime")
         every = c.raw("DelayBeforeRespawning", 1.0) + (c.raw("TargetSearchDelayMin") + c.raw("TargetSearchDelayMax")) / 2
         dmg = c.val("Damage")
+        at = c.now if SKULLS_OUTLAST else None
         for k in range(int(c.raw("SkullCount"))):
             s = add_summon(c.me, "Deadhead", c.val("SummonHealth"), life=life, delay=delay, kind="graves_skull")
             t = delay + c.raw("TargetSearchInitialDelayMin") + k * c.raw("TargetSearchInitialStagger")
             while t < delay + life:
-                c.after(t, summon_hit, c, dmg, self.s.ab.name, "SkullBuildUp", s)
+                c.after(t, summon_hit, c, dmg, self.s.ab.name, "SkullBuildUp", s, at)
                 t += every
 
 
