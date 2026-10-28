@@ -20,6 +20,7 @@ from __future__ import annotations
 
 from .abilities import CastCtx
 from .build import SHOT_SPLIT_PELLETS
+from .data import _load, game
 
 HANDLERS = {}
 
@@ -356,12 +357,38 @@ class ArmorPiercer(FX):
         ctx["ignore_resist_frac"] = max(ctx["ignore_resist_frac"], self.item.p("ProcChance") / 100)
 
 
+# Express Shot rides the alt fire for these heroes (hero id -> alt weapon class). Viscous (2026-10-28, 22 Phantom+
+# replays): players holding it put ~45% of their gun damage in his slow 42-damage goo shot (4% without it), and its
+# proc events sit at 1.2-1.4x an alt-fire hit (median ~110, ~160 per proc) against ~25 for a primary hit; the sim
+# fired it as two 10-damage primary bullets (~50 per proc), so Express Shot read 2.7x under in the audit.
+EXPRESS_ALT = {35: "citadel_weapon_viscous_set_2"}
+_alt_ratio = {}
+
+
+def alt_bullet_ratio(hero_id):
+    """The alt weapon's bullet damage over the primary's (raw items.json), or None."""
+    cls = EXPRESS_ALT.get(hero_id)
+    if cls is None:
+        return None
+    if hero_id not in _alt_ratio:
+        alt = next((x for x in _load("raw/items.json") if x.get("class_name") == cls), {})
+        prim = game().heroes[hero_id].weapon.get("bullet_damage") or 0
+        dmg = (alt.get("weapon_info") or {}).get("bullet_damage")
+        _alt_ratio[hero_id] = dmg / prim if dmg and prim else None
+    return _alt_ratio[hero_id]
+
+
 @handler("upgrade_express_shot")
 class ExpressShot(FX):
     def on_shot(self, f, ctx):
         if self.ready():
             self.use()
-            ctx["extra_pct"] += self.v("ProcBaseAttackDamagePercent") / 100
+            alt = alt_bullet_ratio(f.st.hero.id)
+            if alt:   # the alt-fire shot (its base damage, grown with the primary's) with the item's alt-fire bonus
+                ctx["extra_pct"] += self.v("ProcBaseAttackDamagePercentAltFire") / 100
+                ctx["dmg_mult"] *= alt
+            else:
+                ctx["extra_pct"] += self.v("ProcBaseAttackDamagePercent") / 100
             ctx["pellet_mult"] *= 2
             ctx["book"] = self.name   # the game books the whole proc shot under the item (replays: ~2x a gun hit)
             f.clip = max(0, f.clip - int(self.item.p("ProcAmmoConsumed", 2)) + 1)
@@ -1545,11 +1572,23 @@ def _any_melee(hit):
     return hit.kind == "melee" and not hit.is_item and (hit.source == "melee" or hit.is_ability)
 
 
+# ability melee hits that proc on-melee items in full, not in their landing factor's share: Viscous' Puddle Punch
+# (Phantom+ replays, 2026-10-28: 286 Spirit Snatch procs after 292 landed Punches of holders, 83% of the procs right
+# after a Punch; Melee Charge 99 of 124). Its landing x length_corr (0.51) stands for a real hit about half the size
+# of the sim's full one (real median ~125), not for half the hits landing: Spirit Snatch read 1.7x under.
+FULL_MELEE_PROC = frozenset({"viscous_telepunch"})
+
+
 def _melee_proc(fx, f, hit=None, key=":melee"):
     """Whether a (possibly fractional-weight) melee event triggers this item's on-melee effect. An ability's melee hit
-    weighs its landing factor (the share of the hit its damage stands for). key: a second effect of the same item
-    (Lifestrike's slow) draws from its own accumulator at the same rate."""
-    w = f.counters.get("melee_weight", 1.0) if hit is None or hit.source == "melee" else min(1.0, hit.landing)
+    weighs its landing factor (the share of the hit its damage stands for), FULL_MELEE_PROC's in full. key: a second
+    effect of the same item (Lifestrike's slow) draws from its own accumulator at the same rate."""
+    if hit is None or hit.source == "melee":
+        w = f.counters.get("melee_weight", 1.0)
+    elif hit.ability is not None and hit.ability.ab.class_name in FULL_MELEE_PROC:
+        w = 1.0
+    else:
+        w = min(1.0, hit.landing)
     return fx.ready() and f.acc(fx.item.class_name + key).take(w, 1) > 0
 
 
