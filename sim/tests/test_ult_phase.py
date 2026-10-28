@@ -60,6 +60,13 @@ class UltPhaseTest(unittest.TestCase):
         self.assertLess(M.ult_phase_mult("87:ability_nurse_fear", 5000), 0.75)
         self.assertGreater(M.ult_phase_mult("87:ability_nurse_fear", 30000), 1.0)
 
+    def test_dynamo_ult_matched_to_real_fights(self):
+        # 76 replays: real Dynamos cast Singularity in ~15% of their fights below 8k souls, ~33% past 27k
+        key = next(k for k in DATA["sources"] if k.endswith(":citadel_ability_self_vacuum"))
+        self.assertIn("matched", DATA["sources"][key])
+        self.assertLess(M.ult_phase_mult(key, 6600), 0.7)
+        self.assertGreater(M.ult_phase_mult(key, 33000), 1.1)
+
 
 if __name__ == "__main__":
     unittest.main()
