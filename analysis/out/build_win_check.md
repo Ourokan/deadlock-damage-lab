@@ -2,9 +2,9 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-02 to 2026-10-26, 166,971 Ritualist+ matches (refreshed 2026-10-28T17:58:34Z).
+Edges: patch 09-29-2026, matches 2026-10-02 to 2026-10-27, 174,508 Ritualist+ matches (refreshed 2026-10-28T20:30:39Z).
 
-- Recommended item slots with data: 1987; mean edge +1.5 (popular builds +0.1); clearly positive 1409, clearly negative 9.
+- Recommended item slots with data: 1972; mean edge +1.6 (popular builds +0.1); clearly positive 1405, clearly negative 11.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
@@ -16,55 +16,52 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 
 | Item | slot/tier | builds | heroes (edge) |
 |---|---|---:|---|
-| Arcane Surge | spirit 2 | 4 | Solomon -2.4, McGinnis -1.8 |
-| Stalker | weapon 2 | 2 | Billy -1.7 |
-| Kinetic Dash | weapon 2 | 2 | Deadman Danny -4.4 |
+| Arcane Surge | spirit 2 | 4 | Solomon -2.5, McGinnis -1.7 |
+| Stalker | weapon 2 | 3 | Billy -1.7 |
+| Spirit Snatch | spirit 3 | 2 | Apollo -1.1 |
+| Kinetic Dash | weapon 2 | 1 | Deadman Danny -4.6 |
 | Extra Regen | vitality 1 | 1 | Seven -1.5 |
 
 ## Strong items the sim never picks (edge >= +1.5, lower 95% bound > 0)
 
 | Item | slot/tier | heroes | heroes (edge) |
 |---|---|---:|---|
-| Ethereal Shift | spirit 4 | 7 | Paradox +3.8, Pocket +2.7, Mina +2.5, Billy +2.3, Violet +2.2, Shiv +1.7, Apollo +1.7 |
-| Fleetfoot | weapon 2 | 7 | Baba +4.2, Seven +2.6, Vyper +1.9, Vindicta +1.8, Warden +1.8, Rat King +1.6, Venator +1.6 |
-| Mystic Expansion | spirit 1 | 6 | Baba +2.0, Kelvin +1.8, Dynamo +1.6, Billy +1.6, Sinclair +1.5, Celeste +1.5 |
-| Duration Extender | spirit 2 | 6 | Rat King +3.3, Silver +2.7, Violet +2.4, Vindicta +2.2, McGinnis +1.7, Drifter +1.5 |
-| Magic Carpet | spirit 4 | 6 | Lash +5.7, Solomon +4.0, Rem +3.8, Sinclair +2.9, Venator +2.7, Graves +2.5 |
-| Colossus | vitality 4 | 5 | Rat King +2.6, Bebop +2.4, Billy +1.8, Yamato +1.7, Abrams +1.7 |
-| Sprint Boots | vitality 1 | 5 | Victor +3.1, Lady Geist +2.3, Venator +1.9, Kelvin +1.9, Infernus +1.8 |
-| Superior Cooldown | spirit 3 | 3 | Paradox +1.7, Baba +1.6, Holliday +1.6 |
+| Ethereal Shift | spirit 4 | 7 | Paradox +3.5, Pocket +2.8, Violet +2.5, Mina +2.5, Billy +2.4, Apollo +1.7, Shiv +1.7 |
+| Fleetfoot | weapon 2 | 7 | Baba +4.1, Seven +2.4, Vyper +2.1, Warden +1.9, Vindicta +1.8, Rat King +1.6, Venator +1.6 |
+| Duration Extender | spirit 2 | 7 | Rat King +3.4, Silver +2.7, Baba +2.5, Violet +2.4, Vindicta +2.2, McGinnis +1.7, Drifter +1.6 |
+| Magic Carpet | spirit 4 | 6 | Lash +5.6, Solomon +4.0, Rem +3.3, Sinclair +2.8, Venator +2.6, Graves +2.5 |
+| Sprint Boots | vitality 1 | 6 | Victor +3.1, Lady Geist +2.3, Kelvin +1.9, Infernus +1.9, Venator +1.8, Wraith +1.5 |
+| Colossus | vitality 4 | 5 | Rat King +2.5, Bebop +2.4, Billy +1.9, Yamato +1.8, Abrams +1.7 |
+| Mystic Expansion | spirit 1 | 5 | Baba +2.1, Kelvin +1.9, Billy +1.7, Celeste +1.5, Sinclair +1.5 |
+| Superior Cooldown | spirit 3 | 4 | Paradox +1.8, Baba +1.6, Holliday +1.5, Celeste +1.5 |
+| Frenzy | weapon 4 | 4 | Victor +2.9, Shiv +2.6, Drifter +2.3, Lady Geist +2.0 |
 | Compress Cooldown | spirit 2 | 3 | Lash +1.7, Deadman Danny +1.7, Baba +1.6 |
-| Enduring Speed | vitality 2 | 3 | Billy +1.5, Haze +1.5, Lady Geist +1.5 |
-| Indomitable | vitality 4 | 3 | Lash +1.9, McGinnis +1.9, Calico +1.6 |
-| Refresher | spirit 4 | 3 | Yamato +2.0, Paige +1.6, Victor +1.6 |
-| Spellslinger | weapon 4 | 3 | Venator +2.1, Wraith +1.9, Vindicta +1.6 |
-| Frenzy | weapon 4 | 2 | Drifter +2.2, Lady Geist +1.9 |
-| Witchmail | vitality 4 | 2 | Dynamo +3.0, Mo & Krill +2.0 |
-| Silencer | weapon 4 | 2 | Lady Geist +2.3, Haze +2.0 |
-| Lucky Shot | weapon 4 | 2 | Holliday +2.0, Haze +1.6 |
-| Spirit Burn | spirit 4 | 2 | Infernus +2.5, Mina +1.9 |
+| Witchmail | vitality 4 | 3 | Dynamo +3.2, Mo & Krill +2.1, Bebop +2.0 |
+| Spirit Burn | spirit 4 | 3 | Infernus +2.5, Mina +1.8, Bebop +1.6 |
+| Indomitable | vitality 4 | 3 | Lash +2.0, McGinnis +1.9, Calico +1.7 |
+| Lucky Shot | weapon 4 | 3 | Ivy +2.4, Holliday +2.1, Haze +1.6 |
+| Refresher | spirit 4 | 3 | Yamato +2.0, Victor +1.7, Paige +1.6 |
+| Spellslinger | weapon 4 | 3 | Venator +2.0, Wraith +1.9, Vindicta +1.6 |
+| Slowing Bullets | weapon 2 | 2 | Rat King +1.9, Bebop +1.7 |
+| Enduring Speed | vitality 2 | 2 | Lady Geist +1.7, Haze +1.5 |
+| Silencer | weapon 4 | 2 | Infernus +2.9, Lady Geist +2.3 |
 | Warp Stone | vitality 3 | 2 | Victor +1.9, Infernus +1.5 |
-| Mystic Reverb | spirit 4 | 2 | Violet +3.3, Solomon +2.5 |
-| Stamina Mastery | vitality 3 | 1 | Apollo +1.6 |
-| Slowing Bullets | weapon 2 | 1 | Bebop +1.7 |
-| Hollow Point | weapon 3 | 1 | Deadman Danny +2.2 |
-| Grit | vitality 1 | 1 | Deadman Danny +1.7 |
-| Healing Tempo | vitality 4 | 1 | Dynamo +1.9 |
-| Spiritual Overflow | weapon 4 | 1 | Graves +1.7 |
-| Rapid Recharge | spirit 3 | 1 | Haze +2.1 |
+| Grit | vitality 1 | 1 | Deadman Danny +1.6 |
+| Healing Tempo | vitality 4 | 1 | Dynamo +2.0 |
+| Spiritual Overflow | weapon 4 | 1 | Graves +1.6 |
+| Rapid Recharge | spirit 3 | 1 | Haze +2.2 |
 | Spellbreaker | vitality 4 | 1 | Infernus +1.8 |
+| Dispel Magic | vitality 3 | 1 | Ivy +1.9 |
 | Infuser | vitality 4 | 1 | Lady Geist +3.1 |
-| Siphon Bullets | vitality 4 | 1 | Lash +1.9 |
-| Glass Cannon | weapon 4 | 1 | Paradox +1.5 |
+| Siphon Bullets | vitality 4 | 1 | Lash +1.8 |
 | Extra Stamina | vitality 1 | 1 | Rat King +3.0 |
 | Arcane Surge | spirit 2 | 1 | Rat King +2.9 |
-| Spirit Rend | weapon 3 | 1 | Seven +1.6 |
-| Monster Rounds | weapon 1 | 1 | Seven +1.5 |
-| Phantom Strike | vitality 4 | 1 | Silver +2.4 |
-| Extra Health | vitality 1 | 1 | Sinclair +1.6 |
+| Spirit Rend | weapon 3 | 1 | Seven +1.8 |
+| Monster Rounds | weapon 1 | 1 | Seven +1.7 |
+| Phantom Strike | vitality 4 | 1 | Silver +2.5 |
 | High-Velocity Rounds | weapon 1 | 1 | The Doorman +1.9 |
-| Extended Magazine | weapon 1 | 1 | Vindicta +2.2 |
-| Boundless Spirit | spirit 4 | 1 | Wraith +1.8 |
+| Extended Magazine | weapon 1 | 1 | Vindicta +2.1 |
+| Boundless Spirit | spirit 4 | 1 | Wraith +1.7 |
 
 ## Per hero
 
@@ -72,74 +69,77 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Colossus +1.7
 
 ### Apollo
-- never picked: Ethereal Shift +1.7, Stamina Mastery +1.6
+- 37k: Spirit Snatch -1.1
+- 50k: Spirit Snatch -1.1
+- never picked: Ethereal Shift +1.7
 
 ### Baba
-- never picked: Fleetfoot +4.2, Mystic Expansion +2.0, Superior Cooldown +1.6, Compress Cooldown +1.6
+- never picked: Fleetfoot +4.1, Duration Extender +2.5, Mystic Expansion +2.1, Superior Cooldown +1.6, Compress Cooldown +1.6
 
 ### Bebop
-- never picked: Colossus +2.4, Slowing Bullets +1.7
+- never picked: Colossus +2.4, Witchmail +2.0, Slowing Bullets +1.7, Spirit Burn +1.6
 
 ### Billy
 - 27k: Stalker -1.7
+- 37k: Stalker -1.7
 - 50k: Stalker -1.7
-- never picked: Ethereal Shift +2.3, Colossus +1.8, Mystic Expansion +1.6, Enduring Speed +1.5
+- never picked: Ethereal Shift +2.4, Colossus +1.9, Mystic Expansion +1.7
 
 ### Calico
-- never picked: Indomitable +1.6
+- never picked: Indomitable +1.7
 
 ### Celeste
-- never picked: Mystic Expansion +1.5
+- never picked: Mystic Expansion +1.5, Superior Cooldown +1.5
 
 ### Deadman Danny
-- 18k: Kinetic Dash -4.4
-- 37k: Kinetic Dash -4.4
-- never picked: Hollow Point +2.2, Compress Cooldown +1.7, Grit +1.7
+- 18k: Kinetic Dash -4.6
+- never picked: Compress Cooldown +1.7, Grit +1.6
 
 ### Drifter
-- never picked: Frenzy +2.2, Duration Extender +1.5
+- never picked: Frenzy +2.3, Duration Extender +1.6
 
 ### Dynamo
-- never picked: Witchmail +3.0, Healing Tempo +1.9, Mystic Expansion +1.6
+- never picked: Witchmail +3.2, Healing Tempo +2.0
 
 ### Graves
-- never picked: Magic Carpet +2.5, Spiritual Overflow +1.7
+- never picked: Magic Carpet +2.5, Spiritual Overflow +1.6
 
 ### Grey Talon
 
 ### Haze
-- never picked: Rapid Recharge +2.1, Silencer +2.0, Lucky Shot +1.6, Enduring Speed +1.5
+- never picked: Rapid Recharge +2.2, Lucky Shot +1.6, Enduring Speed +1.5
 
 ### Holliday
-- never picked: Lucky Shot +2.0, Superior Cooldown +1.6
+- never picked: Lucky Shot +2.1, Superior Cooldown +1.5
 
 ### Infernus
-- never picked: Spirit Burn +2.5, Sprint Boots +1.8, Spellbreaker +1.8, Warp Stone +1.5
+- never picked: Silencer +2.9, Spirit Burn +2.5, Sprint Boots +1.9, Spellbreaker +1.8, Warp Stone +1.5
 
 ### Ivy
+- never picked: Lucky Shot +2.4, Dispel Magic +1.9
 
 ### Kelvin
-- never picked: Sprint Boots +1.9, Mystic Expansion +1.8
+- never picked: Sprint Boots +1.9, Mystic Expansion +1.9
 
 ### Lady Geist
-- never picked: Infuser +3.1, Silencer +2.3, Sprint Boots +2.3, Frenzy +1.9, Enduring Speed +1.5
+- never picked: Infuser +3.1, Sprint Boots +2.3, Silencer +2.3, Frenzy +2.0, Enduring Speed +1.7
 
 ### Lash
-- never picked: Magic Carpet +5.7, Indomitable +1.9, Siphon Bullets +1.9, Compress Cooldown +1.7
+- never picked: Magic Carpet +5.6, Indomitable +2.0, Siphon Bullets +1.8, Compress Cooldown +1.7
 
 ### McGinnis
-- 18k: Arcane Surge -1.8
-- 27k: Arcane Surge -1.8
-- 37k: Arcane Surge -1.8
+- 18k: Arcane Surge -1.7
+- 27k: Arcane Surge -1.7
+- 37k: Arcane Surge -1.7
 - never picked: Indomitable +1.9, Duration Extender +1.7
 
 ### Mina
-- never picked: Ethereal Shift +2.5, Spirit Burn +1.9
+- never picked: Ethereal Shift +2.5, Spirit Burn +1.8
 
 ### Mirage
 
 ### Mo & Krill
-- never picked: Witchmail +2.0
+- never picked: Witchmail +2.1
 
 ### Nurse Harrow
 
@@ -147,60 +147,60 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Refresher +1.6
 
 ### Paradox
-- never picked: Ethereal Shift +3.8, Superior Cooldown +1.7, Glass Cannon +1.5
+- never picked: Ethereal Shift +3.5, Superior Cooldown +1.8
 
 ### Pocket
-- never picked: Ethereal Shift +2.7
+- never picked: Ethereal Shift +2.8
 
 ### Rat King
-- never picked: Duration Extender +3.3, Extra Stamina +3.0, Arcane Surge +2.9, Colossus +2.6, Fleetfoot +1.6
+- never picked: Duration Extender +3.4, Extra Stamina +3.0, Arcane Surge +2.9, Colossus +2.5, Slowing Bullets +1.9, Fleetfoot +1.6
 
 ### Rem
-- never picked: Magic Carpet +3.8
+- never picked: Magic Carpet +3.3
 
 ### Seven
 - 10k: Extra Regen -1.5
-- never picked: Fleetfoot +2.6, Spirit Rend +1.6, Monster Rounds +1.5
+- never picked: Fleetfoot +2.4, Spirit Rend +1.8, Monster Rounds +1.7
 
 ### Shiv
-- never picked: Ethereal Shift +1.7
+- never picked: Frenzy +2.6, Ethereal Shift +1.7
 
 ### Silver
-- never picked: Duration Extender +2.7, Phantom Strike +2.4
+- never picked: Duration Extender +2.7, Phantom Strike +2.5
 
 ### Sinclair
-- never picked: Magic Carpet +2.9, Extra Health +1.6, Mystic Expansion +1.5
+- never picked: Magic Carpet +2.8, Mystic Expansion +1.5
 
 ### Solomon
-- 27k: Arcane Surge -2.4
-- never picked: Magic Carpet +4.0, Mystic Reverb +2.5
+- 27k: Arcane Surge -2.5
+- never picked: Magic Carpet +4.0
 
 ### The Doorman
 - never picked: High-Velocity Rounds +1.9
 
 ### Venator
-- never picked: Magic Carpet +2.7, Spellslinger +2.1, Sprint Boots +1.9, Fleetfoot +1.6
+- never picked: Magic Carpet +2.6, Spellslinger +2.0, Sprint Boots +1.8, Fleetfoot +1.6
 
 ### Victor
-- never picked: Sprint Boots +3.1, Warp Stone +1.9, Refresher +1.6
+- never picked: Sprint Boots +3.1, Frenzy +2.9, Warp Stone +1.9, Refresher +1.7
 
 ### Vindicta
-- never picked: Duration Extender +2.2, Extended Magazine +2.2, Fleetfoot +1.8, Spellslinger +1.6
+- never picked: Duration Extender +2.2, Extended Magazine +2.1, Fleetfoot +1.8, Spellslinger +1.6
 
 ### Violet
-- never picked: Mystic Reverb +3.3, Duration Extender +2.4, Ethereal Shift +2.2
+- never picked: Ethereal Shift +2.5, Duration Extender +2.4
 
 ### Viscous
 
 ### Vyper
-- never picked: Fleetfoot +1.9
+- never picked: Fleetfoot +2.1
 
 ### Warden
-- never picked: Fleetfoot +1.8
+- never picked: Fleetfoot +1.9
 
 ### Wraith
-- never picked: Spellslinger +1.9, Boundless Spirit +1.8
+- never picked: Spellslinger +1.9, Boundless Spirit +1.7, Sprint Boots +1.5
 
 ### Yamato
-- never picked: Refresher +2.0, Colossus +1.7
+- never picked: Refresher +2.0, Colossus +1.8
 
