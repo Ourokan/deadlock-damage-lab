@@ -2904,3 +2904,49 @@ real 5.0). Its length_corr (1.64) and the aura's had been fitted around the late
   and Superior Cooldown loses (cooldown no longer speeds the first bolt).
 - `ability_corr_heroes.py --skip CLASS` leaves an ability's row alone; `analysis/scripts/sim_vs_win.py --heroes X`
   for one or two heroes no longer crashes at the per-item table (and writes --out first).
+
+## Viscous: procs per hit (2026-10-28)
+
+Viscous was again the widest per-source gap with a real sample after #182 (Victor, Warden and Sinclair handled; Lady
+Geist 0.016 and Dynamo fine on their samples): per-source distance 0.052, mix 0.039 on validation/viscous_sample.jsonl.gz
+(221 players). Holders read Mystic Burst 1.49x, Spirit Snatch 1.47x and Tankbuster 1.17x under; Splatter and Goo Ball
+a little over in share.
+
+Replays (scripts/mechanics/viscous_procs.py; 93 Viscous in the fight_length replays plus 71 fetched from the Viscous
+sample into analysis/work/viscous_replays, scripts/fight_length/fetch_fights.py --ids):
+- Hits on extra heroes are not it: Viscous' item damage off the main target is the pooled level (Tankbuster 1.25 of
+  main vs 1.20 pooled), and a release's charge matches (real mean 0.75 since the last one on the victim, sim 0.79;
+  release sizes Tankbuster 124 vs 126, Mystic Burst 29 vs 30).
+- Splatter: its landing x length_corr is 1.33, which the sim books as bigger hits. Real hits that set off Tankbuster
+  deal a median 239 (sim 325), Mystic Burst 117 (sim 198); Tankbuster per Splatter damage real 0.44, sim 0.25. Every
+  real hit releases its own charge (Splatter's cooldown is past the 14 s charge-up), so the factor stands for more hits.
+- Goo Ball: a cast reaches 1.48 heroes and hits each 1.47 times (555 once, 206 twice, 54 / 18 / 6 three to five
+  times; re-hits a median 2.1 s apart). The sim hit the target twice, 2.5 s apart, every cast: Mystic Burst per Goo
+  Ball damage sim 0.091 vs real 0.025, Tankbuster 0.33 vs 0.20 (27% / 33% of the sim's releases, real 8% / 11%).
+- Puddle Punch: the sim cast its second charge 1.7 s after the first (recast timing skips charged abilities), inside
+  Spirit Snatch's 6 s cooldown: 54% of sim Punches met Snatch on cooldown, 24% of real ones (real landed Punches 6 s+
+  after the last proc Snatch 1.10 times, under 6 s 0.20). Real gaps past 30% of the match: 22% under 6 s.
+- 12% of real Mystic Burst comes from Express Shot and Puddle Punch hits, which the sim doesn't count (left).
+
+Fix:
+- items_fx.LANDING_PROCS (Splatter): Mystic Burst / Tankbuster charge released by its hit x its landing when above 1.
+- viscous.REAL_HITS: Goo Ball hits once and again with the replays' chances (REHIT_P 0.34 / 0.27 / 0.31 / 0.25, mean
+  1.47), REAL_REHIT 2.1 s apart; he leaves the ball when he did before. Its length_corr refit alone (ability_corr_heroes
+  --skip Splatter --skip Puddle Punch, 3 rounds on the Viscous sample) keeps its damage level: 2.38 -> 2.905.
+- Mechanics.charge_gaps (opt-in, OFF): a charged ability with a data/charge_gaps.json row (scripts/mechanics/
+  charge_gaps.py; Puddle Punch) waits a real gap from one cast to the next. Snatch per landed sim Punch 0.46 -> 0.88
+  (real 0.88), but the sim then lands fewer Punches (Punch 1.27x -> 1.91x under), and the Punch refit that needs made
+  the held-out mix worse on one half (0.024 -> 0.038), so not kept.
+
+Split-half (match-id halves of the Viscous sample, ability_corr_heroes --split, current rows vs the same rows with the
+change), held-out per-source / mix: main 0.056 / 0.044 and 0.052 / 0.035; Splatter procs 0.054 / 0.033 and 0.041 /
+0.023; + Goo Ball hits 0.053 / 0.024 and 0.038 / 0.019. Refits on top were better per source but worse on one half's
+mix every time (kept none; a Goo Ball-only refit: per source 0.049 / 0.038, mix 0.030 / 0.018). With charge gaps too: 0.076 / 0.013 and 0.063 / 0.031 before a refit.
+
+Kept the two fixes and the Goo Ball level: without it Goo Ball read 1.22x under per gun, and the 29 Viscous of
+phantom_sample (an independent third sample, real Goo Ball share 0.107) read per-source 0.056 -> 0.063.
+
+Results: Viscous sample per-source 0.052 -> 0.039, mix 0.039 -> 0.023 (0.043 / 0.018 before the Goo Ball refit);
+phantom_sample's Viscous 0.056 -> 0.055, mix 0.027 -> 0.019; holders Tankbuster 1.17 -> 0.99, Mystic Burst 1.49 -> 1.28.
+Left: Spirit Snatch 1.48 under (needs the Punch count, above). sim_vs_win Viscous 27k + 37k: within slot and tier
+0.443 -> 0.443, all 0.451 -> 0.451. Other heroes unchanged (LANDING_PROCS and the Goo Ball draw are Viscous only).

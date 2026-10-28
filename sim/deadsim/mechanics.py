@@ -168,6 +168,14 @@ class Mechanics:
     # MECH.recast_timing), so it moves when ability damage lands and what cooldown items are worth, not how much
     # the fitted factors give (validation/README.md "Ability recasts on real timing")
     recast_timing: bool = True
+    # charged abilities' gaps (2026-10-28): recast timing skips charged abilities, so the sim cast the next charge as
+    # soon as AbilityCooldownBetweenCharge allowed: Viscous' second Puddle Punch 1.7 s after the first, inside Spirit
+    # Snatch's 6 s cooldown (54% of sim Punches met it on cooldown, 24% of real ones; Snatch read 1.5x under). With a
+    # row in data/charge_gaps.json (scripts/mechanics/charge_gaps.py) the wait from a cast to the next is drawn from
+    # the real gaps between landed casts (Punch: 22% under 6 s), its finite part as recast_timing's resets. Off: Snatch
+    # per landed Punch then matches real (0.46 -> 0.88), but the sim lands fewer Punches, and the Punch refit that
+    # needs made the held-out damage mix worse (split-half 0.024 -> 0.038), validation/README.md "Viscous: procs per hit"
+    charge_gaps: bool = False
     # cooldown items at the fight start (2026-10-27): the real holds (cast_timing) carry real players' share of fights
     # opened with an ability still cooling from the fight before, at real cooldowns, so cooldown items only bought
     # recasts. With cast_timing, a build whose items cut an ability's cooldown (to k x) starts more fights with it
@@ -541,6 +549,30 @@ def recast_rows():
     return _RECAST
 
 
+_CHARGE_GAPS = None
+
+
+def charge_gap(ab, phase, rng):
+    """Mechanics.charge_gaps: the gap (s) from a cast of a charged ability to its next, drawn from the real gaps
+    under 20 s (data/charge_gaps.json), or None without a row."""
+    global _CHARGE_GAPS
+    if _CHARGE_GAPS is None:
+        fn = os.path.join(os.path.dirname(__file__), "..", "data", "charge_gaps.json")
+        _CHARGE_GAPS = {}
+        if os.path.exists(fn):
+            with open(fn) as fh:
+                _CHARGE_GAPS = {k: v["q"] for k, v in json.load(fh)["sources"].items()}
+    f = ab.f
+    q = _CHARGE_GAPS.get(f"{f.st.hero.id}:{ab.ab.class_name}")
+    if not q:
+        return None
+    if phase is not None:
+        u = (phase + zlib.crc32(f"charge|{ab.ab.class_name}|{f.name}|{ab.casts}".encode()) / 2 ** 32) % 1.0
+    else:
+        u = rng.random()
+    return q[min(len(q) - 1, int(u * len(q)))]
+
+
 def recast_wait(ab, cls=None, n=None, finite=False):
     """Mechanics.recast_timing, at a cast: the wait (s) past the cooldown before the next cast of ab, drawn from the
     real recast curve (inf: not again this fight), 0 for charged abilities, ultimates, abilities whose sim timing is
@@ -551,6 +583,10 @@ def recast_wait(ab, cls=None, n=None, finite=False):
     phase, rng = f.skill.fight_phase, f.e.rng
     if phase is None and rng is None:
         return 0.0
+    if ab.max_charges() > 1 and getattr(f.e.mech, "charge_gaps", False):
+        gap = charge_gap(ab, phase, rng)
+        if gap is not None:
+            return max(0.0, gap - ab.charge_delay())
     if ab.max_charges() > 1 or ab.ab.ultimate:
         return 0.0
     rows = recast_rows()
