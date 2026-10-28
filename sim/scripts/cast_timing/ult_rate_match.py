@@ -12,8 +12,10 @@ first ult cast weighted by Engine.length_w at the cast, duels with the ult unloc
 real / sim, scaled so the sim-duel weighted mean ratio is 1 (the level stays with the hold and the ult's corr; refit
 the corr after: scripts/ability_corr_heroes.py --hero). ROUNDS rounds, each from the last.
 
-usage: python3 ult_rate_match.py --hero "Nurse Harrow" [--parity even|odd] [--sample PATH] [--write]
-       (--parity: real rows of that half of the matches by id; --sample: the audit sample for the sim side)
+usage: python3 ult_rate_match.py --hero "Nurse Harrow" [--parity even|odd] [--sample PATH] [--rows PATH] [--write]
+       (--parity: real rows of that half of the matches by id; --sample: the audit sample for the sim side;
+       --rows: real rows from more replays of the hero, ult_phase.py real_rows format, e.g. Dynamo:
+       /mnt/project-files/analysis/work/dynamo_replays/ult_rows.pkl from scripts/cast_timing/hero_ult_rows.py)
 """
 import collections
 import gzip
@@ -100,8 +102,8 @@ def bin_of(nw):
     return next(i for i in range(len(NW_BINS) - 1) if nw < NW_BINS[i + 1])
 
 
-def real_rate(hid, cls, parity=None):
-    with open(UP.ROWS, "rb") as fh:
+def real_rate(hid, cls, parity=None, path=None):
+    with open(path or UP.ROWS, "rb") as fh:
         rows = [r for r in pickle.load(fh) if r[1] == hid and r[2] == cls and r[6] is not None]
     if parity is not None:
         rows = [r for r in rows if r[0] % 2 == parity]
@@ -160,7 +162,7 @@ def main():
         for p in m["players"]:
             if p["hero_id"] == h.id and L.gun_known(p):
                 jobs.append((m, p["slot"]))
-    real = real_rate(h.id, ult.class_name, parity)
+    real = real_rate(h.id, ult.class_name, parity, a[a.index("--rows") + 1] if "--rows" in a else None)
     for rnd in range(ROUNDS + 1):
         sim = sim_rate(jobs, data, workers)
         groups = merged(real, sim)

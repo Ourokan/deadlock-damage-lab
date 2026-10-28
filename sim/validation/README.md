@@ -3090,3 +3090,38 @@ whole audit 0.0168 flat (Nurse 0.013 -> 0.014). sim_vs_win Nurse 27k + 37k (Pear
 0.389, clear of noise 0.465 -> 0.469, damage items 0.424 -> 0.425, all items 0.373 -> 0.367 (Spearman a bit lower).
 Left: Leech Therapy still over late (0.318 vs 0.262), Nurse's weapon/spirit items under at 60-90% (Quicksilver Reload
 2.1x under).
+
+### Dynamo: real ability tiers and ult casts per fight (2026-10-28)
+
+After #192/#193 the whole-match audit is diffuse (0.0168, nothing above 0.06; Warden n33 and Dynamo n53 on top). By
+phase (phase_mix.py, window 0.05) the furthest hero on a real sample was Dynamo: on his own sample (248 players)
+Singularity was 0.132 of his damage at 30% of the match vs real 0.078, 0.218 vs 0.274 at 90%, phase distance
+0.061 / 0.043 / 0.068. Singularity's extra heroes hit are flat over the game (ability_area_phase.py --all: rel 0.92
+-> 1.13 of pooled, n127), so not team fights. Replays (fight_length + cast_timing raw plus 40 more Dynamo replays,
+/mnt/project-files/analysis/work/dynamo_replays): per-tick damage on the main target equals the nominal
+(75 + 0.28 x spirit power) x 0.25 s until ~20k souls, then grows past it (27k: 42 vs 26; 35k: 60 vs 28): the tier 3
+6% max health per second. Real Dynamos have Singularity at tier 3 in 45% of player-matches at 20-27k souls, 64% at
+27-35k (sample ability events); the popular order (and the median one) has nobody at tier 3 before 35k. And real
+Dynamos cast it less early: in 16% of their pair fights with the ult unlocked below 8k souls, 13% at 6-8k, 24-28% at
+11-27k, 33% past 27k; the audit's duels 30-35%, 38-42% late.
+
+Fix: Dynamo joins `ORDER_HEROES` (the audit gives his players their real tiers; the searches follow his median order)
+and his ult_phase row is matched to real casts per fight (ult_rate_match.py --rows with 2305 real rows from 76 matches,
+scripts/cast_timing/hero_ult_rows.py: 0.79 at 4.6k souls, 0.46 at 6.6k, 0.81-1.31 at 10-17k, 1.0 at 23k, 1.29 at
+33k), then Kinetic Pulse / Singularity corrections refit 3 rounds on the Dynamo sample (1.063 -> 1.178, 1.326 ->
+1.118).
+
+Split-half (Dynamo sample match-id halves: real rows and audit sample of one half for the match + 3 corr rounds, 4
+draws and the phase survey on the other, against the same corr refit on main):
+
+| held-out half | per-source | mix | phase distance (mean 30/60/90%) |
+| --- | --- | --- | --- |
+| 1 | 0.0380 -> 0.0363 | 0.0447 -> 0.0380 | 0.0607 -> 0.0512 |
+| 0 | 0.0235 -> 0.0225 | 0.0298 -> 0.0272 | 0.0563 -> 0.0353 |
+
+The order alone (no ult match) was better on mix and phase both halves but per-source worse on half 0
+(0.0235 -> 0.0281). Kept with both. Full Dynamo sample: Singularity 0.090 / 0.147 / 0.249 at 30 / 60 / 90% (real
+0.078 / 0.135 / 0.274), phase distance 0.061 / 0.043 / 0.068 -> 0.033 / 0.054 / 0.058 (60% a bit worse: spirit items
+0.023 vs 0.034). Phantom audit Dynamo 0.043 -> 0.030, whole audit 0.0168 -> 0.0166. sim_vs_win Dynamo 27k + 37k
+(Pearson): within slot and tier 0.229 -> 0.229, all items 0.167 -> 0.164, damage items 0.171 -> 0.164, clear of
+noise 0.262 -> 0.256.
