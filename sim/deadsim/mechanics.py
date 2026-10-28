@@ -42,7 +42,7 @@ Settings fitted to real ranked matches (validation/README.md, "New mechanics"):
   Real Ricochet damage is 15% of its holders' gun damage, which is 0.23 bounces per hit, so a fair team-fight
   value is about 0.25, not 1-2.
 - Split Shot also hits the main target: during the active each landed gun bullet lands SPLIT_PRIMARY_HIT more
-  copies, which proc on-hit items like bullets (Mercurial Magnum's bonus rides on them in replays). Other nearby
+  copies (x SPLIT_REF_M / the holder's median fight distance: the fan's share on the target, Mechanics.split_range), which proc on-hit items like bullets (Mercurial Magnum's bonus rides on them in replays). Other nearby
   enemies take SPLIT_SECONDARY_COVER x Mechanics.extra_targets copies per landed bullet. Both from Phantom+ replays
   (scripts/mechanics/split_shot_replays.py, 614 activations of Vyper, Wraith, Yamato, Paige): in the 5 s after an
   activation the main target takes 0.73 Split Shot hits per gun bullet landed on it (Vyper 0.76, Wraith 0.59), the
@@ -81,6 +81,8 @@ from .items_fx import BuildUp, FX, CC_KEYS, _any_melee, _melee_proc
 SUMMON_ACC_MAX = 0.9        # cap on accuracy against a summon (acc_mult x hero accuracy)
 SPLIT_PRIMARY_HIT = 0.73    # Split Shot copies landing on the main target per landed gun bullet (replays)
 SPLIT_SECONDARY_COVER = 0.73  # copies on other enemies per landed gun bullet per nearby enemy (replays)
+SPLIT_REF_M = 11.5          # holder's median fight distance at which SPLIT_PRIMARY_HIT holds (Mechanics.split_range)
+SPLIT_MIN_M = 8.2           # closest fitted median distance (Yamato): closer heroes (Abrams 7.5) don't extrapolate
 WARP_AWAY = 0.3             # share of Warp Stone's teleport range that ends up as extra gap when running (fit)
 MELEE_REACH = 6.0           # beyond this gap (+ start distance) rotation melees don't land
 FLEE_RECOVER = 0.25         # stop running once health is this much above flee_hp (heals)
@@ -295,6 +297,14 @@ class Mechanics:
     # single-target abilities 1.0. On: a stack is worth WeaponPowerPerStack x that count (ballistic_stacks,
     # data/ballistic_stacks.json, scripts/team/ballistic_stacks.py); 1 for abilities without a row
     ballistic_stacks: bool = True
+    # Split Shot's fan by distance (2026-10-28): the BulletSplitShot copies spread over SpreadAngleDegrees, so the
+    # share that lands on the main target falls with distance like its angular size. Real copies per landed gun bullet
+    # (scripts/mechanics/split_shot_replays.py): Yamato 1.10 at an 8.2 m median fight distance, Vyper 0.76 at 10.9,
+    # Wraith 0.59 at 15.6 (Paige 0.73 at 15.8 on 6 activations) = 8.4 / distance (activation weighted). On: the main
+    # target takes SPLIT_PRIMARY_HIT x SPLIT_REF_M / the holder's median distance (skill_defaults.json, the hero's real
+    # median, not the duel's current gap; at least SPLIT_MIN_M, the fit's closest hero) copies, so a
+    # far hero (Vindicta 25.8 m: 0.33) no longer gets close-range Vyper's 0.73; off: SPLIT_PRIMARY_HIT for everyone
+    split_range: bool = True
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
@@ -1545,10 +1555,24 @@ def _take(acc, p, n):
     return whole * n + acc.take(p - whole, n)
 
 
+_split_dist = {}
+
+
+def split_primary_hit(f):
+    """Split Shot copies landing on the main target per landed gun bullet (Mechanics.split_range)."""
+    if not getattr(f.e.mech, "split_range", False):
+        return SPLIT_PRIMARY_HIT
+    h = f.st.hero
+    if h.id not in _split_dist:
+        from .accuracy import default_distance
+        _split_dist[h.id] = default_distance(h.id)
+    return SPLIT_PRIMARY_HIT * SPLIT_REF_M / max(SPLIT_MIN_M, _split_dist[h.id])
+
+
 @mech_handler("upgrade_split_shot", need="any")
 class SplitShot(FX):
     """Active for BonusShotsDuration: every trigger pull also throws a fan of BulletSplitShot bullets. Each landed gun
-    bullet lands SPLIT_PRIMARY_HIT copies on the main target (on-hit items proc on them) and SPLIT_SECONDARY_COVER x
+    bullet lands split_primary_hit copies on the main target (on-hit items proc on them) and SPLIT_SECONDARY_COVER x
     nearby enemies (Mechanics.extra_targets) copies on others; each side hit adds a WeaponDamagePerStack% weapon
     damage stack (MaxStacks, WeaponDamageBonusDuration). Booked as Split Shot."""
 
@@ -1568,7 +1592,7 @@ class SplitShot(FX):
         per = f.counters.get("bullet_per", 0.0)
         if not per:
             return
-        k = _take(f.acc("split_main"), SPLIT_PRIMARY_HIT, hit.hits)
+        k = _take(f.acc("split_main"), split_primary_hit(f), hit.hits)
         if k:
             f.e.damage(f, t, per * k, "bullet", self.name, is_item=True, hits=k)
         x = nearby_enemies(f)

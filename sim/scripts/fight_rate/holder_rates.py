@@ -2,7 +2,8 @@
 2026-10-27): hero damage, damage taken, deaths, kills + assists, souls, objective (boss) damage, lane / jungle
 damage and souls, team heals and barriers, own barrier, damage mitigated, heal prevented. Same matching as
 real_rates.py (hero, net worth // 2500, start time // 300 s), at the 27k and 37k search bands, all matches and each
-half by match id parity (split-half check). Written for the cooldown items check (sim/validation/cooldown_items.md).
+half by match id parity (split-half check). Each metric is [holders / non-holders ratio, z, non-holders' base rate
+per minute] (the base since 2026-10-28, sim/validation/split_shot_range.md). Written for the cooldown items check (sim/validation/cooldown_items.md).
 
 usage: python3 -I holder_rates.py SRC_DIR OUT.json   (a few minutes on the 74k matches)
 """
@@ -52,7 +53,7 @@ for (bb, h), s in st.items():
             continue
         e = s.compare(i)
         if e:
-            t[items[i]["name"]] = {"n": e["n"], **{k: [e[k]["ratio"], e[k]["z"]] for k in R.METRICS}}
+            t[items[i]["name"]] = {"n": e["n"], **{k: [e[k]["ratio"], e[k]["z"], e[k]["base"]] for k in R.METRICS}}
     out[f"{bb}_{h}"] = t
 json.dump(out, open(sys.argv[2], "w"))
 print("done", sum(s.n for (b, h), s in st.items() if h == 2))
