@@ -159,6 +159,12 @@ IMBUE_CLASSES = ("upgrade_magic_reach", "upgrade_magic_tempo", "upgrade_arcane_e
 # imbue slot by item where players don't follow the hero's usual imbue slot (Tyler, 2026-10-21: Mina puts Mystic
 # Expansion on Sanguine Retreat for a longer dash, not on Rake)
 IMBUE_OVERRIDE = {("hero_vampirebat", "upgrade_magic_reach"): "ability_vampirebat_batblink"}
+# Duration Extender on the ultimate (replays, scripts/cast_timing/casts_by_build.py imbues: the ability whose damage per
+# cast holders out-deal non-holders by most, the same one in both halves of the matches, 1.1x or more in each; the
+# sim's usual imbue slot is a non-ultimate one). Baba's Feed The Birds and Violet's Abstract Landscape also lead, but
+# their sim impls take no duration, so the item stays on the usual slot there.
+IMBUE_OVERRIDE.update({(h, "upgrade_arcane_extension"): a for h, a in (
+    ("hero_nurse", "ability_nurse_fear"), ("hero_necro", "ability_necro_gravestone"))})
 
 
 def _default_imbue_target(hero, unlocked):
@@ -247,7 +253,8 @@ def make_fighter(engine, lo: Loadout, name=None):
             idx = lo.imbues.get(it.name, lo.imbues.get(it.class_name))
             over = IMBUE_OVERRIDE.get((hero.class_name, it.class_name))
             if idx is None and over:
-                idx = next((i for i, ab in enumerate(hero.abilities) if ab.class_name == over), None)
+                idx = next((i for i, ab in enumerate(hero.abilities) if ab.class_name == over
+                            and (i >= len(unlocked) or unlocked[i])), None)   # not unlocked yet: the usual slot
             if idx is None and skill.fight_pattern:
                 idx = patterns.imbue_target(hero, unlocked)
             if idx is None:

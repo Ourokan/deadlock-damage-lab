@@ -3380,3 +3380,33 @@ Swap 2.461 -> 2.719) + 2 rounds of item_landing_heroes --hero Paradox held out m
 0.031 -> 0.017; whole sample 0.032 -> 0.013, phantom_sample 0.024 -> 0.013; Mystic Reverb hits the 0.25 floor), but
 Paradox sim_vs_win (27k + 37k, 260 pairs) went 0.325 / 0.307 (all / within) -> 0.321 / 0.302; abilities only 0.323 /
 0.305, items only (mix 0.029) 0.323 / 0.306.
+
+
+## Ability casts per fight by build (2026-10-28)
+
+Follow-up of "Spirit power reaching abilities and items": count the casts. scripts/cast_timing/casts_by_build.py
+(real: 259 fight_length + cast_timing replays, pair fights, 435k fighter-ability-fight rows; sim: damage audit duels
+of 8,000 players, casts weighted by Engine.length_w). Within hero ability x net-worth bin (8k), fighters above vs at
+or below the median spirit item souls, geometric mean of the ratios (real hi/lo / sim hi/lo, even / odd match ids):
+
+- casts per fight 1.012 (1.016 / 1.019), casts per fight second 1.006, cooldown use (casts / (1 + length /
+  cooldown), plain abilities) 1.013, landed share of casts (real only) 1.008: spirit builds cast and use their
+  cooldowns like the sim already has them (their CDR items included). Not where the gap is.
+- damage per fight 1.075 (1.094 / 1.075) = casts 1.012 x damage per cast 1.046 (1.068 / 1.034); damage per hit
+  0.999 (1.002 / 1.003, as spirit_reach.py), hits per cast 1.039 (1.050 / 1.032). The gap is hits per cast.
+- Split by item holders (holders vs not, same hero ability and bin): Duration Extender holders' damage per cast
+  1.22 / 1.46 in real, 1.00 / 1.00 in the sim; range items (Mystic Expansion and co.) 1.18 vs 1.07; spirit-amp
+  items 1.18 vs 1.19 (per hit lower, more hits). Within holders or within non-holders of range items the spirit
+  hi/lo hits per cast match (1.011 / 1.012).
+- Duration Extender is an imbue (one ability). The sim imbued the hero's usual slot (Quicksilver's, never an ult);
+  real holders' extra damage sits in the ult for Nurse (Lurking Terrors), Baba (Feed The Birds), Violet (Abstract
+  Landscape) and Graves (Borrowed Decree): the top ability in both halves, 1.1x or more each. fight.IMBUE_OVERRIDE
+  now imbues Duration Extender there (once unlocked) for Nurse and Graves; Baba's and Violet's ults take no duration
+  in the sim, so moving it there would only drop its effect (they keep the usual slot; the figures below had all four). Their ults' held / not damage per fight: real 1.15 / 1.26,
+  sim 0.96 / 1.04 -> 1.03 / 1.13; their other abilities real 0.94 / 0.97, sim 0.96 / 1.02 -> 0.92 / 1.01 (both
+  halves closer).
+- sim_vs_win 27k: all 0.314 -> 0.314, within slot and tier 0.345 -> 0.346, per item 0.447 -> 0.447. Damage audit
+  mix 0.0159 -> 0.0159; Lurking Terrors real / sim 1.001 -> 0.978 (no refit: within the audit's spread).
+
+Left: range items add hits per cast in real (bigger zones, longer inside) but only shorten the walk-in in the sim;
+Duration Extender on other heroes is noisy at 259 replays; map pickups.
