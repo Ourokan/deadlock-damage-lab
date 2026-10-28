@@ -3333,3 +3333,28 @@ The Throat 1.900 -> 1.920, Mauling Leap 1.737 -> 1.891, Tail Whack 1.093 -> 1.17
 melee rate 0.0304 -> 0.0254. On the fresh sample: Seven (723 players) mix 0.034 -> 0.019, per-source 0.028 -> 0.013;
 Silver (652) 0.027 -> 0.019, 0.024 -> 0.012; Victor (795) 0.022 -> 0.018, 0.060 -> 0.059 (Pain Aura 0.34 vs real 0.29
 and Revive 0.04 vs 0.07 left).
+
+## Spirit power reaching abilities and items (2026-10-28)
+
+Follow-up of "Abilities by build": is the rest of the spirit-build gap (sim abilities ~3-4% under, items ~8% over as
+spirit item souls grow, same hero and fifth) in how spirit power reaches ability and item damage? No: in replays it
+reaches both exactly as the tooltip formulas say, so the gap is in how often abilities land, not how hard.
+
+- Spirit power itself: compute_stats on the real build plus the permanent spirit pickups matches the in-game
+  snapshots (scripts/validate_stats.py on phantom_sample: median error 0.00, misses are conditional buffs the fight
+  models: Enchanter's Emblem above 65% health, Arcane Surge, Spirit Snatch steals). Sim fights leave the map pickups
+  out (spirit +5 / +10 / +12 at 20k / 40k / 50k net worth, weapon damage +7 / +13 / +16%, health +70 / +130 / +165);
+  a flat missing amount is a smaller share of a spirit build's damage, so it would put the sim's abilities further
+  over on spirit builds after the fits, the wrong way for this gap (not changed here).
+- Per hit (scripts/mechanics/spirit_reach.py, 260 fight_length replays, 2.1M hero hits, 81 spirit-scaled sources):
+  real damage before the victim's spirit resist over Base(tier) + scale(tier) x the attacker's spirit power at that
+  minute. Within source x net-worth bin, fighters above vs at or below the median spirit item souls: abilities
+  1.000 (even / odd ids 0.998 / 0.999, 1.000 without spirit-amp items). Items: Torment Pulse 1.008, Spirit Snatch
+  1.008, Mystic Shot 0.994, Cold Front 0.975; real Tesla Bullets / Capacitor chains grow ~0.14 / ~0.07 per spirit
+  power vs the tooltip 0.19 (hi/lo 0.97 / 0.93; gun items, small on spirit builds). Quicksilver Reload's events don't
+  fit one prop (ignore its row).
+- Targets: enemy heroes per ability hit cluster (1.5 s) 1.17, +0.007 per 10k spirit item souls (even / odd -0.003 /
+  +0.016) within ability x net-worth bin, +0.027 with a range item: spirit builds don't reach more heroes per cast.
+
+Left: casts and landed casts per fight by build. Spirit builds casting sooner (ability_lean, opt-in) is about a
+quarter of the ability slope; the rest isn't per-hit size, spirit power or targets.
