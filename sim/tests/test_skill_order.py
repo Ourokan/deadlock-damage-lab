@@ -87,6 +87,14 @@ class MedianOrder(unittest.TestCase):
         self.assertTrue(unlocked[ult])
         self.assertLessEqual(tiers[book], 1)
 
+    def test_graves_maxes_jar_by_mid_game(self):
+        # Graves' popular order maxes Grasping Hands first and has Jar of Dead at tier 2 until 26k souls; the median
+        # order has Jar at tier 3 by 18k (real Graves: 39% at T3 by 60% of the match)
+        h = G.hero("Graves")
+        jar = next(i for i, a in enumerate(h.abilities) if a.name == "Jar of Dead")
+        tiers, _ = _auto_abilities(h, 18000)
+        self.assertEqual(tiers[jar], 3)
+
 
 if __name__ == "__main__":
     unittest.main()
