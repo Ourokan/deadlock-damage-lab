@@ -226,14 +226,14 @@
     "landing": 0.585,
     "real_share": 0.4409,
     "sim_share": 0.432,
-    "length_corr": 1.178
+    "length_corr": 1.221
    },
    "Singularity": {
     "class": "citadel_ability_self_vacuum",
     "landing": 0.745,
     "real_share": 0.1692,
     "sim_share": 0.1649,
-    "length_corr": 1.118
+    "length_corr": 1.21
    }
   },
   "Kelvin": {
@@ -242,14 +242,14 @@
     "landing": 0.94,
     "real_share": 0.2661,
     "sim_share": 0.2933,
-    "length_corr": 0.728
+    "length_corr": 0.622
    },
    "Arctic Beam": {
     "class": "ability_icebeam",
     "landing": 0.88,
     "real_share": 0.3468,
     "sim_share": 0.3797,
-    "length_corr": 0.599
+    "length_corr": 0.485
    }
   },
   "Haze": {
@@ -438,21 +438,21 @@
     "landing": 0.32,
     "real_share": 0.2041,
     "sim_share": 0.2176,
-    "length_corr": 1.856
+    "length_corr": 1.716
    },
    "Stone Form": {
     "class": "citadel_ability_tengu_stone_form",
     "landing": 0.31,
     "real_share": 0.0733,
     "sim_share": 0.0782,
-    "length_corr": 0.904
+    "length_corr": 0.825
    },
    "Air Drop": {
     "class": "citadel_ability_tengu_airlift",
     "landing": 0.67,
     "real_share": 0.0839,
     "sim_share": 0.0896,
-    "length_corr": 1.675
+    "length_corr": 1.509
    }
   },
   "Warden": {
@@ -507,21 +507,21 @@
     "landing": 1.124,
     "real_share": 0.3397,
     "sim_share": 0.3517,
-    "length_corr": 1.657
+    "length_corr": 1.605
    },
    "Flog": {
     "class": "ability_lash_flog",
     "landing": 1.379,
     "real_share": 0.1757,
     "sim_share": 0.182,
-    "length_corr": 1.052
+    "length_corr": 0.995
    },
    "Death Slam": {
     "class": "citadel_ability_lash_ultimate",
     "landing": 0.598,
     "real_share": 0.0465,
     "sim_share": 0.048,
-    "length_corr": 1.827
+    "length_corr": 1.765
    }
   },
   "Viscous": {
@@ -530,21 +530,21 @@
     "landing": 0.72,
     "real_share": 0.299,
     "sim_share": 0.3512,
-    "length_corr": 1.845
+    "length_corr": 1.773
    },
    "Puddle Punch": {
     "class": "viscous_telepunch",
     "landing": 0.37,
     "real_share": 0.1221,
     "sim_share": 0.1434,
-    "length_corr": 1.371
+    "length_corr": 1.558
    },
    "Goo Ball": {
     "class": "viscous_goo_bowling_ball",
     "landing": 0.46,
     "real_share": 0.0652,
     "sim_share": 0.0767,
-    "length_corr": 2.905
+    "length_corr": 3.768
    }
   },
   "Pocket": {
@@ -553,28 +553,28 @@
     "landing": 0.98,
     "real_share": 0.2394,
     "sim_share": 0.235,
-    "length_corr": 1.562
+    "length_corr": 1.41
    },
    "Flying Cloak": {
     "class": "synth_plasma_flux",
     "landing": 0.665,
     "real_share": 0.1152,
     "sim_share": 0.1129,
-    "length_corr": 0.749
+    "length_corr": 0.626
    },
    "Enchanter's Satchel": {
     "class": "synth_pulse",
     "landing": 0.768,
     "real_share": 0.165,
     "sim_share": 0.1618,
-    "length_corr": 1.133
+    "length_corr": 1.008
    },
    "Affliction": {
     "class": "synth_affliction",
     "landing": 0.583,
     "real_share": 0.1453,
     "sim_share": 0.1433,
-    "length_corr": 0.761
+    "length_corr": 0.717
    }
   },
   "Mirage": {
@@ -629,26 +629,26 @@
     "landing": 0.63,
     "real_share": 0.3224,
     "sim_share": 0.2603,
-    "length_corr": 1.301
+    "length_corr": 1.294
    },
    "Spectral Assistant": {
     "class": "ability_magician_cloneturret",
     "landing": 0.41,
     "real_share": 0.2117,
     "sim_share": 0.1711,
-    "length_corr": 2.215
+    "length_corr": 1.939
    },
    "Audience Participation": {
     "class": "ability_magician_copyult",
     "landing": 0.6,
     "real_share": 0.0,
     "sim_share": 0.3541,
-    "length_corr": 2.245
+    "length_corr": 2.504
    },
    "Rabbit Hex": {
     "landing": 0.51,
     "class": "ability_magician_animalhexarea",
-    "length_corr": 2.432
+    "length_corr": 2.821
    }
   },
   "Mina": {
@@ -738,14 +738,14 @@
     "landing": 0.82,
     "real_share": 0.2667,
     "sim_share": 0.2899,
-    "length_corr": 1.641
+    "length_corr": 1.649
    },
    "Aura of Suffering": {
     "class": "ability_frank_painaura",
     "landing": 0.57,
     "real_share": 0.2848,
     "sim_share": 0.312,
-    "length_corr": 1.045
+    "length_corr": 0.893
    },
    "Shocking Reanimation": {
     "class": "ability_frank_revive",
@@ -761,21 +761,21 @@
     "landing": 0.51,
     "real_share": 0.3256,
     "sim_share": 0.3439,
-    "length_corr": 2.011
+    "length_corr": 1.818
    },
    "Captivating Read": {
     "class": "ability_bookworm_aoemagic",
     "landing": 0.9,
     "real_share": 0.127,
     "sim_share": 0.1348,
-    "length_corr": 1.292
+    "length_corr": 1.185
    },
    "Rallying Charge": {
     "class": "ability_bookworm_knightcharge",
     "landing": 0.72,
     "real_share": 0.0818,
     "sim_share": 0.0867,
-    "length_corr": 1.988
+    "length_corr": 2.033
    }
   },
   "The Doorman": {
@@ -784,21 +784,21 @@
     "landing": 0.602,
     "real_share": 0.3491,
     "sim_share": 0.3762,
-    "length_corr": 1.511
+    "length_corr": 1.471
    },
    "Luggage Cart": {
     "class": "ability_doorman_luggage_cart",
     "landing": 0.717,
     "real_share": 0.1004,
     "sim_share": 0.1082,
-    "length_corr": 1.238
+    "length_corr": 1.13
    },
    "Hotel Guest": {
     "class": "ability_doorman_hotel",
     "landing": 0.4,
     "real_share": 0.0487,
     "sim_share": 0.0524,
-    "length_corr": 1.422
+    "length_corr": 1.553
    }
   },
   "Billy": {
@@ -837,21 +837,21 @@
     "landing": 1.009,
     "real_share": 0.1558,
     "sim_share": 0.1693,
-    "length_corr": 1.22
+    "length_corr": 1.046
    },
    "Flawless Advance": {
     "class": "ability_fencer_lunge",
     "landing": 0.58,
     "real_share": 0.2143,
     "sim_share": 0.2359,
-    "length_corr": 1.844
+    "length_corr": 1.632
    },
    "Itani Lo Sahn": {
     "class": "ability_fencer_ultimate",
     "landing": 0.392,
     "real_share": 0.0747,
     "sim_share": 0.0828,
-    "length_corr": 2.25
+    "length_corr": 2.16
    }
   },
   "Deadman Danny": {
@@ -860,28 +860,28 @@
     "landing": 0.25,
     "real_share": 0.1907,
     "sim_share": 0.3335,
-    "length_corr": 1.677
+    "length_corr": 1.534
    },
    "Chimera Mk1": {
     "class": "ability_deadpack_rocketeer",
     "landing": 0.17,
     "real_share": 0.2441,
     "sim_share": 0.1859,
-    "length_corr": 3.384
+    "length_corr": 2.838
    },
    "Jettison Fuel": {
     "class": "ability_deadpack_flamethrower",
     "landing": 0.46,
     "real_share": 0.1663,
     "sim_share": 0.1303,
-    "length_corr": 1.427
+    "length_corr": 1.379
    },
    "Close The Deal": {
     "class": "ability_deadpack_ultimate",
     "landing": 0.34,
     "real_share": 0.0431,
     "sim_share": 0.0276,
-    "length_corr": 0.803
+    "length_corr": 0.81
    }
   },
   "Rem": {
@@ -890,14 +890,14 @@
     "landing": 0.633,
     "real_share": 0.3514,
     "sim_share": 0.3698,
-    "length_corr": 1.992
+    "length_corr": 1.741
    },
    "Naptime": {
     "class": "ability_familiar_ability01",
     "landing": 0.39,
     "real_share": 0.0902,
     "sim_share": 0.0945,
-    "length_corr": 2.839
+    "length_corr": 2.797
    }
   },
   "Silver": {
@@ -944,28 +944,28 @@
     "landing": 0.7,
     "real_share": 0.2206,
     "sim_share": 0.2404,
-    "length_corr": 1.883
+    "length_corr": 1.639
    },
    "Dazzling Trick": {
     "class": "ability_unicorn_prismaticguard",
     "landing": 0.71,
     "real_share": 0.037,
     "sim_share": 0.04,
-    "length_corr": 2.285
+    "length_corr": 2.164
    },
    "Radiant Daggers": {
     "class": "ability_unicorn_luminousstrike",
     "landing": 0.54,
     "real_share": 0.1766,
     "sim_share": 0.1928,
-    "length_corr": 1.128
+    "length_corr": 0.861
    },
    "Shining Wonder": {
     "class": "ability_unicorn_dazzlingorb",
     "landing": 0.47,
     "real_share": 0.1848,
     "sim_share": 0.1613,
-    "length_corr": 4.028
+    "length_corr": 3.289
    }
   },
   "Rat King": {
@@ -974,28 +974,28 @@
     "landing": 0.551,
     "real_share": 0.35,
     "sim_share": 0.3585,
-    "length_corr": 1.301
+    "length_corr": 1.254
    },
    "Rat Swarm": {
     "class": "ability_ratking_ratnibble",
     "landing": 0.53,
     "real_share": 0.0914,
     "sim_share": 0.0936,
-    "length_corr": 1.268
+    "length_corr": 1.178
    },
    "Royal Pestments": {
     "class": "ability_ratking_ratarmor",
     "landing": 0.751,
     "real_share": 0.0325,
     "sim_share": 0.0336,
-    "length_corr": 1.648
+    "length_corr": 2.042
    },
    "Rule, Ratannia!": {
     "class": "ability_ratking_standard_bearer",
     "landing": 0.294,
     "real_share": 0.0952,
     "sim_share": 0.0974,
-    "length_corr": 1.899
+    "length_corr": 2.021
    }
   },
   "Solomon": {
@@ -1004,21 +1004,21 @@
     "landing": 0.28,
     "real_share": 0.2519,
     "sim_share": 0.4439,
-    "length_corr": 3.969
+    "length_corr": 3.366
    },
    "Rook Battery": {
     "class": "ability_chessmaster_forkpiece",
     "landing": 0.86,
     "real_share": 0.1739,
     "sim_share": 0.1337,
-    "length_corr": 1.596
+    "length_corr": 1.451
    },
    "Develop Queen": {
     "class": "ability_chessmaster_queen",
     "landing": 0.19,
     "real_share": 0.1448,
     "sim_share": 0.1112,
-    "length_corr": 10.0
+    "length_corr": 8.856
    }
   },
   "Nurse Harrow": {

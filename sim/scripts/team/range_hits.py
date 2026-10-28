@@ -15,8 +15,13 @@ ability and net-worth bin). Holders also have ~1.66x the spirit item souls, so t
   item vs non-holders of either range item whose spirit item souls are at least MATCH x the holders' median (so the
   spirit investment matches), damage and hits per cast, real and sim.
 
+- split: casts_by_build.py's real fights again, each ability's hits and damage per cast split into the fight's main
+  target (the enemy the attacker dealt most damage to in it) and other heroes, holders vs matched non-holders as casts.
+  Where the range item's extra lands: on other heroes (more reached) or on the main target (more ticks / landings).
+
 usage: python3 -I range_hits.py area [--half 0|1]
        python3 -I range_hits.py casts [--half 0|1]
+       python3 -I range_hits.py split [--half 0|1] [--build]   (--build: read the replays first, ~1 min -> CASTS_WORK)
 Results: validation/README.md "Range items and hits per cast".
 """
 import bisect
@@ -184,7 +189,117 @@ def casts(half):
                   + "  ".join(f"{k} {math.exp(s / w):.3f}" for k, (s, w) in acc.items() if w))
 
 
+def split_rows(args):
+    """casts_by_build.real_rows with each ability's hits split: [(hero, cls, ult, casts, spirit souls, net worth, match,
+    main hits, main dmg, other hits, other dmg, flags)]."""
+    import casts_by_build as CB
+    import fit_cast_timing as CT
+    import landing_rates as L
+    import opener_timing as OT
+    import recast_timing as RT
+    from deadsim import game
+    fn, cast_fn, m, abil = args
+    hero, ev = OT.read(fn)
+    by_hero = {p["hero_id"]: p for p in m["players"]}
+    rs = CT.real_casts([json.loads(line) for line in gzip.open(cast_fn, "rt")])
+    off = statistics.median(r["tick"] / CT.T - r["v"] for r in rs) if rs else 0.0
+    casts = collections.defaultdict(list)
+    for r in rs:
+        casts[(r["a"], int(r["s"]))].append(r["tick"] / CT.T)
+    for v in casts.values():
+        v.sort()
+    dmg, every = collections.defaultdict(list), collections.defaultdict(list)
+    for e in ev:
+        pa, pv = by_hero.get(hero.get(e[1])), by_hero.get(hero.get(e[2]))
+        if pa is not None and pv is not None and pa["team"] != pv["team"]:
+            dmg[e[1], e[6]].append((e[0], e[2], e[5]))
+            every[e[1]].append((e[0], e[2], e[5]))
+    out, fc = [], {}
+    for pawn, sp in RT.pair_spans(hero, ev, by_hero).items():
+        hid = hero.get(pawn)
+        if hid not in abil or hid not in by_hero:
+            continue
+        p = by_hero[hid]
+        av = every.get(pawn, [])
+        for t0, t1 in sorted(sp):
+            fk = (p["slot"], int((t0 - off) // 60))
+            if fk not in fc:
+                fc[fk] = CB.flags({game().items[i].name for i in L.build_at(p, max(0.0, fk[1] * 60.0))[0]})
+            b = CT.build_cols(p, t0 - off, m, {})
+            tot = collections.Counter()
+            for _, v, d in av[bisect.bisect_left(av, (t0,)):bisect.bisect_right(av, (t1, 1e18))]:
+                tot[v] += d
+            if not tot:
+                continue
+            main = tot.most_common(1)[0][0]
+            for aid, (cls, ult) in abil[hid].items():
+                cs = casts.get((pawn, aid), [])
+                k0, k1 = bisect.bisect_left(cs, t0 - CT.PRE_S), bisect.bisect_right(cs, t1)
+                if k1 == 0:
+                    continue
+                hd = dmg.get((pawn, aid), [])
+                x = [0.0] * 4
+                for _, v, d in hd[bisect.bisect_left(hd, (t0 - CT.PRE_S,)):bisect.bisect_right(hd, (t1 + CB.LAG_MAX, 1e18))]:
+                    j = 0 if v == main else 2
+                    x[j] += 1
+                    x[j + 1] += d
+                out.append((hid, cls, ult, k1 - k0, b[0], b[1], m["match_id"], *x, fc[fk]))
+    return out
+
+
+def split(half, build=False):
+    import casts_by_build as CB
+    import fit_cast_timing as CT
+    from multiprocessing import Pool
+    from deadsim import game
+    out = os.path.join(CB.WORK, "split.pkl")
+    if build:
+        G = game()
+        abil = {h.id: {ab.id: (ab.class_name, bool(ab.ultimate)) for ab in h.abilities} for h in G.heroes.values()}
+        mids = {f.split(".")[0] for f in os.listdir(CT.CASTS) if f.endswith(".ndjson.gz")}
+        mids &= {f.split(".")[0] for f in os.listdir(CT.FIGHTS) if f.endswith(".ndjson.gz")}
+        sample = FL.load_sample(CT.SAMPLE, mids)
+        jobs = [(os.path.join(CT.FIGHTS, f"{x}.ndjson.gz"), os.path.join(CT.CASTS, f"{x}.ndjson.gz"), sample[x], abil)
+                for x in sorted(mids) if x in sample]
+        rows = []
+        with Pool(4) as pl:
+            for r in pl.imap_unordered(split_rows, jobs):
+                rows += r
+        os.makedirs(CB.WORK, exist_ok=True)
+        pickle.dump(rows, open(out, "wb"))
+    rows = pickle.load(open(out, "rb"))
+    flag = {n: len(CB.GROUPS) + CB.ITEMS.index(n) for n in RANGE}
+    by = collections.defaultdict(list)
+    for r in rows:
+        if half is None or r[6] % 2 == half:
+            by[r[0], r[1], int(r[5] // CB.NW_BIN)].append(r)
+    for item, fi in flag.items():
+        acc = collections.defaultdict(lambda: [0.0, 0.0])
+        for rs in by.values():
+            hi = [r for r in rs if r[11][fi]]
+            lo = [r for r in rs if not any(r[11][j] for j in flag.values())]
+            if len(hi) < 5:
+                continue
+            med = statistics.median(r[4] for r in hi)
+            lo = [r for r in lo if r[4] >= MATCH * med]
+            if len(lo) < 5 or min(sum(r[3] for r in x) for x in (hi, lo)) < MIN_CASTS:
+                continue
+            w = min(len(hi), len(lo))
+            for name, f in (("main hits", lambda r: r[7]), ("main dmg", lambda r: r[8]),
+                            ("other hits", lambda r: r[9]), ("other dmg", lambda r: r[10]),
+                            ("all dmg", lambda r: r[8] + r[10])):
+                a, b = (sum(f(r) for r in x) / sum(r[3] for r in x) for x in (hi, lo))
+                if a > 0 and b > 0:
+                    acc[name][0] += w * math.log(a / b)
+                    acc[name][1] += w
+        print(f"real {item:18s} holders / matched non-holders, per cast: "
+              + "  ".join(f"{n} {math.exp(s / w):.3f}" for n, (s, w) in acc.items()))
+
+
 if __name__ == "__main__":
     a = sys.argv[1:]
     h = int(a[a.index("--half") + 1]) if "--half" in a else None
-    {"area": area, "casts": casts}[a[0]](h)
+    if a[0] == "split":
+        split(h, "--build" in a)
+    else:
+        {"area": area, "casts": casts}[a[0]](h)

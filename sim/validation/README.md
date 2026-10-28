@@ -3455,3 +3455,28 @@ skip cells with fewer than 3 in-fight casts on either side.
 - Same fix changes range_hits.py's range numbers: Greater Expansion real 1.078 vs sim 0.969 (halves 1.083 / 0.951 and
   1.072 / 0.967), Mystic Expansion 1.034 vs 0.967 (1.040 / 0.952, 1.019 / 0.977). Range holders' damage per cast is
   ~1.1x under in the sim in both halves, so the "no range term" call above rested on the artifact: lead.
+
+
+## Range items reach more heroes per cast (2026-10-28, Mechanics.range_reach 0.5, 16 heroes refit)
+
+Follow-up of the last line above: "Range items and hits per cast" rested on the zero-cast cells. With them skipped
+(scripts/team/range_hits.py casts, 259 replays vs 8,000 audit players), holders / spirit-matched non-holders, damage
+per cast real / sim: Greater Expansion 1.078 / 0.960 (even 1.083 / 0.944, odd 1.072 / 0.971), Mystic Expansion
+1.034 / 0.965 (1.040 / 0.956, 1.019 / 0.977). Range items are under in the sim in both halves.
+
+- Where (range_hits.py split: each ability's hits per cast on the fight's main target vs other heroes): Greater
+  Expansion other-hero damage 1.153 (1.083 / 1.157), main target 1.019 (1.040 / 1.000). The wider radius and range
+  catch more heroes; the main target barely moves. Mystic Expansion's lift sits on the ability players imbue
+  (casts_by_build.py imbues: Nurse Lurking Terrors 1.41, Pocket Affliction 1.45, Victor Aura of Suffering 1.48 vs sim
+  ~1.0).
+- Model: Mechanics.range_reach: an ability's damage x (1 + its range bonus) ** 0.5 (the bonus from items and imbues,
+  AbilityState.range_pct; Greater Expansion 30% -> x1.14, Mystic Expansion 20% on its ability -> x1.10). Sim holders
+  then read Greater Expansion 1.09 (exponent 0.4: 1.06, 0.8: 1.17), Mystic Expansion 0.99. One damage term rather than
+  extra targets: a duel has one enemy and the landing factors already carry the pooled other heroes.
+- Refit (ability_corr_heroes.py) of the 16 heroes whose audited ability share moved most (Paige, Solomon, Doorman,
+  Celeste, Rem, Danny, Dynamo, Ivy, Lash, Viscous, Pocket, Rat King, Victor, Kelvin, Sinclair, Apollo). Split-half
+  against the same --split refit on the old code, player-weighted held-out: mix 0.0191 -> 0.0186 (half 0),
+  0.0207 -> 0.0202 (half 1), per-source 0.0329 -> 0.0327 / 0.0329 -> 0.0330. Victor's Shocking Reanimation kept its
+  correction (the refit ran it 3.5 -> 7.5 with the gap still open: a missing mechanic, not range).
+- Whole sample: audit mix 0.0159 -> 0.0153, per-source 0.0194 -> 0.0170. sim_vs_win 27k: all 0.314 -> 0.318, within
+  slot and tier 0.345 -> 0.353, per item 0.447 -> 0.453, damage items 0.200 -> 0.203.
