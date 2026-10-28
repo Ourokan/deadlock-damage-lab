@@ -1,9 +1,12 @@
 """Paradox (hero_chrono).
 
 Assumptions:
-- Pulse Grenade: lands at spirit_accuracy; the time-slowed target stays inside for every pulse
-  (one at landing, then every PulseInterval during AbilityDuration). Each pulse deals PulseDamage and adds a
-  stack of DamageAmplificationPerStack% damage taken (from Paradox; 1v1 so damage_taken_amp), DebuffDuration.
+- Pulse Grenade: lands at spirit_accuracy; one pulse at landing, then every PulseInterval during AbilityDuration.
+  Each pulse deals PulseDamage and adds a stack of DamageAmplificationPerStack% damage taken (from Paradox; 1v1 so
+  damage_taken_amp), DebuffDuration. Without Mechanics.pulse_hits the time-slowed target stays inside for every
+  pulse; with it pulse i deals and stacks x the real share of landed throws whose main victim takes more than i
+  pulses (~2 of 5 in replays, data/pulse_hits.json), and the amp on Paradox's other hits is booked under Pulse
+  Grenade as the game does (engine.BOOKED_AMPS).
 - Time Wall: +FriendlyBulletDamageBonus% weapon damage for bullets Paradox shoots through it, scaled by
   TIMEWALL_SHOOT_THROUGH. Shooting through it for its whole duration gave the sim's Paradox hit 1.6x the real one
   (others 0.8-1.4x) and a gun share of 0.34 vs 0.24 real. In replays, only ~3% more of Paradox's gun hits on heroes
@@ -28,6 +31,7 @@ Assumptions:
   = CombatBarrier (200 + 1.5 x spirit power).
 """
 from deadsim.abilities import AbilityImpl, register
+from deadsim.mechanics import pulse_survival
 
 CARBINE_FIGHT_HIT = 0.64   # a Carbine hit in a fight / a poke's (real medians 13.7x / 21.5x his gun hit, see above)
 CARBINE_CHARGE = 1.0   # share of MaxChargeDuration spent charging (replays, see above)
@@ -48,20 +52,24 @@ class PulseGrenade(AbilityImpl):
             return
         interval = c.raw("PulseInterval", 0.8)
         n = 1 + int(c.dur("AbilityDuration") / interval + 1e-6)
+        surv = pulse_survival(c.me)
         for i in range(n):
-            c.after(delay + 0.3 + i * interval, self.pulse, c)
+            w = 1.0 if surv is None else surv[min(i, len(surv) - 1)]
+            if w > 0:
+                c.after(delay + 0.3 + i * interval, self.pulse, c, w, surv is not None)
 
-    def pulse(self, c):
+    def pulse(self, c, w=1.0, booked=False):
         if not c.me.alive or not c.foe.alive:
             return
         st = c.state
         d = c.dur("DebuffDuration")
         if c.now > st.get("until", -1):
             st["stacks"] = 0
-        st["stacks"] = st.get("stacks", 0) + 1
+        st["stacks"] = st.get("stacks", 0) + w
         st["until"] = c.now + d
-        c.spirit_hit(c.val("PulseDamage"), hit_chance=1.0)
-        c.debuff("damage_taken_amp", st["stacks"] * c.raw("DamageAmplificationPerStack") / 100, d, tag="pulse")
+        c.spirit_hit(c.val("PulseDamage"), hit_chance=w)
+        tag = (self.s.ab.class_name, "damage_taken_amp", c.me.name) if booked else "pulse"
+        c.debuff("damage_taken_amp", st["stacks"] * c.raw("DamageAmplificationPerStack") / 100, d, tag=tag)
 
 
 @register("citadel_ability_chrono_time_wall")

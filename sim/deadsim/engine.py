@@ -28,7 +28,8 @@ INF = float("inf")
 # (mod key, tag, damage source): a target's damage amp the game books under the ability that put it there; the
 # mod's tag is this tag + the caster's name, so only the caster's own hits book it (team fights: allies' hits on a
 # hexed target stay theirs)
-BOOKED_AMPS = (("damage_taken_amp", ("ability_magician_animalhexarea", "damage_taken_amp"), "Rabbit Hex"),)
+BOOKED_AMPS = (("damage_taken_amp", ("ability_magician_animalhexarea", "damage_taken_amp"), "Rabbit Hex"),
+               ("damage_taken_amp", ("citadel_ability_chrono_pulse_grenade", "damage_taken_amp"), "Pulse Grenade"))
 PROFILE_SOURCES = False  # also book damage by source and 2 s slice (Fighter.dmg_src_2s; scripts/fight_length/opener_timing.py)
 # Melee rotation (assumptions; the API has no light/heavy split): share of landed melees that are heavy, and how
 # long each melee stops the gun.
