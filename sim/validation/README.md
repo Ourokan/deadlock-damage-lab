@@ -3307,3 +3307,29 @@ little value). It lowers the win check, so it ships opt-in: Mechanics.ability_le
 (the scores and the site are unchanged). Left: the rest of the spirit-build gap (about three quarters of the ability
 slope and most of the item slope) is not in cast timing; candidates not yet checked are spirit power reaching
 abilities and items differently than in real games, and real spirit builds' fights against other targets.
+
+### Small-sample heroes refit (2026-10-28)
+
+Apollo (92 players) and Mirage (45) had out-of-sample gaps from rows fitted on few phantom_sample players. The other
+heroes with under ~140 phantom_sample players and no own-sample refit: Warden 36, The Doorman 39, McGinnis 51, Vyper 78,
+Kelvin 88, Billy 94, Seven 97, Silver 100, Grey Talon 108, Calico 110, Pocket 118, plus Victor (his victor_sample was
+used for Pain Battery only). Fresh sample: scripts/fetch_hero_sample.py, every aim_sample match (badge >= 91) not in
+phantom_sample with one of them, 3,661 matches (~70 MB, not committed; a copy is in the project's shared folder as
+sim/validation/small_heroes_sample.jsonl.gz). Its halves are out of sample for main's rows, so main is the base on both.
+
+- Ability corrections (ability_corr_heroes.py --split, 3 rounds/half, all 12 heroes): held both halves for Warden
+  (sources 0.031 -> 0.012 / 0.030 -> 0.011), Billy, Seven, Silver. Not kept: Kelvin, Calico, Doorman, Vyper, Grey Talon
+  (worse one or both halves), McGinnis, Pocket and Victor (sources better both, mix worse past the slack; Victor's
+  sources 0.060 -> 0.021-0.031).
+- Melee rates (melee_audit_fit.py --split, 2 rounds, on top of those): held for Billy, Silver, Victor.
+- sim_vs_win per hero (27k + 37k, all items / within slot and tier): Seven 0.151 / 0.204 -> 0.192 / 0.243, Silver 0.197
+  / 0.283 flat, Victor 0.305 / 0.309 flat, Warden 0.322 / 0.296 -> 0.318 / 0.289, Billy 0.272 / 0.266 -> 0.267 / 0.262
+  (from his ability rows; his melee rate alone is flat but makes his audit worse, 0.029 -> 0.034, since it was fitted
+  on top of them). Warden and Billy dropped.
+
+Kept: Seven Lightning Ball length_corr 0.650 -> 0.778, Static Charge 0.445 -> 0.470, Power Surge 1.837 -> 2.060, Storm
+Cloud 0.236 -> 0.310; Silver Slam Fire 0.752 -> 0.799, Boot Kick 0.837 -> 0.762, Entangling Bola 0.978 -> 0.951, Go For
+The Throat 1.900 -> 1.920, Mauling Leap 1.737 -> 1.891, Tail Whack 1.093 -> 1.176, melee rate 0.0784 -> 0.0702; Victor
+melee rate 0.0304 -> 0.0254. On the fresh sample: Seven (723 players) mix 0.034 -> 0.019, per-source 0.028 -> 0.013;
+Silver (652) 0.027 -> 0.019, 0.024 -> 0.012; Victor (795) 0.022 -> 0.018, 0.060 -> 0.059 (Pain Aura 0.34 vs real 0.29
+and Revive 0.04 vs 0.07 left).
