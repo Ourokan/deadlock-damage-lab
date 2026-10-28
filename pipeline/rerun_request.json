@@ -1,5 +1,5 @@
 {
   "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
-  "requested_at": "2026-10-28T15:00:00Z",
-  "reason": "Rem: Tag Along windows from replays (no gun, melee or Pillow Toss while on an ally); Rem refit"
+  "requested_at": "2026-10-28T15:50:00Z",
+  "reason": "Melee Lifesteal counted as a healing item in the overall score (its low damage taken no longer reads as armour)"
 }
