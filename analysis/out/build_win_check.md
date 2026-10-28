@@ -2,9 +2,9 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-02 to 2026-10-26, 166,971 Ritualist+ matches (refreshed 2026-10-28T13:59:10Z).
+Edges: patch 09-29-2026, matches 2026-10-02 to 2026-10-26, 166,971 Ritualist+ matches (refreshed 2026-10-28T15:58:54Z).
 
-- Recommended item slots with data: 1995; mean edge +1.5 (popular builds +0.1); clearly positive 1406, clearly negative 9.
+- Recommended item slots with data: 1996; mean edge +1.5 (popular builds +0.1); clearly positive 1406, clearly negative 10.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
@@ -16,7 +16,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 
 | Item | slot/tier | builds | heroes (edge) |
 |---|---|---:|---|
-| Arcane Surge | spirit 2 | 4 | Solomon -2.4, McGinnis -1.8 |
+| Arcane Surge | spirit 2 | 5 | Lash -2.7, Solomon -2.4, McGinnis -1.8 |
 | Stalker | weapon 2 | 2 | Billy -1.7 |
 | Kinetic Dash | weapon 2 | 2 | Deadman Danny -4.4 |
 | Guardian Ward | vitality 2 | 1 | Paige -0.9 |
@@ -40,6 +40,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Spellslinger | weapon 4 | 3 | Venator +2.1, Wraith +1.9, Vindicta +1.6 |
 | Frenzy | weapon 4 | 2 | Drifter +2.2, Lady Geist +1.9 |
 | Witchmail | vitality 4 | 2 | Dynamo +3.0, Mo & Krill +2.0 |
+| Silencer | weapon 4 | 2 | Lady Geist +2.3, Haze +2.0 |
 | Lucky Shot | weapon 4 | 2 | Holliday +2.0, Haze +1.6 |
 | Warp Stone | vitality 3 | 2 | Victor +1.9, Infernus +1.5 |
 | Indomitable | vitality 4 | 2 | Lash +1.9, McGinnis +1.9 |
@@ -55,7 +56,6 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Dispel Magic | vitality 3 | 1 | Ivy +2.1 |
 | Rapid Rounds | weapon 1 | 1 | Ivy +1.6 |
 | Infuser | vitality 4 | 1 | Lady Geist +3.1 |
-| Silencer | weapon 4 | 1 | Lady Geist +2.3 |
 | Siphon Bullets | vitality 4 | 1 | Lash +1.9 |
 | Glass Cannon | weapon 4 | 1 | Paradox +1.5 |
 | Extra Stamina | vitality 1 | 1 | Rat King +3.0 |
@@ -110,7 +110,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 ### Grey Talon
 
 ### Haze
-- never picked: Rapid Recharge +2.1, Lucky Shot +1.6, Enduring Speed +1.5
+- never picked: Rapid Recharge +2.1, Silencer +2.0, Lucky Shot +1.6, Enduring Speed +1.5
 
 ### Holliday
 - never picked: Lucky Shot +2.0, Superior Cooldown +1.6
@@ -128,6 +128,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Infuser +3.1, Silencer +2.3, Sprint Boots +2.3, Frenzy +1.9, Enduring Speed +1.5
 
 ### Lash
+- 27k: Arcane Surge -2.7
 - never picked: Magic Carpet +5.7, Indomitable +1.9, Siphon Bullets +1.9, Compress Cooldown +1.7
 
 ### McGinnis
