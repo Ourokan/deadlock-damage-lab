@@ -390,13 +390,13 @@ def shares(rows, half=None):
     return {k: math.exp(v[0] / v[1]) for k, v in acc.items()}
 
 
-def imbues(item, half):
+def imbues(item, half, src="real"):
     """Per hero, each ability's damage per cast of holders of item (an imbue) over non-holders (same ability and
-    net-worth bin), real rows: the imbued ability is the one that rises."""
+    net-worth bin), real rows (or the sim's with --sim): the imbued ability is the one that rises."""
     from deadsim import game
     G = game()
     gi = len(GROUPS) + ITEMS.index(item)
-    rows = pickle.load(open(REAL_OUT, "rb"))
+    rows = pickle.load(open(REAL_OUT if src == "real" else SIM_OUT, "rb"))
     by = collections.defaultdict(list)
     for r in rows:
         if half is None or int(r[10]) % 2 == half:
@@ -405,7 +405,7 @@ def imbues(item, half):
     for (h, c, _), rs in by.items():
         hi, lo = [r for r in rs if r[15][gi]], [r for r in rs if not r[15][gi]]
         a, b = (sum(r[14] for r in x) / max(1e-9, sum(r[13] for r in x)) for x in (hi, lo))
-        if len(hi) < 5 or len(lo) < 5 or a <= 0 or b <= 0:
+        if len(hi) < 5 or len(lo) < 5 or a <= 0 or b <= 0 or min(sum(r[13] for r in x) for x in (hi, lo)) < 3:
             continue
         w = min(len(hi), len(lo))
         acc[h, c][0] += w * math.log(a / b)
@@ -455,7 +455,7 @@ if __name__ == "__main__":
     elif args[0] == "mix":
         mix_real(w)
     elif args[0] == "imbues":
-        imbues(" ".join(pos) or "Duration Extender", half)
+        imbues(" ".join(pos) or "Duration Extender", half, "sim" if "--sim" in args else "real")
     elif args[0] == "sim":
         sim(int(pos[0]) if pos else 1500, w, on)
     else:

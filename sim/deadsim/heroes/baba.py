@@ -132,5 +132,8 @@ class FeedTheBirds(AbilityImpl):
         ch = c.raw("AbilityCastDelay") + c.raw("TimeToMaxStacks", 3.5)
         c.lock_gun(ch + c.raw("AbilityPostCastDuration"))
         land = ch + (c.raw("BarrageStartDelayMin") + c.raw("BarrageStartDelayMax")) / 2
-        c.spirit_hit(c.val("BarrageMaxDamage"), delay=land)
-        c.debuff("stun", 1, c.raw("HexDuration"), delay=land)
+        # Mechanics.birds_duration: the barrage ticks over the channel, so ability duration adds ticks
+        mech = c.engine.mech
+        on = mech is not None and getattr(mech, "birds_duration", False)
+        c.spirit_hit(c.val("BarrageMaxDamage") * (1.0 + c.s.duration_pct() if on else 1.0), delay=land)
+        c.debuff("stun", 1, c.dur("HexDuration") if on else c.raw("HexDuration"), delay=land)

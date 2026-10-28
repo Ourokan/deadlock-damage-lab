@@ -44,6 +44,7 @@ EDGES = [0] + AP.NW_EDGES + [math.inf]
 MIN_ROW = 8      # fights of one side in a hero ability x bin cell
 MIN_ABIL = 100   # fights of an ability in all
 MATCH = 0.7      # casts: non-holders' spirit item souls at least this x the holders' median
+MIN_CASTS = 3    # casts: in-fight casts on each side of a cell
 
 
 def fights(args):
@@ -167,6 +168,8 @@ def casts(half):
                 lo = [r for r in lo if r[7] >= MATCH * med]
                 if len(lo) < 5:
                     continue
+                if min(sum(r[13] for r in hi), sum(r[13] for r in lo)) < MIN_CASTS:
+                    continue   # damage of casts before the fight (Graves' zombies, an ult still going) over ~0 casts
                 for name, num, den in (("dmg/cast", 14, 13), ("hits/cast", 12, 13)):
                     a = sum(r[num] for r in hi) / max(1e-9, sum(r[den] for r in hi))
                     b = sum(r[num] for r in lo) / max(1e-9, sum(r[den] for r in lo))
