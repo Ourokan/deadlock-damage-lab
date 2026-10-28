@@ -161,10 +161,10 @@ IMBUE_CLASSES = ("upgrade_magic_reach", "upgrade_magic_tempo", "upgrade_arcane_e
 IMBUE_OVERRIDE = {("hero_vampirebat", "upgrade_magic_reach"): "ability_vampirebat_batblink"}
 # Duration Extender on the ultimate (replays, scripts/cast_timing/casts_by_build.py imbues: the ability whose damage per
 # cast holders out-deal non-holders by most, the same one in both halves of the matches, 1.1x or more in each; the
-# sim's usual imbue slot is a non-ultimate one)
+# sim's usual imbue slot is a non-ultimate one). Baba's Feed The Birds and Violet's Abstract Landscape also lead, but
+# their sim impls take no duration, so the item stays on the usual slot there.
 IMBUE_OVERRIDE.update({(h, "upgrade_arcane_extension"): a for h, a in (
-    ("hero_nurse", "ability_nurse_fear"), ("hero_baba", "ability_baba_ultimate_2"),
-    ("hero_artist", "ability_artist_bamboogrove"), ("hero_necro", "ability_necro_gravestone"))})
+    ("hero_nurse", "ability_nurse_fear"), ("hero_necro", "ability_necro_gravestone"))})
 
 
 def _default_imbue_target(hero, unlocked):

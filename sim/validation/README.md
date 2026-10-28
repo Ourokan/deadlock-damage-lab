@@ -3401,9 +3401,10 @@ or below the median spirit item souls, geometric mean of the ratios (real hi/lo 
 - Duration Extender is an imbue (one ability). The sim imbued the hero's usual slot (Quicksilver's, never an ult);
   real holders' extra damage sits in the ult for Nurse (Lurking Terrors), Baba (Feed The Birds), Violet (Abstract
   Landscape) and Graves (Borrowed Decree): the top ability in both halves, 1.1x or more each. fight.IMBUE_OVERRIDE
-  now imbues Duration Extender there (once unlocked). Their ults' held / not damage per fight: real 1.15 / 1.26,
+  now imbues Duration Extender there (once unlocked) for Nurse and Graves; Baba's and Violet's ults take no duration
+  in the sim, so moving it there would only drop its effect (they keep the usual slot; the figures below had all four). Their ults' held / not damage per fight: real 1.15 / 1.26,
   sim 0.96 / 1.04 -> 1.03 / 1.13; their other abilities real 0.94 / 0.97, sim 0.96 / 1.02 -> 0.92 / 1.01 (both
-  halves closer). Baba's and Violet's ults don't take duration in the sim (no change for them).
+  halves closer).
 - sim_vs_win 27k: all 0.314 -> 0.314, within slot and tier 0.345 -> 0.346, per item 0.447 -> 0.447. Damage audit
   mix 0.0159 -> 0.0159; Lurking Terrors real / sim 1.001 -> 0.978 (no refit: within the audit's spread).
 
