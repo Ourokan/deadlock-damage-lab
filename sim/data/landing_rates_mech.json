@@ -44,28 +44,28 @@
     "landing": 0.38,
     "real_share": 0.1887,
     "sim_share": 0.2007,
-    "length_corr": 0.65
+    "length_corr": 0.778
    },
    "Static Charge": {
     "class": "citadel_ability_static_charge",
     "landing": 1.15,
     "real_share": 0.0568,
     "sim_share": 0.0604,
-    "length_corr": 0.445
+    "length_corr": 0.47
    },
    "Power Surge": {
     "class": "ability_power_surge",
     "landing": 0.56,
     "real_share": 0.1592,
     "sim_share": 0.1702,
-    "length_corr": 1.837
+    "length_corr": 2.06
    },
    "Storm Cloud": {
     "class": "citadel_ability_storm_cloud",
     "landing": 0.56,
     "real_share": 0.2828,
     "sim_share": 0.3019,
-    "length_corr": 0.236
+    "length_corr": 0.31
    }
   },
   "Vindicta": {
@@ -906,36 +906,36 @@
     "landing": 0.88,
     "real_share": 0.0518,
     "sim_share": 0.0419,
-    "length_corr": 0.752
+    "length_corr": 0.799
    },
    "Boot Kick": {
     "class": "ability_werewolf_kickflip",
     "landing": 1.05,
     "real_share": 0.0885,
     "sim_share": 0.0715,
-    "length_corr": 0.837
+    "length_corr": 0.762
    },
    "Entangling Bola": {
     "class": "ability_werewolf_netshot",
     "landing": 1.27,
     "real_share": 0.0452,
     "sim_share": 0.0365,
-    "length_corr": 0.978
+    "length_corr": 0.951
    },
    "Go For The Throat": {
     "class": "ability_werewolf_frenzy",
     "landing": 0.5,
-    "length_corr": 1.9
+    "length_corr": 1.92
    },
    "Mauling Leap": {
     "class": "ability_werewolf_maulingleap",
     "landing": 0.38,
-    "length_corr": 1.737
+    "length_corr": 1.891
    },
    "Tail Whack": {
     "class": "ability_werewolf_cripplingslash",
     "landing": 0.82,
-    "length_corr": 1.093
+    "length_corr": 1.176
    }
   },
   "Celeste": {
