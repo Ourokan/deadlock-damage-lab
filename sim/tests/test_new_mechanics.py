@@ -14,6 +14,12 @@ import deadsim.mechanics as M  # noqa: E402
 OFF = dict(use_abilities=False, use_actives=False)
 
 
+def _split_main(hero):
+    """Split Shot copies on the main target per landed gun bullet for the hero (Mechanics.split_range on)."""
+    from deadsim.accuracy import default_distance
+    return M.SPLIT_PRIMARY_HIT * M.SPLIT_REF_M / default_distance(hero)
+
+
 class TestOff(unittest.TestCase):
     def test_none_matches_earlier_model(self):
         a = Loadout("Abrams", ["Extra Health", "Rebuttal"], souls=15000, skill=Skill(accuracy=0.3, melee_rate=0.3))
@@ -156,7 +162,20 @@ class TestNearby(unittest.TestCase):
         b = Loadout("Abrams", [], souls=15000, skill=Skill(accuracy=0.0, **OFF))
         r = duel(a, b, max_time=4, mechanics=Mechanics(movement=False, parry=False))
         ratio = r.a_dmg["Split Shot"] / r.a_dmg["gun"]
-        self.assertAlmostEqual(ratio, M.SPLIT_PRIMARY_HIT, delta=0.15)
+        self.assertAlmostEqual(ratio, _split_main("Haze"), delta=0.15)
+
+    def test_split_shot_main_copies_fall_with_distance(self):
+        """Mechanics.split_range: the fan's copies on the main target scale with 1 / the holder's median distance
+        (replays: Yamato 1.10 at 8 m, Vyper 0.76 at 11, Wraith 0.59 at 16); off, everyone gets SPLIT_PRIMARY_HIT."""
+        def ratio(hero, **kw):
+            a = Loadout(hero, ["Split Shot"], souls=15000, skill=Skill(accuracy=0.5, use_abilities=False))
+            b = Loadout("Abrams", [], souls=15000, skill=Skill(accuracy=0.0, **OFF))
+            r = duel(a, b, max_time=4, mechanics=Mechanics(movement=False, parry=False, **kw))
+            return r.a_dmg["Split Shot"] / r.a_dmg["gun"]
+        self.assertAlmostEqual(_split_main("Vyper"), 0.77, delta=0.02)
+        self.assertAlmostEqual(_split_main("Vindicta"), 0.33, delta=0.02)
+        self.assertLess(ratio("Vindicta"), 0.6 * ratio("Vyper"))
+        self.assertAlmostEqual(ratio("Vindicta", split_range=False), M.SPLIT_PRIMARY_HIT, delta=0.15)
 
     def test_split_shot_waits_for_a_target_it_can_hurt(self):
         from deadsim.engine import Engine
@@ -176,7 +195,7 @@ class TestNearby(unittest.TestCase):
         a = Loadout("Haze", ["Split Shot"], souls=15000, skill=Skill(accuracy=0.5, use_abilities=False))
         b = Loadout("Abrams", [], souls=15000, skill=Skill(accuracy=0.0, **OFF))
         r = duel(a, b, max_time=4, mechanics=Mechanics(movement=False, parry=False, extra_targets=5.0))
-        main = r.a_dmg["Split Shot"] / M.SPLIT_PRIMARY_HIT
+        main = r.a_dmg["Split Shot"] / _split_main("Haze")
         self.assertLessEqual(r.a_splash["Split Shot"], main * 1.6)
 
     def test_real_nearby_interpolates_the_position_table(self):
