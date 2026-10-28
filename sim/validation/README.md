@@ -3358,3 +3358,25 @@ reaches both exactly as the tooltip formulas say, so the gap is in how often abi
 
 Left: casts and landed casts per fight by build. Spirit builds casting sooner (ability_lean, opt-in) is about a
 quarter of the ability slope; the rest isn't per-hit size, spirit power or targets.
+## Paradox's Pulse Grenade pulses (2026-10-28, opt-in)
+
+Out-of-sample audit (all heroes, 3,661 fresh Phantom+ matches: the aim_sample matches not in phantom_sample, the
+small_heroes_sample of PR #203; 40,400 players, ~18 min on 4 cores): Paradox furthest (mix 0.032, n 1,016; Ivy,
+Warden 0.030, Kelvin, Billy, Celeste 0.029). His gun 0.229 vs real 0.252, Pulse Grenade per gun 0.76x real (over),
+items 0.242 vs 0.228.
+
+Replays (scripts/mechanics/pulse_grenade.py: 3,311 throws in 70 replays, cast rows + DamageEvents): 40-50% of throws
+hit a hero (1.2-1.5 heroes per landed throw), and the main victim takes 1.73 pulses in the lane, ~2.1 later; the sim
+dealt all 5 (7 at T3) and stacked the amp 5-7 times. The game books the amp under Pulse Grenade (events on the tick
+of another of Paradox's hits on that victim: 19% of its damage, median 0.083 of the hit = ~2 stacks).
+Mechanics.pulse_hits deals and stacks pulse i x P(> i pulses) (data/pulse_hits.json) and books the amp
+(engine.BOOKED_AMPS). Before refit it moves the held-out mix 0.030 / 0.033 -> 0.024 / 0.029, but ability_corr_heroes
+--split on top of it held out worse than a plain refit on the same halves (per-source 0.027 / 0.026 vs 0.023 / 0.023,
+mix 0.032 / 0.034 vs 0.028 / 0.031; amp booked but not scaled by the landing factor 0.027 / 0.026, amp unbooked 0.025 /
+0.024): the refit lifts Pulse Grenade's correction to ~2.1 and the gun share, already under, drops. Off.
+
+Plain Paradox refit on that sample (not kept): ability corrections (Pulse 1.733 -> 1.316, Carbine 1.067 -> 0.958,
+Swap 2.461 -> 2.719) + 2 rounds of item_landing_heroes --hero Paradox held out much better (mix 0.028 -> 0.011 /
+0.031 -> 0.017; whole sample 0.032 -> 0.013, phantom_sample 0.024 -> 0.013; Mystic Reverb hits the 0.25 floor), but
+Paradox sim_vs_win (27k + 37k, 260 pairs) went 0.325 / 0.307 (all / within) -> 0.321 / 0.302; abilities only 0.323 /
+0.305, items only (mix 0.029) 0.323 / 0.306.

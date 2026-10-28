@@ -229,6 +229,17 @@ class Mechanics:
     # (lengths from its real quantiles, alternating with exponential free gaps): gun, melee and Pillow Toss locked,
     # damage taken x familiar.TAG_TAKEN (Mods "damage_taken_mult", on top of amps)
     tag_along: bool = True
+    # Paradox's Pulse Grenade pulses (2026-10-28): the sim kept the time-slowed target inside for every pulse (5, 7 at
+    # T3), so a landed throw dealt them all and stacked the damage amp 5-7 times. Real Phantom+ throws that hit a hero
+    # hit their main victim with 1.7 pulses in the lane and ~2.1 later (3,311 throws in 70 replays,
+    # scripts/mechanics/pulse_grenade.py), and the game books the amp under Pulse Grenade (19% of its damage, ~2
+    # stacks per hit). Pulse i deals and stacks x P(more than i pulses) at the fighter's net worth
+    # (data/pulse_hits.json, linear in ln net worth) and the amp on Paradox's other hits is booked under Pulse Grenade
+    # (engine.BOOKED_AMPS). Off: refit on top of it (ability_corr_heroes --split, 3,661 fresh Phantom+ matches), it
+    # held out worse than a plain Paradox refit on the same halves (per-source 0.027 / 0.026 vs 0.023 / 0.023, mix
+    # 0.032 / 0.034 vs 0.028 / 0.031), also with the booked amp left unscaled (0.027 / 0.026) or unbooked (0.025 /
+    # 0.024): the refit lifts Pulse Grenade's correction to ~2.1 and Paradox's gun share, already under, drops
+    pulse_hits: bool = False
     # melee by game phase (2026-10-27): real players melee most in the lane and less as the game goes on (the hero's
     # real melee share over the sim's, all heroes: 1.20x at 30% of the match, 0.91x at 60%, 0.74x at 90%; Calico 1.27 /
     # 1.15 / 1.03, while per hit sizes match the formula). The melee rate is fitted flat, so at the duel's net worth it
@@ -1022,6 +1033,22 @@ def tag_along_windows(f, name, horizon=60.0):
         n = lens[min(len(lens) - 1, int(r.random() * len(lens)))]
         out.append((t, n))
         t += n
+
+
+_PULSE = None
+
+
+def pulse_survival(f):
+    """Mechanics.pulse_hits: [P(the main victim takes more than i pulses)] of a landed Pulse Grenade at f's net worth
+    (data/pulse_hits.json), None with the mechanic off."""
+    global _PULSE
+    if f.e.mech is None or not getattr(f.e.mech, "pulse_hits", False):
+        return None
+    if _PULSE is None:
+        with open(os.path.join(os.path.dirname(__file__), "..", "data", "pulse_hits.json")) as fh:
+            pts = json.load(fh)["points"]
+        _PULSE = [[(math.log(nw), s[i]) for nw, s in pts] for i in range(len(pts[0][1]))]
+    return [_interp_ln(p, f.st.souls) for p in _PULSE]
 
 
 _GRAVES = None

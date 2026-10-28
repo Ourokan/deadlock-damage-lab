@@ -1,0 +1,54 @@
+{
+ "source": "3311 Pulse Grenade throws in Phantom+ replays (scripts/mechanics/pulse_grenade.py)",
+ "note": "P(the throw's main victim takes more than i pulses | it hit a hero), i = 0..6, by match fraction bin at Paradox's median net worth there (Mechanics.pulse_hits)",
+ "points": [
+  [
+   1947,
+   [
+    1.0,
+    0.4977,
+    0.1719,
+    0.0611,
+    0.0,
+    0.0,
+    0.0
+   ]
+  ],
+  [
+   9541,
+   [
+    1.0,
+    0.6039,
+    0.2922,
+    0.1201,
+    0.013,
+    0.0065,
+    0.0032
+   ]
+  ],
+  [
+   19371,
+   [
+    1.0,
+    0.5545,
+    0.2648,
+    0.1402,
+    0.0498,
+    0.0249,
+    0.0093
+   ]
+  ],
+  [
+   31385,
+   [
+    1.0,
+    0.629,
+    0.3188,
+    0.1333,
+    0.0551,
+    0.0261,
+    0.0029
+   ]
+  ]
+ ]
+}
