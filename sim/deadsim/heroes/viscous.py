@@ -12,8 +12,9 @@ Assumptions:
   melee helper: heavy melee = hero heavy_melee_damage grown by the same per-boon ratio as light melee, and the
   T3 scale (stat filter unset in the data) is applied to it by hand rather than via c.val (which would read it
   as spirit scaling). Knock-up/slow are movement-only. T2 lifesteal heals LifeStealPercentOnHit% of damage dealt.
-- Goo Ball: rolls in (ROLL_IN s), hits the target BALL_HITS times REHIT s apart (Damage + stun each; T3 +0.2 spirit
-  scaling via c.val), then Viscous exits the ball. Can't shoot while rolling; ball bullet/spirit resist
+- Goo Ball: rolls in (ROLL_IN s), hits the target (Damage + stun each; T3 +0.2 spirit scaling via c.val) once and
+  again REAL_REHIT s apart with the replays' chances REHIT_P (REAL_HITS; before: BALL_HITS times REHIT s apart), and
+  Viscous exits the ball as he did after BALL_HITS hits. Can't shoot while rolling; ball bullet/spirit resist
   applies from cast to exit.
 """
 from deadsim.abilities import AbilityImpl, register
@@ -24,6 +25,13 @@ CUBE_HP = 0.3
 ROLL_IN = 1.5
 BALL_HITS = 2
 REHIT = 2.5
+# Phantom+ replays (2026-10-28, 565 Goo Ball casts of 93 Viscous, scripts/mechanics/viscous_procs.py): a cast
+# hits each hero it reaches 1.47 times on average, 66% once, re-hits a median 2.1 s apart; the sim hit the target twice,
+# 2.5 s apart, every cast, so the items riding Goo Ball hits (Mystic Burst, Tankbuster) proc'd 2-4x per its damage
+# what real ones do. REHIT_P: the chance of each further hit after the one before (34%, 27%, 31%, 25%).
+REAL_HITS = True
+REAL_REHIT = 2.1
+REHIT_P = (0.34, 0.27, 0.31, 0.25)
 BOUNCE_PCTS = ("SecondHitDamagePercentage", "ThirdHitDamagePercentage", "FourthHitDamagePercentage")
 
 
@@ -113,8 +121,15 @@ class GooBall(AbilityImpl):
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay")
-        hits = [delay + ROLL_IN + REHIT * i for i in range(BALL_HITS)]
-        end = min(delay + c.dur("AbilityDuration"), hits[-1] + 0.5)
+        end = min(delay + c.dur("AbilityDuration"), delay + ROLL_IN + REHIT * (BALL_HITS - 1) + 0.5)
+        if REAL_HITS:
+            hits = [delay + ROLL_IN]
+            for p in REHIT_P:
+                if not c.me.acc("gooball_rehit").take(p):
+                    break
+                hits.append(hits[-1] + REAL_REHIT)
+        else:
+            hits = [delay + ROLL_IN + REHIT * i for i in range(BALL_HITS)]
         hits = [t for t in hits if t < end]
         c.lock_gun(end)
         c.buff("bullet_resist", c.raw("BulletResist") / 100, end, tag="gooball_br")

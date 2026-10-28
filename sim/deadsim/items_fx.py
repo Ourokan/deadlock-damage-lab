@@ -1100,6 +1100,14 @@ def spirit_procs(hit):
     return bool(getattr(impl, "spirit_procs", False))
 
 
+# abilities whose landing factor above 1 also multiplies the Mystic Burst / Tankbuster charge their hits release
+# (2026-10-28): such a factor stands for more real hits than the sim's cadence lands, not bigger ones, and every
+# real hit releases its own charge. Viscous' Splatter (landing x length_corr 1.33): in Phantom+ replays the Splatter
+# hits that set off Tankbuster deal a median 239 (sim 325), Tankbuster per Splatter damage 0.44 (sim 0.25), and the
+# audit read Tankbuster 1.27x / Mystic Burst 1.49x under on 221 Viscous (scripts/mechanics/viscous_procs.py).
+LANDING_PROCS = frozenset({"viscous_goo_grenade"})
+
+
 @handler("upgrade_magic_burst", "upgrade_magic_shock")
 class MysticBurst(FX):
     """Charges up over AbilityChargeUpTime and each qualifying ability hit releases what has charged, not a full proc
@@ -1135,6 +1143,8 @@ class MysticBurst(FX):
         self.charged_at = self.now
         if charge <= 0:
             return
+        if hit.ability is not None and hit.ability.ab.class_name in LANDING_PROCS and hit.landing > 1.0:
+            charge *= hit.landing
         dmg = self.v("Damage")
         if tb:   # Tankbuster: + % current health, ignores resist
             dmg += t.item_hp * self.item.p("CurrentHealthDamage") / 100

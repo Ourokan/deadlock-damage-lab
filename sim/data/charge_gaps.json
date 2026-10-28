@@ -1,0 +1,33 @@
+{
+ "source": "331 Phantom+ replays, hero-vs-hero DamageEvent (scripts/mechanics/charge_gaps.py)",
+ "note": "gaps (s) between landed casts past 30% of the match, those under 20 s as 20 quantiles; Mechanics.charge_gaps draws the wait from a cast to the next charge's",
+ "sources": {
+  "35:viscous_telepunch": {
+   "gaps": 1869,
+   "under_6s": 0.217,
+   "under_20s": 0.465,
+   "q": [
+    1.7,
+    2.16,
+    2.44,
+    2.83,
+    3.19,
+    3.7,
+    4.23,
+    4.78,
+    5.36,
+    6.06,
+    6.7,
+    7.61,
+    8.19,
+    9.03,
+    9.88,
+    11.12,
+    12.59,
+    14.28,
+    16.11,
+    18.77
+   ]
+  }
+ }
+}
