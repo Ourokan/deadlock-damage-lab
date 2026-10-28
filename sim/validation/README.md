@@ -3155,3 +3155,31 @@ Sinclair 0.73 at 4.5k ... 1.22 at 23k, 0.87 at 33k; Audience Participation 2.462
 0.0481 / 0.0393 / 0.0500; whole audit (players weighted) 0.0168 -> 0.0161, 0.0166 -> 0.0159 on main after #194 (Violet 0.025 -> 0.012, Sinclair 0.012 ->
 0.016 on 55 players). sim_vs_win 27k + 37k (Pearson): Violet within slot and tier 0.423 -> 0.426, all items 0.444 ->
 0.442; Sinclair within 0.382 -> 0.388, all items 0.360 -> 0.365.
+
+### Rem's Tag Along (2026-10-28)
+
+Which hero is furthest off out of sample: the audit on 2,400 Phantom+ matches not in phantom_sample (ids from
+aim_sample.jsonl.gz, 26,430 player-matches, ~4x the usual players per hero) ranks Rem first (mix 0.043, on 268
+players; 0.021 on phantom_sample's 57, where his corrections were fitted): sim gun 0.21 vs real 0.18, every Rem
+ability and most items 1.1-1.6x under per gun. By phase (scripts/phase_mix.py on his 325 players) the gun is over at
+every phase, most mid and late (real / sim 0.90 / 0.77 / 0.78 at 30 / 60 / 90%). His damage per gun shot matches
+(gun_calib/shot_damage.py 1.04, 6 players), and his gun timing in fights too (opener_timing mean 4.0 / 4.6 s).
+
+Cause: Tag Along. It needs an ally, so the sim never cast it. In replays Rem napping on an ally is pawn state bit 261
+(cc_time raw; on within 0.6 s of every cast's cast delay, never otherwise). scripts/mechanics/rem_tag_along.py (25
+replays with Rem, 15,631 combat seconds = within 2 s of hero damage dealt or taken): attached 4.7% / 9.1% / 10.6% /
+13.9% of combat time by match quarter, 446 attaches in fights, median 5.7 s. Free: Pillow Toss 13.0 dps, gun 6.1,
+items 4.8, Naptime 3.6, melee 1.4; attached: gun and melee 0, Pillow Toss 0.4, Naptime 4.0, items 12.1 (Cold Front,
+Decay, Scourge, Torment Pulse cast from the ally); damage taken 38.2 -> 3.2 per s.
+
+Mechanics.tag_along (on, data/tag_along.json): with fight draws Rem is on an ally for windows drawn so the share of
+the duel matches the real share at his net worth (lengths from the real quantiles, exponential free gaps, attached at
+the start with that share): gun, melee and Pillow Toss locked (a held Pillow charge goes out after), damage
+taken x familiar.TAG_TAKEN 0.084, a multiplier (Mods "damage_taken_mult") on top of any foe amps (the replays' 3.2 / 38.2; this moves Rem's survival and search results too). Heal, T3 spirit power and Lil Helpers' damage (real 1.6% of Rem's, sim 0) are left out.
+
+Split-half on his 325 players (validation/rem_sample.jsonl.gz: his matches of both samples; match id halves, 3
+corr rounds on the fit half, held-out half 4 draws): ref = main + refit, new = tag_along + refit. Per-source 0.0422
+-> 0.0408 / 0.0462 -> 0.0405, mix 0.0107 -> 0.0070 / 0.0097 -> 0.0075. Kept. Full refit on rem_sample: Pillow Toss
+length_corr 1.736 -> 1.992, Naptime 2.619 -> 2.839. Rem on rem_sample (2 draws): mix 0.037 -> 0.006, gun 0.205 ->
+0.185 (real 0.184), per-source 0.043 -> 0.038. phantom_sample audit flat 0.0159 (Rem 0.021 there). sim_vs_win Rem
+27k + 37k: all items 0.350 -> 0.360, within slot and tier 0.373 -> 0.389.
