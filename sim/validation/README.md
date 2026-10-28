@@ -3214,3 +3214,32 @@ Sahn 2.073 -> 2.250. Apollo on apollo_sample (2 draws): mix 0.039 -> 0.022, per-
 sim_vs_win Apollo 27k + 37k: all items 0.354 -> 0.362, within slot and tier 0.381 -> 0.383. The per-hero item refit
 (item_landing_heroes.py --hero Apollo) on top lowered them (0.354, 0.379): not kept. Left: items 0.16 vs real 0.18
 (Tankbuster 1.2x, Mystic Burst 1.4x under per holder).
+## Ivy's items on her own sample (2026-10-28)
+
+Out of sample (2,400 fresh Phantom+ matches) Ivy was among the heroes furthest off. On validation/ivy_sample.jsonl.gz
+(700 matches with an Ivy from aim_sample.jsonl.gz ids not in phantom_sample, 696 Ivy players, ~6x phantom_sample's)
+her mix read 0.039: items 0.30 vs real 0.26, gun 0.29 vs 0.32. Holders only, her active spirit items were well over:
+Decay real/sim 0.60 (64 holders), Alchemical Fire 0.65 (71), Arctic Blast 0.67 (41), Escalating Exposure 0.77 (68),
+while the same items on other heroes of that sample read 1.1-1.2 (Shiv Decay 1.13, Calico Arctic Blast 1.14). Her
+rows in item_landing.json "heroes" had only Capacitor, Siphon and Tesla (the rest had < 20 holders in phantom_sample),
+and the earlier 0.65x readings on 9-16 holders had been put down to noise.
+
+Where: by the spirit share of her final build, sim and real agree on gun builds' items (0.35 / 0.32 below 20% spirit)
+but not on spirit builds: above 60% spirit the sim gives items 0.25-0.27 of her damage, real 0.17-0.18 (abilities a
+little under, 0.54-0.64 vs 0.59-0.70). Other heroes there are over too, but less (items 0.21 / 0.23 vs real 0.17 /
+0.18). The replays agree that real Ivys are not odd: in the 57 fight_length replays with an Ivy her Decay / Alchemical
+Fire / Arctic Blast shares of her own damage (0.17 / 0.13 / 0.15) are those of other holders (0.18 / 0.12 / 0.13), and
+so are her casts per damage (few holders, 3-8 Ivys per item). The sim's Ivy duels put more of her damage on the items
+than real games do; a per-hero item factor is the fix the model has for that (item_landing_heroes.py).
+
+Fix: two rounds of audit + `item_landing_heroes.py --hero Ivy --write` on ivy_sample. Split-half (match id halves of
+ivy_sample, 2 rounds on the fit half, held-out half 2 draws, base = main): mix 0.0330 -> 0.0230 / 0.0430 -> 0.0350,
+per-source 0.0259 -> 0.0188 / 0.0255 -> 0.0202, holders' item log error 0.147 -> 0.096 / 0.134 -> 0.074. Kept. New
+Ivy factors: Decay 0.54, Alchemical Fire 0.44, Arctic Blast 0.65, Escalating Exposure 0.41, Toxic Bullets 0.58,
+Headhunter 0.73, Capacitor 0.81 (was 0.80), Siphon 0.33 (was 0.38), Tesla 1.0. Ivy mix on ivy_sample 0.039 -> 0.026,
+on phantom_sample (116 players) 0.028 -> 0.016. Other heroes' rows unchanged.
+sim_vs_win Ivy 27k + 37k (258 pairs): all items 0.250 -> 0.255, within slot and tier 0.248 -> 0.253, damage items
+0.178 -> 0.181.
+
+Left: the spirit-build item over-shoot is smaller but general (items 1.2x real above 60% spirit for other heroes on
+ivy_sample), and spirit Ivy's melee is under (0.023 vs real 0.053).
