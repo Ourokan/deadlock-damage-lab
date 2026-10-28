@@ -240,6 +240,14 @@ class Mechanics:
     # 0.032 / 0.034 vs 0.028 / 0.031), also with the booked amp left unscaled (0.027 / 0.026) or unbooked (0.025 /
     # 0.024): the refit lifts Pulse Grenade's correction to ~2.1 and Paradox's gun share, already under, drops
     pulse_hits: bool = False
+    # Baba's Feed The Birds and ability duration (2026-10-28): the barrage ticks over the channel (replays: ~14 hits of
+    # ~72 a cast) and real Duration Extender holders land 1.15x its hits per cast at the same damage per hit
+    # (scripts/cast_timing/casts_by_build.py imbues, 259 replays; both halves), so with this on the barrage scales with
+    # the ult's ability duration, the hex lasts its duration, and Duration Extender goes on the ult
+    # (fight.IMBUE_OVERRIDE_MECH). Off: refit on top of it (ability_corr_heroes --split) held out a bit worse than a
+    # plain Baba refit on the same halves (per-source 0.054 / 0.059 vs 0.052 / 0.056, mix 0.016 / 0.041 vs
+    # 0.015 / 0.041).
+    birds_duration: bool = False
     # melee by game phase (2026-10-27): real players melee most in the lane and less as the game goes on (the hero's
     # real melee share over the sim's, all heroes: 1.20x at 30% of the match, 0.91x at 60%, 0.74x at 90%; Calico 1.27 /
     # 1.15 / 1.03, while per hit sizes match the formula). The melee rate is fitted flat, so at the duel's net worth it

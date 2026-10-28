@@ -3432,3 +3432,26 @@ non-holders in the same hero ability x bin), which the sim already prices per hi
 - Duration Extender after #205 (same check): real 1.217 (1.516 / 1.335), sim 0.924: still the largest holder gap, on the
   imbued ability (heroes other than Nurse and Graves keep the usual slot in the sim). Lead, small samples per hero.
 
+
+## Duration Extender damage per cast (2026-10-28, opt-in Mechanics.birds_duration OFF, no refit)
+
+Follow-up of the last line above. The 1.22x real holders' damage per cast was a counting artifact: casts_by_build.py's
+rows count damage in the fight's span but only casts inside it, so a cell whose holders cast before the fight (Graves'
+zombies, McGinnis' Heavy Barrage, Haze's Bullet Dance, Billy's Blasted still going) divided real damage by ~0 casts
+(cell ratios up to 1e8); those few cells carried the whole lift. range_hits.py casts and casts_by_build.py imbues now
+skip cells with fewer than 3 in-fight casts on either side.
+
+- Fixed check, holders / matched non-holders, damage per cast real / sim: Duration Extender 0.974 / 0.923 (even
+  0.904 / 0.897, odd 1.004 / 0.965), hits per cast 1.007 / 0.956. No pooled duration gap.
+- Per ability (casts_by_build.py imbues, and the sim's with --sim): the one gap in both halves is Baba's Feed The Birds,
+  real 1.19 (1.08 / 1.33) vs sim 0.91. Real Birds is a barrage of ~14 hits of ~72 per cast that ticks over the channel:
+  holders land 1.15x the hits per cast at the same damage per hit; the sim books one 450 hit with no duration term.
+  Nurse's Lurking Terrors (on the ult since #205) reads 1.42 (1.69 / 1.06) vs sim 1.17 (1.27 / 1.01), close per half;
+  Violet's Abstract Landscape 0.95 / 4.18 on 50 holders is noise.
+- Mechanics.birds_duration: the barrage x (1 + the ult's duration bonus), the hex lasts its duration, Duration Extender
+  goes on Baba's ult (fight.IMBUE_OVERRIDE_MECH). Sim Birds lift 0.91 -> 1.01 (0.98 / 1.04). Kept OFF: Baba refit on
+  top of it (ability_corr_heroes.py --split) held out slightly worse than a plain Baba refit on the same halves:
+  per-source 0.0537 / 0.0585 vs 0.0523 / 0.0561, mix 0.016 / 0.041 vs 0.015 / 0.041. Not refit, no rerun.
+- Same fix changes range_hits.py's range numbers: Greater Expansion real 1.078 vs sim 0.969 (halves 1.083 / 0.951 and
+  1.072 / 0.967), Mystic Expansion 1.034 vs 0.967 (1.040 / 0.952, 1.019 / 0.977). Range holders' damage per cast is
+  ~1.1x under in the sim in both halves, so the "no range term" call above rested on the artifact: lead.
