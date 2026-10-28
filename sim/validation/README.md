@@ -3214,6 +3214,7 @@ Sahn 2.073 -> 2.250. Apollo on apollo_sample (2 draws): mix 0.039 -> 0.022, per-
 sim_vs_win Apollo 27k + 37k: all items 0.354 -> 0.362, within slot and tier 0.381 -> 0.383. The per-hero item refit
 (item_landing_heroes.py --hero Apollo) on top lowered them (0.354, 0.379): not kept. Left: items 0.16 vs real 0.18
 (Tankbuster 1.2x, Mystic Burst 1.4x under per holder).
+
 ## Ivy's items on her own sample (2026-10-28)
 
 Out of sample (2,400 fresh Phantom+ matches) Ivy was among the heroes furthest off. On validation/ivy_sample.jsonl.gz
@@ -3237,7 +3238,8 @@ ivy_sample, 2 rounds on the fit half, held-out half 2 draws, base = main): mix 0
 per-source 0.0259 -> 0.0188 / 0.0255 -> 0.0202, holders' item log error 0.147 -> 0.096 / 0.134 -> 0.074. Kept. New
 Ivy factors: Decay 0.54, Alchemical Fire 0.44, Arctic Blast 0.65, Escalating Exposure 0.41, Toxic Bullets 0.58,
 Headhunter 0.73, Capacitor 0.81 (was 0.80), Siphon 0.33 (was 0.38), Tesla 1.0. Ivy mix on ivy_sample 0.039 -> 0.026,
-on phantom_sample (116 players) 0.028 -> 0.016. Other heroes' rows unchanged.
+on phantom_sample (116 players) 0.028 -> 0.016. Other heroes' rows unchanged. A later per-hero refit on phantom_sample
+alone would put Ivy back on 116 players: refit her with `--hero Ivy` on ivy_sample.
 sim_vs_win Ivy 27k + 37k (258 pairs): all items 0.250 -> 0.255, within slot and tier 0.248 -> 0.253, damage items
 0.178 -> 0.181.
 
