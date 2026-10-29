@@ -3434,3 +3434,73 @@ or below the median spirit item souls, geometric mean of the ratios (real hi/lo 
 
 Left: range items add hits per cast in real (bigger zones, longer inside) but only shorten the walk-in in the sim;
 Duration Extender on other heroes is noisy at 259 replays; map pickups.
+
+## Range items and hits per cast (2026-10-28, no model change)
+
+Follow-up of the last line above. scripts/team/range_hits.py (260 replays; casts_by_build.py's real and sim rows). The
+1.18 vs 1.07 holders' damage per cast was mostly the holders' spirit investment (1.66x the spirit item souls of
+non-holders in the same hero ability x bin), which the sim already prices per hit.
+
+- area: hits on heroes other than the fight's main target, per main-target damage, over the gun's in the same fights,
+  holders / non-holders (even / odd match ids). Greater Expansion: area abilities 1.113 (1.166 / 1.091), single-target
+  1.015 (1.109 / 0.948); Mystic Expansion (one imbued ability, diluted): area 1.036 (1.046 / 1.024), single 1.029.
+  Range does widen area abilities' reach to other heroes a little.
+- casts: holders vs non-holders with at least 0.7x the holders' median spirit item souls, damage per cast real / sim:
+  Greater Expansion 0.937 / 0.957 = 0.98 (0.91 / 0.97), hits per cast 0.916 / 0.987; Mystic Expansion 1.012 / 0.968 =
+  1.05 (1.16 / 1.07). The wider reach does not show up as more damage per cast: Greater Expansion holders (+30% range
+  and radius on every ability) deal no more per cast than the sim already gives them (fewer main-target hits offset
+  the other heroes). Mystic Expansion's lift sits on one ability per hero, the one real players imbue (casts_by_build.py
+  imbues "Mystic Expansion": Nurse Lurking Terrors, Pocket Affliction, Danny Strix Salvo, Mina Nox Nostra in both
+  halves); with Greater Expansion flat it reads as which ability they imbue (the one they lean on), not as range.
+- So no range term: a hits-per-cast lift from range would move Greater Expansion holders further from real. Not refit.
+- Duration Extender after #205 (same check): real 1.217 (1.516 / 1.335), sim 0.924: still the largest holder gap, on the
+  imbued ability (heroes other than Nurse and Graves keep the usual slot in the sim). Lead, small samples per hero.
+
+
+## Duration Extender damage per cast (2026-10-28, opt-in Mechanics.birds_duration OFF, no refit)
+
+Follow-up of the last line above. The 1.22x real holders' damage per cast was a counting artifact: casts_by_build.py's
+rows count damage in the fight's span but only casts inside it, so a cell whose holders cast before the fight (Graves'
+zombies, McGinnis' Heavy Barrage, Haze's Bullet Dance, Billy's Blasted still going) divided real damage by ~0 casts
+(cell ratios up to 1e8); those few cells carried the whole lift. range_hits.py casts and casts_by_build.py imbues now
+skip cells with fewer than 3 in-fight casts on either side.
+
+- Fixed check, holders / matched non-holders, damage per cast real / sim: Duration Extender 0.974 / 0.923 (even
+  0.904 / 0.897, odd 1.004 / 0.965), hits per cast 1.007 / 0.956. No pooled duration gap.
+- Per ability (casts_by_build.py imbues, and the sim's with --sim): the one gap in both halves is Baba's Feed The Birds,
+  real 1.19 (1.08 / 1.33) vs sim 0.91. Real Birds is a barrage of ~14 hits of ~72 per cast that ticks over the channel:
+  holders land 1.15x the hits per cast at the same damage per hit; the sim books one 450 hit with no duration term.
+  Nurse's Lurking Terrors (on the ult since #205) reads 1.42 (1.69 / 1.06) vs sim 1.17 (1.27 / 1.01), close per half;
+  Violet's Abstract Landscape 0.95 / 4.18 on 50 holders is noise.
+- Mechanics.birds_duration: the barrage x (1 + the ult's duration bonus), the hex lasts its duration, Duration Extender
+  goes on Baba's ult (fight.IMBUE_OVERRIDE_MECH). Sim Birds lift 0.91 -> 1.01 (0.98 / 1.04). Kept OFF: Baba refit on
+  top of it (ability_corr_heroes.py --split) held out slightly worse than a plain Baba refit on the same halves:
+  per-source 0.0537 / 0.0585 vs 0.0523 / 0.0561, mix 0.016 / 0.041 vs 0.015 / 0.041. Not refit, no rerun.
+- Same fix changes range_hits.py's range numbers: Greater Expansion real 1.078 vs sim 0.969 (halves 1.083 / 0.951 and
+  1.072 / 0.967), Mystic Expansion 1.034 vs 0.967 (1.040 / 0.952, 1.019 / 0.977). Range holders' damage per cast is
+  ~1.1x under in the sim in both halves, so the "no range term" call above rested on the artifact: lead.
+
+
+## Range items reach more heroes per cast (2026-10-28, Mechanics.range_reach 0.5, 16 heroes refit)
+
+Follow-up of the last line above: "Range items and hits per cast" rested on the zero-cast cells. With them skipped
+(scripts/team/range_hits.py casts, 259 replays vs 8,000 audit players), holders / spirit-matched non-holders, damage
+per cast real / sim: Greater Expansion 1.078 / 0.960 (even 1.083 / 0.944, odd 1.072 / 0.971), Mystic Expansion
+1.034 / 0.965 (1.040 / 0.956, 1.019 / 0.977). Range items are under in the sim in both halves.
+
+- Where (range_hits.py split: each ability's hits per cast on the fight's main target vs other heroes): Greater
+  Expansion other-hero damage 1.153 (1.083 / 1.157), main target 1.019 (1.040 / 1.000). The wider radius and range
+  catch more heroes; the main target barely moves. Mystic Expansion's lift sits on the ability players imbue
+  (casts_by_build.py imbues: Nurse Lurking Terrors 1.41, Pocket Affliction 1.45, Victor Aura of Suffering 1.48 vs sim
+  ~1.0).
+- Model: Mechanics.range_reach: an ability's damage x (1 + its range bonus) ** 0.5 (the bonus from items and imbues,
+  AbilityState.range_pct; Greater Expansion 30% -> x1.14, Mystic Expansion 20% on its ability -> x1.10). Sim holders
+  then read Greater Expansion 1.09 (exponent 0.4: 1.06, 0.8: 1.17), Mystic Expansion 0.99. One damage term rather than
+  extra targets: a duel has one enemy and the landing factors already carry the pooled other heroes.
+- Refit (ability_corr_heroes.py) of the 16 heroes whose audited ability share moved most (Paige, Solomon, Doorman,
+  Celeste, Rem, Danny, Dynamo, Ivy, Lash, Viscous, Pocket, Rat King, Victor, Kelvin, Sinclair, Apollo). Split-half
+  against the same --split refit on the old code, player-weighted held-out: mix 0.0191 -> 0.0186 (half 0),
+  0.0207 -> 0.0202 (half 1), per-source 0.0329 -> 0.0327 / 0.0329 -> 0.0330. Victor's Shocking Reanimation kept its
+  correction (the refit ran it 3.5 -> 7.5 with the gap still open: a missing mechanic, not range).
+- Whole sample: audit mix 0.0159 -> 0.0153, per-source 0.0194 -> 0.0170. sim_vs_win 27k: all 0.314 -> 0.318, within
+  slot and tier 0.345 -> 0.353, per item 0.447 -> 0.453, damage items 0.200 -> 0.203.

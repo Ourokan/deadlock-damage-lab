@@ -14,8 +14,9 @@ from deadsim.engine import Engine  # noqa: E402
 from deadsim.fight import make_fighter  # noqa: E402
 from deadsim.mechanics import Mechanics  # noqa: E402
 
-FIXED = Mechanics(range_drift=False)
-SPREAD = Mechanics(range_drift=True)
+# range_reach off: these check the walk-in alone (TestRangeReach checks the reach term)
+FIXED = Mechanics(range_drift=False, range_reach=0.0)
+SPREAD = Mechanics(range_drift=True, range_reach=0.0)
 
 
 def rake_damage(items, distance=16.3, mech=FIXED):
@@ -73,6 +74,20 @@ class TestStalkerReach(unittest.TestCase):
     def test_fixed_distance_is_in_or_out(self):
         self.assertGreater(stalker_damage(6.0, FIXED), 0.0)
         self.assertEqual(stalker_damage(26.0, FIXED), 0.0)
+
+
+class TestRangeReach(unittest.TestCase):
+    """Mechanics.range_reach: an ability's damage x (1 + its range bonus) ** range_reach (real range item holders
+    reach more heroes per cast; scripts/team/range_hits.py)."""
+
+    def test_default_on(self):
+        self.assertGreater(Mechanics().range_reach, 0.0)
+
+    def test_greater_expansion_lifts_rake(self):
+        on = Mechanics(range_drift=False, range_reach=0.5)
+        base, more = rake_damage([], mech=on), rake_damage(["Greater Expansion"], mech=on)
+        walk = rake_damage(["Greater Expansion"]) / rake_damage([])
+        self.assertGreater(more / base, walk * 1.1)   # x 1.3 ** 0.5 on every Rake hit, above the walk-in alone
 
 
 class TestRangeSpread(unittest.TestCase):
