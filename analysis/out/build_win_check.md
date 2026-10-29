@@ -2,9 +2,9 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-02 to 2026-10-27, 174,508 Ritualist+ matches (refreshed 2026-10-29T02:19:56Z).
+Edges: patch 09-29-2026, matches 2026-10-02 to 2026-10-27, 174,508 Ritualist+ matches (refreshed 2026-10-29T17:41:37Z).
 
-- Recommended item slots with data: 1997; mean edge +1.6 (popular builds +0.1); clearly positive 1404, clearly negative 11.
+- Recommended item slots with data: 1994; mean edge +1.6 (popular builds +0.1); clearly positive 1404, clearly negative 11.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
@@ -65,7 +65,6 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Phantom Strike | vitality 4 | 1 | Silver +2.5 |
 | Spirit Rend | weapon 3 | 1 | Solomon +1.8 |
 | High-Velocity Rounds | weapon 1 | 1 | The Doorman +1.9 |
-| Scourge | spirit 4 | 1 | Victor +2.4 |
 | Extended Magazine | weapon 1 | 1 | Vindicta +2.1 |
 | Boundless Spirit | spirit 4 | 1 | Wraith +1.7 |
 
@@ -75,7 +74,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Colossus +1.7
 
 ### Apollo
-- 50k: Spirit Snatch -1.1
+- 37k: Spirit Snatch -1.1
 - never picked: Ethereal Shift +1.7
 
 ### Baba
@@ -188,7 +187,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Magic Carpet +2.6, Spellslinger +2.0, Sprint Boots +1.8, Fleetfoot +1.6
 
 ### Victor
-- never picked: Sprint Boots +3.1, Frenzy +2.9, Scourge +2.4, Warp Stone +1.9, Refresher +1.7
+- never picked: Sprint Boots +3.1, Frenzy +2.9, Warp Stone +1.9, Refresher +1.7
 
 ### Vindicta
 - never picked: Duration Extender +2.2, Extended Magazine +2.1, Fleetfoot +1.8, Spellslinger +1.6
