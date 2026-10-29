@@ -1036,6 +1036,30 @@ data: Phantom+ replays (89 matches, 31 with a Baba, 868 fights) and 151 Baba pla
 - Rerun order after a big patch: item_landing.py, damage_audit.py, item_landing_heroes.py --write (it starts from the
   audit's residuals, so run it once per audit, not twice in a row on the same audit).
 
+## Kelvin, Billy, Celeste: item factors on the fresh sample (2026-10-28)
+
+- Out of sample (the 3,661-match `small_heroes_sample.jsonl.gz`, 40,400 players, not in `phantom_sample`), after
+  Paradox the heroes furthest off were Ivy, Warden, Kelvin, Billy and Celeste at ~0.03. Kelvin's gap is items (0.19
+  vs real 0.16; holders Mystic Reverb 0.59, Spirit Burn 0.78, Tankbuster 0.79, Decay 0.82), fitted before on 40-88
+  Kelvins in `phantom_sample` (only Escalating Exposure and Torment Pulse had rows).
+- Not a general spirit-build over-shoot: holders' item real/sim by final-build spirit share (12,000 players) is
+  0.94-0.96 in every bin up to 80% spirit (0.875 above), and per item flat except Mystic Reverb (0.83 -> 0.66 as
+  spirit share grows; known, its current-health bonus stays for sim_vs_win, "Target health for Tankbuster and
+  Decay").
+- Not Arctic Beam's gun lock either (`scripts/mechanics/kelvin_beam.py`, 1,463 beams): half the beams stop hitting
+  before 4 s, but Kelvin keeps channelling (0.05 gun hits/s for the rest of the 5 s vs 0.19 after it).
+- Per-hero item rows (`item_landing_heroes.py --hero`, 2 rounds) on the fresh sample. Split-half (fit even match
+  ids, audit odd, and back): Kelvin mix 0.029 -> 0.021 both halves, his item rows' error 0.16 -> 0.04; Billy item
+  rows 0.087 -> 0.033 / 0.084 -> 0.034, Celeste 0.080 -> 0.050 / 0.058 -> 0.026 (mixes flat, -0.001); Ivy's rows
+  worse both halves and Warden's one half: left. Kept Kelvin (without the Mystic Reverb row: same mix, and cutting it
+  lowered his sim_vs_win most), Billy, Celeste.
+- sim_vs_win (blend off, 27k + 37k, within slot and tier): Kelvin 0.432 -> 0.426, Billy 0.276 -> 0.274, Celeste
+  0.453 -> 0.450: the cut items include ones with positive real win edges (Spirit Burn, Mystic Burst) that the sim
+  overrates in damage. Shipped on Tyler's call (damage accuracy first; the real win blend carries the edge).
+- Paradox on the same call (the refit from "Pulse Grenade hits", held split-half there): ability corrections
+  (`ability_corr_heroes.py`, 3 rounds) then item rows (2 rounds) on the fresh sample, mix 0.032 -> 0.013; sim_vs_win
+  Paradox within 0.307 -> 0.302.
+
 ## Known gaps (not yet modeled)
 
 - **Melee movement:** melee is in fights and its rate follows the build (see "Melee" above). Melee Charge's lunge
