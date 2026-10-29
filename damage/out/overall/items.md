@@ -49,21 +49,21 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Spirit Resilience | 18 | 0 | 1 |
 | Bullet Resist Shredder | 14 | 1 | 9 |
 | Stalker | 14 | 1 | 7 |
-| Mystic Vulnerability | 11 | 6 | 6 |
+| Mystic Vulnerability | 12 | 6 | 6 |
 | Melee Charge | 12 | 3 | 3 |
+| Extra Charge | 8 | 8 | 9 |
 | Improved Spirit | 1 | 19 | 17 |
 | Arcane Surge | 10 | 0 | 8 |
-| Extra Charge | 7 | 8 | 9 |
 | Titanic Magazine | 6 | 15 | 5 |
 | Mystic Expansion | 4 | 2 | 20 |
 | Toxic Bullets | 2 | 24 | 2 |
 | Alchemical Fire | 5 | 17 | 0 |
 | Close Quarters | 6 | 4 | 9 |
 | Decay | 1 | 28 | 0 |
-| Torment Pulse | 8 | 1 | 5 |
 | Healing Nova | 10 | 0 | 0 |
 | Spirit Shredder | 8 | 3 | 2 |
 | Cold Front | 2 | 19 | 4 |
+| Torment Pulse | 7 | 1 | 5 |
 | Mystic Burst | 1 | 7 | 17 |
 | Spirit Snatch | 3 | 9 | 6 |
 | Restorative Shot | 5 | 0 | 8 |
@@ -71,8 +71,8 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
 | weapon | 6709 | 7964 | 4509 |
-| spirit | 3236 | 6800 | 5618 |
-| vitality | 5164 | 436 | 4855 |
+| spirit | 3255 | 6800 | 5618 |
+| vitality | 5145 | 436 | 4855 |
 
 ## 27000 net worth
 
