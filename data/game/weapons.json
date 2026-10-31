@@ -351,7 +351,7 @@
   "name": "Case Closed",
   "weapon_info": {
    "can_zoom": true,
-   "bullet_damage": 3.6,
+   "bullet_damage": 3.78,
    "bullet_gravity_scale": 0.8,
    "bullet_inherit_shooter_velocity_scale": 0.0,
    "bullet_lifetime": 2.0,
@@ -420,10 +420,10 @@
    "shots_per_second_with_reload": 1.434834595456357,
    "bullets_per_second": 14.285714285714285,
    "bullets_per_second_with_reload": 12.913511359107213,
-   "damage_per_second": 51.42857142857142,
-   "damage_per_second_with_reload": 46.488640892785966,
-   "damage_per_shot": 32.4,
-   "damage_per_magazine": 291.59999999999997
+   "damage_per_second": 53.99999999999999,
+   "damage_per_second_with_reload": 48.81307293742526,
+   "damage_per_shot": 34.019999999999996,
+   "damage_per_magazine": 306.17999999999995
   },
   "properties": {
    "AbilityUnitTargetLimit": {
@@ -2371,7 +2371,7 @@
   "name": "Crimson Grasp",
   "weapon_info": {
    "can_zoom": true,
-   "bullet_damage": 19.5,
+   "bullet_damage": 20.1,
    "bullet_gravity_scale": 0.0,
    "bullet_inherit_shooter_velocity_scale": 0.0,
    "bullet_lifetime": 0.054,
@@ -2435,10 +2435,10 @@
    "shots_per_second_with_reload": 1.5026296018031555,
    "bullets_per_second": 6.802721088435375,
    "bullets_per_second_with_reload": 4.507888805409467,
-   "damage_per_second": 132.65306122448982,
-   "damage_per_second_with_reload": 87.90383170548459,
-   "damage_per_shot": 58.5,
-   "damage_per_magazine": 702.0
+   "damage_per_second": 136.73469387755105,
+   "damage_per_second_with_reload": 90.60856498873028,
+   "damage_per_shot": 60.300000000000004,
+   "damage_per_magazine": 723.6
   },
   "properties": {
    "AbilityUnitTargetLimit": {
@@ -2654,7 +2654,7 @@
   "name": "Chapter's End",
   "weapon_info": {
    "can_zoom": true,
-   "bullet_damage": 35.0,
+   "bullet_damage": 32.0,
    "bullet_gravity_scale": 0.0,
    "bullet_inherit_shooter_velocity_scale": 0.0,
    "bullet_lifetime": 1.5,
@@ -2723,10 +2723,10 @@
    "shots_per_second_with_reload": 1.2669683257918551,
    "bullets_per_second": 1.6666666666666667,
    "bullets_per_second_with_reload": 1.2669683257918551,
-   "damage_per_second": 58.333333333333336,
-   "damage_per_second_with_reload": 44.34389140271493,
-   "damage_per_shot": 35.0,
-   "damage_per_magazine": 490.0
+   "damage_per_second": 53.333333333333336,
+   "damage_per_second_with_reload": 40.542986425339365,
+   "damage_per_shot": 32.0,
+   "damage_per_magazine": 448.0
   },
   "properties": {
    "AbilityUnitTargetLimit": {
@@ -3608,7 +3608,7 @@
   "name": "Sovereign's Decree",
   "weapon_info": {
    "can_zoom": true,
-   "bullet_damage": 6.0,
+   "bullet_damage": 5.7,
    "bullet_gravity_scale": 0.0,
    "bullet_inherit_shooter_velocity_scale": 0.0,
    "bullet_lifetime": 2.0,
@@ -3675,10 +3675,10 @@
    "shots_per_second_with_reload": 2.364532019704433,
    "bullets_per_second": 6.666666666666666,
    "bullets_per_second_with_reload": 4.729064039408866,
-   "damage_per_second": 40.0,
-   "damage_per_second_with_reload": 28.374384236453196,
-   "damage_per_shot": 12.0,
-   "damage_per_magazine": 288.0
+   "damage_per_second": 38.0,
+   "damage_per_second_with_reload": 26.955665024630534,
+   "damage_per_shot": 11.4,
+   "damage_per_magazine": 273.6
   },
   "properties": {
    "AbilityUnitTargetLimit": {
@@ -3694,7 +3694,7 @@
   "name": "Alekhine's Gun",
   "weapon_info": {
    "can_zoom": false,
-   "bullet_damage": 30.0,
+   "bullet_damage": 25.0,
    "bullet_gravity_scale": 0.0,
    "bullet_inherit_shooter_velocity_scale": 0.0,
    "bullet_lifetime": 2.0,
@@ -3762,10 +3762,10 @@
    "shots_per_second_with_reload": 1.0289389067524117,
    "bullets_per_second": 1.7391304347826089,
    "bullets_per_second_with_reload": 1.0289389067524117,
-   "damage_per_second": 52.173913043478265,
-   "damage_per_second_with_reload": 30.86816720257235,
-   "damage_per_shot": 30.0,
-   "damage_per_magazine": 240.0
+   "damage_per_second": 43.47826086956522,
+   "damage_per_second_with_reload": 25.72347266881029,
+   "damage_per_shot": 25.0,
+   "damage_per_magazine": 200.0
   },
   "properties": {
    "AbilityUnitTargetLimit": {
@@ -3914,7 +3914,7 @@
   "name": "Code Blue",
   "weapon_info": {
    "can_zoom": true,
-   "bullet_damage": 14.858,
+   "bullet_damage": 13.372,
    "bullet_gravity_scale": 0.0,
    "bullet_inherit_shooter_velocity_scale": 0.0,
    "bullet_lifetime": 2.0,
@@ -3982,10 +3982,10 @@
    "shots_per_second_with_reload": 1.7377567140600316,
    "bullets_per_second": 2.6315789473684212,
    "bullets_per_second_with_reload": 1.7377567140600316,
-   "damage_per_second": 39.1,
-   "damage_per_second_with_reload": 25.81958925750395,
-   "damage_per_shot": 14.858,
-   "damage_per_magazine": 163.43800000000002
+   "damage_per_second": 35.189473684210526,
+   "damage_per_second_with_reload": 23.237282780410744,
+   "damage_per_shot": 13.372,
+   "damage_per_magazine": 147.09199999999998
   },
   "properties": {
    "AbilityUnitTargetLimit": {

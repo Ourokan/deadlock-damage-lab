@@ -3,7 +3,7 @@
   "id": 1,
   "name": "Infernus",
   "class_name": "hero_inferno",
-  "hero_type": "marksman",
+  "hero_type": "mystic",
   "gun_tag": "Rapid Fire",
   "complexity": 1,
   "starting_stats": {
@@ -4213,7 +4213,7 @@
   "id": 11,
   "name": "Dynamo",
   "class_name": "hero_dynamo",
-  "hero_type": "mystic",
+  "hero_type": null,
   "gun_tag": "Pistol",
   "complexity": 2,
   "starting_stats": {
@@ -4738,7 +4738,7 @@
   "id": 12,
   "name": "Kelvin",
   "class_name": "hero_kelvin",
-  "hero_type": "brawler",
+  "hero_type": null,
   "gun_tag": "Heavy Hitter",
   "complexity": 2,
   "starting_stats": {
@@ -7368,7 +7368,7 @@
   "id": 17,
   "name": "Grey Talon",
   "class_name": "hero_orion",
-  "hero_type": "marksman",
+  "hero_type": "mystic",
   "gun_tag": "Bow",
   "complexity": 2,
   "starting_stats": {
@@ -7932,7 +7932,7 @@
    "ooc_health_regen": 0.0
   },
   "level_up_per_boon": {
-   "MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL": 0.0847,
+   "MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL": 0.0881,
    "MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL_ALT_FIRE": 0.0,
    "MODIFIER_VALUE_BASE_HEALTH_FROM_LEVEL": 65.0,
    "MODIFIER_VALUE_BASE_MELEE_DAMAGE_FROM_LEVEL": 1.58,
@@ -7941,7 +7941,7 @@
    "MODIFIER_VALUE_BULLET_ARMOR_DAMAGE_RESIST": 0.0,
    "MODIFIER_VALUE_TECH_RESIST": 0.0,
    "MODIFIER_VALUE_TECH_DAMAGE_MULTIPLIER": 0.0,
-   "MODIFIER_VALUE_TECH_POWER": 1.1,
+   "MODIFIER_VALUE_TECH_POWER": 0.6,
    "MODIFIER_VALUE_OUT_OF_COMBAT_HEALTH_REGEN": 0.0
   },
   "level_info": {
@@ -8458,7 +8458,7 @@
   },
   "level_up_per_boon": {
    "MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL": 0.165,
-   "MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL_ALT_FIRE": 0.24,
+   "MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL_ALT_FIRE": 0.228,
    "MODIFIER_VALUE_BASE_HEALTH_FROM_LEVEL": 46.0,
    "MODIFIER_VALUE_BASE_MELEE_DAMAGE_FROM_LEVEL": 1.58,
    "MODIFIER_VALUE_BONUS_ATTACK_RANGE": 0.0,
@@ -8952,7 +8952,7 @@
   "id": 20,
   "name": "Ivy",
   "class_name": "hero_tengu",
-  "hero_type": "marksman",
+  "hero_type": null,
   "gun_tag": "Rapid Fire",
   "complexity": 3,
   "starting_stats": {
@@ -11067,7 +11067,7 @@
   "id": 35,
   "name": "Viscous",
   "class_name": "hero_viscous",
-  "hero_type": "mystic",
+  "hero_type": "brawler",
   "gun_tag": "Projectile",
   "complexity": 2,
   "starting_stats": {
@@ -11098,7 +11098,7 @@
   },
   "level_up_per_boon": {
    "MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL": 0.36,
-   "MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL_ALT_FIRE": 1.44,
+   "MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL_ALT_FIRE": 1.512,
    "MODIFIER_VALUE_BASE_HEALTH_FROM_LEVEL": 45.0,
    "MODIFIER_VALUE_BASE_MELEE_DAMAGE_FROM_LEVEL": 1.58,
    "MODIFIER_VALUE_BONUS_ATTACK_RANGE": 0.0,
@@ -13703,7 +13703,7 @@
   "id": 63,
   "name": "Mina",
   "class_name": "hero_vampirebat",
-  "hero_type": "marksman",
+  "hero_type": "mystic",
   "gun_tag": "Pistol",
   "complexity": 3,
   "starting_stats": {
@@ -15818,7 +15818,7 @@
   "id": 67,
   "name": "Paige",
   "class_name": "hero_bookworm",
-  "hero_type": "mystic",
+  "hero_type": null,
   "gun_tag": "Projectile",
   "complexity": 1,
   "starting_stats": {
@@ -15848,7 +15848,7 @@
    "ooc_health_regen": 0.0
   },
   "level_up_per_boon": {
-   "MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL": 0.52,
+   "MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL": 0.61,
    "MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL_ALT_FIRE": 0.0,
    "MODIFIER_VALUE_BASE_HEALTH_FROM_LEVEL": 31.0,
    "MODIFIER_VALUE_BASE_MELEE_DAMAGE_FROM_LEVEL": 1.2,
@@ -17402,7 +17402,7 @@
   "gun_tag": "Pistol",
   "complexity": 2,
   "starting_stats": {
-   "max_move_speed": 7.0,
+   "max_move_speed": 6.7,
    "sprint_speed": 2.2,
    "crouch_speed": 4.75,
    "move_acceleration": 4.0,
@@ -17428,7 +17428,7 @@
    "ooc_health_regen": 0.0
   },
   "level_up_per_boon": {
-   "MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL": 0.054,
+   "MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL": 0.052,
    "MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL_ALT_FIRE": 0.0,
    "MODIFIER_VALUE_BASE_HEALTH_FROM_LEVEL": 35.0,
    "MODIFIER_VALUE_BASE_MELEE_DAMAGE_FROM_LEVEL": 1.58,
@@ -18973,7 +18973,7 @@
   "id": 79,
   "name": "Rem",
   "class_name": "hero_familiar",
-  "hero_type": "mystic",
+  "hero_type": null,
   "gun_tag": null,
   "complexity": 3,
   "starting_stats": {
@@ -19514,7 +19514,7 @@
    "weapon_power_scale": 1,
    "proc_build_up_rate_scale": 1,
    "stamina": 2,
-   "base_health_regen": 2.5,
+   "base_health_regen": 3.0,
    "stamina_regen_per_second": 0.222222,
    "ability_resource_max": 0,
    "ability_resource_regen_per_second": 0,
@@ -20578,7 +20578,7 @@
    "ooc_health_regen": 0.0
   },
   "level_up_per_boon": {
-   "MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL": 0.18,
+   "MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL": 0.144,
    "MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL_ALT_FIRE": 0.0,
    "MODIFIER_VALUE_BASE_HEALTH_FROM_LEVEL": 50.0,
    "MODIFIER_VALUE_BASE_MELEE_DAMAGE_FROM_LEVEL": 1.58,
@@ -22128,7 +22128,7 @@
   "id": 87,
   "name": "Nurse Harrow",
   "class_name": "hero_nurse",
-  "hero_type": "marksman",
+  "hero_type": null,
   "gun_tag": "Projectile",
   "complexity": 1,
   "starting_stats": {
@@ -23127,7 +23127,7 @@
   "scaling_stats": {
    "ETechArmorDamageReduction": {
     "scaling_stat": "ETechPower",
-    "scale": 0.1
+    "scale": 0.07
    }
   },
   "item_slot_info": {

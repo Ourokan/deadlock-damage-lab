@@ -11,7 +11,7 @@
   "description": {
    "desc": "Spew an incendiary mixture, dealing spirit damage, applying slow, and coating targets in napalm.",
    "quip": "Spew napalm that amplifies your damage",
-   "t2_desc": "Napalm Effect: +15% Lifesteal",
+   "t2_desc": "Napalm Effect: +20% Lifesteal",
    "t3_desc": "Napalm Effect: +17% Damage Taken and -33% Healing"
   },
   "properties": {
@@ -133,7 +133,7 @@
     "AbilityCharges": 1.0
    },
    {
-    "LifestealPercentHero": 15.0
+    "LifestealPercentHero": 20.0
    },
    {
     "IncomingDamagePercentFromCaster": 17.0,
@@ -385,7 +385,7 @@
    "desc": "Become a living bomb, dealing spirit damage and applying stun to all nearby enemies after a delay.Once cast, Concussive Combustion cannot be interrupted.",
    "quip": "Stun all nearby enemies after a short delay",
    "t2_desc": "-65.0s Cooldown and +100.0% Explosion Lifesteal",
-   "t3_desc": "+0.9s Stun Duration and +10m Radius"
+   "t3_desc": "+0.9s Stun Duration and +10m RadiusIncreased Spirit Scaling"
   },
   "properties": {
    "AbilityCooldown": {
@@ -447,7 +447,8 @@
    },
    {
     "StunDuration": 0.9,
-    "Radius": 10.0
+    "Radius": 10.0,
+    "Damage": 0.4
    }
   ],
   "weapon_info": null
@@ -575,7 +576,7 @@
    "desc": "Apply a charge to a target enemy hero. After a short duration, the static charge stuns and damages enemies within the radius.",
    "quip": "Apply a delayed area stun to an enemy hero",
    "t2_desc": "+7m Radius +5m Cast range",
-   "t3_desc": "+0.9s Stun Duration +160 Damage"
+   "t3_desc": "+1.1s Stun Duration +160 Damage"
   },
   "properties": {
    "AbilityCooldown": {
@@ -658,7 +659,7 @@
     "AbilityCastRange": 5.0
    },
    {
-    "StunDuration": 0.9,
+    "StunDuration": 1.1,
     "Damage": 160.0
    }
   ],
@@ -1399,7 +1400,7 @@
      "class_name": "scale_function_tech_damage",
      "subclass_name": "Damage_scale_function",
      "specific_stat_scale_type": "ETechPower",
-     "stat_scale": 1.22
+     "stat_scale": 1.35
     }
    },
    "Radius": {
@@ -1789,7 +1790,7 @@
   "description": {
    "desc": "Drain health from nearby enemies, dealing spirit damage over time and healing for a portion of the damage dealt.",
    "quip": "Drain health from nearby enemies",
-   "t3_desc": "+2m Radius and +18.0 DPS with improved Spirit scaling"
+   "t3_desc": "+2m Radius and +22.0 DPS with improved Spirit scaling"
   },
   "properties": {
    "AbilityCooldown": {
@@ -2280,7 +2281,7 @@
     "value": 0.5
    },
    "HeartHeal": {
-    "value": 60.0,
+    "value": 45.0,
     "label": "Heal",
     "scale": {
      "class_name": "scale_function_healing_spirit_scale",
@@ -2330,7 +2331,7 @@
   },
   "properties": {
    "AbilityCooldown": {
-    "value": 46.0,
+    "value": 50.0,
     "label": "Cooldown",
     "postfix": "s",
     "scale": {
@@ -2354,7 +2355,7 @@
     "value": 1.0
    },
    "AbilityCastDelay": {
-    "value": 0.75,
+    "value": 1.0,
     "label": "Cast Delay",
     "postfix": "s"
    },
@@ -2671,7 +2672,7 @@
      "class_name": "scale_function_single_stat",
      "subclass_name": "TurretBaseHealth_scale_function",
      "specific_stat_scale_type": "ELevelUpBoons",
-     "stat_scale": 9.0
+     "stat_scale": 10.0
     }
    },
    "TurretAttackRange": {
@@ -2748,7 +2749,7 @@
     ]
    },
    "NonHeroDamagePercentOutgoing": {
-    "value": 50.0
+    "value": 65.0
    },
    "BossDamagePercentOutgoing": {
     "value": 30.0
@@ -3579,7 +3580,7 @@
   },
   "properties": {
    "AbilityCooldown": {
-    "value": 110.0,
+    "value": 95.0,
     "label": "Cooldown",
     "postfix": "s",
     "scale": {
@@ -4508,11 +4509,12 @@
   "description": {
    "desc": "Target yourself or a Hero to freeze the air and create an impenetrable dome around them. While in the dome, allies gain rapid regeneration and enemies are slowed. Objectives become Invulnerable and Frozen under Frozen Shelter",
    "quip": "Create an impenetrable healing dome",
-   "t3_desc": "Purges non-ult debuffs for you and your allies. +65 Health Regen and increased Spirit Scaling"
+   "t2_desc": "+1.5s DurationApplies -20% Fire Rate",
+   "t3_desc": "Purges non-ult debuffs for you and your allies. +75 Health Regen and increased Spirit Scaling"
   },
   "properties": {
    "AbilityCooldown": {
-    "value": 185.0,
+    "value": 190.0,
     "label": "Cooldown",
     "postfix": "s",
     "scale": {
@@ -4592,10 +4594,11 @@
   },
   "upgrades": [
    {
-    "AbilityCooldown": -20.0
+    "AbilityCooldown": -30.0
    },
    {
-    "AbilityDuration": 1.5
+    "AbilityDuration": 1.5,
+    "FireRateSlow": 20.0
    },
    {
     "BonusHealthRegen": 1.0,
@@ -6134,7 +6137,7 @@
    "desc": "Dash forward before slashing all enemies in a circle, dealing melee damage. If the ability hits at least one hero, heal a small amount of health.",
    "quip": "Dash forward and slash enemies",
    "t2_desc": "Heroes killed within 3s grant +200 souls",
-   "t3_desc": "+60 Damage & On Hero Hit: 50% Cooldown Refund"
+   "t3_desc": "+90 Damage & On Hero Hit: 50% Cooldown Refund"
   },
   "properties": {
    "AbilityCooldown": {
@@ -6240,7 +6243,7 @@
    },
    {
     "CooldownRefundPercent": 50.0,
-    "ImpactDamage": 60.0
+    "ImpactDamage": 90.0
    }
   ],
   "weapon_info": null
@@ -6258,7 +6261,7 @@
    "desc": "Turn to shadows and possess Ava. You gain bonus move speed that increases over time, and become hidden on the minimap. Taking damage from an enemy hero resets your bonus move speed and puts Ava on a brief cooldown.",
    "quip": "Take control of Ava",
    "t2_desc": "+15 Health Regen & +40% Max Move Speed",
-   "t3_desc": "Gain Damage Amp over time, up to 18%. Lingers for 6s"
+   "t3_desc": "Gain Damage Amp over time, up to 18%. Lingers for 8s"
   },
   "properties": {
    "AbilityCooldown": {
@@ -6321,7 +6324,7 @@
    },
    {
     "OutgoingDamagePercent": 18.0,
-    "DamageAmpDuration": 6.0,
+    "DamageAmpDuration": 8.0,
     "DamageAmpBuildDuration": 10.0
    }
   ],
@@ -6438,8 +6441,8 @@
   "description": {
    "desc": "Charge up a powerful shot that pierces through enemies. Hold Ability 1 or to hold the shot.",
    "quip": "Charge up a long range shot",
-   "t2_desc": "+54.0 Damage",
-   "t3_desc": "Improved damage scaling and -3s Charge Delay"
+   "t2_desc": "+54.0 Damage and -2s Charge Delay",
+   "t3_desc": "Improved damage scaling Ricochets once off walls, floors, and ceilings"
   },
   "properties": {
    "AbilityCooldown": {
@@ -6526,10 +6529,11 @@
     "AbilityCharges": 1.0
    },
    {
-    "Damage": 54.0
+    "Damage": 54.0,
+    "AbilityCooldownBetweenCharge": -2.0
    },
    {
-    "AbilityCooldownBetweenCharge": -3.0,
+    "WallRicochet": 1.0,
     "Damage": 1.0
    }
   ],
@@ -6909,13 +6913,13 @@
     }
    },
    "Damage": {
-    "value": 50.0,
+    "value": 45.0,
     "label": "Damage",
     "scale": {
      "class_name": "scale_function_tech_damage",
      "subclass_name": "Damage_scale_function",
      "specific_stat_scale_type": "ETechPower",
-     "stat_scale": 0.75
+     "stat_scale": 0.675
     }
    },
    "DamageHealMultNonHero": {
@@ -6944,7 +6948,7 @@
   },
   "upgrades": [
    {
-    "Damage": 35.0
+    "Damage": 30.0
    },
    {
     "AbilityCooldown": -5.0,
@@ -6969,7 +6973,7 @@
   "description": {
    "desc": "Burrow underground, moving faster, and gaining spirit and bullet armor. Damage from enemy heroes will reduce the speed bonus. When you jump out, deal spirit damage, slow, and knockup.",
    "quip": "Travel underground, emerging with spin damage",
-   "t1_desc": "+50.0 Spin DPS",
+   "t1_desc": "+45.0 Spin DPS",
    "t2_desc": "+4s Burrow time and +2m radius",
    "t3_desc": "-20.0 Cooldown and +4m/s Move Speed"
   },
@@ -7006,13 +7010,13 @@
     }
    },
    "DPS": {
-    "value": 75.0,
+    "value": 65.0,
     "label": "Damage Per Second",
     "scale": {
      "class_name": "scale_function_tech_damage",
      "subclass_name": "DPS_scale_function",
      "specific_stat_scale_type": "ETechPower",
-     "stat_scale": 1.488
+     "stat_scale": 1.339
     }
    },
    "Radius": {
@@ -7091,7 +7095,7 @@
   },
   "upgrades": [
    {
-    "DPS": 50.0
+    "DPS": 45.0
    },
    {
     "AbilityChannelTime": 4.0,
@@ -7116,7 +7120,7 @@
   "description": {
    "desc": "Spray sand that disarms enemies in front of you and deals damage.",
    "quip": "Disarm enemies in front of you",
-   "t1_desc": "+50 Damage and +5m Range",
+   "t1_desc": "+45 Damage and +5m Range",
    "t2_desc": "Slow targets by -24% and reduces dash distances by -26%",
    "t3_desc": "+1.5s Duration and -25.0 Cooldown"
   },
@@ -7177,13 +7181,13 @@
     "value": 20.0
    },
    "Damage": {
-    "value": 40.0,
+    "value": 35.0,
     "label": "Damage"
    }
   },
   "upgrades": [
    {
-    "Damage": 50.0,
+    "Damage": 45.0,
     "AbilityCastRange": 5.0
    },
    {
@@ -7211,7 +7215,7 @@
    "quip": "Hold the enemy hero in place and pummel them",
    "t1_desc": "+100% lifesteal",
    "t2_desc": "-30.0s Cooldown and +50.0% Bullet Resist",
-   "t3_desc": "+0.7s Duration and +40.0 Damage Per Second and increased scaling"
+   "t3_desc": "+0.7s Duration and +35.0 Damage Per Second and increased scaling"
   },
   "properties": {
    "AbilityCooldown": {
@@ -7252,13 +7256,13 @@
     }
    },
    "DPS": {
-    "value": 40.0,
+    "value": 35.0,
     "label": "Damage Per Second",
     "scale": {
      "class_name": "scale_function_tech_damage",
      "subclass_name": "DPS_scale_function",
      "specific_stat_scale_type": "ETechPower",
-     "stat_scale": 0.6
+     "stat_scale": 0.54
     }
    },
    "BonusHealthOnKill": {
@@ -7283,7 +7287,7 @@
    },
    {
     "AbilityChannelTime": 0.7,
-    "DPS": 0.4
+    "DPS": 0.36
    }
   ],
   "weapon_info": null
@@ -7371,14 +7375,14 @@
     }
    },
    "FullRageCurrentHealthDamagePct": {
-    "value": 3.5,
+    "value": 4.0,
     "label": "Current Health Damage",
     "postfix": "%",
     "scale": {
      "class_name": "scale_function_tech_damage",
      "subclass_name": "FullRageCurrentHealthDamagePct_scale_function",
      "specific_stat_scale_type": "ETechPower",
-     "stat_scale": 0.01
+     "stat_scale": 0.015
     }
    }
   },
@@ -7390,7 +7394,8 @@
     "AbilityCharges": 2.0
    },
    {
-    "BleedDPSPerStack": 0.07
+    "BleedDPSPerStack": 0.07,
+    "FullRageCurrentHealthDamagePct": 0.01
    }
   ],
   "weapon_info": null
@@ -7599,7 +7604,7 @@
    "t1_desc": "+6 m Range+2 m/s in Full Rage.",
    "t2_desc": "+16% Full Rage Bonus Damage-25s Cooldown",
    "t3_desc": "+10% Enemy Health Threshold",
-   "active": "Active: Leap forward, dealing spirit damage to the first enemy hero. If they are below the kill threshold, execute them instead.Finishing an enemy with Killing Blow lets you recast for 16s",
+   "active": "Active: Leap forward, dealing spirit damage to the first enemy hero. If they are below the kill threshold, execute them instead.Finishing an enemy with Killing Blow lets you recast for 12s",
    "passive": "Passive: Damaging enemies fills you with rage. While at full rage, Shiv gains increased damage and unlocks special properties on his other abilities."
   },
   "properties": {
@@ -7696,7 +7701,7 @@
     "value": 90.0
    },
    "RecastWindow": {
-    "value": 16.0,
+    "value": 12.0,
     "label": "Recast Window",
     "postfix": "s",
     "scale": {
@@ -8293,7 +8298,7 @@
     }
    },
    "WeaponPowerDebuff": {
-    "value": -25.0,
+    "value": -30.0,
     "label": "Weapon Damage",
     "postfix": "%",
     "provided_property_type": "MODIFIER_VALUE_WEAPON_DAMAGE_INCREASE",
@@ -8393,7 +8398,7 @@
     "value": 1.0
    },
    "MoveSpeedBonusPct": {
-    "value": 15.0,
+    "value": 20.0,
     "label": "Move Speed bonus",
     "postfix": "%"
    },
@@ -8540,7 +8545,7 @@
   "description": {
    "desc": "After charging for 2s, release pulses that damage enemies and heal you based on the damage done. While channeling Last Stand you have greatly increased bullet and spirit resist.Immune to fear while Last Stand is active.",
    "quip": "Emit pulses that steal health from enemies",
-   "t2_desc": "+40.5 DPS-30.0s Cooldown",
+   "t2_desc": "+50.0 DPS-40.0s Cooldown",
    "t3_desc": "+4s DurationUnstoppable and +30% Resists while channeling"
   },
   "properties": {
@@ -8659,8 +8664,8 @@
     "Radius": 4.0
    },
    {
-    "PulseDPS": 40.5,
-    "AbilityCooldown": -30.0
+    "PulseDPS": 50.0,
+    "AbilityCooldown": -40.0
    },
    {
     "AbilityDuration": 4.0,
@@ -8740,7 +8745,7 @@
      "class_name": "scale_function_tech_damage",
      "subclass_name": "FullChargeDamage_scale_function",
      "specific_stat_scale_type": "ETechPower",
-     "stat_scale": 1.85
+     "stat_scale": 1.96
     }
    },
    "SlashRadius": {
@@ -8776,7 +8781,7 @@
     "AbilityCooldown": -4.0
    },
    {
-    "FullChargeDamage": 0.5,
+    "FullChargeDamage": 0.53,
     "SlashLength": 8.0
    }
   ],
@@ -8795,7 +8800,7 @@
    "desc": "Throw a grappling hook to reel yourself towards an enemy, dealingmelee damage and slowing the target when you arrive.",
    "quip": "Fly towards an enemy target",
    "t2_desc": "Gain +35 Spirit Power for 6s",
-   "t3_desc": "Alt-Cast to Grapple allies+15m Cast RangeGains 1 extra charge"
+   "t3_desc": "Alt-Cast to Grapple allies+8m Cast RangeGains 1 extra charge"
   },
   "properties": {
    "AbilityCooldown": {
@@ -8809,8 +8814,8 @@
     }
    },
    "AbilityCastRange": {
-    "value": 26.0,
-    "raw": "26m",
+    "value": 23.0,
+    "raw": "23m",
     "label": "Cast Range",
     "postfix": "m",
     "scale": {
@@ -8854,7 +8859,7 @@
     "BuffDuration": 6.0
    },
    {
-    "AbilityCastRange": 15.0,
+    "AbilityCastRange": 8.0,
     "CanGrappleAllyHeroes": 1.0,
     "AbilityCharges": 2.0,
     "AbilityCooldownBetweenCharge": 5.0
@@ -8978,12 +8983,12 @@
   "description": {
    "desc": "Become infused with Yamato's shadow soul. After an initial invincible transformation your abilities are refreshed and are 60% faster. You gain immunity to negative status effects and have greatly increased bullet and spirit resist.When you get a hero kill, you heal and the duration is extended.",
    "quip": "Become invincible and more powerful",
-   "t2_desc": "+4m Move Speed and -20 Cooldown",
+   "t2_desc": "+4m Move Speed and -30 Cooldown",
    "t3_desc": "+3.0s Duration+30% Bullet Resist+30% Spirit Resist"
   },
   "properties": {
    "AbilityCooldown": {
-    "value": 150.0,
+    "value": 160.0,
     "label": "Cooldown",
     "postfix": "s",
     "scale": {
@@ -9078,7 +9083,7 @@
    },
    {
     "BonusMoveSpeed": 4.0,
-    "AbilityCooldown": -20.0
+    "AbilityCooldown": -30.0
    },
    {
     "AbilityDuration": 3.0,
@@ -9212,7 +9217,7 @@
    "desc": "Pull yourself through the air toward a target. Using Grapple also resets your limit of air jumps and dashes.",
    "quip": "Use your whip to pull yourself to an enemy",
    "t2_desc": "+20m Cast Range and gain +7.0 Weapon Damage for 6s",
-   "t3_desc": "+1 ChargesOnCast : +1 Stamina and +60% Air Control"
+   "t3_desc": "+1 ChargesOnCast : +1 Stamina and +60% Air Control+4m Jump Velocity"
   },
   "properties": {
    "AbilityCooldown": {
@@ -9287,7 +9292,8 @@
    {
     "AbilityCharges": 1.0,
     "RestoreStaminaOnUse": 1.0,
-    "AirControlPercent": 60.0
+    "AirControlPercent": 60.0,
+    "JumpVelocity": 4.0
    }
   ],
   "weapon_info": null
@@ -9572,7 +9578,7 @@
   "description": {
    "desc": "Throw a ball of goo that deals damage and leaves puddles of goo behind that apply movement slow to enemies in the radius.",
    "quip": "Damage enemies and make a mess",
-   "t1_desc": "+36.0 Damage and +1.5m Radius",
+   "t1_desc": "+45.0 Damage and +1.5m Radius",
    "t3_desc": "+1 Bounce and improved Spirit Scaling"
   },
   "properties": {
@@ -9660,7 +9666,7 @@
   },
   "upgrades": [
    {
-    "Damage": 36.0,
+    "Damage": 45.0,
     "Radius": 1.5
    },
    {
@@ -10920,10 +10926,10 @@
   "ability_type": "ultimate",
   "boss_damage_scale": 1.0,
   "description": {
-   "desc": "Target a location on the minimap. After a brief wait, teleport to that location. Taking damage during the wait period causes the teleport to be interrupted.",
+   "desc": "Target a location on the minimap. After a brief wait, teleport to that location. Taking damage or being Stunned, Immobilized, put to Sleep or Movement Silenced during the wait period causes the teleport to be interrupted.After teleporting, gain a Barrier.",
    "quip": "Teleport to an ally or enemy hero",
-   "t1_desc": "+3m Move Speed and +20% Fire Rate for 12s",
-   "t2_desc": "400 Barrier that scales with Spirit"
+   "t1_desc": "+3m Move Speed and +20% Fire Rate",
+   "t3_desc": "Cannot be interrupted by damageBarrier gains Spirit Scaling"
   },
   "properties": {
    "AbilityCooldown": {
@@ -10941,12 +10947,12 @@
     "value": 1.0
    },
    "TeleportCompletedTime": {
-    "value": 2.0,
+    "value": 3.0,
     "label": "Wait Time",
     "postfix": "s"
    },
    "InterruptCooldown": {
-    "value": 4.0,
+    "value": 5.0,
     "label": "Interrupt Cooldown",
     "postfix": "s"
    },
@@ -10968,19 +10974,40 @@
     "usage_flags": [
      "ConditionallyApplied"
     ]
+   },
+   "MovementSpeedBonusDuration": {
+    "value": 12.0,
+    "label": "Buff Duration",
+    "postfix": "s",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "BonusDuration_scale_function",
+     "specific_stat_scale_type": "ETechDuration"
+    }
+   },
+   "CombatBarrier": {
+    "value": 400.0,
+    "label": "Barrier",
+    "provided_property_type": "MODIFIER_VALUE_BARRIER_HEALTH",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "barrier_scale_function",
+     "specific_stat_scale_type": "ETechPower",
+     "stat_scale": 0.0
+    }
    }
   },
   "upgrades": [
    {
     "BonusMoveSpeed": 3.0,
-    "BonusFireRate": 20.0,
-    "MovementSpeedBonusDuration": 12.0
+    "BonusFireRate": 20.0
    },
    {
-    "CombatBarrier": 0.6
+    "AbilityCooldown": -65.0
    },
    {
-    "AbilityCooldown": -90.0
+    "UninterruptibleByDamage": 1.0,
+    "CombatBarrier": 0.8
    }
   ],
   "weapon_info": null
@@ -12576,7 +12603,7 @@
     "StaminaToRestore": 2.0
    },
    {
-    "AmpDamagePercent": 11.0
+    "AmpDamagePercent": 12.0
    }
   ],
   "weapon_info": null
@@ -12592,7 +12619,7 @@
   "boss_damage_scale": 1.0,
   "description": {
    "desc": "Surround nearby enemy heroes in darkness, severely limiting their vision of other units. Affected enemies are briefly revealed to you and are considered isolated for the duration.You gain bonus sprint speed.",
-   "t3_desc": "+2.5s Duration and +1 Max Target."
+   "t3_desc": "+2.75s Duration and +1 Max Target."
   },
   "properties": {
    "AbilityCooldown": {
@@ -12712,7 +12739,7 @@
     "AbilityCooldown": -40.0
    },
    {
-    "AbilityDuration": 2.5,
+    "AbilityDuration": 2.75,
     "MaxTargets": 1.0
    }
   ],
@@ -13194,13 +13221,13 @@
     "label": "Total Stakes"
    },
    "BonusDamage": {
-    "value": 115.0,
+    "value": 95.0,
     "label": "Bonus Damage",
     "scale": {
      "class_name": "scale_function_multi_stats",
      "subclass_name": "bonusdamagesf",
      "specific_stat_scale_type": "ELevelUpBoons",
-     "stat_scale": 3.0,
+     "stat_scale": 3.6,
      "scaling_stats": [
       "ELevelUpBoons",
       "EWeaponDamageScale",
@@ -13444,7 +13471,7 @@
    "desc": "Unleash pain, dealing spirit damage over time to both enemies and yourself. The damage continues to increase the longer the ability is channeled, up to a maximum amount.",
    "t1_desc": "Enemies receive 20% Move and Dash Slow",
    "t2_desc": "+6 Min DPS and +34.0 Max DPS",
-   "t3_desc": "+1m RadiusEnemies take +15% Damage"
+   "t3_desc": "+1m RadiusEnemies take +16% Damage"
   },
   "properties": {
    "AbilityCooldown": {
@@ -13523,7 +13550,7 @@
     "MaxDPS": 34.0
    },
    {
-    "IncomingDamagePercent": 15.0,
+    "IncomingDamagePercent": 16.0,
     "Radius": 1.0
    }
   ],
@@ -14520,8 +14547,8 @@
   "boss_damage_scale": 1.0,
   "description": {
    "desc": "Send out a Luggage Cart that deals spirit damage and pulls enemy heroes along its path. Can be alt cast with to target friendly heroes instead.",
-   "t2_desc": "+25m Cast Range+75 Damage on wall impact",
-   "t3_desc": "-15s Cooldown and 1.25s stun on wall impact"
+   "t2_desc": "+25m Cast Range+90 Damage on wall impact",
+   "t3_desc": "-18s Cooldown and 1.25s stun on wall impact"
   },
   "properties": {
    "AbilityCooldown": {
@@ -14583,7 +14610,7 @@
    },
    {
     "StunDuration": 1.25,
-    "AbilityCooldown": -15.0
+    "AbilityCooldown": -18.0
    }
   ],
   "weapon_info": null
@@ -14980,8 +15007,8 @@
     "AbilityDuration": 0.4
    },
    {
-    "MaxHealthBuffPct": 10.0,
-    "MaxHealthBuffDuration": 16.0,
+    "MaxHealthBuffPct": 15.0,
+    "MaxHealthBuffDuration": 20.0,
     "AbilityCooldown": -13.0
    }
   ],
@@ -15005,7 +15032,7 @@
   },
   "properties": {
    "AbilityCooldown": {
-    "value": 27.0,
+    "value": 25.0,
     "label": "Cooldown",
     "postfix": "s",
     "scale": {
@@ -15552,6 +15579,10 @@
     "label": "Wall Height",
     "postfix": "m"
    },
+   "GrabHeight": {
+    "value": 1.75,
+    "raw": "1.75m"
+   },
    "Damage": {
     "value": 90.0,
     "label": "Damage",
@@ -15577,7 +15608,7 @@
     "value": 1.1
    },
    "ZombieWallDeployTime": {
-    "value": 0.6
+    "value": 0.8
    },
    "TetherDuration": {
     "value": 1.0,
@@ -15707,8 +15738,8 @@
   "boss_damage_scale": 1.0,
   "description": {
    "t1_desc": "+25% Ghoul Speed-15s Cooldown",
-   "t2_desc": "+10s Duration-0.3s Time To Spawn",
-   "t3_desc": "On Death: Deal +5% Current Health as Damage"
+   "t2_desc": "+10s Duration",
+   "t3_desc": "On Death: Deal +5% Current Health as Damage-0.3s Time To Spawn"
   },
   "properties": {
    "AbilityCooldown": {
@@ -15948,11 +15979,11 @@
     "MoveSpeedPercent": 25.0
    },
    {
-    "AbilityDuration": 10.0,
-    "SummonFrequency": -0.3
+    "AbilityDuration": 10.0
    },
    {
-    "CurrentHealthDamagePercentage": 5.0
+    "CurrentHealthDamagePercentage": 5.0,
+    "SummonFrequency": -0.3
    }
   ],
   "weapon_info": null
@@ -16077,8 +16108,8 @@
   "ability_type": "signature",
   "boss_damage_scale": 1.0,
   "description": {
-   "desc": "Prepare to deflect the next incoming attack. On a successful deflection, briefly become invulnerable and target an enemy hero to dash towards them, stunning them and reducing their Melee Resist.Press Ability 2 to select a target.Does not trigger against trooper or neutral damage.",
-   "t2_desc": "-25% Melee Resist and +0.4s Stun Duration",
+   "desc": "Prepare to deflect the next incoming attack. On a successful deflection, briefly become invulnerable and target an enemy hero to dash towards them, immobilizing them, preventing them from parrying, and reducing their Melee Resist.Press Ability 2 to select a target.Does not trigger against trooper or neutral damage.",
+   "t2_desc": "-25% Melee Resist and +0.6s Immobilize Duration",
    "t3_desc": "Gain 75% Bullet, Spirit &amp; Melee Lifesteal against the Riposte target for 13s"
   },
   "properties": {
@@ -16202,8 +16233,8 @@
     }
    },
    "StunDuration": {
-    "value": 0.8,
-    "label": "Stun Duration",
+    "value": 1.5,
+    "label": "Immobilize Duration",
     "postfix": "s",
     "scale": {
      "class_name": "scale_function_single_stat",
@@ -16252,7 +16283,7 @@
    },
    {
     "MeleeResistReduction": -25.0,
-    "StunDuration": 0.4
+    "StunDuration": 0.6
    },
    {
     "TargetLifesteal": 75.0,
@@ -18648,7 +18679,7 @@
     }
    },
    "Damage": {
-    "value": 140.0,
+    "value": 125.0,
     "label": "Damage",
     "scale": {
      "class_name": "scale_function_tech_damage",
@@ -18749,7 +18780,7 @@
     "value": 1.0
    },
    "DamagePerShrapnel": {
-    "value": 70.0,
+    "value": 60.0,
     "label": "Detonation Damage",
     "scale": {
      "class_name": "scale_function_ability_weapon_damage",
@@ -18800,6 +18831,7 @@
     "raw": "8m",
     "label": "Detonation Radius",
     "postfix": "m",
+    "street_brawl_value": "6m",
     "scale": {
      "class_name": "scale_function_tech_range",
      "subclass_name": "sphere_radius_sf"
@@ -18833,7 +18865,7 @@
     "AbilityCooldown": -8.0
    },
    {
-    "DamagePerShrapnel": 70.0
+    "DamagePerShrapnel": 60.0
    },
    {
     "Detonations": 1.0,
@@ -19085,7 +19117,7 @@
   },
   "properties": {
    "AbilityCooldown": {
-    "value": 160.0,
+    "value": 180.0,
     "label": "Cooldown",
     "postfix": "s",
     "scale": {
@@ -19127,6 +19159,7 @@
     "raw": "20m",
     "label": "Radius",
     "postfix": "m",
+    "street_brawl_value": "16m",
     "scale": {
      "class_name": "scale_function_tech_range",
      "subclass_name": "aura_radius_sf"
@@ -19136,6 +19169,7 @@
     "value": 12.0,
     "label": "Flag Duration",
     "postfix": "s",
+    "street_brawl_value": "9",
     "scale": {
      "class_name": "scale_function_tech_duration",
      "subclass_name": "flag_duration_sf"
@@ -19198,9 +19232,9 @@
   "boss_damage_scale": 0.5,
   "description": {
    "desc": "Create a bishop that remains in place indefinitely. Move ( ): Moves the bishop, applying a fading slow and dealing spirit damage to enemies it passes through. After a delay, activates diagonal squares that deal additional spirit damage when stepped on.Re-activate to recall all bishops, ending the ability.",
-   "t1_desc": "+5m Move Distance+15% Fading Slow",
+   "t1_desc": "+5m Move Distance+25% Fading Slow",
    "t2_desc": "+1 Max PiecesCan Recast within 8s",
-   "t3_desc": "+1 Square RangeSquares reduce Spirit Resist by -2.5%, stacking 10 times"
+   "t3_desc": "+1 Square RangeImpacts reduce Spirit Resist by -5%, stacking 5 times"
   },
   "properties": {
    "AbilityCooldown": {
@@ -19331,7 +19365,7 @@
     "scale": {
      "class_name": "scale_function_tech_damage",
      "subclass_name": "tiledamagesf",
-     "stat_scale": 0.64
+     "stat_scale": 0.85
     }
    },
    "AuraHeight": {
@@ -19351,8 +19385,8 @@
     "value": 0.25
    },
    "GroundAuraHeight": {
-    "value": 4.0,
-    "raw": "4m"
+    "value": 1.0,
+    "raw": "1m"
    },
    "DashSlowPercent": {
     "value": -25.0,
@@ -19378,15 +19412,15 @@
   "upgrades": [
    {
     "MoveDistance": 5.0,
-    "FadingSlowPercent": 15.0
+    "FadingSlowPercent": 25.0
    },
    {
     "MaxPieces": 1.0,
     "RecastWindow": 8.0
    },
    {
-    "TechArmorDamageReductionPerStack": -2.5,
-    "MaxStacks": 10.0,
+    "TechArmorDamageReductionPerStack": -5.0,
+    "MaxStacks": 5.0,
     "StackDuration": 10.0,
     "TileSteps": 1.0
    }
@@ -19536,7 +19570,7 @@
    "desc": "Release a pair of rooks that travel forward, dealing spirit damage and applying immobilize. If the rooks hit a wall, they reflect back in the opposite direction. Re-Activate: Split the rooks perpendicularly.",
    "t1_desc": "On Hit: Reduce 25% Fire Rate for 5s",
    "t2_desc": "On Hit: 5% Current Health as Damage",
-   "t3_desc": "+1 Wall Reflects-12s Cooldown+0.5s Immobilize Duration"
+   "t3_desc": "+1 Wall Reflects-10s Cooldown+0.5s Immobilize Duration"
   },
   "properties": {
    "AbilityCooldown": {
@@ -19582,7 +19616,7 @@
     "scale": {
      "class_name": "scale_function_tech_damage",
      "subclass_name": "damagesf",
-     "stat_scale": 1.3
+     "stat_scale": 0.9
     }
    },
    "TossBackSpeed": {
@@ -19663,7 +19697,7 @@
     "CurrentHealthPercent": 5.0
    },
    {
-    "AbilityCooldown": -12.0,
+    "AbilityCooldown": -10.0,
     "ImmobilizeDuration": 0.5,
     "MaxReflectCount": 1.0
    }
@@ -19680,12 +19714,12 @@
   "ability_type": "ultimate",
   "boss_damage_scale": 1.0,
   "description": {
-   "t2_desc": "+15% Slow. Checkmates heroes below 200 health, executing them.",
+   "t2_desc": "+15% Slow+150 Checkmate Threshold",
    "t3_desc": "+2 Moves+1 Square Range"
   },
   "properties": {
    "AbilityCooldown": {
-    "value": 210.0,
+    "value": 240.0,
     "label": "Cooldown",
     "postfix": "s",
     "scale": {
@@ -19747,7 +19781,7 @@
     "scale": {
      "class_name": "scale_function_tech_damage",
      "subclass_name": "damagesf",
-     "stat_scale": 1.4
+     "stat_scale": 1.6
     }
    },
    "MaxPieces": {
@@ -19791,6 +19825,16 @@
    "LiftHeight": {
     "value": 4.0,
     "raw": "4m"
+   },
+   "CheckmateThreshold": {
+    "value": 100.0,
+    "label": "Checkmate Threshold",
+    "scale": {
+     "class_name": "scale_function_single_stat",
+     "subclass_name": "checkmate",
+     "specific_stat_scale_type": "ELevelUpBoons",
+     "stat_scale": 5.0
+    }
    },
    "Height": {
     "value": 10.0,
@@ -19839,7 +19883,7 @@
     "AbilityCooldown": -40.0
    },
    {
-    "CheckmateThreshold": 5.0,
+    "CheckmateThreshold": 150.0,
     "SlowPercent": 15.0
    },
    {
@@ -20166,9 +20210,9 @@
   "boss_damage_scale": 1.0,
   "description": {
    "desc": "Choose a hero to be your subject, dealing spirit damage over time as long as you are looking at them. If the sketch is completed they take additional spirit damage, suffer from stun, and drop a sketch that can be picked up. For each collected sketch, you permanently gain stats based on the hero.",
-   "t1_desc": "On Cast: Gain 15 Health Regen for 4s, refreshed on pickup",
+   "t1_desc": "While Drawing: Gain 15 Health Regen, refreshed for 4s on pickup",
    "t2_desc": "While Drawing: Subjects deal -35% Damage",
-   "t3_desc": "+20% Move Speed-11s Cooldown+0.35s Stun Duration"
+   "t3_desc": "+20% Move Speed-11s Cooldown+0.45s Stun Duration"
   },
   "properties": {
    "AbilityCooldown": {
@@ -20213,7 +20257,7 @@
     }
    },
    "StunDuration": {
-    "value": 1.0,
+    "value": 0.9,
     "label": "Stun Duration",
     "postfix": "s",
     "scale": {
@@ -20290,14 +20334,14 @@
   "upgrades": [
    {
     "BuffDuration": 4.0,
-    "HealthRegen": 0.25
+    "HealthRegen": 0.15
    },
    {
     "OutgoingDamagePercent": -35.0
    },
    {
     "AbilityCooldown": -11.0,
-    "StunDuration": 0.35,
+    "StunDuration": 0.45,
     "BonusMoveSpeedPercent": 20.0
    }
   ],
@@ -20315,11 +20359,11 @@
   "description": {
    "desc": "Create a circular display of ink that blocks vision and grants allies Spirit.Enemies inside are revealed, and leaving causes them to take spirit damage and suffer from Silence and slow, destroying the ink in the process.",
    "t2_desc": "On Buff: +25% Spirit Lifesteal+15 Spirit Power",
-   "t3_desc": "+1.25s Silence Duration+4s Ability DurationInk is no longer destroyed"
+   "t3_desc": "+1.25s Silence Duration+4s Ability Duration"
   },
   "properties": {
    "AbilityCooldown": {
-    "value": 165.0,
+    "value": 180.0,
     "label": "Cooldown",
     "postfix": "s",
     "scale": {
@@ -20332,11 +20376,12 @@
     "value": 6.0,
     "label": "Duration",
     "postfix": "s",
+    "street_brawl_value": "5",
     "scale": {
      "class_name": "scale_function_multi_stats",
      "subclass_name": "AbilityDuration_scale_function",
      "specific_stat_scale_type": "ETechPower",
-     "stat_scale": 0.04,
+     "stat_scale": 0.01,
      "scaling_stats": [
       "ETechPower",
       "ETechDuration"
@@ -20423,8 +20468,7 @@
    },
    {
     "SilenceDuration": 1.25,
-    "AbilityDuration": 4.0,
-    "DestroyOnDamage": -1.0
+    "AbilityDuration": 4.0
    }
   ],
   "weapon_info": null
@@ -20523,7 +20567,10 @@
     }
    },
    "LeechGroundLifetime": {
-    "value": 180.0
+    "value": 120.0
+   },
+   "LeechGroundLifetimePerMinute": {
+    "value": 3.0
    },
    "LeechCrawlRadius": {
     "value": 8.0,
@@ -20650,8 +20697,8 @@
   "description": {
    "desc": "Crack open a vial to release an ethereal vapor onto yourself or an ally that causes a rush, then a crash.Specter Rush: While it lasts, increases the speed of all actions and temporarily numbs all incoming damage creating looming specters.Specter Crash: When the vapors wear off, all actions are slower and any remaining specters deal their delayed damage plus extra damage.Incoming healing will prioritize removing specters first, preventing them from dealing damage.",
    "t1_desc": "-15s Cooldown+7m Cast Range",
-   "t2_desc": "+1s Duration+20% Healing Effectiveness",
-   "t3_desc": "+15% Rush SpeedDispels non-ult debuffs"
+   "t2_desc": "+1s Duration+20% Incoming Healing",
+   "t3_desc": "+20% Rush SpeedDispels non-ult debuffs"
   },
   "properties": {
    "AbilityCooldown": {
@@ -20739,7 +20786,7 @@
     "HealAmpRegenPercent": 20.0
    },
    {
-    "RushTimeScaleBonusPercent": 15.0,
+    "RushTimeScaleBonusPercent": 20.0,
     "DispelDebuffs": 1.0
    }
   ],
@@ -20757,7 +20804,7 @@
   "description": {
    "desc": "Load your weapon with a full clip of syringes that heal allies. Dealing damage recovers charges, and each leech you have collected slowly restores them.Reloading spends a charge for a fresh clip.Unused syringes are refunded as a partial charge. Recast to put them away.",
    "t1_desc": "+1 Max Charge",
-   "t2_desc": "+20 Heal Per ShotShots restore 0.6 stamina",
+   "t2_desc": "+16 Heal Per ShotShots restore 0.6 stamina",
    "t3_desc": "+0.4 Spirit ScalingShots extend non-ultimate buff durations by 6%, up to their max duration"
   },
   "properties": {
@@ -20830,13 +20877,13 @@
     "value": 200.0
    },
    "HealRegen": {
-    "value": 25.0,
+    "value": 22.0,
     "label": "Heal Per Shot",
     "scale": {
      "class_name": "scale_function_healing_spirit_scale",
      "subclass_name": "HealRegen_scale_function",
      "specific_stat_scale_type": "ETechPower",
-     "stat_scale": 0.2
+     "stat_scale": 0.24
     }
    },
    "HeadshotHealBonusPercent": {
@@ -20859,7 +20906,7 @@
    },
    {
     "StaminaRestorePerHit": 0.6,
-    "HealRegen": 20.0
+    "HealRegen": 16.0
    },
    {
     "HealRegen": 0.4,
@@ -20880,7 +20927,7 @@
   "description": {
    "desc": "Open your bag and reveal the horrors you carry inside, dealing spirit damage over time to enemies in front of you. Enemies looking at you build up terror and cannot use stamina or movement abilities. At max terror, they flee in fear away from you.Each leech you have collected adds fear duration.Enemies facing away from you take 50% damage unless feared.",
    "t2_desc": "-20% Move Speed and Fire Rate+30 DPS",
-   "t3_desc": "+3.0s Channel Time+0.5 Spirit ScalingImmune to damage while channeling"
+   "t3_desc": "+3.0s Channel Time+0.5 Spirit ScalingTakes 50% Reduced Damage while channeling"
   },
   "properties": {
    "AbilityCooldown": {
@@ -20916,6 +20963,7 @@
     "value": 7.0,
     "label": "Channel Duration",
     "postfix": "s",
+    "street_brawl_value": "5.0",
     "scale": {
      "class_name": "scale_function_multi_stats",
      "subclass_name": "scale_duration",
@@ -20978,7 +21026,7 @@
     }
    },
    "BuildupTime": {
-    "value": 1.3,
+    "value": 2.0,
     "label": "Fear Buildup Time",
     "postfix": "s"
    },
@@ -20994,6 +21042,9 @@
    },
    "BuildupLookAngleFull": {
     "value": 55.0
+   },
+   "BuildupLookAngleVertical": {
+    "value": 50.0
    },
    "LookBuildupScalePercent": {
     "value": 35.0
@@ -21081,7 +21132,7 @@
     "DPS": 30.0
    },
    {
-    "ChannelDamageImmune": 1.0,
+    "DamageResistPctWhileChanneling": 50.0,
     "AbilityChannelTime": 3.0,
     "DPS": 0.5
    }
@@ -21185,7 +21236,7 @@
     "postfix": "s"
    },
    "DebuffDuration": {
-    "value": 22.0,
+    "value": 16.0,
     "label": "Debuff Duration",
     "postfix": "s",
     "street_brawl_value": "14",
@@ -21354,7 +21405,7 @@
     ]
    },
    "HeavyMeleeSlowDuration": {
-    "value": 4.0,
+    "value": 2.0,
     "label": "Heavy Melee Slow Duration",
     "postfix": "s",
     "scale": {
@@ -21391,8 +21442,8 @@
     "value": 60.0
    },
    "LightKickKnockbackDistance": {
-    "value": 10.0,
-    "raw": "10m",
+    "value": 8.0,
+    "raw": "8m",
     "label": "Light Melee Knockback",
     "postfix": "m",
     "scale": {
@@ -21497,7 +21548,7 @@
   "ability_type": "signature",
   "boss_damage_scale": 1.0,
   "description": {
-   "desc": "Brew a pot of tea that applies a magical effect in an area when thrown, cycling over time between a soothing barrier, Silence, or scalding burn that deals spirit damage over time and reduces spirit resist. Press to pause or resume brewing.",
+   "desc": "Brew a pot of tea that applies a magical effect in an area when thrown, cycling over time in a random order between a soothing barrier, Silence, or scalding burn that deals spirit damage over time and reduces spirit resist. Press to pause or resume brewing.",
    "quip": "Brew Baba's special pot of tea, then throw it to ignite or silence enemies, or shield allies",
    "t3_desc": "+33.33% Brew Effectiveness"
   },
@@ -21539,19 +21590,14 @@
      ]
     }
    },
-   "BrewTime": {
-    "value": 1.5,
-    "label": "Initial Brew Time",
-    "postfix": "s"
+   "BarrierWindow": {
+    "value": 1.5
    },
-   "BarrierLockTime": {
-    "value": 2.5
+   "SilenceWindow": {
+    "value": 1.5
    },
-   "SilenceLockTime": {
-    "value": 3.5
-   },
-   "FireLockTime": {
-    "value": 4.5
+   "FireWindow": {
+    "value": 1.5
    },
    "SelfCastForwardOffset": {
     "value": 1.0,
@@ -21623,7 +21669,7 @@
     }
    },
    "SilenceDuration": {
-    "value": 3.0,
+    "value": 2.75,
     "label": "Silence Duration",
     "postfix": "s",
     "scale": {
