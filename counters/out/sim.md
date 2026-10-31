@@ -1,26 +1,26 @@
 # Counter items in the sim (phantom and up)
 
-Built 2026-10-31T03:14:11Z by `counters/scripts/export_sim.py`. Each hero's most popular real build gets the item added on top and is scored with the overall test (net damage dealt before dying against every hero's typical real build at that net worth; sustain, movement, mechanics and counterplay on). Gain = overall score change, weighted by how often each hero reaches that net worth; the overall score also multiplies in the item's real per-hero win edge (overall_search win_value), so items real buyers lose with score low on Gain even when the sim likes them. *Sim mean* = the same without the win edge (mean of vs over enemies). *Vs enemy* = the change in that one matchup's damage before dying, as a share of the popular build's mean over all matchups (so its enemy-weighted mean is the gain); *lift* = vs enemy minus the item's mean over all enemies.
+Built 2026-10-31T05:14:33Z by `counters/scripts/export_sim.py`. Each hero's most popular real build gets the item added on top and is scored with the overall test (net damage dealt before dying against every hero's typical real build at that net worth; sustain, movement, mechanics and counterplay on). Gain = overall score change, weighted by how often each hero reaches that net worth; the overall score also multiplies in the item's real per-hero win edge (overall_search win_value), so items real buyers lose with score low on Gain even when the sim likes them. *Sim mean* = the same without the win edge (mean of vs over enemies). *Vs enemy* = the change in that one matchup's damage before dying, as a share of the popular build's mean over all matchups (so its enemy-weighted mean is the gain); *lift* = vs enemy minus the item's mean over all enemies.
 
 ## 18,000 souls
 
 | Item | Cost | Gain | Per 1k souls | Sim mean | Best vs (lift) | Already in popular build |
 |---|---|---|---|---|---|---|
-| Divine Barrier | 6,400 | +0.378 | +0.060 | +0.127 | Lash +0.22, Graves +0.15, Pocket +0.14 | 0 heroes |
-| Spirit Resilience | 3,200 | +0.191 | +0.060 | +0.121 | Deadman Danny +0.27, Lash +0.27, Pocket +0.22 | 1 heroes |
-| Dispel Magic | 3,200 | +0.097 | +0.030 | +0.077 | Mirage +0.31, Pocket +0.19, Deadman Danny +0.14 | 3 heroes |
-| Reactive Barrier | 1,600 | +0.042 | +0.027 | +0.056 | Deadman Danny +0.18, Graves +0.13, The Doorman +0.11 | 3 heroes |
-| Indomitable | 6,400 | +0.160 | +0.026 | +0.144 | Deadman Danny +0.32, Vyper +0.26, Abrams +0.23 | 0 heroes |
+| Divine Barrier | 6,400 | +0.428 | +0.068 | +0.127 | Lash +0.22, Graves +0.15, Pocket +0.14 | 0 heroes |
+| Spirit Resilience | 3,200 | +0.209 | +0.065 | +0.121 | Deadman Danny +0.27, Lash +0.27, Pocket +0.22 | 1 heroes |
+| Dispel Magic | 3,200 | +0.113 | +0.035 | +0.077 | Mirage +0.31, Pocket +0.19, Deadman Danny +0.14 | 3 heroes |
+| Reactive Barrier | 1,600 | +0.050 | +0.032 | +0.056 | Deadman Danny +0.18, Graves +0.13, The Doorman +0.11 | 3 heroes |
+| Indomitable | 6,400 | +0.180 | +0.029 | +0.144 | Deadman Danny +0.32, Vyper +0.26, Abrams +0.23 | 0 heroes |
 | Witchmail | 6,400 | +0.158 | +0.025 | +0.202 | Deadman Danny +0.29, Lash +0.21, Pocket +0.21 | 0 heroes |
 | Debuff Reducer | 1,600 | +0.030 | +0.018 | +0.070 | Deadman Danny +0.12, Wraith +0.10, Holliday +0.10 | 0 heroes |
 | Spellbreaker | 6,400 | +0.089 | +0.014 | +0.157 | Deadman Danny +0.33, Lash +0.24, Pocket +0.20 | 0 heroes |
-| Bullet Resilience | 3,200 | -0.005 | -0.002 | +0.095 | Deadman Danny +0.25, Pocket +0.18, Venator +0.17 | 0 heroes |
+| Bullet Resilience | 3,200 | +0.000 | +0.000 | +0.095 | Deadman Danny +0.25, Pocket +0.18, Venator +0.17 | 0 heroes |
 | Plated Armor | 6,400 | -0.043 | -0.007 | +0.120 | Deadman Danny +0.28, Holliday +0.22, Pocket +0.18 | 0 heroes |
-| Counterspell | 3,200 | -0.025 | -0.008 | +0.074 | Deadman Danny +0.14, Pocket +0.11, Wraith +0.05 | 1 heroes |
-| Unstoppable | 6,400 | -0.061 | -0.010 | +0.131 | Deadman Danny +0.25, Pocket +0.15, Ivy +0.13 | 0 heroes |
+| Unstoppable | 6,400 | -0.059 | -0.009 | +0.131 | Deadman Danny +0.25, Pocket +0.15, Ivy +0.13 | 0 heroes |
+| Counterspell | 3,200 | -0.030 | -0.009 | +0.074 | Deadman Danny +0.14, Pocket +0.11, Wraith +0.05 | 1 heroes |
 | Healbane | 1,600 | -0.023 | -0.015 | +0.077 | Yamato +0.05, Celeste +0.05, Bebop +0.04 | 12 heroes |
-| Metal Skin | 3,200 | -0.165 | -0.052 | +0.095 | Lash +0.19, Wraith +0.17, Graves +0.17 | 0 heroes |
-| Return Fire | 1,600 | -0.176 | -0.110 | +0.081 | Deadman Danny +0.13, Wraith +0.07, The Doorman +0.07 | 0 heroes |
+| Metal Skin | 3,200 | -0.173 | -0.054 | +0.095 | Lash +0.19, Wraith +0.17, Graves +0.17 | 0 heroes |
+| Return Fire | 1,600 | -0.185 | -0.116 | +0.081 | Deadman Danny +0.13, Wraith +0.07, The Doorman +0.07 | 0 heroes |
 
 Best counter per enemy hero (highest lift; matchup change in brackets):
 
@@ -73,21 +73,21 @@ Best counter per enemy hero (highest lift; matchup change in brackets):
 
 | Item | Cost | Gain | Per 1k souls | Sim mean | Best vs (lift) | Already in popular build |
 |---|---|---|---|---|---|---|
-| Spirit Resilience | 3,200 | +0.166 | +0.052 | +0.108 | Graves +0.25, Lash +0.21, Deadman Danny +0.18 | 9 heroes |
-| Divine Barrier | 6,400 | +0.258 | +0.041 | +0.097 | Graves +0.17, Lash +0.12, Abrams +0.08 | 0 heroes |
-| Dispel Magic | 3,200 | +0.087 | +0.027 | +0.054 | Mirage +0.25, Graves +0.11, Infernus +0.10 | 6 heroes |
-| Witchmail | 6,400 | +0.155 | +0.024 | +0.164 | Graves +0.24, Deadman Danny +0.15, Lash +0.12 | 0 heroes |
-| Indomitable | 6,400 | +0.141 | +0.023 | +0.116 | Vyper +0.38, Wraith +0.18, Deadman Danny +0.18 | 0 heroes |
-| Spellbreaker | 6,400 | +0.106 | +0.017 | +0.132 | Lash +0.18, Graves +0.15, Deadman Danny +0.15 | 0 heroes |
-| Reactive Barrier | 1,600 | +0.023 | +0.014 | +0.037 | Graves +0.13, Grey Talon +0.13, Deadman Danny +0.09 | 4 heroes |
-| Debuff Reducer | 1,600 | +0.006 | +0.004 | +0.054 | Wraith +0.11, Grey Talon +0.10, Rem +0.10 | 1 heroes |
-| Plated Armor | 6,400 | -0.041 | -0.006 | +0.088 | Graves +0.18, Paradox +0.10, Vyper +0.09 | 0 heroes |
-| Bullet Resilience | 3,200 | -0.035 | -0.011 | +0.066 | Venator +0.13, Paradox +0.13, Grey Talon +0.07 | 0 heroes |
-| Counterspell | 3,200 | -0.038 | -0.012 | +0.047 | Grey Talon +0.09, Graves +0.03, Silver +0.03 | 1 heroes |
-| Unstoppable | 6,400 | -0.084 | -0.013 | +0.104 | Grey Talon +0.17, Ivy +0.17, Abrams +0.16 | 0 heroes |
+| Spirit Resilience | 3,200 | +0.185 | +0.058 | +0.108 | Graves +0.25, Lash +0.21, Deadman Danny +0.18 | 9 heroes |
+| Divine Barrier | 6,400 | +0.304 | +0.048 | +0.097 | Graves +0.17, Lash +0.12, Abrams +0.08 | 0 heroes |
+| Dispel Magic | 3,200 | +0.105 | +0.033 | +0.054 | Mirage +0.25, Graves +0.11, Infernus +0.10 | 6 heroes |
+| Indomitable | 6,400 | +0.168 | +0.027 | +0.116 | Vyper +0.38, Wraith +0.18, Deadman Danny +0.18 | 0 heroes |
+| Witchmail | 6,400 | +0.164 | +0.026 | +0.164 | Graves +0.24, Deadman Danny +0.15, Lash +0.12 | 0 heroes |
+| Spellbreaker | 6,400 | +0.119 | +0.019 | +0.132 | Lash +0.18, Graves +0.15, Deadman Danny +0.15 | 0 heroes |
+| Reactive Barrier | 1,600 | +0.029 | +0.018 | +0.037 | Graves +0.13, Grey Talon +0.13, Deadman Danny +0.09 | 4 heroes |
+| Debuff Reducer | 1,600 | +0.005 | +0.003 | +0.054 | Wraith +0.11, Grey Talon +0.10, Rem +0.10 | 1 heroes |
+| Plated Armor | 6,400 | -0.037 | -0.006 | +0.088 | Graves +0.18, Paradox +0.10, Vyper +0.09 | 0 heroes |
+| Bullet Resilience | 3,200 | -0.033 | -0.010 | +0.066 | Venator +0.13, Paradox +0.13, Grey Talon +0.07 | 0 heroes |
+| Unstoppable | 6,400 | -0.086 | -0.014 | +0.104 | Grey Talon +0.17, Ivy +0.17, Abrams +0.16 | 0 heroes |
+| Counterspell | 3,200 | -0.044 | -0.014 | +0.047 | Grey Talon +0.09, Graves +0.03, Silver +0.03 | 1 heroes |
 | Healbane | 1,600 | -0.051 | -0.032 | +0.063 | Abrams +0.06, Nurse Harrow +0.04, Seven +0.04 | 20 heroes |
-| Metal Skin | 3,200 | -0.181 | -0.057 | +0.077 | Graves +0.20, Wraith +0.14, Lash +0.13 | 0 heroes |
-| Return Fire | 1,600 | -0.182 | -0.114 | +0.061 | Wraith +0.08, Paradox +0.07, Silver +0.06 | 0 heroes |
+| Metal Skin | 3,200 | -0.193 | -0.060 | +0.077 | Graves +0.20, Wraith +0.14, Lash +0.13 | 0 heroes |
+| Return Fire | 1,600 | -0.193 | -0.121 | +0.061 | Wraith +0.08, Paradox +0.07, Silver +0.06 | 0 heroes |
 
 Best counter per enemy hero (highest lift; matchup change in brackets):
 
@@ -140,21 +140,21 @@ Best counter per enemy hero (highest lift; matchup change in brackets):
 
 | Item | Cost | Gain | Per 1k souls | Sim mean | Best vs (lift) | Already in popular build |
 |---|---|---|---|---|---|---|
-| Spirit Resilience | 3,200 | +0.157 | +0.049 | +0.117 | Lash +0.31, Pocket +0.19, Kelvin +0.18 | 15 heroes |
-| Divine Barrier | 6,400 | +0.231 | +0.036 | +0.082 | Lash +0.17, Vindicta +0.09, The Doorman +0.07 | 2 heroes |
-| Dispel Magic | 3,200 | +0.090 | +0.028 | +0.051 | Mirage +0.27, Lash +0.23, Infernus +0.15 | 9 heroes |
-| Indomitable | 6,400 | +0.144 | +0.023 | +0.117 | Vyper +0.33, Wraith +0.22, The Doorman +0.19 | 0 heroes |
-| Witchmail | 6,400 | +0.144 | +0.022 | +0.157 | Lash +0.16, The Doorman +0.12, Grey Talon +0.11 | 1 heroes |
-| Spellbreaker | 6,400 | +0.122 | +0.019 | +0.144 | Lash +0.39, Grey Talon +0.21, Holliday +0.18 | 0 heroes |
-| Debuff Reducer | 1,600 | +0.005 | +0.003 | +0.054 | Rem +0.18, Holliday +0.16, Grey Talon +0.15 | 0 heroes |
+| Spirit Resilience | 3,200 | +0.174 | +0.054 | +0.117 | Lash +0.31, Pocket +0.19, Kelvin +0.18 | 15 heroes |
+| Divine Barrier | 6,400 | +0.266 | +0.042 | +0.082 | Lash +0.17, Vindicta +0.09, The Doorman +0.07 | 2 heroes |
+| Dispel Magic | 3,200 | +0.110 | +0.034 | +0.051 | Mirage +0.27, Lash +0.23, Infernus +0.15 | 9 heroes |
+| Indomitable | 6,400 | +0.170 | +0.027 | +0.117 | Vyper +0.33, Wraith +0.22, The Doorman +0.19 | 0 heroes |
+| Witchmail | 6,400 | +0.149 | +0.023 | +0.157 | Lash +0.16, The Doorman +0.12, Grey Talon +0.11 | 1 heroes |
+| Spellbreaker | 6,400 | +0.137 | +0.021 | +0.144 | Lash +0.39, Grey Talon +0.21, Holliday +0.18 | 0 heroes |
+| Debuff Reducer | 1,600 | +0.007 | +0.004 | +0.054 | Rem +0.18, Holliday +0.16, Grey Talon +0.15 | 0 heroes |
 | Reactive Barrier | 1,600 | -0.001 | -0.001 | +0.035 | Deadman Danny +0.10, Grey Talon +0.09, Yamato +0.09 | 3 heroes |
-| Plated Armor | 6,400 | -0.041 | -0.006 | +0.087 | Holliday +0.21, Wraith +0.08, Vindicta +0.07 | 0 heroes |
+| Plated Armor | 6,400 | -0.037 | -0.006 | +0.087 | Holliday +0.21, Wraith +0.08, Vindicta +0.07 | 0 heroes |
 | Unstoppable | 6,400 | -0.086 | -0.013 | +0.094 | Grey Talon +0.20, Rem +0.16, Holliday +0.15 | 4 heroes |
-| Counterspell | 3,200 | -0.046 | -0.015 | +0.032 | Vindicta +0.05, Yamato +0.04, Paradox +0.03 | 1 heroes |
-| Bullet Resilience | 3,200 | -0.051 | -0.016 | +0.057 | Lady Geist +0.11, Shiv +0.08, Vindicta +0.08 | 1 heroes |
+| Bullet Resilience | 3,200 | -0.049 | -0.015 | +0.057 | Lady Geist +0.11, Shiv +0.08, Vindicta +0.08 | 1 heroes |
+| Counterspell | 3,200 | -0.053 | -0.017 | +0.032 | Vindicta +0.05, Yamato +0.04, Paradox +0.03 | 1 heroes |
 | Healbane | 1,600 | -0.053 | -0.033 | +0.064 | Lady Geist +0.09, Infernus +0.05, Drifter +0.05 | 18 heroes |
-| Metal Skin | 3,200 | -0.179 | -0.056 | +0.076 | Lash +0.16, Wraith +0.13, Lady Geist +0.09 | 0 heroes |
-| Return Fire | 1,600 | -0.178 | -0.111 | +0.055 | Vindicta +0.09, Wraith +0.07, Lady Geist +0.06 | 0 heroes |
+| Metal Skin | 3,200 | -0.190 | -0.059 | +0.076 | Lash +0.16, Wraith +0.13, Lady Geist +0.09 | 0 heroes |
+| Return Fire | 1,600 | -0.187 | -0.117 | +0.055 | Vindicta +0.09, Wraith +0.07, Lady Geist +0.06 | 0 heroes |
 
 Best counter per enemy hero (highest lift; matchup change in brackets):
 
@@ -207,21 +207,21 @@ Best counter per enemy hero (highest lift; matchup change in brackets):
 
 | Item | Cost | Gain | Per 1k souls | Sim mean | Best vs (lift) | Already in popular build |
 |---|---|---|---|---|---|---|
-| Spirit Resilience | 3,200 | +0.188 | +0.059 | +0.145 | Lash +0.53, The Doorman +0.47, Viscous +0.28 | 15 heroes |
-| Divine Barrier | 6,400 | +0.194 | +0.030 | +0.079 | Viscous +0.26, Lash +0.24, Nurse Harrow +0.14 | 3 heroes |
-| Dispel Magic | 3,200 | +0.096 | +0.030 | +0.051 | Mirage +0.28, Lash +0.21, Silver +0.15 | 9 heroes |
-| Indomitable | 6,400 | +0.160 | +0.026 | +0.139 | Wraith +0.31, The Doorman +0.29, Sinclair +0.18 | 1 heroes |
-| Spellbreaker | 6,400 | +0.152 | +0.024 | +0.188 | Lash +0.33, Grey Talon +0.29, Holliday +0.19 | 0 heroes |
-| Witchmail | 6,400 | +0.149 | +0.023 | +0.169 | Lash +0.24, The Doorman +0.19, Viscous +0.16 | 2 heroes |
-| Debuff Reducer | 1,600 | +0.007 | +0.004 | +0.078 | Bebop +0.17, Holliday +0.16, Rem +0.14 | 0 heroes |
-| Plated Armor | 6,400 | -0.048 | -0.007 | +0.091 | Holliday +0.23, Vindicta +0.10, Vyper +0.10 | 3 heroes |
+| Spirit Resilience | 3,200 | +0.203 | +0.064 | +0.145 | Lash +0.53, The Doorman +0.47, Viscous +0.28 | 15 heroes |
+| Dispel Magic | 3,200 | +0.117 | +0.036 | +0.051 | Mirage +0.28, Lash +0.21, Silver +0.15 | 9 heroes |
+| Divine Barrier | 6,400 | +0.222 | +0.035 | +0.079 | Viscous +0.26, Lash +0.24, Nurse Harrow +0.14 | 3 heroes |
+| Indomitable | 6,400 | +0.189 | +0.030 | +0.139 | Wraith +0.31, The Doorman +0.29, Sinclair +0.18 | 1 heroes |
+| Spellbreaker | 6,400 | +0.172 | +0.027 | +0.188 | Lash +0.33, Grey Talon +0.29, Holliday +0.19 | 0 heroes |
+| Witchmail | 6,400 | +0.156 | +0.024 | +0.169 | Lash +0.24, The Doorman +0.19, Viscous +0.16 | 2 heroes |
+| Debuff Reducer | 1,600 | +0.010 | +0.006 | +0.078 | Bebop +0.17, Holliday +0.16, Rem +0.14 | 0 heroes |
+| Plated Armor | 6,400 | -0.045 | -0.007 | +0.091 | Holliday +0.23, Vindicta +0.10, Vyper +0.10 | 3 heroes |
 | Unstoppable | 6,400 | -0.070 | -0.011 | +0.131 | Grey Talon +0.21, Haze +0.20, Infernus +0.17 | 8 heroes |
 | Reactive Barrier | 1,600 | -0.019 | -0.012 | +0.025 | Yamato +0.16, Deadman Danny +0.08, Calico +0.07 | 3 heroes |
-| Counterspell | 3,200 | -0.050 | -0.016 | +0.029 | Nurse Harrow +0.09, Viscous +0.05, Drifter +0.03 | 1 heroes |
 | Bullet Resilience | 3,200 | -0.052 | -0.016 | +0.055 | Lady Geist +0.14, Venator +0.14, Vindicta +0.12 | 0 heroes |
+| Counterspell | 3,200 | -0.060 | -0.019 | +0.029 | Nurse Harrow +0.09, Viscous +0.05, Drifter +0.03 | 1 heroes |
 | Healbane | 1,600 | -0.053 | -0.033 | +0.055 | Lady Geist +0.06, Mo & Krill +0.05, Vindicta +0.05 | 14 heroes |
-| Metal Skin | 3,200 | -0.172 | -0.054 | +0.091 | Lash +0.19, Wraith +0.18, Silver +0.16 | 0 heroes |
-| Return Fire | 1,600 | -0.174 | -0.109 | +0.048 | Vindicta +0.07, Lady Geist +0.06, Viscous +0.06 | 0 heroes |
+| Metal Skin | 3,200 | -0.181 | -0.057 | +0.091 | Lash +0.19, Wraith +0.18, Silver +0.16 | 0 heroes |
+| Return Fire | 1,600 | -0.184 | -0.115 | +0.048 | Vindicta +0.07, Lady Geist +0.06, Viscous +0.06 | 0 heroes |
 
 Best counter per enemy hero (highest lift; matchup change in brackets):
 
