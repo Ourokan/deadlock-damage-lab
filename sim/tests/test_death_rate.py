@@ -44,23 +44,24 @@ class DeathRate(unittest.TestCase):
         worse = [i for i, r in rates.items() if r > 1.0]
         self.assertTrue(worse)
         self.assertLess(O.death_rate_value(worse[:1], hero, 27000), 1.0)
-        # exact form: (c + d L) / (c + d x ratio x L)
+        # exact form: ((c + d L) / (c + d x ratio x L)) ^ DEATH_RATE_GAMMA
         dd = O.death_data()
         row = dd["phases"][O.game_phase(27000)]
         d = row["deaths_per_engagement"] * dd["heroes"].get(str(hero), {}).get("ratio", 1.0)
         c, L = row["alive_s_per_engagement"], O.death_seconds(27000)
-        self.assertAlmostEqual(O.death_rate_value([cd], hero, 27000), (c + d * L) / (c + d * rates[cd] * L))
+        k = O.DEATH_RATE_GAMMA
+        self.assertAlmostEqual(O.death_rate_value([cd], hero, 27000), ((c + d * L) / (c + d * rates[cd] * L)) ** k)
         # the product of many items is clamped
         self.assertAlmostEqual(O.death_rate_value(list(rates), hero, 27000),
-                               (c + d * L) / (c + d * max(O.DEATH_RATE_CLAMP[0], min(O.DEATH_RATE_CLAMP[1],
-                                   math.prod(rates.values()))) * L))
+                               ((c + d * L) / (c + d * max(O.DEATH_RATE_CLAMP[0], min(O.DEATH_RATE_CLAMP[1],
+                                   math.prod(rates.values()))) * L)) ** k)
         O.DEATH_RATE = False
         self.assertEqual(O.death_rate_value([cd], hero, 27000), 1.0)
 
     def test_per_kills_assists(self):
         """DEATH_PER_KA divides each item's deaths ratio by its kills + assists ratio (deaths per engagement)."""
-        e = O.fight_rate_data()["items"]["27000"]["items"]["Extended Magazine"]
-        em = item("Extended Magazine")
+        e = O.fight_rate_data()["items"]["27000"]["items"]["Spirit Shielding"]
+        em = item("Spirit Shielding")   # tier 2: tier-1 items are left out at 27k (DEATH_RATE_T1_FROM)
         was = O.DEATH_PER_KA
         try:
             O.DEATH_PER_KA = True
@@ -119,6 +120,34 @@ class DeathRate(unittest.TestCase):
             O.HEAL_DEATHS = was
         names = {it.name for it in S.G().items.values()}
         self.assertFalse(O.HEAL_ITEMS - names)    # renamed by a patch: fix the list
+
+    def test_death_price(self):
+        # a death is priced above the time it takes (real win edges, death_price.py): gamma 1 = time dead only
+        was = O.DEATH_RATE_GAMMA
+        hero, cd = S.G().hero("Abrams").id, item("Cheat Death")
+        try:
+            O.DEATH_RATE_GAMMA = 1.0
+            one = O.death_rate_value([cd], hero, 27000)
+            O.DEATH_RATE_GAMMA = 2.0
+            self.assertAlmostEqual(O.death_rate_value([cd], hero, 27000), one ** 2)
+        finally:
+            O.DEATH_RATE_GAMMA = was
+        self.assertGreaterEqual(O.DEATH_RATE_GAMMA, 1.0)
+
+    def test_tier1_left_out_late(self):
+        # leftover tier-1 holders' kills + assists come from the team's lead (validation/tier1_death_rate.md)
+        was = O.DEATH_RATE_T1_FROM
+        tier1 = {i for i, it in S.G().items.items() if it.tier == 1}
+        try:
+            O.DEATH_RATE_T1_FROM = 27000
+            self.assertFalse(tier1 & set(O.death_rates(27000)))
+            self.assertFalse(tier1 & set(O.death_rates(37000)))
+            self.assertTrue(tier1 & set(O.death_rates(10000)))     # still core items early
+            self.assertIn(item("Cheat Death"), O.death_rates(27000))
+            O.DEATH_RATE_T1_FROM = None
+            self.assertIn(item("Extra Charge"), O.death_rates(27000))
+        finally:
+            O.DEATH_RATE_T1_FROM = was
 
     def test_fight_value(self):
         O.FIGHT_RATE = False
