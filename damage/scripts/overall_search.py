@@ -96,7 +96,8 @@ extra damage taken doesn't track real wins (r -0.04), holders' deaths per minute
 death_value share with d = the hero's real deaths per engagement x the held items' real holder / non-holder death
 ratios (sim/data/fight_rate.json at the budget's net worth, |z| >= 3, movement and healing items left out (HEAL_ITEMS:
 their death ratios don't track wins, 2026-10-27); Cheat Death 0.67, Spirit Resilience ~0.92, Metal Skin 1.04,
-Rebuttal 1.07). When added (2026-10-25, before later changes) sim_vs_win at 27k: all pairs
+Rebuttal 1.07; tier-1 items left out from the 27k table, DEATH_RATE_T1_FROM), raised to DEATH_RATE_GAMMA 1.5 (a death
+costs more than the time dead: real win edges price it ~2x a log of damage dealt, 2026-10-29). When added (2026-10-25, before later changes) sim_vs_win at 27k: all pairs
 0.133 -> 0.168, per item 0.209 -> 0.265, edges clear of noise 0.181 -> 0.229 (37k: 0.146 -> 0.174, 0.219 ->
 0.264); Cheat Death's mean gain rank 119 -> 52
 of 141, Rebuttal 25 -> 110, Metal Skin 82 -> 92. An "HP budget" fight rate (fight_value: fights per minute = max
@@ -280,6 +281,27 @@ DEATH_PER_KA = True
 # edge sits with them. sim_vs_win 27k within slot and tier 0.337 -> 0.342, 37k 0.319 -> 0.324, gap +1.5 / +1.7 -> +0.2 / +0.7, every line up on
 # both hero halves (validation/melee_lifesteal_heal.md). Vampiric Burst stays out: its holders take more (1.08) and
 # win less like the other items, and adding it lowers every line.
+# Price of a death (2026-10-29, items still ranked furthest from their real win edge): death_rate_value counted a
+# death as the game time it costs (respawn, walk back, bounty), so at mid game the score moved 0.33x a log change of
+# the death ratio, while it moves ~1x a log change of real damage dealt (DAMAGE_ELASTICITY 0.5 on the sim gain, of
+# which real holders show 0.51x). Real wins price deaths far higher: across items, within slot and tier, the holders'
+# win edge is +6.9 points per log dealt and -14.2 per log deaths per kills + assists at 27k (37k +7.4 / -12.4; both
+# match-id halves; sim/scripts/fight_rate/death_price.py): a death also loses the fight and what the team would have
+# taken with it. The factor is raised to DEATH_RATE_GAMMA. sim_vs_win within slot and tier 27k 0.352 -> 0.403, 37k
+# 0.332 -> 0.377, every line up on both hero halves (with DEATH_RATE_T1_FROM; peak 2 at 37k, 2-3 at 27k; the real
+# ratio above would take ~5, past both peaks: the duel's damage before death already holds part of a death's cost).
+# But the best overall builds don't follow (16 heroes at 27k, gamma 2 vs 1): their summed real win edge is flat
+# (-0.3; 1.5: +0.1) and their damage before death drops 3% on average (Dynamo -30%, Abrams -14%; 1.5 the same).
+# Tyler chose the middle, 1.5 (2026-10-29): sim_vs_win within 27k 0.386, 37k 0.362 (validation/death_price.md).
+# 1 = time dead only.
+DEATH_RATE_GAMMA = 1.5
+# Tier-1 items from the 27k table up are left out of death_rates: they are mostly sold by then and their leftover
+# holders are low-farm players on teams ahead, whose kills + assists run 1.04-1.15x (Monster Rounds 1.08, Close
+# Quarters 1.07, Extra Charge 1.07 at 27k; ~1.0 at 10-18k) from the team's lead, not the item (matching on the team
+# net worth lead removes most of it, validation/tier1_death_rate.md), so deaths / ka handed them a bonus that
+# DEATH_RATE_GAMMA would double (Extra Charge and Monster Rounds were already the furthest over their edge). Alone it
+# is flat (27k within -0.0004, validation/tier1_death_rate.md), so it goes with DEATH_RATE_GAMMA. None = keep them.
+DEATH_RATE_T1_FROM = 27000
 HEAL_ITEMS = frozenset((
     "Healing Nova", "Mystic Regeneration", "Radiant Regeneration", "Extra Regen", "Fortitude", "Restorative Locket",
     "Healing Booster", "Spirit Lifesteal", "Bullet Lifesteal", "Restorative Shot", "Healing Rite", "Rescue Beam",
@@ -401,15 +423,17 @@ def fight_rate_data():
 
 def death_rates(souls):
     """{item id: real deaths-per-minute ratio of holders (per kills + assists ratio when DEATH_PER_KA)} for the fit
-    budget nearest souls (|z| >= DEATH_RATE_Z on the deaths ratio, movement items and, unless HEAL_DEATHS, healing
-    items left out)."""
+    budget nearest souls (|z| >= DEATH_RATE_Z on the deaths ratio, movement items, unless HEAL_DEATHS healing items
+    and from the DEATH_RATE_T1_FROM table up tier-1 items left out)."""
     d = fight_rate_data()["items"]
     b = min(d, key=lambda k: abs(math.log(int(k) / souls)))
-    key = (b, HEAL_DEATHS, DEATH_PER_KA)
+    key = (b, HEAL_DEATHS, DEATH_PER_KA, DEATH_RATE_T1_FROM)
     if key not in _drate:
         movement_value(())   # loads _move
         moving = _move[2] | {i for row in _move[3].values() for i in row}
-        skip = set() if HEAL_DEATHS else HEAL_ITEMS
+        skip = set() if HEAL_DEATHS else set(HEAL_ITEMS)
+        if DEATH_RATE_T1_FROM is not None and int(b) >= DEATH_RATE_T1_FROM:
+            skip |= {it.name for it in S.G().items.values() if it.tier == 1}
         lo, hi = DEATH_RATE_CLAMP
         by_name = {it.name: i for i, it in S.G().items.items()}
         gone = sorted(n for n in d[b]["items"] if n not in by_name)
@@ -423,9 +447,9 @@ def death_rates(souls):
 
 
 def death_rate_value(items, hero, souls):
-    """(c + d_pop L) / (c + d L): c = real alive seconds per engagement, L = death_seconds, d_pop = the hero's real
-    deaths per engagement, d = d_pop x the product of the held items' real death ratios (death_rates). Divided by
-    the popular build's in the score. 1 when DEATH_RATE is off."""
+    """((c + d_pop L) / (c + d L)) ^ DEATH_RATE_GAMMA: c = real alive seconds per engagement, L = death_seconds,
+    d_pop = the hero's real deaths per engagement, d = d_pop x the product of the held items' real death ratios
+    (death_rates). Divided by the popular build's in the score. 1 when DEATH_RATE is off."""
     if not DEATH_RATE:
         return 1.0
     rates = death_rates(souls)
@@ -438,7 +462,7 @@ def death_rate_value(items, hero, souls):
     row = dd["phases"][game_phase(souls)]
     d_pop = row["deaths_per_engagement"] * dd["heroes"].get(str(hero), {}).get("ratio", 1.0)
     c, L = row["alive_s_per_engagement"], death_seconds(souls)
-    return (c + d_pop * L) / (c + d_pop * ratio * L)
+    return ((c + d_pop * L) / (c + d_pop * ratio * L)) ** DEATH_RATE_GAMMA
 
 
 def taken_rates(souls):
