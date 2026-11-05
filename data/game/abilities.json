@@ -6933,7 +6933,7 @@
     }
    },
    "DamageHealMult": {
-    "value": 1.2,
+    "value": 1.3,
     "label": "Hero Damage to Heal",
     "postfix": "x",
     "scale": {
@@ -7020,8 +7020,8 @@
     }
    },
    "Radius": {
-    "value": 5.0,
-    "raw": "5m",
+    "value": 5.5,
+    "raw": "5.5m",
     "label": "Radius",
     "postfix": "m",
     "scale": {
@@ -7121,7 +7121,7 @@
    "desc": "Spray sand that disarms enemies in front of you and deals damage.",
    "quip": "Disarm enemies in front of you",
    "t1_desc": "+45 Damage and +5m Range",
-   "t2_desc": "Slow targets by -24% and reduces dash distances by -26%",
+   "t2_desc": "Slow targets by -28% and reduces dash distances by -28%",
    "t3_desc": "+1.5s Duration and -25.0 Cooldown"
   },
   "properties": {
@@ -7191,8 +7191,8 @@
     "AbilityCastRange": 5.0
    },
    {
-    "SlowPercent": 24.0,
-    "GroundDashReductionPercent": -26.0
+    "SlowPercent": 28.0,
+    "GroundDashReductionPercent": -28.0
    },
    {
     "AbilityCooldown": -25.0,
@@ -7266,7 +7266,7 @@
     }
    },
    "BonusHealthOnKill": {
-    "value": 40.0,
+    "value": 50.0,
     "label": "Bonus Max Health Per Kill",
     "provided_property_type": "MODIFIER_VALUE_HEALTH_MAX",
     "scale": {
@@ -16108,8 +16108,8 @@
   "ability_type": "signature",
   "boss_damage_scale": 1.0,
   "description": {
-   "desc": "Prepare to deflect the next incoming attack. On a successful deflection, briefly become invulnerable and target an enemy hero to dash towards them, immobilizing them, preventing them from parrying, and reducing their Melee Resist.Press Ability 2 to select a target.Does not trigger against trooper or neutral damage.",
-   "t2_desc": "-25% Melee Resist and +0.6s Immobilize Duration",
+   "desc": "Prepare to deflect the next incoming attack. On a successful deflection, briefly become invulnerable and target an enemy hero to dash towards them, immobilizing and disarming them, preventing them from parrying, and reducing their Melee Resist.Press Ability 2 to select a target.Does not trigger against trooper or neutral damage.",
+   "t2_desc": "-25% Melee Resist and +0.7s Immobilize Duration",
    "t3_desc": "Gain 75% Bullet, Spirit &amp; Melee Lifesteal against the Riposte target for 13s"
   },
   "properties": {
@@ -16283,7 +16283,7 @@
    },
    {
     "MeleeResistReduction": -25.0,
-    "StunDuration": 0.6
+    "StunDuration": 0.7
    },
    {
     "TargetLifesteal": 75.0,
@@ -16657,7 +16657,7 @@
     "AbilityCooldown": -35.0
    },
    {
-    "BonusDamagePercent": 50.0
+    "BonusDamagePercent": 60.0
    }
   ],
   "weapon_info": null
@@ -16709,7 +16709,7 @@
      "class_name": "scale_function_tech_damage",
      "subclass_name": "Damage_scale_function",
      "specific_stat_scale_type": "ETechPower",
-     "stat_scale": 0.74
+     "stat_scale": 0.681
     }
    },
    "ExplosionRadius": {
@@ -16764,7 +16764,7 @@
      "class_name": "scale_function_tech_damage",
      "subclass_name": "CoatedDamage_scale_function",
      "specific_stat_scale_type": "ETechPower",
-     "stat_scale": 1.1
+     "stat_scale": 1.012
     }
    },
    "CoatedSlowPercent": {
@@ -16796,8 +16796,8 @@
    {
     "MarksTotal": 2.0,
     "Range": 14.0,
-    "CoatedDamage": 0.35,
-    "Damage": 0.35
+    "CoatedDamage": 0.322,
+    "Damage": 0.322
    }
   ],
   "weapon_info": null
@@ -16934,7 +16934,7 @@
     "HeatDrainRate": -4.0
    },
    {
-    "HealOnHit": 2.0,
+    "HealOnHit": 1.7,
     "SelfDamageReductionOnPlayerHitPercent": 100.0
    },
    {
@@ -17157,7 +17157,7 @@
     "postfix": "%"
    },
    "BonusDamagePercent": {
-    "value": 75.0,
+    "value": 55.0,
     "label": "Bonus Damage",
     "postfix": "%"
    }
@@ -18409,7 +18409,7 @@
   "description": {
    "desc": "Surround yourself in a protective prism. If the barrier is destroyed, it silences nearby enemies and deals a portion of the barrier as damage.",
    "t2_desc": "+70 Barrier and Increased Barrier Spirit Scaling",
-   "t3_desc": "+1.25 Silence Duration and -20s Cooldown. Allows Shining Wonder Bounce."
+   "t3_desc": "+0.75 Silence Duration and -20s Cooldown. Allows Shining Wonder Bounce."
   },
   "properties": {
    "AbilityCooldown": {
@@ -18490,7 +18490,7 @@
     "CombatBarrier": 0.76
    },
    {
-    "DebuffDuration": 1.25,
+    "DebuffDuration": 0.75,
     "AbilityCooldown": -20.0
    }
   ],
@@ -18520,8 +18520,8 @@
     }
    },
    "AbilityCastRange": {
-    "value": 30.0,
-    "raw": "30m",
+    "value": 25.0,
+    "raw": "25m",
     "label": "Cast Range",
     "postfix": "m",
     "scale": {
@@ -18605,7 +18605,7 @@
     }
    },
    "MagicIncreasePerStack": {
-    "value": 7.0,
+    "value": 6.0,
     "label": "Spirit Amp per Stack",
     "postfix": "%"
    },
@@ -18622,10 +18622,11 @@
    },
    {
     "ImpactDamage": 70.0,
-    "AbilityCooldown": -22.0
+    "AbilityCooldown": -22.0,
+    "AbilityCastRange": 5.0
    },
    {
-    "MagicIncreasePerStack": 4.0,
+    "MagicIncreasePerStack": 5.0,
     "FireRatePerStack": 9.0
    }
   ],
@@ -18642,13 +18643,13 @@
   "boss_damage_scale": 1.0,
   "description": {
    "desc": "Launch a deadly orb of light that deals spirit damage and applies slow and reduces Dash Distance on impact. The orb then bounces to the enemies within range. If no target is found, the orb will linger for a short duration while continuing to look for targets.Prioritizes enemy heroes when picking targets.",
-   "t1_desc": "-16% Move Speed and -14% Dash Distance",
+   "t1_desc": "-14% Move Speed and -14% Dash Distance",
    "t2_desc": "+90 Damage and Increased Spirit Scaling",
    "t3_desc": "+6 Max Bounces and -30s Cooldown"
   },
   "properties": {
    "AbilityCooldown": {
-    "value": 160.0,
+    "value": 170.0,
     "label": "Cooldown",
     "postfix": "s",
     "scale": {
@@ -18697,7 +18698,7 @@
     }
    },
    "SlowPercent": {
-    "value": 32.0,
+    "value": 28.0,
     "label": "Move Speed",
     "postfix": "%",
     "provided_property_type": "MODIFIER_VALUE_MOVEMENT_SPEED_SLOW_PERCENT"
@@ -18715,8 +18716,8 @@
     "value": 8.0
    },
    "BounceRadius": {
-    "value": 15.5,
-    "raw": "15.5m",
+    "value": 15.0,
+    "raw": "15m",
     "label": "Bounce Range",
     "postfix": "m",
     "scale": {
@@ -18740,7 +18741,7 @@
   "upgrades": [
    {
     "GroundDashReductionPercent": -14.0,
-    "SlowPercent": 16.0
+    "SlowPercent": 14.0
    },
    {
     "Damage": 0.45
@@ -19111,7 +19112,7 @@
   "boss_damage_scale": 1.0,
   "description": {
    "desc": "Charge up and summon the banner of Ratannia, granting all nearby allies increased move speed, immunity from slows, and reduced incoming damage while near the banner.",
-   "t1_desc": "+2m Move Speed",
+   "t1_desc": "+2m Move Speed-25s Cooldown",
    "t2_desc": "+5s Flag Duration+8m Radius",
    "t3_desc": "+150 Damage and +10% Damage Reduction"
   },
@@ -19181,8 +19182,8 @@
     "postfix": "s"
    },
    "BonusMoveSpeed": {
-    "value": 3.0,
-    "raw": "3m",
+    "value": 4.0,
+    "raw": "4m",
     "label": "Move Speed",
     "postfix": " m",
     "provided_property_type": "MODIFIER_VALUE_MOVEMENT_SPEED_MAX"
@@ -19208,7 +19209,8 @@
   },
   "upgrades": [
    {
-    "BonusMoveSpeed": 2.0
+    "BonusMoveSpeed": 2.0,
+    "AbilityCooldown": -25.0
    },
    {
     "FlagDuration": 5.0,
@@ -21026,7 +21028,7 @@
     }
    },
    "BuildupTime": {
-    "value": 2.0,
+    "value": 1.75,
     "label": "Fear Buildup Time",
     "postfix": "s"
    },
@@ -21044,7 +21046,7 @@
     "value": 55.0
    },
    "BuildupLookAngleVertical": {
-    "value": 50.0
+    "value": 65.0
    },
    "LookBuildupScalePercent": {
     "value": 35.0
@@ -21421,7 +21423,7 @@
     ]
    },
    "StatusResistancePercent": {
-    "value": 30.0,
+    "value": 25.0,
     "label": "Debuff Resist",
     "postfix": "%",
     "provided_property_type": "MODIFIER_VALUE_STATUS_RESISTANCE",
@@ -21430,7 +21432,7 @@
     ]
    },
    "MeleeResist": {
-    "value": 30.0,
+    "value": 25.0,
     "label": "Melee Resist",
     "postfix": "%",
     "provided_property_type": "MODIFIER_VALUE_MELEE_RESIST",
@@ -21554,7 +21556,7 @@
   },
   "properties": {
    "AbilityCooldown": {
-    "value": 27.0,
+    "value": 28.0,
     "label": "Cooldown",
     "postfix": "s",
     "scale": {
@@ -21591,13 +21593,13 @@
     }
    },
    "BarrierWindow": {
-    "value": 1.5
+    "value": 1.6
    },
    "SilenceWindow": {
-    "value": 1.5
+    "value": 1.6
    },
    "FireWindow": {
-    "value": 1.5
+    "value": 1.6
    },
    "SelfCastForwardOffset": {
     "value": 1.0,
@@ -21624,7 +21626,7 @@
      "class_name": "scale_function_tech_damage",
      "subclass_name": "DamagePerSecond_scale_function",
      "specific_stat_scale_type": "ETechPower",
-     "stat_scale": 0.152
+     "stat_scale": 0.13
     }
    },
    "BurnDuration": {

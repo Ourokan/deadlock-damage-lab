@@ -3608,7 +3608,7 @@
   "name": "Sovereign's Decree",
   "weapon_info": {
    "can_zoom": true,
-   "bullet_damage": 5.7,
+   "bullet_damage": 5.8,
    "bullet_gravity_scale": 0.0,
    "bullet_inherit_shooter_velocity_scale": 0.0,
    "bullet_lifetime": 2.0,
@@ -3650,7 +3650,7 @@
    "zoom_move_speed_percent": 1.0,
    "bullets": 2,
    "burst_shot_count": 1,
-   "clip_size": 24,
+   "clip_size": 26,
    "spread": 1.0,
    "standing_spread": 1.5,
    "recoil_seed": 123424.0,
@@ -3672,13 +3672,13 @@
     "burst_slope": 0.0
    },
    "shots_per_second": 3.333333333333333,
-   "shots_per_second_with_reload": 2.364532019704433,
+   "shots_per_second_with_reload": 2.4186046511627906,
    "bullets_per_second": 6.666666666666666,
-   "bullets_per_second_with_reload": 4.729064039408866,
-   "damage_per_second": 38.0,
-   "damage_per_second_with_reload": 26.955665024630534,
-   "damage_per_shot": 11.4,
-   "damage_per_magazine": 273.6
+   "bullets_per_second_with_reload": 4.837209302325581,
+   "damage_per_second": 38.666666666666664,
+   "damage_per_second_with_reload": 28.055813953488368,
+   "damage_per_shot": 11.6,
+   "damage_per_magazine": 301.59999999999997
   },
   "properties": {
    "AbilityUnitTargetLimit": {
@@ -3914,7 +3914,7 @@
   "name": "Code Blue",
   "weapon_info": {
    "can_zoom": true,
-   "bullet_damage": 13.372,
+   "bullet_damage": 14.442,
    "bullet_gravity_scale": 0.0,
    "bullet_inherit_shooter_velocity_scale": 0.0,
    "bullet_lifetime": 2.0,
@@ -3982,10 +3982,10 @@
    "shots_per_second_with_reload": 1.7377567140600316,
    "bullets_per_second": 2.6315789473684212,
    "bullets_per_second_with_reload": 1.7377567140600316,
-   "damage_per_second": 35.189473684210526,
-   "damage_per_second_with_reload": 23.237282780410744,
-   "damage_per_shot": 13.372,
-   "damage_per_magazine": 147.09199999999998
+   "damage_per_second": 38.00526315789474,
+   "damage_per_second_with_reload": 25.096682464454975,
+   "damage_per_shot": 14.442,
+   "damage_per_magazine": 158.862
   },
   "properties": {
    "AbilityUnitTargetLimit": {
