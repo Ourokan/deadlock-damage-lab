@@ -117,6 +117,8 @@ def main():
                 out[k] = old[k]
         for n, e in old.get("items", {}).items():
             out["items"].setdefault(n, e)
+            for k, v in e.items():   # nova_heal.py's replay measurement on Healing Nova
+                out["items"][n].setdefault(k, v)
     with open(OUT, "w") as f:
         json.dump(out, f, indent=1)
 
