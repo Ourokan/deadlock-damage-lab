@@ -32,9 +32,10 @@ DUELS = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift, all 
             # Abrams vs Seven re-pinned 2026-10-28: Split Shot's fan on the target by distance (Mechanics.split_range)
             # Haze vs Infernus, Abrams vs Seven re-pinned 2026-10-28: Healing Nova's / Rescue Beam's small range bonus on
             # the abilities (Mechanics.range_reach); Ivy too (Divine Barrier's 10% + her corrections refit)
+            # Abrams vs Seven re-pinned 2026-11-06 for the late-October game data hotfix (no sim change)
     ("Haze", ["Rapid Rounds", "Toxic Bullets", "Restorative Locket"], "Infernus",
      ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Infernus (B)", 25.1, 2339.4, 2213.2),
-    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 25.3, 1968.0, 3203.7),
+    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 25.3, 1983.3, 3203.7),
     ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1455.7, 1281.5),
 ]
 

@@ -110,7 +110,8 @@ class TestPatterns(unittest.TestCase):
 
 class TestScornHeal(unittest.TestCase):
     def test_heal_counts_item_procs(self):
-        """Replays: Mo heals 1.2 x (Scorn + Mystic Burst + Quicksilver Reload) on the tick Scorn lands."""
+        """Replays: Mo heals DamageHealMult (1.2 when measured, 1.3 since the late-October hotfix) x (Scorn + Mystic Burst +
+        Quicksilver Reload) on the tick Scorn lands."""
         from deadsim.engine import Fighter
         asked = []
         orig = Fighter.heal
@@ -129,7 +130,9 @@ class TestScornHeal(unittest.TestCase):
         procs = sum(r.a_dmg.get(k, 0) for k in ("Scorn", "Mystic Burst", "Quicksilver Reload"))
         self.assertGreater(r.a_dmg.get("Quicksilver Reload", 0), 0)
         self.assertEqual(len(asked), 1)
-        self.assertAlmostEqual(asked[0], 1.2 * procs, places=6)
+        from deadsim import game
+        mult = next(a for a in game().hero("Mo & Krill").abilities if a.name == "Scorn").props["DamageHealMult"]
+        self.assertAlmostEqual(asked[0], mult * procs, places=6)
 
 
 # default behaviour (patterns on), pinned so a change to deadsim.patterns or data/fight_patterns.json shows up:
@@ -138,10 +141,11 @@ PINNED = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift, all
             # re-pinned 2026-10-26 for melee's share of the weapon damage bonus (engine.MELEE_WEAPON_SCALE)
             # re-pinned 2026-10-26 for Warden shooting while Last Stand pulses (warden.PULSE_FREE)
             # re-pinned 2026-10-27 for in-fight bullet shred x Mechanics.shred_uptime (Haze's Sleep Dagger shred)
-    ("Mo & Krill", "Haze", None, 30.0, 1551.1, 1446.6),
-    ("Paradox", "Abrams", None, 30.0, 2357.5, 1528.4),
-    ("Venator", "Lash", "Venator (A)", 18.3, 2138.7, 877.0),
-    ("Warden", "Seven", "Seven (B)", 25.9, 1318.9, 3020.6),
+            # re-pinned 2026-11-06 for the late-October game data hotfix (no sim change; same on main before)
+    ("Mo & Krill", "Haze", None, 30.0, 1349.8, 1446.6),
+    ("Paradox", "Abrams", None, 30.0, 2357.5, 1543.8),
+    ("Venator", "Lash", "Venator (A)", 18.3, 2121.9, 877.0),
+    ("Warden", "Seven", "Seven (B)", 25.9, 1318.9, 3013.6),
 ]
 
 
