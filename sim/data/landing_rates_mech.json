@@ -629,26 +629,26 @@
     "landing": 0.63,
     "real_share": 0.3224,
     "sim_share": 0.2603,
-    "length_corr": 1.294
+    "length_corr": 0.917
    },
    "Spectral Assistant": {
     "class": "ability_magician_cloneturret",
     "landing": 0.41,
     "real_share": 0.2117,
     "sim_share": 0.1711,
-    "length_corr": 1.939
+    "length_corr": 2.711
    },
    "Audience Participation": {
     "class": "ability_magician_copyult",
     "landing": 0.6,
     "real_share": 0.0,
     "sim_share": 0.3541,
-    "length_corr": 2.504
+    "length_corr": 2.155
    },
    "Rabbit Hex": {
     "landing": 0.51,
     "class": "ability_magician_animalhexarea",
-    "length_corr": 2.821
+    "length_corr": 3.27
    }
   },
   "Mina": {
@@ -1004,21 +1004,21 @@
     "landing": 0.28,
     "real_share": 0.2519,
     "sim_share": 0.4439,
-    "length_corr": 3.366
+    "length_corr": 5.023
    },
    "Rook Battery": {
     "class": "ability_chessmaster_forkpiece",
     "landing": 0.86,
     "real_share": 0.1739,
     "sim_share": 0.1337,
-    "length_corr": 1.451
+    "length_corr": 1.478
    },
    "Develop Queen": {
     "class": "ability_chessmaster_queen",
     "landing": 0.19,
     "real_share": 0.1448,
     "sim_share": 0.1112,
-    "length_corr": 8.856
+    "length_corr": 9.469
    }
   },
   "Nurse Harrow": {

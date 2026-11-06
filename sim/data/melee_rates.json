@@ -27,8 +27,9 @@
   },
   "6": {
    "name": "Abrams",
-   "rate": 0.1841,
-   "real_melee_share": 0.3977
+   "rate": 0.1483,
+   "real_melee_share": 0.3977,
+   "audit_fit": true
   },
   "7": {
    "name": "Wraith",
@@ -148,7 +149,7 @@
   },
   "64": {
    "name": "Drifter",
-   "rate": 0.08,
+   "rate": 0.0555,
    "real_melee_share": 0.1021,
    "audit_fit": true
   },
