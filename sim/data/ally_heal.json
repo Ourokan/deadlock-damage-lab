@@ -9,7 +9,15 @@
    "held_min": 543,
    "sim_ally_hp_fight_min": 1458.7,
    "real_per_sim": 0.1508,
-   "factor": 1.0
+   "factor": 1.0,
+   "replay_source": "nova_heal.py: 132 post-hotfix Phantom+ replays with Nova, 1197 casts",
+   "real_ally_heal_per_cast": 376,
+   "sim_ally_heal_per_cast_at_real_reach": 170,
+   "real_dying_share": 0.092,
+   "sim_dying_share": 0.202,
+   "real_ally_heal_per_damage": 0.2223,
+   "sim_ally_heal_per_damage_credited": 0.0689,
+   "measured_factor": 3.23
   },
   "Rescue Beam": {
    "real_self_hp_min": 83.6,
