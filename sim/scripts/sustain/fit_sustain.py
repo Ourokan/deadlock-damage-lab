@@ -12,6 +12,9 @@ Writes the full report json (<report json>) and the compact inputs the overall s
 sim/data/sustain.json): heal pickups per minute, each farm-heal item's real rate, fight entry health and the time
 out of combat before a fight, per phase.
 
+A refit drops sustain.json measured_items (rates then count as measured on the current game values): rerun
+sim/scripts/sustain/stamp_heal_values.py with the game data of the replays' patch after it.
+
 usage: python3 -I fit_sustain.py <sim dir> <matches dir> <report json> <sim data json>
 """
 import collections, glob, gzip, json, os, statistics, sys

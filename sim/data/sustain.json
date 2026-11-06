@@ -219,5 +219,77 @@
   "mid": 0.6,
   "late": 1.95,
   "lane": 0.6
- }
+ },
+ "measured_items": {
+  "Radiant Regeneration": {
+   "HealingPerCast": [
+    65.0,
+    1.7,
+    "boon"
+   ],
+   "Regeneration": [
+    4.0,
+    0.035,
+    "spirit"
+   ],
+   "RegenerationDuration": [
+    7.0,
+    0.0,
+    null
+   ]
+  },
+  "Mystic Regeneration": {
+   "Regeneration": [
+    4.0,
+    0.0,
+    null
+   ],
+   "RegenerationDuration": [
+    7.0,
+    0.0,
+    null
+   ]
+  },
+  "Restorative Shot": {
+   "HealFromHero": [
+    50.0,
+    0.0,
+    null
+   ],
+   "HealFromNPC": [
+    20.0,
+    0.0,
+    null
+   ]
+  },
+  "Healing Rite": {
+   "TotalHealthRegen": [
+    300.0,
+    1.1,
+    "spirit"
+   ]
+  },
+  "Spirit Lifesteal": {
+   "AbilityLifestealPercentHero": [
+    13.0,
+    0.0,
+    null
+   ]
+  },
+  "Bullet Lifesteal": {
+   "BulletLifestealPercent": [
+    13.0,
+    0.0,
+    null
+   ]
+  },
+  "Extra Regen": {
+   "BonusHealthRegen": [
+    2.5,
+    0.0,
+    null
+   ]
+  }
+ },
+ "measured_items_game": "data/game at fc48064 (before the 10-30 hotfix)"
 }
