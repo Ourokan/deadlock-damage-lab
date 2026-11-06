@@ -100,6 +100,21 @@ class TestTerrors(NurseCase):
         self.assertTrue(self.g.mods.active("disarm"))
         self.assertGreater(self.f.dmg_out.get("Lurking Terrors", 0.0), 0)
 
+    def test_t3_halves_damage_taken_while_channeling(self):
+        """Since the late-October 2026 hotfix T3 is DamageResistPctWhileChanneling 50, not immunity."""
+        lt = self.ab["ability_nurse_fear"]
+        lt.tier = 3
+        c = lt.ctx
+        self.assertEqual(c.raw("ChannelDamageImmune"), 0)
+        self.assertEqual(c.raw("DamageResistPctWhileChanneling"), 50)
+        lt.cast()
+        self.run_until(c.raw("AbilityCastDelay") + 0.5)
+        self.assertFalse(self.f.mods.active("invulnerable"))
+        self.assertEqual(self.f.mods.values("damage_taken_mult"), [0.5])
+        self.f.mods.add("stun", 1, 0.5, "test_stun")
+        self.run_until(c.raw("AbilityCastDelay") + 1.0)
+        self.assertEqual(self.f.mods.values("damage_taken_mult"), [])
+
     def test_stun_breaks_channel(self):
         lt = self.ab["ability_nurse_fear"]
         c = lt.ctx
