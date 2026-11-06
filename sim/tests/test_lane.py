@@ -264,7 +264,7 @@ class Calibration(unittest.TestCase):
         pop = [ID["Extra Health"]]
         base = O.map_time(HAZE, pop, 18000, pop)
         self.assertAlmostEqual(base, 1 - O.sustain()["heal_trips_per_min"]["mid"] * O.TRIP_S / 60)
-        self.assertGreater(O.map_time(HAZE, pop + [ID["Radiant Regeneration"]], 18000, pop), base)
+        self.assertGreater(O.map_time(HAZE, pop + [ID["Bullet Lifesteal"]], 18000, pop), base)
         # an item saves the same trips whatever the popular build already heals (no blow-up off a small need)
         fort, hb = ID["Fortitude"], ID["Healing Booster"]
         gain_alone = O.map_time(HAZE, pop + [fort], 18000, pop) / base
@@ -272,6 +272,18 @@ class Calibration(unittest.TestCase):
         gain_on_healer = O.map_time(HAZE, healer + [fort], 18000, healer) / O.map_time(HAZE, healer, 18000, healer)
         self.assertAlmostEqual(gain_alone, gain_on_healer, delta=0.005)   # vitality investment moves max health a bit
         self.assertEqual(O.map_time(HAZE, pop, 6000, pop), 1.0)   # lane: scored by the lane test
+
+    def test_items_whose_holders_farm_less_save_no_trips(self):
+        # real Radiant Regeneration holders farm fewer jungle souls (fight_rate.json): its fountain saving buys no
+        # map time (TRIP_JUNGLE_GATE); Bullet Lifesteal holders farm more and keep theirs
+        pop, rad = [ID["Extra Health"]], ID["Radiant Regeneration"]
+        self.assertTrue(O.trip_gated("Radiant Regeneration", 27000))
+        self.assertFalse(O.trip_gated("Bullet Lifesteal", 27000))
+        self.assertEqual(O.field_saving([rad], "mid", None, 27000), 0.0)
+        self.assertGreater(O.field_saving([rad], "mid"), 0.0)   # no souls: ungated
+        with mock.patch.object(O, "TRIP_JUNGLE_GATE", False):
+            self.assertFalse(O.trip_gated("Radiant Regeneration", 27000))
+            self.assertGreater(O.map_time(HAZE, pop + [rad], 27000, pop), O.map_time(HAZE, pop, 27000, pop))
 
 
 class StageEvaluators(unittest.TestCase):

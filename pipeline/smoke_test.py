@@ -87,7 +87,7 @@ class _Ev(O.Evaluator):
 ev = _Ev(1, 18000, {})
 m = ev._map(pop[2:])   # fewer items, less max health: more heal trips (map_time values: sim/tests/test_lane.py)
 assert ev._map(pop) == 1.0 and 0.7 < m < 1.0, m
-assert ev._map(pop + [ids["Radiant Regeneration"]]) > 1.0
+assert ev._map(pop + [ids["Bullet Lifesteal"]]) > 1.0   # Radiant: trip_gated (holders farm less)
 want = m / O.movement_value(pop)   # same damage: only movement and heal trips differ
 assert abs(ev.run(pop) - 1.0) < 1e-9 and abs(ev.run(pop[2:]) - want) < 1e-9, ev.run(pop)
 
