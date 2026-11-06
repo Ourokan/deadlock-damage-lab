@@ -11,7 +11,8 @@ Per item: real ally heal per held minute / the 3v3's ally heal per fight minute 
 holders x focus/spread x 12/20 m, like team_value.py), divided by the median of the items' ratios (the share of the
 game spent fighting and casting is the same for every heal item; the median, not a minute-weighted pool, so Locket's
 many holders don't set the reference). Nova and Rescue Beam sit at the median (0.151, 0.142), Locket 0.010 is the
-outlier. overall_search.team_value multiplies the item's team value by it (capped at 1; barrier and aura items have no heal data and keep 1). Writes data/ally_heal.json.
+outlier. overall_search.team_value multiplies the item's team value by it (capped at 1; aura items have no heal data and keep 1;
+ally_barrier.py adds Divine Barrier from real holders' teammate barrier, and this script keeps its entries). Writes data/ally_heal.json.
 Static: the replays live in the shared folder, CI can't refit it.
 """
 import collections
@@ -74,8 +75,8 @@ def real(folder):
     return {n: [v[0] / v[2], v[1] / v[2], v[2]] for n, v in acc.items() if v[2]}
 
 
-def sim(item):
-    """3v3 ally heal of the item's holder per fight minute (team_value.py's fights)."""
+def sim(item, barrier=False):
+    """3v3 ally heal (or barrier, for ally_barrier.py) of the item's holder per fight minute (team_value.py's fights)."""
     ally, t = 0.0, 0.0
     for six in TV.lineups()[:LINEUPS]:
         a = [Loadout(h, TV.popular(h, SOULS), souls=SOULS, skill=TV.skill(h)) for h in six[:3]]
@@ -87,7 +88,8 @@ def sim(item):
             for focus in ("focus", "spread"):
                 for dist in (12.0, 20.0):
                     r = team_fight(w, b, focus=focus, distance=dist, max_time=TV.MAX_TIME, huddle=1.0, aoe_share=0.0)
-                    ally += r.fighters[k]["healing_given_by_source"].get(item, 0.0)
+                    by = r.fighters[k]["barrier_given_by_source" if barrier else "healing_given_by_source"]
+                    ally += by.get(item, 0.0)
                     t += r.time
     return ally / t * 60
 
@@ -107,6 +109,14 @@ def main():
                            "held_min": round(re[n][2]), "sim_ally_hp_fight_min": round(sm[n], 1),
                            "real_per_sim": round(ratio[n], 4), "factor": round(min(1.0, ratio[n] / ref), 3)}
         print(n, out["items"][n])
+    if os.path.exists(OUT):   # keep ally_barrier.py's barrier items (rerun that after new holder rates)
+        with open(OUT) as f:
+            old = json.load(f)
+        for k in ("barrier_source",):
+            if k in old:
+                out[k] = old[k]
+        for n, e in old.get("items", {}).items():
+            out["items"].setdefault(n, e)
     with open(OUT, "w") as f:
         json.dump(out, f, indent=1)
 

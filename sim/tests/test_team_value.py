@@ -201,6 +201,13 @@ class AllyHeal(unittest.TestCase):
             self.assertIn(name, names)
             self.assertTrue(0.0 <= f <= 1.0, name)
 
+    def test_divine_barrier_half_to_teammates(self):
+        # ally_barrier.py: real holders put ~half the 3v3's barrier on teammates (the rest on themselves)
+        e = O.ally_heal()
+        self.assertIn("Divine Barrier", e)
+        self.assertLess(e["Divine Barrier"], 0.8)
+        self.assertEqual(e.get("Guardian Ward", 1.0), 1.0)   # measured, not applied (ally_barrier.APPLY)
+
 
 if __name__ == "__main__":
     unittest.main()
