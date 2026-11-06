@@ -1,7 +1,7 @@
 """Apollo's Riposte immobilizes since the late-October 2026 hotfix (deadsim/heroes/fencer.py RIPOSTE_CC). Run from sim/:
     python3 -m unittest discover -s tests
 """
-import heapq
+import json
 import os
 import sys
 import unittest
@@ -26,7 +26,16 @@ class TestRiposte(unittest.TestCase):
         rip.impl.counter(rip.ctx)
         self.assertTrue(g.mods.active("immobilize"))
         self.assertFalse(g.mods.active("stun"))
-        self.assertTrue(g.can_shoot() or g.clip == 0)
+        self.assertFalse(g.mods.active("disarm"))
+        self.assertTrue(g.can_shoot())
+
+    def test_apollo_follows_the_median_order(self):
+        from deadsim.fight import ORDER_HEROES, default_ability_order
+        from deadsim import game
+        self.assertIn("Apollo", ORDER_HEROES)
+        h = game().hero("Apollo")
+        order = json.load(open(os.path.join(os.path.dirname(__file__), "..", "data", "ability_order.json")))
+        self.assertEqual(list(default_ability_order(h)), order["heroes"][str(h.id)]["order"])
 
 
 if __name__ == "__main__":
