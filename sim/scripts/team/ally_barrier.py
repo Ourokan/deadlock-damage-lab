@@ -53,6 +53,8 @@ def main():
     ref = statistics.median(ratio[n] for n in HEAL_REF)
     with open(AH.OUT) as f:
         out = json.load(f)
+    with open(os.path.join(SIM, "..", "data", "patch.json")) as f:
+        out["barrier_patch"] = json.load(f)["patch"]   # own stamp: ally_heal.py reruns keep these entries
     out["barrier_source"] = (f"ally_barrier.py: holder_rates.py team_barrier / team_heal at the 27k band vs the 3v3 at "
                              f"{AH.SOULS} souls; heal items' median real/sim {ref:.4f}")
     for n in BARRIER:

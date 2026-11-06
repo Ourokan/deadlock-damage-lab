@@ -112,7 +112,7 @@ def main():
     if os.path.exists(OUT):   # keep ally_barrier.py's barrier items (rerun that after new holder rates)
         with open(OUT) as f:
             old = json.load(f)
-        for k in ("barrier_source",):
+        for k in ("barrier_source", "barrier_patch"):
             if k in old:
                 out[k] = old[k]
         for n, e in old.get("items", {}).items():
