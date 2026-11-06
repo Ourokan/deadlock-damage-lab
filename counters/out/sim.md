@@ -1,13 +1,13 @@
 # Counter items in the sim (phantom and up)
 
-Built 2026-11-06T18:43:10Z by `counters/scripts/export_sim.py`. Each hero's most popular real build gets the item added on top and is scored with the overall test (net damage dealt before dying against every hero's typical real build at that net worth; sustain, movement, mechanics and counterplay on). Gain = overall score change, weighted by how often each hero reaches that net worth; the overall score also multiplies in the item's real per-hero win edge (overall_search win_value), so items real buyers lose with score low on Gain even when the sim likes them. *Sim mean* = the same without the win edge (mean of vs over enemies). *Vs enemy* = the change in that one matchup's damage before dying, as a share of the popular build's mean over all matchups (so its enemy-weighted mean is the gain); *lift* = vs enemy minus the item's mean over all enemies.
+Built 2026-11-06T20:51:40Z by `counters/scripts/export_sim.py`. Each hero's most popular real build gets the item added on top and is scored with the overall test (net damage dealt before dying against every hero's typical real build at that net worth; sustain, movement, mechanics and counterplay on). Gain = overall score change, weighted by how often each hero reaches that net worth; the overall score also multiplies in the item's real per-hero win edge (overall_search win_value), so items real buyers lose with score low on Gain even when the sim likes them. *Sim mean* = the same without the win edge (mean of vs over enemies). *Vs enemy* = the change in that one matchup's damage before dying, as a share of the popular build's mean over all matchups (so its enemy-weighted mean is the gain); *lift* = vs enemy minus the item's mean over all enemies.
 
 ## 18,000 souls
 
 | Item | Cost | Gain | Per 1k souls | Sim mean | Best vs (lift) | Already in popular build |
 |---|---|---|---|---|---|---|
-| Divine Barrier | 6,400 | +0.451 | +0.072 | +0.126 | Lash +0.23, Graves +0.16, The Doorman +0.12 | 0 heroes |
 | Spirit Resilience | 3,200 | +0.207 | +0.065 | +0.116 | Lash +0.31, Deadman Danny +0.21, The Doorman +0.20 | 1 heroes |
+| Divine Barrier | 6,400 | +0.328 | +0.052 | +0.126 | Lash +0.23, Graves +0.16, The Doorman +0.12 | 0 heroes |
 | Dispel Magic | 3,200 | +0.109 | +0.034 | +0.073 | Mirage +0.32, Pocket +0.14, Lash +0.13 | 3 heroes |
 | Indomitable | 6,400 | +0.186 | +0.029 | +0.142 | Vyper +0.31, Deadman Danny +0.25, Abrams +0.22 | 0 heroes |
 | Reactive Barrier | 1,600 | +0.041 | +0.026 | +0.054 | Deadman Danny +0.21, Graves +0.18, Abrams +0.10 | 2 heroes |
@@ -74,7 +74,7 @@ Best counter per enemy hero (highest lift; matchup change in brackets):
 | Item | Cost | Gain | Per 1k souls | Sim mean | Best vs (lift) | Already in popular build |
 |---|---|---|---|---|---|---|
 | Spirit Resilience | 3,200 | +0.189 | +0.059 | +0.106 | Lash +0.31, Deadman Danny +0.19, Graves +0.19 | 10 heroes |
-| Divine Barrier | 6,400 | +0.317 | +0.050 | +0.091 | Lash +0.14, Graves +0.14, Viscous +0.08 | 0 heroes |
+| Divine Barrier | 6,400 | +0.245 | +0.039 | +0.091 | Lash +0.14, Graves +0.14, Viscous +0.08 | 0 heroes |
 | Dispel Magic | 3,200 | +0.104 | +0.033 | +0.057 | Mirage +0.24, Lash +0.16, Graves +0.12 | 6 heroes |
 | Indomitable | 6,400 | +0.175 | +0.028 | +0.114 | Vyper +0.35, Deadman Danny +0.19, Wraith +0.18 | 0 heroes |
 | Witchmail | 6,400 | +0.150 | +0.024 | +0.153 | Graves +0.22, Deadman Danny +0.14, Lash +0.10 | 0 heroes |
@@ -141,7 +141,7 @@ Best counter per enemy hero (highest lift; matchup change in brackets):
 | Item | Cost | Gain | Per 1k souls | Sim mean | Best vs (lift) | Already in popular build |
 |---|---|---|---|---|---|---|
 | Spirit Resilience | 3,200 | +0.197 | +0.061 | +0.136 | Lash +0.35, Deadman Danny +0.21, The Doorman +0.14 | 14 heroes |
-| Divine Barrier | 6,400 | +0.310 | +0.048 | +0.096 | Lash +0.13, Viscous +0.11, Nurse Harrow +0.08 | 2 heroes |
+| Divine Barrier | 6,400 | +0.230 | +0.036 | +0.096 | Lash +0.13, Viscous +0.11, Nurse Harrow +0.08 | 2 heroes |
 | Dispel Magic | 3,200 | +0.106 | +0.033 | +0.053 | Mirage +0.22, Lash +0.18, Infernus +0.12 | 11 heroes |
 | Indomitable | 6,400 | +0.179 | +0.029 | +0.122 | Wraith +0.25, Vyper +0.25, Deadman Danny +0.19 | 0 heroes |
 | Witchmail | 6,400 | +0.143 | +0.022 | +0.164 | Deadman Danny +0.17, Lash +0.15, Celeste +0.13 | 1 heroes |
@@ -209,8 +209,8 @@ Best counter per enemy hero (highest lift; matchup change in brackets):
 |---|---|---|---|---|---|---|
 | Spirit Resilience | 3,200 | +0.194 | +0.061 | +0.151 | Lash +0.48, The Doorman +0.44, Grey Talon +0.29 | 16 heroes |
 | Dispel Magic | 3,200 | +0.115 | +0.036 | +0.056 | Mirage +0.29, Drifter +0.17, Lash +0.14 | 11 heroes |
-| Divine Barrier | 6,400 | +0.227 | +0.035 | +0.086 | Lash +0.24, Viscous +0.20, The Doorman +0.16 | 3 heroes |
 | Indomitable | 6,400 | +0.204 | +0.032 | +0.157 | Wraith +0.38, Vyper +0.25, The Doorman +0.19 | 2 heroes |
+| Divine Barrier | 6,400 | +0.179 | +0.028 | +0.086 | Lash +0.24, Viscous +0.20, The Doorman +0.16 | 3 heroes |
 | Spellbreaker | 6,400 | +0.168 | +0.026 | +0.192 | Grey Talon +0.32, Lash +0.32, Holliday +0.23 | 0 heroes |
 | Witchmail | 6,400 | +0.146 | +0.023 | +0.168 | The Doorman +0.31, Lash +0.27, Deadman Danny +0.20 | 2 heroes |
 | Debuff Reducer | 1,600 | +0.013 | +0.008 | +0.088 | Holliday +0.26, Grey Talon +0.22, Paige +0.18 | 0 heroes |
