@@ -15,7 +15,7 @@ health at its start and the items held through it.
 Writes sim/data/fight_rate.json and sim/validation/fight_rate.md. Static snapshot (the timelines live in the shared
 folder, CI can't refit it). ~10 min, ~3 GB.
 
-usage: python3 -I fit_fight_rate.py [--src DIR] [--out FILE] [--match none|lead|items] [--lead-lag S]
+usage: python3 -I fit_fight_rate.py [--src DIR] [--out FILE] [--match none|lead|items] [--lead-lag S] [--half 0|1]
 """
 import argparse
 import bisect
@@ -128,10 +128,12 @@ def main():
                     help="extra item-table stratum: none (the shipped fight_rate.json), team net worth lead or the "
                          "number of items held")
     ap.add_argument("--lead-lag", type=int, default=0, help="--match lead: the lead this many seconds earlier")
+    ap.add_argument("--half", type=int, choices=(0, 1), default=None,
+                    help="only matches with match_id %% 2 == HALF (split-half check of a refit)")
     a = ap.parse_args()
     if a.lead_lag and a.match != "lead":
         ap.error("--lead-lag needs --match lead")
-    if (a.match != "none" or a.lead_lag) and a.out == OUT:
+    if (a.match != "none" or a.lead_lag or a.half is not None) and a.out == OUT:
         ap.error("a matched variant needs --out (the shipped fight_rate.json is the unmatched fit)")
     R.METRICS = ITEM_KEYS
     items = R.shop_items()
@@ -143,6 +145,8 @@ def main():
             for line in f:
                 m = json.loads(line)
                 if m.get("mode") not in (None, "Normal", 1):
+                    continue
+                if a.half is not None and m["match_id"] % 2 != a.half:
                     continue
                 n_m += 1
                 grp = m["match_id"] % GROUPS

@@ -4,7 +4,9 @@ Pulls the current game data and changelog from the Deadlock API and compares the
   new patch    a changelog entry dated after the current patch. Waits until MIN_DAYS full UTC days of ranked
                games exist on it, then reruns with player builds from the new patch only.
   hotfix       the game data's gameplay values changed with no new changelog entry. Reruns right away on the
-               same patch's builds.
+               same patch's builds. A big hotfix (BIG_HOTFIX_ITEMS shop items changed) also sets patch.json
+               meta_start to the next day: once that has 3 full days, builds come from after the hotfix only
+               (patch_state.window_start), and the 7 and 14 day marks count from it.
   more data    same patch and game data, but the patch now has 7 or 14 full days of games while the results
                used fewer (the duel brackets read 7 or 14 days). Reruns once at each mark.
   standard     the standard rank bracket (search/scripts/build_pool.PRIMARY) differs from the one the results were
@@ -33,6 +35,9 @@ from build_pool import PRIMARY  # noqa: E402
 REQUEST = os.path.join(ROOT, "pipeline", "rerun_request.json")
 MIN_DAYS = 3
 MILESTONES = (7, 14)
+# A hotfix that changes this many shop items starts a new builds window (patch_state.meta_start). The 10-30 hotfix
+# changed 36 (heal nerfs, Decay, Toxic Bullets...) and moved the meta; the 11-05 one changed 1 item and 19 abilities.
+BIG_HOTFIX_ITEMS = 10
 
 
 def latest_patch(patches):
@@ -71,8 +76,9 @@ def pending_request(state, now):
     return None
 
 
-def decide(state, game_hash, patches, today, force=False, request=None):
-    """Returns (action, reason, new_state). request: the reason of a rerun requested since the results were built."""
+def decide(state, game_hash, patches, today, force=False, request=None, changed_items=0):
+    """Returns (action, reason, new_state). request: the reason of a rerun requested since the results were built.
+    changed_items: how many shop items the new game data changes (patch_state.changed_entries)."""
     yesterday = today - datetime.timedelta(days=1)
     cur_date = P.patch_date(state["patch"])
     new_date, new_title = latest_patch(patches)
@@ -81,13 +87,21 @@ def decide(state, game_hash, patches, today, force=False, request=None):
         start = new_date + datetime.timedelta(days=1)
         have = (yesterday - start).days + 1
         new.update(patch=new_title, patch_start=str(start))
+        new.pop("meta_start", None)
         if have >= MIN_DAYS or force:
             return "rerun", f"new patch {new_title}: {max(have, 0)} full days of games since {start}", new
         return "wait", f"new patch {new_title}: {max(have, 0)} of {MIN_DAYS} full days of games so far", state
-    have = (yesterday - P.day(state["patch_start"])).days + 1
     used = len(P.build_days(state))
     if game_hash != state["game_hash"]:
+        if changed_items >= BIG_HOTFIX_ITEMS:
+            new["meta_start"] = str(today + datetime.timedelta(days=1))
+            return "rerun", (f"game data changed on patch {state['patch']} (hotfix, {changed_items} items: builds from "
+                             f"{new['meta_start']} on once it has {P.META_MIN_DAYS} full days)"), new
         return "rerun", f"game data changed on patch {state['patch']} (hotfix)", new
+    start = P.window_start(new)
+    if start != P.window_start(state):
+        return "rerun", f"builds window now starts {start}, after the hotfix ({(yesterday - start).days + 1} full days)", new
+    have = (yesterday - start).days + 1
     if state.get("standard") != PRIMARY:
         return "rerun", f"standard rank bracket is now {PRIMARY} (results built for {state.get('standard', 'all')})", new
     for m in MILESTONES:
@@ -116,7 +130,11 @@ def main():
     with open(os.path.join(raw, "patches.json")) as f:
         patches = json.load(f)
     request = pending_request(state, datetime.datetime.now(datetime.timezone.utc))
-    action, reason, new = decide(state, P.game_hash(game), patches, today, a.force, request)
+    shop = os.path.join(game, "shop_items.json")
+    with open(shop) as f:
+        items = {P._key(e) for e in json.load(f) if isinstance(e, dict)}
+    changed = len([k for k in P.changed_entries(os.path.join(ROOT, "data", "game"), game) if k in items])
+    action, reason, new = decide(state, P.game_hash(game), patches, today, a.force, request, changed)
     print(f"{action}: {reason}")
     if a.apply and action == "rerun":
         dst = os.path.join(ROOT, "data", "game")

@@ -91,6 +91,19 @@ class GapHeal(unittest.TestCase):
             self.assertAlmostEqual(O.gap_heal(r, [ID["Restorative Shot"]], gap=30.0), 60.0 * 1.5 + 30.0 * 1.2)
             self.assertAlmostEqual(O.gap_heal(r, [ID["Restorative Shot"]], gap=30.0, phase="mid"), 45.0 + 18.0)
 
+    def test_farm_rate_follows_heal_change_since_measured(self):
+        rad = G.items[ID["Radiant Regeneration"]]
+        spec = O.item_heal_spec(rad)
+        half = {q: [v / 2, k / 2, kind] if q != "RegenerationDuration" else [v, k, kind] for q, (v, k, kind) in spec.items()}
+        sus = dict(NO_PICKUPS, farm_heal_hp_per_min={"Radiant Regeneration": {"lane": 60.0, "mid": 60.0, "late": 60.0}},
+                   measured_items={"Radiant Regeneration": half})
+        r = self.r | {"regen": 0.0, "ooc_regen": 0.0, "boons": 20, "spirit_power": 50.0}
+        with mock.patch.object(O, "sustain", lambda: sus):
+            self.assertAlmostEqual(O.heal_change(rad, 20, 50.0), 2.0)            # measured at half today's heal
+            self.assertAlmostEqual(O.gap_heal(r, [ID["Radiant Regeneration"]], gap=30.0), 30.0 * 2.0)
+        with mock.patch.object(O, "sustain", lambda: dict(sus, measured_items={})):
+            self.assertAlmostEqual(O.heal_change(rad, 20, 50.0), 1.0)            # unstamped: as measured
+
     def test_healbane_cuts_enemy_gap_heal(self):
         hb = G.items[ID["Healbane"]]
         want = 1 - abs(hb.props["HealAmpReceivePenaltyPercent"]) / 100 * hb.props["AbilityDuration"] / 25.0
