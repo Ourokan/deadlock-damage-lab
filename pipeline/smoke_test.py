@@ -281,6 +281,16 @@ _today = datetime.date(2026, 10, 24)
 assert CP.decide(_state, "h", [], _today, request="fix")[:2] == ("rerun", "rerun requested: fix")
 assert CP.decide(_state, "h", [], _today)[0] == "none"
 assert CP.decide(_state, "h", [{"title": "10-23-2026 Update"}], _today, request="fix")[0] == "wait"   # new patch waits
+# a big hotfix starts a new builds window once it has META_MIN_DAYS full days; a small one doesn't
+_a, _r, _n = CP.decide(_state, "h2", [], _today, changed_items=CP.BIG_HOTFIX_ITEMS)
+assert _a == "rerun" and _n["meta_start"] == "2026-10-25" and CP.P.window_start(_n) == datetime.date(2026, 9, 30)
+assert "meta_start" not in CP.decide(_state, "h2", [], _today, changed_items=1)[2]
+_m = dict(_n, results_built="2026-10-24T00:00:00Z")
+_d = datetime.date(2026, 10, 28)   # 10-25..10-27: 3 full days after the hotfix
+_a, _r, _n2 = CP.decide(_m, "h2", [], _d)
+assert _a == "rerun" and "2026-10-25" in _r and CP.P.build_days(_n2)[0] == datetime.date(2026, 10, 25), _r
+assert CP.decide(_n2, "h2", [], _d)[0] == "none"
+assert CP.decide(_n2, "h2", [{"title": "10-30-2026 Update"}], datetime.date(2026, 11, 5))[2].get("meta_start") is None
 CP.REQUEST = _req
 shutil.rmtree(_tmp)
 print("rerun request ok")
