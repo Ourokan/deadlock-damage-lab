@@ -94,10 +94,10 @@ class Gun(unittest.TestCase):
 
     def test_headshots_and_bullet_resist(self):
         sk = Skill(accuracy=1.0, headshot=0.5, use_abilities=False, use_actives=False)
-        # 20 shots, 10 headshots at 1.65x; target has Bullet Resilience 30% -> * 0.7
+        # 20 shots, 10 headshots at 1.65x; target has Bullet Resilience 35% (30% before the late-October hotfix) -> * 0.65
         dmg, _ = gun_damage_after(Loadout("Infernus", [], souls=0, skill=sk),
                                   Loadout("Abrams", ["Bullet Resilience"], souls=0), 2.0)
-        self.assertAlmostEqual(dmg, (10 * 5.5 + 10 * 5.5 * 1.65) * 0.7, places=6)
+        self.assertAlmostEqual(dmg, (10 * 5.5 + 10 * 5.5 * 1.65) * 0.65, places=6)
 
     def test_accuracy_accumulator(self):
         a = Accum()

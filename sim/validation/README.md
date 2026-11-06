@@ -3504,3 +3504,26 @@ per cast real / sim: Greater Expansion 1.078 / 0.960 (even 1.083 / 0.944, odd 1.
   correction (the refit ran it 3.5 -> 7.5 with the gap still open: a missing mechanic, not range).
 - Whole sample: audit mix 0.0159 -> 0.0153, per-source 0.0194 -> 0.0170. sim_vs_win 27k: all 0.314 -> 0.318, within
   slot and tier 0.345 -> 0.353, per item 0.447 -> 0.453, damage items 0.200 -> 0.203.
+
+## Yamato on a fresh sample: the spirit meta (2026-11-06, ability corrections refit)
+
+- Fresh out-of-sample audit: 4,000 Phantom+ matches from 2026-10-30 to 2026-11-06 (fetch_validation.ids_from_api 91,
+  7 days, not in phantom_sample; 43,128 player-matches, ~11 min on 4 cores; the file is in the project's shared folder,
+  sim/validation/fresh_2026-11-06_sample.jsonl.gz, too big for the repo). Furthest hero: Yamato 0.098 (647 players),
+  then Viscous, Apollo, Nurse Harrow 0.05, Kelvin and Ivy 0.04.
+- Why: Yamato players went spirit. Players with more than 40% of their item souls in spirit: 28% of the 197 in
+  phantom_sample, 77% of the 1,270 here. Real mix by build spirit share (fifths, fresh sample): Power Slash
+  0.08 -> 0.33 of his damage, melee 0.22 -> 0.05. The sim's Power Slash stayed at 0.13 -> 0.14: the popular ability
+  order (build aggregates' top row) leaves it at tier 0 until 60% of the match (real players tier 2.3 then).
+- Tried: the real median order (ability_order.py on the half, Yamato in fight.ORDER_HEROES) + refit vs the same refit
+  on the popular order, split-half on even/odd match ids: 0.039 vs 0.037 and 0.032 vs 0.031 (0.041 with the median
+  order in the audit too). The order alone keeps Power Slash's correction where it was (2.59) but does not beat the
+  refit on the audit: not kept.
+- Full Yamato refit (ability corrections 3 rounds, per-hero item rows 2 rounds, melee rate) holds split-half by a lot
+  (mix 0.099 -> 0.037 and 0.097 -> 0.031) but lowers his sim_vs_win (27k + 37k, within slot and tier 0.326 -> 0.313).
+  Parts alone: corrections 0.331, item rows 0.318, melee rate (0.079 -> 0.035) 0.327, corrections + melee 0.320.
+- Kept: the ability corrections alone (Power Slash 2.61 -> 3.78, Flying Slash 0.92 -> 0.66, Crimson Slash 1.47 -> 1.03).
+  Split-half held-out per-source 0.125 -> 0.079 and 0.125 -> 0.089, mix 0.099 -> 0.093 and 0.097 -> 0.099 (within the
+  usual +0.002); whole fresh sample mix 0.098 -> 0.096, per-source 0.125 -> 0.084; Yamato sim_vs_win within 0.326 -> 0.331.
+  The item rows and melee rate wait on Tyler (they close most of the gap but cost sim_vs_win). Note: sim_vs_win's popular
+  builds are the shared search/work snapshots from 2026-10-14, before the spirit meta.

@@ -98,7 +98,8 @@ class BabaCase(unittest.TestCase):
     def test_first_brew_is_prebrewed(self):
         br = self.ab["ability_baba_hexing_brew"]
         br.cast()
-        self.run_queue(br.ctx.raw("FireLockTime") - 0.5)        # a brewed throw would not land yet
+        self.run_queue(br.ctx.raw("FireLockTime", 4.5) - 0.5)   # a brewed throw would not land yet (the hotfix data
+        # has no FireLockTime any more: the sim keeps its 4.5 s default)
         first = self.f.dmg_out.get("Baba's Brew", 0)
         self.assertGreater(first, 0)                             # the first throw needs no brewing
         self.assertTrue(br.scratch["thrown"])
