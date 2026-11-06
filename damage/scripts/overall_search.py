@@ -42,7 +42,8 @@ entry_deficit_q; half the fights start full), and a build that heals more in the
 a fight arrives fuller in the fights that start short (entry_hp_start, scaled to real holders by fit_entry.py). Gap healing counts health regen, out-of-combat regen, Fortitude, heal pickups from medic troopers
 (amped by Healing Booster) and the real out-of-fight rate of farm-heal items (Radiant Regeneration, Restorative Shot
 on creeps, lifesteal on creeps...), all measured in sim/scripts/sustain/fit_sustain.py. Healing in the field also
-saves trips back to the fountain (map_time: each item's real fountain saving on holders, TRIP_S).
+saves trips back to the fountain (map_time: each item's real fountain saving on holders, TRIP_S; none for items whose
+real holders farm fewer jungle souls, TRIP_JUNGLE_GATE).
 Healbane's cut runs at the real heal-prevented rate (healbane_landing, sim/scripts/sustain/fit_healbane.py).
 Team value (2026-10-24, the real win check found Heroic Aura, Mystic Reverb... never picked while winning): real
 Phantom+ fights are rarely 1v1 (sim/data/team_value.json "positions", fit from 1 s match positions by
@@ -884,14 +885,35 @@ def build_stats(h, items, souls):
 TRIP_S = 40.0
 
 
-def field_saving(items, ph, at=None):
+# Trip savings need real holders to use the time (2026-11-06, sim/validation/map_time.md): the minutes a heal item
+# saves on fountain trips would go to farming and fighting, so its real holders should farm more jungle souls than
+# matched non-holders. Radiant Regeneration (x0.985 at 27k) and Healing Booster (x0.973) holders farm LESS, while
+# their trip saving was their largest score part (~3%) against real win edges of -4.5 / -2.4 pts. Items whose real
+# jungle ratio (fight_rate.json, the fit budget nearest the build) is below 1 save no trips (TRIP_JUNGLE_GATE); the
+# lifesteals and Fortitude, whose holders farm more, keep theirs. sim_vs_win within slot and tier 27k 0.374 -> 0.382,
+# 37k 0.347 -> 0.351, both hero halves; dropping map time altogether lifts 27k more but lowers 37k.
+TRIP_JUNGLE_GATE = True
+
+
+def trip_gated(name, souls):
+    """True when the item's real holders farm fewer jungle souls than non-holders at the fit budget nearest souls."""
+    if not TRIP_JUNGLE_GATE or souls is None:
+        return False
+    d = fight_rate_data()["items"]
+    b = min(d, key=lambda k: abs(math.log(int(k) / souls)))
+    j = d[b]["items"].get(name, {}).get("jungle")
+    return bool(j) and j[0] < 1.0
+
+
+def field_saving(items, ph, at=None, souls=None):
     """Fountain healing per minute a build's field-heal items save (real holders vs non-holders), scaled by their heal
-    change since measured at stats `at` (build_stats form)."""
+    change since measured at stats `at` (build_stats form). Items trip_gated at souls save none."""
     saved = sustain()["fountain_saved_hp_per_min"]
     g = S.G()
     at = at or {}
     return sum(saved.get(g.items[i].name, {}).get(ph, 0.0)
-               * heal_change(g.items[i], at.get("boons", 0.0), at.get("spirit_power", 0.0)) for i in items)
+               * heal_change(g.items[i], at.get("boons", 0.0), at.get("spirit_power", 0.0)) for i in items
+               if not trip_gated(g.items[i].name, souls))
 
 
 def map_time(h, items, souls, pop):
@@ -904,8 +926,8 @@ def map_time(h, items, souls, pop):
     if ph == "lane" or not sus.get("heal_trips_per_min"):
         return 1.0
     f = sus["fountain_hp_per_min"][ph]
-    need = max(0.0, f - (field_saving(items, ph, build_stats(h, items, souls))
-                         - field_saving(pop, ph, build_stats(h, pop, souls))))
+    need = max(0.0, f - (field_saving(items, ph, build_stats(h, items, souls), souls)
+                         - field_saving(pop, ph, build_stats(h, pop, souls), souls)))
     trips = sus["heal_trips_per_min"][ph] * need / max(1.0, f) \
         * build_stats(h, pop, souls)["max_hp"] / build_stats(h, items, souls)["max_hp"]
     return max(0.1, 1.0 - trips * TRIP_S / 60.0)   # floor: a build always spends some time on the map

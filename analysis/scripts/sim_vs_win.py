@@ -129,8 +129,11 @@ def main():
     ap.add_argument("--deaths-per-minute", action="store_true",
                     help="real death ratios per minute, not per kills + assists (DEATH_PER_KA off)")
     ap.add_argument("--death-gamma", type=float, default=None, help="overall_search.DEATH_RATE_GAMMA (1 = time dead only; else tier-1 death ratios out from 27k too)")
+    ap.add_argument("--no-trip-gate", action="store_true",
+                    help="overall_search.TRIP_JUNGLE_GATE off (every field-heal item saves fountain trips)")
     ap.add_argument("--out", default="")
     a = ap.parse_args()
+    O.TRIP_JUNGLE_GATE = not a.no_trip_gate   # workers fork after this
     g = S.G()
     heroes = [g.hero(int(h) if h.isdigit() else h).id for h in a.heroes.split(",") if h] or sorted(g.heroes)
     jobs = [(h, int(b), not a.no_kill, a.death, a.bounty, not a.no_death_rate, a.fight_rate, a.elasticity,
