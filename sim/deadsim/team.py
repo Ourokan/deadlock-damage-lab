@@ -526,7 +526,7 @@ def _row(f, team, out=()):
         "damage": sum(f.dmg_out.values()), "damage_by_source": dict(f.dmg_out),
         "damage_taken": sum(f.dmg_in.values()), "healed": f.healed,
         "healing_given": sum(sup.values()), "healing_given_by_source": dict(sup),
-        "barrier_given": sum(bar.values()), "kills": f.counters.get("kills", 0),
+        "barrier_given": sum(bar.values()), "barrier_given_by_source": dict(bar), "kills": f.counters.get("kills", 0),
     }
 
 

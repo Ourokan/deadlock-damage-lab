@@ -621,6 +621,9 @@ def ally_heal():
         if d.get("patch") != patch:   # static file: the sustain replays live in the shared folder, CI can't refit it
             print(f"warning: {ALLY_HEAL_PATH} is from patch {d.get('patch')}, the sim is on {patch}; "
                   "rerun sim/scripts/team/ally_heal.py on new sustain replays", file=sys.stderr)
+        if "barrier_patch" in d and d["barrier_patch"] != patch:   # ally_barrier.py's entries, kept by ally_heal.py
+            print(f"warning: {ALLY_HEAL_PATH} barrier items are from patch {d['barrier_patch']}, the sim is on {patch}; "
+                  "rerun sim/scripts/team/ally_barrier.py on new holder rates", file=sys.stderr)
         _ally_heal = {n: e["factor"] for n, e in d["items"].items()}
     return _ally_heal
 
