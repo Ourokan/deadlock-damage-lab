@@ -778,7 +778,65 @@ def game_phase(souls):
     return "lane" if souls < 10000 else "mid" if souls <= 27000 else "late"
 
 
-def gap_heal(r, items, gap=TRADE_GAP, phase="lane"):
+# Real per-item heal rates (sustain.json farm_heal_hp_per_min, fountain_saved_hp_per_min) are measured on replays from
+# the game values of the time (sustain.json measured_items). A patch that changes an item's heal (the 10-30 hotfix:
+# Radiant Regeneration 65 + 1.7/boon per cast -> 40 + 1.4, regen 0.035 -> 0.025/spirit; lifesteal 13% -> 15%) left
+# those rates at the old strength while the real games moved: Radiant's real win edge fell ~1.5 z within its tier on
+# the post-hotfix week, both days apart. So each rate is scaled by the item's heal value now / when measured, at the
+# build's boons and spirit power (heal_change). Items without a measured stamp keep 1.
+HEAL_VALUE_PROPS = {
+    "Radiant Regeneration": (("HealingPerCast", None), ("Regeneration", "RegenerationDuration")),
+    "Mystic Regeneration": (("Regeneration", "RegenerationDuration"),),
+    "Restorative Shot": (("HealFromHero", None), ("HealFromNPC", None)),
+    "Healing Rite": (("TotalHealthRegen", None),),
+    "Spirit Lifesteal": (("AbilityLifestealPercentHero", None),),
+    "Bullet Lifesteal": (("BulletLifestealPercent", None),),
+    "Extra Regen": (("BonusHealthRegen", None),),
+}
+
+
+def item_heal_spec(it):
+    """{prop: [value, per-boon or per-spirit scale, 'boon' / 'spirit' / None]} of an item's heal properties."""
+    out = {}
+    for prop, dur in HEAL_VALUE_PROPS.get(it.name, ()):
+        for q in (prop,) + ((dur,) if dur else ()):
+            if q not in it.props:
+                continue
+            sc = it.scale.get(q)
+            kind, k = None, 0.0
+            if sc:
+                cls, stype, k = sc
+                kind = "boon" if stype == "ELevelUpBoons" or cls == "scale_function_healing_boon_scale" else \
+                    "spirit" if cls in ("scale_function_tech_damage", "scale_function_healing_spirit_scale") \
+                    or stype == "ETechPower" else None
+            out[q] = [it.props[q], k or 0.0, kind]
+    return out
+
+
+def heal_value(name, spec, boons, sp):
+    """An item's heal at boons / spirit power from a heal spec (item_heal_spec form): sum of its heal properties,
+    a per-second one times its duration."""
+    def v(q):
+        val, k, kind = spec.get(q, (0.0, 0.0, None))
+        return val + k * (boons if kind == "boon" else sp if kind == "spirit" else 0.0)
+    return sum(v(prop) * (v(dur) if dur else 1.0) for prop, dur in HEAL_VALUE_PROPS.get(name, ()))
+
+
+_heal_specs = {}
+
+
+def heal_change(it, boons, sp):
+    """The item's heal value now / when its real rates were measured (sustain.json measured_items), 1 unstamped."""
+    old = sustain().get("measured_items", {}).get(it.name)
+    if not old:
+        return 1.0
+    if it.name not in _heal_specs:
+        _heal_specs[it.name] = item_heal_spec(it)
+    was = heal_value(it.name, old, boons, sp)
+    return heal_value(it.name, _heal_specs[it.name], boons, sp) / was if was > 0 else 1.0
+
+
+def gap_heal(r, items, gap=TRADE_GAP, phase="lane", at=None):
     """Health healed in `gap` s out of hero combat by the build of survive() result r (or build_stats()): health
     regen the whole gap, out-of-combat regen after OOC_DELAY, Fortitude after its RestoreDelay (scaled to real
     holders, fortitude_heal_scale: creeps and troopers reset it), medic trooper heal
@@ -797,7 +855,8 @@ def gap_heal(r, items, gap=TRADE_GAP, phase="lane"):
                 * max(0.0, gap - it.props.get("RestoreDelay", 10)) * sus.get("fortitude_heal_scale", {}).get(phase, 1.0)
         rate = sus["farm_heal_hp_per_min"].get(it.name)
         if rate:
-            farm += rate[phase] / 60 * gap
+            at = at or r
+            farm += rate[phase] / 60 * gap * heal_change(it, at.get("boons", 0.0), at.get("spirit_power", 0.0))
     return h * amp + farm * (1.0 + (r.get("heal_amp_cast") or 0.0))
 
 
@@ -811,7 +870,8 @@ def build_stats(h, items, souls):
         g = S.G()
         st = compute_stats(g.hero(h), [g.items[i] for i in key[1]], souls=souls)
         _stats[key] = {"regen": st.health_regen, "ooc_regen": st.ooc_regen, "regen_amp": st.heal_amp,
-                       "heal_amp_cast": st.heal_amp_cast, "max_hp": st.max_health}
+                       "heal_amp_cast": st.heal_amp_cast, "max_hp": st.max_health, "boons": st.boons,
+                       "spirit_power": st.spirit_power}
     return _stats[key]
 
 
@@ -824,11 +884,14 @@ def build_stats(h, items, souls):
 TRIP_S = 40.0
 
 
-def field_saving(items, ph):
-    """Fountain healing per minute a build's field-heal items save (real holders vs non-holders)."""
+def field_saving(items, ph, at=None):
+    """Fountain healing per minute a build's field-heal items save (real holders vs non-holders), scaled by their heal
+    change since measured at stats `at` (build_stats form)."""
     saved = sustain()["fountain_saved_hp_per_min"]
     g = S.G()
-    return sum(saved.get(g.items[i].name, {}).get(ph, 0.0) for i in items)
+    at = at or {}
+    return sum(saved.get(g.items[i].name, {}).get(ph, 0.0)
+               * heal_change(g.items[i], at.get("boons", 0.0), at.get("spirit_power", 0.0)) for i in items)
 
 
 def map_time(h, items, souls, pop):
@@ -841,7 +904,8 @@ def map_time(h, items, souls, pop):
     if ph == "lane" or not sus.get("heal_trips_per_min"):
         return 1.0
     f = sus["fountain_hp_per_min"][ph]
-    need = max(0.0, f - (field_saving(items, ph) - field_saving(pop, ph)))
+    need = max(0.0, f - (field_saving(items, ph, build_stats(h, items, souls))
+                         - field_saving(pop, ph, build_stats(h, pop, souls))))
     trips = sus["heal_trips_per_min"][ph] * need / max(1.0, f) \
         * build_stats(h, pop, souls)["max_hp"] / build_stats(h, items, souls)["max_hp"]
     return max(0.1, 1.0 - trips * TRIP_S / 60.0)   # floor: a build always spends some time on the map
@@ -893,6 +957,7 @@ def lane_fight(h, items, oh, oitems, souls, phase=None, start_hp=None):
     esk = dataclasses.replace(skill(oh), fight_phase=None if phase is None else (phase + 0.5) % 1.0)
     hp, ehp, dmg, t = None, None, 0.0, 0.0
     hb = healbane_gap_share(items)
+    at, eat = build_stats(h, items, souls), build_stats(oh, oitems, souls)   # boons / spirit power for heal_change
     for k in range(LANE_TRADES):
         r = survive(h, items, souls, oh, oitems, max_time=TRADE_S, focus=LANE_FOCUS, skill=sk, enemy_skill=esk,
                     start_hp=hp, enemy_start_hp=ehp, extra_targets=near("extra", RICOCHET_RADIUS, souls))
@@ -900,10 +965,10 @@ def lane_fight(h, items, oh, oitems, souls, phase=None, start_hp=None):
         t += r["time_alive"]
         if not r["survived"]:
             return dmg, t, k / LANE_TRADES
-        hp = min(r["max_hp"], r["final_hp"] + gap_heal(r, items))
+        hp = min(r["max_hp"], r["final_hp"] + gap_heal(r, items, at=at))
         if "enemy" in r:
             emax = r["enemy_max_hp"]
-            ehp = min(emax, r["enemy_final_hp"] + gap_heal(r["enemy"], oitems) * hb)
+            ehp = min(emax, r["enemy_final_hp"] + gap_heal(r["enemy"], oitems, at=eat) * hb)
             if k + 1 < LANE_TRADES and (r["enemy_kills"] or ehp < BACK_FRAC * emax):
                 left = LANE_TRADES - k - 1
                 return dmg * (1 + left / (k + 1)), t + left * TRADE_S, 1.0
