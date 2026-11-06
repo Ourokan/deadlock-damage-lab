@@ -530,21 +530,21 @@
     "landing": 0.72,
     "real_share": 0.299,
     "sim_share": 0.3512,
-    "length_corr": 1.773
+    "length_corr": 1.641
    },
    "Puddle Punch": {
     "class": "viscous_telepunch",
     "landing": 0.37,
     "real_share": 0.1221,
     "sim_share": 0.1434,
-    "length_corr": 1.558
+    "length_corr": 1.372
    },
    "Goo Ball": {
     "class": "viscous_goo_bowling_ball",
     "landing": 0.46,
     "real_share": 0.0652,
     "sim_share": 0.0767,
-    "length_corr": 3.768
+    "length_corr": 2.238
    }
   },
   "Pocket": {
@@ -1024,12 +1024,12 @@
   "Nurse Harrow": {
    "Leech Therapy": {
     "landing": 1.3,
-    "length_corr": 1.416,
+    "length_corr": 1.741,
     "class": "ability_nurse_leech_therapy"
    },
    "Lurking Terrors": {
     "landing": 0.57,
-    "length_corr": 1.723,
+    "length_corr": 0.811,
     "class": "ability_nurse_fear"
    }
   },

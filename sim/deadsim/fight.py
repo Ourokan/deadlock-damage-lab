@@ -112,7 +112,7 @@ class Loadout:
 # hero by split-half (validation/README.md "Ability order"; Graves and Dynamo since 2026-10-28; Sinclair, Doorman and
 # McGinnis did not hold); the damage audit gives these heroes' players their real tiers at the duel's moment (real
 # Dynamos have Singularity tier 3 at 20k souls in 45% of player-matches, no single order does).
-ORDER_HEROES = ("Celeste", "Ivy", "Paige", "Graves", "Dynamo")
+ORDER_HEROES = ("Celeste", "Ivy", "Paige", "Graves", "Dynamo", "Apollo")
 
 
 @lru_cache(maxsize=64)

@@ -23,7 +23,8 @@ replays, 2026-10-25):
   meanwhile (guess: both hands on the bag) and a stun ends it. The target faces Nurse while it fights her, so it
   builds terror for BuildupTime, then flees in fear (disarm + silence) for DebuffDuration +
   FearDurationPerLeechStack per stack, then builds again; it takes full DPS throughout (facing her or feared) and
-  FireRateSlow% fire-rate slow. T3: Nurse is immune to damage while channeling. Real ult casts hit the main target
+  FireRateSlow% fire-rate slow. T3: Nurse takes DamageResistPctWhileChanneling% less damage while channeling (immune
+  before the late-October 2026 hotfix, ChannelDamageImmune). Real ult casts hit the main target
   4.2 s of the 7 s on average (they flee out of the cone) and 2.6 heroes: the landing factor absorbs both.
   The channel commits the fight (TERRORS_COMMIT): ticks book at the channel start's fight weight and the channel left
   when the duel ends still lands (validation/README.md "Nurse's Lurking Terrors runs its channel").
@@ -268,6 +269,9 @@ class LurkingTerrors(AbilityImpl):
         c.lock_gun(delay + T)
         if c.raw("ChannelDamageImmune"):
             c.buff("invulnerable", 1, delay + T, tag="terrors_immune")
+        resist = c.raw("DamageResistPctWhileChanneling", 0)   # T3 since the late-October hotfix (was immunity)
+        if resist:
+            c.buff("damage_taken_mult", 1 - resist / 100, delay + T, tag="terrors_resist")
         tick = c.raw("TickRate", 0.15)
         c.state.update(end=c.now + delay + T, terror=0.0, feared_until=-1.0, book=c.now + delay, last=None)
         c.after(delay + tick, self.tick, c, tick)
@@ -280,6 +284,7 @@ class LurkingTerrors(AbilityImpl):
         if f.mods.active("stun"):   # channel broken
             f.gun_locked_until = c.now
             f.mods.remove("invulnerable", "terrors_immune")
+            f.mods.remove("damage_taken_mult", "terrors_resist")
             st["last"] = None   # nothing of a broken channel lands at the duel's end, even once the stun ran out
             return
         e = c.engine

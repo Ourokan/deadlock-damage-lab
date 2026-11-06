@@ -5,8 +5,8 @@ Assumptions:
   leap back is skipped. T1 fire rate buff for BuffDuration; T3 recast lands a second sigil RECAST_DELAY s later.
 - Riposte: cast while the enemy is shooting and within DashRange; Apollo can't shoot during the
   AbilityChannelTime window. The first enemy damage instance in the window is negated (any instance, the
-  DamageThreshold is ignored), then Apollo is invulnerable for RIPOSTE_INVULN, dashes in, stuns
-  (StunDuration), reduces melee resist and follows up with one basic melee, heavy at the rotation's share (Riposte
+  DamageThreshold is ignored), then Apollo is invulnerable for RIPOSTE_INVULN, dashes in, immobilizes
+  (StunDuration; a stun before the late-October 2026 hotfix), reduces melee resist and follows up with one basic melee, heavy at the rotation's share (Riposte
   itself deals no damage in the game, so the follow-up is booked as basic melee and procs on-melee items). If nothing hits him, it whiffs. T3 lifesteal 75% (bullet + spirit) for TargetLifestealDuration.
 - Flawless Advance: MaxStabs lunges STAB_INTERVAL apart, each a skillshot; PERFECT_RATE of them are perfect
   (PerfectDamage), the rest MaxDamageBeforePerfect. Gun locked while lunging. T1 heals HealFixedHealth per
@@ -37,6 +37,10 @@ FROZEN_BOOKED = True
 # so it stays at 1
 FOLLOW_UP_RATE = 1.0
 FOLLOW_UP_DELAY = 0.75 if FOLLOW_UP_RATE < 1 else 0.2
+# since the late-October 2026 hotfix Riposte immobilizes (StunDuration 0.8 -> 1.5 s, label "Immobilize Duration"): the
+# countered hero can still shoot and cast, only not move. Fresh Phantom+ replays (15 matches, 269 counters,
+# 2026-11-06): 0.76 follow-up melee hits within 1.2 s (was 0.53 under the stun), 0.9 within 2.5 s
+RIPOSTE_CC = "immobilize"
 
 
 @register("ability_fencer_throwblade")
@@ -92,7 +96,7 @@ class Riposte(AbilityImpl):
         f = c.me
         f.mods.add("invulnerable", 1, RIPOSTE_INVULN, "riposte")
         f.gun_locked_until = c.now
-        c.debuff("stun", 1, c.val("StunDuration"))
+        c.debuff(RIPOSTE_CC, 1, c.val("StunDuration"))
         c.debuff("melee_resist", c.raw("MeleeResistReduction") / 100, c.val("MeleeResistReductionDuration"))
         # the follow-up is the player's own melee: the game books it as basic melee (no Riposte damage source), so
         # on-melee items proc on it as on any basic melee and it is heavy at the rotation's share (Phantom+ replays:
