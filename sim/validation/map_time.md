@@ -65,6 +65,11 @@ saves no fountain trips (`trip_gated`, `field_saving(..., souls)`). Gated at 27k
 | map time off for heal items | 0.3894 | 0.3819 / 0.3981 | 0.3443 | 0.3359 / 0.3544 |
 | TRIP_S 20 s | 0.3842 | 0.3785 / 0.3909 | 0.3461 | 0.3379 / 0.3559 |
 
+The gate was chosen among these variants on the same pools and edges, so its gain is somewhat optimistic; it is a
+sign cut (Extra Regen at 0.996 and Spirit Lifesteal at 37k fall under it on small ratios), and the stricter z <= -2 cut
+keeps 27k's gain but not 37k's. Radiant and Healing Booster, the items this is about, are gated under either cut at
+27k. Their ratios are the pooled pre + post hotfix fit (#216, both are hotfix-changed items).
+
 Dropping map time lifts 27k most but lowers 37k on both halves (Fortitude and the lifesteals, whose holders do farm
 more, fall under their edges). The gate is the only line up at both budgets on both hero halves. Item gaps (sim - real,
 z within slot and tier, 27k / 37k): Radiant +1.44 -> ~+0.95 / +1.51 -> ~+1.0, Healing Booster +0.51 -> ~-0.1, Extra

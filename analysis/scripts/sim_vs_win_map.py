@@ -15,7 +15,6 @@ O.TRIP_JUNGLE_GATE = False   # variants are relative to the ungated map time the
 g = S.G(); by = {it.name: i for i, it in g.items.items()}
 slot = {it.name: (it.slot, it.tier) for it in g.items.values()}
 rows = [r for p in sys.argv[1].split(",") for r in json.load(open(p))]
-edges_alt = json.load(open(sys.argv[2]))["heroes"] if len(sys.argv) > 2 and sys.argv[2] != "-" else None
 pops = {}
 for b in sorted({r[1] for r in rows}):
     pools = S.load_pools(b)
@@ -46,7 +45,7 @@ def rescore(factor):
     return out
 
 base_mt = {}
-def variant(trip=None, heal_only_off=False, items_off=()):
+def variant(trip=None, items_off=()):
     def f(h, b, pop, wi, name):
         k = (h, b, wi)
         if k not in base_mt: base_mt[k] = mt(h, wi, b, pop)
