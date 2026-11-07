@@ -3661,3 +3661,11 @@ Audit on 2,939 fresh post-11-05-hotfix Phantom+ matches (match id > 132.0M, copy
   edges): within slot and tier 0.362 -> 0.394, all items 0.346 -> 0.371.
 - Left: Soul Exchange ~1.1x under and Tankbuster 1.3x under on Geist; Nurse (0.038, items Toxic Bullets 1.6x / Quicksilver
   1.8x under) and Yamato (0.034) next on the fresh audit.
+
+## Buy rate in the overall score (2026-11-07, buy_rate.md)
+
+- Items the hero's players seldom buy count slightly less: overall_search.buy_value, min(1, share / 0.1) ^ 0.003 per
+  held item (share of the hero's same-slot same-tier holdings in the bracket's pools), at most -1.4%.
+- The shipped edges' rare-pick prior uses buy shares, so the usual sim_vs_win jumps (within 27k 0.392 -> 0.439, 37k
+  0.371 -> 0.422) by construction. Fair check, raw edges from alternate days (sim_vs_win_raw.py): +0.003 to +0.005 on
+  both day halves, both budgets, both hero halves. Rare-pair gain shrinkage lowered it, not kept.
