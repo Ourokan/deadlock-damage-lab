@@ -229,6 +229,15 @@ class Mechanics:
     # (lengths from its real quantiles, alternating with exponential free gaps): gun, melee and Pillow Toss locked,
     # damage taken x familiar.TAG_TAKEN (Mods "damage_taken_mult", on top of amps)
     tag_along: bool = True
+    # Ivy's Kudzu Connection with an ally (2026-11-07): it gives Ivy (and the ally) its full fire rate and bullet
+    # lifesteal while connected, 50% with no connection (tengu.NO_TETHER_FACTOR). A duel has no ally, so the sim always
+    # gave her the half, and her gun read 0.94x its real share at every phase of the match. In 75 post-hotfix Phantom+
+    # replays a living ally is within its 16 m cast range for 0.44 of Ivy's combat seconds (0.37-0.49 by fifth of the
+    # match, 0.51 inside a Kudzu window, 0.48 at the cast; scripts/mechanics/ivy_kudzu.py). The bonus is
+    # NO_TETHER_FACTOR + (1 - NO_TETHER_FACTOR) x kudzu_connect of the full value. With an Ivy corr refit, split-half on
+    # the fresh 2026-11-06 sample vs a plain refit of the same half: per-source 0.0162 -> 0.0156 / 0.0249 -> 0.0230,
+    # mix 0.023 -> 0.020 / 0.028 -> 0.025 (validation/README.md "Ivy's Kudzu Connection")
+    kudzu_connect: float = 0.45
     # Paradox's Pulse Grenade pulses (2026-10-28): the sim kept the time-slowed target inside for every pulse (5, 7 at
     # T3), so a landed throw dealt them all and stacked the damage amp 5-7 times. Real Phantom+ throws that hit a hero
     # hit their main victim with 1.7 pulses in the lane and ~2.1 later (3,311 throws in 70 replays,

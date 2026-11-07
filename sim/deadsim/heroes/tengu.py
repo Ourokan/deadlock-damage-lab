@@ -4,7 +4,8 @@ Assumptions:
 - "Increased spirit scaling" upgrades (Thorns T2, Stone Form T3, Air Drop T1/T3) come from the data via c.val.
 - Entangling Thorns: thrown up to THROW_RANGE; the target stands in it for THORN_UPTIME of the duration (it
   slows, but they walk out). T3 immobilize is movement-only and skipped.
-- Kudzu Connection: no ally in a 1v1, so Ivy gets 50% of the bonuses (NO_TETHER_FACTOR): fire rate and bullet
+- Kudzu Connection: no ally in a 1v1, so Ivy gets 50% of the bonuses (NO_TETHER_FACTOR) plus the other half x
+  Mechanics.kudzu_connect (real Ivys have an ally in range ~45% of their combat time): fire rate and bullet
   lifesteal for AbilityDuration (lifesteal's healing spirit scale applied by c.val).
   T3 (always active) = permanent buff from fight start.
 - Stone Form: invulnerable and unable to shoot for cast delay + LiftTime, then slams for damage + stun in
@@ -44,8 +45,10 @@ class KudzuConnection(AbilityImpl):
     kind = "self"
 
     def _apply(self, c, dur):
-        c.buff("fire_rate", c.val("BonusFireRate") / 100 * NO_TETHER_FACTOR, dur, tag="kudzu_fr")
-        c.buff("bullet_lifesteal", c.val("BulletLifestealPercent") / 100 * NO_TETHER_FACTOR, dur, tag="kudzu_ls")
+        share = getattr(c.engine.mech, "kudzu_connect", 0.0) if c.engine.mech is not None else 0.0
+        f = NO_TETHER_FACTOR + (1.0 - NO_TETHER_FACTOR) * share   # Mechanics.kudzu_connect: connected part of the time
+        c.buff("fire_rate", c.val("BonusFireRate") / 100 * f, dur, tag="kudzu_fr")
+        c.buff("bullet_lifesteal", c.val("BulletLifestealPercent") / 100 * f, dur, tag="kudzu_ls")
 
     def start(self, c):
         if c.tier >= 3:
