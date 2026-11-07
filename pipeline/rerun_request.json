@@ -1,5 +1,5 @@
 {
  "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
- "requested_at": "2026-11-07T12:20:00Z",
- "reason": "Rarely bought items count slightly less in the overall score (buy_value: at most 1.4% for an item the hero's players never buy)"
+ "requested_at": "2026-11-07T12:45:00Z",
+ "reason": "Seven: Storm Cloud's lightning strike is its own source and lands in 43% of casts (replays), Seven corrs refit on fresh post-hotfix matches"
 }

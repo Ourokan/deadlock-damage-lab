@@ -44,28 +44,28 @@
     "landing": 0.38,
     "real_share": 0.1887,
     "sim_share": 0.2007,
-    "length_corr": 0.778
+    "length_corr": 0.856
    },
    "Static Charge": {
     "class": "citadel_ability_static_charge",
     "landing": 1.15,
     "real_share": 0.0568,
     "sim_share": 0.0604,
-    "length_corr": 0.47
+    "length_corr": 0.515
    },
    "Power Surge": {
     "class": "ability_power_surge",
     "landing": 0.56,
     "real_share": 0.1592,
     "sim_share": 0.1702,
-    "length_corr": 2.06
+    "length_corr": 2.016
    },
    "Storm Cloud": {
     "class": "citadel_ability_storm_cloud",
     "landing": 0.56,
     "real_share": 0.2828,
     "sim_share": 0.3019,
-    "length_corr": 0.31
+    "length_corr": 0.342
    }
   },
   "Vindicta": {

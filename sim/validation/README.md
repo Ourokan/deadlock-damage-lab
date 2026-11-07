@@ -3690,3 +3690,20 @@ Audit on 2,939 fresh post-11-05-hotfix Phantom+ matches (match id > 132.0M, copy
 - The shipped edges' rare-pick prior uses buy shares, so the usual sim_vs_win jumps (within 27k 0.392 -> 0.439, 37k
   0.371 -> 0.422) by construction. Fair check, raw edges from alternate days (sim_vs_win_raw.py): +0.003 to +0.005 on
   both day halves, both budgets, both hero halves. Rare-pair gain shrinkage lowered it, not kept.
+
+## Seven on fresh matches: Storm Cloud's lightning strike (2026-11-07)
+
+Audit on the 2,939-match post-11-05-hotfix Phantom+ sample (633 Sevens): mix 0.019, per-source 0.031, the biggest
+single gap a real source the sim never had: citadel_ability_gigawatt_lightning_strike, 1.2% of real Seven damage
+(637 of 669 Sevens; correlates with Storm Cloud 0.51, the next ability 0.28; first seen before Storm Cloud 3 times).
+It is Storm Cloud's opening strike (LightningStrikeDamage 75 + 0.5 spirit), which the API books under its own class
+while the sim booked it as Storm Cloud, so Storm Cloud's factor was fitted on cloud + strike vs the cloud alone.
+- The sim landed it every cast: under its own label (gigawatt.py "Storm Cloud (strike)", landing_rates.ALIASES) it read
+  real/sim 0.45. 229 replay Storm Clouds (fight_length raw: one hit 2-4.5x the cloud's tick size in its first 2.5 s)
+  have 0.43 strikes per cast, so gigawatt.STRIKE_HIT 0.43 (audit strike real/sim 1.05 before any refit).
+- Seven corrs refit on the fresh sample (ability_corr_heroes --split, kept: held-out better on both halves): Lightning
+  Ball 0.778 -> 0.856, Static Charge 0.47 -> 0.515, Power Surge 2.06 -> 2.016, Storm Cloud 0.31 -> 0.342 (the cloud
+  alone is 1.09x under once the strike is its own source). Fresh mix 0.019 -> 0.011, per-source 0.031 -> 0.008.
+- sim_vs_win, Seven (post-hotfix pools, 27k + 37k): within slot and tier 0.368 -> 0.384, all items 0.318 -> 0.333.
+  Raw day-half edges (sim_vs_win_raw): 27k +0.012 / +0.015, 37k -0.001 / +0.001.
+- Left: Seven melee 0.82x real (0.3% of his damage), Escalating Exposure 0.94x.

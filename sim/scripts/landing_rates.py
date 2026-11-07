@@ -52,6 +52,7 @@ ALIASES = {
     "Bloodletting (deferred)": "citadel_ability_shiv_defer_damage",   # an enemy Shiv's deferred damage
     "Wretched Vapors (crash)": "ability_nurse_adrenaline_rush",       # an enemy Nurse's specters (her own vapors)
     "Ira Domini (stakes)": "citadel_weapon_priest_crossbow",          # Venator's ult stakes, booked under their weapon
+    "Storm Cloud (strike)": "citadel_ability_gigawatt_lightning_strike",   # Seven's ult opening strike, its own class
 }
 SHIV_DEFER = "citadel_ability_shiv_defer_damage"
 # damage the game books under the enemy's ability (deferred damage hitting its owner): not one of this hero's sources

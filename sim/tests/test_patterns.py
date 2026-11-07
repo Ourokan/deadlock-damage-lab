@@ -145,7 +145,7 @@ PINNED = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift, all
     ("Mo & Krill", "Haze", None, 30.0, 1349.8, 1446.6),
     ("Paradox", "Abrams", None, 30.0, 2357.5, 1543.8),
     ("Venator", "Lash", "Venator (A)", 18.3, 2121.9, 877.0),
-    ("Warden", "Seven", "Seven (B)", 25.9, 1318.9, 3013.6),
+    ("Warden", "Seven", None, 18.7, 1318.9, 2736.3),   # re-pinned 2026-11-07: Storm Cloud strike lands 0.43, Seven refit
 ]
 
 
