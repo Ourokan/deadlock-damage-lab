@@ -3527,3 +3527,25 @@ per cast real / sim: Greater Expansion 1.078 / 0.960 (even 1.083 / 0.944, odd 1.
   usual +0.002); whole fresh sample mix 0.098 -> 0.096, per-source 0.125 -> 0.084; Yamato sim_vs_win within 0.326 -> 0.331.
   The item rows and melee rate wait on Tyler (they close most of the gap but cost sim_vs_win). Note: sim_vs_win's popular
   builds are the shared search/work snapshots from 2026-10-14, before the spirit meta.
+
+## Grey Talon, Kelvin and Ivy item rows; Mystic Reverb without the health term (2026-11-07)
+
+- Fresh post-hotfix sample (fresh_2026-11-06_sample.jsonl.gz, 4,000 matches): the three heroes' gaps are items, not
+  abilities (ability refits failed split-half, PR #218). Holders-only rows: Kelvin Mystic Reverb 0.53 real/sim (84
+  holders), Grey Talon Reverb 0.76 (296, its per-hero factor already at the 0.25 floor), Grey Talon Tankbuster 0.80
+  (774), Kelvin Tankbuster 0.89, Mystic Burst 0.84, Torment Pulse 0.90; Ivy small (Thorns / Stone Form over a bit).
+- Why Reverb: items_fx.MysticReverb adds MaxHealthDamage 10% of the target's current health to each echo, which real
+  echoes don't have (scripts/mechanics/reverb_echoes.py, 260 replays: echo / trigger 0.52-0.70 on every hero). The term
+  is ~40% of the sim's echo damage: without it Grey Talon / Kelvin Reverb read 1.25 / 1.23 (the same, instead of
+  0.76 / 0.53).
+- Option A, tested, NOT shipped: health term off + pooled Reverb refit (0.542 -> 0.648) + every hero's Reverb row + the
+  three heroes' rows (2 rounds). Split-half (fit even, audit odd / fit odd, audit even): mix 0.0220 -> 0.0208 /
+  0.0212 -> 0.0202, per-source 0.0273 -> 0.0262 / 0.0270 -> 0.0261, Grey Talon 0.036 -> 0.020 / 0.030 -> 0.011,
+  Kelvin 0.043 -> 0.015 / 0.034 -> 0.008, pooled Reverb held-out 0.75 -> 1.00. Whole sample mix -> 0.0200. But
+  sim_vs_win (post-hotfix pools, repo edges) within slot and tier 27k 0.376 -> 0.372, 37k 0.347 -> 0.343, damage items
+  0.263 -> 0.243, all from Reverb's lower gain (its real edge is positive on most heroes: Kelvin +2.2, Rem +2.0);
+  with the base Reverb rows the rest is flat. Patch + audit in the shared folder (sim/reverb_health_off/).
+- Shipped (option B): the three heroes' item rows (item_landing_heroes, 2 rounds, Reverb rows left out). Whole fresh
+  sample: Grey Talon 0.033 -> 0.014, Kelvin 0.039 -> 0.027, Ivy 0.036 -> 0.034; hero x item error for them
+  0.096 -> 0.048. Grey Talon Tankbuster 0.574 -> 0.438, Kelvin Tankbuster 0.738 -> 0.640. sim_vs_win within 27k
+  0.376 -> 0.376, 37k 0.347 -> 0.347 (the rows held split-half inside option A's check).

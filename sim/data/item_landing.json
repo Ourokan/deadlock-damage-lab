@@ -5,7 +5,7 @@
   "sample": "phantom_sample.jsonl.gz",
   "use": "deadsim realistic mode scales an item's own damage by min(1, landing)",
   "length": "fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x length_corr (the sim's source/gun in full / the same expected over real fight lengths, scripts/fight_length/length_factors.py, phantom_sample.jsonl.gz, 3 rounds)",
-  "heroes": "per-hero factors from the damage audit's hero x item rows (small_heroes_sample.jsonl.gz, >= 20 holders): current factor x (real/sim)^(n/(n+20)), capped 0.25-1; replace the pooled factor for that hero (scripts/item_landing_heroes.py)",
+  "heroes": "per-hero factors from the damage audit's hero x item rows (fresh_2026-11-06_sample.jsonl.gz, >= 20 holders): current factor x (real/sim)^(n/(n+20)), capped 0.25-1; replace the pooled factor for that hero (scripts/item_landing_heroes.py)",
   "entry_hp_kept": "length_corr scaled so held first casts and Mechanics.entry_hp (as configured in the run) keep the expected levels of a target run at full health with the previous holds (length_factors.py --entry --target-holds)",
   "cast_timing_kept": "length_corr scaled so held first casts (Mechanics.cast_timing) keep the expected levels of cast-on-sight duels; rerun from the factors before"
  },
@@ -606,29 +606,29 @@
   },
   "Grey Talon": {
    "Mystic Burst": {
-    "holders": 93,
+    "holders": 725,
+    "real_over_sim": 0.998,
+    "landing": 0.741
+   },
+   "Mystic Shot": {
+    "holders": 398,
+    "real_over_sim": 0.972,
+    "landing": 0.624
+   },
+   "Spirit Burn": {
+    "holders": 435,
     "real_over_sim": 0.976,
-    "landing": 0.755
+    "landing": 0.956
+   },
+   "Tankbuster": {
+    "holders": 774,
+    "real_over_sim": 0.952,
+    "landing": 0.438
    },
    "Mystic Reverb": {
     "holders": 22,
     "real_over_sim": 0.832,
     "landing": 0.25
-   },
-   "Mystic Shot": {
-    "holders": 49,
-    "real_over_sim": 0.923,
-    "landing": 0.659
-   },
-   "Spirit Burn": {
-    "holders": 34,
-    "real_over_sim": 0.949,
-    "landing": 0.942
-   },
-   "Tankbuster": {
-    "holders": 90,
-    "real_over_sim": 0.974,
-    "landing": 0.574
    }
   },
   "Haze": {
@@ -704,111 +704,106 @@
   },
   "Ivy": {
    "Alchemical Fire": {
-    "holders": 71,
-    "real_over_sim": 0.823,
-    "landing": 0.443
+    "holders": 108,
+    "real_over_sim": 0.963,
+    "landing": 0.39
    },
    "Arctic Blast": {
-    "holders": 41,
-    "real_over_sim": 0.794,
-    "landing": 0.653
+    "holders": 63,
+    "real_over_sim": 0.932,
+    "landing": 0.541
    },
    "Capacitor": {
-    "holders": 375,
-    "real_over_sim": 0.995,
-    "landing": 0.809
+    "holders": 1137,
+    "real_over_sim": 0.994,
+    "landing": 0.793
    },
    "Cold Front": {
-    "holders": 33,
-    "real_over_sim": 0.936,
-    "landing": 0.827
+    "holders": 44,
+    "real_over_sim": 0.953,
+    "landing": 0.743
    },
    "Decay": {
-    "holders": 64,
-    "real_over_sim": 0.776,
-    "landing": 0.543
+    "holders": 79,
+    "real_over_sim": 1.008,
+    "landing": 0.562
    },
    "Escalating Exposure": {
-    "holders": 68,
-    "real_over_sim": 0.904,
-    "landing": 0.407
+    "holders": 155,
+    "real_over_sim": 0.987,
+    "landing": 0.385
    },
    "Headhunter": {
-    "holders": 84,
-    "real_over_sim": 0.957,
-    "landing": 0.733
+    "holders": 172,
+    "real_over_sim": 0.977,
+    "landing": 0.664
    },
    "Headshot Booster": {
-    "holders": 67,
-    "real_over_sim": 0.949,
-    "landing": 0.853
+    "holders": 84,
+    "real_over_sim": 0.978,
+    "landing": 0.789
+   },
+   "Mercurial Magnum": {
+    "holders": 21,
+    "real_over_sim": 1.084,
+    "landing": 0.934
+   },
+   "Quicksilver Reload": {
+    "holders": 44,
+    "real_over_sim": 0.943,
+    "landing": 0.86
    },
    "Ricochet": {
-    "holders": 20,
-    "real_over_sim": 0.641,
-    "landing": 0.565
+    "holders": 21,
+    "real_over_sim": 0.731,
+    "landing": 0.411
    },
    "Siphon Bullets": {
-    "holders": 147,
-    "real_over_sim": 0.969,
-    "landing": 0.333
+    "holders": 412,
+    "real_over_sim": 0.995,
+    "landing": 0.329
    },
    "Spirit Burn": {
-    "holders": 30,
-    "real_over_sim": 0.884,
-    "landing": 0.83
-   },
-   "Stalker": {
-    "holders": 22,
-    "real_over_sim": 0.727,
-    "landing": 0.601
+    "holders": 52,
+    "real_over_sim": 0.979,
+    "landing": 0.788
    },
    "Tesla Bullets": {
-    "holders": 350,
-    "real_over_sim": 1.14,
+    "holders": 773,
+    "real_over_sim": 1.128,
     "landing": 1.0
    },
-   "Torment Pulse": {
-    "holders": 41,
-    "real_over_sim": 1.002,
-    "landing": 0.991
-   },
    "Toxic Bullets": {
-    "holders": 71,
-    "real_over_sim": 0.97,
-    "landing": 0.576
+    "holders": 242,
+    "real_over_sim": 0.997,
+    "landing": 0.579
    }
   },
   "Kelvin": {
-   "Decay": {
-    "holders": 34,
-    "real_over_sim": 0.863,
-    "landing": 0.781
-   },
    "Escalating Exposure": {
-    "holders": 395,
-    "real_over_sim": 0.985,
-    "landing": 0.479
+    "holders": 493,
+    "real_over_sim": 0.995,
+    "landing": 0.475
    },
    "Mystic Burst": {
-    "holders": 124,
-    "real_over_sim": 0.947,
-    "landing": 0.832
+    "holders": 284,
+    "real_over_sim": 0.977,
+    "landing": 0.696
    },
    "Spirit Burn": {
-    "holders": 224,
-    "real_over_sim": 0.916,
-    "landing": 0.736
+    "holders": 340,
+    "real_over_sim": 0.985,
+    "landing": 0.707
    },
    "Tankbuster": {
-    "holders": 182,
-    "real_over_sim": 0.905,
-    "landing": 0.738
+    "holders": 326,
+    "real_over_sim": 0.968,
+    "landing": 0.64
    },
    "Torment Pulse": {
-    "holders": 174,
-    "real_over_sim": 0.99,
-    "landing": 0.858
+    "holders": 239,
+    "real_over_sim": 0.969,
+    "landing": 0.753
    }
   },
   "Lash": {
