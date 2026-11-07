@@ -954,7 +954,8 @@ Violet player-matches):
 - Flow State: casts are at least ~21 s apart (p10 of 44 gaps, cooldown 23 s), so the Living Ink passive ("casting any
   other ability refreshes the cooldown of Flow State") is not a cooldown reset and is left out.
 - Abstract Landscape: an enemy that takes its damage first does 3.7 s after the cast (median), and is hit 1.71 times
-  (crossing the ink again ~1.3 s later); 1.53 enemies per cast (the landing factor holds the multi-target part).
+  (crossing the ink again ~1.3 s later; 1.29 since the 10-30 hotfix took away T3's unbreakable ink, 72 post-hotfix
+  replays, PR #235); 1.53 enemies per cast (the landing factor holds the multi-target part).
 - Casts per fight (in fights: 0.65 Living Ink, 0.28 Flow State, 0.35 Still Life, 0.10 ultimate per 10 s).
 - `scripts/fight_patterns/replay_openers.py` now counts a cast only when the cooldown start equals the game time:
   cooldown cuts also change it (Violet, Witchmail). Earlier rows were built without this; their cast shares may be a

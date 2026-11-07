@@ -29,7 +29,7 @@ Assumptions:
 - Abstract Landscape: cast when the target is within GroveRadius. Violet stands inside for AbilityDuration and
   gains TechPower spirit power (T2 also spirit lifesteal). The target walks out through the ink at GROVE_FIRST_HIT
   s, taking Damage and Silence (the slow is skipped), and crosses it again GROVE_HITS - 1 times on average (replay
-  numbers at the constants). Each crossing is assumed to hit; T3 (ink not destroyed) is not modeled beyond that.
+  numbers at the constants, post 10-30 hotfix). Each crossing is assumed to hit.
   Vision blocking is not modeled.
 """
 import zlib
@@ -50,9 +50,12 @@ SKETCH_BREAK_STEP = 0.25
 # 0.015 -> 0.010 (1.75: 0.015 / 0.013, 2.2: 0.010 / 0.007, 1.4 worse).
 INK_HOMING = 2.0
 # Abstract Landscape, from Phantom+ replays (97 casts): an enemy that takes its damage first does at 3.7 s after the
-# cast (median; channel included), and is hit 1.71 times on average (it crosses the ink again 1.3 s later)
+# cast (median; channel included), and crosses the ink again 1.3 s later. Hits per enemy: 1.71 before the 10-30 hotfix
+# (1.78 with scratch grouping: grove hits within 12 s = one cast, 171 fight-length replays); the hotfix took away T3's
+# "ink is no longer destroyed", so leaving destroys the ink for every tier: 1.29 in 72 post-hotfix Phantom+ replays
+# (324 casts, same grouping; 77% of hit enemies are hit once). Real Abstract Landscape dmg/min halved (176 -> 89).
 GROVE_FIRST_HIT = 3.7
-GROVE_HITS = 1.71
+GROVE_HITS = 1.29
 GROVE_REHIT_GAP = 1.3
 
 
