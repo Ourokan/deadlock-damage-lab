@@ -227,16 +227,46 @@ class FightSustain(unittest.TestCase):
         from deadsim.engine import kill_hooks
         healed = []
         killer = mock.Mock(alive=True)
+        killer.e.mech = None   # damage tool / dummy: no real-fight mechanics, the refill is the kill
+        killer.st.boons = 10
         handler = __import__("deadsim.items_fx", fromlist=["HANDLERS"]).HANDLERS["upgrade_healbane"](hb, killer)
         killer.items_fx = [handler]
         killer.heal = lambda amt, *a: healed.append(amt)
         target = mock.Mock()
         target.mods.get.return_value = -0.35
         kill_hooks(killer, target)
-        self.assertEqual(healed, [hb.props["HealOnKill"]])
+        # HealOnKill scales with boons (scale_function_healing_boon_scale)
+        self.assertEqual(healed, [hb.props["HealOnKill"] + 10 * hb.scale["HealOnKill"][2]])
         target.mods.get.return_value = None
         kill_hooks(killer, target)
         self.assertEqual(len(healed), 1)
+        # Mechanics.kill_heals: the real rate stands for every kill heal, the refill adds none
+        killer.e.mech = mock.Mock(kill_heals=True)
+        target.mods.get.return_value = -0.35
+        kill_hooks(killer, target)
+        self.assertEqual(len(healed), 1)
+
+    def test_healbane_kill_heals_at_the_real_rate(self):
+        from deadsim import mechanics as M
+        hb = G.items[ID["Healbane"]]
+        M.kill_heal_rate("upgrade_healbane", 0)   # loads data/kill_heals.json
+        pts = M._KILL_HEALS["upgrade_healbane"]
+        self.assertAlmostEqual(M.kill_heal_rate("upgrade_healbane", 0), pts[0][1])
+        self.assertAlmostEqual(M.kill_heal_rate("upgrade_healbane", 99000), pts[-1][1])
+        mid = (pts[1][0] + pts[2][0]) / 2
+        self.assertAlmostEqual(M.kill_heal_rate("upgrade_healbane", mid), (pts[1][1] + pts[2][1]) / 2)
+        self.assertEqual(M.kill_heal_rate("upgrade_glass_cannon", 27000), 0.0)
+        self.assertFalse(M.DEFAULT.kill_heals)   # opt-in (validation/kill_heals.md)
+        # on, in a realistic fight the holder heals rate x HealOnKill per second through the fight
+        import dataclasses
+        with mock.patch.object(M, "DEFAULT", dataclasses.replace(M.DEFAULT, kill_heals=True)):
+            r = survive(HAZE, [ID["Healbane"]], 27000, ABRAMS, [], max_time=30.0, start_hp=300.0)
+        got = r["healing_by_source"].get("Healbane", 0.0)
+        self.assertGreater(got, 0.0)
+        st = compute_stats(G.hero("Haze"), [hb], souls=27000)
+        per_s = M.kill_heal_rate("upgrade_healbane", 27000) * (hb.props["HealOnKill"]
+                                                              + st.boons * hb.scale["HealOnKill"][2])
+        self.assertLessEqual(got, per_s * r["time_alive"] * (1 + st.heal_amp_cast) + 1e-6)
 
 
 class Calibration(unittest.TestCase):
