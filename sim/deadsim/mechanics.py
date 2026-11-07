@@ -337,8 +337,10 @@ class Mechanics:
     # n / (n + 1000)) replaces gun_lean around the hero's center (its mean spirit item souls in the sample), so the
     # hero's average gun time is unchanged and only its gun-vs-spirit build split moves (gun_uptime, at most 1). Fit on
     # one half of the matches, the other half's gap fell 0.0193 -> 0.0156 and 0.0245 -> 0.0217; whole-match audit flat
-    # 0.0191 -> 0.0191; heroes without a row keep gun_lean
-    gun_lean_hero: bool = True
+    # 0.0191 -> 0.0191; heroes without a row keep gun_lean. But sim_vs_win (post-hotfix pools) 27k flat (all 0.342 ->
+    # 0.339, within slot and tier 0.383 -> 0.384) and 37k down in both hero halves (all 0.320 -> 0.308, within 0.363 ->
+    # 0.359): off (validation/gun_lean_hero.md)
+    gun_lean_hero: bool = False
     # abilities by build (2026-10-28): real players with more souls in spirit items also open fights with their abilities
     # sooner and recast them sooner after cooldown (Phantom+ replays, stratified Cox per ability: hazard x exp(0.0060 per
     # 1000 spirit item souls) for first casts with net worth and cooldown reduction in the model, both halves of the
