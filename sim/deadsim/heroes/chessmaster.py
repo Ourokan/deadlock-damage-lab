@@ -8,7 +8,8 @@ The "Move" alt fire (ability_chessmaster_movechesspiece) moves the active piece.
   (spirit shred, MaxStacks, StackDuration). Cast once; the "recall to refund" flow is not modeled.
 - Kingside Knight: self-cast (king): 2x CombatBarrier for BuffDuration, cast once Solomon has lost over 10% health.
   The first time that barrier breaks during the buff, Solomon uses Move: invulnerable for MinKingMoveDuration
-  (1 s, raw data), with the gun locked meanwhile. T3: the move cleanses Solomon's debuffs.
+  (1 s, raw data), with the gun locked meanwhile. T3: the move cleanses Solomon's debuffs. Real Solomons promote a
+  teammate on a share of casts (Mechanics.knight_self, replays; opt-in): drawn per cast as Paige's Plot Armor.
 - Rook Battery: skillshot. One hit of Damage (both rooks pass the same target, MaxTriggers 1) + immobilize.
   T1: -25% fire rate for DebuffDuration. T2: +5% current health. No walls in a 1v1, so no reflections.
 - Develop Queen: the queen crashes on the target (Damage at spirit_accuracy). After QUEEN_LINE_DELAY its square
@@ -18,6 +19,7 @@ The "Move" alt fire (ability_chessmaster_movechesspiece) moves the active piece.
   boon).
 """
 from deadsim.abilities import AbilityImpl, register
+from deadsim.mechanics import self_cast_share
 
 SQUARE_EXPOSURE = 1.0     # s the target spends on bishop squares per move
 QUEEN_LINE_DELAY = 1.0    # s between the queen landing and its square lines firing
@@ -79,8 +81,11 @@ class KingsideKnight(AbilityImpl):
         return c.foe.alive and c.me.hp_frac < 0.9
 
     def cast(self, c):
+        share = self_cast_share(c, "knight_self", "kingside", self.s.casts)
+        if share <= 0:
+            return      # promoted a teammate (Mechanics.knight_self): nothing for Solomon
         dur = c.dur("BuffDuration")
-        c.barrier(2.0 * c.val("CombatBarrier"), dur)
+        c.barrier(2.0 * c.val("CombatBarrier") * share, dur)
         c.state.update(entry=c.me.barriers[-1], moved=False, until=c.now + dur)
 
     def on_damage_taken(self, c, src, hit):
