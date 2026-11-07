@@ -3752,3 +3752,22 @@ match of ~16 damage after resists (2 ticks of 2-15), about one `Damage` (20) eac
 - Rem whole sample: mix 0.015 -> 0.011, per-source 0.040 -> 0.032, Lil Helpers real/sim 1.00.
 - sim_vs_win Rem (27k + 37k): within 0.468 -> 0.486, all 0.429 -> 0.446; sim_vs_win_raw day halves 27k +0.003 / -0.002,
   37k +0.002 / -0.001 (flat).
+
+## McGinnis' Heavy Barrage; Vindicta and Venator refits rejected on sim_vs_win (2026-11-07)
+
+Next three heroes by per-source gap on the same 4,952-match post-hotfix sample (see "Rem's Lil Helpers damage").
+Per-hero samples cut from it (matches with the hero); ability_corr_heroes --split, then sim_vs_win (27k + 37k,
+the three heroes) and sim_vs_win_raw with one hero's rows spliced into the base rows at a time.
+
+- McGinnis (per-source 0.038, mix 0.018): Heavy Barrage real/sim 1.30. Its real share is 0.174 of McGinnis' hero
+  damage now vs 0.136 when it was last fitted (no hotfix change to it: players use it more). Split-half held
+  (sources 0.034 -> 0.015 / 0.041 -> 0.015, mix 0.023 -> 0.013 / 0.013 -> 0.015). length_corr Heavy Barrage
+  4.84 -> 6.68, Spectral Wall 1.94 -> 2.25, Mini Turret 3.47 -> 3.49. Whole sample mix 0.018 -> 0.007, per-source
+  0.038 -> 0.008. sim_vs_win_raw day halves 27k +0.001 / +0.003, 37k +0.002 / -0.003: kept.
+- Vindicta (0.039): Crow Familiar 0.77, Assassinate 1.23, no hotfix change (stale fit). Full refit held split-half
+  (0.036 -> 0.013 / 0.041 -> 0.011, mix better) but sim_vs_win_raw fell on all four splits (-0.001..-0.006): not
+  kept. Crow-only refit failed split-half mix.
+- Venator (0.038): Ira Domini 1.15 and its stakes 1.24 under since the 10-30 BonusDamage nerf 115 -> 95, Grenade
+  0.85 over. Full refit held split-half (0.038 -> 0.011 / 0.042 -> 0.016) but sim_vs_win_raw 27k -0.003 / +0.003,
+  37k -0.014 / +0.008 (as in "Abilities the 10-30 and 11-05 hotfixes changed"): not kept. Ult-only refit failed
+  split-half mix.
