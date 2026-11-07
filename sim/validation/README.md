@@ -3794,3 +3794,23 @@ without the mechanic (fair base) whole-match is flat (0.0151 vs 0.0156, 0.0122 v
 phase the summed source gap drops 0.13 -> 0.05 at 30%, 0.035 -> 0.019 at 60%, 0.021 -> 0.017 at 90%.
 sim_vs_win_raw (Venator rows spliced into an all-hero base): 27k -0.0002/+0.0002, 37k -0.0008/+0.0005 (flat; the
 plain refit was -0.014); shipped within 27k 0.4382 -> 0.4378, 37k 0.4129 -> 0.4121.
+
+## Vindicta's Crow Familiar bleeds on real target health (2026-11-07)
+
+The fresh post-hotfix audit (4,952 Phantom+ matches) had Crow Familiar 1.3x over (real/sim 0.77) and a plain Vindicta
+refit lowered sim_vs_win_raw. Replays (49 matches with Vindicta in fight_length/raw + replay_damage, 1,750 crow hits,
+ability id 2048438176; events chained per attacker-victim at 1 s ticks):
+- Impact then 5 ticks (7 at T3), each ~2.4% of the target's health at the tick, as the sim has. Hits per cast 1.08.
+- The target sits at 0.61 / 0.57 / 0.52 of max health at the ticks (lane / mid / late, by Vindicta's net worth); the
+  sim's duel target at 0.76 (it opens on a full-health foe). Per hit the sim's bleed was 2.4x the impact, real 1.5x.
+- Real bleeds also end early without a kill: per-tick chance 0.037 / 0.099 / 0.130 (16% / 36% / 43% of hits cut
+  short, the victim alive and still being hit), mostly on mobile targets (Vyper, Mina, Rat King, Pocket, Calico cut
+  0.7-0.9 of bleeds; Bebop, Kelvin, Billy ~0.1). Real ticks per hit 4.2 / 3.6 / 3.3, sim 4.6.
+
+hornet.BLEED_CURRENT (on): ticks on Fighter.item_hp (real entry deficit + third parties' damage, as Tankbuster/Decay and
+Stalker's Mark). Vindicta mix 0.020 -> 0.013, per half 0.016 -> 0.009 and 0.025 -> 0.017 (sources 0.041 -> 0.038,
+0.037 -> 0.033), Crow 0.77 -> 0.82. sim_vs_win_raw (Vindicta, 27k/37k x day halves): -0.0006 / +0.0005 / -0.0016 /
++0.0030. hornet.BLEED_BREAK (opt-in, OFF): the early breaks as an expected value per tick. With both, Crow 0.96 and
+the bleed share of crow damage matches real (0.61), but sim_vs_win_raw fell on all four splits (-0.006 / -0.011 /
+-0.002 / -0.007), mostly spirit items (Mystic Expansion, Extra Spirit) losing value whose real edge is high. A
+Vindicta corr refit on top of BLEED_CURRENT failed the split-half mix (+0.003 on one half): no refit.

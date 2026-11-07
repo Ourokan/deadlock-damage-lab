@@ -6,12 +6,31 @@ Assumptions:
   given as bonus ammo on cast (removed when Flight ends). Accuracy while flying is unchanged.
 - Crow Familiar: landing rate = spirit_accuracy. Bleed deals DotHealthPercent of the target's *current* health
   per TickRate as spirit damage for DebuffDuration. Resist reductions applied as bullet/spirit shred.
+  Replays (2026-11-07, 49 Phantom+ matches, 1,750 crow hits; scratch crow scripts, ability id 2048438176): each tick
+  is ~2.4% of the health the target has, and the target sits at 0.61 / 0.57 / 0.52 of max health at the ticks in
+  lane / mid / late, where the sim's duel target sat at 0.76 (it opens on a full-health foe). BLEED_CURRENT ticks on
+  Fighter.item_hp (the real entry deficit and third parties' damage, as Tankbuster/Decay and Stalker's Mark).
+  Real bleeds also end early without a kill (BLEED_BREAK, opt-in OFF: it lowered sim_vs_win_raw on all four day/budget
+  splits, mostly by taking value from spirit items whose real edge is high): after the impact and after each tick the bleed is gone
+  with a per-tick chance of 0.037 in lane, 0.099 mid, 0.130 late (16% / 36% / 43% of hits cut short; mostly on
+  mobile targets: Vyper, Mina, Rat King, Pocket, Calico cut 0.7-0.9 of bleeds; Bebop, Kelvin, Billy ~0.1). The sim
+  books that as an expected value: tick k is weighted by (1 - hazard)^(k + 1). Real ticks per hit 4.2 / 3.6 / 3.3,
+  sim 4.6 (3.5 with it on). BLEED_CURRENT alone: Vindicta mix 0.020 -> 0.013 (halves 0.016 -> 0.009, 0.025 -> 0.017),
+  Crow real/sim 0.77 -> 0.82, sim_vs_win_raw flat-up; a Vindicta corr refit on top failed the split-half mix (not kept).
 - Assassinate: spirit damage (as in game); scoping for TimeToFullCharge locks the gun and the shot is always
   full charge. HeadshotBonus (+20%) is applied at the caster's headshot rate. Used as an execute: only when the
   target is under LowHealthEnemyThresholdPct or the shot would kill. Both checks and the low-health bonus use the
   target's gate health (Mechanics.entry_gate: short by its real entry deficit).
 """
 from deadsim.abilities import AbilityImpl, register
+
+BLEED_CURRENT = True   # Crow bleed ticks on Fighter.item_hp (real-like current health); False = plain duel health (old)
+BLEED_BREAK = False    # opt-in: real bleeds end early without a kill (per-tick hazard by phase); off: lowered sim_vs_win_raw
+BREAK_HAZARD = ((10000, 0.037), (27000, 0.099), (float("inf"), 0.130))   # (net worth below, chance per tick)
+
+
+def break_hazard(souls):
+    return next(h for hi, h in BREAK_HAZARD if souls < hi) if BLEED_BREAK else 0.0
 
 @register("citadel_ability_hornet_chain")
 class Stake(AbilityImpl):
@@ -73,14 +92,17 @@ class CrowFamiliar(AbilityImpl):
         tick = c.raw("TickRate", 1.0)
         n = max(1, int(round(d / tick)))
         epoch = c.dot_track("crow_bleed", c.now + n * tick)
-        c.after(tick, self.bleed, c, token, n, epoch)
+        keep = 1.0 - break_hazard(c.me.st.souls)
+        c.after(tick, self.bleed, c, token, n, epoch, keep, keep)
 
-    def bleed(self, c, token, n, epoch):
+    def bleed(self, c, token, n, epoch, w=1.0, keep=1.0):
         if c.state.get("bleed") is not token or not c.foe.alive or not c.me.alive or n <= 0 or not c.dot_live(epoch):
             return
-        amt = c.foe.hp * c.raw("DotHealthPercent") / 100
-        c.engine.damage(c.me, c.foe, amt, "spirit", self.s.ab.name, is_ability=True, ability=self.s, is_dot=True)
-        c.after(c.raw("TickRate", 1.0), self.bleed, c, token, n - 1, epoch)
+        hp = c.foe.item_hp if BLEED_CURRENT else c.foe.hp
+        amt = hp * c.raw("DotHealthPercent") / 100 * w
+        if amt > 0:
+            c.engine.damage(c.me, c.foe, amt, "spirit", self.s.ab.name, is_ability=True, ability=self.s, is_dot=True)
+        c.after(c.raw("TickRate", 1.0), self.bleed, c, token, n - 1, epoch, w * keep, keep)
 
 
 @register("citadel_ability_hornet_snipe")
