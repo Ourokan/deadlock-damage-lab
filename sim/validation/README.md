@@ -3595,8 +3595,9 @@ resists); not measured.
   scripts/mechanics/ally_target.py fetch / report; raw in /mnt/project-files/analysis/work/ally_target/{paige,solomon}.
   The fair estimate is from casts where the caster and a teammate both took hits in the buff window (who got hit at
   all is biased toward the caster when they self-cast defensively).
-- Demo gotcha: replays of matches after the 11-05 hotfix (match id > ~132.0M) no longer decode hero ability entities
-  (only Slide and a few tables have rows); about half the older ids 404. Use match ids < 132.0M.
+- Demo gotcha (corrected 2026-11-07, see "Post-hotfix replay decode" below): this thread saw post-hotfix replays
+  (match id > ~132.0M) decode no hero ability entities; that did not reproduce a few hours later. About half the older
+  ids 404 (demo gone).
 - Paige (64 matches, 2,220 casts): her own barrier on 0.52 of the both-hit casts (teammate 0.33, none 0.27).
   plot_armor_self = 0.52 draws each cast on her with that chance (else nothing for her, cooldown spent). With a Paige
   corr + item row refit, split-half (2 draws) vs a plain refit of the same half: per-source 0.0104 -> 0.0107 / 0.0078
@@ -3608,3 +3609,55 @@ resists); not measured.
   same plain refit (= main's 0.523). Not kept.
 - Left: Baba's Brew is 1.53x under on the fresh sample (real 0.123 of her damage vs 0.076), but that is the 11-05 brew
   rework (random-order brews, no FireLockTime), not teammates.
+
+## Post-hotfix replay decode (2026-11-07, no model change)
+
+The ally-targeted abilities thread (#224) saw replays of matches after the 11-05 hotfix (match id > ~132.0M) decode no
+hero ability entities (only Slide and a few movement tables had rows) and fell back to older ids. Re-checked on
+2026-11-07 ~03:00 UTC+1 with scripts/fight_patterns/demo_check.py (counts every ability table's rows per owner pawn
+and names the heroes by ability id):
+
+- Post-hotfix Phantom+ matches 132000503, 132002151, 132124778, 132520198, 132531881, 132541466, 132551079: every one
+  decodes all 12 heroes' ability entities, 51-63 hero ability tables with rows, DamageEvent ability ids filled at the
+  same rate as before (~60%), the same as pre-hotfix 131881563. The exact #224 Paige query (ally_target.py fetch,
+  Bookworm_KnightBarrier) returns 38-71 casts per match; fetch_replays.py's query + replay_openers.load_replay finds
+  all 12 heroes with normal cast counts (71-229 per hero).
+- The demo schema (/v1/matches/demo/schema) is identical before and after the hotfix (998 tables, same columns), so no
+  table or column was renamed; ability ids (m_nSubclassID) still map to our heroes.
+- So the empty decode was upstream and transient (the API's parser behind the hotfix's entity data for a while); there
+  is no fix needed in our readers, and ability studies can use post-hotfix replays again.
+- Gotcha that can keep a broken result alive: the API dedupes identical (match_id, query, format) submissions and hands
+  back the cached result (second submit returns 200 with the first job id). A query first run while decoding was broken
+  returns the broken result again. demo_query.run(..., fresh="tag") or env DEMO_QUERY_FRESH=tag appends a SQL comment
+  so a new job runs; demo_check.py takes --fresh TAG. If a match shows 0 heroes, rerun it with --fresh before
+  concluding the decode is broken.
+- Not all post-hotfix ids have demos (132252985: 404 "No demo available"); skip those as before. A job can also fail
+  on Valve's download ("error decoding response body", 132520198 once, fine on another run): retry later.
+
+## Lady Geist's Essence Bomb tier after the 10-30 buff (2026-11-07)
+
+Audit on 2,939 fresh post-11-05-hotfix Phantom+ matches (match id > 132.0M, copy at
+/mnt/project-files/sim/validation/post_hotfix_2026-11-07_sample.jsonl.gz): overall 0.0191; furthest Lady Geist 0.042
+(156 players: Soul Exchange 1.43x and Essence Bomb 1.29x under, melee 0.59x over), Nurse 0.038, Yamato 0.034.
+
+- Bigger sample: 3,202 Phantom+ matches with a Geist since 10-31 (metadata endpoint with include_player_info, filter
+  hero_id 4; /mnt/project-files/sim/validation/geist_post_2026-11-07_sample.jsonl.gz). There Geist was 0.025 (1,089
+  players): Essence Bomb 1.20x under, Life Drain 0.96, Malice 0.95, Soul Exchange 1.14, melee 0.62. Pre-10-30 Geists
+  (geist_sample) had Essence Bomb at 0.92, so the gap came with the 10-30 hotfix (EB spirit scaling 1.22 -> 1.35).
+- Mechanism: real Geists now level Essence Bomb further (scripts/ability_order.py --check: real mean tier 1.93 / 2.32
+  / 2.59 at 30 / 60 / 90% vs the popular order's 2.00 / 2.00 / 2.04, which never takes the tier-3 puddle), and real
+  share of Essence Bomb rose 0.16 -> 0.20. With only the players' real tiers in the audit (new AUDIT_TIER_HEROES what-if,
+  no refit) Essence Bomb reads 1.01 and Life Drain 1.01; per-source distance 0.048 -> 0.027, mix 0.025 -> 0.017.
+- Fix: Lady Geist in fight.ORDER_HEROES (searches use her median order from the 3,202 matches, Essence Bomb tier 3
+  first; the audit gives her players their real tiers), corrections refit (EB 0.944 -> 0.957, LD 1.536 -> 1.558,
+  Malice 1.227 -> 1.190: the order explains the gap without moving them).
+- Split-half (even / odd match ids, 3 fit rounds on one half, 4 audit draws on the other) against a plain corr refit of
+  the same half on the popular order: per-source 0.0305 -> 0.0294 and 0.0252 -> 0.0221, mix 0.0178 -> 0.0173 and
+  0.0180 -> 0.0178. Kept.
+- Melee: melee_audit_fit.py --split "Lady Geist" on the same sample held both halves (mix 0.018 -> 0.009, 0.015 ->
+  0.008): rate 0.0349 -> 0.0214 (real melee share 0.022).
+- Result: Geist on the 3,202-match sample 0.025 -> 0.008; on the fresh all-hero sample 0.042 -> 0.023, overall 0.0191
+  -> 0.0190, no other hero moved by 0.002. sim_vs_win Lady Geist (27k + 37k, post-hotfix pools 10-31..11-05, repo
+  edges): within slot and tier 0.362 -> 0.394, all items 0.346 -> 0.371.
+- Left: Soul Exchange ~1.1x under and Tankbuster 1.3x under on Geist; Nurse (0.038, items Toxic Bullets 1.6x / Quicksilver
+  1.8x under) and Yamato (0.034) next on the fresh audit.

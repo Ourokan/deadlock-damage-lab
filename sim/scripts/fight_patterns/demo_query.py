@@ -1,11 +1,17 @@
 """Run one SQL query on a match replay (Deadlock API /v1/matches/demo/query) and save the NDJSON result.
 
 usage: python3 -I demo_query.py <match_id> <sql file|-> <out.ndjson>   (needs node for zstd)
+
+The API caches results by (match_id, query, format): resubmitting the same SQL returns the old job's result, even one
+made by an older demo parser. fresh="tag" (or env DEMO_QUERY_FRESH=tag) appends a SQL comment so a new job runs.
 """
-import json, sys, time, urllib.request, subprocess
+import json, os, sys, time, urllib.request, subprocess
 API = "https://api.deadlock-api.com/v1/matches/demo/query"
 UA = {"User-Agent": "deadlock-build-sim/0.1 (research)", "Content-Type": "application/json"}
-def run(mid, sql, out):
+def run(mid, sql, out, fresh=None):
+    fresh = fresh or os.environ.get("DEMO_QUERY_FRESH")
+    if fresh:
+        sql = f"{sql.rstrip()}\n-- fresh {fresh}"
     body = json.dumps({"match_id": int(mid), "query": sql, "format": "ndjson"}).encode()
     for i in range(6):
         try:

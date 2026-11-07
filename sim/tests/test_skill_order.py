@@ -77,6 +77,12 @@ class MedianOrder(unittest.TestCase):
         kudzu = next(i for i, a in enumerate(h.abilities) if a.name == "Kudzu Connection")
         self.assertGreaterEqual(_auto_abilities(h, 14000)[0][kudzu], 2)
 
+    def test_geist_takes_essence_bomb_tier_3(self):
+        # since the 10-30 Essence Bomb buff real Geists level it to tier 2.6 late (popular order: 2.0, no puddle)
+        h = G.hero("Lady Geist")
+        self.assertIn("Lady Geist", ORDER_HEROES)
+        self.assertEqual(_auto_abilities(h, 27000)[0][0], 3)
+
     def test_paige_unlocks_her_ult_in_lane(self):
         # Paige's popular order maxes Bookwyrm first and has Rallying Charge locked at 8k souls; the median order has
         # it unlocked and Bookwyrm at tier 1
