@@ -3549,3 +3549,27 @@ per cast real / sim: Greater Expansion 1.078 / 0.960 (even 1.083 / 0.944, odd 1.
   sample: Grey Talon 0.033 -> 0.014, Kelvin 0.039 -> 0.027, Ivy 0.036 -> 0.034; hero x item error for them
   0.096 -> 0.048. Grey Talon Tankbuster 0.574 -> 0.438, Kelvin Tankbuster 0.738 -> 0.640. sim_vs_win within 27k
   0.376 -> 0.376, 37k 0.347 -> 0.347 (the rows held split-half inside option A's check).
+
+## Ivy's Kudzu Connection (2026-11-07, Mechanics.kudzu_connect 0.45, Ivy refit)
+
+After #221 refit Ivy's item rows her mix gap on the fresh 2026-11-06 sample (1,577 Ivys) was still 0.033 and not from
+items (holders-only rows all ~1.00): gun 0.326 sim vs 0.354 real, Entangling Thorns 0.83x and Stone Form 0.78x over
+against the gun. scripts/phase_mix.py: gun under at every phase (1.06 / 1.06 / 1.13 at 30 / 60 / 90%), plain
+abilities over at every phase (0.86 / 0.93 / 0.90), the ult fine.
+
+- Kudzu Connection gives its full fire rate and bullet lifesteal while connected to an ally (16 m cast range), 50%
+  with no connection; the duel has no ally, so the sim always gave Ivy the half. The replay's ability entity carries
+  no tether target and no pawn state bit marks it, so scripts/mechanics/ivy_kudzu.py measures the chance from pawn
+  positions: in 75 post-hotfix Phantom+ Ivy matches (/mnt/project-files/analysis/work/ivy_kudzu/raw) a living ally is
+  within 16 m for 0.44 of Ivy's combat seconds (0.46 / 0.37 / 0.43 / 0.46 / 0.49 by fifth of the match), 0.51 inside a
+  Kudzu window and 0.48 at the cast. Mechanics.kudzu_connect = 0.45: the bonus is 0.5 + 0.5 x 0.45 of the full value.
+- Split-half (even / odd match ids, Ivy ability corrs fit 3 rounds on one half, audited on the other) vs a plain refit
+  of the same half: per-source 0.0162 -> 0.0156 / 0.0249 -> 0.0230, mix 0.023 -> 0.020 / 0.028 -> 0.025.
+- The rest of her gap is by build (scripts/gun_calib/gun_build.py restricted to Ivy): gun builds (< 20% spirit item
+  souls, most Ivys) shoot more than the sim (gun 0.43 real vs 0.39) and spirit builds (> 50%) much less (0.11 vs 0.15),
+  so one ability factor can't fit both. An Ivy-only gun_lean 0.07 (vs 0.028) fixed the spirit builds' slope but put
+  the pooled gun further under and lost split-half (mix 0.029 / 0.035), not kept.
+- Shipped: kudzu_connect 0.45, Ivy ability corrs (Thorns 1.716 -> 1.464, Stone Form 0.825 -> 0.658, Air Drop 1.509 ->
+  1.470) and item rows refit on the whole sample. Ivy mix 0.033 -> 0.015 (gun 0.349 vs real 0.354). sim_vs_win for Ivy
+  (27k + 37k, post-hotfix pools 10-31..11-05): all 0.346 -> 0.355, within slot and tier 0.368 -> 0.374. Mystic Reverb
+  rows untouched (Ivy has none).
