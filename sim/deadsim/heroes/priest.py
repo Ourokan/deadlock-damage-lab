@@ -19,6 +19,12 @@ Assumptions:
   landing factor of their own: replays land 1.6 stakes on heroes per cast (of 3) for 1.4 blessed hits, and booked as
   gun they hid a plain gun share of 0.16 vs real 0.38 behind stakes at 0.27-0.33 of damage vs real 0.10. The final stake (all of them at T3) is blessed: +BonusDamage pure damage and executes a target left below ExecuteThreshold % health. Cast once the target is below
   ULT_CAST_HP so the execute matters.
+  Booking (BOOK_UNBLESSED, 2026-11-07): the game books an unblessed stake under the ult's own class
+  (ability_priest_weaponswap) and only a blessed one under the crossbow. In post-hotfix replays a cast before T3 has
+  ~1.4 stake hits with only an Ira Domini event (~0.6 with crossbow + blessed); at T3 0.03. The sim booked every stake
+  as crossbow, so early stakes read 1.5x over and early Ira 1.7x under, and the whole-match fit split the two wrongly.
+  Unblessed stakes are now booked as "Ira Domini" with the stakes' own landing factor (Engine.damage book_only).
+  The 10-30 hotfix (Bonus Damage 115 -> 95, per boon 3.0 -> 3.6) left real blessed hits as big as before.
 """
 from deadsim.abilities import AbilityImpl, register
 
@@ -28,6 +34,7 @@ SNAP_TRAP_TRIGGER = 1.0   # s from kick to the target stepping on the armed trap
 STAKE_INTERVAL = 0.8      # s between crossbow stakes (not in data)
 ULT_CAST_HP = 0.7
 STAKES_AS_ULT = True      # stakes booked under Ira Domini (with its landing), not gun
+BOOK_UNBLESSED = True     # an unblessed stake (before T3) is booked under the ult's own class, as the game does
 
 
 @register("ability_priest_flashbang")
@@ -101,8 +108,11 @@ class IraDomini(AbilityImpl):
         # stakes are crossbow (weapon) bullets that proc like gun bullets; the game books them under their own weapon
         # (citadel_weapon_priest_crossbow), which the audit counts as Ira Domini, so they take the ult's landing
         if STAKES_AS_ULT:
+            # the game books an unblessed stake under ability_priest_weaponswap and a blessed one under the crossbow
+            # (replays: before T3 ~1.4 stake hits a cast carry only an Ira Domini event, the final stake both)
+            book = self.s.ab.name if BOOK_UNBLESSED and not blessed else None
             c.engine.damage(f, e, c.val("Damage") * p, "bullet", self.s.ab.name + " (stakes)", is_ability=True,
-                            ability=self.s, hits=1, is_ult=True, weapon_proc=True)
+                            ability=self.s, hits=1, is_ult=True, weapon_proc=True, book=book, book_only=True)
         else:
             c.engine.damage(f, e, c.val("Damage") * p, "bullet", "gun", ability=self.s, hits=1, is_ult=True)
         if blessed and e.alive:
