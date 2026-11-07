@@ -15,7 +15,15 @@ equal-probability first-hit times (s; None = not by HORIZON). Read by deadsim/he
 Mechanics.execute_timing): the first bolt of a fight goes out at the drawn time whatever the duel's charge (the real
 time already holds the charge carried in and the fight's own), later ones need a full battery from the duel.
 
-usage: python3 -I battery_timing.py [--write]
+Cooldown reduction speeds the battery's generation (BatteryGenerationPercent x (1 + cdr)), so each phase also
+records cdr = the mean item cooldown reduction of the real Victors in its fights (their build at the fight start); the
+sim scales a drawn time by (1 + cdr) / (1 + the build's cdr). Real late fights: Victors with cooldown items (mean 0.21)
+land the first bolt by 3 / 6 s in 0.42 / 0.64 of them, without 0.39 / 0.60 (the scaled curve says 0.44 / 0.65).
+
+Post-hotfix replays (2026-11-07): --raw DIR --sample PATH read another set of fight files (fetch_fights.py SQL) with
+their matches' metadata (fetch_validation.slim rows).
+
+usage: python3 -I battery_timing.py [--raw DIR --sample PATH] [--write]
 """
 import collections
 import glob
@@ -29,10 +37,14 @@ sys.path.insert(0, ROOT)
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "..", "fight_length"))
 sys.path.insert(0, os.path.join(HERE, "..", "cast_timing"))
+sys.path.insert(0, os.path.join(HERE, ".."))
 import fit_length as FL  # noqa: E402
 import opener_timing as OT  # noqa: E402
 import wolf_timing as W  # noqa: E402
 import aura_timing as A  # noqa: E402
+import landing_rates as L  # noqa: E402
+from deadsim import game  # noqa: E402
+from deadsim.build import compute_stats  # noqa: E402
 
 OUT = os.path.join(ROOT, "data", "battery_timing.json")
 VICTOR = A.VICTOR
@@ -58,10 +70,17 @@ def holds(rows):
     return out, curve
 
 
+def arg(name, default):
+    return sys.argv[sys.argv.index(name) + 1] if name in sys.argv else default
+
+
 def main():
-    files = sorted(glob.glob(W.FIGHTS + "*.ndjson.gz"))
-    sample = FL.load_sample(W.SAMPLE, {os.path.basename(f).split(".")[0] for f in files})
+    raw, sample_path = arg("--raw", W.FIGHTS), arg("--sample", W.SAMPLE)
+    files = sorted(glob.glob(os.path.join(raw, "*.ndjson.gz")))
+    sample = FL.load_sample(sample_path, {os.path.basename(f).split(".")[0] for f in files})
+    hero_v = game().hero(VICTOR)
     per = collections.defaultdict(list)
+    cdrs = collections.defaultdict(list)
     players = 0
     for fn in files:
         mid = os.path.basename(fn).split(".")[0]
@@ -85,19 +104,24 @@ def main():
                 ph = "lane" if minute < A.LANE_MIN else "late" if minute >= A.LATE_MIN else "mid"
                 first = next((t for t in hits if t0 <= t <= t1), None)
                 per[ph].append((None if first is None else first - t0, t1 - t0))
-    out = {"source": f"{players} Victor players in Phantom+ replays, pair fights after his first Pain Battery hit "
+                items, souls = L.build_at(by_hero[VICTOR], t0)
+                cdrs[ph].append(compute_stats(hero_v, items, souls=souls).cdr)
+    out = {"source": f"{players} Victor players in Phantom+ replays ({os.path.basename(os.path.normpath(raw))}: "
+                     f"{len(files)} matches), pair fights after his first Pain Battery hit "
                      "(sim/scripts/mechanics/battery_timing.py)",
            "note": "per phase: holds = equal-probability seconds from a fight's start to his first Pain Battery hit "
-                   "(Kaplan-Meier, null = not by 20 s)",
+                   "(Kaplan-Meier, null = not by 20 s); cdr = the real Victors' mean item cooldown reduction "
+                   "in those fights (the sim scales a drawn time by (1 + cdr) / (1 + the build's cdr))",
            "phases": {}}
     for ph in ("lane", "mid", "late"):
         rows = per[ph]
         if not rows:
             continue
         q, curve = holds(rows)
-        out["phases"][ph] = {"fights": len(rows), "holds": q}
+        cdr = round(sum(cdrs[ph]) / len(cdrs[ph]), 4)
+        out["phases"][ph] = {"fights": len(rows), "cdr": cdr, "holds": q}
         by = [round(curve[int(t / W.STEP)], 3) for t in (1, 3, 6, 20)]
-        print(f"{ph}: {len(rows)} fights, first hit by 1/3/6/20 s {by}")
+        print(f"{ph}: {len(rows)} fights, first hit by 1/3/6/20 s {by}, mean cdr {cdr}")
         print("  holds", q)
     if "--write" in sys.argv:
         with open(OUT, "w") as fh:
