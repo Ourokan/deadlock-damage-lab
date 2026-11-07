@@ -329,6 +329,18 @@ class Mechanics:
     # interval and reload time are / exp(-gun_lean x spirit item souls / 1000) (the gun's whole timeline slows, so its
     # damage per second drops by that factor)
     gun_lean: float = 0.028
+    # gun time by build per hero (2026-11-07): the one gun_lean curve misses how each hero's real gun share moves with
+    # spirit item souls (fresh 4,000-match sample, gun_build.py: within hero and match fifth, real minus sim log odds
+    # of the gun share from the low to the high spirit half of the players; the two halves of the matches agree, r 0.61:
+    # McGinnis, Nurse, Ivy, Holliday shoot less on spirit builds than the curve says, Silver, Baba, Mo & Krill, Viscous
+    # keep shooting). On, each hero's own slope k (data/gun_lean_hero.json: 0.028 minus the hero's slope shrunk
+    # n / (n + 1000)) replaces gun_lean around the hero's center (its mean spirit item souls in the sample), so the
+    # hero's average gun time is unchanged and only its gun-vs-spirit build split moves (gun_uptime, at most 1). Fit on
+    # one half of the matches, the other half's gap fell 0.0193 -> 0.0156 and 0.0245 -> 0.0217; whole-match audit flat
+    # 0.0191 -> 0.0191; heroes without a row keep gun_lean. But sim_vs_win (post-hotfix pools) 27k flat (all 0.342 ->
+    # 0.339, within slot and tier 0.383 -> 0.384) and 37k down in both hero halves (all 0.320 -> 0.308, within 0.363 ->
+    # 0.359): off (validation/gun_lean_hero.md)
+    gun_lean_hero: bool = False
     # abilities by build (2026-10-28): real players with more souls in spirit items also open fights with their abilities
     # sooner and recast them sooner after cooldown (Phantom+ replays, stratified Cox per ability: hazard x exp(0.0060 per
     # 1000 spirit item souls) for first casts with net worth and cooldown reduction in the model, both halves of the
@@ -740,6 +752,35 @@ def cdr_ready_u(f, ab, u):
 
 
 _LEAN = None
+
+
+_GUN_LEAN = None
+
+
+def gun_lean_row(hero_id):
+    """Mechanics.gun_lean_hero: (k, center) of the hero (data/gun_lean_hero.json, path overridable with
+    GUN_LEAN_HERO_FILE for fits), None without a row."""
+    global _GUN_LEAN
+    if _GUN_LEAN is None:
+        fn = os.environ.get("GUN_LEAN_HERO_FILE") or os.path.join(os.path.dirname(__file__), "..", "data", "gun_lean_hero.json")
+        _GUN_LEAN = {"k": {}, "center": {}}
+        if os.path.exists(fn):
+            with open(fn) as fh:
+                _GUN_LEAN = json.load(fh)
+    k = _GUN_LEAN["k"].get(str(hero_id))
+    return None if k is None else (k, _GUN_LEAN["center"].get(str(hero_id), 0.0))
+
+
+def gun_uptime(mech, hero_id, spirit):
+    """share of the time the gun fires for a build with `spirit` souls in spirit items (Mechanics.gun_lean): exp(-gun_lean
+    x spirit / 1000); with gun_lean_hero and a hero row the slope is the hero's own k around its center (its mean spirit
+    item souls in the sample, so the hero's average gun time stays at the pooled curve's), at most 1"""
+    k0 = mech.gun_lean
+    x = -k0 * spirit / 1000.0
+    row = gun_lean_row(hero_id) if getattr(mech, "gun_lean_hero", False) else None
+    if row is not None:
+        x -= (row[0] - k0) * (spirit - row[1]) / 1000.0
+    return min(1.0, math.exp(x))
 
 
 def lean_center(hero_id):

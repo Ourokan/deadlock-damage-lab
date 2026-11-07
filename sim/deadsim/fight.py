@@ -236,7 +236,8 @@ def make_fighter(engine, lo: Loadout, name=None):
     f = Fighter(engine, name or lo.name or hero.name, st, skill)
     if engine.mech is not None and getattr(engine.mech, "gun_lean", 0.0):
         spirit = sum(it.cost for it in items if it.slot == "spirit")
-        f.gun_uptime = math.exp(-engine.mech.gun_lean * spirit / 1000.0)
+        from .mechanics import gun_uptime
+        f.gun_uptime = gun_uptime(engine.mech, hero.id, spirit)
     if engine.mech is not None and getattr(engine.mech, "ability_lean", 0.0):
         from .mechanics import lean_center
         spirit, c = sum(it.cost for it in items if it.slot == "spirit"), lean_center(hero.id)

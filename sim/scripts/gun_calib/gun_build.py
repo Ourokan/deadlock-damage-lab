@@ -5,12 +5,20 @@ Per player-match and frac: the real gun share of the player's damage in the wind
 draws), with the build's spirit lean (spirit items' souls / all items' souls at that time). Pooled real / sim gun
 share (players weighted) per frac and spirit bin, the other kinds beside it, and the per-hero split.
 
-usage: python3 gun_build.py [--sample PATH] [--window 0.05] [--parity even|odd] [--dump PATH] [--lean X] [workers]
-       python3 gun_build.py --report PATH
+Per hero (--fit-hero, 2026-11-07): within hero and frac, the players' rows split at the median spirit item souls; the
+slope is the change of real minus sim log odds of the gun share from the low to the high half per 1000 spirit souls
+(mean over the fracs whose halves are > 500 souls apart). The hero's k = its current k - slope x n / (n + SHRINK_N)
+(n = rows), clipped to [0, K_MAX], with the hero's mean spirit item souls over its rows as the center (the pooled
+curve's gun time there is kept), written for Mechanics.gun_lean_hero (data/gun_lean_hero.json).
+
+usage: python3 gun_build.py [--sample PATH] [--window 0.05] [--parity even|odd] [--dump PATH] [--lean X] [--hero-lean] [workers]
+       python3 gun_build.py --report PATH [--parity even|odd]
+       python3 gun_build.py --fit-hero PATH OUT [--parity even|odd]   (from a --dump made with the current ks)
 """
 import collections
 import gzip
 import json
+import math
 import os
 import pickle
 import random
@@ -33,6 +41,8 @@ AUDIT_SEEDS = (0, 1)
 SAMPLE = os.path.join(ROOT, "validation", "phantom_sample.jsonl.gz")
 KINDS = ("gun", "ability", "item", "melee", "other")
 BINS = (0.0, 0.2, 0.35, 0.5, 0.65, 1.01)
+SHRINK_N = 1000
+K_MAX = 0.1
 
 
 def spirit_souls(p, t):
@@ -89,6 +99,9 @@ def main():
     if "--lean" in args:   # try a Mechanics.gun_lean (workers fork after this)
         import dataclasses
         D.MECH = dataclasses.replace(D.MECH, gun_lean=float(args[args.index("--lean") + 1]))
+    if "--hero-lean" in args:   # per-hero ks (Mechanics.gun_lean_hero; GUN_LEAN_HERO_FILE to try a fit)
+        import dataclasses
+        D.MECH = dataclasses.replace(D.MECH, gun_lean_hero=True)
     pos = [a for i, a in enumerate(args) if a.isdigit() and (i == 0 or not args[i - 1].startswith('--'))]
     workers = int(pos[0]) if pos else os.cpu_count()
     G = game()
@@ -110,7 +123,56 @@ def main():
     report(rows, G)
 
 
+def logit(x):
+    x = min(max(x, 1e-3), 1 - 1e-3)
+    return math.log(x / (1 - x))
+
+
+def hero_slopes(rows):
+    """{hero_id: (slope of real - sim gun log odds per 1000 spirit item souls, rows)}"""
+    by = collections.defaultdict(list)
+    for r in rows:
+        by[r["hero"]].append(r)
+    out = {}
+    for h, rs in by.items():
+        sl = []
+        for fr in FRACS:
+            x = sorted((r for r in rs if r["frac"] == fr), key=lambda r: r["spirit"])
+            if len(x) < 20:
+                continue
+            parts = []
+            for part in (x[:len(x) // 2], x[len(x) // 2:]):
+                g = sum(r["real"]["gun"] for r in part) / len(part)
+                s = sum(r["sim"]["gun"] for r in part) / len(part)
+                parts.append((logit(g) - logit(s), sum(r["spirit"] for r in part) / len(part)))
+            d = (parts[1][1] - parts[0][1]) / 1000.0
+            if d > 0.5:
+                sl.append((parts[1][0] - parts[0][0]) / d)
+        if sl:
+            out[h] = (sum(sl) / len(sl), len(rs))
+    return out
+
+
+def fit_hero(rows, G, out_path):
+    from deadsim.mechanics import DEFAULT, gun_lean_row
+    ks, centers = {}, {}
+    print(f"{'hero':14s} {'rows':>5s} {'slope':>8s} {'k now':>6s} {'k new':>6s}")
+    for h, (slope, n) in sorted(hero_slopes(rows).items(), key=lambda kv: G.heroes[kv[0]].name):
+        row = gun_lean_row(h) if DEFAULT.gun_lean_hero else None
+        k0 = row[0] if row else DEFAULT.gun_lean
+        sp = [r["spirit"] for r in rows if r["hero"] == h]
+        centers[str(h)] = round(sum(sp) / len(sp))
+        k = min(K_MAX, max(0.0, k0 - slope * n / (n + SHRINK_N)))
+        ks[str(h)] = round(k, 4)
+        print(f"{G.heroes[h].name:14s} {n:5d} {slope:+8.4f} {k0:6.3f} {k:6.3f}")
+    json.dump({"k": ks, "center": centers}, open(out_path, "w"), indent=1, sort_keys=True)
+
+
 def report(rows, G):
+    sl = hero_slopes(rows)
+    w = sum(n for _, n in sl.values())
+    print(f"per-hero slope of real - sim gun log odds per 1000 spirit souls: rows-weighted mean abs "
+          f"{sum(abs(s) * n for s, n in sl.values()) / w:.4f}, mean {sum(s * n for s, n in sl.values()) / w:+.4f}")
     print("pooled real / sim share by spirit lean (spirit item souls / item souls)")
     for fr in FRACS:
         print(f"== {fr:.0%}")
@@ -124,7 +186,15 @@ def report(rows, G):
 
 
 if __name__ == "__main__":
+    def load(path):
+        rows = pickle.load(open(path, "rb"))
+        if "--parity" in sys.argv:
+            par = 0 if sys.argv[sys.argv.index("--parity") + 1] == "even" else 1
+            rows = [r for r in rows if r["match"] % 2 == par]
+        return rows
     if len(sys.argv) > 2 and sys.argv[1] == "--report":
-        report(pickle.load(open(sys.argv[2], "rb")), game())
+        report(load(sys.argv[2]), game())
+    elif len(sys.argv) > 3 and sys.argv[1] == "--fit-hero":
+        fit_hero(load(sys.argv[2]), game(), sys.argv[3])
     else:
         main()
