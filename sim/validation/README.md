@@ -3527,6 +3527,10 @@ per cast real / sim: Greater Expansion 1.078 / 0.960 (even 1.083 / 0.944, odd 1.
   usual +0.002); whole fresh sample mix 0.098 -> 0.096, per-source 0.125 -> 0.084; Yamato sim_vs_win within 0.326 -> 0.331.
   The item rows and melee rate wait on Tyler (they close most of the gap but cost sim_vs_win). Note: sim_vs_win's popular
   builds are the shared search/work snapshots from 2026-10-14, before the spirit meta.
+- 2026-11-07, Tyler's call ("Ship full refit", damage accuracy first): Yamato's per-hero item rows (2 rounds) and melee
+  rate (0.079 -> 0.035) refit on the same fresh sample, on top of the corrections (they moved < 0.01). Fresh sample
+  mix 0.096 -> 0.031, per-source 0.084 -> 0.027 (split-half held earlier: 0.099 -> 0.037 / 0.097 -> 0.031). Yamato
+  sim_vs_win within 0.331 -> ~0.313 accepted.
 
 ## Grey Talon, Kelvin and Ivy item rows; Mystic Reverb without the health term (2026-11-07)
 
