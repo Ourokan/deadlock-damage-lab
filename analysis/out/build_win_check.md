@@ -2,9 +2,9 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-05, 41,449 Ritualist+ matches (refreshed 2026-11-07T01:06:32Z).
+Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-05, 41,449 Ritualist+ matches (refreshed 2026-11-07T03:02:21Z).
 
-- Recommended item slots with data: 1824; mean edge +0.8 (popular builds +0.1); clearly positive 759, clearly negative 4.
+- Recommended item slots with data: 1831; mean edge +0.8 (popular builds +0.1); clearly positive 758, clearly negative 4.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
