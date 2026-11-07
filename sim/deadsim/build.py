@@ -11,6 +11,7 @@ Only "innate" item stats (always on) are summed here; conditional, proc and acti
 """
 from __future__ import annotations
 
+import os
 import warnings
 from dataclasses import dataclass, field
 from .data import game, gun_calibration, Hero, Item, UNITS_PER_METER
@@ -76,6 +77,37 @@ IMBUE_ITEMS = {
     "upgrade_ability_power_shard": {},
     "upgrade_frostbite_charm": {},
 }
+
+
+# Items that grow with kills (validation/kill_stacks.md): real Phantom+ holders' mean stacks while held, hero-damage
+# weighted, by net worth, from the stat timelines of post-hotfix matches (fight_rate_post, 10-31..11-06; match-id
+# halves agree within 0.1 stack). The duel has no kills, so before 2026-11-07 these items gave their flat stats only.
+# - Glass Cannon: FireRatePerKill fire rate + BonusClipPerKill ammo per stack; a kill adds one, a death takes one
+#   off (0..MaxStacks 8). 3,949 holders.
+# - Trophy Collector: StackingTechRangeMultiplier ability range (and radius, the same number) per kill or assist,
+#   kept through death (0..MaxStacks 16). 42,624 holders; most reach 9-13 stacks by 27-37k. Measured but NOT applied
+#   (not in KILL_STACK_ITEMS): with it sim_vs_win 27k rose in both hero halves but 37k fell in one half (0.3565 ->
+#   0.3550), as 14 heroes' popular builds hold it and every item on them moves.
+# Off with KILL_STACKS False (or env DEADSIM_KILL_STACKS=0).
+KILL_STACKS = os.environ.get("DEADSIM_KILL_STACKS", "1") != "0"
+KILL_STACK_ITEMS = ("upgrade_glass_cannon",)
+KILL_STACKS_BY_NW = {
+    "upgrade_glass_cannon": ((15000, 0.36), (25000, 0.58), (35000, 0.98), (45000, 1.52), (55000, 2.05),
+                             (65000, 2.70)),
+    "upgrade_trophy_collector": ((5000, 1.48), (15000, 4.70), (25000, 8.96), (35000, 12.62), (45000, 14.63),
+                                 (55000, 15.42), (65000, 15.71)),
+}
+
+
+def kill_stacks(souls, class_name="upgrade_glass_cannon"):
+    """Real mean kill stacks of a holder of this item at this net worth (linear between bins, flat outside)."""
+    pts = KILL_STACKS_BY_NW[class_name]
+    if souls <= pts[0][0]:
+        return pts[0][1]
+    for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+        if souls <= x1:
+            return y0 + (y1 - y0) * (souls - x0) / (x1 - x0)
+    return pts[-1][1]
 
 
 def combine_resist(sources, reductions=()):
@@ -291,7 +323,10 @@ def compute_stats(hero, items=(), souls=None, level=None) -> Stats:
     st.item_cdr = A("ITEM_COOLDOWN_REDUCTION_PERCENTAGE") / 100
     st.ult_cdr = A("ULTIMATE_COOLDOWN_REDUCTION_PERCENTAGE") / 100
     st.duration_pct = A("BONUS_ABILITY_DURATION_PERCENTAGE") / 100
+    stacked = [(it, min(kill_stacks(souls, it.class_name), it.props.get("MaxStacks", 8)))
+               for it in items if KILL_STACKS and it.class_name in KILL_STACK_ITEMS]
     st.range_pct = A("TECH_RANGE_PERCENT") / 100
+    st.range_pct += sum(n * it.props.get("StackingTechRangeMultiplier", 0) for it, n in stacked) / 100
     st.bonus_charges = int(A("BONUS_ABILITY_CHARGES"))
     st.charged_spirit = agg.get("charged_spirit", 0.0)
     st.charged_cdr = agg.get("charged_cdr", 0.0) / 100
@@ -303,6 +338,8 @@ def compute_stats(hero, items=(), souls=None, level=None) -> Stats:
     w = hero.weapon
     st.weapon_pct = (invest_bonus(hero, "weapon", spent["weapon"]) + A("WEAPON_DAMAGE_INCREASE")) / 100
     st.fire_rate_pct = A("FIRE_RATE") / 100
+    for it, n in stacked:
+        st.fire_rate_pct += n * it.props.get("FireRatePerKill", 0) / 100
     st.bullet_damage = w.get("bullet_damage", 0) + boons * pb.get("MODIFIER_VALUE_BASE_BULLET_DAMAGE_FROM_LEVEL", 0)
     st.pellets = int(w.get("bullets", 1) or 1)
     if hero.id in SHOT_SPLIT_PELLETS:
@@ -321,7 +358,8 @@ def compute_stats(hero, items=(), souls=None, level=None) -> Stats:
     st.spin_cycle = w.get("max_spin_cycle_time") if w.get("spins_up") else None
     st.spin_up_rate = w.get("spin_increase_rate", 0.5) or 0.5
     st.spin_decay_rate = w.get("spin_decay_rate", 0.25) or 0.25
-    st.clip = max(1, int(round(w.get("clip_size", 1) * (1 + A("AMMO_CLIP_SIZE_PERCENT") / 100) + A("AMMO_CLIP_SIZE"))))
+    st.clip = max(1, int(round(w.get("clip_size", 1) * (1 + A("AMMO_CLIP_SIZE_PERCENT") / 100) + A("AMMO_CLIP_SIZE")
+                               + sum(n * it.props.get("BonusClipPerKill", 0) for it, n in stacked))))
     # a charged shot spends charge_factor rounds (Danny's replays: about 6 shots between reloads of a 14 clip), so
     # reload downtime per second of fire stays the data gun's
     st.clip = max(1, int(round(st.clip / charge)))
