@@ -633,10 +633,19 @@ class HeroicAura(FX):
 
 @handler("upgrade_cloaking_device_active")
 class ShadowWeave(FX):
+    """Opens the fight from stealth (ambush). The 10-30 hotfix swapped the ambush's +25% fire rate (and melee) for
+    +50% weapon damage (AmbushBonusWeaponDamage); the removed fire rate reads as 0, so the ambush gives spirit power
+    only. AMBUSH_WEAPON = True adds the +50% weapon damage: opt-in, OFF, because it lowered sim_vs_win at 27k and 37k
+    on both day halves (within slot and tier -0.0006 / -0.0007, validation/hotfix_items.md)."""
+    AMBUSH_WEAPON = False
+
     def on_start(self, f):
-        if f.skill.use_actives:   # opens the fight from stealth (ambush)
+        if f.skill.use_actives:
             d = self.dur("AmbushDuration", 5)
-            self.buff("fire_rate", self.item.p("AmbushBonusFireRate") / 100, d)
+            if self.item.p("AmbushBonusFireRate"):
+                self.buff("fire_rate", self.item.p("AmbushBonusFireRate") / 100, d)
+            if self.AMBUSH_WEAPON and self.item.p("AmbushBonusWeaponDamage"):
+                self.buff("weapon_pct", self.item.p("AmbushBonusWeaponDamage") / 100, d)
             self.buff("spirit_power", self.item.p("AmbushBonusTechPower"), d)
             self.ready_at = 1e9
 
