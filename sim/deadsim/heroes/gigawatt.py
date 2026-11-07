@@ -8,7 +8,7 @@ Assumptions:
   (BonusPerChain) need extra targets and are ignored. At most one proc per ChainTickRate. T3 shreds spirit resist on each proc.
 - Storm Cloud: Seven can't shoot while channeling; target is damaged every DamageInterval while inside the
   expanding radius (line of sight assumed). A stun on Seven ends the channel. One lightning strike
-  (LightningStrikes) lands on the target at the start. Cast only when the target is above 20% and the cloud's
+  (LightningStrikes) at the start lands STRIKE_HIT of the time. Cast only when the target is above 20% and the cloud's
   DPS is at least COMMIT_MARGIN x Seven's expected gun DPS (incl. Power Surge), since he can't shoot while
   channeling. Both sides are compared before landing factors, so the decision is the same in the landing fit and
   in use. Not recast while channeling (a Refresher reset mid-channel would otherwise stack two clouds).
@@ -20,6 +20,13 @@ BALL_CONTACT_FRAC = 0.5
 # in 29% of fights, a median 5.5 s in. Requiring twice the gun's DPS fits the real damage mix (Storm Cloud landing
 # factor 0.81 vs 0.16 at 1x, scripts/landing_rates.py --hero Seven with mechanics on).
 COMMIT_MARGIN = 2.0
+
+
+# The cast's lightning strike (LightningStrikes) lands on a hero in 0.43 of real casts: 229 Phantom+ replay Storm
+# Clouds (fight_length raw, one hit 2-4.5x the cloud's tick size in its first 2.5 s), and the API books it under its
+# own class citadel_ability_gigawatt_lightning_strike (real/sim 0.45 there with every strike landing). It gets its own
+# label so the audit compares it with that class and Storm Cloud's landing factor is fitted on the cloud alone.
+STRIKE_HIT = 0.43
 
 
 def gun_dps(c, landing=True):
@@ -110,7 +117,8 @@ class StormCloud(AbilityImpl):
             st["res_tag"] = ("storm_res", c.now)
             c.buff("bullet_resist", c.raw("BulletResistOnActive") / 100, chan, tag=st["res_tag"])
         if c.raw("LightningStrikes"):
-            c.spirit_hit(c.val("LightningStrikeDamage"), delay=c.raw("LightningStrikeDelay"), name=self.s.ab.name)
+            c.spirit_hit(c.val("LightningStrikeDamage"), delay=c.raw("LightningStrikeDelay"),
+                         name=f"{self.s.ab.name} (strike)", hit_chance=STRIKE_HIT)
         c.after(c.raw("DamageInterval", 0.3), self.tick, c, st["start"])
 
     def tick(self, c, start):
