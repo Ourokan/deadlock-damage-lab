@@ -357,6 +357,19 @@ _jungle = {}
 # item 0.258 -> 0.306 (both hero halves). 1.0 = the old score.
 DAMAGE_ELASTICITY = 0.5
 
+# Heal survival (2026-11-07, accurate heal fixes kept lowering sim_vs_win: Healing Nova's real team heal, real kill
+# heals): the duel turns an item's healing into time alive and so into damage before death, but real holders of
+# healing items (HEAL_ITEMS) don't die less per fight. Across items, log(real holders' deaths / kills + assists)
+# against the log of the sim's time-alive gain is -0.56 for the other 125 items (their duel survival shows up in real
+# deaths) and +0.26 / +0.62 at 27k / 37k for the 16 healing items (no fewer deaths; both match-id halves, post-hotfix
+# holder rates; sim/validation/heal_survival.md). Healing items are left out of death_rate_value for the same reason
+# (heal_deaths.md), so their duel survival was the only survival they were credited with, and at full weight. The
+# score counts each held healing item's time-alive gain on the popular build (Evaluator._heal_gain) ^ HEAL_SURVIVAL,
+# the damage while alive stays. The measured transfer is ~0; sim_vs_win within slot and tier peaks at 0.5 (plateau
+# 0.25-0.75) and 0.5 holds on both hero halves and on edges from either half of the days, 0 does not at 37k:
+# 27k 0.377 -> 0.387, 37k 0.365 -> 0.369, Spearman 0.356 -> 0.371 / 0.379 -> 0.386. 1 = the old score.
+HEAL_SURVIVAL = 0.5
+
 
 def death_data():
     global _death
@@ -1006,6 +1019,7 @@ class Evaluator:
     def __init__(self, hero, budget, pools):
         self.h, self.souls, self.pools = hero, budget, pools
         self.cache = {}
+        self._hg = {}
         self.fights = 0
         self.norm, self.dmg_norm = {}, {}
         pop = tuple(sorted(S.popular_build(hero, S.item_budget(budget), pools)))
@@ -1061,6 +1075,31 @@ class Evaluator:
                 out[k] = out.get(k, 0.0) + r[1] * v / tw
         return {k: round(v, 1) for k, v in sorted(out.items(), key=lambda x: -x[1]) if v >= 0.5}
 
+    def _heal_gain(self, i, pool):
+        """Time alive with healing item i over without it, on the popular build (i added, or dropped if held)."""
+        key = (i, pool)
+        if key not in self._hg:
+            pop = list(self.pop)
+            if i in pop:
+                with_i, without = pop, [j for j in pop if j != i]
+            else:
+                c = S.component_ids(S.G().items[i])
+                with_i, without = [j for j in pop if j not in c] + [i], pop
+            t1, t0 = self._mean(self._rows(with_i, pool), 3), self._mean(self._rows(without, pool), 3)
+            self._hg[key] = t1 / t0 if t0 > 0 and t1 > 0 else 1.0
+        return self._hg[key]
+
+    def _heal_surv(self, items, pool):
+        """HEAL_SURVIVAL: the held healing items' duel time-alive gains counted ^ HEAL_SURVIVAL instead of in full."""
+        if HEAL_SURVIVAL == 1 or self.fight is not Evaluator.fight:   # lane trades: no time alive
+            return 1.0
+        g = S.G()
+        v = 1.0
+        for i in set(items):
+            if g.items[i].name in HEAL_ITEMS:
+                v *= self._heal_gain(i, pool) ** (DAMAGE_ELASTICITY * (HEAL_SURVIVAL - 1))
+        return v
+
     @staticmethod
     def _mean(rows, k):
         tw = sum(r[1] for r in rows)
@@ -1081,8 +1120,9 @@ class Evaluator:
         drate = death_rate_value(items, self.h, self.souls)
         focus = focus_value(items, self.souls)
         farm = farm_value(items, self.souls)
+        heal_surv = self._heal_surv(items, pool) / self._heal_surv(self.pop, pool)
         score = (max(0.0, dmg) / self.dmg_norm[pool]) ** DAMAGE_ELASTICITY * move * mt * win * team * death * rate * drate \
-            * focus * farm / self.norm[pool]
+            * focus * farm * heal_surv / self.norm[pool]
         if not detail:
             return score
         t = self._mean(rows, 3)
@@ -1105,6 +1145,7 @@ class Evaluator:
             "fight_rate": round(rate, 4),  # fights per minute vs the popular build (fight_value)
             "death_rate_value": round(drate, 4),  # real holders' deaths (death_rate_value), before the popular's
             "focus_value": round(focus, 4),  # real holders' damage taken (focus_value), before the popular's
+            "heal_survival": round(heal_surv, 4),  # healing items' duel survival ^ HEAL_SURVIVAL, vs the popular's
             "farm_value": round(farm, 4),  # real holders' jungle souls (farm_value), before the popular's
             "matchups": {str(r[0]): [round(r[2]), round(r[3], 2)] for r in rows},
         }
