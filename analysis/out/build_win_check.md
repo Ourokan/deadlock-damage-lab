@@ -2,9 +2,9 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-06, 49,834 Ritualist+ matches (refreshed 2026-11-07T19:54:16Z).
+Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-06, 49,834 Ritualist+ matches (refreshed 2026-11-07T21:51:12Z).
 
-- Recommended item slots with data: 1825; mean edge +0.9 (popular builds +0.1); clearly positive 826, clearly negative 4.
+- Recommended item slots with data: 1828; mean edge +0.9 (popular builds +0.1); clearly positive 824, clearly negative 5.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
@@ -17,6 +17,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Item | slot/tier | builds | heroes (edge) |
 |---|---|---:|---|
 | Arcane Surge | spirit 2 | 4 | Paige -1.2 |
+| Kinetic Dash | weapon 2 | 1 | Haze -2.0 |
 
 ## Strong items the sim never picks (edge >= +1.5, lower 95% bound > 0)
 
@@ -28,17 +29,18 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Colossus | vitality 4 | 3 | Warden +2.4, Apollo +2.4, Abrams +1.5 |
 | Magic Carpet | spirit 4 | 3 | Lash +4.2, Solomon +3.1, Sinclair +2.4 |
 | Duration Extender | spirit 2 | 2 | Kelvin +1.8, Abrams +1.8 |
+| Silencer | weapon 4 | 2 | Wraith +1.7, Drifter +1.5 |
 | Warp Stone | vitality 3 | 2 | Victor +2.2, Infernus +1.5 |
 | Spirit Burn | spirit 4 | 2 | Ivy +2.4, Vindicta +2.1 |
 | Glass Cannon | weapon 4 | 1 | Deadman Danny +2.3 |
 | Superior Cooldown | spirit 3 | 1 | Drifter +2.2 |
 | Siphon Bullets | vitality 4 | 1 | Drifter +2.0 |
-| Silencer | weapon 4 | 1 | Drifter +1.5 |
 | Rapid Recharge | spirit 3 | 1 | Haze +1.7 |
 | Extra Spirit | spirit 1 | 1 | Haze +1.6 |
 | Mystic Reverb | spirit 4 | 1 | Rat King +2.1 |
 | Monster Rounds | weapon 1 | 1 | Seven +1.9 |
 | Witchmail | vitality 4 | 1 | Shiv +1.7 |
+| Lucky Shot | weapon 4 | 1 | Venator +1.9 |
 | Spellslinger | weapon 4 | 1 | Wraith +2.2 |
 
 ## Per hero
@@ -74,6 +76,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 ### Grey Talon
 
 ### Haze
+- 27k: Kinetic Dash -2.0
 - never picked: Rapid Recharge +1.7, Fleetfoot +1.7, Sprint Boots +1.7, Extra Spirit +1.6
 
 ### Holliday
@@ -139,7 +142,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 ### The Doorman
 
 ### Venator
-- never picked: Ethereal Shift +2.2
+- never picked: Ethereal Shift +2.2, Lucky Shot +1.9
 
 ### Victor
 - never picked: Warp Stone +2.2, Ethereal Shift +2.0
@@ -158,7 +161,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Colossus +2.4, Fleetfoot +1.9
 
 ### Wraith
-- never picked: Spellslinger +2.2
+- never picked: Spellslinger +2.2, Silencer +1.7
 
 ### Yamato
 
