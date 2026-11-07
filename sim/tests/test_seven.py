@@ -50,6 +50,25 @@ class StormCloud(unittest.TestCase):
         self.assertGreater(full, none)
         self.assertAlmostEqual(half - none, (full - none) / 2, places=6)
 
+    def test_strike_is_its_own_source_at_strike_hit(self):
+        """The cast's lightning strike is booked as "Storm Cloud (strike)" (the API's own class, landing_rates.ALIASES)
+        and scales with STRIKE_HIT."""
+        sys.path.insert(0, os.path.join(ROOT, "sim", "scripts"))
+        import landing_rates as L
+        self.assertEqual(L.ALIASES["Storm Cloud (strike)"], "citadel_ability_gigawatt_lightning_strike")
+
+        def strike(hit):
+            old, gigawatt.STRIKE_HIT = gigawatt.STRIKE_HIT, hit
+            try:
+                r = damage_test("Seven", ITEMS, souls=27000, aim="p75", tiers=[3, 3, 0, 3], dummy=Dummy(hp=3000))
+            finally:
+                gigawatt.STRIKE_HIT = old
+            return r["sources"].get("Storm Cloud (strike)", 0)
+
+        full, part = strike(1.0), strike(gigawatt.STRIKE_HIT)
+        self.assertGreater(full, 0)
+        self.assertAlmostEqual(part / full, gigawatt.STRIKE_HIT, places=2)
+
 
 if __name__ == "__main__":
     unittest.main()
