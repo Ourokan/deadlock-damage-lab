@@ -5,7 +5,7 @@
   "sample": "phantom_sample.jsonl.gz",
   "use": "deadsim realistic mode scales an item's own damage by min(1, landing)",
   "length": "fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x length_corr (the sim's source/gun in full / the same expected over real fight lengths, scripts/fight_length/length_factors.py, phantom_sample.jsonl.gz, 3 rounds)",
-  "heroes": "per-hero factors from the damage audit's hero x item rows (fresh_2026-11-06_sample.jsonl.gz, >= 20 holders): current factor x (real/sim)^(n/(n+20)), capped 0.25-1; replace the pooled factor for that hero (scripts/item_landing_heroes.py)",
+  "heroes": "per-hero factors from the damage audit's hero x item rows (v_all.jsonl.gz, >= 20 holders): current factor x (real/sim)^(n/(n+20)), capped 0.25-1; replace the pooled factor for that hero (scripts/item_landing_heroes.py)",
   "entry_hp_kept": "length_corr scaled so held first casts and Mechanics.entry_hp (as configured in the run) keep the expected levels of a target run at full health with the previous holds (length_factors.py --entry --target-holds)",
   "cast_timing_kept": "length_corr scaled so held first casts (Mechanics.cast_timing) keep the expected levels of cast-on-sight duels; rerun from the factors before"
  },
@@ -1108,29 +1108,44 @@
    }
   },
   "Violet": {
+   "Arctic Blast": {
+    "holders": 29,
+    "real_over_sim": 0.952,
+    "landing": 0.915
+   },
+   "Cold Front": {
+    "holders": 36,
+    "real_over_sim": 1.234,
+    "landing": 1.0
+   },
+   "Decay": {
+    "holders": 27,
+    "real_over_sim": 0.998,
+    "landing": 0.954
+   },
    "Escalating Exposure": {
-    "holders": 25,
-    "real_over_sim": 0.902,
-    "landing": 0.533
+    "holders": 37,
+    "real_over_sim": 0.925,
+    "landing": 0.439
    },
    "Mystic Shot": {
-    "holders": 170,
-    "real_over_sim": 0.887,
-    "landing": 0.898
+    "holders": 231,
+    "real_over_sim": 1.015,
+    "landing": 1.0
    },
-   "Spirit Burn": {
-    "holders": 45,
-    "real_over_sim": 0.982,
-    "landing": 0.988
+   "Scourge": {
+    "holders": 23,
+    "real_over_sim": 1.167,
+    "landing": 0.82
    },
-   "Tankbuster": {
-    "holders": 207,
-    "real_over_sim": 0.973,
-    "landing": 0.975
+   "Silence Wave": {
+    "holders": 54,
+    "real_over_sim": 1.15,
+    "landing": 1.0
    },
    "Torment Pulse": {
-    "holders": 69,
-    "real_over_sim": 1.121,
+    "holders": 51,
+    "real_over_sim": 1.329,
     "landing": 1.0
    }
   },
