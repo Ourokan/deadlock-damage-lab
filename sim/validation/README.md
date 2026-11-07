@@ -3633,3 +3633,31 @@ and names the heroes by ability id):
   concluding the decode is broken.
 - Not all post-hotfix ids have demos (132252985: 404 "No demo available"); skip those as before. A job can also fail
   on Valve's download ("error decoding response body", 132520198 once, fine on another run): retry later.
+
+## Lady Geist's Essence Bomb tier after the 10-30 buff (2026-11-07)
+
+Audit on 2,939 fresh post-11-05-hotfix Phantom+ matches (match id > 132.0M, copy at
+/mnt/project-files/sim/validation/post_hotfix_2026-11-07_sample.jsonl.gz): overall 0.0191; furthest Lady Geist 0.042
+(156 players: Soul Exchange 1.43x and Essence Bomb 1.29x under, melee 0.59x over), Nurse 0.038, Yamato 0.034.
+
+- Bigger sample: 3,202 Phantom+ matches with a Geist since 10-31 (metadata endpoint with include_player_info, filter
+  hero_id 4; /mnt/project-files/sim/validation/geist_post_2026-11-07_sample.jsonl.gz). There Geist was 0.025 (1,089
+  players): Essence Bomb 1.20x under, Life Drain 0.96, Malice 0.95, Soul Exchange 1.14, melee 0.62. Pre-10-30 Geists
+  (geist_sample) had Essence Bomb at 0.92, so the gap came with the 10-30 hotfix (EB spirit scaling 1.22 -> 1.35).
+- Mechanism: real Geists now level Essence Bomb further (scripts/ability_order.py --check: real mean tier 1.93 / 2.32
+  / 2.59 at 30 / 60 / 90% vs the popular order's 2.00 / 2.00 / 2.04, which never takes the tier-3 puddle), and real
+  share of Essence Bomb rose 0.16 -> 0.20. With only the players' real tiers in the audit (new AUDIT_TIER_HEROES what-if,
+  no refit) Essence Bomb reads 1.01 and Life Drain 1.01; per-source distance 0.048 -> 0.027, mix 0.025 -> 0.017.
+- Fix: Lady Geist in fight.ORDER_HEROES (searches use her median order from the 3,202 matches, Essence Bomb tier 3
+  first; the audit gives her players their real tiers), corrections refit (EB 0.944 -> 0.957, LD 1.536 -> 1.558,
+  Malice 1.227 -> 1.190: the order explains the gap without moving them).
+- Split-half (even / odd match ids, 3 fit rounds on one half, 4 audit draws on the other) against a plain corr refit of
+  the same half on the popular order: per-source 0.0305 -> 0.0294 and 0.0252 -> 0.0221, mix 0.0178 -> 0.0173 and
+  0.0180 -> 0.0178. Kept.
+- Melee: melee_audit_fit.py --split "Lady Geist" on the same sample held both halves (mix 0.018 -> 0.009, 0.015 ->
+  0.008): rate 0.0349 -> 0.0214 (real melee share 0.022).
+- Result: Geist on the 3,202-match sample 0.025 -> 0.008; on the fresh all-hero sample 0.042 -> 0.023, overall 0.0191
+  -> 0.0190, no other hero moved by 0.002. sim_vs_win Lady Geist (27k + 37k, post-hotfix pools 10-31..11-05, repo
+  edges): within slot and tier 0.362 -> 0.394, all items 0.346 -> 0.371.
+- Left: Soul Exchange ~1.1x under and Tankbuster 1.3x under on Geist; Nurse (0.038, items Toxic Bullets 1.6x / Quicksilver
+  1.8x under) and Yamato (0.034) next on the fresh audit.
