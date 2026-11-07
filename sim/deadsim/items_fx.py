@@ -1342,9 +1342,26 @@ class Suppressor(FX):
 
 @handler("upgrade_healbane")
 class Healbane(FX):
-    """Spirit damage cuts the target's healing; a target that dies under it heals the holder HealOnKill. In
-    realistic mode the cut is scaled by Skill.item_landing["Healbane"] (real heal prevented per fight second / the
-    sim's, sim/scripts/sustain/fit_healbane.py)."""
+    """Spirit damage cuts the target's healing; a target that dies under it heals the holder HealOnKill (+ its boon
+    scale). In realistic mode the cut is scaled by Skill.item_landing["Healbane"] (real heal prevented per fight
+    second / the sim's, sim/scripts/sustain/fit_healbane.py), and with Mechanics.kill_heals the kill heal comes at
+    real holders' rate per combat second (teammates' kills too) instead of on the duel's own refills."""
+
+    def on_start(self, f):
+        mech = f.e.mech
+        if mech is None or not mech.kill_heals:
+            return
+        from .mechanics import KILL_HEAL_TICK, kill_heal_rate
+        rate = kill_heal_rate(self.item.class_name, f.st.souls)
+        if rate <= 0:
+            return
+
+        def tick():
+            if f.e.over or not f.alive:
+                return
+            f.heal(rate * KILL_HEAL_TICK * self.v("HealOnKill"), self.name, "item")
+            f.e.after(KILL_HEAL_TICK, tick)
+        f.e.after(KILL_HEAL_TICK, tick)
 
     def on_damage_dealt(self, f, t, hit):
         if hit.kind == "spirit":
@@ -1353,8 +1370,11 @@ class Healbane(FX):
                         self.dur("AbilityDuration", 8))
 
     def on_kill(self, f, t):
+        mech = f.e.mech
+        if mech is not None and mech.kill_heals:
+            return   # the real rate in on_start holds the holder's own kills too
         if t.mods.get("heal_received", (self.item.class_name, "heal_received")) is not None:
-            f.heal(self.item.p("HealOnKill"), self.name, "item")
+            f.heal(self.v("HealOnKill"), self.name, "item")
 
 
 @handler("upgrade_bullet_resist_shredder")

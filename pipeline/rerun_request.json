@@ -1,5 +1,5 @@
 {
   "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
-  "requested_at": "2026-11-07T02:02:18Z",
-  "reason": "Yamato full refit on the fresh sample: item rows + melee rate (Tyler chose damage accuracy)"
+  "requested_at": "2026-11-07T02:16:25Z",
+  "reason": "Healbane's kill heal scales with boons (170 + 3 per boon, was a flat 170)"
 }

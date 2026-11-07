@@ -377,6 +377,42 @@ class Mechanics:
     # median, not the duel's current gap; at least SPLIT_MIN_M, the fit's closest hero) copies, so a
     # far hero (Vindicta 25.8 m: 0.33) no longer gets close-range Vyper's 0.73; off: SPLIT_PRIMARY_HIT for everyone
     split_range: bool = True
+    # Healbane kill heals (2026-11-07, items whose value depends on kills): the holder heals HealOnKill whenever an
+    # enemy hero dies under its anti-heal, whoever killed it, but the duel's only kills are its own (the immortal
+    # enemy's refills), weighted by the real fight length: ~0.03 heals per fight. Real post-hotfix Phantom+ holders
+    # get 0.017-0.020 per second of hero combat (0.32 per minute held at 20-30k; 38% or more are teammates' kills),
+    # both match-id halves within 0.001 (scripts/mechanics/kill_heals.py, data/kill_heals.json). On: Healbane heals
+    # that real rate x the boon-scaled HealOnKill through the fight (KILL_HEAL_TICK steps) and the refill heal is
+    # off, the real rate holds the holder's own kills too; off: the refill heal only. Kept OFF: sim_vs_win within
+    # slot and tier fell at both budgets (27k 0.3842 -> 0.3826, hero halves 0.3727 / 0.3972 -> 0.3703 / 0.3963; 37k
+    # 0.3637 -> 0.3628, 0.3565 / 0.3721 -> 0.3563 / 0.3705): Healbane's sim gain was already above its real edge
+    # (validation/kill_heals.md)
+    kill_heals: bool = False
+
+
+KILL_HEAL_TICK = 0.5   # s between Mechanics.kill_heals heal steps
+_KILL_HEALS = None
+
+
+def kill_heal_rate(cls, souls):
+    """Mechanics.kill_heals: real kill heals per second of hero combat for item class cls at net worth souls
+    (data/kill_heals.json, linear between bin centres, flat outside); 0 without a row."""
+    global _KILL_HEALS
+    if _KILL_HEALS is None:
+        fn = os.path.join(os.path.dirname(__file__), "..", "data", "kill_heals.json")
+        _KILL_HEALS = {}
+        if os.path.exists(fn):
+            with open(fn) as fh:
+                _KILL_HEALS = {k: v for k, v in json.load(fh).items() if k.startswith("upgrade_")}
+    pts = _KILL_HEALS.get(cls)
+    if not pts:
+        return 0.0
+    if souls <= pts[0][0]:
+        return pts[0][1]
+    for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+        if souls <= x1:
+            return y0 + (y1 - y0) * (souls - x0) / (x1 - x0)
+    return pts[-1][1]
 
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut

@@ -1,0 +1,30 @@
+{
+ "source": "800 post-hotfix Phantom+ matches, 3282 Healbane holders (sim/scripts/mechanics/kill_heals.py)",
+ "note": "kill heals per second of hero combat by net worth (bin centre, rate); Healbane's self-heal / boon-scaled HealOnKill, per minute held / sustain.json combat_share",
+ "upgrade_healbane": [
+  [
+   5000,
+   0.0164
+  ],
+  [
+   15000,
+   0.0166
+  ],
+  [
+   25000,
+   0.0173
+  ],
+  [
+   35000,
+   0.0186
+  ],
+  [
+   45000,
+   0.0202
+  ],
+  [
+   55000,
+   0.0223
+  ]
+ ]
+}
