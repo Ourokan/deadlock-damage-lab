@@ -2,9 +2,9 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-05, 41,449 Ritualist+ matches (refreshed 2026-11-07T09:19:29Z).
+Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-05, 41,449 Ritualist+ matches (refreshed 2026-11-07T11:41:51Z).
 
-- Recommended item slots with data: 1827; mean edge +0.8 (popular builds +0.1); clearly positive 757, clearly negative 4.
+- Recommended item slots with data: 1831; mean edge +0.9 (popular builds +0.1); clearly positive 765, clearly negative 5.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
@@ -17,6 +17,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Item | slot/tier | builds | heroes (edge) |
 |---|---|---:|---|
 | Arcane Surge | spirit 2 | 4 | Paige -1.6 |
+| Extra Stamina | vitality 1 | 1 | Haze -2.2 |
 
 ## Strong items the sim never picks (edge >= +1.5, lower 95% bound > 0)
 
@@ -29,7 +30,8 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Spirit Burn | spirit 4 | 3 | Ivy +2.3, Vindicta +2.0, Drifter +1.7 |
 | Duration Extender | spirit 2 | 2 | Abrams +1.8, Kelvin +1.5 |
 | Siphon Bullets | vitality 4 | 1 | Drifter +2.0 |
-| Lucky Shot | weapon 4 | 1 | Haze +1.9 |
+| Mystic Expansion | spirit 1 | 1 | Dynamo +1.6 |
+| Rapid Recharge | spirit 3 | 1 | Haze +1.8 |
 | Extra Spirit | spirit 1 | 1 | Haze +1.7 |
 | Mystic Reverb | spirit 4 | 1 | Rat King +2.1 |
 | Monster Rounds | weapon 1 | 1 | Seven +1.8 |
@@ -62,13 +64,15 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Ethereal Shift +2.4, Siphon Bullets +2.0, Fleetfoot +2.0, Spirit Burn +1.7
 
 ### Dynamo
+- never picked: Mystic Expansion +1.6
 
 ### Graves
 
 ### Grey Talon
 
 ### Haze
-- never picked: Fleetfoot +2.1, Lucky Shot +1.9, Sprint Boots +1.7, Extra Spirit +1.7
+- 37k: Extra Stamina -2.2
+- never picked: Fleetfoot +2.1, Rapid Recharge +1.8, Sprint Boots +1.7, Extra Spirit +1.7
 
 ### Holliday
 
