@@ -1746,8 +1746,11 @@ def _used_within(base, seconds):
 class Rebuttal(FX):
     """On a parry: heal ParrySuccessHealPercentage% of the parried damage, deal it back to the attacker, and
     +BonusDamagePercent% damage for BuffDuration. Holders parry REBUTTAL_PARRY_MULT x as often (real holders log
-    0.88 parry successes per 3 min vs 0.47 for everyone else)."""
-    REBUTTAL_PARRY_MULT = 1.9
+    0.88 parry successes per 3 min vs 0.47 for everyone else). The 10-30 hotfix cut ParryCooldownReduction 1.75 ->
+    1.25 s: whole-match parry successes of players holding Rebuttal over half the match vs non-holders fell from
+    2.11x (phantom_sample, 183 holders) to 1.80x (post-hotfix samples, 4,103 matches, 1,351 holders), so the
+    multiplier is scaled 1.9 x 1.80 / 2.11 = 1.62 (validation/hotfix_items.md)."""
+    REBUTTAL_PARRY_MULT = 1.62
 
     def on_start(self, f):
         f.counters["parry_mult"] = self.REBUTTAL_PARRY_MULT
