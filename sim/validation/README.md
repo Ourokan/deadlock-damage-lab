@@ -3708,3 +3708,27 @@ while the sim booked it as Storm Cloud, so Storm Cloud's factor was fitted on cl
 - sim_vs_win, Seven (post-hotfix pools, 27k + 37k): within slot and tier 0.368 -> 0.384, all items 0.318 -> 0.333.
   Raw day-half edges (sim_vs_win_raw): 27k +0.012 / +0.015, 37k -0.001 / +0.001.
 - Left: Seven melee 0.82x real (0.3% of his damage), Escalating Exposure 0.94x.
+
+## Abilities the 10-30 and 11-05 hotfixes changed: stale fits (2026-11-07)
+
+The two hotfixes changed 53 abilities on 27 heroes (diff of data/game/abilities.json at a56e2d09 and 80097880).
+Damage numbers flow into the sim from the game data by themselves; what goes stale is hand-coded timing and the
+fitted length_corr rows. Whole-match audit on the 4,103 post-11-05 Phantom+ matches (post_hotfix_2026-11-07 +
+post_hotfix_2026-11-07b_new), real/sim of each changed ability on the 16 heroes not refit since the hotfix: most
+are within ~7%; off by more: Baba's Brew 1.47 (0.82 on the old sample), Shiv's Killing Blow 0.78 (1.02),
+Venator's Ira Domini 1.16, Victor's Aura of Suffering 0.84, Billy, The Doorman, Wraith, Warden, Danny, Graves,
+Celeste 10-25%.
+
+- Baba's Brew: the hotfix replaced the fixed brew (FireLockTime 4.5 s) by barrier / silence / burn windows of 1.6 s
+  in a random order; the sim fell back to 4.5 s. baba.brew_wait: half the other two windows (1.6 s) before each
+  throw after the first. Barely moves the audit (1.47 -> 1.45: the 28 s cooldown sets the casts in a 20 s duel).
+- ability_corr_heroes --split on the 11 heroes (3 rounds a half): kept Shiv, Venator, Wraith, Warden, Danny; Baba's
+  sources halved on both halves but mix +0.013 on one, so Baba's Brew alone (--skip the rest): sources
+  0.055 -> 0.026 / 0.057 -> 0.036, mix 0.023 -> 0.013 / 0.020 -> 0.009, kept. Billy, Victor, Graves, Celeste failed
+  the mix check, The Doorman was flat on one half.
+- sim_vs_win per hero (local post-hotfix pools, 27k / 37k within slot and tier, shipped edges): Venator
+  -0.003 / -0.005, Wraith -0.002 / +0.001, Warden -0.001 / -0.001: not shipped. Shipped Shiv (+0.000 / +0.000),
+  Danny (+0.002 / +0.004), Baba (+0.001 / +0.001); the three together 0.419 -> 0.422 / 0.385 -> 0.389 (both
+  match halves up), raw day-half edges 27k +0.001 / +0.001, 37k +0.002 / +0.003.
+- Rows: Shiv Killing Blow 4.13 -> 3.19 (Serrated Knives 1.73 -> 1.77, Slice and Dice 1.94 -> 1.97); Danny Chimera
+  Mk1 2.84 -> 3.21, Jettison Fuel 1.38 -> 1.26, Strix Salvo 1.53 -> 1.58; Baba's Brew 1.78 -> 2.58.

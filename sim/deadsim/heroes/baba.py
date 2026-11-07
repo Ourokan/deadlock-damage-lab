@@ -15,8 +15,10 @@ Assumptions:
   replays: her fitted melee rate is bunched into the window). Move speed / jumps are movement only.
   Cast on sight: she runs in on it (the bench is a brawling stance).
 - Baba's Brew: Baba throws the scalding brew (the burn: DamagePerSecond for BurnDuration and SpiritResistReduction
-  spirit shred), the damaging one of the three. It is brewed for FireLockTime before the throw, except the first,
-  assumed brewed before the fight. T3 BrewEffectiveness scales the burn and the shred
+  spirit shred), the damaging one of the three. Since the 10-30 hotfix the pot cycles through barrier, silence and
+  burn windows (BarrierWindow / SilenceWindow / FireWindow, 1.6 s each) in a random order: Baba waits for the burn
+  window, on average half the other two windows (brew_wait; FireLockTime, the old 4.5 s fixed brew, if the data has
+  it), before each throw except the first, assumed brewed before the fight. T3 BrewEffectiveness scales the burn and the shred
   (the API's EMultiplyBase upgrade, already in raw()). Barrier and silence brews
   are not modeled.
 - Feed The Birds: cast within AbilityCastRange; Baba channels for TimeToMaxStacks (gun stopped, full bread count:
@@ -106,6 +108,15 @@ class GrannyLongLegs(AbilityImpl):
                         is_ability=True, ability=self.s)
 
 
+def brew_wait(c):
+    """Mean wait for the burn window: the three windows come in a random order, so the burn one starts after half
+    of the other two on average (before the 10-30 hotfix: a fixed FireLockTime brew)."""
+    lock = c.raw("FireLockTime", 0.0)
+    if lock:
+        return lock
+    return (c.raw("BarrierWindow", 1.5) + c.raw("SilenceWindow", 1.5)) / 2
+
+
 @register("ability_baba_hexing_brew")
 class BabasBrew(AbilityImpl):
     kind = "skillshot"
@@ -114,7 +125,7 @@ class BabasBrew(AbilityImpl):
         c.state["thrown"] = False
 
     def cast(self, c):
-        brew = c.raw("FireLockTime", 4.5) if c.state.get("thrown") else 0.0
+        brew = brew_wait(c) if c.state.get("thrown") else 0.0
         c.state["thrown"] = True
         throw = brew + c.raw("AbilityChannelTime")
         c.lock_gun(c.raw("AbilityChannelTime"))

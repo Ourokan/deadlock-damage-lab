@@ -415,21 +415,21 @@
     "landing": 0.45,
     "real_share": 0.2944,
     "sim_share": 0.3307,
-    "length_corr": 1.734
+    "length_corr": 1.774
    },
    "Slice and Dice": {
     "class": "citadel_ability_shiv_dash",
     "landing": 1.09,
     "real_share": 0.1504,
     "sim_share": 0.167,
-    "length_corr": 1.935
+    "length_corr": 1.966
    },
    "Killing Blow": {
     "class": "citadel_ability_shiv_killing_blow",
     "landing": 0.35,
     "real_share": 0.0584,
     "sim_share": 0.0628,
-    "length_corr": 4.13
+    "length_corr": 3.193
    }
   },
   "Ivy": {
@@ -860,28 +860,28 @@
     "landing": 0.25,
     "real_share": 0.1907,
     "sim_share": 0.3335,
-    "length_corr": 1.534
+    "length_corr": 1.582
    },
    "Chimera Mk1": {
     "class": "ability_deadpack_rocketeer",
     "landing": 0.17,
     "real_share": 0.2441,
     "sim_share": 0.1859,
-    "length_corr": 2.838
+    "length_corr": 3.212
    },
    "Jettison Fuel": {
     "class": "ability_deadpack_flamethrower",
     "landing": 0.46,
     "real_share": 0.1663,
     "sim_share": 0.1303,
-    "length_corr": 1.379
+    "length_corr": 1.263
    },
    "Close The Deal": {
     "class": "ability_deadpack_ultimate",
     "landing": 0.34,
     "real_share": 0.0431,
     "sim_share": 0.0276,
-    "length_corr": 0.81
+    "length_corr": 0.772
    }
   },
   "Rem": {
@@ -1083,7 +1083,7 @@
    "Baba's Brew": {
     "class": "ability_baba_hexing_brew",
     "landing": 0.35,
-    "length_corr": 1.777
+    "length_corr": 2.584
    },
    "Feed The Birds": {
     "class": "ability_baba_ultimate_2",
