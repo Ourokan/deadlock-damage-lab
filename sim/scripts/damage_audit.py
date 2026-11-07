@@ -37,6 +37,7 @@ AUDIT_OUT=path writes path.json/.md instead; AUDIT_HEROES=name,name audits only 
 per-hero check: the items tables then pool only them). AUDIT_NORM=gun: items tables per gun damage (before 2026-10-26).
 AUDIT_SEED=k: another draw of foes and per-fight draws (k=0 is the default draw), for averaging small samples.
 AUDIT_REAL_TIERS=0: fight.ORDER_HEROES' players on the default (median) order instead of their real ability tiers.
+AUDIT_TIER_HEROES=name,name: those heroes' players get their real tiers too (what-if before adding a hero to ORDER_HEROES).
 AUDIT_AREA_PHASE=0: area abilities without their game-phase term (Mechanics.ability_area_phase).
 The sample comes from scripts/fetch_validation.py (e.g. --api 91 5 for Phantom+ of the last 5 days).
 """
@@ -72,6 +73,8 @@ LENGTH = True        # damage expected over real fight lengths (mechanics.real_l
 ITEM_NORM = os.environ.get("AUDIT_NORM", "gun")
 SEED = int(os.environ.get("AUDIT_SEED", "0"))
 REAL_TIERS = os.environ.get("AUDIT_REAL_TIERS", "1") != "0"   # fight.ORDER_HEROES' players with their real ability tiers
+# AUDIT_TIER_HEROES=name,name: these heroes' players get their real tiers too (a what-if for a hero not in ORDER_HEROES)
+EXTRA_TIER_HEROES = {x.strip() for x in os.environ.get("AUDIT_TIER_HEROES", "").split(",") if x.strip()}
 AREA_PHASE = os.environ.get("AUDIT_AREA_PHASE", "1") != "0"   # area abilities' extra heroes by phase (Mechanics.ability_area_phase)
 ALLY_VAPORS = os.environ.get("AUDIT_ALLY_VAPORS", "1") != "0"   # an allied Nurse's vapors on the real teams (Mechanics.ally_vapors)
 # whole-match cover (main sets AUDIT_COVER=1; importers of sim_player keep the duels at L.FRACS): COVER_DUELS duels per
@@ -126,7 +129,7 @@ def real_tiers(p, t):
     median one; the audit gives their players their own); {} for the rest (default order) or AUDIT_REAL_TIERS=0."""
     G = game()
     h = G.hero(p["hero_id"])
-    if not REAL_TIERS or h.name not in ORDER_HEROES:
+    if not REAL_TIERS or (h.name not in ORDER_HEROES and h.name not in EXTRA_TIER_HEROES):
         return {}
     ids = [ab.id for ab in h.abilities]
     tiers, unlocked = [0] * len(ids), [False] * len(ids)

@@ -111,8 +111,10 @@ class Loadout:
 # ability (Celeste's popular order has Shining Wonder at tier 0.4 at 60% of the match, real players 1.6). Judged per
 # hero by split-half (validation/README.md "Ability order"; Graves and Dynamo since 2026-10-28; Sinclair, Doorman and
 # McGinnis did not hold); the damage audit gives these heroes' players their real tiers at the duel's moment (real
-# Dynamos have Singularity tier 3 at 20k souls in 45% of player-matches, no single order does).
-ORDER_HEROES = ("Celeste", "Ivy", "Paige", "Graves", "Dynamo", "Apollo")
+# Dynamos have Singularity tier 3 at 20k souls in 45% of player-matches, no single order does). Lady Geist since
+# 2026-11-07: after the 10-30 Essence Bomb buff real Geists level it to tier 2.6 by the late game, the popular order
+# keeps it at 2.0 (Essence Bomb read 1.20x under; her row is from 3,202 post-hotfix Geist matches).
+ORDER_HEROES = ("Celeste", "Ivy", "Paige", "Graves", "Dynamo", "Apollo", "Lady Geist")
 
 
 @lru_cache(maxsize=64)
