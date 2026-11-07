@@ -4,7 +4,8 @@ Shot, Fortitude). Same handler API as items_fx; imported by items_fx before MODE
 Still not modeled (no value in a fixed-distance 1v1 or no data): movement items (Slowing Hex, Mystic Slow,
 Enduring Speed, Magic Carpet, Electric Slippers, Seraphim Wings, Shadow Strike), parry items (Rebuttal,
 Counterspell), multi-target (Split Shot, Ricochet), team or economy items (Healing Rite, Celestial Blessing,
-Golden Goose Egg, Trophy Collector, Glass Cannon stacks, Eternal Gift), and the legendaries Frostbite Charm, Omnicharge Signet, Mystical Piano, Prism Blast,
+Golden Goose Egg, Trophy Collector soul income, Eternal Gift; kill stacks of Glass Cannon and Trophy Collector are
+real holders' mean stacks in build.KILL_STACKS_BY_NW), and the legendaries Frostbite Charm, Omnicharge Signet, Mystical Piano, Prism Blast,
 Unstable Concoction, Nullification Burst, Shrink Ray, Vortex Web, Cloak of Opportunity.
 """
 from __future__ import annotations
