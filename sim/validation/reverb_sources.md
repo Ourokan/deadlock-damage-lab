@@ -38,6 +38,11 @@ intervals over 16 heroes (Paradox 702, Yamato 357, Grey Talon 229).
   popular build is 1.27x at 27k (sim_vs_win rows), about the real 1.23x. Most items' real dealt ratios move only
   0.5-0.75x their sim gain (damage_elasticity.md); Reverb's moves about fully, so it sits above the line.
 
+Reproducing: main = commit e4c9a7d. Option A = the same commit with Mystic Reverb's pooled and per-hero rows of
+/mnt/project-files/sim/reverb_health_off/option_a.patch (item_landing.json) and its items_fx change
+(CURRENT_HEALTH_BONUS False) applied; `--no-health-term` alone only drops the term (1.15x, echoes 13.8%, factors not refit).
+The item's own source has no holders / non-holders ratio (non-holders' base is 0): see its holders' mean.
+
 Conclusion: no damage source to add. On damage alone, option A reproduces Reverb holders' real damage and the term in
 main overshoots it; option A's sim_vs_win cost (-0.004) is Reverb's real win edge, which damage does not explain
 (reverb_nondamage / reverb_win_edge notes). No model change here.

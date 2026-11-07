@@ -107,9 +107,16 @@ def units(m, item_id, item_cls, nw, heroes):
             yield p["slot"], p["hero_id"], w0, t0, t1, h, dict(d)
 
 
+def _health_term():
+    if os.environ.get("REVERB_NO_HEALTH_TERM") == "1":
+        from deadsim import items_fx
+        items_fx.MysticReverb.CURRENT_HEALTH_BONUS = False
+
+
 def sim_unit(job):
     """Sim damage by category of one duel at the interval midpoint (damage_audit.sim_player's set-up)."""
     m, slot, t, item_cls, seed, drop = job
+    _health_term()
     G = game()
     load_heroes()
     me = next(p for p in m["players"] if p["slot"] == slot)
@@ -168,7 +175,7 @@ def compare(rows, key):
             var += w * w * (va / len(a) + vb / len(b))
             n += w
         if n:   # [holders / non-holders, z, non-holders' mean, holders' mean] per minute (real) or per duel (sim)
-            out[c] = [round(num / den, 3) if den > 0 else None,
+            out[c] = [round(num / den, 3) if den / n >= 1.0 else None,   # the item's own source: no ratio (base ~0)
                       round((num - den) / math.sqrt(var), 1) if var > 0 else 0.0,
                       round(den / n, 1), round(num / n, 1)]
         nh = max(nh, n)
@@ -185,11 +192,13 @@ def main():
     ap.add_argument("--seeds", type=int, default=1)
     ap.add_argument("--nw", type=int, nargs=2, default=(20250, 49950))
     ap.add_argument("--out")
-    ap.add_argument("--no-health-term", action="store_true", help="Mystic Reverb without its current-health echo term")
+    ap.add_argument("--no-health-term", action="store_true",
+                    help="Mystic Reverb without its current-health echo term (factors unchanged: option A's numbers come "
+                         "from a checkout with PR #221's option_a.patch Reverb rows, validation/reverb_sources.md)")
     a = ap.parse_args()
     if a.no_health_term:
-        from deadsim import items_fx
-        items_fx.MysticReverb.CURRENT_HEALTH_BONUS = False
+        os.environ["REVERB_NO_HEALTH_TERM"] = "1"   # workers read it (works under spawn too)
+        _health_term()
     G = game()
     it = G.items_by_name[a.item.lower()]
     ms = [json.loads(line) for line in gzip.open(a.sample, "rt")]
