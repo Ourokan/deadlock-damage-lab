@@ -12,7 +12,7 @@ the same slot and tier (as the edge is), with the overall score's KILL_WEIGHT an
 kill weight off, --elasticity for DAMAGE_ELASTICITY, --death-gamma for DEATH_RATE_GAMMA, --focus-gamma for FOCUS_GAMMA, --focus-key for FOCUS_KEY, --farm-gamma for FARM_GAMMA, --deaths-per-minute for death ratios per minute, --death to turn the opt-in death cost on, --bounty for DEATH_BOUNTY, --no-death-rate to
 turn the real death rate value off, --fight-rate for the opt-in fight rate). Rows in --out also carry the popular build's and the
 item build's sim death chance (overall_search.death_chance), for analysis/scripts/death_check.py, then health lost
-per fight and max health of both builds and both scores (for offline fight-rate variants), the item cost and both builds' damage before death.
+per fight and max health of both builds and both scores (for offline fight-rate variants), the item cost, both builds' damage before death and both builds' time alive (sim/scripts/fight_rate/survival_slope.py).
 Earlier ad hoc check: Pearson 0.05 over 16 heroes x 27k/37k (build_win_check.md). This script, all heroes at 27k
 (2026-10-24): all pairs 0.10 without the kill weight, 0.14 with it.
 
@@ -72,7 +72,8 @@ def job(args):
     ev = GP.make_evaluator(hero, b, pools)
     pop = S.popular_build(hero, GP.item_budget(b), pools)
     base = ev.run(pop)
-    dmg_pop = ev.run(pop, detail=True)["damage_before_death"]
+    dpop = ev.run(pop, detail=True)
+    dmg_pop, t_pop = dpop["damage_before_death"], dpop["time_alive_s"]
     pd_pop = ev.pd_pop["F"]
     fe = ev.fight if isinstance(ev, O.MixEvaluator) else ev   # MixEvaluator: its fight part
     loss_pop, hp_pop = getattr(fe, "loss_pop", {}).get("F", 0.0), O.build_stats(hero, pop, b)["max_hp"]
@@ -89,7 +90,7 @@ def job(args):
         sc = d["score"]
         out.append((hero, b, it.name, (sc - base) / it.cost * 1000, e[0], e[1], pd_pop, d["death_chance"],
                     loss_pop, d.get("hp_lost_per_fight", 0.0), hp_pop, O.build_stats(hero, GP.with_item(pop, i), b)["max_hp"],
-                    base, sc, it.cost, dmg_pop, d["damage_before_death"]))
+                    base, sc, it.cost, dmg_pop, d["damage_before_death"], t_pop, d["time_alive_s"]))
     return out
 
 

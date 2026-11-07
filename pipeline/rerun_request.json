@@ -1,5 +1,5 @@
 {
   "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
-  "requested_at": "2026-11-07T03:30:37Z",
-  "reason": "Lady Geist follows real players' ability order (Essence Bomb tier 3 first) + Geist corr and melee refit"
+  "requested_at": "2026-11-07T07:16:45Z",
+  "reason": "Healing items' duel survival counts at half (HEAL_SURVIVAL 0.5): real holders don't die less per fight"
 }
