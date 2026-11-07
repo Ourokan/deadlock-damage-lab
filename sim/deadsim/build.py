@@ -91,6 +91,7 @@ IMBUE_ITEMS = {
 # Off with KILL_STACKS False (or env DEADSIM_KILL_STACKS=0).
 KILL_STACKS = os.environ.get("DEADSIM_KILL_STACKS", "1") != "0"
 KILL_STACK_ITEMS = ("upgrade_glass_cannon",)
+KILL_STACK_CAP = {"upgrade_glass_cannon": 8, "upgrade_trophy_collector": 16}   # the items' MaxStacks
 KILL_STACKS_BY_NW = {
     "upgrade_glass_cannon": ((15000, 0.36), (25000, 0.58), (35000, 0.98), (45000, 1.52), (55000, 2.05),
                              (65000, 2.70)),
@@ -323,7 +324,8 @@ def compute_stats(hero, items=(), souls=None, level=None) -> Stats:
     st.item_cdr = A("ITEM_COOLDOWN_REDUCTION_PERCENTAGE") / 100
     st.ult_cdr = A("ULTIMATE_COOLDOWN_REDUCTION_PERCENTAGE") / 100
     st.duration_pct = A("BONUS_ABILITY_DURATION_PERCENTAGE") / 100
-    stacked = [(it, min(kill_stacks(souls, it.class_name), it.props.get("MaxStacks", 8)))
+    stacked = [(it, min(kill_stacks(souls, it.class_name),
+                           it.props.get("MaxStacks", KILL_STACK_CAP[it.class_name])))
                for it in items if KILL_STACKS and it.class_name in KILL_STACK_ITEMS]
     st.range_pct = A("TECH_RANGE_PERCENT") / 100
     st.range_pct += sum(n * it.props.get("StackingTechRangeMultiplier", 0) for it, n in stacked) / 100

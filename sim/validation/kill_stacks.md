@@ -26,6 +26,11 @@ weighted by the holder's hero damage in each interval, per net worth bin.
 Glass Cannon holders sit at about one stack (+7% fire rate) through the mid game: kills and deaths mostly cancel.
 Trophy holders reach 9-13 stacks (+7-9% range and radius) by 27-37k.
 
+Caveats: kills and deaths inside one snapshot interval (~3-5 min) are netted before the 0 floor, so a death before
+a kill in the same interval is not lost to the floor as it would be in the game (a small upward bias on Glass
+Cannon's curve). And holders who get stacks are the ones who win fights, so the curve is not independent of the win
+edge it is checked against; the effect is small either way (+0.0003-0.0006 sim_vs_win).
+
 `build.KILL_STACKS_BY_NW` holds these curves (bin centres, linear between); `compute_stats` adds the stacks' fire
 rate and ammo (Glass Cannon) or ability range (Trophy Collector) at the build's net worth.
 

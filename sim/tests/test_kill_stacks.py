@@ -39,7 +39,21 @@ class TestKillStacks(unittest.TestCase):
         B.KILL_STACKS = True
         on = B.compute_stats("Wraith", [gc], souls=35000)
         self.assertAlmostEqual(on.fire_rate_pct - off.fire_rate_pct, 0.98 * per / 100)
-        self.assertGreaterEqual(on.clip, off.clip)
+        self.assertEqual(on.clip - off.clip, 2)   # ~0.98 stacks x BonusClipPerKill 2
+
+    def test_stacks_capped_at_max_stacks(self):
+        gc = glass_cannon()
+        per = game().item(gc).props.get("FireRatePerKill", 0)
+        cap = game().item(gc).props.get("MaxStacks", 8)
+        B.KILL_STACKS, was = True, B.KILL_STACKS_BY_NW["upgrade_glass_cannon"]
+        B.KILL_STACKS_BY_NW["upgrade_glass_cannon"] = ((0, 50.0),)
+        try:
+            on = B.compute_stats("Wraith", [gc], souls=35000)
+        finally:
+            B.KILL_STACKS_BY_NW["upgrade_glass_cannon"] = was
+        B.KILL_STACKS = False
+        off = B.compute_stats("Wraith", [gc], souls=35000)
+        self.assertAlmostEqual(on.fire_rate_pct - off.fire_rate_pct, cap * per / 100)
 
     def test_trophy_range_opt_in(self):
         tc = item("upgrade_trophy_collector")
