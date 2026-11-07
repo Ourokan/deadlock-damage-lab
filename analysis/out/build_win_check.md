@@ -2,9 +2,9 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-05, 41,449 Ritualist+ matches (refreshed 2026-11-06T21:02:39Z).
+Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-05, 41,449 Ritualist+ matches (refreshed 2026-11-07T01:06:32Z).
 
-- Recommended item slots with data: 1830; mean edge +0.8 (popular builds +0.1); clearly positive 754, clearly negative 4.
+- Recommended item slots with data: 1824; mean edge +0.8 (popular builds +0.1); clearly positive 759, clearly negative 4.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
@@ -28,11 +28,10 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Magic Carpet | spirit 4 | 4 | Lash +4.0, Solomon +3.5, Venator +2.8, Sinclair +2.6 |
 | Duration Extender | spirit 2 | 2 | Abrams +1.8, Kelvin +1.5 |
 | Spirit Burn | spirit 4 | 2 | Vindicta +2.0, Drifter +1.7 |
-| Mystic Expansion | spirit 1 | 2 | Lady Geist +1.6, Dynamo +1.6 |
-| Lucky Shot | weapon 4 | 2 | Ivy +3.0, Haze +1.9 |
-| Siphon Bullets | vitality 4 | 1 | Drifter +2.0 |
+| Lucky Shot | weapon 4 | 2 | Haze +1.9, Venator +1.9 |
+| Silencer | weapon 4 | 1 | Drifter +1.7 |
 | Extra Spirit | spirit 1 | 1 | Haze +1.7 |
-| Silencer | weapon 4 | 1 | Infernus +2.0 |
+| Mystic Expansion | spirit 1 | 1 | Lady Geist +1.6 |
 | Mystic Reverb | spirit 4 | 1 | Rat King +2.1 |
 | Monster Rounds | weapon 1 | 1 | Seven +1.8 |
 | Warp Stone | vitality 3 | 1 | Victor +1.7 |
@@ -62,10 +61,9 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Ethereal Shift +2.1
 
 ### Drifter
-- never picked: Ethereal Shift +2.4, Siphon Bullets +2.0, Fleetfoot +2.0, Spirit Burn +1.7
+- never picked: Ethereal Shift +2.4, Fleetfoot +2.0, Silencer +1.7, Spirit Burn +1.7
 
 ### Dynamo
-- never picked: Mystic Expansion +1.6
 
 ### Graves
 
@@ -77,10 +75,9 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 ### Holliday
 
 ### Infernus
-- never picked: Silencer +2.0
 
 ### Ivy
-- never picked: Lucky Shot +3.0, Sprint Boots +1.6
+- never picked: Sprint Boots +1.6
 
 ### Kelvin
 - never picked: Sprint Boots +2.1, Duration Extender +1.5
@@ -136,7 +133,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 ### The Doorman
 
 ### Venator
-- never picked: Magic Carpet +2.8
+- never picked: Magic Carpet +2.8, Lucky Shot +1.9
 
 ### Victor
 - never picked: Ethereal Shift +1.9, Warp Stone +1.7
