@@ -346,6 +346,21 @@ _taken = {}
 FARM_GAMMA = 0.1
 _jungle = {}
 
+# Buy rate (2026-11-07, sim/validation/buy_rate.md): the worst heroes in sim_vs_win (McGinnis, Rat King, Haze,
+# Venator) owed it to items the sim rates high that the hero's players almost never buy (Haze Split Shot, McGinnis
+# Mystic Shot, Rat King Spirit Strike), whose real edges are too thin to check the sim's model of them. Rarely bought
+# picks do lose real games more often (build_win_check rarity_fit, -1.7 pt per decade of share). The score is
+# multiplied by buy_value = the product over held items of min(1, share / BUY_KNEE) ^ BUY_GAMMA, share = the item's
+# holders / the hero's holders of same-slot same-tier items at the budget, in the bracket's pools (item_usage; floor
+# BUY_FLOOR), divided by the popular build's. Mild on purpose (damage efficiency stays the main function): at most
+# 1.4% for an item no one buys. Tested against raw (unshrunk) edges from alternate days (analysis/scripts/
+# sim_vs_win_raw.py), since the shipped edges' rare-pick prior uses buy shares and lifts the usual check mechanically
+# (within 27k 0.392 -> 0.439): raw within slot and tier +0.005 / +0.003 (27k), +0.004 / +0.004 (37k), both hero halves
+# of each; gamma 0.001 / 0.006 hold too, 0.01 falls. 0 = off.
+BUY_GAMMA = 0.003
+BUY_KNEE = 0.1
+BUY_FLOOR = 1e-3
+
 
 # Damage elasticity (2026-10-27, damage items scored over same-tier utility items that win more): across items, real
 # Phantom+ holders' hero damage per minute rises only ~half as much as the sim's damage before death says (log real
@@ -537,6 +552,38 @@ def farm_value(items, souls):
         ratio *= rates.get(i, 1.0)
     lo, hi = DEATH_RATE_CLAMP
     return max(lo, min(hi, ratio)) ** FARM_GAMMA
+
+
+def buy_shares(hero, usage):
+    """item -> share of the hero's same-slot same-tier holdings at the pools' budget (pools["usage"])."""
+    g = S.G()
+    u = usage.get(str(hero), {})
+    tot = {}
+    for i, c in u.items():
+        if i != "_n" and int(i) in g.items:
+            it = g.items[int(i)]
+            tot[(it.slot, it.tier)] = tot.get((it.slot, it.tier), 0) + c
+    out = {}
+    for i, c in u.items():
+        if i != "_n" and int(i) in g.items:
+            it = g.items[int(i)]
+            out[int(i)] = c / tot[(it.slot, it.tier)]
+    return out
+
+
+def buy_value(items, shares):
+    """Product over held items of min(1, share / BUY_KNEE) ^ BUY_GAMMA (items the hero seldom buys lose real games
+    more often than their sim value says); movement items left out (movement_value). 1 when BUY_GAMMA is 0 or the
+    pools carry no usage."""
+    if not BUY_GAMMA or shares is None:
+        return 1.0
+    movement_value(())
+    moving = _move[2]
+    v = 1.0
+    for i in set(items):
+        if i not in moving:
+            v *= min(1.0, max(shares.get(i, 0.0), BUY_FLOOR) / BUY_KNEE) ** BUY_GAMMA
+    return v
 
 
 def fight_value(loss, loss_pop, hp, hp_pop, souls):
@@ -1028,6 +1075,7 @@ class Evaluator:
         self.map_pop = map_time(hero, pop, budget, pop)
         self.pd_pop, self.loss_pop = {}, {}
         self.hp_pop = build_stats(hero, pop, budget)["max_hp"]
+        self.shares = buy_shares(hero, pools["usage"]) if isinstance(pools, dict) and "usage" in pools else None
         for pool in ("S", "F", "F2"):
             rows = self._rows(pop, pool)
             self.pd_pop[pool] = self._death(rows)
@@ -1035,7 +1083,7 @@ class Evaluator:
             self.dmg_norm[pool] = max(1.0, self._mean(rows, 2))
             self.norm[pool] = movement_value(pop, hero) \
                 * self._map(pop) * win_value(pop, hero) * team_value(pop, budget) * death_rate_value(pop, hero, budget) \
-                * focus_value(pop, budget) * farm_value(pop, budget)
+                * focus_value(pop, budget) * farm_value(pop, budget) * buy_value(pop, self.shares)
 
     def _rows(self, items, pool):
         key = (tuple(sorted(items)), pool)
@@ -1120,9 +1168,10 @@ class Evaluator:
         drate = death_rate_value(items, self.h, self.souls)
         focus = focus_value(items, self.souls)
         farm = farm_value(items, self.souls)
+        buy = buy_value(items, self.shares)
         heal_surv = self._heal_surv(items, pool) / self._heal_surv(self.pop, pool)
         score = (max(0.0, dmg) / self.dmg_norm[pool]) ** DAMAGE_ELASTICITY * move * mt * win * team * death * rate * drate \
-            * focus * farm * heal_surv / self.norm[pool]
+            * focus * farm * buy * heal_surv / self.norm[pool]
         if not detail:
             return score
         t = self._mean(rows, 3)
@@ -1147,6 +1196,7 @@ class Evaluator:
             "focus_value": round(focus, 4),  # real holders' damage taken (focus_value), before the popular's
             "heal_survival": round(heal_surv, 4),  # healing items' duel survival ^ HEAL_SURVIVAL, vs the popular's
             "farm_value": round(farm, 4),  # real holders' jungle souls (farm_value), before the popular's
+            "buy_value": round(buy, 4),  # how often the hero's players buy the held items (buy_value), same
             "matchups": {str(r[0]): [round(r[2]), round(r[3], 2)] for r in rows},
         }
 
