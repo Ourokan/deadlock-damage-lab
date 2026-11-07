@@ -11,6 +11,10 @@ Assumptions:
 - Lil Helpers: Rem sends a Helper to follow himself ("Follow a hero"), for a short burst of +TechArmorGain%
   spirit resist (+15% at T3) lasting HELPER_BURST (not in data). Each Helper then naps for HelperDowntimeDuration.
   HelperCount Helpers are used in turn. The trooper/box chores don't exist in a 1v1.
+  Each follow also hurts enemies near the hero: replays (25 matches) book Lil Helpers damage on enemy heroes in
+  ~17 short bursts a match of ~16 damage after resists (2 ticks of 2-15), about one Damage (20) each, ~1.4% of Rem's
+  hero damage (2026-11-07 audit, sim had none). Modeled as one Damage spirit hit per follow when the target is
+  within AuraRadius (p_in); its landing x length_corr row in landing_rates_mech.json is fitted to the audit.
 - Naptime: Rem channels for AbilityChannelTime (gun locked, -DamageResistPctWhileChanneling% damage taken via
   bullet/spirit resist). The target then sleeps (modeled as a stun) for up to SleepDuration, and takes AwakeDamage
   when he wakes. Damage from Rem past SleepDamageThreshold (100 + 3.1 per boon, Rem's boons) wakes him after
@@ -20,6 +24,7 @@ Assumptions:
 from deadsim.abilities import AbilityImpl, register
 
 HELPER_BURST = 3.0   # s of spirit resist from a Helper following a hero ("short burst", no duration in data)
+HELPER_DAMAGE = True   # a follow's damage burst on nearby enemies (replays, 2026-11-07)
 TAG_TAKEN = 0.084    # share of damage taken while attached (Mechanics.tag_along; replays 3.2 vs 38.2 per s free)
 
 
@@ -94,6 +99,10 @@ class LilHelpers(AbilityImpl):
         dur = HELPER_BURST * (1.0 + c.s.duration_pct())
         st["free_at"][i] = c.now + dur + c.raw("HelperDowntimeDuration")
         c.buff("spirit_resist", c.raw("TechArmorGain") / 100, dur, tag="lil_helper")
+        if HELPER_DAMAGE:
+            p = c.p_in(c.rng("AuraRadius") or 10.0)
+            if p > 0:
+                c.spirit_hit(c.val("Damage") * p)
 
 
 @register("ability_familiar_ability01")
