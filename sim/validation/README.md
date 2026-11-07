@@ -3771,3 +3771,26 @@ the three heroes) and sim_vs_win_raw with one hero's rows spliced into the base 
   0.85 over. Full refit held split-half (0.038 -> 0.011 / 0.042 -> 0.016) but sim_vs_win_raw 27k -0.003 / +0.003,
   37k -0.014 / +0.008 (as in "Abilities the 10-30 and 11-05 hotfixes changed"): not kept. Ult-only refit failed
   split-half mix.
+
+## Venator's unblessed stakes are booked under Ira Domini (2026-11-07)
+
+Venator's ult read under real since the 10-30 hotfix (crossbow 1.24x, Ira 1.15x), and two plain refits lowered
+sim_vs_win. The hotfix itself is not the cause: it cut Bonus Damage 115 -> 95 but raised its per-boon growth
+3.0 -> 3.6, and replays show real blessed hits as big as before (median by minute within a few %) and stakes per cast
+unchanged (104 pre-hotfix fight-length replays vs 62 fresh post-hotfix Venator replays, fetch_fights --ids).
+
+By phase (phase_mix, post-hotfix 4,952 matches) the ult was 1.67x under at 30% of the match and fine later. Two causes:
+- Booking: before T3 the game books an unblessed stake under ability_priest_weaponswap; only the blessed (final)
+  stake goes to citadel_weapon_priest_crossbow. Replays joined with the players' ult upgrade times: tier 0-2 casts
+  have ~1.4 stake hits with only an Ira event and ~0.6 with crossbow + blessed; tier 3 casts 0.03 Ira-only. The sim
+  booked every stake as crossbow (early crossbow 0.118 vs real 0.103, Ira 0.093 vs 0.157). priest.BOOK_UNBLESSED books
+  them as "Ira Domini" with the stakes' own landing factor (new Engine.damage book_only: a relabel, no second factor).
+- Tiers: real Venators have Ira tier 3 at 30% of the match in 38% of player-matches vs 18% on the popular order;
+  Venator joins fight.ORDER_HEROES (median order, real tiers in the audit).
+
+Refit (ability_corr_heroes --split, Venator only): Grenade 0.866 -> 0.766, Ira 1.908 -> 2.43, stakes 0.918 -> 1.45.
+Held-out per-source 0.040 -> 0.015 / 0.037 -> 0.012, mix 0.020 -> 0.014 / 0.018 -> 0.014. Against the same refit
+without the mechanic (fair base) whole-match is flat (0.0151 vs 0.0156, 0.0122 vs 0.0113; mix equal or better), but by
+phase the summed source gap drops 0.13 -> 0.05 at 30%, 0.035 -> 0.019 at 60%, 0.021 -> 0.017 at 90%.
+sim_vs_win_raw (Venator rows spliced into an all-hero base): 27k -0.0002/+0.0002, 37k -0.0008/+0.0005 (flat; the
+plain refit was -0.014); shipped within 27k 0.4382 -> 0.4378, 37k 0.4129 -> 0.4121.

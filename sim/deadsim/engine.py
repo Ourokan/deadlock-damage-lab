@@ -746,14 +746,16 @@ class Engine:
     def damage(self, src: Fighter, dst: Fighter, raw: float, kind: str, source: str, *,
                ignore_resist=False, is_ability=False, ability=None, is_dot=False, is_item=False,
                headshots=0, hits=0, procs=True, is_ult=False, nonlethal=False, pure=False, landed=False,
-               weapon_proc=False, book=None):
+               weapon_proc=False, book=None, book_only=False):
         """pure=True: raw is already final damage (e.g. Focus Lens re-dealing stored damage), so no outgoing or
         target amps, no resists and no target-side reducers (all already counted in raw). The realistic-mode item
         landing factor still applies on purpose: for Focus Lens it is the real/sim ratio of the item's own damage,
         i.e. how much less real players fit into the silence window. landed=True: the ability already applied its
         landing factor some other way (Bullet Dance shortens its channel), so it is not applied again here.
         book: the name the damage is recorded under (dmg_out/dmg_in) when it isn't source, as the game books it: an
-        Express Shot proc shot is "Express Shot", not gun. Only the bookkeeping changes; hooks still see source."""
+        Express Shot proc shot is "Express Shot", not gun. Only the bookkeeping changes; hooks still see source.
+        book_only: book is a plain relabel, so the hit keeps source's landing factor and doesn't take book's too (an
+        unblessed Ira Domini stake is booked under the ult but lands like a stake)."""
         if self.over or not dst.alive or raw <= 0:
             return 0.0
         amt = raw if pure else raw * src.st.outgoing_mult * (1.0 - src.stat("outgoing_penalty")) * (1.0 + src.stat("damage_amp"))
@@ -832,7 +834,8 @@ class Engine:
         if (src.skill.item_landing or src.skill.ability_landing) and (book or len(booked) > 1):
             # damage booked under an item (Express Shot's proc shot, Escalating Exposure's amp) gets that item's
             # realistic-mode factor, like an item's own damage above; an ability's booked amp its landing factor
-            booked = tuple((n, v if n == source else v * self.booked_factor(src, n)) for n, v in booked)
+            own = (source, book) if book_only else (source,)
+            booked = tuple((n, v if n in own else v * self.booked_factor(src, n)) for n, v in booked)
             amt = sum(v for _, v in booked)
         # barrier then health
         left = amt

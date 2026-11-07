@@ -26,6 +26,22 @@ class VenatorStakes(unittest.TestCase):
         self.assertEqual(L.real_key("citadel_weapon_priest_set_crit", []), "GUN")
         self.assertEqual(L.ALIASES["Ira Domini (stakes)"], "citadel_weapon_priest_crossbow")
 
+    def test_unblessed_stakes_booked_under_ult(self):
+        from deadsim.heroes import priest
+        r = duel(Loadout("Venator", [], souls=6000), Loadout("Haze", [], souls=6000), max_time=20.0)
+        old = priest.BOOK_UNBLESSED
+        try:
+            priest.BOOK_UNBLESSED = False
+            r0 = duel(Loadout("Venator", [], souls=6000), Loadout("Haze", [], souls=6000), max_time=20.0)
+        finally:
+            priest.BOOK_UNBLESSED = old
+        stakes = lambda x: x.a_dmg.get("Ira Domini (stakes)", 0)
+        ult = lambda x: sum(v for k, v in x.a_dmg.items() if k.startswith("Ira Domini"))
+        # before T3 (6k souls) only the final stake is blessed: the other two are booked under "Ira Domini"
+        self.assertGreater(r.a_dmg.get("Ira Domini", 0), 0)
+        self.assertLess(stakes(r), stakes(r0))
+        self.assertAlmostEqual(ult(r), ult(r0), delta=0.05 * ult(r0))
+
     def test_ult_gated_on_readiness(self):
         self.assertIn("65:ability_priest_weaponswap", M.GATE_READY)
 
