@@ -2,7 +2,7 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-05, 41,449 Ritualist+ matches (refreshed 2026-11-07T05:16:43Z).
+Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-05, 41,449 Ritualist+ matches (refreshed 2026-11-07T07:21:47Z).
 
 - Recommended item slots with data: 1829; mean edge +0.8 (popular builds +0.1); clearly positive 754, clearly negative 4.
 
