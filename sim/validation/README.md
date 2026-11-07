@@ -2929,6 +2929,27 @@ real 5.0). Its length_corr (1.64) and the aura's had been fitted around the late
 - `ability_corr_heroes.py --skip CLASS` leaves an ability's row alone; `analysis/scripts/sim_vs_win.py --heroes X`
   for one or two heroes no longer crashes at the per-item table (and writes --out first).
 
+### Post-hotfix re-check (2026-11-07, still opt-in)
+
+- Replays: 101 post-hotfix Phantom+ matches with a Victor (2026-11-05..07, ids 132.7-132.8M, fetch_fights.py SQL;
+  raw files and the 600-match metadata sample in the project folder analysis/work/victor_battery/). The carried
+  charge is still there: first bolt by 1 / 3 / 6 s in 0.13 / 0.30 / 0.51 of lane fights, 0.15 / 0.39 / 0.62 mid,
+  0.16 / 0.40 / 0.61 late (4,720 fights; pre-hotfix 0.15 / 0.39 / 0.57 mid). data/battery_timing.json is now this set
+  (`battery_timing.py --raw DIR --sample PATH`).
+- Cooldown reduction: the game scales the generation by (1 + cdr), and real late fights agree: Victors with cooldown
+  items (mean cdr 0.21) land the first bolt by 3 / 6 s in 0.42 / 0.64 of fights, without 0.39 / 0.60 (pre- and
+  post-hotfix replays pooled; time-scaled curve 0.44 / 0.65). Each phase's row now carries ALL its real Victors' mean cdr
+  (lane 0, mid 0.005, late 0.12) and the drawn time is scaled by (1 + that) / (1 + the build's cdr).
+- Refit (ability_corr_heroes.py --split on the 600 post-hotfix matches, `--skip ability_frank_revive`): Pain Battery
+  1.649 -> 0.914, Aura 0.893 -> 0.740. Held-out per-source against the same refit with the timing off: 0.0269 ->
+  0.0193 and 0.0308 -> 0.0283; mix 0.0280 -> 0.0280 and 0.0320 -> 0.0310. The off refit alone fails split-half (mix).
+- Still not kept: Victor's sim_vs_win (27k + 37k, post-hotfix pools and edges) within slot and tier 0.418 -> 0.400
+  (0.392 without the cooldown term, 0.404 / 0.415 with the timing and no refit); raw day-half edges
+  (`sim_vs_win_raw.py`) -0.014 / -0.024 / +0.005 / +0.005. The lower Pain Battery level takes value from what made the
+  duel's battery fill (survival items: Grit, Weapon / Spirit Shielding; cooldown items) and Tankbuster and Rebuttal
+  gain, against their real edges.
+- `sim_vs_win_raw.py` no longer divides by zero when one hero is checked (the empty hero half reads 0).
+
 ## Viscous: procs per hit (2026-10-28)
 
 Viscous was again the widest per-source gap with a real sample after #182 (Victor, Warden and Sinclair handled; Lady

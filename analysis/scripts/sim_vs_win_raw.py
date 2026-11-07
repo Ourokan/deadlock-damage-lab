@@ -26,6 +26,8 @@ TAU2 = 1.2e-4   # spread of true per-hero edges (rarity_fit tau2 on 10-31..11-05
 
 def wpearson(x, y, w):
     W = sum(w)
+    if not W:
+        return 0.0   # nothing to compare (a hero half that is empty when one hero is checked)
     mx, my = sum(a * c for a, c in zip(x, w)) / W, sum(b * c for b, c in zip(y, w)) / W
     sxy = sum(c * (a - mx) * (b - my) for a, b, c in zip(x, y, w))
     sxx = sum(c * (a - mx) ** 2 for a, c in zip(x, w))

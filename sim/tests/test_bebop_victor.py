@@ -129,5 +129,22 @@ class VictorBattery(unittest.TestCase):
         finally:
             frank.BATTERY_TIMING = old
 
+    def test_cooldown_reduction_speeds_the_carried_charge(self):
+        # generation scales by (1 + cdr): a build with 0.2 more cdr than the phase's real Victors draws 1 / 1.2 the time
+        import types
+        row = frank.battery_timing()["late"]
+        u = next(i + 0.5 for i, h in enumerate(row["holds"]) if h) / len(row["holds"])
+
+        def primed(cdr):
+            st = types.SimpleNamespace(souls=40000, cdr=cdr)
+            c = types.SimpleNamespace(me=types.SimpleNamespace(st=st), now=0.0, state={}, raw=lambda *a: 0.0)
+            impl = frank.PainBattery.__new__(frank.PainBattery)
+            impl.s = types.SimpleNamespace(held_until=0.0)
+            impl.draw_plan(c, u)
+            return c.state["primed_at"]
+        base = row["cdr"]
+        self.assertAlmostEqual(primed(base + 0.2) * (1.2 + base), primed(base) * (1.0 + base), places=6)
+
+
 if __name__ == "__main__":
     unittest.main()

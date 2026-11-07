@@ -18,12 +18,14 @@ Assumptions:
   rng or a fight phase draws: on at the start with the ramp that far along, or toggled on at a real time (or not
   by 20 s). The self-damage taken before the fight is not booked. Other fights toggle it on in reach, as before.
 - Pain Battery keeps its charge between fights (BATTERY_TIMING, opt-in, off: with it and Pain Battery + Aura refit,
-  Victor's per-source audit 0.060 -> 0.024 but sim_vs_win 0.298 -> 0.287; with Mechanics.execute_timing): real Phantom+ Victors
-  land the first bolt by 1 / 3 / 6 s of a fight in ~0.16 / 0.39 / 0.58 of them (data/battery_timing.json,
+  Victor's held-out per-source audit is better on both halves but sim_vs_win drops, 0.298 -> 0.287 on 2026-10-28 and
+  0.418 -> 0.400 on post-hotfix data 2026-11-07; with Mechanics.execute_timing): real Phantom+ Victors land the first
+  bolt by 1 / 3 / 6 s of a fight in ~0.15 / 0.39 / 0.61 of them (post-hotfix replays, data/battery_timing.json,
   scripts/mechanics/battery_timing.py), the duel's own damage filled it by then in 0.01 / 0.05 / 0.27. Each fight with
   an rng or a fight phase draws the first bolt's time (per phase) and fires it then whatever the duel's charge (the
-  real time holds the charge carried in and the fight's own); later bolts, and fights drawn past 20 s, need a
-  battery filled in the duel.
+  real time holds the charge carried in and the fight's own), scaled by (1 + the real Victors' cdr) / (1 + the build's
+  cdr) since cooldown reduction speeds the generation; later bolts, and fights drawn past 20 s, need a battery filled
+  in the duel.
 - Shocking Reanimation: on lethal damage Victor is invulnerable and can't act for RespawnDelay, then revives
   with RespawnHealthPercent and hits Damage + stun if the target is within Radius. T1: +BonusFireRate and
   BonusDamagePerBullet spirit damage per bullet hit (6 + 0.06 x spirit), only while the ult is on cooldown.
@@ -47,7 +49,7 @@ JUMPSTART_HP = 0.6       # cast Jumpstart below this health fraction
 SELF_TAG = "victor_self"
 CARRY_COOLDOWN = True
 AURA_TIMING = True
-BATTERY_TIMING = False   # opt-in: sim_vs_win for Victor 0.298 -> 0.287 with it (validation/README.md "Pain Battery carried into fights")
+BATTERY_TIMING = False   # opt-in: sim_vs_win for Victor (post-hotfix) 0.418 -> 0.400 with it + refit (validation/README.md "Pain Battery carried into fights")
 _carry = None
 _aura = None
 _battery = None
@@ -131,10 +133,13 @@ class PainBattery(AbilityImpl):
     def draw_plan(self, c, u):
         """Mechanics.execute_timing: the fight's first bolt at a real time from draw u (mechanics.execute_plans),
         charged or not. A draw past the data's 20 s (None: censored, not "never") keeps the duel's own charge."""
-        q = battery_timing()[souls_phase(c.me)]["holds"]
+        row = battery_timing()[souls_phase(c.me)]
+        q = row["holds"]
         h = q[min(len(q) - 1, int(u * len(q)))]
         if h is None:
             return
+        # cooldown reduction speeds the generation (charge()): the time scales by the real Victors' (1 + cdr) over the build's
+        h *= (1.0 + row.get("cdr", 0.0)) / (1.0 + c.me.st.cdr)
         c.state["primed_at"] = c.now + max(0.0, h - c.raw("AbilityCastDelay"))
         self.s.held_until = c.state["primed_at"]
 
