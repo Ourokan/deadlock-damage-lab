@@ -238,6 +238,21 @@ class Mechanics:
     # the fresh 2026-11-06 sample vs a plain refit of the same half: per-source 0.0162 -> 0.0156 / 0.0249 -> 0.0230,
     # mix 0.023 -> 0.020 / 0.028 -> 0.025 (validation/README.md "Ivy's Kudzu Connection")
     kudzu_connect: float = 0.45
+    # Paige's Plot Armor on a teammate (2026-11-07, opt-in): it grants its barrier, +25% weapon damage and the T1 fire
+    # rate to its target; the duel has no ally, so the sim self-casts every one. In 64 Phantom+ replays (2,220 casts,
+    # barrier soaks in DamageEvent damage_absorbed after each cast, scripts/mechanics/ally_target.py) Paige's own
+    # barrier shows on 0.52 of the casts where she and a teammate both took hits. plot_armor_self = 0.52 draws each
+    # cast on her with that chance, else on an ally (bookworm.PlotArmor). Off (1.0): with a Paige corr + item row
+    # refit, split-half vs a plain refit was a little worse on both halves (per-source 0.0104 -> 0.0107 / 0.0078 ->
+    # 0.0085) and Paige sim_vs_win within 0.433 -> 0.423
+    # (validation/README.md "Ally-targeted abilities")
+    plot_armor_self: float = 1.0
+    # Solomon's Kingside Knight on a teammate (2026-11-07, opt-in): the sim self-casts it (2x barrier + the King move).
+    # Measured like plot_armor_self (59 replays, 2,499 casts): his own barrier shows on 0.41 of the casts where he and a
+    # teammate both took hits; knight_self = 0.41 draws each cast on him with that chance. Off (1.0): with a Solomon
+    # corr + item row refit, split-half (4 draws) per-source 0.0431 -> 0.0416 / 0.0410 -> 0.0381 (mix 0.0302 ->
+    # 0.0295 / 0.0208 -> 0.0217), but Solomon sim_vs_win within 0.523 -> 0.513 vs the same plain refit
+    knight_self: float = 1.0
     # Paradox's Pulse Grenade pulses (2026-10-28): the sim kept the time-slowed target inside for every pulse (5, 7 at
     # T3), so a landed throw dealt them all and stacked the damage amp 5-7 times. Real Phantom+ throws that hit a hero
     # hit their main victim with 1.7 pulses in the lane and ~2.1 later (3,311 throws in 70 replays,
@@ -366,6 +381,22 @@ class Mechanics:
 
 DRIFT_MIN, DRIFT_MAX = 1.5, 40.0   # meters; 40 = the fit's "nearest enemy" cut
 _DRIFT = None
+
+
+def self_cast_share(c, field, tag, n):
+    """Ally-targeted abilities (Mechanics.plot_armor_self, knight_self): the share of cast n the caster keeps for
+    themself. Mechanics off or the field at 1: 1. Fights with draws (Skill.fight_phase, else the engine rng): 1 or 0,
+    drawn with the field's chance (the rest go on a teammate the duel doesn't have). Deterministic fights: the share."""
+    mech = c.engine.mech
+    p = getattr(mech, field, 1.0) if mech is not None else 1.0
+    if p >= 1.0:
+        return 1.0
+    f = c.me
+    phase, rng = f.skill.fight_phase, f.e.rng
+    if phase is None and rng is None:
+        return p
+    u = (phase + zlib.crc32(f"{tag}|{f.name}|{n}".encode()) / 2 ** 32) % 1.0 if phase is not None else rng.random()
+    return 1.0 if u < p else 0.0
 
 
 def drift_params():

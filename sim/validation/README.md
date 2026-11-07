@@ -3577,3 +3577,34 @@ abilities over at every phase (0.86 / 0.93 / 0.90), the ult fine.
   1.470) and item rows refit on the whole sample. Ivy mix 0.033 -> 0.015 (gun 0.349 vs real 0.354). sim_vs_win for Ivy
   (27k + 37k, post-hotfix pools 10-31..11-05): all 0.346 -> 0.355, within slot and tier 0.368 -> 0.374. Mystic Reverb
   rows untouched (Ivy has none).
+
+## Ally-targeted abilities (2026-11-07, Mechanics.plot_armor_self / knight_self, both opt-in, off)
+
+Follow-up of Kudzu Connection: which other abilities and items depend on teammates the 1v1 duel doesn't have. Survey of
+the ability and shop item texts ("ally", "allies", "friendly"): the ones that change the caster's own damage or
+survival in a duel are Kudzu Connection (done, kudzu_connect), Tag Along (done, tag_along), Wretched Vapors (done,
+SELF_CAST + ally_vapors), and two the sim self-casts every time: Paige's Plot Armor (barrier, +25% weapon damage, T1
+fire rate on the target) and Solomon's Kingside Knight (barrier + the King move). The rest only help teammates (heals,
+movement, Paige's knights, Kelvin's dome, Rat King's banner also covers him) or are scored as team value already
+(Healing Nova, Rescue Beam, Divine Barrier, Heroic Aura). Scourge can go on a teammate too (the holder then misses its
+resists); not measured.
+
+- Measuring the target: replays carry no modifier target (ModifierAppliedEvent and AuraModifierAppliedEvent are empty,
+  DamageEvent victim_shield_* is null), but DamageEvent damage_absorbed is what a barrier soaked. After each cast
+  (ability cooldown start change), the hero whose absorbed hits appear (none in the 3 s before) got it.
+  scripts/mechanics/ally_target.py fetch / report; raw in /mnt/project-files/analysis/work/ally_target/{paige,solomon}.
+  The fair estimate is from casts where the caster and a teammate both took hits in the buff window (who got hit at
+  all is biased toward the caster when they self-cast defensively).
+- Demo gotcha: replays of matches after the 11-05 hotfix (match id > ~132.0M) no longer decode hero ability entities
+  (only Slide and a few tables have rows); about half the older ids 404. Use match ids < 132.0M.
+- Paige (64 matches, 2,220 casts): her own barrier on 0.52 of the both-hit casts (teammate 0.33, none 0.27).
+  plot_armor_self = 0.52 draws each cast on her with that chance (else nothing for her, cooldown spent). With a Paige
+  corr + item row refit, split-half (2 draws) vs a plain refit of the same half: per-source 0.0104 -> 0.0107 / 0.0078
+  -> 0.0085, mix 0.0060 -> 0.0060 / 0.0045 -> 0.0050; Paige sim_vs_win (27k + 37k) within 0.433 -> 0.423. Not kept.
+  Her mix was already 0.01: the bonus only lasts while a 125 barrier holds, so it moves her gun little.
+- Solomon (59 matches, 2,499 casts): his own barrier on 0.41 of the both-hit casts (teammate 0.32). knight_self = 0.41
+  with a Solomon corr + item row refit, split-half (4 draws): per-source 0.0431 -> 0.0416 / 0.0410 -> 0.0381, mix
+  0.0302 -> 0.0295 / 0.0208 -> 0.0217; but Solomon sim_vs_win within 0.523 -> 0.513 (all 0.495 -> 0.485) against the
+  same plain refit (= main's 0.523). Not kept.
+- Left: Baba's Brew is 1.53x under on the fresh sample (real 0.123 of her damage vs 0.076), but that is the 11-05 brew
+  rework (random-order brews, no FireLockTime), not teammates.

@@ -3,8 +3,11 @@
 Assumptions:
 - Bookwyrm: the dragon hits once (Damage after StartupDelay), then the target stands in the burning trail for
   TRAIL_UPTIME of GroundFlameDuration plus the DebuffDuration linger. Reach is DragonTravelRange.
-- Plot Armor: Paige casts it on herself (the only ally in a 1v1). Weapon bonus (BaseAttackDamagePercent) and the
-  T1 fire rate (14% + 0.16 x spirit) last while the barrier holds. BonusSpiritDamagePercent is not in the
+- Plot Armor: a 1v1 has no ally, so the sim used to self-cast every one. Real Paiges give it to a teammate on a share
+  of casts (Mechanics.plot_armor_self, replays): with fight draws (phase or rng) each cast is on Paige with that
+  chance, else on an ally (cooldown spent, nothing for Paige); deterministic fights give her the bonuses x that share.
+  On Paige: weapon bonus (BaseAttackDamagePercent) and the T1 fire rate (14% + 0.16 x spirit) last while the barrier
+  holds. BonusSpiritDamagePercent is not in the
   description and is ignored. The shove is skipped.
 - Captivating Read: skillshot (target can walk out during DetonationDelay); immobilize applied as a state with
   no movement effect. T3 spirit resist reduction modeled as spirit shred.
@@ -12,6 +15,7 @@ Assumptions:
   assume the knights travel the fight distance, so amp = MaxAmp * dist / MaxAmpDistance. Allied heal ignored.
 """
 from deadsim.abilities import AbilityImpl, register
+from deadsim.mechanics import self_cast_share
 
 TRAIL_UPTIME = 0.5
 
@@ -36,12 +40,19 @@ class PlotArmor(AbilityImpl):
     def should_cast(self, c):
         return c.reach(40)     # in combat
 
+    def on_self(self, c):
+        """Share of this cast's bonuses Paige keeps (Mechanics.plot_armor_self)."""
+        return self_cast_share(c, "plot_armor_self", "plot_armor", self.s.casts)
+
     def cast(self, c):
+        share = self.on_self(c)
+        if share <= 0:
+            return      # on a teammate (Mechanics.plot_armor_self): nothing for Paige
         d = c.dur("AbilityDuration")
         c.barrier(c.val("CombatBarrier"), d)
         b = c.me.barriers[-1]
-        wpn = c.val("BaseAttackDamagePercent") / 100
-        fr = c.val("BonusFireRate") / 100
+        wpn = c.val("BaseAttackDamagePercent") / 100 * share
+        fr = c.val("BonusFireRate") / 100 * share
         end = c.now + d
 
         def hook(f):
