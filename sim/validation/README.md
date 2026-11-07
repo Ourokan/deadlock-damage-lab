@@ -2938,7 +2938,7 @@ real 5.0). Its length_corr (1.64) and the aura's had been fitted around the late
   (`battery_timing.py --raw DIR --sample PATH`).
 - Cooldown reduction: the game scales the generation by (1 + cdr), and real late fights agree: Victors with cooldown
   items (mean cdr 0.21) land the first bolt by 3 / 6 s in 0.42 / 0.64 of fights, without 0.39 / 0.60 (pre- and
-  post-hotfix replays pooled; time-scaled curve 0.44 / 0.65). Each phase's row now carries the real Victors' mean cdr
+  post-hotfix replays pooled; time-scaled curve 0.44 / 0.65). Each phase's row now carries ALL its real Victors' mean cdr
   (lane 0, mid 0.005, late 0.12) and the drawn time is scaled by (1 + that) / (1 + the build's cdr).
 - Refit (ability_corr_heroes.py --split on the 600 post-hotfix matches, `--skip ability_frank_revive`): Pain Battery
   1.649 -> 0.914, Aura 0.893 -> 0.740. Held-out per-source against the same refit with the timing off: 0.0269 ->
