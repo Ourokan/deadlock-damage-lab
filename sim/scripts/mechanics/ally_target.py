@@ -8,7 +8,8 @@ teammate's does, "unseen" when nobody with the barrier took damage meanwhile.
 
 fetch: python3 -I ally_target.py fetch <work dir> <ids file> <ability table> [n=160] [workers=6]
 report: python3 -I ally_target.py report <work dir> <hero id> [dur=6]
-Recent demos (match id >~132.0M, after the 11-05 hotfix) no longer decode hero ability entities: use older ids.
+Post-hotfix demos (match id > 132.0M) decode hero ability entities normally (re-checked 2026-11-07,
+fight_patterns/demo_check.py); a broken decode seen right after the 11-05 hotfix did not reproduce.
 """
 import collections
 import concurrent.futures as cf
