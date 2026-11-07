@@ -3732,3 +3732,23 @@ Celeste 10-25%.
   match halves up), raw day-half edges 27k +0.001 / +0.001, 37k +0.002 / +0.003.
 - Rows: Shiv Killing Blow 4.13 -> 3.19 (Serrated Knives 1.73 -> 1.77, Slice and Dice 1.94 -> 1.97); Danny Chimera
   Mk1 2.84 -> 3.21, Jettison Fuel 1.38 -> 1.26, Strix Salvo 1.53 -> 1.58; Baba's Brew 1.78 -> 2.58.
+
+## Rem's Lil Helpers damage (2026-11-07)
+
+Fresh audit on 4,952 post-hotfix Phantom+ matches (post_hotfix_2026-11-07 + 07b + 849 new matches id > 132865903,
+`/mnt/project-files/sim/validation/post_hotfix_2026-11-07c_new_sample.jsonl.gz`): Rem had the largest per-source gap
+(0.040; Vindicta 0.039, Venator/McGinnis 0.038). Part of it: Lil Helpers deals 1.4% of Rem's hero damage in real games
+(every Rem has some) and the sim had none. Replays (25 fight_length matches, ability id 536278136): ~17 short bursts a
+match of ~16 damage after resists (2 ticks of 2-15), about one `Damage` (20) each.
+
+- familiar.LilHelpers: each follow also deals one `Damage` spirit hit when the target is within `AuraRadius`
+  (p_in); HELPER_DAMAGE switches it. New Rem row "Lil Helpers" in landing_rates_mech.json, length_corr fitted by
+  ability_corr_heroes --split with Pillow Toss / Naptime skipped (held both halves: sources 0.0400 -> 0.0366 /
+  0.0386 -> 0.0347, mix 0.011 -> 0.006 / 0.019 -> 0.019). length_corr 5.3: real helpers follow all match, a duel
+  gets about one follow.
+- Refitting Pillow Toss / Naptime too halved per-source but made mix worse by 0.001-0.003: not kept. Rem item rows
+  (Decay 0.81, Scourge 1.9, Torment Pulse 1.56, Spirit Burn 2.3): split-half per-source better but mix worse by
+  0.002 / 0.007: not kept. Melee rate refit (melee_audit_fit --split) held: 0.0373 -> 0.0337.
+- Rem whole sample: mix 0.015 -> 0.011, per-source 0.040 -> 0.032, Lil Helpers real/sim 1.00.
+- sim_vs_win Rem (27k + 37k): within 0.468 -> 0.486, all 0.429 -> 0.446; sim_vs_win_raw day halves 27k +0.003 / -0.002,
+  37k +0.002 / -0.001 (flat).
