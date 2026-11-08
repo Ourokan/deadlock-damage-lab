@@ -746,7 +746,7 @@ class Engine:
     def damage(self, src: Fighter, dst: Fighter, raw: float, kind: str, source: str, *,
                ignore_resist=False, is_ability=False, ability=None, is_dot=False, is_item=False,
                headshots=0, hits=0, procs=True, is_ult=False, nonlethal=False, pure=False, landed=False,
-               weapon_proc=False, book=None, book_only=False):
+               weapon_proc=False, book=None, book_only=False, unbooked=False):
         """pure=True: raw is already final damage (e.g. Focus Lens re-dealing stored damage), so no outgoing or
         target amps, no resists and no target-side reducers (all already counted in raw). The realistic-mode item
         landing factor still applies on purpose: for Focus Lens it is the real/sim ratio of the item's own damage,
@@ -755,7 +755,9 @@ class Engine:
         book: the name the damage is recorded under (dmg_out/dmg_in) when it isn't source, as the game books it: an
         Express Shot proc shot is "Express Shot", not gun. Only the bookkeeping changes; hooks still see source.
         book_only: book is a plain relabel, so the hit keeps source's landing factor and doesn't take book's too (an
-        unblessed Ira Domini stake is booked under the ult but lands like a stake)."""
+        unblessed Ira Domini stake is booked under the ult but lands like a stake).
+        unbooked: the hit can kill but is not damage dealt or taken in the game's numbers and steals no life (Solomon's
+        Checkmate execute: replays book only the queen hit that lets it fire)."""
         if self.over or not dst.alive or raw <= 0:
             return 0.0
         amt = raw if pure else raw * src.st.outgoing_mult * (1.0 - src.stat("outgoing_penalty")) * (1.0 + src.stat("damage_amp"))
@@ -852,13 +854,14 @@ class Engine:
         dst.hp -= left
         hit.amount = amt
         w = self.length_w(src=src, source=source)
-        for name, part in booked:
+        for name, part in () if unbooked else booked:
             src.dmg_out[name] = src.dmg_out.get(name, 0.0) + part * dealt_k
             dst.dmg_in[name] = dst.dmg_in.get(name, 0.0) + part
             src.dmg_exp[name] = src.dmg_exp.get(name, 0.0) + part * dealt_k * w
         k = int(max(0.0, self.t) // 2)   # a precast's hit before the fight start (mechanics.precast) books in slice 0
-        src.dmg_by_2s[k] = src.dmg_by_2s.get(k, 0.0) + amt
-        if amt > 0 and PROFILE_SOURCES:
+        if not unbooked:
+            src.dmg_by_2s[k] = src.dmg_by_2s.get(k, 0.0) + amt
+        if amt > 0 and PROFILE_SOURCES and not unbooked:
             src.dmg_first.setdefault(source, self.t)
             for name, part in booked:
                 src.dmg_src_2s[name, k] = src.dmg_src_2s.get((name, k), 0.0) + part
@@ -886,7 +889,7 @@ class Engine:
                 kill_hooks(src, dst)
                 self.on_death(dst, src)
         # lifesteal
-        if src.alive and amt > 0:
+        if src.alive and amt > 0 and not unbooked:
             if kind == "bullet":
                 ls = src.st.bullet_lifesteal + src.stat("bullet_lifesteal")
                 if ls:
