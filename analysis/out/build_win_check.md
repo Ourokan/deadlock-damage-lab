@@ -2,9 +2,9 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-06, 49,834 Ritualist+ matches (refreshed 2026-11-08T11:53:56Z).
+Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-06, 49,834 Ritualist+ matches (refreshed 2026-11-08T13:58:45Z).
 
-- Recommended item slots with data: 1844; mean edge +0.9 (popular builds +0.1); clearly positive 825, clearly negative 3.
+- Recommended item slots with data: 1842; mean edge +0.9 (popular builds +0.1); clearly positive 826, clearly negative 4.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
@@ -16,7 +16,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 
 | Item | slot/tier | builds | heroes (edge) |
 |---|---|---:|---|
-| Arcane Surge | spirit 2 | 3 | Paige -1.2 |
+| Arcane Surge | spirit 2 | 4 | Kelvin -1.6, Paige -1.2 |
 
 ## Strong items the sim never picks (edge >= +1.5, lower 95% bound > 0)
 
@@ -36,7 +36,6 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Siphon Bullets | vitality 4 | 1 | Drifter +2.0 |
 | Rapid Recharge | spirit 3 | 1 | Haze +1.7 |
 | Extra Spirit | spirit 1 | 1 | Haze +1.6 |
-| Mystic Expansion | spirit 1 | 1 | Lady Geist +1.6 |
 | Mystic Reverb | spirit 4 | 1 | Rat King +2.1 |
 | Monster Rounds | weapon 1 | 1 | Seven +1.9 |
 | Witchmail | vitality 4 | 1 | Shiv +1.7 |
@@ -86,10 +85,11 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Spirit Burn +2.4, Sprint Boots +1.7
 
 ### Kelvin
+- 18k: Arcane Surge -1.6
 - never picked: Sprint Boots +2.2, Duration Extender +1.8
 
 ### Lady Geist
-- never picked: Sprint Boots +2.4, Mystic Expansion +1.6
+- never picked: Sprint Boots +2.4
 
 ### Lash
 - never picked: Magic Carpet +4.2
