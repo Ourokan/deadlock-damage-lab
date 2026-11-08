@@ -1644,7 +1644,6 @@ Pulse Grenade 1.236 -> 1.680, Kinetic Carbine 1.204 -> 1.437, Paradoxical Swap 1
 pairs 0.171 -> 0.172, damage items 0.054 -> 0.055, per item 0.251. Left: Tankbuster
 1.72x under and melee 0.6x over; the count needs short, Carbine-opened fights in the duel model.
 
-
 ## Carbine pokes (2026-10-26)
 
 Follow-up of "Paradox's Carbine count": where real Paradox's extra Carbines per gun damage come from. In the 260
@@ -3427,7 +3426,6 @@ Swap 2.461 -> 2.719) + 2 rounds of item_landing_heroes --hero Paradox held out m
 Paradox sim_vs_win (27k + 37k, 260 pairs) went 0.325 / 0.307 (all / within) -> 0.321 / 0.302; abilities only 0.323 /
 0.305, items only (mix 0.029) 0.323 / 0.306.
 
-
 ## Ability casts per fight by build (2026-10-28)
 
 Follow-up of "Spirit power reaching abilities and items": count the casts. scripts/cast_timing/casts_by_build.py
@@ -3478,7 +3476,6 @@ non-holders in the same hero ability x bin), which the sim already prices per hi
 - Duration Extender after #205 (same check): real 1.217 (1.516 / 1.335), sim 0.924: still the largest holder gap, on the
   imbued ability (heroes other than Nurse and Graves keep the usual slot in the sim). Lead, small samples per hero.
 
-
 ## Duration Extender damage per cast (2026-10-28, opt-in Mechanics.birds_duration OFF, no refit)
 
 Follow-up of the last line above. The 1.22x real holders' damage per cast was a counting artifact: casts_by_build.py's
@@ -3501,7 +3498,6 @@ skip cells with fewer than 3 in-fight casts on either side.
 - Same fix changes range_hits.py's range numbers: Greater Expansion real 1.078 vs sim 0.969 (halves 1.083 / 0.951 and
   1.072 / 0.967), Mystic Expansion 1.034 vs 0.967 (1.040 / 0.952, 1.019 / 0.977). Range holders' damage per cast is
   ~1.1x under in the sim in both halves, so the "no range term" call above rested on the artifact: lead.
-
 
 ## Range items reach more heroes per cast (2026-10-28, Mechanics.range_reach 0.5, 16 heroes refit)
 
@@ -4152,7 +4148,6 @@ Tyler) and Return Fire (3x under, cut on every hero). Melee read 0.76 (sim 1.25x
 - Melee rate refit (melee_audit_fit.py --split): held-out mix 0.016 -> 0.013 and 0.022 -> 0.019; rate 0.0282 -> 0.0215,
   melee 0.76 -> 1.00, mix 0.019 -> 0.016. sim_vs_win_raw for Dynamo: -0.0000 / -0.0000 / +0.0000 / +0.0001 (flat).
 
-
 ## Vyper's Lethal Venom misses, Mirage checked (2026-11-08)
 
 Fresh post-hotfix audit: Vyper's Lethal Venom was 0.82x real (both halves 0.85-0.88), Mirage's Dust Devil 0.81x and
@@ -4201,3 +4196,37 @@ No model change. damage_audit.py now reports each hero's per-fifth distances ("f
 mean ("phase_distance"), plus players-weighted means of both numbers in meta ("mix_distance_mean",
 "phase_distance_mean"), and the markdown hero table shows them. Use phase_distance beside mix_distance when judging a
 fix: a change that only moves damage between phases can leave the whole-match number flat.
+
+## Mo & Krill: Mystic Burst releases per victim (opt-in, off) and refit (2026-11-08)
+
+Fresh audit (post-hotfix samples, 1,258 matches, 1,247 players): mix 0.017, per-source 0.030. Mystic Burst read 1.2x
+under on 1,219 holders with no hero row (factor 1), Return Fire 8x under (cut on every hero, accuracy.LENGTH_CAP_SKIP),
+melee 0.80, Torment Pulse 0.875.
+- Replays (scripts/mechanics/mk_area_releases.py, 129 matches): Mystic Burst follows Scorn (70% of releases), Sand Blast
+  (14%) and other hits. A Scorn cast hitting 1 / 2 / 3 heroes releases Mystic Burst on 0.71 / 1.35 / 1.82 of them at a
+  near-full size each (median 34 / 30 / 24), Tankbuster 0.15 / 0.30 / 0.53: each victim gets its own release, while the
+  sim's duel has one victim. items_fx.AREA_RELEASES scales a Scorn / Sand Blast release by the real heroes per cast (1.22
+  / 1.20).
+- It fixes the holders' rows (Mystic Burst 1.17 -> 0.98) but the whole-match Mystic Burst share then reads 1.2x over, and
+  a split-half refit with it held out worse on both halves than the same refit without it (mix 0.017 -> 0.026, 0.011 ->
+  0.020; per-source 0.027 -> 0.034, 0.019 -> 0.026). Kept as an opt-in, AREA_RELEASES_ON = False.
+- Shipped: plain Mo & Krill refit (corr x3 + item rows x2; rows added for Mystic Burst 1.018, Quicksilver Reload 1.17,
+  Alchemical Fire 0.50, Spirit Burn 0.71, Decay 0.91) and melee rate 0.0482 -> 0.0389. Split-half against main: per-source
+  0.033 -> 0.027 and 0.030 -> 0.019; melee --split 0.015 -> 0.009, 0.012 -> 0.005. Whole sample: mix 0.017 -> 0.007,
+  per-source 0.030 -> 0.014. sim_vs_win_raw for Mo & Krill: +0.0001 / +0.0001 / +0.0000 / +0.0000.
+
+## The Doorman: refit; Spirit Burn immunity is per victim (2026-11-08)
+
+Fresh audit (post-hotfix samples, 666 matches, 652 players): mix 0.009, per-source 0.028. Hotel Guest read 1.20 under,
+Luggage Cart 1.14, Call Bell 0.96, melee 0.81, Spirit Burn 1.34 under on 167 holders (no row), Mystic Reverb 0.74 on 88.
+- Replays (scripts/mechanics/spirit_burn_victims.py, 897 holder-matches): Spirit Burn's 20 s immunity is per victim:
+  51% of a holder's next burns on another hero come within 20 s (7% on the same hero), 1.21 heroes per burn start. Team
+  fights burn more heroes than the duel's one; per-hero rows absorb it (most heroes' rows are below 1). Spirit Burn has
+  no pooled cut, so a row can't go past 1: Doorman stays 1.4 under (lead: Spirit Burn under on several heroes).
+- Shipped: Doorman ability corr (Call Bell 1.471 -> 1.418, Luggage Cart 1.13 -> 1.292, Hotel Guest 1.553 -> 1.872) and
+  item rows (Cold Front 1.227, Mystic Burst 1.018, Alchemical Fire 0.661 added; the fitted Reverb row left out while
+  Reverb waits on Tyler). Split-half against main: per-source 0.029 -> 0.012, 0.028 -> 0.009 (mix 0.009 -> 0.012, 0.009
+  -> 0.007). Whole sample: mix 0.009 -> 0.006, per-source 0.028 -> 0.008. sim_vs_win_raw: -0.0001 / +0.0000 / -0.0000 /
+  +0.0001 (flat).
+- Not shipped: melee rate 0.0377 -> 0.0302 (melee_audit_fit --split held, 0.008 -> 0.007, 0.006 -> 0.005), because with
+  it sim_vs_win_raw was down on all 4 splits (-0.0003 / -0.0002 / -0.0001 / -0.0000).

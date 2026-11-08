@@ -385,28 +385,28 @@
     "landing": 1.372,
     "real_share": 0.2162,
     "sim_share": 0.2556,
-    "length_corr": 0.771
+    "length_corr": 0.721
    },
    "Burrow": {
     "class": "ability_burrow",
     "landing": 0.7,
     "real_share": 0.1596,
     "sim_share": 0.1887,
-    "length_corr": 1.212
+    "length_corr": 1.192
    },
    "Sand Blast": {
     "class": "ability_throw_sand",
     "landing": 1.141,
     "real_share": 0.0438,
     "sim_share": 0.0518,
-    "length_corr": 0.375
+    "length_corr": 0.376
    },
    "Combo": {
     "class": "ability_ult_combo",
     "landing": 0.472,
     "real_share": 0.0628,
     "sim_share": 0.0743,
-    "length_corr": 0.527
+    "length_corr": 0.558
    }
   },
   "Shiv": {
@@ -784,21 +784,21 @@
     "landing": 0.602,
     "real_share": 0.3491,
     "sim_share": 0.3762,
-    "length_corr": 1.471
+    "length_corr": 1.418
    },
    "Luggage Cart": {
     "class": "ability_doorman_luggage_cart",
     "landing": 0.717,
     "real_share": 0.1004,
     "sim_share": 0.1082,
-    "length_corr": 1.13
+    "length_corr": 1.292
    },
    "Hotel Guest": {
     "class": "ability_doorman_hotel",
     "landing": 0.4,
     "real_share": 0.0487,
     "sim_share": 0.0524,
-    "length_corr": 1.553
+    "length_corr": 1.872
    }
   },
   "Billy": {

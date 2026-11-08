@@ -9,10 +9,10 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Guardian Ward | 25 | 0 | 3 |
 | Mystic Shot | 9 | 36 | 3 |
 | Mystic Burst | 6 | 15 | 20 |
-| Stalker | 13 | 1 | 7 |
-| Torment Pulse | 14 | 0 | 3 |
-| Enchanter's Emblem | 12 | 3 | 4 |
+| Torment Pulse | 15 | 0 | 3 |
+| Enchanter's Emblem | 13 | 3 | 4 |
 | Extra Charge | 7 | 8 | 12 |
+| Stalker | 11 | 1 | 7 |
 | Bullet Resist Shredder | 11 | 0 | 2 |
 | Spirit Lifesteal | 11 | 0 | 2 |
 | Heroic Aura | 10 | 0 | 0 |
@@ -21,10 +21,10 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Melee Charge | 8 | 1 | 2 |
 | Opening Rounds | 2 | 9 | 11 |
 | Mystic Expansion | 2 | 3 | 14 |
-| Titanic Magazine | 3 | 8 | 5 |
-| Spirit Shielding | 7 | 0 | 1 |
 | Spirit Resilience | 7 | 0 | 0 |
 | Cold Front | 1 | 16 | 2 |
+| Titanic Magazine | 2 | 8 | 5 |
+| Spirit Shielding | 6 | 0 | 1 |
 | Spirit Strike | 1 | 7 | 5 |
 | Mystic Vulnerability | 4 | 1 | 1 |
 | Close Quarters | 1 | 3 | 8 |
@@ -34,9 +34,9 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 2582 | 4218 | 2782 |
-| spirit | 2600 | 3582 | 3073 |
-| vitality | 2818 | 200 | 2000 |
+| weapon | 2527 | 4218 | 2782 |
+| spirit | 2673 | 3582 | 3073 |
+| vitality | 2800 | 200 | 2000 |
 
 ## 18000 net worth
 
@@ -82,8 +82,8 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Enchanter's Emblem | 25 | 11 | 11 |
 | Mystic Shot | 17 | 37 | 6 |
 | Stalker | 24 | 5 | 7 |
-| Decay | 16 | 35 | 0 |
-| Spirit Resilience | 20 | 0 | 10 |
+| Decay | 15 | 35 | 0 |
+| Spirit Resilience | 22 | 0 | 10 |
 | Torment Pulse | 15 | 3 | 6 |
 | Spirit Lifesteal | 15 | 0 | 5 |
 | Cheat Death | 16 | 0 | 0 |
@@ -92,10 +92,10 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Greater Expansion | 12 | 5 | 6 |
 | Opening Rounds | 9 | 7 | 13 |
 | Alchemical Fire | 10 | 17 | 0 |
-| Toxic Bullets | 5 | 27 | 4 |
 | Spirit Snatch | 9 | 10 | 8 |
 | Superior Duration | 10 | 7 | 8 |
 | Arcane Surge | 12 | 0 | 7 |
+| Toxic Bullets | 4 | 27 | 4 |
 | Improved Spirit | 1 | 20 | 19 |
 | Superior Cooldown | 8 | 6 | 12 |
 | Bullet Resist Shredder | 11 | 0 | 7 |
@@ -106,9 +106,9 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 7964 | 10636 | 6018 |
-| spirit | 7927 | 12782 | 10018 |
-| vitality | 8109 | 582 | 7673 |
+| weapon | 7927 | 10636 | 6018 |
+| spirit | 7855 | 12782 | 10018 |
+| vitality | 8218 | 582 | 7673 |
 
 ## 37000 net worth
 
@@ -150,34 +150,34 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 
 | Item | Overall | Damage (dummy 15 s) | Popular |
 |---|---:|---:|---:|
-| Greater Expansion | 34 | 17 | 21 |
+| Greater Expansion | 33 | 17 | 21 |
 | Escalating Exposure | 27 | 39 | 13 |
 | Heroic Aura | 44 | 0 | 1 |
-| Stalker | 30 | 8 | 6 |
+| Stalker | 29 | 8 | 6 |
 | Alchemical Fire | 23 | 24 | 0 |
 | Cheat Death | 30 | 0 | 2 |
 | Spirit Resilience | 21 | 0 | 16 |
 | Diviner's Kevlar | 22 | 8 | 1 |
 | Superior Duration | 12 | 22 | 16 |
-| Decay | 13 | 33 | 0 |
 | Spirit Burn | 18 | 0 | 17 |
+| Decay | 12 | 33 | 0 |
 | Mystic Shot | 9 | 33 | 7 |
 | Torment Pulse | 14 | 8 | 9 |
 | Mystic Reverb | 15 | 9 | 4 |
-| Blood Tribute | 17 | 6 | 0 |
+| Blood Tribute | 16 | 6 | 0 |
 | Enchanter's Emblem | 11 | 12 | 8 |
 | Boundless Spirit | 3 | 20 | 22 |
+| Spirit Lifesteal | 15 | 0 | 0 |
+| Toxic Bullets | 5 | 22 | 7 |
+| Spirit Snatch | 8 | 10 | 8 |
 | Superior Cooldown | 7 | 8 | 13 |
-| Spirit Lifesteal | 14 | 0 | 0 |
-| Toxic Bullets | 4 | 22 | 7 |
 | Rapid Recharge | 4 | 14 | 15 |
-| Spirit Snatch | 7 | 10 | 8 |
 | Bullet Resist Shredder | 11 | 0 | 6 |
 | Tankbuster | 5 | 2 | 21 |
 | Arcane Surge | 11 | 0 | 4 |
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 11800 | 13218 | 9218 |
-| spirit | 18545 | 28345 | 20636 |
-| vitality | 12982 | 2018 | 11982 |
+| weapon | 11945 | 13218 | 9218 |
+| spirit | 18473 | 28345 | 20636 |
+| vitality | 12873 | 2018 | 11982 |
