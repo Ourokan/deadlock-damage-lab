@@ -1644,7 +1644,6 @@ Pulse Grenade 1.236 -> 1.680, Kinetic Carbine 1.204 -> 1.437, Paradoxical Swap 1
 pairs 0.171 -> 0.172, damage items 0.054 -> 0.055, per item 0.251. Left: Tankbuster
 1.72x under and melee 0.6x over; the count needs short, Carbine-opened fights in the duel model.
 
-
 ## Carbine pokes (2026-10-26)
 
 Follow-up of "Paradox's Carbine count": where real Paradox's extra Carbines per gun damage come from. In the 260
@@ -3427,7 +3426,6 @@ Swap 2.461 -> 2.719) + 2 rounds of item_landing_heroes --hero Paradox held out m
 Paradox sim_vs_win (27k + 37k, 260 pairs) went 0.325 / 0.307 (all / within) -> 0.321 / 0.302; abilities only 0.323 /
 0.305, items only (mix 0.029) 0.323 / 0.306.
 
-
 ## Ability casts per fight by build (2026-10-28)
 
 Follow-up of "Spirit power reaching abilities and items": count the casts. scripts/cast_timing/casts_by_build.py
@@ -3478,7 +3476,6 @@ non-holders in the same hero ability x bin), which the sim already prices per hi
 - Duration Extender after #205 (same check): real 1.217 (1.516 / 1.335), sim 0.924: still the largest holder gap, on the
   imbued ability (heroes other than Nurse and Graves keep the usual slot in the sim). Lead, small samples per hero.
 
-
 ## Duration Extender damage per cast (2026-10-28, opt-in Mechanics.birds_duration OFF, no refit)
 
 Follow-up of the last line above. The 1.22x real holders' damage per cast was a counting artifact: casts_by_build.py's
@@ -3501,7 +3498,6 @@ skip cells with fewer than 3 in-fight casts on either side.
 - Same fix changes range_hits.py's range numbers: Greater Expansion real 1.078 vs sim 0.969 (halves 1.083 / 0.951 and
   1.072 / 0.967), Mystic Expansion 1.034 vs 0.967 (1.040 / 0.952, 1.019 / 0.977). Range holders' damage per cast is
   ~1.1x under in the sim in both halves, so the "no range term" call above rested on the artifact: lead.
-
 
 ## Range items reach more heroes per cast (2026-10-28, Mechanics.range_reach 0.5, 16 heroes refit)
 
@@ -4152,7 +4148,6 @@ Tyler) and Return Fire (3x under, cut on every hero). Melee read 0.76 (sim 1.25x
 - Melee rate refit (melee_audit_fit.py --split): held-out mix 0.016 -> 0.013 and 0.022 -> 0.019; rate 0.0282 -> 0.0215,
   melee 0.76 -> 1.00, mix 0.019 -> 0.016. sim_vs_win_raw for Dynamo: -0.0000 / -0.0000 / +0.0000 / +0.0001 (flat).
 
-
 ## Vyper's Lethal Venom misses, Mirage checked (2026-11-08)
 
 Fresh post-hotfix audit: Vyper's Lethal Venom was 0.82x real (both halves 0.85-0.88), Mirage's Dust Devil 0.81x and
@@ -4173,6 +4168,35 @@ Fire Scarabs 0.85x. Replays were checked first for a mechanic the sim lacks (`sc
   three abilities halved the held-out mix both ways (0.020/0.018 -> 0.014/0.015, 0.028/0.031 -> 0.012/0.013), but
   sim_vs_win raw dropped at 37k in both halves (-0.007 / -0.010; 27k +0.005 / +0.002), so it is **not kept**. His
   remaining "other" gap (0.013 real vs 0.005) is enemy Shiv's deferred damage, not his.
+
+## Audit phase weighting, per-fifth gaps (2026-11-08)
+
+Bebop's Sticky Bomb read 0.87x real in the whole-match audit but 0.91 / 1.00 / 1.00 at 30 / 60 / 90% of the match
+(phase_mix-style windows), which raised the question whether the whole-match audit weights game phases unlike real
+matches. It doesn't: in cover mode (2026-10-27, "audit cover") each fifth of the match is weighted by the hero's real
+damage in it on both sides (real: the damage itself; sim: each fifth's sim mix x that real damage), so the phase
+weights are the real ones. The 30/60/90% windows left out the lane fifth, where Bebop's mix is furthest off (0.048).
+
+What the whole-match number does hide is offsetting phase errors: a fifth where the sim overrates a source can
+cancel one where it underrates it. Per-hero mix distance in each fifth (real damage in that fifth from the damage
+series vs the cover duels in it), on the post-hotfix sample with main as of #259:
+
+- players-weighted mean: whole match 0.0152, per fifth (each hero's real-damage-weighted mean over fifths) 0.0289.
+  Sampling floor: real even vs odd matches differ by 0.0084 whole-match and 0.0113 per fifth, so most of the gap
+  is real per-phase error, not noise.
+- by fifth: 0.054 / 0.028 / 0.023 / 0.024 / 0.031. The lane fifth (7-11% of a hero's real damage) is the worst:
+  Vyper 0.12, Paradox 0.10, Paige 0.10, Kelvin 0.11, Abrams 0.09, Vindicta 0.09, Grey Talon 0.09. Its gun-vs-ability
+  error runs both ways by hero (ability under in the lane for Vyper, Vindicta, Grey Talon, Seven; over for Kelvin,
+  Paradox, Paige, Rem, Celeste), so it is per-hero lane ability timing (ability order / unlocks), not one sim term.
+  Pooled over heroes the per-kind errors are small at every fifth (|real - sim| <= 0.012).
+- a lean that cuts too much gun on very spirit-heavy late builds was checked and rejected (gun_build.py on the same
+  sample: at 90% the sim's gun share is at or slightly over real in every spirit-lean bin).
+
+No model change. damage_audit.py now reports each hero's per-fifth distances ("fifths") and their real-damage-weighted
+mean ("phase_distance"), plus players-weighted means of both numbers in meta ("mix_distance_mean",
+"phase_distance_mean"), and the markdown hero table shows them. Use phase_distance beside mix_distance when judging a
+fix: a change that only moves damage between phases can leave the whole-match number flat.
+
 ## Mo & Krill: Mystic Burst releases per victim (opt-in, off) and refit (2026-11-08)
 
 Fresh audit (post-hotfix samples, 1,258 matches, 1,247 players): mix 0.017, per-source 0.030. Mystic Burst read 1.2x

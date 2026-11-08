@@ -28,6 +28,9 @@ only and pooled by sim damage, which grows much faster with the phase than real 
 real ~4x): the whole-match sim mix read like the late game, and a late gun over-shoot had been hiding it (PR #165's
 gun slowdown read 0.021 -> 0.028 there, 0.023 -> 0.020 here). Per-duel reweighting to real damage instead was biased
 (gun +0.015: ability-heavy duels deal more damage). AUDIT_COVER=0: the old duels at 30/60/90%.
+Per fifth (2026-11-08): each hero's mix distance in every fifth (real damage there from the damage series vs that
+fifth's duels) and its real-damage-weighted mean (phase_distance), since the whole-match distance lets a fifth where
+the sim is over offset one where it is under (validation/README.md "Audit phase weighting, per-fifth gaps").
 
 Unlike landing_rates.py and item_landing.py this fits nothing and writes no model data; it says where the model
 is furthest from real games now. Output: validation/damage_audit.json and validation/damage_audit.md.
@@ -41,6 +44,7 @@ AUDIT_TIER_HEROES=name,name: those heroes' players get their real tiers too (wha
 AUDIT_AREA_PHASE=0: area abilities without their game-phase term (Mechanics.ability_area_phase).
 The sample comes from scripts/fetch_validation.py (e.g. --api 91 5 for Phantom+ of the last 5 days).
 """
+import bisect
 import collections
 import dataclasses
 import gzip
@@ -177,6 +181,50 @@ def real_bins(m, p):
     return [real((b + 1) / COVER_BINS * T) - real(b / COVER_BINS * T) for b in range(COVER_BINS)]
 
 
+def real_source_bins(m, p, classes):
+    """The player's real damage by source (real_key) in each COVER_BINS-th of the match, or None."""
+    times, ser = m.get("damage_times"), p.get("damage_series")
+    if not times or not ser:
+        return None
+    T, xs = m["duration_s"], [0.0] + list(times)
+    edges = [b / COVER_BINS * T for b in range(COVER_BINS + 1)]
+    pos = []   # (index j, weight w) of each edge on the sample grid: value = y[j-1] + w (y[j] - y[j-1])
+    for x in edges:
+        j = min(len(xs) - 1, max(1, bisect.bisect_left(xs, x)))
+        pos.append((j, min(1.0, max(0.0, (x - xs[j - 1]) / max(1e-9, xs[j] - xs[j - 1])))))
+    out = [collections.Counter() for _ in range(COVER_BINS)]
+    for k, arr in ser.items():
+        if k in L.CATEGORY:
+            continue
+        ys = [0.0] + list(arr)
+        cum = [ys[j - 1] + w * (ys[j] - ys[j - 1]) for j, w in pos]
+        rk = L.real_key(k, classes)
+        for b in range(COVER_BINS):
+            out[b][rk] += cum[b + 1] - cum[b]
+    return out
+
+
+def phase_gaps(sim_bin, real_src_bin, G):
+    """{hero id: (per-fifth mix distance list (None without duels or real damage), real-damage-weighted mean)}: the
+    whole-match distance lets a fifth where the sim is over offset one where it is under; this one doesn't."""
+    out = {}
+    for hid in {h for h, _ in sim_bin}:
+        classes = {ab.class_name for ab in G.hero(hid).abilities}
+        dists, num, den = [], 0.0, 0.0
+        for b in range(COVER_BINS):
+            sc, rc = sim_bin.get((hid, b)), real_src_bin.get((hid, b))
+            if not sc or not rc or sum(rc.values()) <= 0:
+                dists.append(None)
+                continue
+            rm, sm = mix(rc, G, classes), mix(sc, G, classes)
+            d = 0.5 * sum(abs(rm[k] - sm[k]) for k in rm)
+            dists.append(round(d, 3))
+            w = sum(rc.values())
+            num, den = num + w * d, den + w
+        out[hid] = (dists, round(num / den, 3) if den else None)
+    return out
+
+
 def cover_mix(sim_bin, real_bin):
     """{hero: Counter source -> damage}: each fifth's sim mix (pooled by sim damage inside it) x the real damage in that
     fifth. A fifth without sim duels (rare: duels follow the real damage) is left out, the shares come from the rest."""
@@ -302,6 +350,7 @@ def main():
     real_item = collections.defaultdict(lambda: [0.0, 0.0, 0])   # item -> [item dmg, gun/all dmg, holders]
     real_hero_item = collections.defaultdict(lambda: [0.0, 0.0, 0])   # (hero, item) -> the same, per hero
     jobs, real_of, held_of = [], {}, {}
+    real_src_bin = collections.defaultdict(collections.Counter)   # (hero, fifth) -> real damage by source
     only = {G.hero(x.strip()).id for x in os.environ.get("AUDIT_HEROES", "").split(",") if x.strip()}
     n_matches = 0
     for line in gzip.open(sample):
@@ -322,6 +371,10 @@ def main():
             jobs.append((m, p["slot"]))
     random.Random(1).shuffle(jobs)
     jobs = jobs[:max_players]
+    for m, slot in jobs if cover else ():   # the players the duels run for (after max_players)
+        p = next(p for p in m["players"] if p["slot"] == slot)
+        for b, c in enumerate(real_source_bins(m, p, [ab.class_name for ab in G.hero(p["hero_id"]).abilities]) or ()):
+            real_src_bin[p["hero_id"], b].update(c)
     sim = collections.defaultdict(collections.Counter)
     sim_item = collections.defaultdict(lambda: [0.0, 0.0, 0])
     sim_hero_item = collections.defaultdict(lambda: [0.0, 0.0, 0])
@@ -365,6 +418,7 @@ def main():
     # ~13x the lane's, real ~4x), so the sim mix of each fifth of the match weighs as much as the real damage in it
     for hid, c in cover_mix(sim_bin, real_bin).items():
         sim[hid].update(c)
+    phases = phase_gaps(sim_bin, real_src_bin, G) if cover else {}
 
     heroes = {}
     for hid in sorted(sim):
@@ -388,6 +442,8 @@ def main():
                        "sim_share": round(ss, 4), "real_over_sim": ratio}
         heroes[h.name] = {"players": 0, "real_mix": rm, "sim_mix": sm, "mix_distance": round(dist, 3),
                           "sources": dict(sorted(srcs.items(), key=lambda x: -x[1]["real_share"]))}
+        if hid in phases:
+            heroes[h.name]["fifths"], heroes[h.name]["phase_distance"] = phases[hid]
     counts = collections.Counter()
     for (m, slot) in jobs:
         p = next(p for p in m["players"] if p["slot"] == slot)
@@ -425,6 +481,12 @@ def main():
                      "real nearby enemies (extra_targets)", "item_norm": ITEM_NORM,
             "model": f"hero_default_skill(badge={BADGE}, counterplay=True) with each player's real aim",
             "errors": sum(errs.values())}
+    n_all = sum(h["players"] for h in heroes.values()) or 1
+    meta["mix_distance_mean"] = round(sum(h["players"] * h["mix_distance"] for h in heroes.values()) / n_all, 4)
+    ph = [h for h in heroes.values() if h.get("phase_distance") is not None]
+    if ph:   # players-weighted, like mix_distance_mean; see phase_gaps
+        meta["phase_distance_mean"] = round(sum(h["players"] * h["phase_distance"] for h in ph) /
+                                            (sum(h["players"] for h in ph) or 1), 4)
     out = {"meta": meta, "heroes": dict(sorted(heroes.items(), key=lambda x: -x[1]["mix_distance"])),
            "items": dict(sorted(items.items(), key=lambda x: -x[1]["holders"])), "hero_items": hero_items}
     json.dump(out, open(os.environ.get("AUDIT_OUT", os.path.join(ROOT, "validation", "damage_audit")) + ".json", "w"), indent=1)
@@ -442,12 +504,20 @@ def write_md(out):
           f"({out['meta']['sample']}). Model: {out['meta']['model']}. "
           f"Duels: {out['meta']['duels']}.", "",
           "## Heroes by how far the damage mix is off", "",
-          "Shares of damage to enemy heroes. Distance = half the summed absolute share gaps (0 = same mix).", "",
-          "| Hero | n | gun real / sim | abilities | items | melee | distance |", "|---|---|---|---|---|---|---|"]
+          "Shares of damage to enemy heroes. Distance = half the summed absolute share gaps (0 = same mix). Per fifth = the "
+          "same distance in each fifth of the match (real vs the duels there), and its real-damage-weighted mean: the "
+          "whole-match distance lets a fifth where the sim is over offset one where it is under.", "",
+          f"Players-weighted mean distance {out['meta'].get('mix_distance_mean', 0):.4f}"
+          + (f", per fifth {out['meta']['phase_distance_mean']:.4f}." if "phase_distance_mean" in out["meta"] else "."), "",
+          "| Hero | n | gun real / sim | abilities | items | melee | distance | per fifth (mean) |",
+          "|---|---|---|---|---|---|---|---|"]
     for hn, h in out["heroes"].items():
         r, s = h["real_mix"], h["sim_mix"]
+        fifths = " ".join("-" if d is None else f"{d:.2f}" for d in h.get("fifths", []))
+        pd = h.get("phase_distance")
         L_.append(f"| {hn} | {h['players']} | {r['gun']:.2f} / {s['gun']:.2f} | {r['ability']:.2f} / {s['ability']:.2f}"
-                  f" | {r['item']:.2f} / {s['item']:.2f} | {r['melee']:.2f} / {s['melee']:.2f} | {h['mix_distance']:.2f} |")
+                  f" | {r['item']:.2f} / {s['item']:.2f} | {r['melee']:.2f} / {s['melee']:.2f} | {h['mix_distance']:.2f} |"
+                  f" {fifths} ({'-' if pd is None else f'{pd:.3f}'}) |")
     L_ += ["", "## Sources furthest off (share of hero damage at least 3% in real or sim)", "",
            "real/sim = (real source dmg / real gun dmg) / (sim source dmg / sim gun dmg). Below 1 = the sim overrates "
            "the source against the gun.", "",
