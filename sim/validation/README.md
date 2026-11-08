@@ -3943,3 +3943,26 @@ The fit's Mystic Reverb row (0.25, the floor) is left out as in #206: with it mi
 (Kelvin spliced into the full base) -0.0005 / -0.0004 / -0.0000 / +0.0000; without it mix 0.027 -> 0.020, per-source
 0.030 -> 0.019, sim_vs_win_raw -0.0000 / +0.0000 / +0.0001 / +0.0002. Split-half without the Reverb row, held-out vs
 main (fitted on both halves): mix 0.031 -> 0.028 / 0.025 -> 0.016, per-source 0.033 -> 0.025 / 0.028 -> 0.015.
+## Lash's Quicksilver Reload follows his Flog casts (2026-11-08)
+
+Next after Yamato on the post-11-05 audit (main 7cb72ed, 2,939 matches): Lash 0.029 (1,177 players): abilities over
+(Ground Strike 0.90x, Flog 0.90x per gun), Quicksilver Reload 1.49x under, Mystic Burst 1.11x under, melee 0.80x over.
+
+- Lash imbues Quicksilver on Flog (fight_patterns replay_imbue 0.98). Flog's factor (landing x length_corr) is 1.37.
+  Replays (scripts/mechanics/lash_quicksilver.py, 260 in analysis/work/fight_length/raw, 73 Quicksilver Lashes): a
+  Flog hits 1.17 heroes per cast at a formula-sized hit (median 138), Quicksilver procs on 0.95 of Flog casts (2,242 of
+  2,271 procs land with a Flog), real Quicksilver / Flog damage 0.235, the sim's ~0.6x that. As with Nurse's Leech
+  Therapy (#242) the factor stands for more casts than the sim's cadence lands, each spending a charge (Quicksilver
+  18 s charge < Flog 26 s cooldown) and, Flog hits not being DoTs, each releasing Mystic Burst / Tankbuster charge:
+  Flog joins items_fx.LANDING_PROCS. Alone (no refit): Lash 0.029 -> 0.017, Quicksilver 1.06x, Mystic Burst 0.97x,
+  Tankbuster 0.85x (its row then refits).
+- Sample: every Phantom+ match with a Lash since 10-31, 11,190 matches,
+  /mnt/project-files/sim/validation/lash_post_2026-11-08_sample.jsonl.gz.
+- Split-half (even / odd match ids, corr + item rows 3 rounds on one half, 2 draws on the other) against the same refit
+  without the change: per-source 0.0148 -> 0.0093 and 0.0181 -> 0.0113, mix 0.0145 -> 0.0075 and 0.0175 -> 0.0100.
+  melee_audit_fit --split held too (rate 0.0357 -> 0.0297).
+- Shipped: Flog in LANDING_PROCS; corrs Ground Strike 1.605 -> 1.514, Flog 0.995 -> 0.919, Death Slam 1.765 -> 1.761;
+  Lash item rows refit (Tankbuster 0.868 on 9,309 holders, Spirit Burn, Siphon, Toxic, Alchemical Fire ... rows added;
+  the fitted Mystic Reverb row, 0.334, left out while Reverb waits on Tyler); melee rate 0.0297.
+- Result on the Lash sample (9,915 players): mix 0.023 -> 0.006, per-source 0.025 -> 0.009; on the 2,939-match sample
+  0.029 -> 0.009. sim_vs_win Lash (27k + 37k, post-hotfix pools): within slot and tier 0.459 -> 0.460.
