@@ -10,7 +10,8 @@ Assumptions:
 - Fixation: +DamageBonusFixedPerStack flat bullet damage per hit per stack (1 stack per hit, HeadshotStacks per
   headshot), stacks refresh to AbilityDuration on each hit and drop all at once when it expires. The bonus is
   booked as its own bullet damage under "Fixation" (the game's damage report lists it apart from the gun), gets
-  the headshot multiplier and falloff, does not trigger on-hit procs (the bullet already did), and does not
+  the headshot multiplier and falloff, does not trigger on-hit procs (the bullet already did) except its own Lucky
+  Shot roll (LUCKY_FIXATION), and does not
   scale with weapon damage until T3 (T3: +0.11 per stack and an EBaseWeaponDamageIncrease scale of 0.00035 from
   the data, applied as is by c.val; doubt: that factor makes the weapon scaling negligible).
   T1 proc: every ProcDamageStackCount stacks gained, ProcDamage (40 + 0.8 x spirit) spirit damage.
@@ -24,6 +25,11 @@ Assumptions:
 from deadsim.abilities import AbilityImpl, register
 
 SMOKE_HP = 0.6
+# Lucky Shot rolls on Fixation's bonus as its own hits (ProcChance, CritDamagePercent of the bonus). Replays (2026-11-08,
+# 41 post-hotfix Haze Lucky Shot holders, scripts/mechanics/haze_lucky.py): 7,625 procs vs 0.25 x (14,610 gun and
+# Bullet Dance hits + 15,020 Fixation hits) = 7,400, and Lucky Shot damage 0.23 of gun + Bullet Dance + Fixation
+# (0.35 of gun + Bullet Dance alone); other heroes' holders proc ~0.28 per gun hit. The audit read it 1.56x under.
+LUCKY_FIXATION = True
 ENEMY_DEBUFFS = ("stun", "silence", "disarm", "item_silence", "damage_taken_amp", "spirit_amp_taken",
                  "bullet_amp_taken", "bullet_shred", "spirit_shred", "fire_rate_slow", "outgoing_penalty",
                  "spirit_outgoing_penalty", "crit_taken")
@@ -133,6 +139,10 @@ class Fixation(AbilityImpl):
             amt = bonus * c.engine.spread_mean(f.st.falloff) * (body + hit.headshots * crit_eff)
             c.engine.damage(f, e, amt, "bullet", self.s.ab.name, is_ability=True, ability=self.s,
                             hits=hit.hits, headshots=hit.headshots, procs=False)
+            if LUCKY_FIXATION:
+                for fx in f.items_fx:
+                    if getattr(getattr(fx, "item", None), "class_name", None) == "upgrade_critshot" and e.alive:
+                        fx.roll(f, e, amt / hit.hits, hit.hits)
         self.add_stacks(c, hit.hits - hit.headshots + hit.headshots * c.raw("HeadshotStacks", 3))
 
 

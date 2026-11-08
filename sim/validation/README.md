@@ -3988,3 +3988,21 @@ hero was checked for the same miss on the audit of main cd066e1 (2,939 post-11-0
   sets off only 0.31 of her Tankbuster procs (already 1.29 hits per hero, #235); Lash's Ground Strike (1.70, 1.18
   heroes per cast) 0.39 of his, with Tankbuster at 1.01 and Mystic Burst 1.12 (listing it would push Tankbuster ~1.3x
   over). Venator's Consecrating Grenade is a DoT. No other hero shows the signature; nothing listed.
+
+## Haze Lucky Shot on Fixation, Ricochet / Split Shot side hits take item_landing (2026-11-08)
+
+Fresh audit (post-hotfix 07/07b/07c/08 samples + 305 new matches, 5,767 in all) with Apollo, Yamato, Lash, Vindicta,
+Kelvin and Mina left to other threads: Haze was furthest off (per-source 0.030), Lucky Shot read 1.69x under and
+Ricochet ~0.7 (over) on her and every other holder.
+
+- Lucky Shot (replays, scripts/mechanics/haze_lucky.py, 41 post-hotfix Haze holders): 7,625 procs vs 0.25 x (14,610 gun
+  and Bullet Dance hits + 15,020 Fixation hits) = 7,400, so Fixation's bonus rolls Lucky Shot as its own hits
+  (haze.LUCKY_FIXATION). Bullet Dance bullets now crit off their own size, not the last gun bullet's.
+- Ricochet: real bounces (0.275 procs per gun hit, 0.6 of the hit) match the sim's, but mechanics._splash skipped the
+  item's item_landing factor, so its per-hero rows did nothing and item_landing_heroes.py had pushed them to the 0.25
+  floor (Wraith, Infernus, Nurse ...). Side hits now take the factor (mechanics.SPLASH_ITEM_LANDING); Ricochet and Split
+  Shot rows refit for the 14 heroes that hold them (two full-audit rounds; Mina's new row left out while her thread
+  refits her), Haze corr + item rows refit.
+- Haze (3,327 players): per-source 0.030 -> 0.007, mix 0.012 -> 0.010; Lucky Shot 1.69 -> 1.24, Ricochet 0.70 -> 1.03.
+  Split-half (fit even / audit odd and back, against the same refit without the change): per-source better on both
+  halves. sim_vs_win_raw over the 15 changed heroes spliced into main: +0.0009 / +0.0005 / +0.0004 / +0.0001.
