@@ -1,0 +1,43 @@
+{
+ "source": "scripts/mechanics/bookwyrm_burn.py (cast_timing + fight_length replays, Phantom+)",
+ "note": "Bookwyrm trail ticks per victim x TickRate / GroundFlameDuration at the cast's tier, by caster net worth (linear in ln net worth between bins, flat outside)",
+ "sim_before": "TRAIL_UPTIME 0.5 x flame + DebuffDuration 1.5 s (1.0 of the flame at T0-T1, 0.8 at T2+)",
+ "bins": [
+  {
+   "net_worth": 3050,
+   "uptime": 0.204,
+   "ticks": 2.42,
+   "victims": 194
+  },
+  {
+   "net_worth": 7578,
+   "uptime": 0.2379,
+   "ticks": 3.26,
+   "victims": 278
+  },
+  {
+   "net_worth": 12169,
+   "uptime": 0.2685,
+   "ticks": 3.8,
+   "victims": 385
+  },
+  {
+   "net_worth": 18492,
+   "uptime": 0.2748,
+   "ticks": 4.39,
+   "victims": 541
+  },
+  {
+   "net_worth": 25480,
+   "uptime": 0.2694,
+   "ticks": 4.36,
+   "victims": 422
+  },
+  {
+   "net_worth": 38298,
+   "uptime": 0.2974,
+   "ticks": 4.94,
+   "victims": 622
+  }
+ ]
+}

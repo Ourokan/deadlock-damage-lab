@@ -781,6 +781,13 @@ class Engine:
             ph = ability_area_mult(ability.ab.class_name, src.st.souls)
             amt *= ph
             land *= ph
+        if is_ability and ability is not None and src.skill.ability_landing and self.mech is not None \
+                and getattr(self.mech, "landing_phase", False):
+            # the share of casts that land on a hero moves with the game phase (Mechanics.landing_phase)
+            from .mechanics import landing_phase_mult
+            ph = landing_phase_mult(ability.ab.class_name, src.st.souls)
+            amt *= ph
+            land *= ph
         if is_ability and ability is not None and self.mech is not None and self.mech.range_reach:
             # range items' wider reach catches more heroes per cast (Mechanics.range_reach)
             ph = (1.0 + ability.range_pct()) ** self.mech.range_reach

@@ -2,7 +2,9 @@
 
 Assumptions:
 - Bookwyrm: the dragon hits once (Damage after StartupDelay), then the target stands in the burning trail for
-  TRAIL_UPTIME of GroundFlameDuration plus the DebuffDuration linger. Reach is DragonTravelRange.
+  TRAIL_UPTIME of GroundFlameDuration plus the DebuffDuration linger. Reach is DragonTravelRange. With
+  Mechanics.bookwyrm_burn (on) the burn is GroundFlameDuration x the real share of it a victim takes ticks for at
+  Paige's net worth (burn_uptime: 0.20 in the lane, ~0.30 late; replays, scripts/mechanics/bookwyrm_burn.py), no linger.
 - Plot Armor: a 1v1 has no ally, so the sim used to self-cast every one. Real Paiges give it to a teammate on a share
   of casts (Mechanics.plot_armor_self, replays): with fight draws (phase or rng) each cast is on Paige with that
   chance, else on an ally (cooldown spent, nothing for Paige); deterministic fights give her the bonuses x that share.
@@ -14,10 +16,28 @@ Assumptions:
 - Rallying Charge: the target is hit by one knight (not both waves). Amp grows with travelled distance; we
   assume the knights travel the fight distance, so amp = MaxAmp * dist / MaxAmpDistance. Allied heal ignored.
 """
+import json
+import math
+import os
+
 from deadsim.abilities import AbilityImpl, register
-from deadsim.mechanics import self_cast_share
+from deadsim.mechanics import _interp_ln, self_cast_share
 
 TRAIL_UPTIME = 0.5
+_BURN = None
+
+
+def burn_uptime(souls):
+    """Real share of GroundFlameDuration a Bookwyrm victim burns for at net worth souls (data/bookwyrm_burn.json,
+    linear in ln net worth between bins, flat outside), None without the file."""
+    global _BURN
+    if _BURN is None:
+        fn = os.path.join(os.path.dirname(__file__), "..", "..", "data", "bookwyrm_burn.json")
+        _BURN = []
+        if os.path.exists(fn):
+            with open(fn) as fh:
+                _BURN = [(math.log(b["net_worth"]), b["uptime"]) for b in json.load(fh)["bins"]]
+    return _interp_ln(_BURN, souls) if _BURN else None
 
 
 @register("ability_bookworm_dragonfire")
@@ -30,6 +50,10 @@ class Bookwyrm(AbilityImpl):
         c.lock_gun(c.raw("AbilityCastDelay"))
         c.spirit_hit(c.val("Damage"), delay=delay)
         burn = c.dur("GroundFlameDuration") * TRAIL_UPTIME + c.dur("DebuffDuration")
+        mech = c.engine.mech
+        up = burn_uptime(c.me.st.souls) if mech is not None and getattr(mech, "bookwyrm_burn", False) else None
+        if up is not None and c.me.st.souls:
+            burn = c.dur("GroundFlameDuration") * up   # Mechanics.bookwyrm_burn: real ticks per victim
         c.dot(c.val("DPS"), burn, delay=delay, tick=c.raw("TickRate", 0.3), hit_chance=c.me.skill.spirit_accuracy)
 
 

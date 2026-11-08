@@ -358,6 +358,18 @@ class Mechanics:
     # swap vs ~0.50 in real Phantom+ replays (scripts/mechanics/swap_real.py) and the audit had it at half its real
     # share. On: the swap skips those factors and lands on ghost.SWAP_LAND of casts (real hits per cast)
     swap_full: bool = True
+    # Paige's Bookwyrm burn from replays (2026-11-08): the sim burned each victim for 0.5 of GroundFlameDuration plus a
+    # 1.5 s DebuffDuration linger (10 ticks at T0-T1) at every phase, real victims take 2.4 trail ticks per cast in the lane
+    # and 4-5 later (0.20 -> 0.30 of the flame; scripts/mechanics/bookwyrm_burn.py), so the audit had Bookwyrm 1.5x its
+    # real share in the lane fifth. On: each victim burns flame x the real uptime at Paige's net worth, no linger
+    # (data/bookwyrm_burn.json, bookworm.burn_uptime)
+    bookwyrm_burn: bool = True
+    # landed share by game phase (2026-11-08): an ability's landing factor is one number over the match, but Paige's
+    # Captivating Read lands on a hero in 0.87x its whole-match share of pair-fight casts below 5k souls (Bookwyrm 0.89x;
+    # lane casts go at the wave), while most heroes land more in the lane. On: rows in data/landing_phase.json
+    # (scripts/cast_timing/landing_phase.py, only abilities that held the split-half audit) scale the ability's damage
+    # by their rel at the fighter's net worth (landing_phase_mult)
+    landing_phase: bool = True
     # Soul Exchange's gap from replays (2026-10-28): the sim swapped as soon as Geist was SWAP_MIN_GAIN 0.3 below her
     # target (gap at swap median 0.43, target 0.79), real Geists wait for more (median 0.61, target 0.88; swap_real.py),
     # so the sim swapped ~1.3x as often per damage dealt for ~0.75x the health each, and Soul Exchange read ~1.25x real
@@ -1052,6 +1064,24 @@ _NEAR = None
 _AREA = None
 _AREA_PHASE = None
 _ABIL_AREA = None
+
+
+_LANDING_PHASE = None
+
+
+def landing_phase_mult(cls, souls):
+    """Mechanics.landing_phase: an ability's landed share at net worth souls over its whole-match share
+    (data/landing_phase.json, linear in ln net worth between bins, flat outside); 1.0 without a row."""
+    global _LANDING_PHASE
+    if _LANDING_PHASE is None:
+        fn = os.path.join(os.path.dirname(__file__), "..", "data", "landing_phase.json")
+        _LANDING_PHASE = {}
+        if os.path.exists(fn):
+            with open(fn) as fh:
+                for k, v in json.load(fh)["abilities"].items():
+                    _LANDING_PHASE[k] = [(math.log(b["net_worth"]), b["rel"]) for b in v["bins"]]
+    pts = _LANDING_PHASE.get(cls)
+    return _interp_ln(pts, souls) if pts and souls else 1.0
 
 
 def ability_area_mult(cls, souls):
