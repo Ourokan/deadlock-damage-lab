@@ -1,5 +1,5 @@
 {
   "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
-  "requested_at": "2026-11-08T07:15:00Z",
-  "reason": "Lucky Shot procs at the replay rate (0.296 per hero gun hit, LUCKY_PROC_MULT)"
+  "requested_at": "2026-11-08T08:40:00Z",
+  "reason": "Split Shot hero rows lift past the fight-length cut (HERO_LENGTH_LIFT; Vyper, Wraith refit)"
 }

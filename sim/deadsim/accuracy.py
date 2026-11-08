@@ -326,14 +326,40 @@ def lifted(r):
             and r["holders"] >= ITEM_LANDING_MIN_HOLDERS and r["name"] not in LENGTH_CAP_SKIP)
 
 
-def item_length_corr():
+# Per-hero rows lifted the same way (2026-11-08): a hero's row was capped at 1 before the pooled length_corr, so where
+# that correction is below 1 the hero's factor could never reach real. Split Shot (pooled length_corr 0.435) sat at
+# 1.0 x 0.435 for Vyper (890 holders, real/sim 1.49), Wraith (1.16), Yamato, Calico, McGinnis, Venator. On: a hero row
+# for such an item may hold a landing above 1 (scripts/item_landing_heroes.py caps it at 1 / length_corr) and fights
+# that book over real fight lengths get min(1, landing x length_corr), like a lifted pooled row; the plain 1v1
+# (no length weighting) keeps min(1, landing). Off: the old cap at 1.
+HERO_LENGTH_LIFT = True
+
+
+def hero_liftable(name, rows=None):
+    """The pooled length_corr below 1 that a hero row of this item may lift past (HERO_LENGTH_LIFT), or None."""
+    if not (HERO_LENGTH_LIFT and CAP_AFTER_LENGTH and LENGTH_CORR) or name in LENGTH_CAP_SKIP:
+        return None
+    if rows is None:
+        try:
+            rows = json.load(open(ITEM_LANDING))["items"]
+        except (OSError, ValueError, KeyError):
+            return None
+    r = next((x for x in rows.values() if x.get("name") == name), None)
+    if r is None or r["holders"] < ITEM_LANDING_MIN_HOLDERS or r.get("length_corr", 1.0) >= 1.0:
+        return None
+    return r["length_corr"]
+
+
+def item_length_corr(hero=None):
     """{item name: length_corr}: item_landing's factors (or 1 for an item left uncut) x this for fights that book
     damage over real fight lengths (data/item_landing.json, scripts/fight_length/length_factors.py); for an uncut
-    item with a correction below 1, min(1, landing x length_corr) (CAP_AFTER_LENGTH)."""
+    item with a correction below 1, min(1, landing x length_corr) (CAP_AFTER_LENGTH). hero (name): that hero's rows
+    with a landing above 1 give min(1, landing x length_corr) instead (HERO_LENGTH_LIFT)."""
     if not LENGTH_CORR:
         return {}
     try:
-        rows = json.load(open(ITEM_LANDING))["items"]
+        data = json.load(open(ITEM_LANDING))
+        rows = data["items"]
     except (OSError, ValueError, KeyError):
         return {}
     out = {}
@@ -343,6 +369,11 @@ def item_length_corr():
             if lifted(r):
                 c = min(1.0, r["landing"] * c)
             out[r["name"]] = c
+    if hero is not None and HERO_ITEM_LANDING:
+        for name, r in data.get("heroes", {}).get(hero, {}).items():
+            c = hero_liftable(name, rows)
+            if c is not None and r["landing"] > 1.0:
+                out[name] = min(1.0, r["landing"] * c)   # item_landing(hero) gives 1 for it
     return out
 
 
@@ -410,7 +441,7 @@ def hero_default_skill(hero, pct="p50", landing=True, melee=True, melee_rate_ove
     sk.zone_exit_s = zone_exit_time(badge)
     if counterplay:   # realistic mode: item damage calibrated to real matches
         sk.item_landing = item_landing(h.name)
-        sk.item_length_corr = item_length_corr()
+        sk.item_length_corr = item_length_corr(h.name)
         sk.item_use = item_use()
     return sk
 

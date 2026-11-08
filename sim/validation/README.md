@@ -4044,3 +4044,25 @@ could not follow: uncut items are capped at min(1, landing x length_corr).
   per-bullet bonus is ~0.53 of a bullet for every hero; real holders show ~2 Mercurial events per buffed gun hit on
   every hero (Wraith, Warden, Vyper too), unexplained, left as a lead. Lightning Scroll: 9-18 holders per hero in the
   replays, too few to tell procs per ult cast.
+
+## Split Shot hero rows lift past the fight-length cut (2026-11-08)
+
+Split Shot read under for its biggest holders on the fresh audit (Vyper 1.49, Wraith 1.16, also Calico 1.65, Yamato
+1.75, McGinnis 1.44 on ~20 holders each) with every hero row at the 1.0 cap. Split Shot's pooled row is a cut item
+(landing 0.916, length_corr 0.435), so a hero's factor is min(1, hero landing) x 0.435: no hero row could get past 0.435.
+
+- Replays (890 distinct across the analysis/work dumps): Vyper 64 holders / 675 activations, Split Shot damage 0.316 of
+  his gun damage, 40% of his gun damage inside the 5 s windows; Wraith 0.202, window share 0.34. The sim's duels put
+  0.54 / 0.55 of the gun inside windows, and side hits land and proc as the sim books them (_splash with item_landing
+  since #250). Not a per-hit or proc gap: the cap.
+- accuracy.HERO_LENGTH_LIFT: a hero row of an item whose pooled length_corr is below 1 (and not LENGTH_CAP_SKIP) may go
+  above 1 and gives min(1, landing x length_corr) through item_length_corr(hero); item_landing(hero) stays min(1, landing).
+  item_landing_heroes.py fits such rows up to 1 / length_corr. Only rows above 1 change anything: before this refit there
+  were none.
+- Split-half (even/odd match_id, Split Shot rows fit 2 rounds on one half, audit of the 7 holder heroes on the other,
+  2 seeds): players-weighted mix 0.0188 -> 0.0182, 0.0195 -> 0.0189 (odd held out), 0.0215 -> 0.0208, 0.0201 -> 0.0189
+  (even); Vyper mix 0.032 -> 0.022 avg, his Split Shot 1.49 -> 1.01; Wraith flat (1.26 / 1.10 -> 1.17 / 0.88).
+- Full post-hotfix sample, 2 rounds, Vyper and Wraith rows only (the other heroes have < 20 holders there and keep
+  theirs): Vyper 1.0 -> 1.591 (factor 0.435 -> 0.692), Wraith 1.0 -> 1.171 (0.509).
+- sim_vs_win_raw for Vyper + Wraith against main: raw within 27k +0.0011 / +0.0172, 37k +0.0033 / +0.0148 (day halves
+  A / B), all four up.
