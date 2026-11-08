@@ -11,6 +11,11 @@ Assumptions:
   the venom is pending. T3: each gun hit adds BuildUpPerShot % (resets after BuildUpDuration without hits);
   at 100% a venom is applied if none is pending. Venom ignores Petrify's damage block. Cast and damage use the
   target's gate health (Mechanics.entry_gate: short by its real entry deficit).
+  Misses (VENOM_MISS): in Phantom+ replays 15% of the venoms Vyper casts in a fight never land although the target
+  lives on (it slips out of the lock-on or blocks it: 54 of 672 casts the target leaves the fight, 48 it stays in it
+  and still takes no venom); another 12% are lost to the target dying within the 3 s, which the duel has on its own.
+  Fights with a fight-phase or rng draw miss that share of casts (cooldown spent, nothing pending); gun build-up
+  venoms (T3) land on the shot that fills the meter and never miss. scripts/mechanics/venom_misses.py.
 - Slither: movement only. T3 barrier CombatBarrier (180 + spirit scaling, via c.val) for BuffDuration,
   on every slide, which is assumed to be used whenever the T3 cooldown is ready.
 - Petrifying Bola: assumed direct hit: Damage + PetrifyDamage, then the target is stunned and immune to damage
@@ -19,6 +24,8 @@ Assumptions:
   the sim with this gate 4.4 s (1.3 / 9.6 s); thrown at once (0.7 s every duel) it petrified the target, and
   stopped Vyper's gun, right inside Split Shot's window.
 """
+import zlib
+
 from deadsim.abilities import AbilityImpl, register
 
 DAGGER_RANGE = 30.0          # m (no range in data)
@@ -26,6 +33,7 @@ BOLA_RANGE = 25.0            # m (no range in data)
 VENOM_CAST_HP = 0.75         # cast Lethal Venom once the target is below this health fraction
 BOLA_CAST_HP = 0.9           # throw Petrifying Bola once the target is below this (fits real timing, see docstring)
 BOLA_MAX_WAIT = 10.0         # s into the fight after which it is thrown anyway (real third quartile 9.9 s)
+VENOM_MISS = 0.0             # opt-in 0.152: share of cast venoms that never land on a living target (replays, see the docstring)
 
 
 def venom_damage(c, ab_ctx, target):
@@ -78,7 +86,22 @@ class LethalVenom(AbilityImpl):
         return self.in_range(c) and c.foe.gate_frac <= VENOM_CAST_HP and c.now >= c.state["pending_until"]
 
     def cast(self, c):
+        if self.missed(c):
+            return
         self.apply(c)
+
+    def missed(self, c):
+        """VENOM_MISS draw for this cast: fight phase (one quasi-random value per cast) or rng; never without either."""
+        f = c.me
+        phase, rng = f.skill.fight_phase, f.e.rng
+        if not VENOM_MISS or (phase is None and rng is None):
+            return False
+        n = c.state["casts"] = c.state.get("casts", 0) + 1
+        if phase is not None:
+            u = (phase + zlib.crc32(f"venom_miss|{f.name}|{n}".encode()) / 2 ** 32) % 1.0
+        else:
+            u = rng.random()
+        return u < VENOM_MISS
 
     def apply(self, c):
         d = c.raw("VenomDuration", 3.0)
