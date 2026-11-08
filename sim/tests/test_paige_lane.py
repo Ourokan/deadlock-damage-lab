@@ -66,12 +66,33 @@ class PaigeLaneTest(unittest.TestCase):
         h = game().hero("Paige")
         old = M._POKES
         try:
-            M._POKES = {h.id: {CR: (0.4, [(math.log(2500), 0.1), (math.log(37000), 0.9)])}}
+            M._POKES = {h.id: {CR: (0.4, [(math.log(2500), 0.1), (math.log(37000), 0.9)], False)}}
             self.assertAlmostEqual(M.poke_rows(h, 2500)[CR], 0.1)
             self.assertAlmostEqual(M.poke_rows(h, math.sqrt(2500 * 37000))[CR], 0.5)
             self.assertAlmostEqual(M.poke_rows(h, None)[CR], 0.4)   # pooled without souls
+            self.assertFalse(M.poke_procs(h, CR))
+            self.assertTrue(M.poke_procs(h, "ability_not_there"))
         finally:
             M._POKES = old
+
+    def test_add_pokes_own_damage_only(self):
+        from deadsim import fight, mechanics as M, game
+        h = game().hero("Paige")
+        me = Loadout("Paige", ["Mystic Burst"], souls=30000)
+        foe = Loadout("Abrams", [], souls=30000)
+        old = M._POKES
+        got = {}
+        try:
+            for procs in (True, False):
+                M._POKES = {h.id: {CR: (1.0, [], procs)}}
+                d = {}
+                fight.add_pokes(d, {}, me, foe, 15.0, None, MECH)
+                got[procs] = d
+        finally:
+            M._POKES = old
+        self.assertGreater(got[True].get("Mystic Burst", 0.0), 0.0)   # the proc rides the poke
+        self.assertEqual(set(got[False]), {"Captivating Read"})       # procs false: own damage only
+        self.assertAlmostEqual(got[False]["Captivating Read"], got[True]["Captivating Read"], places=6)
 
 
 if __name__ == "__main__":
