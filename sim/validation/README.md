@@ -4425,3 +4425,21 @@ his damage vs 0.138 real, with Power Surge (0.225 vs 0.169) and the gun (0.577 v
   kept, but net slightly negative (-0.0013).
 - A melee lane point (`melee_phase.py --fracs`, as for Abrams) helped a little on split-half too (lane 0.078 ->
   0.070 and 0.081 -> 0.073), but with it the 37k halves read -0.0000 as well, so it is left out.
+
+## Warden's lane melee: melee phase lane point + refit (2026-11-08)
+
+In Warden's lane fifth, melee read 0.066 of his damage vs 0.097 real, and the gun 0.66 vs 0.58. His late fifth read 0.054 off
+(melee and Toxic Bullets over, gun under). His `melee_phase.json` row came from 33 players, and its first point sat at 6.5k
+souls.
+
+- Split-half on 1,385 post-hotfix Warden matches (fit on one match-id half, audit the other):
+  - A plain Warden corr refit cut held-out mix 0.018 -> 0.011 and 0.021 -> 0.010, but left the lane where it was.
+  - The real ability order (ORDER_HEROES) with the refit was worse than the plain refit on both halves.
+  - A melee lane point (`melee_phase.py --fracs 0.1,0.3,0.6,0.9`) followed by the refit, against the plain refit:
+    lane 0.080 -> 0.064 and 0.092 -> 0.077, phase 0.031 -> 0.027 and 0.039 -> 0.036, mix 0.011 -> 0.012 and 0.010 ->
+    0.012. Against main it is better on every measure.
+- Shipped: Warden's row refit on all 1,370 players (2.34 at 1.8k, 2.14 at 6.8k, 0.74 at 17.6k, 0.38 at 32.3k), then a
+  3-round corr refit: Alchemical Flask 2.017 -> 1.943, Binding Word 0.991 -> 1.075, Last Stand 1.472 -> 1.262.
+- Full sample: mix 0.019 -> 0.008, phase 0.038 -> 0.031, fifths [0.078, 0.023, 0.011, 0.031, 0.054] -> [0.069,
+  0.031, 0.020, 0.017, 0.038], lane melee 0.088 (real 0.097).
+- sim_vs_win_raw (Warden, day halves A / B): 27k -0.0001 / +0.0001, 37k -0.0000 / -0.0001. Flat.
