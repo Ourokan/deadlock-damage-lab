@@ -1,0 +1,92 @@
+{
+ "source": "scripts/cast_timing/landing_phase.py (casts_by_build.py real rows: Phantom+ pair fights)",
+ "note": "ability damage x rel(nw) at the caster's net worth, linear in ln nw between bins, flat outside (Mechanics.landing_phase)",
+ "abilities": {
+  "ability_bookworm_aoemagic": {
+   "name": "Paige: Captivating Read",
+   "pooled": 0.5784,
+   "casts": 695,
+   "bins": [
+    {
+     "net_worth": 2866,
+     "landed": 0.482,
+     "casts": 164,
+     "rel": 0.8719
+    },
+    {
+     "net_worth": 7239,
+     "landed": 0.532,
+     "casts": 109,
+     "rel": 0.9451
+    },
+    {
+     "net_worth": 11971,
+     "landed": 0.623,
+     "casts": 122,
+     "rel": 1.0546
+    },
+    {
+     "net_worth": 18299,
+     "landed": 0.632,
+     "casts": 106,
+     "rel": 1.063
+    },
+    {
+     "net_worth": 25232,
+     "landed": 0.537,
+     "casts": 82,
+     "rel": 0.9551
+    },
+    {
+     "net_worth": 36860,
+     "landed": 0.696,
+     "casts": 112,
+     "rel": 1.1411
+    }
+   ]
+  },
+  "ability_bookworm_dragonfire": {
+   "name": "Paige: Bookwyrm",
+   "pooled": 0.8637,
+   "casts": 873,
+   "bins": [
+    {
+     "net_worth": 2930,
+     "landed": 0.737,
+     "casts": 137,
+     "rel": 0.8927
+    },
+    {
+     "net_worth": 7498,
+     "landed": 0.851,
+     "casts": 141,
+     "rel": 0.9892
+    },
+    {
+     "net_worth": 12076,
+     "landed": 0.904,
+     "casts": 156,
+     "rel": 1.0352
+    },
+    {
+     "net_worth": 18286,
+     "landed": 0.897,
+     "casts": 156,
+     "rel": 1.0296
+    },
+    {
+     "net_worth": 25505,
+     "landed": 0.848,
+     "casts": 125,
+     "rel": 0.987
+    },
+    {
+     "net_worth": 36725,
+     "landed": 0.924,
+     "casts": 158,
+     "rel": 1.0531
+    }
+   ]
+  }
+ }
+}
