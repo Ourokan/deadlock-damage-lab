@@ -4286,3 +4286,26 @@ fight_length replays (54 Phantom+ matches with a Paige, 8,100 casts):
 - sim_vs_win_raw (Paige, day halves A / B): 27k +0.014 / +0.014, 37k +0.041 / +0.019, up in all four. Usual within
   slot and tier (27k + 37k) 0.494 -> 0.508.
 - Left: lane Captivating Read still ~1.8x its real share and gun 0.65 vs 0.75.
+
+## Paige's lane Captivating Read: pokes by game phase (opt-in, off) (2026-11-08)
+
+After #264 the lane fifth still had Captivating Read at 0.105 vs real 0.059.
+
+- **Not the fights.** In the replays' pair fights (54 Paige matches), sim / real by caster net worth: casts per fight
+  second 1.45x in the lane vs 1.42x late (all fights as the denominator; CR unlocked in 0.65 of real lane fight time,
+  0.72 in the sim), damage per cast 1.18x vs 1.09x. Lane over late: ~1.1x, inside the noise. Heroes hit per cast
+  (landed x heroes) by phase match the area + landing terms (in-fight hits per cast over the area term 0.87 in the lane
+  = Mechanics.landing_phase's row).
+- **The pokes.** Real Captivating Read hits outside any pair fight, per fight: 0.11 below 5k souls, 0.27, 0.42,
+  0.69, 0.70 and 0.93 above 30k (even / odd matches 0.09 / 0.09 in the lane, 0.83 / 0.71 late). Out-of-fight damage is
+  also a bigger part of late damage (out / in 0.51 lane, 0.83 late), and its CR / gun ratio is 1.14x the in-fight one
+  in the lane but 1.87x late. The ability corr is fitted to whole-match shares, so it soaks the late pokes into
+  the in-fight level, which lifts the lane where there are hardly any.
+- **Test:** Mechanics.pokes with a phase curve on the CR row (ability_pokes.json "phase", poke_rows at the fighter's
+  net worth), corr refit. Split-half (4 seeds) vs main refit: per fifth 0.039 -> 0.039 / 0.047 -> 0.042, lane fifth
+  0.088 -> 0.072 both ways, mix +0.0005 / +0.0013, per-source worse on one half (+0.0055: Tankbuster rides the pokes,
+  0.018 vs real 0.012). Full sample: lane CR 0.105 -> 0.074 (real 0.059), per fifth 0.040 -> 0.036, CR corr 1.147 ->
+  0.683. sim_vs_win_raw (Paige, day halves A / B): 27k -0.011 / +0.003, 37k -0.011 / +0.018; usual within 0.508 ->
+  0.520.
+- **Shipped off:** the win check is split (two down, two up), so the row keeps use: false. Its phase curve and the
+  poke_rows phase support stay in for a later try (e.g. with a Paige Tankbuster row, or poke damage without procs).

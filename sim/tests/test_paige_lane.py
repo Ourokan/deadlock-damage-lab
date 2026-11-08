@@ -61,6 +61,18 @@ class PaigeLaneTest(unittest.TestCase):
         self.assertGreater(off, 0.0)
         self.assertAlmostEqual(on / off, landing_phase_mult("ability_bookworm_dragonfire", souls), places=3)
 
+    def test_poke_rows_phase_curve(self):
+        from deadsim import mechanics as M, game
+        h = game().hero("Paige")
+        old = M._POKES
+        try:
+            M._POKES = {h.id: {CR: (0.4, [(math.log(2500), 0.1), (math.log(37000), 0.9)])}}
+            self.assertAlmostEqual(M.poke_rows(h, 2500)[CR], 0.1)
+            self.assertAlmostEqual(M.poke_rows(h, math.sqrt(2500 * 37000))[CR], 0.5)
+            self.assertAlmostEqual(M.poke_rows(h, None)[CR], 0.4)   # pooled without souls
+        finally:
+            M._POKES = old
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -318,7 +318,7 @@ def add_pokes(dmg, exp, me: Loadout, foe: Loadout, distance, rng, mech):
     hero, _ = me.resolve()
     land = me.skill.spirit_accuracy
     me = dataclasses.replace(me, skill=dataclasses.replace(me.skill, spirit_accuracy=1.0))
-    for cls, k in poke_rows(hero).items():
+    for cls, k in poke_rows(hero, me.souls).items():
         e = Engine(distance=distance, max_time=POKE_S, mech=mech,
                    rng=None if rng is None else random.Random(rng.random()))
         f, g = make_fighter(e, me, "poker"), make_fighter(e, foe, "target")
