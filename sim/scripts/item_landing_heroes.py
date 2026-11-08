@@ -55,7 +55,8 @@ def fit(audit, prior=PRIOR, only=None, items=None):
     items: refit just these items' rows and keep every other item's."""
     data = json.load(open(accuracy.ITEM_LANDING))
     if items:
-        heroes = {h: {k: x for k, x in v.items() if k not in items} for h, v in data.get("heroes", {}).items()}
+        heroes = {h: {k: x for k, x in v.items() if k not in items or only and h not in only}
+                  for h, v in data.get("heroes", {}).items()}   # --hero with --item: other heroes keep these rows
     else:
         heroes = {h: v for h, v in data.get("heroes", {}).items() if only and h not in only}
     for r in audit["hero_items"]:
@@ -67,6 +68,8 @@ def fit(audit, prior=PRIOR, only=None, items=None):
         w = r["holders"] / (r["holders"] + prior)
         corr = accuracy.hero_liftable(r["item"])
         row = data.get("heroes", {}).get(r["hero"], {}).get(r["item"])
+        if row is None and corr is not None:   # no hero row yet: the hero ran on the pooled landing
+            row = next((x for x in data["items"].values() if x.get("name") == r["item"]), None)
         if corr is not None and row is not None and (row["landing"] >= 1.0 or x > 1.0):
             # accuracy.HERO_LENGTH_LIFT: the audit saw min(1, landing x length_corr); the landing may go to 1 / corr
             cur = min(1.0, row["landing"] * corr) / corr

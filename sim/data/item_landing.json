@@ -1136,15 +1136,25 @@
    }
   },
   "Shiv": {
+   "Arctic Blast": {
+    "holders": 30,
+    "real_over_sim": 1.098,
+    "landing": 1.777
+   },
    "Cold Front": {
-    "holders": 21,
-    "real_over_sim": 1.162,
-    "landing": 1.0
+    "holders": 89,
+    "real_over_sim": 1.028,
+    "landing": 1.126
    },
    "Decay": {
     "holders": 33,
     "real_over_sim": 1.112,
     "landing": 0.879
+   },
+   "Phantom Strike": {
+    "holders": 25,
+    "real_over_sim": 1.075,
+    "landing": 1.369
    },
    "Spirit Strike": {
     "holders": 38,
@@ -1269,9 +1279,9 @@
     "landing": 0.915
    },
    "Cold Front": {
-    "holders": 36,
-    "real_over_sim": 1.234,
-    "landing": 1.0
+    "holders": 27,
+    "real_over_sim": 1.07,
+    "landing": 1.133
    },
    "Decay": {
     "holders": 27,

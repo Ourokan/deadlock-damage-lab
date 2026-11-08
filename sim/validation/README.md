@@ -4066,3 +4066,22 @@ Split Shot read under for its biggest holders on the fresh audit (Vyper 1.49, Wr
   theirs): Vyper 1.0 -> 1.591 (factor 0.435 -> 0.692), Wraith 1.0 -> 1.171 (0.509).
 - sim_vs_win_raw for Vyper + Wraith against main: raw within 27k +0.0011 / +0.0172, 37k +0.0033 / +0.0148 (day halves
   A / B), all four up.
+
+## Other items stuck under the hero cap (2026-11-08)
+
+After the Split Shot lift, a fresh audit of every hero on the post-hotfix sample (5,767 matches) looked for the same
+trap: hero x item rows with >= 20 holders, an item whose pooled length_corr is below 1, a factor at or near the cap
+and real/sim > 1.1. Four rows qualify: Shiv Cold Front (89 holders, 1.12), Arctic Blast (30, 1.22), Phantom Strike
+(25, 1.17) and Violet Cold Front (27, 1.16). Rows on uncut items whose pooled product already reaches 1 (Mystic Burst,
+Lightning Scroll: McGinnis 2.25, Solomon 4.35, Bebop 4.49 on 26-79 holders) can't gain from a lift: the ceiling is 1.
+Lightning Scroll is a lead.
+
+- item_landing_heroes.fit: a hero with no row of a liftable item starts from the pooled row (the audit saw the pooled
+  factor), so its first fit can lift (review note on #253); --hero with --item keeps the other heroes' rows of those
+  items (it dropped them).
+- Split-half (Shiv + Violet, rows fit 2 rounds on one half with HERO_ITEM_MIN=10, 2 seeds on the other): the four
+  rows' real/sim moved toward 1 on both halves (odd held out 1.19-1.31 -> 1.12-1.22; even 1.05-1.14 -> 0.90-1.01);
+  players-weighted mix flat on the odd half (0.0217 / 0.0202 both), down on the even (0.0167 -> 0.0157, 0.0178 -> 0.0170).
+- Full sample, 2 rounds: Shiv Cold Front 1.126, Arctic Blast 1.777 (factor 0.95), Phantom Strike 1.369 (0.66),
+  Violet Cold Front 1.133.
+- sim_vs_win_raw for Shiv + Violet: raw within 27k +0.0026 / -0.0021, 37k +0.0028 / -0.0017 (day halves A / B): flat.
