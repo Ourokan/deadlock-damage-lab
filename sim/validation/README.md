@@ -4443,3 +4443,33 @@ souls.
 - Full sample: mix 0.019 -> 0.008, phase 0.038 -> 0.031, fifths [0.078, 0.023, 0.011, 0.031, 0.054] -> [0.069,
   0.031, 0.020, 0.017, 0.038], lane melee 0.088 (real 0.097).
 - sim_vs_win_raw (Warden, day halves A / B): 27k -0.0001 / +0.0001, 37k -0.0000 / -0.0001. Flat.
+## Lane melee: a lane point on the melee-by-phase curve (2026-11-08)
+
+The lane fifth was still the worst per-fifth gap after the Paige/Paradox/Kelvin fixes (post-hotfix audit of main
+after #269: Vyper 0.123, Abrams 0.101, Vindicta 0.082, Seven 0.079, Warden 0.078, Grey Talon 0.072). Vyper and
+Abrams were taken by another thread; from Vindicta on:
+
+- **Real ability order (ORDER_HEROES) + corr refit.** Vindicta: held out better on split halves of her 1,702
+  post-hotfix matches (lane 0.11 -> 0.083, phase 0.048 -> 0.041), but sim_vs_win_raw fell in all four splits
+  (-0.015 / -0.009 / -0.025 / -0.008); the order alone moves svw by 0.0000 and the drop is the corr refit (Crow
+  Familiar 1.60 -> 1.32, Flight 2.80 -> 2.44; keeping Crow unchanged still fell in all four). Seven: real tiers halve
+  his lane fifth (0.079 -> 0.038), but the refit cost svw raw at 27k (-0.016 / -0.026). Warden and Grey Talon: real
+  tiers make the lane worse. None shipped.
+- **Shared cause.** In every one of those heroes the lane melee share was under (Vindicta 0.047 real vs 0.020 sim,
+  Warden 0.097 vs 0.066, Seven 0.074 vs 0.054, Grey Talon 0.049 vs 0.028, Paradox 0.086 vs 0.066). The
+  Mechanics.melee_phase curve (#160) is measured at 30 / 60 / 90% of the match and flat below its first point
+  (~6k net worth), so the lane got the 30% multiplier.
+- **Fit at 10% of the match** (melee_phase.py's method with FRACS 0.1): rows hit the 3.0 clamp, and held out the lane
+  fifth got worse (0.049 -> 0.060 both halves). Duels drawn at one frac melee far less than the audit's lane
+  fifth, so the ratio overshoots. Rejected.
+- **Fit to the audit's own lane fifth** (scripts/mechanics/melee_phase_lane.py): lane point = multiplier now in use
+  at the hero's lane net worth (median at 10% of the match, ~1.8k) x real / sim lane-fifth melee share, shrunk to the
+  pooled ratio (1.38). Split-half on post_hotfix_2026-11-07 (2,939 matches), fit on one half, audit the other:
+  lane fifth 0.0491 -> 0.0395 / 0.0493 -> 0.0396, lane melee gap 0.025 -> 0.011 both, phase 0.0283 -> 0.0277 /
+  0.0283 -> 0.0274 (22 / 27 heroes better), whole-match mix 0.0147 -> 0.0151 / 0.0150 -> 0.0153 (the flat-rate
+  optimum, as when melee_phase shipped). Shipped on, fit on the whole sample after rebasing on #270-#272: Abrams and
+  Warden keep the lane points those PRs fitted per hero (melee_phase.py --fracs), the other 42 rows get one, pooled
+  ratio 1.49 without them (Vindicta 1.10 -> 2.53, Seven 1.13 -> 1.57). The other thread's per-hero split-half
+  (--fracs 0.1) agreed in direction for Baba, Bebop, Haze, Ivy, Silver, Kelvin, Venator, Grey Talon, Drifter, Geist,
+  Graves.
+- The lane point sits below the 27k / 37k budgets sim_vs_win scores, so svw is unchanged by construction (checked).
