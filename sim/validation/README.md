@@ -4151,3 +4151,25 @@ Tyler) and Return Fire (3x under, cut on every hero). Melee read 0.76 (sim 1.25x
   and Aurora channels in the sim, as in game.
 - Melee rate refit (melee_audit_fit.py --split): held-out mix 0.016 -> 0.013 and 0.022 -> 0.019; rate 0.0282 -> 0.0215,
   melee 0.76 -> 1.00, mix 0.019 -> 0.016. sim_vs_win_raw for Dynamo: -0.0000 / -0.0000 / +0.0000 / +0.0001 (flat).
+
+
+## Vyper's Lethal Venom misses, Mirage checked (2026-11-08)
+
+Fresh post-hotfix audit: Vyper's Lethal Venom was 0.82x real (both halves 0.85-0.88), Mirage's Dust Devil 0.81x and
+Fire Scarabs 0.85x. Replays were checked first for a mechanic the sim lacks (`scripts/mechanics/venom_misses.py`,
+47 Phantom+ Vyper matches).
+
+- **Lethal Venom:** of 772 casts, 491 land, 100 come with no hero fight around, and of the 672 in-fight casts 12% are
+  lost to the target dying inside the 3 s (the duel has that on its own) and **15% miss a target that lives on** (54
+  it leaves the fight, 48 it stays and takes no venom). The sim never missed those. T3 gun build-up venoms are 36.5%
+  of real venom hits and 38% of the sim's, so build-up is right. `viper.VENOM_MISS` (0.152, a draw per cast in fights
+  with a phase or rng draw; build-up venoms never miss) **ties a plain refit on the split-half check** (held-out mix
+  0.014/0.011 and 0.011/0.009 plain vs 0.012/0.012 and 0.012/0.008 with misses; per-source a bit worse with misses),
+  so it ships **off** (opt-in) and Lethal Venom gets the plain refit: length_corr 0.912 -> 0.743 (3 rounds, full
+  sample). Vyper mix 0.024 -> 0.012. sim_vs_win raw (Vyper, day halves): 27k +0.0015 / -0.0004, 37k +0.0018 /
+  -0.0037, flat.
+- **Mirage:** Dust Devil hits a hero on 44% of casts (1.18 heroes when it hits, matching the sim's landing 0.45), and
+  Fire Scarabs tick their whole duration (5.2 ticks per infested hero): no missing mechanic. A plain refit of his
+  three abilities halved the held-out mix both ways (0.020/0.018 -> 0.014/0.015, 0.028/0.031 -> 0.012/0.013), but
+  sim_vs_win raw dropped at 37k in both halves (-0.007 / -0.010; 27k +0.005 / +0.002), so it is **not kept**. His
+  remaining "other" gap (0.013 real vs 0.005) is enemy Shiv's deferred damage, not his.
