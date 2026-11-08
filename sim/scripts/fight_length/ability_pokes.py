@@ -32,7 +32,9 @@ T = 64
 GAP_S = 5.0     # fit_length.GAP_S
 MIN_HITS = 4    # fit_length.MIN_HITS
 MIN_N = 300     # hits of the ability for a row
-USE = {(10, "citadel_ability_chrono_kinetic_carbine")}   # rows the sim uses: (hero id, ability class)
+USE = {(10, "citadel_ability_chrono_kinetic_carbine"), (67, "ability_bookworm_aoemagic")}   # rows the sim uses
+# hand-added keys a rewrite keeps from the current file (Paige's Captivating Read: phase curve, procs false, 2026-11-08)
+KEEP_KEYS = ("phase", "phase_note", "procs")
 
 WEAPONS = {w["id"] for w in json.load(open(os.path.join(ROOT, "data", "game", "weapons.json")))}
 
@@ -126,6 +128,12 @@ def main():
               f"opens {r['opens']:.2f}, hit x gun fight {r['hit_x_gun_fight']} poke {r['hit_x_gun_poke']}"
               f"{'  USED' if r['use'] else ''}")
     if "--write" in sys.argv:
+        fn = os.path.join(HERE, "..", "..", "data", "ability_pokes.json")
+        old = {(r["hero_id"], r["class_name"]): r for r in json.load(open(fn))["abilities"]} if os.path.exists(fn) else {}
+        for r in rows:
+            for k in KEEP_KEYS:
+                if k in old.get((r["hero_id"], r["class_name"]), {}):
+                    r[k] = old[r["hero_id"], r["class_name"]][k]
         out = {"source": f"{len(files)} Phantom+ replays, hero-vs-hero DamageEvents (scripts/fight_length/ability_pokes.py)",
                "note": "pokes_per_fight: hits of the ability outside fit_length.py's fights per fight of the hero; "
                        "the sim adds that many casts' damage beside each duel for rows with use (fight.add_pokes)",

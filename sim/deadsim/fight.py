@@ -311,7 +311,9 @@ def add_pokes(dmg, exp, me: Loadout, foe: Loadout, distance, rng, mech):
     Mystic Reverb's echo) are added x pokes_per_fight to dmg (in full) and exp (expected over real fight lengths:
     a poke is outside the fight, so in full there too). The cast always lands and its damage counts x the caster's
     spirit_accuracy (the expected hit: one roll per poke would be all or nothing, and with rng None always the
-    same). The fight itself (health, winner, time) is untouched: in real games the target has the time to heal up
+    same). A row with "procs": false (mechanics.poke_procs; Paige's Captivating Read) adds only the ability's own
+    damage, not the procs. A row with a "phase" curve takes its count at me's net worth. The fight itself (health,
+    winner, time) is untouched: in real games the target has the time to heal up
     before the next fight. Only the damage totals get the pokes, not the fight's time profile (dmg_by_2s,
     dmg_first, PROFILE_SOURCES tallies), which describe the fight."""
     from .mechanics import poke_procs, poke_rows

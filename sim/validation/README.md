@@ -4315,3 +4315,7 @@ After #264 the lane fifth still had Captivating Read at 0.105 vs real 0.059.
   0.105 -> 0.074 (real 0.059), Paige per fifth 0.040 -> 0.034, Tankbuster 0.011 (real 0.012), CR corr 1.147 -> 0.679
   (Bookwyrm 2.543 -> 2.613, Rallying Charge 2.000 -> 2.050). sim_vs_win_raw (Paige, A / B): 27k +0.004 / +0.002,
   37k +0.007 / +0.014, up in all four; usual within 0.508 -> 0.511. The row's use is now true.
+- Out of sample (post-hotfix samples 11-07..11-08, 1,611 Paige player-matches, audit only, 2 seeds): Paige per fifth
+  0.031 -> 0.022, lane fifth 0.057 -> 0.034, mix 0.0075 -> 0.008 (#264 terms in both arms; this change vs main).
+- ability_pokes.py now lists the CR row in USE and keeps the hand-added "phase", "phase_note" and "procs" keys on
+  --write.

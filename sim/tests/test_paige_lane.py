@@ -75,6 +75,25 @@ class PaigeLaneTest(unittest.TestCase):
         finally:
             M._POKES = old
 
+    def test_add_pokes_own_damage_only(self):
+        from deadsim import fight, mechanics as M, game
+        h = game().hero("Paige")
+        me = Loadout("Paige", ["Mystic Burst"], souls=30000)
+        foe = Loadout("Abrams", [], souls=30000)
+        old = M._POKES
+        got = {}
+        try:
+            for procs in (True, False):
+                M._POKES = {h.id: {CR: (1.0, [], procs)}}
+                d = {}
+                fight.add_pokes(d, {}, me, foe, 15.0, None, MECH)
+                got[procs] = d
+        finally:
+            M._POKES = old
+        self.assertGreater(got[True].get("Mystic Burst", 0.0), 0.0)   # the proc rides the poke
+        self.assertEqual(set(got[False]), {"Captivating Read"})       # procs false: own damage only
+        self.assertAlmostEqual(got[False]["Captivating Read"], got[True]["Captivating Read"], places=6)
+
 
 if __name__ == "__main__":
     unittest.main()
