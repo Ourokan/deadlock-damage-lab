@@ -41,6 +41,8 @@ per-hero check: the items tables then pool only them). AUDIT_NORM=gun: items tab
 AUDIT_SEED=k: another draw of foes and per-fight draws (k=0 is the default draw), for averaging small samples.
 AUDIT_REAL_TIERS=0: fight.ORDER_HEROES' players on the default (median) order instead of their real ability tiers.
 AUDIT_TIER_HEROES=name,name: those heroes' players get their real tiers too (what-if before adding a hero to ORDER_HEROES).
+AUDIT_LANE_TIER_HEROES=name,name (or all): those heroes' players get their real tiers below fight.LANE_ORDER_SOULS only
+(what-if before adding a hero to fight.LANE_ORDER_HEROES, whose players get real tiers there by default).
 AUDIT_AREA_PHASE=0: area abilities without their game-phase term (Mechanics.ability_area_phase).
 The sample comes from scripts/fetch_validation.py (e.g. --api 91 5 for Phantom+ of the last 5 days).
 """
@@ -61,7 +63,7 @@ sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from deadsim import Loadout, duel, game  # noqa: E402
 from deadsim.abilities import load_heroes  # noqa: E402
-from deadsim.fight import ORDER_HEROES  # noqa: E402
+from deadsim.fight import LANE_ORDER_HEROES, LANE_ORDER_SOULS, ORDER_HEROES  # noqa: E402
 from deadsim.mechanics import DEFAULT as MECH, RICOCHET_RADIUS, area_extra, real_length, real_nearby  # noqa: E402
 from deadsim.accuracy import HEADS, HITS, SHOTS, default_distance, gun_calibrated, hero_default_skill  # noqa: E402
 import landing_rates as L  # noqa: E402
@@ -127,13 +129,26 @@ def kind(key, G, classes):
     return "other"
 
 
-def real_tiers(p, t):
+# AUDIT_LANE_TIER_HEROES=name,name (or "all"): those heroes' players get their real tiers in the lane only (net worth
+# below fight.LANE_ORDER_SOULS), a what-if before adding a hero to fight.LANE_ORDER_HEROES
+_lt = os.environ.get("AUDIT_LANE_TIER_HEROES", "")
+EXTRA_LANE_HEROES = {x.strip() for x in _lt.split(",") if x.strip()}
+
+
+def _lane_tiers(name, souls):
+    if souls is None or souls >= LANE_ORDER_SOULS:
+        return False
+    return name in LANE_ORDER_HEROES or name in EXTRA_LANE_HEROES or ("all" in EXTRA_LANE_HEROES and name not in ORDER_HEROES)
+
+
+def real_tiers(p, t, souls=None):
     """Loadout tiers / unlocked from the player's real ability events up to t (sample items: an ability id's first
     buy unlocks it, each later one is an upgrade), for heroes in fight.ORDER_HEROES (their default order is the
     median one; the audit gives their players their own); {} for the rest (default order) or AUDIT_REAL_TIERS=0."""
     G = game()
     h = G.hero(p["hero_id"])
-    if not REAL_TIERS or (h.name not in ORDER_HEROES and h.name not in EXTRA_TIER_HEROES):
+    if not REAL_TIERS or (h.name not in ORDER_HEROES and h.name not in EXTRA_TIER_HEROES
+                          and not _lane_tiers(h.name, souls)):
         return {}
     ids = [ab.id for ab in h.abilities]
     tiers, unlocked = [0] * len(ids), [False] * len(ids)
@@ -261,8 +276,8 @@ def sim_player(job, both=False):
         items, souls = L.build_at(me, t)
         foe = rnd.choice(foes)
         fitems, fsouls = L.build_at(foe, t)
-        a = Loadout(h.name, items, souls=souls, skill=skill_of(me), **real_tiers(me, t))
-        b = Loadout(foe["hero_id"], fitems, souls=fsouls, skill=skill_of(foe), **real_tiers(foe, t))
+        a = Loadout(h.name, items, souls=souls, skill=skill_of(me), **real_tiers(me, t, souls))
+        b = Loadout(foe["hero_id"], fitems, souls=fsouls, skill=skill_of(foe), **real_tiers(foe, t, fsouls))
         try:
             team = lambda pl: {G.hero(x["hero_id"]).name for x in m["players"]   # noqa: E731
                                if x["team"] == pl["team"] and x["hero_id"] in G.heroes}
