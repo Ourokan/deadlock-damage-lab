@@ -4006,3 +4006,20 @@ Ricochet ~0.7 (over) on her and every other holder.
 - Haze (3,327 players): per-source 0.030 -> 0.007, mix 0.012 -> 0.010; Lucky Shot 1.69 -> 1.24, Ricochet 0.70 -> 1.03.
   Split-half (fit even / audit odd and back, against the same refit without the change): per-source better on both
   halves. sim_vs_win_raw over the 15 changed heroes spliced into main: +0.0009 / +0.0005 / +0.0004 / +0.0001.
+
+## Holliday's melee rate refit on post-hotfix matches (2026-11-08)
+
+Fresh all-hero audit of main on post_hotfix_2026-11-07_sample (2,939 matches): Vyper (Split Shot, another thread) and
+Holliday (0.027) furthest off of the heroes not worked on since the hotfix. Holliday's gap was mostly melee: real share
+0.038 vs sim 0.055 (real/sim 0.67); her melee rate 0.0472 dated from a sample where real melee was 0.044.
+
+- Replays (scripts/mechanics/ability_procs.py, 51 Holliday players): Powder Keg 1.14 heroes / cast, Crackshot and Spirit
+  Lasso 1 hit per cast, Quicksilver procs 0.99 on Powder Keg ticks; no per-cast item miss.
+- Sample: 7,454 post-hotfix Phantom+ matches with a Holliday (metadata since 2026-10-31).
+- melee_audit_fit.py "Holliday" --split: held-out mix 0.016 -> 0.008 (odd half) / 0.011 (even half), kept; full-sample
+  rate 0.0472 -> 0.0318 (melee real/sim 0.99).
+- Ability corr + item rows refit on top (split-half, 3 rounds, 2 seeds): per-source gap 0.0109 -> 0.0071 / 0.0116 ->
+  0.0067 but mix 0.0095 -> 0.0175 / 0.0075 -> 0.0145, not kept (same pattern as Mina's refit this morning, which was
+  dropped too: ability/item corr refits trade a better per-source fit for a worse mix on low-gap heroes).
+- sim_vs_win Holliday 27k+37k: within slot and tier 0.405 -> 0.405; sim_vs_win_raw day half A -0.0040 / -0.0042, half B
+  +0.0055 / +0.0083 (mean +0.0014).
