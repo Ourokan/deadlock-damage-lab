@@ -3867,3 +3867,17 @@ Geist mix 0.018 -> 0.012, per-source 0.045 -> 0.027, Soul Exchange 0.112 -> 0.14
 0.011 -> 0.012 / 0.025 -> 0.016, sources 0.036 -> 0.019 / 0.057 -> 0.037 (no fit).
 sim_vs_win_raw (Geist spliced, 27k/37k x day halves): -0.0002 / -0.0000 / -0.0000 / -0.0000 (flat). No refit: Soul
 Exchange skips its landing factor (swap_full), so there is nothing to refit for it.
+
+## Victor's item rows refit on post-hotfix holders (2026-11-08)
+
+Victor (per-source 0.042 on the fresh post-hotfix audit): Escalating Exposure read 1.33x over on 883 holders (real/sim
+0.755). His item rows (data/item_landing.json) were fitted on 102 holders before the hotfix; refit on the fresh sample
+(item_landing_heroes.py --hero Victor): Escalating Exposure 0.473 -> 0.359, Torment Pulse 0.599 -> 0.579, new rows for
+Mercurial Magnum, Phantom Strike, Scourge, Siphon Bullets and Spirit Burn. Split-half (fit on one match half, audit the
+other): mix 0.023 -> 0.015 / 0.021 -> 0.020, sources 0.044 -> 0.039 / 0.039 -> 0.036. Whole sample mix 0.020 -> 0.017,
+per-source 0.042 -> 0.037. sim_vs_win_raw (Victor spliced, 27k/37k x day halves): +0.0002 / -0.0001 / -0.0000 /
+-0.0000 (flat).
+
+Tried and dropped: Shocking Reanimation's revive as an expected value booked at fight start (the sim's duel rarely
+sees an ally die). The ult went to 0.090 of his damage vs real 0.063 and mix 0.020 -> 0.026; refitting only the ult
+still left it at 0.080. His late ult (2x under at 90% by phase_mix.py) stays open.
