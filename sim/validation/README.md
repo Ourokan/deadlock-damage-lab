@@ -4023,3 +4023,24 @@ Holliday (0.027) furthest off of the heroes not worked on since the hotfix. Holl
   dropped too: ability/item corr refits trade a better per-source fit for a worse mix on low-gap heroes).
 - sim_vs_win Holliday 27k+37k: within slot and tier 0.405 -> 0.405; sim_vs_win_raw day half A -0.0040 / -0.0042, half B
   +0.0055 / +0.0083 (mean +0.0014).
+
+## Lucky Shot procs at the replay rate (2026-11-08)
+
+Item holders per hero on the post-hotfix audit (2,939 matches) read Lucky Shot under on most holders: Shiv 1.36,
+Drifter 1.42, Vindicta 1.41, Holliday 1.54, Ivy 1.27, Vyper 1.21 (pooled 1.26). Its item_landing factor (1.74 pooled)
+could not follow: uncut items are capped at min(1, landing x length_corr).
+
+- Replays (scripts/mechanics/item_ticks.py "Lucky Shot", 890 distinct replays across the analysis/work dumps): procs
+  per hero gun hit after a holder's first proc Venator 0.29 (29 holders, 1,144 procs), Vindicta 0.28, Drifter 0.30,
+  Ivy 0.30, Wraith 0.32, Holliday 0.34, Graves 0.27, Warden 0.36; pooled 0.296 (2,434 / 8,226; Haze has Fixation
+  rolls, Vyper Split Shot copies, Shiv / Calico weapons the dump doesn't name). Within 4 ticks almost every proc has a
+  gun hit on the same victim, at its size (proc / hit median 1.0): more procs, not bigger ones.
+- items_fx.LUCKY_PROC_MULT = 0.296 / 0.25 on the listed chance. Nothing fitted: audit of the 11 holder heroes (Haze,
+  Shiv, Venator, Vyper, Drifter, Vindicta, Holliday, Ivy, Wraith, Warden, Graves) on each half of the sample, 2 seeds:
+  players-weighted mix 0.0180 -> 0.0174 (even) / 0.0177 -> 0.0174 (odd), per-source 0.0189 -> 0.0185 / 0.0181 -> 0.0175;
+  Lucky Shot holders pooled 1.24 -> 1.07.
+- Also checked, no change: Mercurial Magnum (Victor / McGinnis 2x under): real uptime (gun hits with a proc within 3
+  ticks after the first proc) Victor 0.42, McGinnis 0.46 matches the sim's duels (0.42 / 0.53), and the sim's
+  per-bullet bonus is ~0.53 of a bullet for every hero; real holders show ~2 Mercurial events per buffed gun hit on
+  every hero (Wraith, Warden, Vyper too), unexplained, left as a lead. Lightning Scroll: 9-18 holders per hero in the
+  replays, too few to tell procs per ult cast.
