@@ -3901,3 +3901,29 @@ under, melee 0.87x and Torment Pulse / Mystic Shot / Stalker 0.8-0.9x over), Apo
   keep growing (the 11-06 refit was on games before 11-05).
 - Melee rate: melee_audit_fit --split did not hold (0.007 -> 0.008 one half), unchanged.
 - sim_vs_win Yamato (27k + 37k, post-hotfix pools): within slot and tier 0.408 -> 0.411, all 0.337 -> 0.340.
+
+## Solomon's Setup Bishop hits and Checkmate executes from replays (2026-11-08)
+
+Solomon (per-source 0.034 on the fresh post-hotfix audit, 5,767 Phantom+ matches; 2nd after Vindicta) had the largest
+fitted corrections in the sim (Setup Bishop landing 0.28 x corr 5.0, Develop Queen 0.19 x 9.5), a sign of missing
+damage pieces. Replays (92 Solomon matches, DamageEvents from scripts/mechanics/ally_target.py, spirit power from the
+API; scripts/mechanics/solomon_bishop.py):
+
+- Setup Bishop hits fall in two sizes: ~25% at ImpactDamage (70 + 2.0 x spirit; its scale is "movedamagesf", the move
+  passing through) and ~75% at Damage (25 + 0.85 x spirit, "tiledamagesf", the diagonal squares), 2.95 square hits per
+  move hit, no DPS-sized ticks. The sim dealt Damage on the move and the squares as a DPS DoT (DoT ticks don't proc
+  Mystic Burst / Tankbuster). Now (chessmaster.BISHOP_REAL): the move deals ImpactDamage, then TILE_HITS separate square
+  hits of Damage at spirit accuracy.
+- Checkmate: 113 of 162 queen kills left the target hp the hit didn't take (median 220) = executes, yet no queen hit is
+  execute-sized: the game books only the queen hit. The sim booked hp + barrier + 1 as "Checkmate" damage (1.3% of
+  Solomon's damage, with procs and lifesteal). Now (CHECKMATE_UNBOOKED, Engine.damage(unbooked=True)) it kills
+  without booking damage, procs or lifesteal.
+
+Solomon refit (3 rounds ability_corr_heroes.py + 2 rounds item_landing_heroes.py --hero Solomon): bishop corr 5.02 ->
+3.69 (landing x corr now 1.03), queen 9.47 -> 8.90; item rows: Mystic Burst row dropped (now reads 1.09), new Alchemical
+Fire / Escalating Exposure / Mystic Reverb rows. Whole sample: per-source 0.034 -> 0.021, mix 0.024 -> 0.023,
+Tankbuster 1.28 -> 1.14 under, Mystic Burst 1.43 -> 1.09. Split-half against the old model refit the same way: mix
+0.022 -> 0.022 / 0.026 -> 0.022, per-source 0.0386 -> 0.0390 / 0.0408 -> 0.0322 (bishop alone: mix better both halves,
+per-source -0.001 / +0.001). sim_vs_win_raw (Solomon spliced into the full base, 27k/37k x day halves): +0.0002 /
+-0.0002 / +0.0002 / -0.0003 (flat; Solomon alone 27k up both halves, 37k down both). Spirit Burn stays ~1.6x under
+(once per 20 s, team fights; per-hero rows are capped at 1).
