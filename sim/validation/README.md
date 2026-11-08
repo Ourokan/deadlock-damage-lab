@@ -4190,3 +4190,19 @@ melee 0.80, Torment Pulse 0.875.
   Alchemical Fire 0.50, Spirit Burn 0.71, Decay 0.91) and melee rate 0.0482 -> 0.0389. Split-half against main: per-source
   0.033 -> 0.027 and 0.030 -> 0.019; melee --split 0.015 -> 0.009, 0.012 -> 0.005. Whole sample: mix 0.017 -> 0.007,
   per-source 0.030 -> 0.014. sim_vs_win_raw for Mo & Krill: +0.0001 / +0.0001 / +0.0000 / +0.0000.
+
+## The Doorman: refit; Spirit Burn immunity is per victim (2026-11-08)
+
+Fresh audit (post-hotfix samples, 666 matches, 652 players): mix 0.009, per-source 0.028. Hotel Guest read 1.20 under,
+Luggage Cart 1.14, Call Bell 0.96, melee 0.81, Spirit Burn 1.34 under on 167 holders (no row), Mystic Reverb 0.74 on 88.
+- Replays (scripts/mechanics/spirit_burn_victims.py, 897 holder-matches): Spirit Burn's 20 s immunity is per victim:
+  51% of a holder's next burns on another hero come within 20 s (7% on the same hero), 1.21 heroes per burn start. Team
+  fights burn more heroes than the duel's one; per-hero rows absorb it (most heroes' rows are below 1). Spirit Burn has
+  no pooled cut, so a row can't go past 1: Doorman stays 1.4 under (lead: Spirit Burn under on several heroes).
+- Shipped: Doorman ability corr (Call Bell 1.471 -> 1.418, Luggage Cart 1.13 -> 1.292, Hotel Guest 1.553 -> 1.872) and
+  item rows (Cold Front 1.227, Mystic Burst 1.018, Alchemical Fire 0.661 added; the fitted Reverb row left out while
+  Reverb waits on Tyler). Split-half against main: per-source 0.029 -> 0.012, 0.028 -> 0.009 (mix 0.009 -> 0.012, 0.009
+  -> 0.007). Whole sample: mix 0.009 -> 0.006, per-source 0.028 -> 0.008. sim_vs_win_raw: -0.0001 / +0.0000 / -0.0000 /
+  +0.0001 (flat).
+- Not shipped: melee rate 0.0377 -> 0.0302 (melee_audit_fit --split held, 0.008 -> 0.007, 0.006 -> 0.005), because with
+  it sim_vs_win_raw was down on all 4 splits (-0.0003 / -0.0002 / -0.0001 / -0.0000).
