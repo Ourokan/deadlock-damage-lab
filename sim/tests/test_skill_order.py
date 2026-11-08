@@ -8,7 +8,7 @@ ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 sys.path[:0] = [os.path.join(ROOT, p) for p in ("sim", "search/scripts", "damage/scripts", "damage")]
 
 from deadsim.data import game  # noqa: E402
-from deadsim.fight import (ORDER_HEROES, _auto_abilities, abilities_for_order, ability_budget,  # noqa: E402
+from deadsim.fight import (LANE_ORDER_HEROES, LANE_ORDER_SOULS, ORDER_HEROES, _auto_abilities, abilities_for_order, ability_budget,  # noqa: E402
                            default_ability_order, median_ability_order, popular_ability_order)
 import skill_order as K  # noqa: E402
 
@@ -55,7 +55,33 @@ class Search(unittest.TestCase):
         self.assertEqual(levels, sorted(levels))
 
 
+def _auto_abilities_with(hero, souls, order):
+    """_auto_abilities on a given order (the fight's event count per net worth)."""
+    from deadsim.fight import ability_events_for_souls
+    ids = [a.id for a in hero.abilities]
+    tiers, unlocked = [0] * len(ids), [False] * len(ids)
+    for aid in order[:ability_events_for_souls(souls)]:
+        i = ids.index(aid)
+        if unlocked[i]:
+            tiers[i] = min(3, tiers[i] + 1)
+        unlocked[i] = True
+    return tiers, unlocked
+
+
 class MedianOrder(unittest.TestCase):
+    def test_lane_order_heroes_switch_back_after_the_lane(self):
+        # LANE_ORDER_HEROES follow the median order below LANE_ORDER_SOULS only: the 27k / 37k builds the win check
+        # scores keep the popular order (and the corr fitted on it)
+        self.assertLess(LANE_ORDER_SOULS, 27000)
+        self.assertFalse(set(LANE_ORDER_HEROES) & set(ORDER_HEROES))
+        for name in LANE_ORDER_HEROES:
+            h = G.hero(name)
+            self.assertEqual(default_ability_order(h, LANE_ORDER_SOULS - 1), median_ability_order(h.id))
+            self.assertEqual(default_ability_order(h, LANE_ORDER_SOULS), popular_ability_order(h.id))
+            self.assertEqual(default_ability_order(h), popular_ability_order(h.id))
+            for souls in (27000, 37000):
+                self.assertEqual(_auto_abilities(h, souls), _auto_abilities_with(h, souls, popular_ability_order(h.id)))
+
     def test_order_heroes_follow_the_median_order(self):
         for name in ORDER_HEROES:
             h = G.hero(name)

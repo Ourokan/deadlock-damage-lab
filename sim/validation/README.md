@@ -4491,3 +4491,27 @@ Talon 0.081, Vindicta 0.079, Abrams 0.074, Rem 0.072, Celeste 0.069. Vyper's lan
   so svw is unchanged. Shipped.
 - Left: most of the lane dagger gap (0.076 vs 0.178) and Petrifying Bola (0.009 vs 0.036) look like ability tiers;
   Vyper's real order was rechecked in #270 and still not kept.
+
+## Real ability order in the lane only (2026-11-08)
+
+Real players' ability order fixed lane-fifth gaps for several heroes, but adding them to fight.ORDER_HEROES needed a
+whole-match corr refit that cost sim_vs_win_raw (Vindicta, Rem, Seven's 27k). New: fight.LANE_ORDER_HEROES follow the
+median order (data/ability_order.json) below fight.LANE_ORDER_SOULS (10k net worth) and the popular order after, with
+no refit. The damage audit gives their players their real tiers in the lane (as it does ORDER_HEROES' players all
+match); AUDIT_LANE_TIER_HEROES=name,.../all is the what-if.
+
+- Post-hotfix sample (post_hotfix_2026-11-07, 2,939 matches) split by match id parity (1,495 / 1,444). Audit of main
+  vs AUDIT_LANE_TIER_HEROES=all (every hero not in ORDER_HEROES), AUDIT_FIFTH_SOURCES=1.
+- Real lane tiers: lane fifth and phase_distance better on both halves for Lash, Warden, Rem, Billy, Mina, Vyper,
+  Deadman Danny, Mo & Krill, Vindicta, Infernus, Wraith (same list picked on half A alone and confirmed on B). Worse
+  on both: McGinnis, Holliday, Shiv, Pocket, Grey Talon, Nurse, Drifter, Haze and others.
+- The sim itself follows the median order, not each player's own, so the eleven were also audited on the median order
+  (AUDIT_REAL_TIERS=0): Rem, Billy, Mina get worse in lane (Rem 0.062 -> 0.072), Infernus and Wraith worse on one half.
+  Kept the six that pass both ways: **Lash, Warden, Vyper, Deadman Danny, Mo & Krill, Vindicta**.
+- Those six, players-weighted, halves A / B (main -> real lane tiers -> median lane order):
+  lane fifth 0.061 -> 0.043 -> 0.027 / 0.061 -> 0.038 -> 0.028; phase 0.032 -> 0.030 -> 0.029 / 0.030 -> 0.028 ->
+  0.027; whole-match mix 0.009 -> 0.009 -> 0.012 / 0.011 -> 0.012 -> 0.014 (the corr stays fitted to the
+  whole-match mix on the popular order, as with the lane melee point). Vyper lane 0.107 -> 0.029 / 0.090 -> 0.017,
+  Vindicta 0.072 -> 0.018 / 0.086 -> 0.027.
+- Below the 27k / 37k budgets sim_vs_win scores: the builds it scores keep the popular order and their corr
+  (test_skill_order checks the tiers at 27k / 37k), so svw is unchanged by construction.

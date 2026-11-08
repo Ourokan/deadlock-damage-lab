@@ -137,15 +137,31 @@ def median_ability_order(hero_id):
     return tuple(row["order"]) if row else ()
 
 
-def default_ability_order(hero):
-    """The order a loadout without one follows: the median order for ORDER_HEROES, else the popular one."""
-    if hero.name in ORDER_HEROES:
+# heroes on their real players' median order in the lane only (net worth below LANE_ORDER_SOULS), the popular order
+# after, with no corr refit: the lane gap of the real order without the whole-match refits that cost sim_vs_win when
+# Vindicta and Rem were tried in ORDER_HEROES. Picked on split halves of the post-hotfix sample: lane fifth and per-fifth
+# distance better on both halves with real lane tiers and with the median order (Rem, Billy, Mina, Infernus, Wraith
+# passed on real tiers but not on the median order; validation/README.md "Real ability order in the lane only").
+# Below the 27k / 37k budgets the win check scores, so sim_vs_win is unchanged by construction.
+LANE_ORDER_HEROES = ("Lash", "Warden", "Vyper", "Deadman Danny", "Mo & Krill", "Vindicta")
+LANE_ORDER_SOULS = 10000
+
+
+def lane_order(hero, souls):
+    """True when this hero follows its median order at this net worth only because of the lane (LANE_ORDER_HEROES)."""
+    return hero.name in LANE_ORDER_HEROES and souls is not None and souls < LANE_ORDER_SOULS
+
+
+def default_ability_order(hero, souls=None):
+    """The order a loadout without one follows: the median order for ORDER_HEROES (and LANE_ORDER_HEROES in the
+    lane), else the popular one."""
+    if hero.name in ORDER_HEROES or lane_order(hero, souls):
         return median_ability_order(hero.id) or popular_ability_order(hero.id)
     return popular_ability_order(hero.id)
 
 
 def _auto_abilities(hero, souls):
-    order = default_ability_order(hero)
+    order = default_ability_order(hero, souls)
     n = ability_events_for_souls(souls)
     ids = [a.id for a in hero.abilities]
     tiers, unlocked = [0] * len(ids), [False] * len(ids)
