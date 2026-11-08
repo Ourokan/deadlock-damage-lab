@@ -1119,7 +1119,11 @@ def spirit_procs(hit):
 # 1.16 victims per cast), so the factor stands for ~2x the sim's casts, and every real cast spends a charge (real
 # Quicksilver per Leech damage 2.2x the sim's; the audit read Quicksilver 2.2x under on 226 Nurses,
 # scripts/mechanics/nurse_quicksilver.py).
-LANDING_PROCS = frozenset({"viscous_goo_grenade", "ability_nurse_leech_therapy"})
+# Lash's Flog (landing x length_corr 1.37, 2026-11-08) too: in 73 Quicksilver Lashes' replays a Flog hits 1.17 heroes
+# per cast at a formula-sized hit (median 138), Quicksilver procs on 0.95 of Flog casts (2,242 of 2,271 procs land with
+# a Flog), real Quicksilver per Flog damage 0.235, and the audit read Quicksilver 1.49x / Flog 0.90x per gun on 1,177
+# Lashes (sim Quicksilver per Flog ~0.6x real; scripts/mechanics/lash_quicksilver.py).
+LANDING_PROCS = frozenset({"viscous_goo_grenade", "ability_nurse_leech_therapy", "ability_lash_flog"})
 IMBUE_LANDING_PROCS = True
 
 
