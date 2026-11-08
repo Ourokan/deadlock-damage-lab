@@ -89,6 +89,12 @@ class PaigeLaneTest(unittest.TestCase):
         finally:
             M._POKES = old
 
+    def test_vyper_dagger_lane_only_landing(self):
+        dag = "ability_viper_debuffdagger"
+        self.assertGreater(landing_phase_mult(dag, 2700), 1.1)
+        self.assertAlmostEqual(landing_phase_mult(dag, 27000), 1.0)   # no change at the svw budgets
+        self.assertAlmostEqual(landing_phase_mult(dag, 37000), 1.0)
+
     def test_add_pokes_own_damage_only(self):
         from deadsim import fight, mechanics as M, game
         h = game().hero("Paige")
