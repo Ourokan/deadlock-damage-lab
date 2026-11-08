@@ -5,7 +5,7 @@
   "sample": "phantom_sample.jsonl.gz",
   "use": "deadsim realistic mode scales an item's own damage by min(1, landing)",
   "length": "fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x length_corr (the sim's source/gun in full / the same expected over real fight lengths, scripts/fight_length/length_factors.py, phantom_sample.jsonl.gz, 3 rounds)",
-  "heroes": "per-hero factors from the damage audit's hero x item rows (h_all.jsonl.gz; Split Shot rows post_hotfix_2026-11-07_sample.jsonl.gz, >= 20 holders): current factor x (real/sim)^(n/(n+20)), capped 0.25-1 (1 / length_corr for an item with a pooled length_corr below 1, accuracy.HERO_LENGTH_LIFT); replace the pooled factor for that hero (scripts/item_landing_heroes.py)",
+  "heroes": "per-hero factors from the damage audit's hero x item rows (h_all.jsonl.gz; Split Shot rows post_hotfix_2026-11-07_sample.jsonl.gz, Calico/Yamato/McGinnis on the 07-08 post-hotfix samples + yamato_post_2026-11-08_sample.jsonl.gz, >= 20 holders): current factor x (real/sim)^(n/(n+20)), capped 0.25-1 (1 / length_corr for an item with a pooled length_corr below 1, accuracy.HERO_LENGTH_LIFT); replace the pooled factor for that hero (scripts/item_landing_heroes.py)",
   "entry_hp_kept": "length_corr scaled so held first casts and Mechanics.entry_hp (as configured in the run) keep the expected levels of a target run at full health with the previous holds (length_factors.py --entry --target-holds)",
   "cast_timing_kept": "length_corr scaled so held first casts (Mechanics.cast_timing) keep the expected levels of cast-on-sight duels; rerun from the factors before"
  },
@@ -471,9 +471,9 @@
     "landing": 0.8
    },
    "Split Shot": {
-    "holders": 24,
-    "real_over_sim": 1.646,
-    "landing": 1.0
+    "holders": 55,
+    "real_over_sim": 1.199,
+    "landing": 1.634
    },
    "Stalker": {
     "holders": 109,
@@ -940,9 +940,9 @@
     "landing": 0.616
    },
    "Split Shot": {
-    "holders": 23,
-    "real_over_sim": 1.442,
-    "landing": 1.0
+    "holders": 35,
+    "real_over_sim": 1.243,
+    "landing": 1.617
    }
   },
   "Mina": {
@@ -1452,9 +1452,9 @@
     "landing": 0.562
    },
    "Split Shot": {
-    "holders": 21,
-    "real_over_sim": 1.752,
-    "landing": 1.0
+    "holders": 38,
+    "real_over_sim": 1.248,
+    "landing": 1.614
    },
    "Stalker": {
     "holders": 2021,

@@ -4128,3 +4128,13 @@ The sim gave him a full hand at every fight's start (4 cards) and threw it one c
   0.016-0.020. Full sample: corr 0.86 -> 1.543.
 - sim_vs_win_raw for Wraith against main: raw within 27k +0.0260 / -0.0121, 37k +0.0278 / -0.0102 (day halves
   A / B): mixed, net up (+0.008 mean). Kept on for the audit gain; ENTRY_HAND_DRAW / MELEE_CARDS switch it off.
+## Split Shot rows for Calico, Yamato and McGinnis (2026-11-08)
+
+Follow-up to the hero-row lift (#253): these three read Split Shot 1.4-1.75x under with rows still at 1.0, short of
+20 holders on the 07 sample. On the 07/07b/07c/08 post-hotfix samples + yamato_post_2026-11-08 (9,003 matches with one
+of them) they have 55 / 38 / 35 holders and read 1.63 / 1.66 / 1.71. Two rounds of item_landing_heroes.py --item
+"Split Shot" for the three: rows 1.634 / 1.614 / 1.617, now 1.07 / 1.10 / 1.09.
+- Split-half (fit even / audit odd and back): only Calico has 20+ holders per half; her held-out gap 1.61 -> 1.12 and
+  1.67 -> 1.16, mix flat (0.0130 / 0.0131). Yamato and McGinnis halves are under the floor, so their rows rest on the
+  whole sample and the same ~1.65 gap.
+- sim_vs_win_raw (3 heroes spliced into main): +0.0000 / +0.0000 / -0.0001 / -0.0001, flat.
