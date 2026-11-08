@@ -350,6 +350,22 @@ def hero_liftable(name, rows=None):
     return r["length_corr"]
 
 
+# Hero rows that may hold a landing above 1 although the item is uncut, for fights that book over real fight lengths
+# (2026-11-08): Spirit Burn's 20 s immunity is per victim (replays, scripts/mechanics/spirit_burn_victims.py: 51% of a
+# holder's next burns on another hero come within 20 s, 7% on the same one) and its explosion has a 3 m radius, so team
+# fights burn more heroes than the duel's one; its pooled length_corr is above 1, so HERO_LENGTH_LIFT (corrections
+# below 1) never applies, and a hero row capped at 1 left The Doorman 1.4x under. On: such a row's landing (capped at
+# the value here, item_landing_heroes.py fits up to it) multiplies the item's length_corr; the plain 1v1 (no length
+# weighting) keeps min(1, landing), like the Split Shot lift.
+ROW_ABOVE_ONE = {"Spirit Burn": 2.0}
+ROW_ABOVE_ONE_ON = True
+
+
+def row_above_one(name):
+    """The cap a hero row of this uncut item may lift its landing to (ROW_ABOVE_ONE), or None."""
+    return ROW_ABOVE_ONE.get(name) if ROW_ABOVE_ONE_ON and LENGTH_CORR else None
+
+
 def item_length_corr(hero=None):
     """{item name: length_corr}: item_landing's factors (or 1 for an item left uncut) x this for fights that book
     damage over real fight lengths (data/item_landing.json, scripts/fight_length/length_factors.py); for an uncut
@@ -374,6 +390,8 @@ def item_length_corr(hero=None):
             c = hero_liftable(name, rows)
             if c is not None and r["landing"] > 1.0:
                 out[name] = min(1.0, r["landing"] * c)   # item_landing(hero) gives 1 for it
+            elif r["landing"] > 1.0 and row_above_one(name):
+                out[name] = out.get(name, 1.0) * min(row_above_one(name), r["landing"])   # ROW_ABOVE_ONE
     return out
 
 

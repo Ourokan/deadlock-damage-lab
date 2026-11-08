@@ -74,6 +74,10 @@ def fit(audit, prior=PRIOR, only=None, items=None):
             # accuracy.HERO_LENGTH_LIFT: the audit saw min(1, landing x length_corr); the landing may go to 1 / corr
             cur = min(1.0, row["landing"] * corr) / corr
             new = max(0.25, min(1.0 / corr, cur * math.exp(w * math.log(x))))
+        elif accuracy.row_above_one(r["item"]):
+            # accuracy.ROW_ABOVE_ONE: the audit saw landing x length_corr; the landing may go to the item's cap
+            cur = row["landing"] if row is not None else accuracy.item_landing(r["hero"]).get(r["item"], 1.0)
+            new = max(0.25, min(accuracy.row_above_one(r["item"]), cur * math.exp(w * math.log(x))))
         else:
             cur = accuracy.item_landing(r["hero"]).get(r["item"], 1.0)
             new = max(0.25, min(1.0, cur * math.exp(w * math.log(x))))
