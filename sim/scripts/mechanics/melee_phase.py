@@ -75,7 +75,8 @@ def real_phase(sample, G, kind):
                     continue
                 kk = kind(L.real_key(k, list(classes)), G, classes)
                 for fr in FRACS:
-                    lo, hi = max(0.0, fr - WINDOW) * T, min(1.0, fr + WINDOW) * T
+                    w = min(WINDOW, fr)   # a lane point (0.1) takes the first fifth: 0 - 0.2
+                    lo, hi = max(0.0, fr - w) * T, min(1.0, fr + w) * T
                     acc[hid][fr][kk] += cum(tm, ser, hi) - cum(tm, ser, lo)
     return acc, nw
 
@@ -114,6 +115,9 @@ def main():
                     fh.write(line)
         sample = half
     write = "--write" in args
+    if "--fracs" in args:   # e.g. 0.1,0.3,0.6,0.9: a lane point for a --hero row (Abrams, 2026-11-08)
+        global FRACS
+        FRACS = tuple(float(x) for x in args[args.index("--fracs") + 1].split(","))
     only = args[args.index("--hero") + 1] if "--hero" in args else None
     if only:
         os.environ["AUDIT_HEROES"] = only
@@ -146,7 +150,9 @@ def main():
         pooled[fr] = sum(p[i][4] * p[i][2] * math.log(p[i][2] / p[i][3] * p[i][5]) for p in rows.values()) / w
     if only:   # one hero's sample: its own ratios would be the "pooled" curve, so shrink to the file's
         old = json.load(open(OUT))
-        pooled = {fr: math.log(old["pooled"][str(fr)]) for fr in FRACS}
+        # a frac the file has no pooled value for (a --fracs lane point) shrinks to the nearest one it has
+        near = {fr: min(old["pooled"], key=lambda k: abs(float(k) - fr)) for fr in FRACS}
+        pooled = {fr: math.log(old["pooled"][near[fr]]) for fr in FRACS}
         rows = {hid: p for hid, p in rows.items() if G.hero(hid).name == G.hero(only).name}
     out = {}
     for hid, pts in sorted(rows.items(), key=lambda x: G.hero(x[0]).name):
