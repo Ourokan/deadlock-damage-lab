@@ -4579,3 +4579,32 @@ After #277 most of Haze's 2nd-fifth Bullet Dance gap (0.107 sim vs 0.15 real) wa
   - **lane-only (from 10k at 1.0)**: lane 0.049 -> 0.038 / 0.067 -> 0.058, 2nd fifth 0.016 -> 0.014 / 0.027 ->
     0.030, 3rd flat, phase 0.029 -> 0.028 / 0.050 -> 0.050, mix +0.002 / +0.001. Shipped. Below the 27k / 37k
     budgets, so sim_vs_win is unchanged.
+## Barriers late in the match: others soak them, trigger items aren't always ready (2026-11-08)
+
+The sim's duels put 14% of gun damage into barriers at 90% of the match, real 8% (`scripts/gun_calib/gun_phase.py
+--replays`, 160 replays: DamageEvent damage_absorbed). Split by the target's items (real: items held at the hit's
+time; sim: the audit duel's target), targets with no barrier item match (0.052 real / 0.055 sim late); holders of one
+absorb about 2x in the sim:
+
+| target holds (90%) | real | sim before | sim after |
+|---|---|---|---|
+| no barrier item | 0.052 | 0.055 | 0.052 |
+| Spirit Shielding | 0.169 | 0.337 | 0.209 |
+| Reactive Barrier | 0.141 | 0.297 | 0.183 |
+| Weapon Shielding | 0.229 | 0.353 | 0.272 |
+| all | 0.083 | 0.143 | 0.100 |
+
+Two causes:
+- A real target's damage comes ~75% from the hitting attacker (damage-weighted share within +-4 s, 0.81 / 0.77 / 0.75
+  at 30 / 60 / 90%), so other enemies soak part of its barrier. `Mechanics.barrier_assist` 0.35 (= TARGET_ASSIST):
+  the attacker meets barrier / 1.35. That alone took the late share to 0.118.
+- Spirit / Weapon Shielding and Reactive Barrier always started a sim fight ready; real ones are often spent on
+  creeps and pokes. `Mechanics.barrier_start_random` 0.5: in half the fights their cooldown starts at a random point
+  of its cycle. All fights spent overshot (Spirit Shielding 0.117, Reactive 0.066).
+
+All absorbed shares 30 / 60 / 90%: 0.067 / 0.112 / 0.143 -> 0.050 / 0.077 / 0.100 (real 0.052 / 0.076 / 0.083). The
+active barrier items (Divine Barrier, Guardian Ward, Diviner's Kevlar) are still ~2.5x: real holders often cast them
+on allies. Damage audit (even half of 5,767 post-hotfix matches, no refit) flat: mix 0.0147 -> 0.0148, phase 0.0258 ->
+0.0256. sim_vs_win_raw within (main at #278): 27k A +0.0043, 37k A +0.0029, 27k B +0.0040, 37k B +0.0023. The
+overall score's deterministic fights draw the start from the fight phase (as unused_items). Warden vs Seven re-pinned.
+The late-game gun tilt it was found under is not changed by this (last-fifth gun -0.0157 -> -0.0153).

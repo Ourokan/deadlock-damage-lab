@@ -301,6 +301,17 @@ class Mechanics:
     # drop it. Off: it moves the late gun share only 0.223 -> 0.221 (real 0.202) and the whole-match audit was fitted
     # with barrier damage booked (0.0207 -> 0.0215 on, items rise); it would need an item_landing refit with it on
     unbook_absorbed: bool = False
+    # barriers late in the match (2026-11-08): the sim's duels put 14% of gun damage into barriers at 90% of the match vs
+    # real 8% (gun_phase.py --replays). Targets without a barrier item match (0.055 vs 0.052); on holders of one the
+    # sim absorbed ~2x (Spirit Shielding 0.34 vs 0.17, Reactive Barrier 0.30 vs 0.14). Two causes, from 160 replays:
+    # a real target takes ~25-30% of its damage from other enemies, who soak that much of its barrier (barrier_assist,
+    # = TARGET_ASSIST: the hit's attacker meets barrier / (1 + a)); and the trigger barrier items (Spirit / Weapon
+    # Shielding, Reactive Barrier) are often spent on creeps and pokes before a hero fight, so in barrier_start_random
+    # of the fights their cooldown starts at a random point of its cycle (as Mystic Shot's). Absorbed share 30 / 60 /
+    # 90%: 0.067 / 0.112 / 0.143 -> 0.050 / 0.077 / 0.100 (real 0.052 / 0.076 / 0.083); audit flat (mix 0.0147 ->
+    # 0.0148, phase 0.0258 -> 0.0256), sim_vs_win_raw within up on all 4 splits (validation/README.md)
+    barrier_assist: float = 0.35
+    barrier_start_random: float = 0.5
     # bullet resist shred debuffs in fights (2026-10-27): a duel keeps every shred debuff (items, Hunter's Aura, hero
     # abilities) on its one target, so the sim's gun hits late in the match kept 1.05x the damage the target's build
     # resists allow; real gun hits on heroes keep 0.99x / 0.99x / 0.98x at 30 / 60 / 90% of the match (160 replays,

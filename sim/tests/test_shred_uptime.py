@@ -41,12 +41,22 @@ class ShredUptime(unittest.TestCase):
 
     def test_absorbed_booking(self):
         for unbook, want in ((False, 70.0), (True, 30.0)):
-            e = Engine(mech=dataclasses.replace(Mechanics(), unbook_absorbed=unbook))
+            e = Engine(mech=dataclasses.replace(Mechanics(), unbook_absorbed=unbook, barrier_assist=0.0))
             a, b = pair(e)
             b.add_barrier(40.0, 10.0)
             e.damage(a, b, 100, "bullet", "gun")
             self.assertAlmostEqual(a.dmg_out["gun"] / a.st.outgoing_mult, want, places=4)
             self.assertAlmostEqual(sum(b.dmg_in.values()) / a.st.outgoing_mult, 70.0, places=4)
+
+
+    def test_barrier_assist(self):
+        # third parties soak barrier_assist per the attacker's share: a 40 barrier takes 40 / 1.35 of this hit
+        e = Engine(mech=dataclasses.replace(Mechanics(), unbook_absorbed=True, barrier_assist=0.35))
+        a, b = pair(e)
+        b.add_barrier(40.0, 10.0)
+        e.damage(a, b, 100, "bullet", "gun")
+        self.assertAlmostEqual(a.dmg_out["gun"] / a.st.outgoing_mult, 70.0 - 40.0 / 1.35, places=4)
+        self.assertAlmostEqual(b.barrier_total(), 0.0, places=6)
 
 
 if __name__ == "__main__":

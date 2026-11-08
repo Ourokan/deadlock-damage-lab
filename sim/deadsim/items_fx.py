@@ -18,6 +18,8 @@ Items not listed here only contribute their always-on stats; `MODELED` lets repo
 """
 from __future__ import annotations
 
+import zlib
+
 from .abilities import CastCtx
 from .build import SHOT_SPLIT_PELLETS
 from .data import _load, game
@@ -731,12 +733,34 @@ class EnchantersEmblem(FX):
         return {}
 
 
+def random_start(fx, f):
+    """Mechanics.barrier_start_random: the item's cooldown starts at a random point of its cycle."""
+    m = f.e.mech
+    p = m.barrier_start_random if m is not None else 0.0
+    if p <= 0:
+        return
+    rng = f.e.rng
+    if rng is not None:
+        u = rng.random()
+    elif f.skill.fight_phase is not None:
+        # deterministic engine over a pool of fights (overall score): a quasi-random draw from the fight phase, shifted
+        # per item and fighter like unused_items
+        u = (f.skill.fight_phase + zlib.crc32(f"{fx.item.name}|{f.name}|barrier".encode()) / 2 ** 32) % 1.0
+    else:
+        return      # one deterministic fight with no phase: ready, as before
+    if u < p:   # spent: a random point of the cycle
+        fx.ready_at = max(fx.ready_at, fx.now + fx.cd() * u / p)
+
+
 class ShieldOnDamage(FX):
     kind = "spirit"
 
     def __init__(self, item, f):
         super().__init__(item, f)
         self.window = []
+
+    def on_start(self, f):
+        random_start(self, f)
 
     def on_damage_taken(self, f, src, hit):
         if hit.kind != self.kind or not self.ready():
@@ -1004,6 +1028,9 @@ class ReturnFire(FX):
 
 @handler("upgrade_vex_barrier", "upgrade_auto_cleanse")
 class ReactiveBarrier(FX):
+    def on_start(self, f):
+        random_start(self, f)
+
     def on_cc(self, f, key):
         if not self.ready():
             return
