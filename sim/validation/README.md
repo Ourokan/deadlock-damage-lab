@@ -4605,5 +4605,6 @@ Two causes:
 All absorbed shares 30 / 60 / 90%: 0.067 / 0.112 / 0.143 -> 0.050 / 0.077 / 0.100 (real 0.052 / 0.076 / 0.083). The
 active barrier items (Divine Barrier, Guardian Ward, Diviner's Kevlar) are still ~2.5x: real holders often cast them
 on allies. Damage audit (even half of 5,767 post-hotfix matches, no refit) flat: mix 0.0147 -> 0.0148, phase 0.0258 ->
-0.0256. sim_vs_win_raw within: 27k A +0.0019, 37k A +0.0032, 27k B +0.0022, 37k B +0.0009. Warden vs Seven re-pinned.
+0.0256. sim_vs_win_raw within (main at #278): 27k A +0.0043, 37k A +0.0029, 27k B +0.0040, 37k B +0.0023. The
+overall score's deterministic fights draw the start from the fight phase (as unused_items). Warden vs Seven re-pinned.
 The late-game gun tilt it was found under is not changed by this (last-fifth gun -0.0157 -> -0.0153).
