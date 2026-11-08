@@ -4173,3 +4173,20 @@ Fire Scarabs 0.85x. Replays were checked first for a mechanic the sim lacks (`sc
   three abilities halved the held-out mix both ways (0.020/0.018 -> 0.014/0.015, 0.028/0.031 -> 0.012/0.013), but
   sim_vs_win raw dropped at 37k in both halves (-0.007 / -0.010; 27k +0.005 / +0.002), so it is **not kept**. His
   remaining "other" gap (0.013 real vs 0.005) is enemy Shiv's deferred damage, not his.
+## Mo & Krill: Mystic Burst releases per victim (opt-in, off) and refit (2026-11-08)
+
+Fresh audit (post-hotfix samples, 1,258 matches, 1,247 players): mix 0.017, per-source 0.030. Mystic Burst read 1.2x
+under on 1,219 holders with no hero row (factor 1), Return Fire 8x under (cut on every hero, accuracy.LENGTH_CAP_SKIP),
+melee 0.80, Torment Pulse 0.875.
+- Replays (scripts/mechanics/mk_area_releases.py, 129 matches): Mystic Burst follows Scorn (70% of releases), Sand Blast
+  (14%) and other hits. A Scorn cast hitting 1 / 2 / 3 heroes releases Mystic Burst on 0.71 / 1.35 / 1.82 of them at a
+  near-full size each (median 34 / 30 / 24), Tankbuster 0.15 / 0.30 / 0.53: each victim gets its own release, while the
+  sim's duel has one victim. items_fx.AREA_RELEASES scales a Scorn / Sand Blast release by the real heroes per cast (1.22
+  / 1.20).
+- It fixes the holders' rows (Mystic Burst 1.17 -> 0.98) but the whole-match Mystic Burst share then reads 1.2x over, and
+  a split-half refit with it held out worse on both halves than the same refit without it (mix 0.017 -> 0.026, 0.011 ->
+  0.020; per-source 0.027 -> 0.034, 0.019 -> 0.026). Kept as an opt-in, AREA_RELEASES_ON = False.
+- Shipped: plain Mo & Krill refit (corr x3 + item rows x2; rows added for Mystic Burst 1.018, Quicksilver Reload 1.17,
+  Alchemical Fire 0.50, Spirit Burn 0.71, Decay 0.91) and melee rate 0.0482 -> 0.0389. Split-half against main: per-source
+  0.033 -> 0.027 and 0.030 -> 0.019; melee --split 0.015 -> 0.009, 0.012 -> 0.005. Whole sample: mix 0.017 -> 0.007,
+  per-source 0.030 -> 0.014. sim_vs_win_raw for Mo & Krill: +0.0001 / +0.0001 / +0.0000 / +0.0000.
