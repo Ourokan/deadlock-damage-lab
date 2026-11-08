@@ -145,11 +145,19 @@ def median_ability_order(hero_id):
 # Below the 27k / 37k budgets the win check scores, so sim_vs_win is unchanged by construction.
 LANE_ORDER_HEROES = ("Lash", "Warden", "Vyper", "Deadman Danny", "Mo & Krill", "Vindicta")
 LANE_ORDER_SOULS = 10000
+# hero -> (low, high) net worth window where it follows its median order (the popular one outside): the lane heroes
+# above, plus mid-game windows set by the fifths of the match where the median order was closer to real on both
+# halves of the post-hotfix sample (validation/README.md "Real ability order in the middle of the match"; ~4k / 9.5k /
+# 16.5k / 25k net worth bound the 2nd to 4th fifths). Every window ends below the 27k / 37k budgets sim_vs_win scores.
+ORDER_WINDOWS = {name: (0, LANE_ORDER_SOULS) for name in LANE_ORDER_HEROES}
+ORDER_WINDOWS.update({"Lash": (0, 16500), "The Doorman": (4000, 16500), "Infernus": (4000, 16500),
+                      "Wraith": (4000, 9500), "Shiv": (4000, 9500), "Baba": (9500, 25000)})
 
 
 def lane_order(hero, souls):
-    """True when this hero follows its median order at this net worth only because of the lane (LANE_ORDER_HEROES)."""
-    return hero.name in LANE_ORDER_HEROES and souls is not None and souls < LANE_ORDER_SOULS
+    """True when this hero follows its median order at this net worth only because of its window (ORDER_WINDOWS)."""
+    w = ORDER_WINDOWS.get(hero.name)
+    return w is not None and souls is not None and w[0] <= souls < w[1]
 
 
 def default_ability_order(hero, souls=None):

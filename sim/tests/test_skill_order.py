@@ -8,7 +8,7 @@ ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 sys.path[:0] = [os.path.join(ROOT, p) for p in ("sim", "search/scripts", "damage/scripts", "damage")]
 
 from deadsim.data import game  # noqa: E402
-from deadsim.fight import (LANE_ORDER_HEROES, LANE_ORDER_SOULS, ORDER_HEROES, _auto_abilities, abilities_for_order, ability_budget,  # noqa: E402
+from deadsim.fight import (LANE_ORDER_HEROES, LANE_ORDER_SOULS, ORDER_HEROES, ORDER_WINDOWS, _auto_abilities, abilities_for_order, ability_budget,  # noqa: E402
                            default_ability_order, median_ability_order, popular_ability_order)
 import skill_order as K  # noqa: E402
 
@@ -77,8 +77,21 @@ class MedianOrder(unittest.TestCase):
         for name in LANE_ORDER_HEROES:
             h = G.hero(name)
             self.assertEqual(default_ability_order(h, LANE_ORDER_SOULS - 1), median_ability_order(h.id))
-            self.assertEqual(default_ability_order(h, LANE_ORDER_SOULS), popular_ability_order(h.id))
+            self.assertEqual(default_ability_order(h, ORDER_WINDOWS[name][1]), popular_ability_order(h.id))
             self.assertEqual(default_ability_order(h), popular_ability_order(h.id))
+            for souls in (27000, 37000):
+                self.assertEqual(_auto_abilities(h, souls), _auto_abilities_with(h, souls, popular_ability_order(h.id)))
+
+    def test_order_windows_end_below_the_win_check_budgets(self):
+        # mid-game windows: median order inside, popular outside, never at the 27k / 37k builds sim_vs_win scores
+        self.assertFalse(set(ORDER_WINDOWS) & set(ORDER_HEROES))
+        for name, (lo, hi) in ORDER_WINDOWS.items():
+            self.assertLess(hi, 27000)
+            h = G.hero(name)
+            self.assertEqual(default_ability_order(h, (lo + hi) / 2), median_ability_order(h.id))
+            self.assertEqual(default_ability_order(h, hi), popular_ability_order(h.id))
+            if lo > 0:
+                self.assertEqual(default_ability_order(h, lo - 1), popular_ability_order(h.id))
             for souls in (27000, 37000):
                 self.assertEqual(_auto_abilities(h, souls), _auto_abilities_with(h, souls, popular_ability_order(h.id)))
 

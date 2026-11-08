@@ -4515,3 +4515,27 @@ match); AUDIT_LANE_TIER_HEROES=name,.../all is the what-if.
   Vindicta 0.072 -> 0.018 / 0.086 -> 0.027.
 - Below the 27k / 37k budgets sim_vs_win scores: the builds it scores keep the popular order and their corr
   (test_skill_order checks the tiers at 27k / 37k), so svw is unchanged by construction.
+
+## Real ability order in the middle of the match (2026-11-08)
+
+Post-hotfix audit of main after #275 (post_hotfix_2026-11-07, 2,939 matches): per fifth 0.034 / 0.027 / 0.021 /
+0.022 / 0.029, phase 0.0257. Worst middle fifths (2nd to 4th): Haze (2nd 0.070: Bullet Dance 0.153 real vs 0.098
+sim, gun over), Viscous (187 players), Nurse, Vindicta, Apollo, Dynamo, Shiv, Danny.
+
+- Real tiers over the whole match (AUDIT_TIER_HEROES, every hero not in ORDER_HEROES): Haze's 2nd fifth 0.070 ->
+  0.043, and the middle fifths better for Holliday, Doorman, Billy, Infernus, Silver; phase mean worse overall
+  (0.0257 -> 0.0275: lane and late fifths of many heroes).
+- The median order cannot give Haze that: it matches the popular one in the middle (ult tier 0 until 18k), while
+  real Hazes average ult tier 0.25 / 0.6 / 1.1 in fifths 2-4, spread over players. Not fixable by an order; left.
+- fight.LANE_ORDER_HEROES became fight.ORDER_WINDOWS (hero -> net worth window on the median order, popular outside).
+  What-if all heroes on the median order below 27k (AUDIT_ORDER_WINDOWS=all:0:27000, AUDIT_REAL_TIERS=0) on the two
+  match-id halves, per fifth vs main; windows set to the fifths better on both halves (~4k / 9.5k / 16.5k / 25k
+  bound fifths 2-4), then rerun on both halves: **The Doorman 4k-16.5k, Infernus 4k-16.5k, Wraith 4k-9.5k, Shiv
+  4k-9.5k, Baba 9.5k-25k, Lash 0-16.5k (was 0-10k)**. Solomon (2nd fifth only, phase flat) dropped. Billy, Danny,
+  Grey Talon, Rat King, Nurse, McGinnis, Yamato, Silver get worse on the median order in the middle.
+- Those six, players-weighted, halves A / B: fifths 2-4 [0.029, 0.021, 0.019] -> [0.023, 0.019, 0.020] /
+  [0.030, 0.020, 0.022] -> [0.024, 0.018, 0.020]; phase 0.0222 -> 0.0216 / 0.0226 -> 0.0213; whole-match mix
+  0.0127 -> 0.0123 / 0.0143 -> 0.0140. Doorman 3rd fifth 0.042 -> 0.036 / 0.028 -> 0.017, Shiv 2nd 0.042 -> 0.030
+  / 0.039 -> 0.029, Baba 4th 0.016 -> 0.012 / 0.022 -> 0.015. No refit.
+- Every window ends below 25k, under the 27k / 37k budgets sim_vs_win scores: unchanged by construction
+  (test_skill_order checks the tiers there).

@@ -42,7 +42,8 @@ AUDIT_SEED=k: another draw of foes and per-fight draws (k=0 is the default draw)
 AUDIT_REAL_TIERS=0: fight.ORDER_HEROES' players on the default (median) order instead of their real ability tiers.
 AUDIT_TIER_HEROES=name,name: those heroes' players get their real tiers too (what-if before adding a hero to ORDER_HEROES).
 AUDIT_LANE_TIER_HEROES=name,name (or all): those heroes' players get their real tiers below fight.LANE_ORDER_SOULS only
-(what-if before adding a hero to fight.LANE_ORDER_HEROES, whose players get real tiers there by default).
+(what-if before adding a hero to fight.LANE_ORDER_HEROES). fight.ORDER_WINDOWS heroes' players get real tiers inside
+their window. AUDIT_ORDER_WINDOWS=name:low:high;... (all:low:high = every hero not in ORDER_HEROES) adds windows.
 AUDIT_AREA_PHASE=0: area abilities without their game-phase term (Mechanics.ability_area_phase).
 The sample comes from scripts/fetch_validation.py (e.g. --api 91 5 for Phantom+ of the last 5 days).
 """
@@ -63,7 +64,7 @@ sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from deadsim import Loadout, duel, game  # noqa: E402
 from deadsim.abilities import load_heroes  # noqa: E402
-from deadsim.fight import LANE_ORDER_HEROES, LANE_ORDER_SOULS, ORDER_HEROES  # noqa: E402
+from deadsim.fight import LANE_ORDER_SOULS, ORDER_HEROES, ORDER_WINDOWS  # noqa: E402
 from deadsim.mechanics import DEFAULT as MECH, RICOCHET_RADIUS, area_extra, real_length, real_nearby  # noqa: E402
 from deadsim.accuracy import HEADS, HITS, SHOTS, default_distance, gun_calibrated, hero_default_skill  # noqa: E402
 import landing_rates as L  # noqa: E402
@@ -135,10 +136,23 @@ _lt = os.environ.get("AUDIT_LANE_TIER_HEROES", "")
 EXTRA_LANE_HEROES = {x.strip() for x in _lt.split(",") if x.strip()}
 
 
+# AUDIT_ORDER_WINDOWS=name:low:high;... (or all:low:high for every hero not in ORDER_HEROES): fight.ORDER_WINDOWS
+# what-if (the sim follows the median order there; with AUDIT_REAL_TIERS=0 that is what the audit duels too)
+for _w in filter(None, os.environ.get("AUDIT_ORDER_WINDOWS", "").split(";")):
+    _n, _lo, _hi = _w.rsplit(":", 2)
+    for _name in ([h.name for h in game().heroes.values() if h.name not in ORDER_HEROES] if _n == "all" else [_n]):
+        ORDER_WINDOWS[_name] = (float(_lo), float(_hi))
+
+
 def _lane_tiers(name, souls):
-    if souls is None or souls >= LANE_ORDER_SOULS:
+    if souls is None:
         return False
-    return name in LANE_ORDER_HEROES or name in EXTRA_LANE_HEROES or ("all" in EXTRA_LANE_HEROES and name not in ORDER_HEROES)
+    w = ORDER_WINDOWS.get(name)
+    if w is not None and w[0] <= souls < w[1]:
+        return True
+    if souls >= LANE_ORDER_SOULS:
+        return False
+    return name in EXTRA_LANE_HEROES or ("all" in EXTRA_LANE_HEROES and name not in ORDER_HEROES)
 
 
 def real_tiers(p, t, souls=None):
