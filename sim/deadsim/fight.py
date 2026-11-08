@@ -117,9 +117,11 @@ class Loadout:
 # 2026-11-07: real Venators rush Ira Domini, tier 3 at 30% of the match in 38% of player-matches vs 18% on the order
 # (his early blessed stakes read 1.7x under; heroes/priest.py BOOK_UNBLESSED).
 # Kelvin since 2026-11-08: his lane fifth read 0.11 off (Arctic Beam over, gun under) on the popular order; real tiers
-# halve it and the refit held split-half (validation/README.md "Lane damage: ability tiers"). Paradox's lane gap halved
-# too but sim_vs_win_raw fell in all four splits; Vyper's per-source gap rose. Both left on the popular order.
-ORDER_HEROES = ("Celeste", "Ivy", "Paige", "Graves", "Dynamo", "Apollo", "Lady Geist", "Venator", "Kelvin")
+# halve it and the refit held split-half (validation/README.md "Lane damage: ability tiers"). Vyper's per-source gap
+# rose, so he stays on the popular order. Paradox since 2026-11-08: his lane Pulse Grenade read 0.22 vs 0.15 real on
+# the popular order; real tiers + refit fix it, held split-half, and sim_vs_win_raw is flat on the post-#267 corr (it
+# fell in all four splits on the older corr) (validation/README.md "Paradox's lane Pulse Grenade").
+ORDER_HEROES = ("Celeste", "Ivy", "Paige", "Graves", "Dynamo", "Apollo", "Lady Geist", "Venator", "Kelvin", "Paradox")
 
 
 @lru_cache(maxsize=64)

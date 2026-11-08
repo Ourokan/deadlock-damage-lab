@@ -4341,6 +4341,28 @@ real Carbine poke hits outside fights grow with net worth, both match parities a
   -0.001, net +0.002).
 
 Left: lane Pulse Grenade is still over (0.222 sim vs 0.145 real after the refit), and lane melee under (0.066 vs 0.086).
+## Paradox's lane Pulse Grenade: real ability order (2026-11-08)
+
+After the poke curve (#267), Paradox's lane fifth was still the worst one: per-fifth sources (new
+`AUDIT_FIFTH_SOURCES=1` audit option) put Pulse Grenade at 0.222 of his lane damage vs 0.145 real, falling to
+0.131 / 0.099 / 0.087 / 0.100 vs 0.098 / 0.086 / 0.086 / 0.095 later. Replays (`pulse_grenade.py`) give hero pulses
+per throw of 1.03 / 0.97 / 1.16 / 1.35 by phase, the same shape as the sim, so the gap is not per throw. It is the
+cast mix: the default order upgrades Pulse Grenade first and the refit then pushed its corr to 1.43 to fit the
+whole match.
+
+- Paradox joins `fight.ORDER_HEROES` again (median real order + real tiers in the audit) with a Paradox corr refit
+  (3 rounds): Pulse Grenade 1.426 -> 0.877, Carbine 1.008 -> 1.013, Swap 2.467 -> 2.894.
+- Full sample (2,645 post-hotfix Paradox players): mix 0.015 -> 0.009, per source 0.026 -> 0.009, phase 0.034 ->
+  0.020, fifths [0.078, 0.018, 0.045, 0.029, 0.030] -> [0.020, 0.011, 0.017, 0.015, 0.028]; lane Pulse Grenade
+  0.145 (real 0.145).
+- Split-half (refit on one match-id half, audit the other, vs the same refit without the order): phase 0.028 ->
+  0.020 and 0.032 -> 0.020, mix 0.009 -> 0.009 and 0.011 -> 0.009, lane fifth 0.074 -> 0.021 and 0.066 -> 0.020.
+- sim_vs_win_raw (Paradox, day halves A / B): 27k -0.0000 / +0.0000, 37k -0.0001 / +0.0000, flat. The earlier
+  rejection (svw down in all four, Lane damage section) was on the pre-#267 corr; with the current corr the order no
+  longer costs svw.
+
+Left: lane melee is still a little under (0.072 sim vs 0.086 real, was 0.064).
+
 ## Spirit Burn hero rows above 1 (2026-11-08)
 
 Spirit Burn's 20 s immunity is per victim (scripts/mechanics/spirit_burn_victims.py: 51% of a holder's next burns on
