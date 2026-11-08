@@ -731,12 +731,26 @@ class EnchantersEmblem(FX):
         return {}
 
 
+def random_start(fx, f):
+    """Mechanics.barrier_start_random: the item's cooldown starts at a random point of its cycle."""
+    m = f.e.mech
+    p = m.barrier_start_random if m is not None else 0.0
+    if p > 0:
+        rng = f.e.rng
+        u = rng.random() if rng is not None else 0.5
+        if u < p:   # spent: a random point of the cycle
+            fx.ready_at = max(fx.ready_at, fx.now + fx.cd() * u / p)
+
+
 class ShieldOnDamage(FX):
     kind = "spirit"
 
     def __init__(self, item, f):
         super().__init__(item, f)
         self.window = []
+
+    def on_start(self, f):
+        random_start(self, f)
 
     def on_damage_taken(self, f, src, hit):
         if hit.kind != self.kind or not self.ready():
@@ -1004,6 +1018,9 @@ class ReturnFire(FX):
 
 @handler("upgrade_vex_barrier", "upgrade_auto_cleanse")
 class ReactiveBarrier(FX):
+    def on_start(self, f):
+        random_start(self, f)
+
     def on_cc(self, f, key):
         if not self.ready():
             return

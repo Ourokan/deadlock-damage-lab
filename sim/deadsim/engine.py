@@ -848,10 +848,11 @@ class Engine:
             amt = sum(v for _, v in booked)
         # barrier then health
         left = amt
+        share = 1.0 + (self.mech.barrier_assist if self.mech is not None else 0.0)
         for b in dst.barriers:
             if b[1] > self.t and b[0] > 0 and left > 0:
-                take = min(b[0], left)
-                b[0] -= take
+                take = min(b[0] / share, left)
+                b[0] -= take * share
                 left -= take
         # the barrier's share is not damage dealt in the game's numbers (Mechanics.unbook_absorbed); the target's
         # damage taken (dmg_in) keeps it
