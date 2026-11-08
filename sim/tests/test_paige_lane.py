@@ -66,10 +66,12 @@ class PaigeLaneTest(unittest.TestCase):
         h = game().hero("Paige")
         old = M._POKES
         try:
-            M._POKES = {h.id: {CR: (0.4, [(math.log(2500), 0.1), (math.log(37000), 0.9)])}}
+            M._POKES = {h.id: {CR: (0.4, [(math.log(2500), 0.1), (math.log(37000), 0.9)], False)}}
             self.assertAlmostEqual(M.poke_rows(h, 2500)[CR], 0.1)
             self.assertAlmostEqual(M.poke_rows(h, math.sqrt(2500 * 37000))[CR], 0.5)
             self.assertAlmostEqual(M.poke_rows(h, None)[CR], 0.4)   # pooled without souls
+            self.assertFalse(M.poke_procs(h, CR))
+            self.assertTrue(M.poke_procs(h, "ability_not_there"))
         finally:
             M._POKES = old
 

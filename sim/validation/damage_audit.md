@@ -6,7 +6,7 @@ Sample: 600 matches, 6575 player-matches (phantom_sample.jsonl.gz). Model: hero_
 
 Shares of damage to enemy heroes. Distance = half the summed absolute share gaps (0 = same mix). Per fifth = the same distance in each fifth of the match (real vs the duels there), and its real-damage-weighted mean: the whole-match distance lets a fifth where the sim is over offset one where it is under.
 
-Players-weighted mean distance 0.0183, per fifth 0.0322.
+Players-weighted mean distance 0.0183, per fifth 0.0320.
 
 | Hero | n | gun real / sim | abilities | items | melee | distance | per fifth (mean) |
 |---|---|---|---|---|---|---|---|
@@ -22,7 +22,7 @@ Players-weighted mean distance 0.0183, per fifth 0.0322.
 | Drifter | 186 | 0.26 / 0.27 | 0.44 / 0.45 | 0.17 / 0.17 | 0.11 / 0.10 | 0.02 | 0.06 0.05 0.04 0.03 0.04 (0.040) |
 | Abrams | 138 | 0.23 / 0.23 | 0.20 / 0.21 | 0.13 / 0.13 | 0.42 / 0.41 | 0.02 | 0.11 0.02 0.03 0.03 0.04 (0.039) |
 | Viscous | 29 | 0.13 / 0.15 | 0.51 / 0.51 | 0.28 / 0.28 | 0.05 / 0.05 | 0.02 | 0.03 0.04 0.08 0.02 0.02 (0.034) |
-| Apollo | 92 | 0.11 / 0.11 | 0.53 / 0.52 | 0.17 / 0.16 | 0.17 / 0.19 | 0.02 | 0.12 0.06 0.04 0.03 0.04 (0.048) |
+| Apollo | 92 | 0.11 / 0.11 | 0.53 / 0.52 | 0.17 / 0.16 | 0.17 / 0.19 | 0.02 | 0.12 0.06 0.04 0.03 0.04 (0.047) |
 | Silver | 100 | 0.41 / 0.39 | 0.37 / 0.37 | 0.10 / 0.12 | 0.10 / 0.10 | 0.02 | 0.06 0.04 0.02 0.02 0.05 (0.035) |
 | Rem | 57 | 0.20 / 0.20 | 0.58 / 0.59 | 0.16 / 0.14 | 0.05 / 0.05 | 0.02 | 0.07 0.01 0.05 0.02 0.05 (0.039) |
 | The Doorman | 38 | 0.16 / 0.18 | 0.62 / 0.61 | 0.17 / 0.16 | 0.03 / 0.04 | 0.02 | 0.09 0.03 0.02 0.01 0.03 (0.032) |
@@ -53,7 +53,7 @@ Players-weighted mean distance 0.0183, per fifth 0.0322.
 | Paradox | 168 | 0.24 / 0.25 | 0.48 / 0.48 | 0.23 / 0.23 | 0.03 / 0.03 | 0.01 | 0.09 0.01 0.05 0.03 0.02 (0.032) |
 | Mina | 198 | 0.12 / 0.12 | 0.66 / 0.67 | 0.19 / 0.19 | 0.01 / 0.01 | 0.01 | 0.06 0.02 0.01 0.01 0.01 (0.015) |
 | Victor | 129 | 0.15 / 0.16 | 0.64 / 0.64 | 0.16 / 0.16 | 0.03 / 0.03 | 0.01 | 0.08 0.03 0.02 0.01 0.02 (0.021) |
-| Paige | 135 | 0.29 / 0.29 | 0.59 / 0.59 | 0.07 / 0.07 | 0.03 / 0.03 | 0.00 | 0.10 0.05 0.03 0.01 0.04 (0.040) |
+| Paige | 135 | 0.29 / 0.29 | 0.59 / 0.59 | 0.07 / 0.07 | 0.03 / 0.03 | 0.01 | 0.08 0.04 0.03 0.02 0.03 (0.034) |
 
 ## Sources furthest off (share of hero damage at least 3% in real or sim)
 
@@ -62,7 +62,7 @@ real/sim = (real source dmg / real gun dmg) / (sim source dmg / sim gun dmg). Be
 | Hero | Source | kind | real share | sim share | real/sim |
 |---|---|---|---|---|---|
 | Solomon | Setup Bishop | ability | 0.307 | 0.429 | 0.54 |
-| Nurse Harrow | Lurking Terrors | ability | 0.300 | 0.169 | 1.86 |
+| Nurse Harrow | Lurking Terrors | ability | 0.300 | 0.169 | 1.85 |
 | Mo & Krill | Tankbuster | item | 0.061 | 0.012 | 6.12 |
 | Nurse Harrow | Leech Therapy | ability | 0.312 | 0.422 | 0.77 |
 | Yamato | Power Slash | ability | 0.129 | 0.221 | 0.62 |
@@ -75,7 +75,7 @@ real/sim = (real source dmg / real gun dmg) / (sim source dmg / sim gun dmg). Be
 | Baba | Baba's Brew | ability | 0.071 | 0.106 | 0.60 |
 | Violet | Flow State | ability | 0.066 | 0.105 | 0.61 |
 | Warden | Alchemical Flask | ability | 0.129 | 0.158 | 0.74 |
-| Violet | Living Ink | ability | 0.261 | 0.300 | 0.86 |
+| Violet | Living Ink | ability | 0.261 | 0.301 | 0.86 |
 | Seven | Lightning Ball | ability | 0.198 | 0.220 | 0.82 |
 | McGinnis | Heavy Barrage | ability | 0.136 | 0.164 | 0.77 |
 | Mo & Krill | Scorn | ability | 0.214 | 0.208 | 1.21 |
@@ -98,7 +98,7 @@ real/sim = (real source dmg / real gun dmg) / (sim source dmg / sim gun dmg). Be
 | Baba | MELEE | melee | 0.124 | 0.133 | 0.83 |
 | Apollo | MELEE | melee | 0.171 | 0.194 | 0.88 |
 | Abrams | MELEE | melee | 0.424 | 0.411 | 1.06 |
-| Victor | Shocking Reanimation | ability | 0.058 | 0.040 | 1.46 |
+| Victor | Shocking Reanimation | ability | 0.058 | 0.041 | 1.46 |
 | Apollo | Flawless Advance | ability | 0.285 | 0.263 | 1.08 |
 | Lady Geist | Soul Exchange | ability | 0.139 | 0.156 | 0.88 |
 
@@ -108,7 +108,7 @@ Item damage per all the player's damage while the item was owned (players who ha
 
 | Item | holders | real per dmg | sim per dmg | real/sim |
 |---|---|---|---|---|
-| Tankbuster | 1933 | 0.139 | 0.134 | 1.04 |
+| Tankbuster | 1933 | 0.139 | 0.133 | 1.04 |
 | Mystic Burst | 1657 | 0.050 | 0.048 | 1.04 |
 | Quicksilver Reload | 1100 | 0.037 | 0.038 | 0.97 |
 | Toxic Bullets | 888 | 0.113 | 0.109 | 1.03 |
@@ -137,9 +137,9 @@ Item damage per all the player's damage while the item was owned (players who ha
 | Crushing Fists | 170 | 0.055 | 0.051 | 1.09 |
 | Scourge | 151 | 0.159 | 0.174 | 0.91 |
 | Phantom Strike | 141 | 0.050 | 0.054 | 0.93 |
-| Decay | 135 | 0.173 | 0.175 | 0.99 |
+| Decay | 135 | 0.173 | 0.174 | 0.99 |
 | Alchemical Fire | 113 | 0.127 | 0.133 | 0.95 |
-| Return Fire | 99 | 0.093 | 0.025 | 3.78 |
+| Return Fire | 99 | 0.093 | 0.025 | 3.79 |
 | Lightning Scroll | 59 | 0.039 | 0.047 | 0.83 |
 | Focus Lens | 45 | 0.105 | 0.104 | 1.01 |
 | Silence Wave | 33 | 0.046 | 0.050 | 0.92 |
@@ -151,7 +151,7 @@ As above, per hero. The source table above compares the whole real match with du
 | Hero | Item | holders | real per dmg | sim per dmg | real/sim |
 |---|---|---|---|---|---|
 | Mo & Krill | Tankbuster | 124 | 0.149 | 0.033 | 4.53 |
-| Rat King | Return Fire | 44 | 0.099 | 0.028 | 3.58 |
+| Rat King | Return Fire | 44 | 0.099 | 0.028 | 3.59 |
 | Mina | Toxic Bullets | 99 | 0.078 | 0.051 | 1.54 |
 | Venator | Siphon Bullets | 86 | 0.096 | 0.143 | 0.67 |
 | Drifter | Spirit Burn | 43 | 0.072 | 0.049 | 1.48 |
@@ -188,5 +188,5 @@ As above, per hero. The source table above compares the whole real match with du
 | Mo & Krill | Phantom Strike | 35 | 0.063 | 0.072 | 0.87 |
 | Mo & Krill | Cold Front | 123 | 0.080 | 0.092 | 0.87 |
 | Haze | Siphon Bullets | 76 | 0.101 | 0.088 | 1.15 |
+| Paige | Express Shot | 32 | 0.157 | 0.137 | 1.15 |
 | Apollo | Spirit Strike | 24 | 0.030 | 0.034 | 0.87 |
-| Rat King | Siphon Bullets | 242 | 0.074 | 0.085 | 0.88 |

@@ -525,8 +525,17 @@ def poke_rows(hero, souls=None):
                 for r in json.load(fh)["abilities"]:
                     if r.get("use"):
                         ph = [(math.log(b["net_worth"]), b["pokes_per_fight"]) for b in r.get("phase") or ()]
-                        _POKES.setdefault(r["hero_id"], {})[r["class_name"]] = (r["pokes_per_fight"], ph)
-    return {cls: (_interp_ln(ph, souls) if ph and souls else k) for cls, (k, ph) in _POKES.get(hero.id, {}).items()}
+                        _POKES.setdefault(r["hero_id"], {})[r["class_name"]] = (r["pokes_per_fight"], ph,
+                                                                                 r.get("procs", True))
+    return {cls: (_interp_ln(ph, souls) if ph and souls else k) for cls, (k, ph, _) in _POKES.get(hero.id, {}).items()}
+
+
+def poke_procs(hero, cls):
+    """False for a used poke row with "procs": false (Paige's Captivating Read): its pokes book only the ability's
+    own damage, not the item procs riding on it (Tankbuster ran 1.5x real with them, 2026-11-08)."""
+    poke_rows(hero)
+    row = _POKES.get(hero.id, {}).get(cls)
+    return row[2] if row else True
 
 
 _OPENER = None

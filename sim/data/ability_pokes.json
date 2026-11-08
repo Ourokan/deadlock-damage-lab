@@ -120,7 +120,7 @@
    "opens": 0.113,
    "hit_x_gun_fight": 2.86,
    "hit_x_gun_poke": 3.43,
-   "use": false,
+   "use": true,
    "phase": [
     {
      "net_worth": 2501,
@@ -147,7 +147,8 @@
      "pokes_per_fight": 0.755
     }
    ],
-   "phase_note": "real poke hits per fight by caster net worth (cast_timing+fight_length replays, outside pair fights, scaled to the pooled 0.338); tested on 2026-11-08: lane CR 1.8x -> 1.25x but sim_vs_win_raw mixed, so use stays False"
+   "phase_note": "real poke hits per fight by caster net worth (cast_timing+fight_length replays, outside pair fights, scaled to the pooled 0.338); on since 2026-11-08 with procs false (only CR's own damage): lane CR 1.8x -> 1.25x, sim_vs_win_raw up in all four splits. ability_pokes.py --write drops these hand keys: re-add them",
+   "procs": false
   },
   {
    "hero_id": 79,

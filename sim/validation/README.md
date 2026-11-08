@@ -4309,3 +4309,9 @@ After #264 the lane fifth still had Captivating Read at 0.105 vs real 0.059.
   0.520.
 - **Shipped off:** the win check is split (two down, two up), so the row keeps use: false. Its phase curve and the
   poke_rows phase support stay in for a later try (e.g. with a Paige Tankbuster row, or poke damage without procs).
+- **Retry, shipped on (2026-11-08):** the poke row now has "procs": false (mechanics.poke_procs): a poke books only
+  Captivating Read's own damage, not the items riding on it. Split-half vs main refit (4 seeds): per fifth 0.039 ->
+  0.033 / 0.047 -> 0.041, per-source 0.0245 -> 0.0258 / 0.0271 -> 0.0272, mix +0.0008 / +0.0003. Full sample: lane CR
+  0.105 -> 0.074 (real 0.059), Paige per fifth 0.040 -> 0.034, Tankbuster 0.011 (real 0.012), CR corr 1.147 -> 0.679
+  (Bookwyrm 2.543 -> 2.613, Rallying Charge 2.000 -> 2.050). sim_vs_win_raw (Paige, A / B): 27k +0.004 / +0.002,
+  37k +0.007 / +0.014, up in all four; usual within 0.508 -> 0.511. The row's use is now true.
