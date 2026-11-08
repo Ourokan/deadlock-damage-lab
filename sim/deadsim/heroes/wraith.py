@@ -4,7 +4,8 @@ Assumptions:
 - Card Trick: gun hits on the hero build card resource (CardResourcePerBulletHit, ...PerBulletCrit for
   headshots); every ResourcePerCard makes a card, stored up to the ability's max charges. Wraith enters the
   fight with a full hand (cards are farmed beforehand). Cards home (kind 'target'), one per
-  CooldownBetweenCards. Suits rotate Spade, Diamond, Club, Heart (expected value of a random suit, no Jokers):
+  CooldownBetweenCards. With fight draws (Skill.fight_phase or the engine rng) the opening hand is drawn from
+  Phantom+ replays instead (ENTRY_HAND), capped at max charges. Suits rotate Spade, Diamond, Club, Heart (expected value of a random suit, no Jokers):
   Spade +SpadeDamageBonus% damage, Diamond shreds bullet and spirit resist by DiamondResistShred% for
   DiamondResistShredDuration, Club slow (ignored), Heart heals HeartHeal.
 - Project Mind: a teleport, so only cast when T2's barrier exists and Wraith is under 50% health. Barrier =
@@ -15,10 +16,36 @@ Assumptions:
   10 m range is under the ~16 m duel distance; movement not modeled). After AbilityCastDelay the target is lifted (stunned) for AbilityDuration, then slammed for
   Damage. Wraith keeps shooting the lifted target (channel not modeled).
 """
+import zlib
+
 from deadsim.abilities import AbilityImpl, register
 
 LIFT_APPROACH = 5.0     # m Wraith closes beyond cast range + engage margin to reach Telekinesis range
 SUITS = ("spade", "diamond", "club", "heart")
+
+# Wraith's hand at a fight's start, Phantom+ replays (2026-11-08, 890 distinct replays, 4,538 engagements of >= 3 s
+# with a gap of >= 10 s before): cards that hit a hero within 3 s of the first one (0 when none hit in the whole
+# engagement, 22%). Real Wraiths spend cards on creeps and pokes between fights: 1.4 per opening burst (1.8 within
+# 3 s of a first card) where the sim's full hand of 4 threw 3.9; first card a median 2.5 s in, both. Shares of
+# 0, 1, 2, 3, 4, 5+ cards.
+ENTRY_HAND = (984, 1822, 1040, 452, 162, 78)
+ENTRY_HAND_DRAW = True
+MELEE_CARDS = True   # melee hits build cards too (CardResourcePerLightMelee 10, PerHeavyMelee 25)
+
+
+def entry_hand(c, cap):
+    """Cards at the fight's start: a draw from ENTRY_HAND, capped at cap; cap (a full hand) without fight draws."""
+    f = c.me
+    phase, rng = f.skill.fight_phase, f.e.rng
+    if not ENTRY_HAND_DRAW or (phase is None and rng is None):
+        return cap
+    u = (phase + zlib.crc32(f"wraith_hand|{f.name}".encode()) / 2 ** 32) % 1.0 if phase is not None else rng.random()
+    tot, acc = sum(ENTRY_HAND), 0
+    for k, n in enumerate(ENTRY_HAND):
+        acc += n
+        if u < acc / tot:
+            return min(cap, k)
+    return cap
 
 
 @register("citadel_ability_card_toss")
@@ -26,17 +53,23 @@ class CardTrick(AbilityImpl):
     kind = "target"
 
     def start(self, c):
-        c.state.update(cards=self.s.max_charges(), res=0.0, next=0.0, suit=0)
+        c.state.update(cards=entry_hand(c, self.s.max_charges()), res=0.0, next=0.0, suit=0)
 
     def on_damage_dealt(self, c, target, hit):
-        if hit.kind != "bullet" or hit.source != "gun" or not hit.hits:
+        melee = MELEE_CARDS and hit.kind == "melee" and hit.source == "melee"
+        if not melee and (hit.kind != "bullet" or hit.source != "gun" or not hit.hits):
             return
         st = c.state
         cap = self.s.max_charges()
         if st.get("cards", 0) >= cap:
             return
-        body = hit.hits - hit.headshots
-        st["res"] += body * c.raw("CardResourcePerBulletHit") + hit.headshots * c.raw("CardResourcePerBulletCrit")
+        if melee:   # CardResourcePerLightMelee / PerHeavyMelee (the sim built cards from gun hits only)
+            heavy = c.me.counters.get("melee_heavy")
+            w = c.me.counters.get("melee_weight", 1.0)
+            st["res"] += w * c.raw("CardResourcePerHeavyMelee" if heavy else "CardResourcePerLightMelee")
+        else:
+            body = hit.hits - hit.headshots
+            st["res"] += body * c.raw("CardResourcePerBulletHit") + hit.headshots * c.raw("CardResourcePerBulletCrit")
         per = c.raw("ResourcePerCard", 100)
         while st["res"] >= per and st["cards"] < cap:
             st["res"] -= per

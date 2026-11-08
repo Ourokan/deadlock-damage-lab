@@ -4109,3 +4109,22 @@ hit.
 - sim_vs_win_raw for Seven, Solomon, Bebop, McGinnis, Ivy, Nurse Harrow: raw within 27k -0.0023 / -0.0017, 37k
   -0.0019 / -0.0013 (day halves A / B), down on all four. Kept opt-in OFF (SCROLL_ULT_DMG = False), like other
   audit-only fixes that cost the win check; the sim is unchanged.
+
+## Wraith's opening hand from replays, melee builds cards (2026-11-08)
+
+Wraith's Card Trick read high on the post-hotfix audit (0.30 of his damage vs real 0.28, mix 0.026 over 1,409 players).
+The sim gave him a full hand at every fight's start (4 cards) and threw it one card per 0.5 s.
+
+- Replays (scripts/mechanics/wraith_cards.py, 890 distinct replays, 4,538 engagements of >= 3 s after a 10 s gap):
+  cards that hit a hero within 3 s of the first one 1.8 (sim 3.9), within 1 s 1.35 (sim 2.24); 22% of engagements
+  no card at all (sim 5%); first card a median 2.5 s in (sim 2.8, cast timing already holds it). Real Wraiths spend
+  cards on creeps and pokes between fights.
+- wraith.ENTRY_HAND: with fight draws the opening hand is drawn from the real burst histogram (0-5+ cards, mean 1.4),
+  capped at max charges; the dummy page (no draws) keeps a full hand. MELEE_CARDS: melee hits build cards
+  (CardResourcePerLightMelee 10 / PerHeavyMelee 25, which the sim skipped; little effect).
+- Card Trick then read 1.8x under (its corr 0.86 had shrunk the full-hand dump): Card Trick's length_corr refit only,
+  3 rounds. Split-half (fit on one half, audit the other, 2 seeds; base = main, fitted on both halves): Wraith mix
+  0.022 / 0.025 -> 0.013 / 0.012 (odd held out), 0.029 / 0.027 -> 0.012 / 0.014 (even); per-source 0.023-0.025 ->
+  0.016-0.020. Full sample: corr 0.86 -> 1.543.
+- sim_vs_win_raw for Wraith against main: raw within 27k +0.0260 / -0.0121, 37k +0.0278 / -0.0102 (day halves
+  A / B): mixed, net up (+0.008 mean). Kept on for the audit gain; ENTRY_HAND_DRAW / MELEE_CARDS switch it off.
