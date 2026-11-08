@@ -4230,3 +4230,30 @@ Luggage Cart 1.14, Call Bell 0.96, melee 0.81, Spirit Burn 1.34 under on 167 hol
   +0.0001 (flat).
 - Not shipped: melee rate 0.0377 -> 0.0302 (melee_audit_fit --split held, 0.008 -> 0.007, 0.006 -> 0.005), because with
   it sim_vs_win_raw was down on all 4 splits (-0.0003 / -0.0002 / -0.0001 / -0.0000).
+
+## Lane damage: ability tiers for Kelvin (2026-11-08)
+
+The per-fifth audit (#262) put Vyper, Kelvin, Paradox and Paige furthest off in the lane fifth (0.10-0.12). Lane
+per-source real / sim: Vyper Screwjab Dagger 0.18 / 0.07 and gun 0.54 / 0.66; Kelvin Arctic Beam 0.26 / 0.33 and gun
+0.32 / 0.21; Paradox Kinetic Carbine 0.23 / 0.30, Pulse Grenade 0.15 / 0.19, gun 0.46 / 0.40; Paige Bookwyrm 0.09 /
+0.14, Captivating Read 0.07 / 0.12, gun 0.71 / 0.62.
+
+- Not the number of ability points: real players' ability events by net worth match the sim's table
+  (fight._EVENTS_BY_SOULS) within one event at every net worth.
+- Not lane pokes: in replays (hits with no damage back within 4 s) the lane's poke share is no higher than later
+  (Paradox 0.48 lane vs 0.54-0.63 later, Paige 0.42 vs 0.51-0.72, Kelvin 0.32 vs 0.33-0.43, Vyper 0.30 vs 0.30-0.36).
+- Which abilities players have levelled: the audit with each player's real tiers (AUDIT_TIER_HEROES) cuts the lane
+  fifth Kelvin 0.106 -> 0.049, Paradox 0.102 -> 0.072, Vyper 0.121 -> 0.095. One popular order can't show how differently
+  real players level their abilities early. Paige already gets her real tiers (fight.ORDER_HEROES) and keeps 0.10:
+  her lane gap is something else (left).
+- Split-half, ORDER_HEROES + ability refit (3 rounds) vs a plain refit on the same half, 2 seeds on the other half
+  (mix / per-fifth / per-source):
+  Kelvin 0.022/0.024 -> 0.016/0.018, 0.037/0.038 -> 0.032/0.029, 0.053/0.047 -> 0.045/0.037 (fit even) and
+  0.009/0.012 -> 0.009/0.012, 0.023/0.024 -> 0.018/0.020, 0.048/0.045 -> 0.042/0.039 (fit odd): better both ways.
+  Paradox: per-fifth 0.031/0.036 -> 0.024/0.027 and 0.035/0.032 -> 0.024/0.022, lane ~0.11 -> ~0.04, mix and
+  per-source flat to slightly worse one way. Vyper: per-source worse both ways (not kept).
+- Full sample: Kelvin mix 0.016 -> 0.012, per fifth 0.030 -> 0.024, lane 0.106 -> 0.056 (Frost Grenade corr 0.61 ->
+  0.664). Paradox 0.022 -> 0.008, per fifth 0.043 -> 0.024.
+- sim_vs_win_raw (day halves A / B): Kelvin 27k +0.0033 / +0.0030, 37k -0.0033 / -0.0012 (net +0.002); Paradox
+  -0.0016 / -0.0004 and -0.0023 / -0.0031, down in all four, so **only Kelvin** joins ORDER_HEROES. Paradox's
+  audit gain stays a lead: his real lane tiers differ by player, which one search order can't carry.

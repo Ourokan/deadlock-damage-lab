@@ -116,7 +116,10 @@ class Loadout:
 # keeps it at 2.0 (Essence Bomb read 1.20x under; her row is from 3,202 post-hotfix Geist matches). Venator since
 # 2026-11-07: real Venators rush Ira Domini, tier 3 at 30% of the match in 38% of player-matches vs 18% on the order
 # (his early blessed stakes read 1.7x under; heroes/priest.py BOOK_UNBLESSED).
-ORDER_HEROES = ("Celeste", "Ivy", "Paige", "Graves", "Dynamo", "Apollo", "Lady Geist", "Venator")
+# Kelvin since 2026-11-08: his lane fifth read 0.11 off (Arctic Beam over, gun under) on the popular order; real tiers
+# halve it and the refit held split-half (validation/README.md "Lane damage: ability tiers"). Paradox's lane gap halved
+# too but sim_vs_win_raw fell in all four splits; Vyper's per-source gap rose. Both left on the popular order.
+ORDER_HEROES = ("Celeste", "Ivy", "Paige", "Graves", "Dynamo", "Apollo", "Lady Geist", "Venator", "Kelvin")
 
 
 @lru_cache(maxsize=64)
