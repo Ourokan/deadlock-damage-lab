@@ -168,7 +168,52 @@ def default_ability_order(hero, souls=None):
     return popular_ability_order(hero.id)
 
 
+# hero -> (net worth limit, ability classes): below the limit those abilities take real players' mean tier
+# (data/tier_mean.json, scripts/tier_mean.py), fractional (an upgrade's values count x the fraction), instead of the
+# order's: real players level some abilities at widely spread times, which no single order gives (validation/README.md
+# "Haze's mid-game Bullet Dance: mean real tiers"). Only abilities whose upgrades are all values: an impl's
+# `tier >= k` switch reads a fraction as the tier below (Haze's Sleep Dagger stacks at tier 2). Unlocks follow the
+# order. The limit sits below the 27k / 37k budgets sim_vs_win scores.
+TIER_MEAN_HEROES = {"Haze": (16500, ("ability_bullet_flurry",))}
+TIER_MEAN_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "tier_mean.json")
+
+
+@lru_cache(maxsize=None)
+def _tier_mean_points(hero_id, path):
+    if not os.path.exists(path):
+        return ()
+    with open(path) as fh:
+        row = json.load(fh)["heroes"].get(str(hero_id))
+    return tuple((q["nw"], tuple(q["tiers"])) for q in row["points"]) if row else ()
+
+
+def mean_tiers(hero, souls):
+    """Real players' mean tier per ability at this net worth (linear between data/tier_mean.json points, flat
+    outside), or None without a row."""
+    pts = _tier_mean_points(hero.id, TIER_MEAN_FILE)
+    if not pts:
+        return None
+    if souls <= pts[0][0]:
+        return list(pts[0][1])
+    for (x0, t0), (x1, t1) in zip(pts, pts[1:]):
+        if souls <= x1:
+            w = (souls - x0) / (x1 - x0)
+            return [a + (b - a) * w for a, b in zip(t0, t1)]
+    return list(pts[-1][1])
+
+
 def _auto_abilities(hero, souls):
+    tiers, unlocked = _order_abilities(hero, souls)
+    row = TIER_MEAN_HEROES.get(hero.name)
+    if row is not None and souls is not None and souls < row[0]:
+        m = mean_tiers(hero, souls)
+        if m is not None:
+            tiers = [min(3.0, m[i]) if unlocked[i] and ab.class_name in row[1] else t
+                     for i, (ab, t) in enumerate(zip(hero.abilities, tiers))]
+    return tiers, unlocked
+
+
+def _order_abilities(hero, souls):
     order = default_ability_order(hero, souls)
     n = ability_events_for_souls(souls)
     ids = [a.id for a in hero.abilities]
