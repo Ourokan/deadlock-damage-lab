@@ -4608,3 +4608,19 @@ on allies. Damage audit (even half of 5,767 post-hotfix matches, no refit) flat:
 0.0256. sim_vs_win_raw within (main at #278): 27k A +0.0043, 37k A +0.0029, 27k B +0.0040, 37k B +0.0023. The
 overall score's deterministic fights draw the start from the fight phase (as unused_items). Warden vs Seven re-pinned.
 The late-game gun tilt it was found under is not changed by this (last-fifth gun -0.0157 -> -0.0153).
+
+## Divine Barrier and Guardian Ward go on teammates half the time: opt-in, off (2026-11-08)
+
+After the barrier fix above, the active barrier items were still ~2.5x real on their holders late (Divine Barrier 0.38
+sim vs 0.135 real, Guardian Ward 0.27 vs 0.116). A duel has no teammates, so the holder always got the barrier. With
+the `scripts/mechanics/ally_target.py` method (a fresh barrier soak on the caster or a teammate after each cast;
+casts from item_use raw, soaks from the 160 gun_phase replays, casts where caster and a teammate both took hits):
+self share Divine Barrier 0.39 (83 casts), Guardian Ward 0.51 (266), the self-only Diviner's Kevlar 0.80 (52), so
+about 0.5 / 0.65 true. `Mechanics.barrier_ally_cast` {"Divine Barrier": 0.5, "Guardian Ward": 0.35}: in that share
+of casts the cooldown is spent and the duel's holder gets nothing (team fights keep team.TeamBarrier).
+
+Late holders (audit duels with the overall score's item use emulated): Divine Barrier 0.36 -> 0.19, Guardian Ward
+0.23 -> 0.22, all 0.099 -> 0.091 (real 0.083). sim_vs_win_raw within (main at #279): 27k A -0.0003, 37k A -0.0009,
+27k B +0.0001, 37k B -0.0005. Kept off, as plot_armor_self / knight_self. The audit's duels don't apply item_use
+(no fight_phase), which also leaves these actives used in every audit fight; Kevlar's gap (0.29-0.41 vs 0.21) is not
+ally casts.

@@ -53,5 +53,30 @@ class BarrierStart(unittest.TestCase):
         self.assertAlmostEqual(spent / 200, 0.5, delta=0.02)
 
 
+class AllyCast(unittest.TestCase):
+    def run_duel(self, share):
+        import dataclasses
+        from deadsim.engine import Engine
+        from deadsim.items_fx import DivineBarrier
+        from deadsim.data import game
+        sys.path.insert(0, os.path.dirname(__file__))
+        from test_shred_uptime import pair
+        e = Engine(mech=dataclasses.replace(Mechanics(), barrier_ally_cast={"Divine Barrier": share}))
+        e.rng = random.Random(0)
+        a, b = pair(e)
+        it = next(i for i in game().items.values() if i.name == "Divine Barrier")
+        fx = DivineBarrier(it, b)
+        b.hp = b.max_hp * 0.5
+        self.assertTrue(fx.try_active(b))
+        return b.barrier_total(), fx.ready_at
+
+    def test_ally_cast(self):
+        bar, ready = self.run_duel(0.0)
+        self.assertGreater(bar, 0)
+        bar, ready = self.run_duel(1.0)        # always on a teammate: cooldown spent, no barrier here
+        self.assertEqual(bar, 0.0)
+        self.assertGreater(ready, 0)
+
+
 if __name__ == "__main__":
     unittest.main()

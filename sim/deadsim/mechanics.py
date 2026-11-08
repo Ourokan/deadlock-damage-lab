@@ -71,7 +71,7 @@ import json
 import math
 import os
 import zlib
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .build import combine_resist
 from .data import GAME
@@ -312,6 +312,12 @@ class Mechanics:
     # 0.0148, phase 0.0258 -> 0.0256), sim_vs_win_raw within up on all 4 splits (validation/README.md)
     barrier_assist: float = 0.35
     barrier_start_random: float = 0.5
+    # opt-in (2026-11-08): Divine Barrier / Guardian Ward go on a teammate in this share of real casts (replay barrier
+    # soaks after each cast, scripts/mechanics/ally_target.py method; self share 0.39 / 0.51 measured, 0.80 for the
+    # self-only Diviner's Kevlar, so ~0.5 / ~0.65 true): {"Divine Barrier": 0.5, "Guardian Ward": 0.35}. Late Divine
+    # Barrier holders' absorbed share 0.36 -> 0.19 (real 0.14), Guardian Ward ~flat; but sim_vs_win_raw within
+    # -0.0003 / -0.0009 / +0.0001 / -0.0005: off, like plot_armor_self / knight_self (validation/README.md)
+    barrier_ally_cast: dict = field(default_factory=dict)
     # bullet resist shred debuffs in fights (2026-10-27): a duel keeps every shred debuff (items, Hunter's Aura, hero
     # abilities) on its one target, so the sim's gun hits late in the match kept 1.05x the damage the target's build
     # resists allow; real gun hits on heroes keep 0.99x / 0.99x / 0.98x at 30 / 60 / 90% of the match (160 replays,

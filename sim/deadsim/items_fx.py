@@ -928,13 +928,36 @@ class Grit(BarrierActive):
     dur = "BarrierDuration"
 
 
+class AllyBarrierActive(BarrierActive):
+    """Mechanics.barrier_ally_cast: a duel has no teammates, but real holders put these on a teammate in that share of
+    their casts; then the cooldown is spent and the duel's holder gets no barrier (team fights: team.TeamBarrier)."""
+
+    def try_active(self, f):
+        if not self.ready() or f.hp_frac > self.hp_below:
+            return False
+        m = f.e.mech
+        share = (m.barrier_ally_cast or {}).get(self.item.name, 0.0) if m is not None else 0.0
+        if share > 0:
+            rng = f.e.rng
+            if rng is not None:
+                u = rng.random()
+            elif f.skill.fight_phase is not None:
+                u = (f.skill.fight_phase + zlib.crc32(f"{self.item.name}|{f.name}|ally".encode()) / 2 ** 32) % 1.0
+            else:
+                u = 1.0
+            if u < share:
+                self.use()
+                return True
+        return super().try_active(f)
+
+
 @handler("upgrade_divine_barrier")
-class DivineBarrier(BarrierActive):
+class DivineBarrier(AllyBarrierActive):
     pass
 
 
 @handler("upgrade_guardian_ward")
-class GuardianWard(BarrierActive):
+class GuardianWard(AllyBarrierActive):
     prop = "GuardianWardCombatBarrier"
 
 
