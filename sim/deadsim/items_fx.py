@@ -1611,13 +1611,35 @@ class Scourge(DamageActive):
                       if p > 0 else None)
 
 
+# Lightning Scroll procs per point of ult damage dealt to heroes, Phantom+ replays (2026-11-08,
+# scripts/mechanics/scroll_procs.py, 890 distinct replays, holders from 10 s before their first proc): a proc hits each
+# enemy hero the ult damages (0.57-0.92 procs per hero hit, 1.3-3.1 per cast), 3 s after its first ult hit, at the
+# listed size (median 119-157 dealt). The sim's one proc per cast missed that a cast stands for a different number of
+# real hero hits on each hero (ult landing factors fit the ult's damage, not its casts): procs per ult damage were sim
+# 0.53 / 0.40 / 0.74 / 1.75 / 2.61 per 1000 for Solomon / Bebop / McGinnis / Seven / Ivy against real 1.21 / 1.63 /
+# 1.16 / 0.94 / 2.28, the direction and most of the size of the audit's per-hero gap (Lightning Scroll per gun 4.35 /
+# 4.49 / 2.25 / 0.38 / 0.86x). Heroes with >= 15 real
+# procs (Sinclair's copied ults left out); the others keep one proc per cast.
+SCROLL_PER_ULT_DMG = {"Seven": 0.94e-3, "McGinnis": 1.16e-3, "Ivy": 2.28e-3, "Solomon": 1.21e-3,
+                      "Nurse Harrow": 3.83e-3, "Bebop": 1.63e-3}
+SCROLL_ULT_DMG = False   # opt-in: audit better on both halves, sim_vs_win_raw down 0.001-0.002 on all four checks
+
+
 @handler("upgrade_ultimate_burst")
 class LightningScroll(FX):
     def on_damage_dealt(self, f, t, hit):
-        if hit.is_ult and hit.ability is not None and not hit.ability.scratch.get("_scroll"):
+        if not hit.is_ult or hit.ability is None:
+            return
+        rate = SCROLL_PER_ULT_DMG.get(f.st.hero.name) if SCROLL_ULT_DMG else None
+        delay = self.item.p("DelayBeforeStun", 3)
+        if rate is not None and hit.amount > 0:
+            # a share of a proc per ult damage dealt (SCROLL_PER_ULT_DMG), booked with the hit: the real rate already
+            # counts the procs lost when the victim dies inside the 3 s, a duel's cut at its end would lose more
+            self.spirit(t, self.v("Damage") * hit.amount * rate, procs=False)
+        if not hit.ability.scratch.get("_scroll"):
             hit.ability.scratch["_scroll"] = True
-            f.e.after(self.item.p("DelayBeforeStun", 3), lambda: (self.spirit(t, self.v("Damage"), procs=False),
-                                                                  self.debuff(t, "stun", 1, self.dur("StunDuration", 0.75))))
+            f.e.after(delay, lambda: (rate is None and self.spirit(t, self.v("Damage"), procs=False),
+                                      self.debuff(t, "stun", 1, self.dur("StunDuration", 0.75))))
 
     def on_cast(self, f, ab):
         if ab.ab.ultimate:

@@ -4085,3 +4085,27 @@ Lightning Scroll is a lead.
 - Full sample, 2 rounds: Shiv Cold Front 1.126, Arctic Blast 1.777 (factor 0.95), Phantom Strike 1.369 (0.66),
   Violet Cold Front 1.133.
 - sim_vs_win_raw for Shiv + Violet: raw within 27k +0.0026 / -0.0021, 37k +0.0028 / -0.0017 (day halves A / B): flat.
+
+## Lightning Scroll procs follow the ult's damage (2026-11-08)
+
+Lightning Scroll pooled read about right on the post-hotfix audit (1.09) but per hero it spread from Seven 0.38 to
+McGinnis 2.25, Solomon 4.35 and Bebop 4.49 (26-101 holders). The sim gave one proc per ult cast, 3 s after its first
+hit.
+
+- Replays (scripts/mechanics/scroll_procs.py, 890 distinct replays): a proc hits each enemy hero the ult damages,
+  0.57-0.92 procs per hero hit (Seven 2.86 per cast, McGinnis 2.34, Bebop 2.83, Ivy 1.35, Solomon 1.27), at the listed
+  size (median 119-157 dealt).
+- A sim cast stands for a different number of real hero hits on each hero, since the ult's landing factor fits its
+  damage, not its casts: procs per 1000 ult damage were sim 0.53 / 0.40 / 0.74 / 1.75 / 2.61 for Solomon / Bebop /
+  McGinnis / Seven / Ivy against real 1.21 / 1.63 / 1.16 / 0.94 / 2.28, the direction of every per-hero gap.
+- items_fx.SCROLL_PER_ULT_DMG: for heroes with >= 15 real procs (Seven, McGinnis, Ivy, Solomon, Nurse Harrow, Bebop)
+  each ult hit deals Damage x its damage x the replay rate, booked with the hit (the real rate already loses the procs
+  of victims dying inside the 3 s; delaying them cut 40% of McGinnis' at the duel's end). The stun keeps its delay; other
+  heroes keep one proc per cast. No factor refit: pooled stays 1.07 on the full sample.
+- Audit of the 8 holder heroes on each half, 2 seeds (nothing fitted; a pooled refit on one half moved the factor by
+  <= 10% and changed little): holders-weighted |ln real/sim| of the hero rows 0.74 -> 0.26, 0.65 -> 0.19 (odd half),
+  0.55 -> 0.24, 0.56 -> 0.07 (even); Solomon 4.7 -> 1.6-2.0, McGinnis 1.9-2.5 -> 1.0-1.5, Seven 0.4 -> 0.9-1.1, Ivy
+  0.8-0.9 -> 0.7-1.0; players-weighted mix 0.0157 -> 0.0155, 0.0152 -> 0.0152, 0.0175 -> 0.0170, 0.0163 -> 0.0158.
+- sim_vs_win_raw for Seven, Solomon, Bebop, McGinnis, Ivy, Nurse Harrow: raw within 27k -0.0023 / -0.0017, 37k
+  -0.0019 / -0.0013 (day halves A / B), down on all four. Kept opt-in OFF (SCROLL_ULT_DMG = False), like other
+  audit-only fixes that cost the win check; the sim is unchanged.
