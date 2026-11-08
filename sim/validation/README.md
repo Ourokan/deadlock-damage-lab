@@ -4138,3 +4138,16 @@ of them) they have 55 / 38 / 35 holders and read 1.63 / 1.66 / 1.71. Two rounds 
   1.67 -> 1.16, mix flat (0.0130 / 0.0131). Yamato and McGinnis halves are under the floor, so their rows rest on the
   whole sample and the same ~1.65 gap.
 - sim_vs_win_raw (3 heroes spliced into main): +0.0000 / +0.0000 / -0.0001 / -0.0001, flat.
+
+## Dynamo: replays show no missing mechanic, melee rate refit (2026-11-08)
+
+Dynamo on the post-hotfix 07/07b/07c/08 samples (1,227 matches, 609 players) is already close: mix 0.019, Kinetic Pulse
+0.93, Singularity 0.95, items near 1 apart from Mystic Reverb (0.30-0.46 on 23 holders, left while Reverb waits on
+Tyler) and Return Fire (3x under, cut on every hero). Melee read 0.76 (sim 1.25x over at every phase: 0.83 / 0.83 /
+0.64 at 30 / 60 / 90%); the ult 0.93 / 0.92 / 1.15 by phase.
+- Replays (scripts/mechanics/dynamo_singularity.py, 69 matches): Singularity hits 1.60 / 1.98 / 2.05 heroes per cast
+  before 45% / 45-75% / after 75%, but the gun spreads the same way, so against it the area is flat (rel 1.21 / 1.20 /
+  1.21): no ability_area_phase row. Kinetic Pulse 1.14 -> 1.30 is already phased. Melee is locked through Singularity
+  and Aurora channels in the sim, as in game.
+- Melee rate refit (melee_audit_fit.py --split): held-out mix 0.016 -> 0.013 and 0.022 -> 0.019; rate 0.0282 -> 0.0215,
+  melee 0.76 -> 1.00, mix 0.019 -> 0.016. sim_vs_win_raw for Dynamo: -0.0000 / -0.0000 / +0.0000 / +0.0001 (flat).
