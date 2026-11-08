@@ -3966,3 +3966,25 @@ Next after Yamato on the post-11-05 audit (main 7cb72ed, 2,939 matches): Lash 0.
   the fitted Mystic Reverb row, 0.334, left out while Reverb waits on Tyler); melee rate 0.0297.
 - Result on the Lash sample (9,915 players): mix 0.023 -> 0.006, per-source 0.025 -> 0.009; on the 2,939-match sample
   0.029 -> 0.009. sim_vs_win Lash (27k + 37k, post-hotfix pools): within slot and tier 0.459 -> 0.460.
+
+## Per-cast item procs across heroes (2026-11-08, no model change)
+
+After Nurse's Leech Therapy (#242) and Lash's Flog (#248), where an ability's landing x length_corr above 1 stood for
+more casts than the sim's cadence lands (each spending a Quicksilver Reload charge, items_fx.LANDING_PROCS), every
+hero was checked for the same miss on the audit of main cd066e1 (2,939 post-11-05 matches) and in replays
+(scripts/mechanics/ability_procs.py, 260 in analysis/work/fight_length/raw).
+
+- Imbued abilities (fight_patterns "imbue") with a factor above 1: Mina's Rake 1.85, Lash's Flog 1.27 (listed), McGinnis'
+  Mini Turret 1.22, Rem's Pillow Toss 1.10, Mo & Krill's Scorn 1.06, Yamato's Power Slash 1.04; the rest are below 1,
+  and Quicksilver reads near 1 on every hero with 100+ holders (Vindicta 0.97, Infernus 0.97, Warden 1.00, Nurse 1.02,
+  Vyper 1.05, Wraith 1.07, Mo & Krill 1.07) except Mina 0.86 and Lash 1.25 (1.16 on the 9,915-player Lash sample).
+  Mercurial Magnum 0.97-1.16. So a factor below 1 (misses, fewer casts) is right to leave the charge whole.
+- Mina: Rake hits 1.08 heroes per cast, once each, formula-sized (median 235), and Quicksilver procs with 0.98 of Rakes,
+  0.92 per cast; yet Quicksilver reads over (0.86 on 1,103 holders, her row 0.854), the opposite of the miss: listing
+  Rake would push it further over. Rake's 16 s cooldown is under Quicksilver's 18 s charge, so extra casts can't add
+  procs. Her rows are a plain refit (left to the per-hero audit).
+- Mystic Burst / Tankbuster releases from any ability with landing > 1.05 and factor > 1.1: Shiv's Slice and Dice
+  (2.14) releases almost none (77 Mystic Burst, 11 Tankbuster procs in 88 Shivs); Violet's Abstract Landscape (1.75)
+  sets off only 0.31 of her Tankbuster procs (already 1.29 hits per hero, #235); Lash's Ground Strike (1.70, 1.18
+  heroes per cast) 0.39 of his, with Tankbuster at 1.01 and Mystic Burst 1.12 (listing it would push Tankbuster ~1.3x
+  over). Venator's Consecrating Grenade is a DoT. No other hero shows the signature; nothing listed.
