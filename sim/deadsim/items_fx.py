@@ -1140,6 +1140,16 @@ def spirit_procs(hit):
 LANDING_PROCS = frozenset({"viscous_goo_grenade", "ability_nurse_leech_therapy", "ability_lash_flog"})
 IMBUE_LANDING_PROCS = True
 
+# Mystic Burst / Tankbuster release on every hero an area ability hit lands on, each at nearly the full charge (replays
+# 2026-11-08, scripts/mechanics/mk_area_releases.py, 129 matches with Mo & Krill: Scorn casts hitting 1 / 2 / 3 heroes
+# release Mystic Burst on 0.71 / 1.35 / 1.82 of them, median size 34 / 30 / 24; Tankbuster 0.15 / 0.30 / 0.53; Sand
+# Blast likewise). The sim's duel has one victim, so its one release per cast stands for this many: the ability's real
+# heroes per cast. Mystic Burst read 1.2x under on 1,219 Mo & Krill holders with no row to lift (factor 1).
+# Opt-in, OFF: it fixes the holders' rows (Mystic Burst 1.17 -> 0.98) but the whole-match Mystic Burst share then reads
+# 1.2x over and a split-half refit with it held out worse on both halves (mix 0.017 -> 0.026, 0.011 -> 0.020).
+AREA_RELEASES = {"ability_intimidate": 1.22, "ability_throw_sand": 1.20}
+AREA_RELEASES_ON = False
+
 
 @handler("upgrade_magic_burst", "upgrade_magic_shock")
 class MysticBurst(FX):
@@ -1178,6 +1188,8 @@ class MysticBurst(FX):
             return
         if hit.ability is not None and hit.ability.ab.class_name in LANDING_PROCS and hit.landing > 1.0:
             charge *= hit.landing
+        elif AREA_RELEASES_ON and hit.ability is not None and hit.ability.ab.class_name in AREA_RELEASES:
+            charge *= AREA_RELEASES[hit.ability.ab.class_name]
         dmg = self.v("Damage")
         if tb:   # Tankbuster: + % current health, ignores resist
             dmg += t.item_hp * self.item.p("CurrentHealthDamage") / 100

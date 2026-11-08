@@ -385,28 +385,28 @@
     "landing": 1.372,
     "real_share": 0.2162,
     "sim_share": 0.2556,
-    "length_corr": 0.771
+    "length_corr": 0.721
    },
    "Burrow": {
     "class": "ability_burrow",
     "landing": 0.7,
     "real_share": 0.1596,
     "sim_share": 0.1887,
-    "length_corr": 1.212
+    "length_corr": 1.192
    },
    "Sand Blast": {
     "class": "ability_throw_sand",
     "landing": 1.141,
     "real_share": 0.0438,
     "sim_share": 0.0518,
-    "length_corr": 0.375
+    "length_corr": 0.376
    },
    "Combo": {
     "class": "ability_ult_combo",
     "landing": 0.472,
     "real_share": 0.0628,
     "sim_share": 0.0743,
-    "length_corr": 0.527
+    "length_corr": 0.558
    }
   },
   "Shiv": {
