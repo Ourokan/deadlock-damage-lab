@@ -120,7 +120,34 @@
    "opens": 0.113,
    "hit_x_gun_fight": 2.86,
    "hit_x_gun_poke": 3.43,
-   "use": false
+   "use": false,
+   "phase": [
+    {
+     "net_worth": 2501,
+     "pokes_per_fight": 0.089
+    },
+    {
+     "net_worth": 7316,
+     "pokes_per_fight": 0.216
+    },
+    {
+     "net_worth": 12054,
+     "pokes_per_fight": 0.34
+    },
+    {
+     "net_worth": 18260,
+     "pokes_per_fight": 0.56
+    },
+    {
+     "net_worth": 25205,
+     "pokes_per_fight": 0.564
+    },
+    {
+     "net_worth": 37129,
+     "pokes_per_fight": 0.755
+    }
+   ],
+   "phase_note": "real poke hits per fight by caster net worth (cast_timing+fight_length replays, outside pair fights, scaled to the pooled 0.338); tested on 2026-11-08: lane CR 1.8x -> 1.25x but sim_vs_win_raw mixed, so use stays False"
   },
   {
    "hero_id": 79,

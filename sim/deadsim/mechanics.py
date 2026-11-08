@@ -511,9 +511,11 @@ def real_length(souls=None):
 _POKES = None
 
 
-def poke_rows(hero):
+def poke_rows(hero, souls=None):
     """{ability class: real poke hits per fight} for a hero's abilities with a used row in data/ability_pokes.json
-    (Mechanics.pokes): hits outside any fight (no fight_length run of 4+ hits both ways), per fight of the hero."""
+    (Mechanics.pokes): hits outside any fight (no fight_length run of 4+ hits both ways), per fight of the hero. A row
+    with a "phase" curve ([{net_worth, pokes_per_fight}], Paige's Captivating Read) gives the count at the fighter's
+    net worth souls (linear in ln net worth between points, flat outside; the pooled count without souls)."""
     global _POKES
     if _POKES is None:
         fn = os.path.join(os.path.dirname(__file__), "..", "data", "ability_pokes.json")
@@ -522,8 +524,9 @@ def poke_rows(hero):
             with open(fn) as fh:
                 for r in json.load(fh)["abilities"]:
                     if r.get("use"):
-                        _POKES.setdefault(r["hero_id"], {})[r["class_name"]] = r["pokes_per_fight"]
-    return _POKES.get(hero.id, {})
+                        ph = [(math.log(b["net_worth"]), b["pokes_per_fight"]) for b in r.get("phase") or ()]
+                        _POKES.setdefault(r["hero_id"], {})[r["class_name"]] = (r["pokes_per_fight"], ph)
+    return {cls: (_interp_ln(ph, souls) if ph and souls else k) for cls, (k, ph) in _POKES.get(hero.id, {}).items()}
 
 
 _OPENER = None
