@@ -285,7 +285,9 @@ class Mechanics:
     # real melee share over the sim's, all heroes: 1.20x at 30% of the match, 0.91x at 60%, 0.74x at 90%; Calico 1.27 /
     # 1.15 / 1.03, while per hit sizes match the formula). The melee rate is fitted flat, so at the duel's net worth it
     # is x melee_phase_mult (data/melee_phase.json, scripts/mechanics/melee_phase.py: real over sim melee share at
-    # 30 / 60 / 90% of the match, shrunk to the pooled curve; linear in ln net worth between the points, flat outside)
+    # 30 / 60 / 90% of the match, shrunk to the pooled curve; linear in ln net worth between the points, flat outside).
+    # Since 2026-11-08 rows also carry a lane point (~1.8k net worth, scripts/mechanics/melee_phase_lane.py): the lane
+    # fifth's real melee share was still ~1.4x the sim's below the 30% point (Vindicta 0.047 vs 0.021).
     melee_phase: bool = True
     # ult casts by game phase (2026-10-27): the ult holds (cast_timing) are one curve over the whole match, but real
     # players cast the ult in fewer fights early: P(cast by 20 s of a pair fight) 0.88x the whole-match share before

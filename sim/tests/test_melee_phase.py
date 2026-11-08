@@ -37,13 +37,24 @@ class MeleePhaseTest(unittest.TestCase):
         self.assertLess(pts[0][0], 3000)
         self.assertLess(melee_phase_mult(6, 2000), melee_phase_mult(6, 15000))
 
+    def test_lane_point_below_the_30pct_point(self):
+        # melee_phase_lane.py: a lane point under the row's 30% point; lane melee read under for most heroes
+        rows = [r for r in DATA["heroes"].values() if "lane" in r]
+        self.assertGreater(len(rows), 30)
+        for r in rows:
+            self.assertLess(r["points"][0][0], 4000)
+            self.assertLess(r["points"][0][0], r["points"][1][0])
+        self.assertGreater(DATA["pooled"]["0.1"], 1.0)
+        vin = DATA["heroes"]["3"]["points"]
+        self.assertGreater(melee_phase_mult(3, vin[0][0]), melee_phase_mult(3, vin[1][0]))
+
     def test_no_row_no_change(self):
         self.assertEqual(melee_phase_mult(999999, 30000), 1.0)
         self.assertEqual(melee_phase_mult(16, None), 1.0)
 
     def test_engine_scales_the_melee_rate(self):
         # melee only, deterministic duel: melee damage with the term = without x the multiplier at the duel's souls
-        souls = DATA["heroes"][CALICO]["points"][0][0]
+        souls = DATA["heroes"][CALICO]["points"][-3][0]   # the 30% point (a lane point may sit below it)
         sk = Skill(accuracy=0.0, use_abilities=False, melee_rate=0.5)
         foe = Loadout("Abrams", [], souls=souls, skill=Skill(accuracy=0.0, use_abilities=False))
         got = {}
