@@ -3927,3 +3927,19 @@ Tankbuster 1.28 -> 1.14 under, Mystic Burst 1.43 -> 1.09. Split-half against the
 per-source -0.001 / +0.001). sim_vs_win_raw (Solomon spliced into the full base, 27k/37k x day halves): +0.0002 /
 -0.0002 / +0.0002 / -0.0003 (flat; Solomon alone 27k up both halves, 37k down both). Spirit Burn stays ~1.6x under
 (once per 20 s, team fights; per-hero rows are capped at 1).
+
+## Kelvin refit on post-hotfix matches; his Reverb imbue checked (2026-11-08)
+
+Kelvin (per-source 0.030, mix 0.027 on the fresh post-hotfix audit, 1,126 players): Mystic Reverb 2.4x over, Arctic
+Beam 1.08x under, melee 1.25x over. Replays of 52 post-hotfix Reverb holders (scripts/mechanics/kelvin_reverb.py, raw
+/mnt/project-files/analysis/work/kelvin_reverb): real Kelvins imbue Reverb on Frost Grenade (381 echoes follow a grenade
+hit on the victim 3 s earlier, 69 a beam), the sim on Arctic Beam (highest listed damage). The grenade override made
+Reverb read further over (each grenade crosses MinimumDamage, and the echo's current-health bonus, kept on in #221, is
+not in real echoes) and was worse held-out on both match halves, so it is not used.
+
+Kelvin refit instead (3 rounds ability_corr_heroes.py + 2 rounds item_landing_heroes.py --hero Kelvin): Arctic Beam
+corr 0.485 -> 0.523, Frost Grenade 0.622 -> 0.610, item rows refit on 1,126 players (new Alchemical Fire and Decay rows).
+The fit's Mystic Reverb row (0.25, the floor) is left out as in #206: with it mix 0.027 -> 0.011 but sim_vs_win_raw
+(Kelvin spliced into the full base) -0.0005 / -0.0004 / -0.0000 / +0.0000; without it mix 0.027 -> 0.020, per-source
+0.030 -> 0.019, sim_vs_win_raw -0.0000 / +0.0000 / +0.0001 / +0.0002. Split-half without the Reverb row, held-out vs
+main (fitted on both halves): mix 0.031 -> 0.028 / 0.025 -> 0.016, per-source 0.033 -> 0.025 / 0.028 -> 0.015.
