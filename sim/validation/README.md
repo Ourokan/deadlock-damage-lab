@@ -4406,3 +4406,22 @@ the lead.
 - Full sample: phase 0.030 -> 0.027, fifths [0.101, 0.031, 0.021, 0.022, 0.024] -> [0.081, 0.028, 0.020, 0.019,
   0.021], lane melee 0.426 (real 0.365).
 - sim_vs_win_raw (Abrams, day halves A / B): 27k +0.0001 / +0.0000, 37k -0.0000 / -0.0000. Flat.
+
+## Seven's lane Lightning Ball: real ability order (2026-11-08)
+
+Next lane gap after Abrams (Vindicta is with the Paige thread). In Seven's lane fifth, Lightning Ball read 0.055 of
+his damage vs 0.138 real, with Power Surge (0.225 vs 0.169) and the gun (0.577 vs 0.498) over. Real players' tiers
+(the audit's real order) move Lightning Ball to 0.12, so the gap is the popular order's lane tiers.
+
+- Seven joins `fight.ORDER_HEROES` (median real order + real tiers in the audit), with a 3-round Seven corr refit:
+  Lightning Ball 0.856 -> 0.806, Static Charge 0.515 -> 0.389, Power Surge 2.016 -> 2.024, Storm Cloud 0.342 ->
+  0.324.
+- Split-half on 1,365 post-hotfix Seven matches (refit on one match-id half, audit the other, against the same refit
+  without the order): lane 0.076 -> 0.054 and 0.084 -> 0.043, phase 0.031 -> 0.021 and 0.030 -> 0.020, mix 0.011 ->
+  0.012 and 0.012 -> 0.012, lane Lightning Ball 0.12 (real 0.14).
+- Full sample: phase 0.031 -> 0.020, fifths [0.079, 0.035, 0.020, 0.026, 0.029] -> [0.049, 0.012, 0.012, 0.015,
+  0.024], mix 0.011 -> 0.012.
+- sim_vs_win_raw (Seven, day halves A / B): 27k -0.0004 / -0.0010, 37k -0.0000 / +0.0001. Not down in all four, so
+  kept, but net slightly negative (-0.0013).
+- A melee lane point (`melee_phase.py --fracs`, as for Abrams) helped a little on split-half too (lane 0.078 ->
+  0.070 and 0.081 -> 0.073), but with it the 37k halves read -0.0000 as well, so it is left out.

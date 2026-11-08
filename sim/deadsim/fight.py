@@ -121,7 +121,9 @@ class Loadout:
 # rose, so he stays on the popular order. Paradox since 2026-11-08: his lane Pulse Grenade read 0.22 vs 0.15 real on
 # the popular order; real tiers + refit fix it, held split-half, and sim_vs_win_raw is flat on the post-#267 corr (it
 # fell in all four splits on the older corr) (validation/README.md "Paradox's lane Pulse Grenade").
-ORDER_HEROES = ("Celeste", "Ivy", "Paige", "Graves", "Dynamo", "Apollo", "Lady Geist", "Venator", "Kelvin", "Paradox")
+# Seven since 2026-11-08: his lane Lightning Ball read 0.055 vs 0.138 real on the popular order; real tiers + refit
+# bring it to 0.12 and halve his lane fifth (validation/README.md "Seven's lane Lightning Ball").
+ORDER_HEROES = ("Celeste", "Ivy", "Paige", "Graves", "Dynamo", "Apollo", "Lady Geist", "Venator", "Kelvin", "Paradox", "Seven")
 
 
 @lru_cache(maxsize=64)
