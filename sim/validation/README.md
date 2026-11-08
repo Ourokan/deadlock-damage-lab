@@ -4257,3 +4257,32 @@ per-source real / sim: Vyper Screwjab Dagger 0.18 / 0.07 and gun 0.54 / 0.66; Ke
 - sim_vs_win_raw (day halves A / B): Kelvin 27k +0.0033 / +0.0030, 37k -0.0033 / -0.0012 (net +0.002); Paradox
   -0.0016 / -0.0004 and -0.0023 / -0.0031, down in all four, so **only Kelvin** joins ORDER_HEROES. Paradox's
   audit gain stays a lead: his real lane tiers differ by player, which one search order can't carry.
+
+## Paige's lane: Bookwyrm burn and lane landing from replays (2026-11-08)
+
+Paige kept the lane fifth's gap (0.13) with her real ability tiers: lane real / sim share Captivating Read 0.059 /
+0.118, Bookwyrm 0.086 / 0.131, gun 0.75 / 0.62, while the later fifths matched. Two causes in the cast_timing +
+fight_length replays (54 Phantom+ matches with a Paige, 8,100 casts):
+
+- **Bookwyrm burn per victim.** The sim burned each victim for 0.5 of GroundFlameDuration plus the 1.5 s DebuffDuration
+  linger: 10 trail ticks at T0-T1, 13 at T2+, at every phase. Real victims take 2.4 trail ticks per cast below 5k souls
+  and 4.4-4.9 late (the share of the flame they burn: 0.20 lane, 0.27-0.30 later, the same in both halves of the
+  replays; in the lane DoT is 28% of a victim's Bookwyrm damage, the sim's 60%). Mechanics.bookwyrm_burn (on): burn =
+  flame x the real uptime at Paige's net worth, no linger (data/bookwyrm_burn.json, scripts/mechanics/bookwyrm_burn.py).
+- **Lane casts land less.** In pair fights Captivating Read hits an enemy hero on 0.87x its whole-match share of casts
+  below 5k souls (Bookwyrm 0.89x; both replay halves 0.77-0.88), ~1.05-1.14x late; the landing factor was one number
+  for the match. Most heroes' non-ult casts land MORE in the lane (0.69 vs 0.61), so this is per ability:
+  Mechanics.landing_phase (on) with rows only for Paige's two (data/landing_phase.json,
+  scripts/cast_timing/landing_phase.py, shrunk 50 casts toward the pooled share). Heroes hit per landed cast are
+  already Mechanics.ability_area_phase.
+- Ruled out: casts per fight by phase (real lane / late 0.87 vs sim 0.87 for Captivating Read), per-hit size
+  (sim per-hit grows faster than real, not slower), a general lane gun gap (lane gun real / sim spreads 0.72-1.43 by hero).
+- Split-half (Paige ability corr refit 3 rounds on one half of phantom_sample vs the same refit on main, 4 seeds on
+  the other half; mix / per-source / per-fifth): fit odd 0.0173 / 0.0270 / 0.0555 -> 0.0145 / 0.0261 / 0.0468,
+  fit even 0.0103 / 0.0263 / 0.0473 -> 0.0113 / 0.0258 / 0.0395 (mix +0.001, inside the 0.002 slack). Lane fifth
+  0.12 -> 0.09 both ways. Burn alone: per-fifth 0.0555 -> 0.051 / 0.0473 -> 0.044.
+- Full sample refit: Bookwyrm corr 1.818 -> 2.543, Captivating Read 1.185 -> 1.147, Rallying Charge 2.033 -> 2.000.
+  Paige mix 0.008 -> 0.004, per fifth 0.050 -> 0.040, fifths 0.13/0.07/0.03/0.01/0.05 -> 0.10/0.05/0.03/0.01/0.04.
+- sim_vs_win_raw (Paige, day halves A / B): 27k +0.014 / +0.014, 37k +0.041 / +0.019, up in all four. Usual within
+  slot and tier (27k + 37k) 0.494 -> 0.508.
+- Left: lane Captivating Read still ~1.8x its real share and gun 0.65 vs 0.75.
