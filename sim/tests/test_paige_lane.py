@@ -75,6 +75,20 @@ class PaigeLaneTest(unittest.TestCase):
         finally:
             M._POKES = old
 
+    def test_paradox_carbine_pokes_lower_in_lane_only(self):
+        from deadsim import mechanics as M, game
+        h = game().hero("Paradox")
+        cb = "citadel_ability_chrono_kinetic_carbine"
+        old = M._POKES
+        try:
+            M._POKES = None
+            lane, mid, late = (M.poke_rows(h, s)[cb] for s in (2600, 12405, 37000))
+            self.assertLess(lane, 0.6 * mid)
+            self.assertAlmostEqual(mid, late)          # flat pooled row after lane
+            self.assertTrue(M.poke_procs(h, cb))
+        finally:
+            M._POKES = old
+
     def test_add_pokes_own_damage_only(self):
         from deadsim import fight, mechanics as M, game
         h = game().hero("Paige")
