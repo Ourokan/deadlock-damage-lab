@@ -28,9 +28,14 @@ sys.path.insert(0, os.path.join(ROOT, "scripts", "fight_length"))
 import casts_by_build as CB  # noqa: E402
 from deadsim import game  # noqa: E402
 
-HEROES = {"Paige": ("ability_bookworm_aoemagic", "ability_bookworm_dragonfire")}
+HEROES = {"Paige": ("ability_bookworm_aoemagic", "ability_bookworm_dragonfire"),
+          "Vyper": ("ability_viper_debuffdagger",)}
 BINS = (0, 5000, 10000, 15000, 22000, 30000, 10 ** 9)
 K = 50   # casts of shrinkage toward the pooled share
+# lane-only rows: bins from this net worth on are held at rel 1.0. Vyper's Screwjab Dagger lands 1.19x its match share
+# below 5k and ~0.87x late (both replay halves); the late part split sim_vs_win_raw (27k +0.007/-0.006, 37k +0.001/
+# -0.011), the lane part sits below the svw budgets (2026-11-08, validation/README.md "Lane gaps after the melee point")
+LANE_ONLY = {"ability_viper_debuffdagger": 10000}
 OUT = os.path.join(ROOT, "data", "landing_phase.json")
 
 
@@ -50,8 +55,10 @@ def curves(rows, half=None):
                 cb, lb = sum(x[3] for x in rb), sum(x[4] for x in rb)
                 if cb:
                     nw = sum(x[8] * x[3] for x in rb) / cb
-                    bins.append({"net_worth": round(nw), "landed": round(lb / cb, 3), "casts": cb,
-                                 "rel": round((lb + K * pooled) / (cb + K) / pooled, 4)})
+                    rel = (lb + K * pooled) / (cb + K) / pooled
+                    if cls in LANE_ONLY and nw >= LANE_ONLY[cls]:
+                        rel = 1.0
+                    bins.append({"net_worth": round(nw), "landed": round(lb / cb, 3), "casts": cb, "rel": round(rel, 4)})
             out[cls] = {"name": f"{hero}: " + next(a.name for a in G.hero(hero).abilities if a.class_name == cls),
                         "pooled": round(pooled, 4), "casts": c, "bins": bins}
     return out

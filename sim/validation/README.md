@@ -4473,3 +4473,21 @@ Abrams were taken by another thread; from Vindicta on:
   (--fracs 0.1) agreed in direction for Baba, Bebop, Haze, Ivy, Silver, Kelvin, Venator, Grey Talon, Drifter, Geist,
   Graves.
 - The lane point sits below the 27k / 37k budgets sim_vs_win scores, so svw is unchanged by construction (checked).
+
+## Lane gaps after the melee point: Vyper's Screwjab Dagger lands more in lane (2026-11-08)
+
+Post-hotfix audit of main after #273 (post_hotfix_2026-11-07, 2,939 matches), biggest lane fifths: Vyper 0.109, Grey
+Talon 0.081, Vindicta 0.079, Abrams 0.074, Rem 0.072, Celeste 0.069. Vyper's lane: Screwjab Dagger 0.178 real vs
+0.073 sim, gun 0.54 vs 0.65.
+
+- Replay pair fights (casts_by_build.py real rows): the dagger lands 1.19x its match share below 5k souls, 1.04x at
+  7k, ~0.87x late, both halves agreeing (lane 1.13 / 1.22). The sim lands it evenly and also casts it more late
+  (12.4 / min vs real 9.0; lane 8.6 vs 10.5).
+- Full landing_phase row + Vyper refit: split-half phase 0.032 -> 0.029 / 0.031 -> 0.028, lane 0.113 -> 0.102 /
+  0.122 -> 0.112, mix +0.0007 / +0.0003; sim_vs_win_raw split (27k +0.007 / -0.006, 37k -0.002 / -0.013), and the row
+  alone without the refit split too. Not shipped.
+- **Lane-only row** (landing_phase.LANE_ONLY: bins from 10k held at 1.0), no refit: lane 0.111 -> 0.102, phase 0.033
+  -> 0.032 on the post-hotfix sample (the replays are a separate, pre-hotfix set); it sits below the 27k / 37k budgets,
+  so svw is unchanged. Shipped.
+- Left: most of the lane dagger gap (0.076 vs 0.178) and Petrifying Bola (0.009 vs 0.036) look like ability tiers;
+  Vyper's real order was rechecked in #270 and still not kept.
