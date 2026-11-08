@@ -18,6 +18,8 @@ Items not listed here only contribute their always-on stats; `MODELED` lets repo
 """
 from __future__ import annotations
 
+import zlib
+
 from .abilities import CastCtx
 from .build import SHOT_SPLIT_PELLETS
 from .data import _load, game
@@ -735,11 +737,19 @@ def random_start(fx, f):
     """Mechanics.barrier_start_random: the item's cooldown starts at a random point of its cycle."""
     m = f.e.mech
     p = m.barrier_start_random if m is not None else 0.0
-    if p > 0:
-        rng = f.e.rng
-        u = rng.random() if rng is not None else 0.5
-        if u < p:   # spent: a random point of the cycle
-            fx.ready_at = max(fx.ready_at, fx.now + fx.cd() * u / p)
+    if p <= 0:
+        return
+    rng = f.e.rng
+    if rng is not None:
+        u = rng.random()
+    elif f.skill.fight_phase is not None:
+        # deterministic engine over a pool of fights (overall score): a quasi-random draw from the fight phase, shifted
+        # per item and fighter like unused_items
+        u = (f.skill.fight_phase + zlib.crc32(f"{fx.item.name}|{f.name}|barrier".encode()) / 2 ** 32) % 1.0
+    else:
+        return      # one deterministic fight with no phase: ready, as before
+    if u < p:   # spent: a random point of the cycle
+        fx.ready_at = max(fx.ready_at, fx.now + fx.cd() * u / p)
 
 
 class ShieldOnDamage(FX):
