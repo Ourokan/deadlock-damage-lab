@@ -1356,6 +1356,12 @@ def nearby_enemies(f):
     return g(f) if g is not None else f.e.mech.extra_targets
 
 
+# Ricochet's and Split Shot's side hits take the item's realistic-mode factor (item_landing.json) like its other
+# damage. Before 2026-11-08 _splash skipped it, so their per-hero rows changed nothing and item_landing_heroes.py
+# pushed them to the 0.25 floor while the audit kept reading Ricochet ~0.7 (1.4x over) on every hero.
+SPLASH_ITEM_LANDING = True
+
+
 def _splash(f, amount, kind, source):
     """Damage to other enemy heroes near the target, mitigated like a hit on the target (its resists stand in for
     theirs), booked in f.counters["splash"]."""
@@ -1366,6 +1372,8 @@ def _splash(f, amount, kind, source):
         return team_splash(f, amount, kind, source)
     e = f.enemy
     amt = amount * f.st.outgoing_mult * (1.0 + f.stat("damage_amp"))
+    if SPLASH_ITEM_LANDING and f.skill.item_landing:
+        amt *= f.skill.item_landing.get(source, 1.0)   # an item's realistic-mode factor, as Engine.damage applies it
     if kind == "bullet":
         amt *= 1.0 - combine_resist(e.st.bullet_resist, f.st.bullet_shred)
     elif kind == "spirit":

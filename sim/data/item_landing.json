@@ -5,7 +5,7 @@
   "sample": "phantom_sample.jsonl.gz",
   "use": "deadsim realistic mode scales an item's own damage by min(1, landing)",
   "length": "fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x length_corr (the sim's source/gun in full / the same expected over real fight lengths, scripts/fight_length/length_factors.py, phantom_sample.jsonl.gz, 3 rounds)",
-  "heroes": "per-hero factors from the damage audit's hero x item rows (k_all.jsonl.gz, >= 20 holders): current factor x (real/sim)^(n/(n+20)), capped 0.25-1; replace the pooled factor for that hero (scripts/item_landing_heroes.py)",
+  "heroes": "per-hero factors from the damage audit's hero x item rows (h_all.jsonl.gz, >= 20 holders): current factor x (real/sim)^(n/(n+20)), capped 0.25-1; replace the pooled factor for that hero (scripts/item_landing_heroes.py)",
   "entry_hp_kept": "length_corr scaled so held first casts and Mechanics.entry_hp (as configured in the run) keep the expected levels of a target run at full health with the previous holds (length_factors.py --entry --target-holds)",
   "cast_timing_kept": "length_corr scaled so held first casts (Mechanics.cast_timing) keep the expected levels of cast-on-sight duels; rerun from the factors before"
  },
@@ -470,6 +470,11 @@
     "real_over_sim": 0.981,
     "landing": 0.8
    },
+   "Split Shot": {
+    "holders": 24,
+    "real_over_sim": 1.646,
+    "landing": 1.0
+   },
    "Stalker": {
     "holders": 109,
     "real_over_sim": 0.983,
@@ -583,6 +588,11 @@
     "real_over_sim": 1.03,
     "landing": 0.805
    },
+   "Ricochet": {
+    "holders": 233,
+    "real_over_sim": 1.008,
+    "landing": 0.946
+   },
    "Siphon Bullets": {
     "holders": 47,
     "real_over_sim": 1.025,
@@ -633,34 +643,54 @@
   },
   "Haze": {
    "Capacitor": {
-    "holders": 69,
-    "real_over_sim": 0.953,
-    "landing": 0.84
+    "holders": 1255,
+    "real_over_sim": 0.971,
+    "landing": 0.701
+   },
+   "Focus Lens": {
+    "holders": 21,
+    "real_over_sim": 0.994,
+    "landing": 0.645
+   },
+   "Mercurial Magnum": {
+    "holders": 251,
+    "real_over_sim": 1.0,
+    "landing": 0.941
    },
    "Quicksilver Reload": {
-    "holders": 24,
-    "real_over_sim": 0.644,
-    "landing": 0.544
+    "holders": 286,
+    "real_over_sim": 0.445,
+    "landing": 0.469
+   },
+   "Rebuttal": {
+    "holders": 26,
+    "real_over_sim": 0.556,
+    "landing": 0.341
    },
    "Ricochet": {
-    "holders": 207,
-    "real_over_sim": 0.818,
-    "landing": 0.695
+    "holders": 1589,
+    "real_over_sim": 0.991,
+    "landing": 0.654
+   },
+   "Silence Wave": {
+    "holders": 153,
+    "real_over_sim": 0.94,
+    "landing": 0.509
    },
    "Siphon Bullets": {
-    "holders": 63,
-    "real_over_sim": 0.99,
-    "landing": 0.377
+    "holders": 413,
+    "real_over_sim": 0.965,
+    "landing": 0.3
    },
    "Tesla Bullets": {
-    "holders": 47,
-    "real_over_sim": 1.066,
-    "landing": 1.0
+    "holders": 854,
+    "real_over_sim": 0.993,
+    "landing": 0.942
    },
    "Toxic Bullets": {
-    "holders": 28,
-    "real_over_sim": 0.893,
-    "landing": 0.581
+    "holders": 250,
+    "real_over_sim": 0.992,
+    "landing": 0.575
    }
   },
   "Holliday": {
@@ -673,6 +703,11 @@
     "holders": 33,
     "real_over_sim": 0.963,
     "landing": 0.832
+   },
+   "Ricochet": {
+    "holders": 22,
+    "real_over_sim": 0.814,
+    "landing": 0.638
    },
    "Tankbuster": {
     "holders": 48,
@@ -692,9 +727,9 @@
     "landing": 0.746
    },
    "Ricochet": {
-    "holders": 66,
-    "real_over_sim": 0.683,
-    "landing": 0.25
+    "holders": 638,
+    "real_over_sim": 1.048,
+    "landing": 0.728
    },
    "Toxic Bullets": {
     "holders": 130,
@@ -759,9 +794,9 @@
     "landing": 0.344
    },
    "Ricochet": {
-    "holders": 21,
-    "real_over_sim": 0.69,
-    "landing": 0.283
+    "holders": 57,
+    "real_over_sim": 1.306,
+    "landing": 0.693
    },
    "Siphon Bullets": {
     "holders": 412,
@@ -772,6 +807,11 @@
     "holders": 52,
     "real_over_sim": 0.999,
     "landing": 0.794
+   },
+   "Split Shot": {
+    "holders": 28,
+    "real_over_sim": 0.986,
+    "landing": 0.891
    },
    "Tesla Bullets": {
     "holders": 773,
@@ -898,6 +938,11 @@
     "holders": 29,
     "real_over_sim": 1.051,
     "landing": 0.616
+   },
+   "Split Shot": {
+    "holders": 23,
+    "real_over_sim": 1.442,
+    "landing": 1.0
    }
   },
   "Mina": {
@@ -924,9 +969,9 @@
   },
   "Mirage": {
    "Ricochet": {
-    "holders": 33,
-    "real_over_sim": 0.972,
-    "landing": 0.393
+    "holders": 592,
+    "real_over_sim": 1.036,
+    "landing": 0.724
    },
    "Toxic Bullets": {
     "holders": 42,
@@ -978,9 +1023,9 @@
     "landing": 0.955
    },
    "Ricochet": {
-    "holders": 138,
-    "real_over_sim": 0.87,
-    "landing": 0.25
+    "holders": 146,
+    "real_over_sim": 1.175,
+    "landing": 0.817
    },
    "Toxic Bullets": {
     "holders": 156,
@@ -1148,14 +1193,19 @@
   },
   "Venator": {
    "Ricochet": {
-    "holders": 36,
-    "real_over_sim": 0.775,
-    "landing": 0.282
+    "holders": 280,
+    "real_over_sim": 1.092,
+    "landing": 0.687
    },
    "Siphon Bullets": {
     "holders": 77,
     "real_over_sim": 1.037,
     "landing": 0.73
+   },
+   "Split Shot": {
+    "holders": 21,
+    "real_over_sim": 1.107,
+    "landing": 1.0
    }
   },
   "Victor": {
@@ -1205,6 +1255,11 @@
     "holders": 82,
     "real_over_sim": 0.825,
     "landing": 0.857
+   },
+   "Ricochet": {
+    "holders": 71,
+    "real_over_sim": 0.987,
+    "landing": 0.838
    }
   },
   "Violet": {
@@ -1260,9 +1315,14 @@
     "real_over_sim": 0.936,
     "landing": 0.416
    },
+   "Ricochet": {
+    "holders": 211,
+    "real_over_sim": 0.989,
+    "landing": 0.813
+   },
    "Split Shot": {
-    "holders": 70,
-    "real_over_sim": 1.187,
+    "holders": 890,
+    "real_over_sim": 1.489,
     "landing": 1.0
    },
    "Tesla Bullets": {
@@ -1300,14 +1360,14 @@
     "landing": 0.583
    },
    "Ricochet": {
-    "holders": 185,
-    "real_over_sim": 0.667,
-    "landing": 0.25
+    "holders": 1696,
+    "real_over_sim": 1.035,
+    "landing": 0.635
    },
    "Split Shot": {
-    "holders": 66,
-    "real_over_sim": 1.168,
-    "landing": 0.655
+    "holders": 452,
+    "real_over_sim": 1.16,
+    "landing": 1.0
    },
    "Tesla Bullets": {
     "holders": 201,
@@ -1382,8 +1442,8 @@
     "landing": 0.562
    },
    "Split Shot": {
-    "holders": 38,
-    "real_over_sim": 1.405,
+    "holders": 21,
+    "real_over_sim": 1.752,
     "landing": 1.0
    },
    "Stalker": {

@@ -344,10 +344,14 @@ class LuckyShot(FX):
     def on_damage_dealt(self, f, t, hit):
         if not hit.gun_bullet():
             return
-        n = f.acc("lucky").take(self.item.p("ProcChance") / 100, hit.hits)
+        # an ability's weapon bullets (Bullet Dance: no headshots) carry their own size, not the last gun bullet's
+        per = hit.raw / hit.hits if hit.is_ability else f.counters.get("bullet_per", 0.0)
+        self.roll(f, t, per, hit.hits)
+
+    def roll(self, f, t, per, hits):
+        """ProcChance per hit of `per` raw damage each. Haze's Fixation bonus rolls too, as its own hits (haze.py)."""
+        n = f.acc("lucky").take(self.item.p("ProcChance") / 100, hits)
         if n:
-            # an ability's weapon bullets (Bullet Dance: no headshots) carry their own size, not the last gun bullet's
-            per = hit.raw / hit.hits if hit.is_ability else f.counters.get("bullet_per", 0.0)
             f.e.damage(f, t, per * n * self.item.p("CritDamagePercent") / 100, "bullet", self.name, procs=False, is_item=True)
 
 
