@@ -4341,3 +4341,18 @@ real Carbine poke hits outside fights grow with net worth, both match parities a
   -0.001, net +0.002).
 
 Left: lane Pulse Grenade is still over (0.222 sim vs 0.145 real after the refit), and lane melee under (0.066 vs 0.086).
+## Spirit Burn hero rows above 1 (2026-11-08)
+
+Spirit Burn's 20 s immunity is per victim (scripts/mechanics/spirit_burn_victims.py: 51% of a holder's next burns on
+another hero come within 20 s) and its explosion has a 3 m radius, so team fights burn more heroes than the duel's one.
+Its pooled row is uncut (landing 1.11) with length_corr 1.53, so the Split Shot lift (pooled corrections below 1) never
+applied and hero rows were capped at 1: on the fresh all-hero audit (5,767 matches) Rem read 1.79 under, Solomon 1.42,
+The Doorman 1.31, Viscous 1.29, Apollo 1.21, Drifter 1.15.
+- accuracy.ROW_ABOVE_ONE ({"Spirit Burn": 2.0}): a hero row may hold a landing above 1 that multiplies the length_corr in
+  fights booked over real fight lengths; the plain 1v1 keeps min(1, landing). item_landing_heroes.py fits up to the cap.
+- Split-half (17 heroes reading > 1, Spirit Burn rows fit 2 rounds on one half): held-out holders' |log gap| 0.076 ->
+  0.036 and 0.083 -> 0.044 against the same refit capped at 1; per-source 0.0214 -> 0.0211, 0.0211 -> 0.0209; mix flat.
+- Shipped: 14 rows above 1 (Rem 1.776, Solomon 1.448, The Doorman 1.336, Viscous 1.308, Apollo 1.225, Drifter 1.171,
+  Sinclair, Vindicta, Graves, Bebop, Violet, Baba, Mina, Lash 1.01-1.07). sim_vs_win_raw: +0.0003 / +0.0003 / +0.0002 /
+  +0.0002. Not shipped: the same refit lowering the over-reading heroes' rows (Pocket 0.69 -> 0.59, Calico 0.61, Kelvin,
+  Paradox ...): with them sim_vs_win_raw was down on all 4 splits (-0.0001 to -0.0004).
