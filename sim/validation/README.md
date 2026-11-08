@@ -4319,3 +4319,25 @@ After #264 the lane fifth still had Captivating Read at 0.105 vs real 0.059.
   0.031 -> 0.022, lane fifth 0.057 -> 0.034, mix 0.0075 -> 0.008 (#264 terms in both arms; this change vs main).
 - ability_pokes.py now lists the CR row in USE and keeps the hand-added "phase", "phase_note" and "procs" keys on
   --write.
+
+## Paradox's lane: fewer Kinetic Carbine pokes in lane (2026-11-08)
+
+On the post-hotfix sample (2,645 Paradox players) Paradox had the next biggest per-phase gap after Paige: lane
+fifth 0.104, with Kinetic Carbine at 0.302 of sim damage vs 0.231 real. In the cast_timing + fight_length replays,
+real Carbine poke hits outside fights grow with net worth, both match parities agreeing: about 0.28 per fight in lane,
+0.53 by 7.6k, then up to ~0.86 late. The pooled row gave 0.545 at every phase.
+
+- Full curve (rising late too), split-half with Paradox corr refit: lane fifth 0.099 -> 0.052 but the late fifths and
+  whole-match mix got worse on both halves. Rejected. The same curve with `procs: false` was far worse (mix ~0.075).
+- **Lane-only curve** (0.277 at 2.6k, 0.525 at 7.6k, the pooled 0.545 from 12.4k): split-half held-out
+  mix 0.0093 -> 0.0088 / 0.0148 -> 0.0130, phase 0.029 -> 0.024 / 0.043 -> 0.038, lane fifth 0.099 -> 0.062 both.
+- Full-sample Paradox corr refit (3 rounds): Kinetic Carbine 0.958 -> 1.008, Pulse Grenade 1.316 -> 1.426,
+  Paradoxical Swap 2.719 -> 2.467.
+- Out of sample (post-hotfix): mix 0.021 -> 0.015, phase 0.043 -> 0.034, fifths
+  [0.104, 0.016, 0.054, 0.039, 0.036] -> [0.078, 0.018, 0.045, 0.029, 0.030]. The curve without the refit was mixed
+  (lane 0.062 but mix 0.025).
+- sim_vs_win_raw (Paradox): 27k +0.0039 / +0.0027, 37k -0.0005 / -0.0009 (net +0.005). The poke curve alone moves
+  svw by 0.0000; the change comes from the Carbine corr. Shipped on, same call as Kelvin's lane tiers (37k -0.003 /
+  -0.001, net +0.002).
+
+Left: lane Pulse Grenade is still over (0.222 sim vs 0.145 real after the refit), and lane melee under (0.066 vs 0.086).

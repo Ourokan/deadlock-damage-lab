@@ -223,7 +223,22 @@
    "opens": 0.244,
    "hit_x_gun_fight": 13.71,
    "hit_x_gun_poke": 21.5,
-   "use": true
+   "use": true,
+   "phase": [
+    {
+     "net_worth": 2618,
+     "pokes_per_fight": 0.277
+    },
+    {
+     "net_worth": 7593,
+     "pokes_per_fight": 0.525
+    },
+    {
+     "net_worth": 12405,
+     "pokes_per_fight": 0.545
+    }
+   ],
+   "phase_note": "real Carbine poke hits per fight by caster net worth in lane (cast_timing+fight_length replays: 0.28 lane, ~0.53 by 7.6k), flat pooled row after; the rising late part was tested and made late fifths worse (split-half), 2026-11-08"
   },
   {
    "hero_id": 60,
