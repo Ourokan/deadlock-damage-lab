@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-08T01:45:00Z",
+ "generated": "2026-11-08T03:42:31Z",
  "patch": "09-29-2026",
  "objectives": {
   "burst_5s": "damage dealt to the dummy in the first 5 s",
@@ -2448,30 +2448,30 @@
    "budgets": {
     "10000": {
      "burst_5s": {
-      "best": 1330.4,
-      "popular": 774.6
+      "best": 1352.4,
+      "popular": 812.4
      },
      "fight_15s": {
-      "best": 2114.0,
-      "popular": 1533.3
+      "best": 2215.7,
+      "popular": 1535.6
      },
      "sustained_30s": {
-      "best": 3718.3,
-      "popular": 2780.9
+      "best": 4149.9,
+      "popular": 2880.3
      }
     },
     "18000": {
      "burst_5s": {
       "best": 2406.4,
-      "popular": 1342.8
+      "popular": 1389.7
      },
      "fight_15s": {
       "best": 4331.3,
-      "popular": 2505.6
+      "popular": 2531.2
      },
      "sustained_30s": {
-      "best": 7359.8,
-      "popular": 4484.2
+      "best": 7479.7,
+      "popular": 4588.6
      }
     },
     "27000": {
@@ -2484,8 +2484,8 @@
       "popular": 4176.4
      },
      "sustained_30s": {
-      "best": 11179.0,
-      "popular": 6674.3
+      "best": 11047.0,
+      "popular": 6610.7
      }
     },
     "37000": {
@@ -2494,12 +2494,12 @@
       "popular": 2337.6
      },
      "fight_15s": {
-      "best": 7968.7,
+      "best": 8304.4,
       "popular": 4898.5
      },
      "sustained_30s": {
-      "best": 15030.3,
-      "popular": 7760.7
+      "best": 15473.3,
+      "popular": 7723.5
      }
     },
     "50000": {
@@ -2512,8 +2512,8 @@
       "popular": 5983.4
      },
      "sustained_30s": {
-      "best": 18616.5,
-      "popular": 9109.7
+      "best": 19476.4,
+      "popular": 9058.7
      }
     }
    }
@@ -3208,7 +3208,7 @@
    "budgets": {
     "10000": {
      "burst_5s": {
-      "best": 689.8,
+      "best": 705.8,
       "popular": 335.4
      },
      "fight_15s": {
@@ -3222,44 +3222,44 @@
     },
     "18000": {
      "burst_5s": {
-      "best": 1590.8,
-      "popular": 886.8
+      "best": 1601.0,
+      "popular": 905.6
      },
      "fight_15s": {
       "best": 3648.8,
-      "popular": 1805.9
+      "popular": 1824.7
      },
      "sustained_30s": {
       "best": 5151.8,
-      "popular": 2804.9
+      "popular": 2842.7
      }
     },
     "27000": {
      "burst_5s": {
       "best": 3625.9,
-      "popular": 1119.4
+      "popular": 1160.3
      },
      "fight_15s": {
       "best": 8332.2,
-      "popular": 2631.2
+      "popular": 2672.1
      },
      "sustained_30s": {
-      "best": 10166.3,
-      "popular": 4122.8
+      "best": 10225.2,
+      "popular": 4205.1
      }
     },
     "37000": {
      "burst_5s": {
-      "best": 5661.6,
-      "popular": 1225.4
+      "best": 6030.5,
+      "popular": 1262.5
      },
      "fight_15s": {
       "best": 15697.6,
-      "popular": 2935.4
+      "popular": 2972.5
      },
      "sustained_30s": {
       "best": 18865.3,
-      "popular": 4629.4
+      "popular": 4666.6
      }
     },
     "50000": {
