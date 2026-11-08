@@ -5,7 +5,7 @@
   "sample": "phantom_sample.jsonl.gz",
   "use": "deadsim realistic mode scales an item's own damage by min(1, landing)",
   "length": "fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x length_corr (the sim's source/gun in full / the same expected over real fight lengths, scripts/fight_length/length_factors.py, phantom_sample.jsonl.gz, 3 rounds)",
-  "heroes": "per-hero factors from the damage audit's hero x item rows (v_all.jsonl.gz, >= 20 holders): current factor x (real/sim)^(n/(n+20)), capped 0.25-1; replace the pooled factor for that hero (scripts/item_landing_heroes.py)",
+  "heroes": "per-hero factors from the damage audit's hero x item rows (yam_post.jsonl.gz, >= 20 holders): current factor x (real/sim)^(n/(n+20)), capped 0.25-1; replace the pooled factor for that hero (scripts/item_landing_heroes.py)",
   "entry_hp_kept": "length_corr scaled so held first casts and Mechanics.entry_hp (as configured in the run) keep the expected levels of a target run at full health with the previous holds (length_factors.py --entry --target-holds)",
   "cast_timing_kept": "length_corr scaled so held first casts (Mechanics.cast_timing) keep the expected levels of cast-on-sight duels; rerun from the factors before"
  },
@@ -1251,75 +1251,85 @@
    }
   },
   "Yamato": {
-   "Cold Front": {
-    "holders": 73,
-    "real_over_sim": 0.888,
-    "landing": 0.677
+   "Arctic Blast": {
+    "holders": 55,
+    "real_over_sim": 0.922,
+    "landing": 0.588
    },
-   "Crushing Fists": {
-    "holders": 52,
-    "real_over_sim": 0.962,
-    "landing": 0.904
+   "Cold Front": {
+    "holders": 498,
+    "real_over_sim": 0.992,
+    "landing": 0.566
    },
    "Express Shot": {
-    "holders": 61,
-    "real_over_sim": 0.983,
-    "landing": 0.987
-   },
-   "Melee Charge": {
-    "holders": 79,
-    "real_over_sim": 0.925,
-    "landing": 0.782
+    "holders": 543,
+    "real_over_sim": 0.996,
+    "landing": 0.954
    },
    "Mystic Burst": {
-    "holders": 105,
-    "real_over_sim": 0.934,
-    "landing": 0.768
+    "holders": 769,
+    "real_over_sim": 0.994,
+    "landing": 0.689
    },
    "Mystic Reverb": {
-    "holders": 270,
-    "real_over_sim": 0.844,
-    "landing": 0.315
+    "holders": 1449,
+    "real_over_sim": 0.989,
+    "landing": 0.285
    },
    "Mystic Shot": {
-    "holders": 397,
-    "real_over_sim": 0.961,
-    "landing": 0.529
+    "holders": 2049,
+    "real_over_sim": 0.993,
+    "landing": 0.472
+   },
+   "Phantom Strike": {
+    "holders": 33,
+    "real_over_sim": 0.889,
+    "landing": 0.552
    },
    "Scourge": {
-    "holders": 25,
-    "real_over_sim": 0.645,
-    "landing": 0.35
+    "holders": 146,
+    "real_over_sim": 0.962,
+    "landing": 0.25
+   },
+   "Silence Wave": {
+    "holders": 28,
+    "real_over_sim": 0.974,
+    "landing": 0.617
    },
    "Spirit Burn": {
-    "holders": 81,
-    "real_over_sim": 0.983,
-    "landing": 0.986
+    "holders": 574,
+    "real_over_sim": 0.994,
+    "landing": 0.899
    },
    "Spirit Snatch": {
-    "holders": 557,
-    "real_over_sim": 0.95,
-    "landing": 0.473
+    "holders": 3377,
+    "real_over_sim": 0.994,
+    "landing": 0.501
    },
    "Spirit Strike": {
-    "holders": 289,
-    "real_over_sim": 0.998,
-    "landing": 0.56
+    "holders": 1841,
+    "real_over_sim": 0.995,
+    "landing": 0.562
+   },
+   "Split Shot": {
+    "holders": 38,
+    "real_over_sim": 1.405,
+    "landing": 1.0
    },
    "Stalker": {
-    "holders": 239,
-    "real_over_sim": 0.983,
-    "landing": 0.65
+    "holders": 2021,
+    "real_over_sim": 0.995,
+    "landing": 0.599
    },
    "Tankbuster": {
-    "holders": 291,
-    "real_over_sim": 0.847,
-    "landing": 0.512
+    "holders": 1777,
+    "real_over_sim": 0.99,
+    "landing": 0.438
    },
    "Torment Pulse": {
-    "holders": 381,
-    "real_over_sim": 0.934,
-    "landing": 0.467
+    "holders": 1868,
+    "real_over_sim": 0.991,
+    "landing": 0.427
    }
   }
  }

@@ -3881,3 +3881,23 @@ per-source 0.042 -> 0.037. sim_vs_win_raw (Victor spliced, 27k/37k x day halves)
 Tried and dropped: Shocking Reanimation's revive as an expected value booked at fight start (the sim's duel rarely
 sees an ally die). The ult went to 0.090 of his damage vs real 0.063 and mix 0.020 -> 0.026; refitting only the ult
 still left it at 0.080. His late ult (2x under at 90% by phase_mix.py) stays open.
+## Yamato refit on 7,687 post-hotfix matches (2026-11-08)
+
+Audit of main (7262f7e) on the 2,939-match post-11-05 sample: overall 0.0176; furthest Yamato 0.034 (Power Slash 1.08x
+under, melee 0.87x and Torment Pulse / Mystic Shot / Stalker 0.8-0.9x over), Apollo 0.030, Lash 0.029.
+
+- Sample: every Phantom+ match with a Yamato since 10-31 (metadata endpoint, include_player_info, hero_id 27): 7,687
+  matches, /mnt/project-files/sim/validation/yamato_post_2026-11-08_sample.jsonl.gz.
+- Real ability order (again): the popular order keeps Power Slash at tier 0 until late (real tier 1.56 / 2.41 / 2.65 at
+  30 / 60 / 90%; median order 1.78 / 3.00 / 3.00). Split-half (even / odd match ids, 3 fit rounds, 2 held-out draws)
+  against a plain refit of the same half: corr-only, mix better both halves (0.0165 -> 0.0155, 0.0230 -> 0.0185) but
+  per-source worse both (0.0159 -> 0.0188, 0.0220 -> 0.0228); with item rows refit in both arms, per-source even
+  (0.0096 -> 0.0093, 0.0138 -> 0.0137) and mix worse both (0.0075 -> 0.0105, 0.0130 -> 0.0135). Not kept (as on
+  2026-11-06): her corrs (Power Slash 3.8) make up for the order and the search keeps the popular one.
+- Plain refit (ability corrs + per-hero item rows, 3 rounds) against main on the held-out halves: per-source 0.0267 ->
+  0.0138 and 0.0227 -> 0.0096, mix 0.0255 -> 0.0130 and 0.0215 -> 0.0075. Shipped: Power Slash 3.786 -> 3.857, Flying
+  Slash 0.660 -> 0.715, Crimson Slash 1.030 -> 1.022, Yamato item rows refit (Cold Front 0.677 -> 0.566 on 498 holders,
+  Arctic Blast row added, Melee Charge / Crushing Fists rows back to pooled). The fit drifts because her spirit builds
+  keep growing (the 11-06 refit was on games before 11-05).
+- Melee rate: melee_audit_fit --split did not hold (0.007 -> 0.008 one half), unchanged.
+- sim_vs_win Yamato (27k + 37k, post-hotfix pools): within slot and tier 0.408 -> 0.411, all 0.337 -> 0.340.
