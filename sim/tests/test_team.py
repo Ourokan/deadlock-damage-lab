@@ -36,7 +36,7 @@ DUELS = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift, all 
             # Abrams vs Seven re-pinned 2026-11-07: Storm Cloud strike lands 0.43 of casts, Seven corrs refit
     ("Haze", ["Rapid Rounds", "Toxic Bullets", "Restorative Locket"], "Infernus",
      ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Infernus (B)", 25.1, 2339.4, 2213.2),
-    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 25.8, 2006.4, 3202.3),
+    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 25.8, 2014.6, 3202.3),   # re-pinned 2026-11-08: Abrams melee phase lane point
     ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1455.7, 1281.5),
 ]
 

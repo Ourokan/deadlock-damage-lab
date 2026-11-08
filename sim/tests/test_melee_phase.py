@@ -29,6 +29,14 @@ class MeleePhaseTest(unittest.TestCase):
         p = DATA["pooled"]
         self.assertGreater(p["0.3"], p["0.9"])
 
+    def test_abrams_lane_point(self):
+        # Abrams's row has a lane point (melee_phase.py --fracs 0.1,0.3,0.6,0.9, 2026-11-08): real Abrams melee less
+        # in the first fifth than the whole-match rate gives (lane melee share 0.36 real vs 0.47 sim)
+        pts = DATA["heroes"]["6"]["points"]
+        self.assertEqual(len(pts), 4)
+        self.assertLess(pts[0][0], 3000)
+        self.assertLess(melee_phase_mult(6, 2000), melee_phase_mult(6, 15000))
+
     def test_no_row_no_change(self):
         self.assertEqual(melee_phase_mult(999999, 30000), 1.0)
         self.assertEqual(melee_phase_mult(16, None), 1.0)

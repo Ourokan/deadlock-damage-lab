@@ -4378,3 +4378,31 @@ The Doorman 1.31, Viscous 1.29, Apollo 1.21, Drifter 1.15.
   Sinclair, Vindicta, Graves, Bebop, Violet, Baba, Mina, Lash 1.01-1.07). sim_vs_win_raw: +0.0003 / +0.0003 / +0.0002 /
   +0.0002. Not shipped: the same refit lowering the over-reading heroes' rows (Pocket 0.69 -> 0.59, Calico 0.61, Kelvin,
   Paradox ...): with them sim_vs_win_raw was down on all 4 splits (-0.0001 to -0.0004).
+
+## Abrams's lane melee, and Vyper's ability order rechecked (2026-11-08)
+
+On a full post-hotfix audit of main after #269 (5,767 matches), the biggest lane-fifth gaps were Vyper 0.123, Abrams
+0.101, Vindicta 0.082, Seven 0.079 and Warden 0.078.
+
+**Vyper's real ability order, rechecked** (it was rejected in "Lane damage: ability tiers"; Paradox's rejection
+flipped once his corr changed). On 1,000 post-hotfix Vyper matches, with the order and a 3-round Vyper corr refit:
+lane 0.123 -> 0.101, phase 0.034 -> 0.029. Split-half (against the same refit without the order): lane 0.119 -> 0.086
+and 0.128 -> 0.115, phase 0.033 -> 0.030 and 0.031 -> 0.028, but mix 0.010 -> 0.011 and 0.010 -> 0.012.
+sim_vs_win_raw: 27k +0.0000 / -0.0002, 37k +0.0000 / -0.0004. Still not kept. The lane gap that remains is Screwjab
+Dagger: 0.10 of lane damage in the sim (with the order) vs 0.18 real. In 45 Vyper replays its poke hits outside
+fights run 0.20 per fight in the first 10 minutes and 0.12 after 30. A Dagger poke row with that curve, on top of
+the order, made held-out mix worse (0.014 / 0.016) and barely moved the lane Dagger (0.104), so it stays off. That's
+the lead.
+
+**Abrams's lane melee.** His lane fifth read melee 0.453 vs 0.365 real, and gun 0.367 vs 0.462. His
+`melee_phase.json` row came from 138 players, and its first point sat at 6,106 souls, so the lane got that point's
+0.91. `scripts/mechanics/melee_phase.py` takes `--fracs` now: `--fracs 0.1,0.3,0.6,0.9` adds a lane point (window
+0 - 0.2 of the match). A `--hero` row shrinks a frac the file has no pooled value for to the nearest pooled one.
+
+- Abrams's row refit on 2,438 post-hotfix Abrams players: points 0.71 at 1,789 souls, 0.88 at 6,325, 1.03 at 15,848,
+  1.07 at 28,854. The melee rate is unchanged: refitting it as well was mixed on split-half.
+- Split-half (fit the row on one match-id half, audit the other): lane 0.109 -> 0.089 and 0.099 -> 0.079, phase
+  0.029 -> 0.026 and 0.031 -> 0.028, mix 0.018 -> 0.018 and 0.014 -> 0.014.
+- Full sample: phase 0.030 -> 0.027, fifths [0.101, 0.031, 0.021, 0.022, 0.024] -> [0.081, 0.028, 0.020, 0.019,
+  0.021], lane melee 0.426 (real 0.365).
+- sim_vs_win_raw (Abrams, day halves A / B): 27k +0.0001 / +0.0000, 37k -0.0000 / -0.0000. Flat.
