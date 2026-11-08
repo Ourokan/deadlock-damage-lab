@@ -24,10 +24,16 @@ ROWS = {
 }
 
 
+HEROES = {"Vyper": {"Toxic Bullets": {"holders": 50, "real_over_sim": 1.2, "landing": 1.1},
+                    "Return Fire": {"holders": 50, "real_over_sim": 1.2, "landing": 1.5}},
+          "Wraith": {"Toxic Bullets": {"holders": 50, "real_over_sim": 1.2, "landing": 2.0}},
+          "Ivy": {"Toxic Bullets": {"holders": 50, "real_over_sim": 0.9, "landing": 0.9}}}
+
+
 class Lift(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.NamedTemporaryFile("w", suffix=".json", delete=False)
-        json.dump({"items": ROWS, "heroes": {}}, self.tmp)
+        json.dump({"items": ROWS, "heroes": HEROES, "meta": {}}, self.tmp)
         self.tmp.close()
         self.old = accuracy.ITEM_LANDING, accuracy.CAP_AFTER_LENGTH
         accuracy.ITEM_LANDING, accuracy.CAP_AFTER_LENGTH = self.tmp.name, True
@@ -64,6 +70,35 @@ class Lift(unittest.TestCase):
         self.assertAlmostEqual(d["items"]["a"]["landing"], round(1.205 * 1.5, 3), places=2)   # stays above 1
         d = ILH.fit_pooled(audit(9.0), {"Phantom Strike"})
         self.assertAlmostEqual(d["items"]["a"]["landing"], round(1 / 0.482, 3), places=3)     # product capped at 1
+
+
+    def test_hero_rows_above_one_lift_past_the_pooled_correction(self):
+        # accuracy.HERO_LENGTH_LIFT (2026-11-08): a hero row above 1 gives min(1, landing x pooled length_corr)
+        self.assertAlmostEqual(accuracy.item_length_corr("Vyper")["Toxic Bullets"], 1.1 * 0.8)
+        self.assertEqual(accuracy.item_length_corr("Wraith")["Toxic Bullets"], 1.0)
+        self.assertEqual(accuracy.item_length_corr("Ivy")["Toxic Bullets"], 0.8)     # row below 1: a plain cut
+        self.assertEqual(accuracy.item_length_corr("Vyper")["Return Fire"], 0.622)   # LENGTH_CAP_SKIP
+        self.assertEqual(accuracy.item_length_corr()["Toxic Bullets"], 0.8)
+        self.assertEqual(accuracy.item_landing("Vyper")["Toxic Bullets"], 1.0)
+        old = accuracy.HERO_LENGTH_LIFT
+        try:
+            accuracy.HERO_LENGTH_LIFT = False
+            self.assertEqual(accuracy.item_length_corr("Wraith")["Toxic Bullets"], 0.8)
+        finally:
+            accuracy.HERO_LENGTH_LIFT = old
+
+    def test_hero_fit_goes_up_to_one_over_the_correction(self):
+        def audit(hero, r):
+            return {"meta": {"sample": "t"}, "hero_items": [{"hero": hero, "item": "Toxic Bullets", "holders": 10 ** 6,
+                                                            "real_over_sim": r}]}
+        d = ILH.fit(audit("Vyper", 1.1), items={"Toxic Bullets"})
+        self.assertAlmostEqual(d["heroes"]["Vyper"]["Toxic Bullets"]["landing"], round(1.1 * 1.1, 3), places=2)
+        d = ILH.fit(audit("Vyper", 9.0), items={"Toxic Bullets"})
+        self.assertAlmostEqual(d["heroes"]["Vyper"]["Toxic Bullets"]["landing"], round(1 / 0.8, 3), places=3)
+        d = ILH.fit(audit("Wraith", 0.5), items={"Toxic Bullets"})   # the audit saw the capped product 1 / 0.8
+        self.assertAlmostEqual(d["heroes"]["Wraith"]["Toxic Bullets"]["landing"], round(0.5 / 0.8, 3), places=2)
+        d = ILH.fit(audit("Ivy", 0.5), items={"Toxic Bullets"})      # below 1 stays a plain landing
+        self.assertAlmostEqual(d["heroes"]["Ivy"]["Toxic Bullets"]["landing"], 0.45, places=2)
 
 
 if __name__ == "__main__":

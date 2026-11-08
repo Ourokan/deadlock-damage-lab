@@ -64,9 +64,16 @@ def fit(audit, prior=PRIOR, only=None, items=None):
         x = r.get("real_over_sim")
         if not x or x <= 0:
             continue
-        cur = accuracy.item_landing(r["hero"]).get(r["item"], 1.0)
-        new = cur * math.exp(r["holders"] / (r["holders"] + prior) * math.log(x))
-        new = max(0.25, min(1.0, new))
+        w = r["holders"] / (r["holders"] + prior)
+        corr = accuracy.hero_liftable(r["item"])
+        row = data.get("heroes", {}).get(r["hero"], {}).get(r["item"])
+        if corr is not None and row is not None and (row["landing"] >= 1.0 or x > 1.0):
+            # accuracy.HERO_LENGTH_LIFT: the audit saw min(1, landing x length_corr); the landing may go to 1 / corr
+            cur = min(1.0, row["landing"] * corr) / corr
+            new = max(0.25, min(1.0 / corr, cur * math.exp(w * math.log(x))))
+        else:
+            cur = accuracy.item_landing(r["hero"]).get(r["item"], 1.0)
+            new = max(0.25, min(1.0, cur * math.exp(w * math.log(x))))
         pooled = accuracy.item_landing().get(r["item"], 1.0)
         if abs(new - pooled) < 1e-3:
             continue
@@ -74,7 +81,8 @@ def fit(audit, prior=PRIOR, only=None, items=None):
                                                        "landing": round(new, 3)}
     data["heroes"] = {h: dict(sorted(v.items())) for h, v in sorted(heroes.items()) if v}
     data["meta"]["heroes"] = (f"per-hero factors from the damage audit's hero x item rows ({audit['meta']['sample']}, "
-                              f">= 20 holders): current factor x (real/sim)^(n/(n+{prior})), capped 0.25-1; replace "
+                              f">= 20 holders): current factor x (real/sim)^(n/(n+{prior})), capped 0.25-1 (1 / length_corr for an item "
+                              "with a pooled length_corr below 1, accuracy.HERO_LENGTH_LIFT); replace "
                               "the pooled factor for that hero (scripts/item_landing_heroes.py)")
     return data
 
