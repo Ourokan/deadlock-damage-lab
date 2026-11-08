@@ -101,5 +101,22 @@ class Lift(unittest.TestCase):
         self.assertAlmostEqual(d["heroes"]["Ivy"]["Toxic Bullets"]["landing"], 0.45, places=2)
 
 
+    def test_hero_fit_without_a_row_starts_from_the_pooled_factor(self):
+        def audit(r):
+            return {"meta": {"sample": "t"}, "hero_items": [{"hero": "Shiv", "item": "Phantom Strike", "holders": 10 ** 6,
+                                                            "real_over_sim": r}]}
+        d = ILH.fit(audit(1.1), items={"Phantom Strike"})   # lifted pooled row: 1.205 x 0.482 = 0.581 seen
+        self.assertAlmostEqual(d["heroes"]["Shiv"]["Phantom Strike"]["landing"], round(1.205 * 1.1, 3), places=2)
+        d = ILH.fit(audit(0.9), items={"Phantom Strike"})
+        self.assertAlmostEqual(d["heroes"]["Shiv"]["Phantom Strike"]["landing"], round(1.205 * 0.9, 3), places=2)
+
+    def test_hero_and_item_keep_other_heroes_rows(self):
+        a = {"meta": {"sample": "t"}, "hero_items": [{"hero": "Vyper", "item": "Toxic Bullets", "holders": 10 ** 6,
+                                                      "real_over_sim": 1.0}]}
+        d = ILH.fit(a, only={"Vyper"}, items={"Toxic Bullets"})
+        self.assertEqual(d["heroes"]["Wraith"]["Toxic Bullets"]["landing"], 2.0)
+        self.assertEqual(d["heroes"]["Ivy"]["Toxic Bullets"]["landing"], 0.9)
+
+
 if __name__ == "__main__":
     unittest.main()
