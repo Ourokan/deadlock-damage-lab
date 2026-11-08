@@ -444,6 +444,17 @@ def main():
                           "sources": dict(sorted(srcs.items(), key=lambda x: -x[1]["real_share"]))}
         if hid in phases:
             heroes[h.name]["fifths"], heroes[h.name]["phase_distance"] = phases[hid]
+            if os.environ.get("AUDIT_FIFTH_SOURCES") == "1":   # each fifth's real / sim share of every source >= 1%
+                fs = []
+                for b in range(COVER_BINS):
+                    sc, rc = sim_bin.get((hid, b)), real_src_bin.get((hid, b))
+                    st, rt = sum(sc.values()) if sc else 0.0, sum(rc.values()) if rc else 0.0
+                    if st <= 0 or rt <= 0:
+                        fs.append(None)
+                        continue
+                    row = {k: [round(rc.get(k, 0.0) / rt, 3), round(sc.get(k, 0.0) / st, 3)] for k in set(rc) | set(sc)}
+                    fs.append({k: v for k, v in sorted(row.items(), key=lambda x: -max(x[1])) if max(v) >= 0.01})
+                heroes[h.name]["fifth_sources"] = fs
     counts = collections.Counter()
     for (m, slot) in jobs:
         p = next(p for p in m["players"] if p["slot"] == slot)

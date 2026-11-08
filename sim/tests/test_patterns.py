@@ -143,7 +143,7 @@ PINNED = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift, all
             # re-pinned 2026-10-27 for in-fight bullet shred x Mechanics.shred_uptime (Haze's Sleep Dagger shred)
             # re-pinned 2026-11-06 for the late-October game data hotfix (no sim change; same on main before)
     ("Mo & Krill", "Haze", None, 30.0, 1349.8, 1446.6),
-    ("Paradox", "Abrams", None, 30.0, 2357.5, 1543.8),
+    ("Paradox", "Abrams", None, 30.0, 2481.6, 1483.6),   # re-pinned 2026-11-08: Paradox real ability order + refit
     ("Venator", "Lash", "Venator (A)", 18.3, 2121.9, 877.0),
     ("Warden", "Seven", None, 18.7, 1318.9, 2736.3),   # re-pinned 2026-11-07: Storm Cloud strike lands 0.43, Seven refit
 ]

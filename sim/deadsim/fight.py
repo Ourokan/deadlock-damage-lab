@@ -119,7 +119,7 @@ class Loadout:
 # Kelvin since 2026-11-08: his lane fifth read 0.11 off (Arctic Beam over, gun under) on the popular order; real tiers
 # halve it and the refit held split-half (validation/README.md "Lane damage: ability tiers"). Paradox's lane gap halved
 # too but sim_vs_win_raw fell in all four splits; Vyper's per-source gap rose. Both left on the popular order.
-ORDER_HEROES = ("Celeste", "Ivy", "Paige", "Graves", "Dynamo", "Apollo", "Lady Geist", "Venator", "Kelvin")
+ORDER_HEROES = ("Celeste", "Ivy", "Paige", "Graves", "Dynamo", "Apollo", "Lady Geist", "Venator", "Kelvin", "Paradox")
 
 
 @lru_cache(maxsize=64)
