@@ -59,6 +59,29 @@ class AuditCover(unittest.TestCase):
         self.assertAlmostEqual(mix["GUN"], 300.0)
         self.assertAlmostEqual(mix["ab"], 100.0)   # the empty fifth adds nothing
 
+    def test_real_source_bins_split_the_series(self):
+        m, p = fake_match()
+        bins = D.real_source_bins(m, p, [])
+        self.assertEqual(len(bins), D.COVER_BINS)
+        gun = [b["GUN"] for b in bins]   # 100 over 0-500 s, 900 over 500-1000 s, linear in between
+        self.assertAlmostEqual(sum(gun), 1000.0)
+        self.assertAlmostEqual(gun[0], 40.0)
+        self.assertAlmostEqual(gun[4], 360.0)
+        self.assertTrue(all("Bullet" not in b for b in bins))   # category rows are left out
+
+    def test_phase_gaps_do_not_offset_fifths(self):
+        import collections
+        from deadsim import game
+        G = game()
+        gun = "GUN"
+        abil = G.hero(14).abilities[0].class_name
+        # lane: sim all gun, real all ability; late: the other way round. Whole match evens out, each fifth is off by 1.
+        sim_bin = {(14, 0): collections.Counter({gun: 10.0}), (14, 4): collections.Counter({abil: 10.0})}
+        real = {(14, 0): collections.Counter({abil: 5.0}), (14, 4): collections.Counter({gun: 5.0})}
+        dists, mean = D.phase_gaps(sim_bin, real, G)[14]
+        self.assertEqual(dists, [1.0, None, None, None, 1.0])
+        self.assertAlmostEqual(mean, 1.0)
+
 
 if __name__ == "__main__":
     unittest.main()
