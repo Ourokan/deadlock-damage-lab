@@ -1114,7 +1114,13 @@ def spirit_procs(hit):
 # real hit releases its own charge. Viscous' Splatter (landing x length_corr 1.33): in Phantom+ replays the Splatter
 # hits that set off Tankbuster deal a median 239 (sim 325), Tankbuster per Splatter damage 0.44 (sim 0.25), and the
 # audit read Tankbuster 1.27x / Mystic Burst 1.49x under on 221 Viscous (scripts/mechanics/viscous_procs.py).
-LANDING_PROCS = frozenset({"viscous_goo_grenade"})
+# Nurse's Leech Therapy (landing x length_corr 2.26, 2026-11-08) the same way for the imbue-charge items it carries
+# (Quicksilver Reload): in 235 Phantom+ replays a leech deals a formula-sized stream per victim (median 136 over 4.6 s,
+# 1.16 victims per cast), so the factor stands for ~2x the sim's casts, and every real cast spends a charge (real
+# Quicksilver per Leech damage 2.2x the sim's; the audit read Quicksilver 2.2x under on 226 Nurses,
+# scripts/mechanics/nurse_quicksilver.py).
+LANDING_PROCS = frozenset({"viscous_goo_grenade", "ability_nurse_leech_therapy"})
+IMBUE_LANDING_PROCS = True
 
 
 @handler("upgrade_magic_burst", "upgrade_magic_shock")
@@ -1233,7 +1239,10 @@ class ImbueCharge(FX):
     def on_damage_dealt(self, f, t, hit):
         if self.pending is not None and hit.ability is self.pending and hit.kind == "spirit":
             self.pending = None
-            self.spirit(t, self.v("Damage"), procs=False)
+            dmg = self.v("Damage")
+            if IMBUE_LANDING_PROCS and hit.ability.ab.class_name in LANDING_PROCS and hit.landing > 1.0:
+                dmg *= hit.landing   # more real casts than the sim's cadence, each spending a charge (LANDING_PROCS)
+            self.spirit(t, dmg, procs=False)
         if hit.gun_bullet() and f.mods.active("mercurial"):
             # "+X% Base Bullet Damage" per bullet (X = 20 + 0.38 x Spirit Power), not flat damage: in replays each
             # proc is ~0.4-0.55 x the hero's base bullet damage (Wraith median 4, Warden 11, Holliday 31).

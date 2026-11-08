@@ -3814,3 +3814,24 @@ Stalker's Mark). Vindicta mix 0.020 -> 0.013, per half 0.016 -> 0.009 and 0.025 
 the bleed share of crow damage matches real (0.61), but sim_vs_win_raw fell on all four splits (-0.006 / -0.011 /
 -0.002 / -0.007), mostly spirit items (Mystic Expansion, Extra Spirit) losing value whose real edge is high. A
 Vindicta corr refit on top of BLEED_CURRENT failed the split-half mix (+0.003 on one half): no refit.
+
+## Nurse's Quicksilver Reload follows her Leech Therapy casts (2026-11-08)
+
+Fresh audit on 5,462 post-hotfix Phantom+ matches (the 4,952 of 2026-11-07 + 510 newer, after PRs #238-#241): Nurse
+had the widest mix gap (0.044; per-source ranking Billy 0.047, Geist 0.045, Nurse 0.044, Victor/Apollo 0.042). Items
+0.091 real vs 0.061 sim: Quicksilver Reload 2.2x under (226 holders, per gun and per total damage alike) and Toxic
+Bullets 1.5x under.
+
+Quicksilver is imbued on Leech Therapy (in 235 replays with a Nurse, 481 of 483 procs land in the same tick as a leech
+hit) and spends one charge per cast. A leech deals a formula-sized stream per victim (median 136 over 4.6 s, mean 165;
+1.16 victims per cast; scripts/mechanics/nurse_quicksilver.py), but the sim's Leech factor (landing x length_corr)
+is 2.26: it stands for about twice the casts the sim's cadence lands, not bigger leeches, so Quicksilver read
+~1 / factor under, the Splatter / Mystic Burst case (items_fx.LANDING_PROCS). Leech Therapy joins LANDING_PROCS and
+ImbueCharge scales the charge damage by the hit's landing above 1 (IMBUE_LANDING_PROCS, on). Then Nurse's item rows
+refit (item_landing_heroes.py --hero; Toxic Bullets 0.616 -> 0.887, new Quicksilver row 0.955, Ricochet stays at the
+0.25 floor; the Decay row kept).
+
+Split-half (even / odd match ids, Nurse players): the mechanic alone 0.048 -> 0.037 and 0.039 -> 0.027 (no fit);
+item rows fit on one half, audited on the other, 0.037 -> 0.031 and 0.027 -> 0.015. Full sample: Nurse mix
+0.044 -> 0.022, per-source 0.044 -> 0.025, Quicksilver 2.19 -> 1.00, Toxic Bullets 1.50 -> 1.11. sim_vs_win_raw
+(Nurse spliced into a full base run, 27k/37k x day halves): +0.0002 / +0.0002 / -0.0001 / -0.0002 (flat).
