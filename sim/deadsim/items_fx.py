@@ -339,6 +339,16 @@ class TeslaBullets(FX):
         return False
 
 
+# Lucky Shot in Phantom+ replays (2026-11-08, scripts/mechanics/item_ticks.py, 890 replays): holders' procs per gun hit
+# on heroes run above the item's 25%: Venator 0.29 (29 holders, 1,144 procs), Vindicta 0.28, Drifter 0.30, Ivy 0.30,
+# Wraith 0.32, Holliday 0.34, Graves 0.27, Warden 0.36; pooled 0.296 (2,434 procs / 8,226 gun hits; Haze's Fixation,
+# Vyper's Split Shot copies and Shiv / Calico, whose weapons the dump doesn't name, left out). Nearly every proc lands
+# with a gun hit on the same victim within 4 ticks, at its size (proc / hit median 1.0): more procs, not bigger ones.
+# The item's landing factor (1.74 pooled) is capped at 1 for uncut items, so the sim couldn't follow it: the chance
+# per hit is x LUCKY_PROC_MULT. 1.0 = the listed chance.
+LUCKY_PROC_MULT = 0.296 / 0.25
+
+
 @handler("upgrade_critshot")
 class LuckyShot(FX):
     def on_damage_dealt(self, f, t, hit):
@@ -350,7 +360,7 @@ class LuckyShot(FX):
 
     def roll(self, f, t, per, hits):
         """ProcChance per hit of `per` raw damage each. Haze's Fixation bonus rolls too, as its own hits (haze.py)."""
-        n = f.acc("lucky").take(self.item.p("ProcChance") / 100, hits)
+        n = f.acc("lucky").take(min(1.0, self.item.p("ProcChance") / 100 * LUCKY_PROC_MULT), hits)
         if n:
             f.e.damage(f, t, per * n * self.item.p("CritDamagePercent") / 100, "bullet", self.name, procs=False, is_item=True)
 

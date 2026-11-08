@@ -1,5 +1,5 @@
 {
   "_note": "Changing this file on main forces a patch rerun (.github/workflows/patch-rerun.yml). Bump requested_at and say why.",
-  "requested_at": "2026-11-08T06:20:00Z",
-  "reason": "Holliday: melee rate refit to the post-hotfix audit (0.0472 -> 0.0318, split-half kept)"
+  "requested_at": "2026-11-08T07:15:00Z",
+  "reason": "Lucky Shot procs at the replay rate (0.296 per hero gun hit, LUCKY_PROC_MULT)"
 }
