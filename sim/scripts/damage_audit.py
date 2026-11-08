@@ -144,6 +144,16 @@ for _w in filter(None, os.environ.get("AUDIT_ORDER_WINDOWS", "").split(";")):
         ORDER_WINDOWS[_name] = (float(_lo), float(_hi))
 
 
+# AUDIT_TIER_MEAN=name:limit:class,class;... adds fight.TIER_MEAN_HEROES rows; AUDIT_TIER_MEAN_FILE=path reads the mean tiers from
+# there (scripts/tier_mean.py --parity: fit on one half of the matches, audit the other)
+import deadsim.fight as _F  # noqa: E402
+for _w in filter(None, os.environ.get("AUDIT_TIER_MEAN", "").split(";")):
+    _n, _lim, _cls = _w.split(":")
+    _F.TIER_MEAN_HEROES[_n] = (float(_lim), tuple(_cls.split(",")))
+if os.environ.get("AUDIT_TIER_MEAN_FILE"):
+    _F.TIER_MEAN_FILE = os.environ["AUDIT_TIER_MEAN_FILE"]
+
+
 def _lane_tiers(name, souls):
     if souls is None:
         return False

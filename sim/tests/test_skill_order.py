@@ -8,7 +8,8 @@ ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 sys.path[:0] = [os.path.join(ROOT, p) for p in ("sim", "search/scripts", "damage/scripts", "damage")]
 
 from deadsim.data import game  # noqa: E402
-from deadsim.fight import (LANE_ORDER_HEROES, LANE_ORDER_SOULS, ORDER_HEROES, ORDER_WINDOWS, _auto_abilities, abilities_for_order, ability_budget,  # noqa: E402
+from deadsim.fight import (LANE_ORDER_HEROES, LANE_ORDER_SOULS, ORDER_HEROES, ORDER_WINDOWS, TIER_MEAN_HEROES,
+                           _auto_abilities, _order_abilities, mean_tiers, abilities_for_order, ability_budget,  # noqa: E402
                            default_ability_order, median_ability_order, popular_ability_order)
 import skill_order as K  # noqa: E402
 
@@ -139,6 +140,31 @@ class MedianOrder(unittest.TestCase):
         jar = next(i for i, a in enumerate(h.abilities) if a.name == "Jar of Dead")
         tiers, _ = _auto_abilities(h, 18000)
         self.assertEqual(tiers[jar], 3)
+
+
+
+class MeanTiers(unittest.TestCase):
+    def test_haze_ult_takes_the_real_mean_tier_in_mid_game_only(self):
+        # real Hazes have Bullet Dance at tier ~0.2-0.6 between 6k and 16k (spread over players); every order has 0
+        ult = next(i for i, a in enumerate(HAZE.abilities) if a.ultimate)
+        lim, classes = TIER_MEAN_HEROES["Haze"]
+        self.assertLess(lim, 27000)
+        self.assertEqual(classes, (HAZE.abilities[ult].class_name,))
+        tiers, _ = _auto_abilities(HAZE, 11000)
+        self.assertGreater(tiers[ult], 0.1)
+        self.assertLess(tiers[ult], 1.0)
+        self.assertAlmostEqual(tiers[ult], mean_tiers(HAZE, 11000)[ult])
+        others = _order_abilities(HAZE, 11000)[0]
+        self.assertEqual([t for i, t in enumerate(tiers) if i != ult], [t for i, t in enumerate(others) if i != ult])
+        for souls in (lim, 27000, 37000):
+            self.assertEqual(_auto_abilities(HAZE, souls), _order_abilities(HAZE, souls))
+
+    def test_fractional_tier_counts_that_share_of_the_upgrade(self):
+        from deadsim.abilities import AbilityState
+        ab = HAZE.abilities[3]   # Bullet Dance: tier 1 = +7 weapon damage bonus
+        vals = [AbilityState(None, ab, tier=t).ctx.raw("WeaponDamageBonus") for t in (0, 0.5, 1)]
+        self.assertAlmostEqual(vals[1] - vals[0], 0.5 * (vals[2] - vals[0]))
+        self.assertGreater(vals[2], vals[0])
 
 
 if __name__ == "__main__":

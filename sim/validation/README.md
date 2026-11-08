@@ -4539,3 +4539,23 @@ sim, gun over), Viscous (187 players), Nurse, Vindicta, Apollo, Dynamo, Shiv, Da
   / 0.039 -> 0.029, Baba 4th 0.016 -> 0.012 / 0.022 -> 0.015. No refit.
 - Every window ends below 25k, under the 27k / 37k budgets sim_vs_win scores: unchanged by construction
   (test_skill_order checks the tiers there).
+
+## Haze's mid-game Bullet Dance: mean real tiers (2026-11-08)
+
+Haze's 2nd fifth was the worst middle-fifth gap after #276 (0.070; Bullet Dance 0.15 real vs 0.10 sim, gun over).
+Real Hazes level the ult at widely spread times: mean Bullet Dance tier 0.19 at 6.5k net worth, 0.37 at 11k, 0.62 at
+18k (scripts/tier_mean.py on post_hotfix_2026-11-07), while every order (popular and median) keeps it at 0 until
+18k. Duels run on expected values (rng None), so a per-fight random tier draw would not average; instead
+fight.TIER_MEAN_HEROES gives listed abilities the real mean tier, fractional (deadsim.abilities: an upgrade's values
+count x the fraction, scale multipliers interpolate from 1).
+
+- Split-half: mean tiers from one match-id half, Haze audited on the other (AUDIT_TIER_MEAN, AUDIT_TIER_MEAN_FILE).
+- All four abilities on mean tiers: 2nd fifth worse (0.074 -> 0.087 / 0.065 -> 0.081). Sleep Dagger's Fixation
+  stacks switch on at tier 2 (`tier >= 2`), so its mean 1.46 at 6.5k read as tier 1 and Fixation fell 0.32 -> 0.29.
+  Hence only abilities whose upgrades are all values.
+- Bullet Dance only, below 16.5k: fifths [0.017, 0.074, 0.029, 0.019, 0.027] -> [0.017, 0.069, 0.024, 0.020,
+  0.027] / [0.017, 0.065, 0.029, 0.030, 0.019] -> [0.017, 0.061, 0.024, 0.031, 0.019]; phase 0.029 -> 0.028 /
+  0.028 -> 0.027; mix flat. 2nd-fifth Bullet Dance 0.098 -> 0.107 (real 0.15). Shipped.
+- Below 27k instead: 4th fifth over (0.019 -> 0.025 / 0.030 -> 0.037), mix +0.002. Not shipped.
+- Most of the 2nd-fifth ult gap is not tiers: left open. The limit sits below the 27k / 37k budgets, so sim_vs_win is
+  unchanged by construction (test_skill_order checks the tiers there).

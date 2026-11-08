@@ -98,8 +98,9 @@ class CastCtx:
         """Bought scale / multiply upgrades for prop: [(upgrade_type, scale_stat_filter, bonus), ...]."""
         out = []
         for i, u in enumerate(self.s.ab.scale_upgrades):
-            if i < self.s.tier and prop in u:
-                out.extend(u[prop])
+            w = min(1.0, self.s.tier - i)   # a fractional tier (fight.TIER_MEAN_HEROES) buys that share of the upgrade
+            if w > 0 and prop in u:
+                out.extend((t, filt, _part(t, b, w)) for t, filt, b in u[prop])
         return out
 
     def raw(self, prop, default=0.0):
@@ -116,8 +117,9 @@ class CastCtx:
         v = ab.props.get(prop)
         v = default if v is None else v
         for i, u in enumerate(ab.upgrades):
-            if i < self.s.tier and prop in u and u[prop] is not None:
-                v += u[prop]
+            w = min(1.0, self.s.tier - i)
+            if w > 0 and prop in u and u[prop] is not None:
+                v += w * u[prop]
         for t, _, b in self._special(prop):
             if t == "EMultiplyBase":
                 v *= 1.0 + b / 100.0
@@ -423,6 +425,13 @@ class GenericAbility(AbilityImpl):
                 d = next((c.dur(q) for q in DUR_PROPS if c.raw(q)), 3.0)
                 c.dot(c.val(p), d, delay=delay)
                 break
+
+
+def _part(kind, b, w):
+    """A share w of a scale upgrade's bonus b: multipliers interpolate from 1, the rest scale."""
+    if w >= 1.0 or b is None:
+        return b
+    return 1.0 + (b - 1.0) * w if kind == "EMultiplyScale" and b else b * w
 
 
 class AbilityState:
