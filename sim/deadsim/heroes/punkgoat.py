@@ -12,14 +12,17 @@ Assumptions:
   BulletDamageAmp % more bullet damage for the whole window (the extra is booked as its own unresisted "Blasted"
   hit after each bullet hit, as the game's damage report does); melee hits during it add MaxHealthMelee (x
   LightMeleeScalePct for light melee) max health for HealthBoostDuration and extend the window. T2 gives
-  Bashdown a charge on use. No melee is woven between abilities
-  (the engine has no melee rotation), so only Bashdown's melee counts.
+  Bashdown a charge on use. Billy's basic melee (the engine's melee rotation) counts too
+  (ROTATION_MELEE, 2026-11-08): until then only Bashdown's melee reloaded and fed Blasted, from when the engine had
+  no melee rotation, and the damage audit read Billy's gun 0.178 vs real 0.195 of his damage (mid / late game 1.12x
+  under) with Blasted 1.36x under at its length_corr cap; on, gun 0.190, mix 0.023 -> 0.011 (both match halves).
 - Chain Gang: target chained for AbilityDuration taking DPS, then yanked for Damage. T1 resists last for the
   chain duration (assumed).
 """
 from deadsim.abilities import AbilityImpl, register
 
 UNITS_PER_METER = 39.37
+ROTATION_MELEE = True
 
 
 def find(c, class_name):
@@ -113,7 +116,12 @@ class Blasted(AbilityImpl):
         pass   # the window is c.state["active_until"]; the amp itself is booked in on_damage_dealt
 
     def on_damage_dealt(self, c, target, hit):
-        """Wrecked: bullets deal BulletDamageAmp % more, booked under Blasted as the game reports it."""
+        """Wrecked: bullets deal BulletDamageAmp % more, booked under Blasted as the game reports it. Billy's basic
+        melee (the engine's melee rotation, ROTATION_MELEE) reloads, extends the window and boosts health as
+        Bashdown's melee does, by the hit's expected weight."""
+        if ROTATION_MELEE and hit.kind == "melee" and not hit.is_ability:
+            self.melee(c, bool(c.me.counters.get("melee_heavy")), c.me.counters.get("melee_weight", 1.0))
+            return
         if hit.kind != "bullet" or hit.amount <= 0 or c.now >= c.state["active_until"] or not target.alive:
             return
         f = c.me
@@ -122,12 +130,15 @@ class Blasted(AbilityImpl):
         extra = hit.amount * c.raw("BulletDamageAmp") / 100 / max(1e-6, mult)
         c.engine.damage(f, target, extra, "pure", self.s.ab.name, is_ability=True, ability=self.s, procs=False)
 
-    def melee(self, c, heavy):
+    def melee(self, c, heavy, w=1.0):
         f = c.me
-        pct = c.raw("BulletsReloadedPerHeavyMeleePct" if heavy else "BulletsReloadedPerLightMeleePct") / 100
-        f.clip = min(f.st.clip, f.clip + int(round(f.st.clip * pct)))
+        pct = c.raw("BulletsReloadedPerHeavyMeleePct" if heavy else "BulletsReloadedPerLightMeleePct") / 100 * w
+        acc = c.state.get("reload_acc", 0.0) + f.st.clip * pct   # fractional hits add up to whole bullets
+        n = int(acc + 0.5) if w >= 1.0 else int(acc)
+        c.state["reload_acc"] = 0.0 if w >= 1.0 else acc - n
+        f.clip = min(f.st.clip, f.clip + n)
         if c.now < c.state["active_until"]:
-            scale = 1.0 if heavy else c.raw("LightMeleeScalePct", 40) / 100
+            scale = (1.0 if heavy else c.raw("LightMeleeScalePct", 40) / 100) * w
             ext = c.val("DurationPerHeavyMelee" if heavy else "DurationPerLightMelee") * scale
             c.state["active_until"] = min(c.state["active_until"] + ext, c.now + c.raw("MaxDuration", 35))
             hp = c.val("MaxHealthMelee") * scale

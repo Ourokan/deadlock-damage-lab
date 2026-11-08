@@ -6,6 +6,8 @@
 - Mechanics.swap_full (on, 2026-10-28): the swap lands whole (no landing factor) on ghost.SWAP_LAND of casts.
 - Mechanics.swap_gap (on, 2026-10-28): each fight's swap waits for a gap (target - Geist) drawn from real swaps
   (ghost.SWAP_GAPS) instead of SWAP_MIN_GAIN.
+- Mechanics.swap_fresh (on, 2026-11-08): with another enemy near, a fight's swap can go to a fresh enemy at
+  ghost.FRESH_HP once the duel target's gap is short of the drawn one, booked as damage to other heroes (splash).
 - Mechanics.gate_assist (on): Soul Exchange's Geist sees her health short by a real entry deficit and by the real
   third parties' damage per damage she takes (Fighter.self_gate_frac); her health stays.
 Run: python3 -m unittest discover -s tests -v (from sim/)."""
@@ -174,6 +176,30 @@ class SoulExchange(unittest.TestCase):
         se = ability(f, "Soul Exchange")
         se.impl.draw_plan(se.ctx, hi)
         self.assertFalse(hasattr(se, "swap_gap"))           # off: SWAP_MIN_GAIN as before
+
+    def test_swap_onto_fresh_enemy(self):
+        from deadsim.heroes import ghost
+        # a draw whose gap (0.44-0.52) is past the duel target's 0.4 but within a fresh enemy's 0.54, fresh chance 0.5
+        lo = next(k / 10000 for k in range(1, 10000) if 0.2 <= math.modf(k / 10000 * 7919.0)[0] < 0.4
+                  and math.modf(k / 10000 * 104729.0)[0] < 0.5)
+        for near, fresh in ((1.0, True), (0.0, False)):
+            e, f, g = pair("Lady Geist", rng=False)
+            e.mech = dataclasses.replace(e.mech, extra_targets=near)
+            se = ability(f, "Soul Exchange")
+            se.impl.draw_plan(se.ctx, lo)
+            f.gate_assist, f.entry_gap = 0.0, 0.6               # Geist at 0.4; the duel target full: gap 0.6
+            g.hp = 0.8 * g.max_hp                                # target down to 0.8: gap 0.4, short of the draw
+            self.assertGreater(se.swap_gap, 0.4)
+            self.assertLessEqual(se.swap_gap, ghost.FRESH_HP - 0.4)
+            self.assertEqual(se.impl.should_cast(se.ctx), fresh)
+            if not fresh:
+                continue
+            before = g.hp
+            se.impl.swap(se.ctx)
+            self.assertEqual(g.hp, before)                       # the duel target keeps its health
+            want = (ghost.FRESH_HP - max(0.4, se.ctx.raw("EnemyMinHealthPct") / 100)) * g.max_hp
+            self.assertAlmostEqual(f.counters["splash"]["Soul Exchange"], want, delta=1.0)
+            self.assertFalse(se.fresh_ok)                        # one fresh enemy per fight
 
     def test_hold_draw(self):
         q = M.execute_timing_data()["soul_exchange"]["holds"]
