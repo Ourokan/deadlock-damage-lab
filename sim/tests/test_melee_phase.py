@@ -45,6 +45,9 @@ class MeleePhaseTest(unittest.TestCase):
             self.assertLess(r["points"][0][0], 4000)
             self.assertLess(r["points"][0][0], r["points"][1][0])
         self.assertGreater(DATA["pooled"]["0.1"], 1.0)
+        for hid in ("6", "25"):   # Abrams / Warden keep their own per-hero lane points (#270, #272)
+            self.assertNotIn("lane", DATA["heroes"][hid])
+            self.assertLess(DATA["heroes"][hid]["points"][0][0], 4000)
         vin = DATA["heroes"]["3"]["points"]
         self.assertGreater(melee_phase_mult(3, vin[0][0]), melee_phase_mult(3, vin[1][0]))
 
@@ -54,7 +57,7 @@ class MeleePhaseTest(unittest.TestCase):
 
     def test_engine_scales_the_melee_rate(self):
         # melee only, deterministic duel: melee damage with the term = without x the multiplier at the duel's souls
-        souls = DATA["heroes"][CALICO]["points"][-3][0]   # the 30% point (a lane point may sit below it)
+        souls = min(nw for nw, _ in DATA["heroes"][CALICO]["points"] if nw > 4000)   # the 30% point, past any lane point
         sk = Skill(accuracy=0.0, use_abilities=False, melee_rate=0.5)
         foe = Loadout("Abrams", [], souls=souls, skill=Skill(accuracy=0.0, use_abilities=False))
         got = {}
