@@ -29,14 +29,17 @@ import casts_by_build as CB  # noqa: E402
 from deadsim import game  # noqa: E402
 
 HEROES = {"Paige": ("ability_bookworm_aoemagic", "ability_bookworm_dragonfire"),
-          "Vyper": ("ability_viper_debuffdagger",)}
+          "Vyper": ("ability_viper_debuffdagger",), "Apollo": ("ability_fencer_throwblade",)}
 BINS = (0, 5000, 10000, 15000, 22000, 30000, 10 ** 9)
 K = 50   # casts of shrinkage toward the pooled share
 # lane-only rows: bins from this net worth on are held at rel 1.0. Vyper's Screwjab Dagger lands 1.19x its match share
 # below 5k and ~0.87x late (both replay halves); the full row split sim_vs_win_raw (with the Vyper refit 27k +0.007/
 # -0.006, 37k -0.002/-0.013; without it 27k +0.007/-0.007, 37k +0.001/-0.011); the lane part sits below the svw
 # budgets (2026-11-08, validation/README.md "Lane gaps after the melee point")
-LANE_ONLY = {"ability_viper_debuffdagger": 10000}
+# Apollo's Disengaging Sigil (throwblade) lands 1.11x / 1.07x its match share below 10k and ~0.85x late (both replay
+# halves); the audit read it 1.42 / 1.14x under in the first two fifths. Lane-only: a row held to 15k pushed the 3rd fifth
+# over on both audit halves (2026-11-08, validation/README.md "Haze's Bullet Dance in replays; Apollo's lane Sigil")
+LANE_ONLY = {"ability_viper_debuffdagger": 10000, "ability_fencer_throwblade": 10000}
 OUT = os.path.join(ROOT, "data", "landing_phase.json")
 
 

@@ -4559,3 +4559,23 @@ count x the fraction, scale multipliers interpolate from 1).
 - Below 27k instead: 4th fifth over (0.019 -> 0.025 / 0.030 -> 0.037), mix +0.002. Not shipped.
 - Most of the 2nd-fifth ult gap is not tiers: left open. The limit sits below the 27k / 37k budgets, so sim_vs_win is
   unchanged by construction (test_skill_order checks the tiers there).
+
+## Haze's Bullet Dance in replays; Apollo's lane Sigil (2026-11-08)
+
+After #277 most of Haze's 2nd-fifth Bullet Dance gap (0.107 sim vs 0.15 real) was left. Pair-fight replays
+(casts_by_build.py real rows, 259 matches) vs the audit's duels of Haze (phantom_sample, 324 players), by net worth:
+
+- Casts per fight match: real 0.20 / 0.24 / 0.19 at 5-10k / 10-16.5k / 16.5-25k, sim (expected over real fight
+  lengths) 0.17 / 0.23 / 0.25. Landed 0.97+ of casts in every bin.
+- Damage per fight real / sim 2.3 / 2.0 / 2.0 / 2.0 from 5k up (whole-match fits carry the level). The 5-10k excess
+  splits by replay half: 1.63 and 3.21. No phase-specific shortfall in casts, hits per cast (real 25 -> 45,
+  sim 15 -> 20, the same ratio across bins) or damage per cast that holds. No source fix; left.
+- Same replays, landed share by net worth for the other mid-gap heroes: Deadman Danny's Jettison Fuel lands 1.39x
+  early and 0.3x late in both halves, but the audit reads it flat by fifth (1.01 / 1.14 / 1.04 / 0.99 / 0.98): not
+  used. Apollo's Disengaging Sigil 1.11 / 1.07 below 10k and ~0.85 late, audit 1.42 / 1.14 / 0.98 / 0.95 / 0.88.
+- landing_phase row for the Sigil (no refit), audit halves A / B:
+  - held at 1.0 from 15k: lane 0.049 -> 0.038 / 0.067 -> 0.058, but the 3rd fifth went over on both (+0.002 /
+    +0.003). Not shipped.
+  - **lane-only (from 10k at 1.0)**: lane 0.049 -> 0.038 / 0.067 -> 0.058, 2nd fifth 0.016 -> 0.014 / 0.027 ->
+    0.030, 3rd flat, phase 0.029 -> 0.028 / 0.050 -> 0.050, mix +0.002 / +0.001. Shipped. Below the 27k / 37k
+    budgets, so sim_vs_win is unchanged.
