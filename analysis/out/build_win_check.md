@@ -2,9 +2,9 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-06, 49,834 Ritualist+ matches (refreshed 2026-11-08T05:58:03Z).
+Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-06, 49,834 Ritualist+ matches (refreshed 2026-11-08T07:55:27Z).
 
-- Recommended item slots with data: 1833; mean edge +0.9 (popular builds +0.1); clearly positive 822, clearly negative 3.
+- Recommended item slots with data: 1837; mean edge +0.9 (popular builds +0.1); clearly positive 819, clearly negative 3.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
@@ -33,6 +33,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Warp Stone | vitality 3 | 2 | Victor +2.2, Infernus +1.5 |
 | Spirit Burn | spirit 4 | 2 | Ivy +2.4, Vindicta +2.1 |
 | Glass Cannon | weapon 4 | 1 | Deadman Danny +2.3 |
+| Superior Cooldown | spirit 3 | 1 | Drifter +2.2 |
 | Rapid Recharge | spirit 3 | 1 | Haze +1.7 |
 | Extra Spirit | spirit 1 | 1 | Haze +1.6 |
 | Mystic Reverb | spirit 4 | 1 | Rat King +2.1 |
@@ -64,7 +65,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Ethereal Shift +2.4, Glass Cannon +2.3
 
 ### Drifter
-- never picked: Ethereal Shift +2.2, Siphon Bullets +2.0, Fleetfoot +1.7, Silencer +1.5
+- never picked: Ethereal Shift +2.2, Superior Cooldown +2.2, Siphon Bullets +2.0, Fleetfoot +1.7, Silencer +1.5
 
 ### Dynamo
 
