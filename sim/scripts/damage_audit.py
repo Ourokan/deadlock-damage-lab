@@ -365,15 +365,16 @@ def main():
                 if k not in L.CATEGORY:
                     d[L.real_key(k, classes)] += v
             real_of[m["match_id"], p["slot"]] = d
-            rsb = real_source_bins(m, p, classes) if cover else None
-            for b, c in enumerate(rsb or ()):
-                real_src_bin[p["hero_id"], b].update(c)
             hg = L.held_gun(m, p, ITEM_NORM == "gun")
             if hg is not None:
                 held_of[m["match_id"], p["slot"]] = hg
             jobs.append((m, p["slot"]))
     random.Random(1).shuffle(jobs)
     jobs = jobs[:max_players]
+    for m, slot in jobs if cover else ():   # the players the duels run for (after max_players)
+        p = next(p for p in m["players"] if p["slot"] == slot)
+        for b, c in enumerate(real_source_bins(m, p, [ab.class_name for ab in G.hero(p["hero_id"]).abilities]) or ()):
+            real_src_bin[p["hero_id"], b].update(c)
     sim = collections.defaultdict(collections.Counter)
     sim_item = collections.defaultdict(lambda: [0.0, 0.0, 0])
     sim_hero_item = collections.defaultdict(lambda: [0.0, 0.0, 0])
@@ -506,8 +507,8 @@ def write_md(out):
           "Shares of damage to enemy heroes. Distance = half the summed absolute share gaps (0 = same mix). Per fifth = the "
           "same distance in each fifth of the match (real vs the duels there), and its real-damage-weighted mean: the "
           "whole-match distance lets a fifth where the sim is over offset one where it is under.", "",
-          f"Players-weighted mean distance {out['meta'].get('mix_distance_mean', 0):.4f}, per fifth "
-          f"{out['meta'].get('phase_distance_mean', 0):.4f}.", "",
+          f"Players-weighted mean distance {out['meta'].get('mix_distance_mean', 0):.4f}"
+          + (f", per fifth {out['meta']['phase_distance_mean']:.4f}." if "phase_distance_mean" in out["meta"] else "."), "",
           "| Hero | n | gun real / sim | abilities | items | melee | distance | per fifth (mean) |",
           "|---|---|---|---|---|---|---|---|"]
     for hn, h in out["heroes"].items():
