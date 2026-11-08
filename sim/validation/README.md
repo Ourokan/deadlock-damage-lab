@@ -3835,3 +3835,35 @@ Split-half (even / odd match ids, Nurse players): the mechanic alone 0.048 -> 0.
 item rows fit on one half, audited on the other, 0.037 -> 0.031 and 0.027 -> 0.015. Full sample: Nurse mix
 0.044 -> 0.022, per-source 0.044 -> 0.025, Quicksilver 2.19 -> 1.00, Toxic Bullets 1.50 -> 1.11. sim_vs_win_raw
 (Nurse spliced into a full base run, 27k/37k x day halves): +0.0002 / +0.0002 / -0.0001 / -0.0002 (flat).
+
+## Billy's basic melee feeds Blasted (2026-11-08)
+
+Next on the fresh post-hotfix audit (5,462 matches) after Nurse: Billy (1,646 players, per-source 0.047). His gun read
+0.178 of his damage vs real 0.195 (1.12x under in mid and late game by phase_mix.py), Bashdown 0.354 vs 0.327 and
+Blasted 1.36x under with its length_corr at the 10 cap. Blasted's passive reloads BulletsReloadedPerLightMeleePct
+(35%) of the clip per light melee (100% heavy) and, while active, each melee extends the window and adds max health,
+but punkgoat.py only ran it on Bashdown's melee, from when the engine had no melee rotation; Billy's rotation melee
+(20% of his damage) never reloaded or extended. punkgoat.ROTATION_MELEE (on): rotation melee hits call Blasted's melee
+effects by the hit's expected weight (fractional reloads add up to whole bullets).
+
+Billy mix 0.023 -> 0.011, per-source 0.047 -> 0.034, gun 0.178 -> 0.190; per match half 0.023 -> 0.011 and
+0.022 -> 0.010 (no fit). An ability corr refit on top (ability_corr_heroes --split) halved the held-out sources but
+put the mix +0.005 on one half: not kept. sim_vs_win_raw (Billy spliced, 27k/37k x day halves): +0.0000 / +0.0000 /
+-0.0001 / -0.0001.
+
+## Lady Geist swaps with fresh enemies (2026-11-08)
+
+Geist (303 players, per-source 0.045): Soul Exchange 0.112 of her damage vs real 0.138, 1.1-1.2x under at every
+phase. The sim's swaps are the right size (loss 0.48 of the target's max health vs real 0.48-0.52) but too few. In
+260 replays (scripts/mechanics/swap_targets.py, 134 swaps) only 32% of real swaps go to the hero Geist was mostly
+hitting in the 5 s before and 49% to one she hadn't hit at all, sitting at 0.94 of its health (26% untouched by
+anyone). The duel has only its own target, already at 0.78 when she swaps, so the real-size gap she waits for
+(ghost.SWAP_GAPS, median 0.6) opened late. Mechanics.swap_fresh (on): in a fight with another enemy near
+(nearby_enemies, at most 1 as a chance drawn per fight) the swap can go to a fresh enemy at ghost.FRESH_HP 0.94 once the
+duel target's gap is short of the drawn one; it is booked as damage to other heroes (splash, as Ricochet), Geist takes
+the 0.94, and the T2 silence doesn't land on the duel's target. One fresh swap per fight.
+
+Geist mix 0.018 -> 0.012, per-source 0.045 -> 0.027, Soul Exchange 0.112 -> 0.141 (real 0.138); per match half mix
+0.011 -> 0.012 / 0.025 -> 0.016, sources 0.036 -> 0.019 / 0.057 -> 0.037 (no fit).
+sim_vs_win_raw (Geist spliced, 27k/37k x day halves): -0.0002 / -0.0000 / -0.0000 / -0.0000 (flat). No refit: Soul
+Exchange skips its landing factor (swap_full), so there is nothing to refit for it.

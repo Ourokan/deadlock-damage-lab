@@ -363,6 +363,12 @@ class Mechanics:
     # so the sim swapped ~1.3x as often per damage dealt for ~0.75x the health each, and Soul Exchange read ~1.25x real
     # in mid and late game. On: each fight's swap (Mechanics.execute_timing's plan) waits for a gap drawn from ghost.SWAP_GAPS
     swap_gap: bool = True
+    # Soul Exchange onto a fresh enemy (2026-11-08): in Phantom+ replays only 32% of real swaps go to the hero Geist was
+    # mostly hitting and 49% to one she hadn't hit in the last 5 s (at 0.94 of its health; scripts/mechanics/
+    # swap_targets.py), while the duel only had its own, already damaged target (0.78 at swap), so the drawn gap opened
+    # late and Soul Exchange read 1.3x under. On: in a fight with another enemy near (nearby_enemies, at most 1 as a
+    # chance) Geist can swap with it at ghost.FRESH_HP, booked as damage to other heroes (splash)
+    swap_fresh: bool = True
     # Sinclair's copied ultimates by ultimate (2026-10-28): Audience Participation's copy took one landing factor x
     # length_corr (0.60 x 4.8) whatever ultimate it copied, so the copies real Sinclairs get little from (Combo, Seismic
     # Impact, Nox Nostra, Feed The Birds: ~0.15-0.25x the sim's share in Phantom+ matches) carried as much as the area

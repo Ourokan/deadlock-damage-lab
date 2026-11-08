@@ -29,6 +29,7 @@ from deadsim.abilities import AbilityImpl, register
 PUDDLE_UPTIME = 0.5
 SWAP_MIN_GAIN = 0.3
 SWAP_APPROACH = 10.0    # m Geist walks in to reach Soul Exchange's 5.5 m cast range (she keeps shooting meanwhile)
+FRESH_HP = 0.94        # Mechanics.swap_fresh: health of a real swap's target that Geist hadn't hit in 5 s (replays)
 SWAP_LAND = 0.93       # Mechanics.swap_full: real Soul Exchange hits per cast (scripts/mechanics/swap_real.py)
 # Mechanics.swap_gap: the health gap (target - Geist) a real swap went out at, 20 quantiles (scripts/mechanics/swap_real.py)
 SWAP_GAPS = (0.09, 0.17, 0.25, 0.34, 0.44, 0.47, 0.5, 0.52, 0.55, 0.59, 0.63, 0.65, 0.67, 0.7, 0.74, 0.76, 0.79, 0.82,
@@ -136,11 +137,25 @@ class SoulExchange(AbilityImpl):
         if getattr(c.engine.mech, "swap_gap", False):
             # Mechanics.swap_gap: the gap this fight's swap waits for, on a draw independent of the hold's
             self.s.swap_gap = SWAP_GAPS[min(len(SWAP_GAPS) - 1, int(math.modf(u * 7919.0)[0] * len(SWAP_GAPS)))]
+        self.s.fresh_ok = False
+        if getattr(c.engine.mech, "swap_fresh", False) and getattr(c.engine, "team_splash", None) is None:
+            from deadsim.mechanics import nearby_enemies
+            self.s.fresh_ok = math.modf(u * 104729.0)[0] < min(1.0, nearby_enemies(c.me))
+
+    def need(self, c):
+        gap = getattr(self.s, "swap_gap", None)
+        return max(SWAP_MIN_GAIN if gap is None else gap, c.raw("MinDiffToCast"))
+
+    def fresh(self, c):
+        """Mechanics.swap_fresh: swap with a fresh nearby enemy instead of the duel's target."""
+        need = self.need(c)
+        return getattr(self.s, "fresh_ok", False) and c.foe.hp_frac - c.me.self_gate_frac < need <= \
+            FRESH_HP - c.me.self_gate_frac
 
     def should_cast(self, c):
-        gap = getattr(self.s, "swap_gap", None)
-        need = max(SWAP_MIN_GAIN if gap is None else gap, c.raw("MinDiffToCast"))
-        return self.in_range(c) and c.foe.hp_frac - c.me.self_gate_frac >= need
+        if not self.in_range(c):
+            return False
+        return c.foe.hp_frac - c.me.self_gate_frac >= self.need(c) or self.fresh(c)
 
     def cast(self, c):
         delay = c.raw("AbilityCastDelay")
@@ -155,13 +170,25 @@ class SoulExchange(AbilityImpl):
         if whole and not me.acc("swap").take(SWAP_LAND):
             return   # missed (out of reach when it went off)
         mf, ff = me.self_gate_frac, foe.hp_frac
-        new_foe = max(mf, c.raw("EnemyMinHealthPct", 30) / 100) * foe.max_hp
-        loss = foe.hp - new_foe
-        if loss > 0:
-            c.engine.damage(me, foe, loss, "pure", self.s.ab.name, ignore_resist=True, is_ability=True,
-                            ability=self.s, is_ult=True, procs=False, nonlethal=True, landed=whole)
-        me.hp = max(me.hp, ff * me.max_hp)
-        if c.tier >= 2:
+        fresh = self.fresh(c)
+        if fresh:
+            # the fresh enemy takes the swap: damage to another hero near the target (booked as splash)
+            loss = (FRESH_HP - max(mf, c.raw("EnemyMinHealthPct", 30) / 100)) * foe.max_hp
+            if loss > 0:
+                d = me.counters.setdefault("splash", {})
+                d[self.s.ab.name] = d.get(self.s.ab.name, 0.0) + loss
+                d = me.counters.setdefault("splash_exp", {})
+                d[self.s.ab.name] = d.get(self.s.ab.name, 0.0) + loss * c.engine.length_w(src=me, source=self.s.ab.name)
+            me.hp = max(me.hp, FRESH_HP * me.max_hp)
+            self.s.fresh_ok = False   # one fresh enemy per fight
+        else:
+            new_foe = max(mf, c.raw("EnemyMinHealthPct", 30) / 100) * foe.max_hp
+            loss = foe.hp - new_foe
+            if loss > 0:
+                c.engine.damage(me, foe, loss, "pure", self.s.ab.name, ignore_resist=True, is_ability=True,
+                                ability=self.s, is_ult=True, procs=False, nonlethal=True, landed=whole)
+            me.hp = max(me.hp, ff * me.max_hp)
+        if c.tier >= 2 and not fresh:   # a fresh enemy's silence doesn't touch the duel's target
             c.debuff("silence", 1, c.dur("SilenceDuration"))
         if c.tier >= 3:
             d = c.dur("SelfBuffDuration")
