@@ -4637,3 +4637,22 @@ Stalker by fifth -> 1.03 / 0.95 / 0.90 / 0.93 / 0.94; whole audit flat (mix 0.01
 sim_vs_win_raw within: 27k A -0.0003, 37k A +0.0002, 27k B -0.0003, 37k B +0.0008 (net +0.0004, 2 of 4 up): on.
 Barrier ally casts above were kept off at net -0.0004 with 3 of 4 down; this one is a measured DoT break with
 the audit tilt gone and sim_vs_win net up.
+
+## Vyper's dagger: real gaps between charges (2026-11-09)
+
+On the post-hotfix audit (5,767 matches, 1,000 Vypers) Screwjab Dagger's share of Vyper's damage read 0.80 / 0.89 /
+1.04 / 1.33 / 1.63x real by fifth of the match. Replays (52 post-hotfix matches, the dagger's DamageEvent rows,
+analysis/work/vyper_dagger/raw): real damage per hit tracks the sim's growth (sim / real ~1.4 in every fifth, the
+landing factor's level), but only ~15% of real hits land on a stack (another hit on that hero within StackDuration),
+and past 30% of the match 11% of the gaps between landed daggers are under 5 s (median under 20 s 6.5 s; 58% over
+20 s). The sim threw the next charge as soon as AbilityCooldownBetweenCharge allowed (4 s), so 65-72% of its hits
+were on a stack, and the T1 charge + T3 refund grew its hits per duel 2.38 -> 3.52 from 10% to 90% of the match.
+`mechanics.CHARGE_GAP_ON` puts the dagger on the real gaps (data/charge_gaps.json row from scripts/mechanics/
+charge_gaps.py) with `Mechanics.charge_gaps` still off for everyone else: hits per duel 1.92 -> 2.32, 48% on a stack.
+Split-half (ability_corr_heroes --split, 2 rounds) against the plain refit on main, held out: mix 0.011 / 0.015 ->
+0.009 / 0.011, per-source 0.008 / 0.011 -> 0.012 / 0.013. Vyper refit with it (dagger 1.265 -> 1.603): Vyper audit
+mix 0.012 -> 0.010 and phase 0.034 -> 0.022 vs the plain refit, every fifth better; dagger by fifth 0.37 / 0.85 / 1.03
+/ 1.33 / 1.66 (plain refit) -> 0.71 / 0.82 / 0.98 / 1.18 / 1.28. sim_vs_win_raw (Vyper only, vs main): 27k A -0.0036,
+37k A +0.0228, 27k B -0.0006, 37k B -0.0083 (net +0.0103; the plain refit +0.0092), so on.
+Shiv's Serrated Knives (same charged-skillshot shape, 1.3 knives per bleed real vs 3 sim) did not take it: after a
+refit the knife tilt stayed and held-out mix got worse.

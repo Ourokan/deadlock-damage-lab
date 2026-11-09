@@ -67,6 +67,19 @@ class ChargeGaps(unittest.TestCase):
         e.mech = mechanics.Mechanics(charge_gaps=False)
         self.assertEqual(mechanics.recast_wait(ab), 0.0)
 
+    def test_vyper_dagger_on_real_gaps_by_default(self):
+        # CHARGE_GAP_ON: Screwjab Dagger draws its real gaps with charge_gaps off (replays: 11% under 5 s past 30%)
+        e = Engine(rng=random.Random(5))
+        e.mech = mechanics.Mechanics()
+        self.assertFalse(e.mech.charge_gaps)
+        a = make_fighter(e, Loadout("Vyper", [], souls=20000, tiers=[1, 1, 1, 1]))
+        ab = next(x for x in a.abilities if x.ab.class_name == "ability_viper_debuffdagger")
+        self.assertGreater(ab.max_charges(), 1)
+        gaps = [mechanics.recast_wait(ab) + ab.charge_delay() for _ in range(200)]
+        self.assertTrue(all(g >= ab.charge_delay() for g in gaps))
+        self.assertLess(sum(g < 4.5 for g in gaps) / len(gaps), 0.3)
+        self.assertGreater(sum(gaps) / len(gaps), 6.0)
+
 
 if __name__ == "__main__":
     unittest.main()
