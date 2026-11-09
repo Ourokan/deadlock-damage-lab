@@ -1354,12 +1354,14 @@ class MysticReverb(FX):
     and DelayDuration later the echo deals TechDamagePercent% of that damage. The tooltip adds MaxHealthDamage% of
     the target's current health ("Current Health Bonus Damage"), but real Phantom+ echoes on heroes don't scale with
     the target's health (260 replays, 1457 echoes: damage = 0.27 x the trigger + 0.006 x current + 0.007 x max
-    health + 83, median echo / trigger 0.48; scripts/fight_length/target_health.py items). It stays on
-    (CURRENT_HEALTH_BONUS) for now: without it (factors refit, audit real/sim 0.80 -> 1.06) sim_vs_win's damage
-    items fell 0.056 -> 0.038, as Mystic Reverb's real win edge is positive on most heroes (validation/README.md
-    "Target health for Tankbuster and Decay"). Build-up is per target and lasts DelayDuration; DoT ticks of the
+    health + 83, median echo / trigger 0.48; scripts/fight_length/target_health.py items). Off since 2026-11-06
+    (CURRENT_HEALTH_BONUS): the term was ~40% of the sim's echo damage and is why the per-hero factors ran into
+    their 0.25 floor (Grey Talon) or apart (Kelvin 0.53 vs Grey Talon 0.76 real/sim on the fresh post-hotfix sample;
+    1.23 / 1.25 without it). Pooled + per-hero factors refit without it held split-half (validation/README.md
+    "Mystic Reverb without the health term"). Kept on in 2026-10-26 because sim_vs_win's damage items fell
+    0.056 -> 0.038 then. Build-up is per target and lasts DelayDuration; DoT ticks of the
     imbued ability count, so a damage-over-time imbue (Flame Dash) triggers it too."""
-    CURRENT_HEALTH_BONUS = True
+    CURRENT_HEALTH_BONUS = False
 
     def on_damage_dealt(self, f, t, hit):
         if hit.kind != "spirit" or hit.ability is None or self.item not in hit.ability.imbues:

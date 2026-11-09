@@ -86,24 +86,25 @@ class TestMysticReverb(unittest.TestCase):
                 fn(*args)
         return f.dmg_out.get("Mystic Reverb", 0.0), hp
 
-    def test_echo_adds_current_health_bonus(self):
-        """MaxHealthDamage is the tooltip's "Current Health Bonus Damage": the echo is 50% of the hit + 10% of the
-        target's current health (it used to be read as a cap). CURRENT_HEALTH_BONUS False leaves it out (real
-        Phantom+ echoes don't scale with the target's health)."""
+    def test_echo_current_health_bonus_off_by_default(self):
+        """MaxHealthDamage is the tooltip's "Current Health Bonus Damage" (50% of the hit + 10% of the target's
+        current health). Real Phantom+ echoes don't scale with the target's health, so it is off by default
+        (CURRENT_HEALTH_BONUS False since 2026-11-09); turned on, it adds up to 10% of current health."""
         from deadsim.items_fx import MysticReverb
-        full, hp_full = self._echo([200])
-        low, hp_low = self._echo([200], target_hp=1000.0)
+        self.assertFalse(MysticReverb.CURRENT_HEALTH_BONUS)
+        full, _ = self._echo([200])
+        low, _ = self._echo([200], target_hp=1000.0)
+        self.assertAlmostEqual(full, low)
+        MysticReverb.CURRENT_HEALTH_BONUS = True
+        try:
+            full, hp_full = self._echo([200])
+            low, hp_low = self._echo([200], target_hp=1000.0)
+        finally:
+            MysticReverb.CURRENT_HEALTH_BONUS = False
         # the 200-damage hit lands the same way on both; only the echo's 10% of current health differs (after resist)
         d = hp_full - hp_low
         self.assertGreater(full - low, 0.05 * d)
         self.assertLessEqual(full - low, 0.1 * d + 1)
-        MysticReverb.CURRENT_HEALTH_BONUS = False
-        try:
-            full, _ = self._echo([200])
-            low, _ = self._echo([200], target_hp=1000.0)
-        finally:
-            MysticReverb.CURRENT_HEALTH_BONUS = True
-        self.assertAlmostEqual(full, low)
 
     def test_small_hits_build_up_to_the_minimum(self):
         """Ticks under MinimumDamage (100) add up until they reach it, so DoT and multi-hit imbues trigger too."""

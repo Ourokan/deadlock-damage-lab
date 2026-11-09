@@ -5,7 +5,7 @@
   "sample": "phantom_sample.jsonl.gz",
   "use": "deadsim realistic mode scales an item's own damage by min(1, landing)",
   "length": "fights with Mechanics.fight_length use landing (fit with every hit of a 20 s duel in full) x length_corr (the sim's source/gun in full / the same expected over real fight lengths, scripts/fight_length/length_factors.py, phantom_sample.jsonl.gz, 3 rounds)",
-  "heroes": "per-hero factors from the damage audit's hero x item rows (dm_all.jsonl.gz, >= 20 holders): current factor x (real/sim)^(n/(n+20)), capped 0.25-1 (1 / length_corr for an item with a pooled length_corr below 1, accuracy.HERO_LENGTH_LIFT); replace the pooled factor for that hero (scripts/item_landing_heroes.py)",
+  "heroes": "per-hero factors from the damage audit's hero x item rows (fresh.jsonl.gz, >= 20 holders): current factor x (real/sim)^(n/(n+20)), capped 0.25-1 (1 / length_corr for an item with a pooled length_corr below 1, accuracy.HERO_LENGTH_LIFT); replace the pooled factor for that hero (scripts/item_landing_heroes.py)",
   "entry_hp_kept": "length_corr scaled so held first casts and Mechanics.entry_hp (as configured in the run) keep the expected levels of a target run at full health with the previous holds (length_factors.py --entry --target-holds)",
   "cast_timing_kept": "length_corr scaled so held first casts (Mechanics.cast_timing) keep the expected levels of cast-on-sight duels; rerun from the factors before"
  },
@@ -31,7 +31,7 @@
    "holders": 196,
    "real_per_gun": 1.3033,
    "sim_per_gun": 2.4026,
-   "landing": 0.542,
+   "landing": 0.675,
    "length_corr": 2.314
   },
   "upgrade_toxic_bullets": {
@@ -382,9 +382,9 @@
     "landing": 0.981
    },
    "Mystic Reverb": {
-    "holders": 24,
-    "real_over_sim": 0.737,
-    "landing": 0.357
+    "holders": 139,
+    "real_over_sim": 1.1,
+    "landing": 0.561
    },
    "Siphon Bullets": {
     "holders": 48,
@@ -549,6 +549,11 @@
     "real_over_sim": 0.965,
     "landing": 0.61
    },
+   "Mystic Reverb": {
+    "holders": 52,
+    "real_over_sim": 0.826,
+    "landing": 0.416
+   },
    "Mystic Shot": {
     "holders": 54,
     "real_over_sim": 0.989,
@@ -590,6 +595,13 @@
     "holders": 25,
     "real_over_sim": 0.939,
     "landing": 0.511
+   }
+  },
+  "Dynamo": {
+   "Mystic Reverb": {
+    "holders": 21,
+    "real_over_sim": 0.782,
+    "landing": 0.486
    }
   },
   "Graves": {
@@ -646,9 +658,9 @@
     "landing": 0.741
    },
    "Mystic Reverb": {
-    "holders": 22,
-    "real_over_sim": 0.832,
-    "landing": 0.25
+    "holders": 296,
+    "real_over_sim": 1.038,
+    "landing": 0.308
    },
    "Mystic Shot": {
     "holders": 398,
@@ -875,6 +887,11 @@
     "real_over_sim": 0.988,
     "landing": 0.727
    },
+   "Mystic Reverb": {
+    "holders": 84,
+    "real_over_sim": 1.025,
+    "landing": 0.733
+   },
    "Spirit Burn": {
     "holders": 436,
     "real_over_sim": 0.979,
@@ -921,6 +938,11 @@
     "holders": 130,
     "real_over_sim": 1.138,
     "landing": 1.0
+   },
+   "Mystic Reverb": {
+    "holders": 186,
+    "real_over_sim": 1.047,
+    "landing": 0.839
    },
    "Mystic Shot": {
     "holders": 4494,
@@ -1117,9 +1139,9 @@
     "landing": 0.991
    },
    "Mystic Reverb": {
-    "holders": 555,
-    "real_over_sim": 0.881,
-    "landing": 0.25
+    "holders": 950,
+    "real_over_sim": 1.036,
+    "landing": 0.312
    },
    "Mystic Shot": {
     "holders": 387,
@@ -1172,6 +1194,11 @@
     "real_over_sim": 0.983,
     "landing": 0.975
    },
+   "Mystic Reverb": {
+    "holders": 57,
+    "real_over_sim": 1.076,
+    "landing": 0.809
+   },
    "Spirit Burn": {
     "holders": 60,
     "real_over_sim": 1.201,
@@ -1211,6 +1238,11 @@
     "real_over_sim": 1.112,
     "landing": 0.879
    },
+   "Mystic Reverb": {
+    "holders": 139,
+    "real_over_sim": 1.007,
+    "landing": 0.7
+   },
    "Phantom Strike": {
     "holders": 25,
     "real_over_sim": 1.075,
@@ -1245,6 +1277,11 @@
    }
   },
   "Sinclair": {
+   "Mystic Reverb": {
+    "holders": 22,
+    "real_over_sim": 2.087,
+    "landing": 1.0
+   },
    "Spirit Burn": {
     "holders": 99,
     "real_over_sim": 1.019,
@@ -1261,11 +1298,6 @@
     "holders": 95,
     "real_over_sim": 1.025,
     "landing": 0.6
-   },
-   "Mystic Reverb": {
-    "holders": 25,
-    "real_over_sim": 0.817,
-    "landing": 0.389
    },
    "Spirit Burn": {
     "holders": 204,
@@ -1288,6 +1320,11 @@
     "holders": 501,
     "real_over_sim": 1.036,
     "landing": 1.018
+   },
+   "Mystic Reverb": {
+    "holders": 66,
+    "real_over_sim": 1.136,
+    "landing": 0.98
    },
    "Mystic Shot": {
     "holders": 68,
@@ -1429,6 +1466,11 @@
    }
   },
   "Viscous": {
+   "Mystic Reverb": {
+    "holders": 57,
+    "real_over_sim": 1.173,
+    "landing": 1.0
+   },
    "Spirit Burn": {
     "holders": 88,
     "real_over_sim": 1.074,
@@ -1533,9 +1575,9 @@
     "landing": 0.689
    },
    "Mystic Reverb": {
-    "holders": 1449,
-    "real_over_sim": 0.989,
-    "landing": 0.285
+    "holders": 270,
+    "real_over_sim": 1.088,
+    "landing": 0.477
    },
    "Mystic Shot": {
     "holders": 2049,
