@@ -6,37 +6,37 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 
 | Item | Overall | Damage (dummy 15 s) | Popular |
 |---|---:|---:|---:|
+| Mystic Shot | 10 | 36 | 3 |
 | Guardian Ward | 22 | 0 | 3 |
-| Mystic Shot | 9 | 36 | 3 |
 | Enchanter's Emblem | 17 | 3 | 3 |
-| Stalker | 15 | 1 | 7 |
-| Mystic Burst | 6 | 14 | 20 |
+| Stalker | 16 | 1 | 7 |
+| Mystic Burst | 7 | 14 | 20 |
 | Torment Pulse | 16 | 0 | 3 |
-| Spirit Lifesteal | 14 | 0 | 2 |
+| Spirit Lifesteal | 15 | 0 | 2 |
 | Extra Charge | 5 | 8 | 12 |
 | Heroic Aura | 10 | 0 | 0 |
 | Extra Spirit | 4 | 9 | 9 |
-| Melee Charge | 9 | 1 | 2 |
 | Improved Spirit | 1 | 14 | 12 |
 | Bullet Resist Shredder | 9 | 0 | 2 |
+| Mystic Expansion | 3 | 3 | 14 |
 | Opening Rounds | 2 | 9 | 11 |
-| Mystic Expansion | 2 | 3 | 14 |
+| Melee Charge | 7 | 1 | 2 |
 | Cold Front | 1 | 16 | 2 |
 | Mystic Vulnerability | 6 | 1 | 1 |
-| Grit | 5 | 0 | 3 |
+| Arcane Surge | 5 | 0 | 4 |
 | Titanic Magazine | 2 | 8 | 4 |
+| Grit | 5 | 0 | 3 |
 | Close Quarters | 2 | 3 | 8 |
 | Spirit Strike | 1 | 8 | 5 |
 | Healbane | 3 | 0 | 6 |
-| Spirit Shielding | 4 | 0 | 1 |
+| Battle Vest | 2 | 2 | 7 |
 | Extra Regen | 0 | 0 | 13 |
-| Alchemical Fire | 0 | 13 | 0 |
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 2709 | 4218 | 2782 |
-| spirit | 2545 | 3582 | 3109 |
-| vitality | 2727 | 200 | 1945 |
+| weapon | 2636 | 4218 | 2782 |
+| spirit | 2582 | 3582 | 3109 |
+| vitality | 2764 | 200 | 1945 |
 
 ## 18000 net worth
 
@@ -51,10 +51,10 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Spirit Shielding | 16 | 0 | 4 |
 | Spirit Resilience | 17 | 0 | 1 |
 | Mystic Expansion | 9 | 5 | 16 |
+| Arcane Surge | 13 | 0 | 7 |
 | Improved Spirit | 1 | 21 | 20 |
-| Arcane Surge | 12 | 0 | 7 |
 | Decay | 4 | 31 | 0 |
-| Titanic Magazine | 7 | 16 | 6 |
+| Titanic Magazine | 7 | 15 | 6 |
 | Spirit Snatch | 8 | 10 | 7 |
 | Extra Charge | 8 | 7 | 9 |
 | Bullet Resist Shredder | 10 | 0 | 8 |
@@ -71,8 +71,8 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
 | weapon | 5545 | 7745 | 4418 |
-| spirit | 5109 | 6891 | 5545 |
-| vitality | 4418 | 564 | 5073 |
+| spirit | 5073 | 6891 | 5545 |
+| vitality | 4455 | 564 | 5073 |
 
 ## 27000 net worth
 
