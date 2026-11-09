@@ -4624,3 +4624,13 @@ Late holders (audit duels with the overall score's item use emulated): Divine Ba
 27k B +0.0001, 37k B -0.0005. Kept off, as plot_armor_self / knight_self. The audit's duels don't apply item_use
 (no fight_phase), which also leaves these actives used in every audit fight; Kevlar's gap (0.29-0.41 vs 0.21) is not
 ally casts.
+
+## Stalker's DoT breaks early, more so late in the match (2026-11-09)
+
+On the post-hotfix audit (5,767 matches, main at #280) Stalker read 1.08 / 1.05 / 1.09 / 1.18 / 1.30x real by fifth
+of the match. Replays (fight_length raw, 11k procs; ticks 0.5 s apart, a new proc after a 0.75 s gap or 10 ticks):
+real Stalker DoT ticks per proc by the holder's net worth 8.34 (5k) / 7.37 (9k) / 7.08 (16k) / 6.57 (25k) / 5.97
+(37.5k), both match-id halves within 0.1. The audit duels give 8.7 / 8.8 / 9.0 at 30 / 60 / 90% (cut only by deaths).
+`Mechanics.stalker_ticks` (data/stalker_ticks.json): the DoT (and its shred) x min(1, real ticks at the holder's net
+worth / 8.8). Stalker by fifth -> 1.03 / 0.95 / 0.90 / 0.93 / 0.94; whole audit flat (mix 0.0149, phase 0.0249), no
+refit. sim_vs_win_raw within: 27k A -0.0003, 37k A -0.0000, 27k B -0.0005, 37k B +0.0009 (not down on all 4): on.

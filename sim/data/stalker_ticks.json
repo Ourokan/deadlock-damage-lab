@@ -1,0 +1,12 @@
+{
+  "source": "fight_length raw replays (Phantom+, 260 matches): Stalker DoT ticks per proc by the attacker's net worth (ticks 0.5 s apart, a new proc after a 0.75 s gap or 10 ticks); /tmp scratch stalker_nw.py, 2026-11-09",
+  "note": "Stalker's DoT x min(1, real ticks(nw) / sim_ticks) (Mechanics.stalker_ticks, linear in ln nw between bins, flat outside); sim_ticks = the audit duels' own ticks per proc (deaths cut them there too)",
+  "sim_ticks": 8.8,
+  "bins": [
+    {"net_worth": 5098, "ticks": 8.34, "procs": 320},
+    {"net_worth": 9042, "ticks": 7.37, "procs": 2299},
+    {"net_worth": 16178, "ticks": 7.08, "procs": 2642},
+    {"net_worth": 24853, "ticks": 6.57, "procs": 3199},
+    {"net_worth": 37545, "ticks": 5.97, "procs": 3466}
+  ]
+}
