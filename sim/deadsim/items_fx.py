@@ -508,10 +508,11 @@ class Stalker(FX):
         self.use()
         d = self.dur("DebuffDuration", 5)
         m = f.e.mech
-        if m is not None and m.stalker_ticks:
+        ticks = 1.0
+        if m is not None and m.stalker_ticks:   # the DoT only: the replays measured its ticks, not the shred
             from .mechanics import stalker_ticks_mult
-            k *= stalker_ticks_mult(f.st.souls)
-        f.e.dot(f, t, self.v("DPS") * k, d, self.name, tick=self.item.p("TickRate", 0.5), is_item=True)
+            ticks = stalker_ticks_mult(f.st.souls)
+        f.e.dot(f, t, self.v("DPS") * k * ticks, d, self.name, tick=self.item.p("TickRate", 0.5), is_item=True)
         self.debuff(t, "bullet_shred", abs(self.item.p("BulletResistReduction")) / 100 * k, d)
 
 

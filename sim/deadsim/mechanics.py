@@ -391,8 +391,8 @@ class Mechanics:
     landing_phase: bool = True
     # Stalker's DoT breaks early in real fights (2026-11-09): replays (11k procs) give 8.3 of its 10 ticks per proc at
     # 5k net worth down to 6.0 at 37k (halves within 0.1), the audit duels ~8.8 at every phase (deaths only), so the
-    # audit had Stalker 1.05x real early rising to 1.30x late. On: the DoT's damage x min(1, real ticks at the holder's
-    # net worth / 8.8) (data/stalker_ticks.json, stalker_ticks_mult)
+    # audit had Stalker 1.05x real early rising to 1.30x late. On: the DoT's damage (not its shred) x min(1, real ticks
+    # at the holder's net worth / 8.8) (data/stalker_ticks.json, scripts/mechanics/stalker_ticks.py, stalker_ticks_mult)
     stalker_ticks: bool = True
     # Soul Exchange's gap from replays (2026-10-28): the sim swapped as soon as Geist was SWAP_MIN_GAIN 0.3 below her
     # target (gap at swap median 0.43, target 0.79), real Geists wait for more (median 0.61, target 0.88; swap_real.py),
