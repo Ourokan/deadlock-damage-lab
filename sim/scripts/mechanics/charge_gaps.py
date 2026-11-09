@@ -8,8 +8,13 @@ between one Viscous' landed Punches (casts = hits more than 0.5 s apart) past 30
 quantiles; the sim draws the wait from the cast to the next one from them (the fight's end already stands for the
 longer ones, as recast_timing's finite draws).
 
+Vyper's Screwjab Dagger (2026-11-09) from analysis/work/vyper_dagger/raw (52 post-hotfix replays, the dagger's
+DamageEvent rows with pre_damage|absorbed|max hp|hp): each hit is a landed cast. Past 30% of the match 11% of the gaps
+are under 5 s (the sim threw the next charge 4 s after the last, 65-72% of its hits on a stack vs ~15% real).
+
 usage: python3 -I charge_gaps.py [raw dir ...]   (default: project folder analysis/work/fight_length/raw and
-analysis/work/viscous_replays/raw, DamageEvent rows from scripts/fight_length/fetch_fights.py)
+analysis/work/viscous_replays/raw, DamageEvent rows from scripts/fight_length/fetch_fights.py; Vyper's dagger from
+analysis/work/vyper_dagger/raw)
 """
 import collections
 import glob
@@ -24,6 +29,20 @@ MERGE_S = 0.5     # hits of one cast (several heroes, same tick or so)
 FROM_FRAC = 0.3   # past this share of the match (the extra charge bought)
 MAX_GAP = 20.0
 ABILITIES = {35: ("viscous_telepunch", 1020817390)}
+# one ability's own DamageEvent rows per file ('dmg' rows: a = attacker * 100000 + victim; 'ctl' rows: pawn -> hero)
+HIT_DIRS = {58: ("ability_viper_debuffdagger", "/mnt/project-files/analysis/work/vyper_dagger/raw/")}
+
+
+def hit_casts(fn, h):
+    """Landed casts (ticks) of hero h in one raw file of its ability's DamageEvent rows (hits within MERGE_S are one
+    cast) and the match's last tick."""
+    rows = [json.loads(x) for x in gzip.open(fn, "rt")]
+    hero = {r["a"]: int(r["s"]) for r in rows if r["k"] == "ctl"}
+    casts = []
+    for t in sorted(r["tick"] for r in rows if r["k"] == "dmg" and hero.get(r["a"] // 100000) == h):
+        if not casts or t - casts[-1] >= MERGE_S * T:
+            casts.append(t)
+    return casts, max(r["tick"] for r in rows)
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "data", "charge_gaps.json")
 
 
@@ -61,6 +80,10 @@ def main():
                     if not casts or t - casts[-1] >= MERGE_S * T:
                         casts.append(t)
                 gaps[f"{h}:{cls}"] += [(b - a) / T for a, b in zip(casts, casts[1:]) if a > FROM_FRAC * last]
+    for h, (cls, d) in HIT_DIRS.items():
+        for fn in sorted(glob.glob(os.path.join(d, "*.ndjson.gz"))):
+            casts, last = hit_casts(fn, h)
+            gaps[f"{h}:{cls}"] += [(b - a) / T for a, b in zip(casts, casts[1:]) if a > FROM_FRAC * last]
     out = {"source": f"{len(seen)} Phantom+ replays, hero-vs-hero DamageEvent (scripts/mechanics/charge_gaps.py)",
            "note": f"gaps (s) between landed casts past {FROM_FRAC:.0%} of the match, those under {MAX_GAP:.0f} s as "
                    f"{QBINS} quantiles; Mechanics.charge_gaps draws the wait from a cast to the next charge's",

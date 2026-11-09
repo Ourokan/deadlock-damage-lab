@@ -177,6 +177,9 @@ class Mechanics:
     # the real gaps between landed casts (Punch: 22% under 6 s), its finite part as recast_timing's resets. Off: Snatch
     # per landed Punch then matches real (0.46 -> 0.88), but the sim lands fewer Punches, and the Punch refit that
     # needs made the held-out damage mix worse (split-half 0.024 -> 0.038), validation/README.md "Viscous: procs per hit"
+    # Vyper's Screwjab Dagger (2026-11-09) takes the real gaps even with charge_gaps off (CHARGE_GAP_ON): the sim
+    # threw the charges 4 s apart, so 65-72% of its hits landed on a stack (real ~15%) and the T1 charge / T3 refund
+    # grew its hits per fight with the phase; validation/README.md "Vyper's dagger"
     charge_gaps: bool = False
     # cooldown items at the fight start (2026-10-27): the real holds (cast_timing) carry real players' share of fights
     # opened with an ability still cooling from the fight before, at real cooldowns, so cooldown items only bought
@@ -876,6 +879,7 @@ def recast_rows():
 
 
 _CHARGE_GAPS = None
+CHARGE_GAP_ON = {"ability_viper_debuffdagger"}   # charged abilities on real gaps with Mechanics.charge_gaps off
 
 
 def charge_gap(ab, phase, rng):
@@ -909,7 +913,7 @@ def recast_wait(ab, cls=None, n=None, finite=False):
     phase, rng = f.skill.fight_phase, f.e.rng
     if phase is None and rng is None:
         return 0.0
-    if ab.max_charges() > 1 and getattr(f.e.mech, "charge_gaps", False):
+    if ab.max_charges() > 1 and (getattr(f.e.mech, "charge_gaps", False) or ab.ab.class_name in CHARGE_GAP_ON):
         gap = charge_gap(ab, phase, rng)
         if gap is not None:
             return max(0.0, gap - ab.charge_delay())
