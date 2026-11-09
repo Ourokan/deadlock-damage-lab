@@ -2,9 +2,9 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-07, 57,326 Ritualist+ matches (refreshed 2026-11-08T22:08:51Z).
+Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-07, 57,326 Ritualist+ matches (refreshed 2026-11-08T20:19:51Z).
 
-- Recommended item slots with data: 1852; mean edge +1.1 (popular builds +0.1); clearly positive 890, clearly negative 3.
+- Recommended item slots with data: 1842; mean edge +1.1 (popular builds +0.1); clearly positive 892, clearly negative 4.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
@@ -16,19 +16,18 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 
 | Item | slot/tier | builds | heroes (edge) |
 |---|---|---:|---|
+| Escalating Exposure | spirit 4 | 2 | Victor -1.5 |
 | Mystic Burst | spirit 1 | 1 | Bebop -1.4 |
 | Arcane Surge | spirit 2 | 1 | Kelvin -1.5 |
-| Escalating Exposure | spirit 4 | 1 | Victor -1.5 |
 
 ## Strong items the sim never picks (edge >= +1.5, lower 95% bound > 0)
 
 | Item | slot/tier | heroes | heroes (edge) |
 |---|---|---:|---|
 | Ethereal Shift | spirit 4 | 12 | Pocket +3.2, Calico +2.9, Deadman Danny +2.7, Drifter +2.6, Apollo +2.6, Mina +2.6, Silver +2.6, Celeste +2.5, Venator +2.4, Victor +2.2, Abrams +2.2, Shiv +1.5 |
+| Colossus | vitality 4 | 4 | Viscous +2.9, Warden +2.8, Apollo +2.4, Abrams +1.9 |
 | Fleetfoot | weapon 2 | 4 | Warden +2.0, Vyper +1.9, Haze +1.8, Drifter +1.5 |
 | Sprint Boots | vitality 1 | 4 | Lady Geist +2.3, Kelvin +2.1, Haze +1.9, Ivy +1.5 |
-| Colossus | vitality 4 | 3 | Viscous +2.9, Warden +2.8, Abrams +1.9 |
-| Superior Cooldown | spirit 3 | 3 | Drifter +2.1, Bebop +1.6, Ivy +1.5 |
 | Lucky Shot | weapon 4 | 3 | Ivy +3.1, Calico +2.1, Paradox +2.1 |
 | Duration Extender | spirit 2 | 2 | Kelvin +1.7, Abrams +1.7 |
 | Warp Stone | vitality 3 | 2 | Victor +2.6, Lady Geist +1.5 |
@@ -37,11 +36,11 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Siphon Bullets | vitality 4 | 1 | Drifter +1.9 |
 | Spirit Strike | spirit 1 | 1 | Drifter +1.6 |
 | Rapid Recharge | spirit 3 | 1 | Haze +1.8 |
+| Superior Cooldown | spirit 3 | 1 | Ivy +1.5 |
 | Frenzy | weapon 4 | 1 | Lady Geist +2.3 |
 | Compress Cooldown | spirit 2 | 1 | Lady Geist +1.6 |
 | Mystic Reverb | spirit 4 | 1 | Rat King +2.2 |
 | Monster Rounds | weapon 1 | 1 | Seven +1.7 |
-| Lightning Scroll | spirit 4 | 1 | Seven +1.6 |
 | Enduring Speed | vitality 2 | 1 | Shiv +1.5 |
 | Spirit Burn | spirit 4 | 1 | Vindicta +1.9 |
 | Extended Magazine | weapon 1 | 1 | Vindicta +1.6 |
@@ -53,13 +52,12 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Ethereal Shift +2.2, Colossus +1.9, Duration Extender +1.7
 
 ### Apollo
-- never picked: Ethereal Shift +2.6
+- never picked: Ethereal Shift +2.6, Colossus +2.4
 
 ### Baba
 
 ### Bebop
 - 27k: Mystic Burst -1.4
-- never picked: Superior Cooldown +1.6
 
 ### Billy
 
@@ -73,7 +71,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Ethereal Shift +2.7, Grit +2.2
 
 ### Drifter
-- never picked: Ethereal Shift +2.6, Superior Cooldown +2.1, Siphon Bullets +1.9, Spirit Strike +1.6, Fleetfoot +1.5
+- never picked: Ethereal Shift +2.6, Siphon Bullets +1.9, Spirit Strike +1.6, Fleetfoot +1.5
 
 ### Dynamo
 
@@ -126,7 +124,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 ### Rem
 
 ### Seven
-- never picked: Monster Rounds +1.7, Lightning Scroll +1.6
+- never picked: Monster Rounds +1.7
 
 ### Shiv
 - never picked: Ethereal Shift +1.5, Enduring Speed +1.5
@@ -145,6 +143,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Ethereal Shift +2.4
 
 ### Victor
+- 37k: Escalating Exposure -1.5
 - 50k: Escalating Exposure -1.5
 - never picked: Warp Stone +2.6, Ethereal Shift +2.2
 
