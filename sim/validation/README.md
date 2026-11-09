@@ -4656,3 +4656,14 @@ mix 0.012 -> 0.010 and phase 0.034 -> 0.022 vs the plain refit, every fifth bett
 37k A +0.0228, 27k B -0.0006, 37k B -0.0083 (net +0.0103; the plain refit +0.0092), so on.
 Shiv's Serrated Knives (same charged-skillshot shape, 1.3 knives per bleed real vs 3 sim) did not take it: after a
 refit the knife tilt stayed and held-out mix got worse.
+
+## Mystic Reverb without the current-health term, shipped (2026-11-09)
+
+- Tyler chose option A of the 2026-11-07 section above (damage accuracy first, sim_vs_win -0.004 accepted).
+  items_fx.MysticReverb.CURRENT_HEALTH_BONUS = False, refit on current main with the fresh post-hotfix sample:
+  pooled Reverb 0.542 -> 0.675 (audit 1.25), then every hero's Reverb row 2 rounds (item_landing_heroes --item).
+- Whole fresh sample: mix 0.0148 -> 0.0146, per-source 0.0183 -> 0.0178, pooled Reverb real/sim 0.78 -> 0.99,
+  Reverb hero rows error 0.239 -> 0.023; Grey Talon 0.0123 -> 0.0059, Kelvin 0.0149 -> 0.0069.
+- sim_vs_win (same local post-hotfix pools, main vs this): within slot and tier 27k 0.444 -> 0.440, 37k 0.414 -> 0.410,
+  damage items 0.337 -> 0.321 / 0.320 -> 0.305 (the expected Reverb cost).
+
