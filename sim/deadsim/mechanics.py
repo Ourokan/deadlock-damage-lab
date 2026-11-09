@@ -389,6 +389,11 @@ class Mechanics:
     # (scripts/cast_timing/landing_phase.py, only abilities that held the split-half audit) scale the ability's damage
     # by their rel at the fighter's net worth (landing_phase_mult)
     landing_phase: bool = True
+    # Stalker's DoT breaks early in real fights (2026-11-09): replays (11k procs) give 8.3 of its 10 ticks per proc at
+    # 5k net worth down to 6.0 at 37k (halves within 0.1), the audit duels ~8.8 at every phase (deaths only), so the
+    # audit had Stalker 1.05x real early rising to 1.30x late. On: the DoT's damage (not its shred) x min(1, real ticks
+    # at the holder's net worth / 8.8) (data/stalker_ticks.json, scripts/mechanics/stalker_ticks.py, stalker_ticks_mult)
+    stalker_ticks: bool = True
     # Soul Exchange's gap from replays (2026-10-28): the sim swapped as soon as Geist was SWAP_MIN_GAIN 0.3 below her
     # target (gap at swap median 0.43, target 0.79), real Geists wait for more (median 0.61, target 0.88; swap_real.py),
     # so the sim swapped ~1.3x as often per damage dealt for ~0.75x the health each, and Soul Exchange read ~1.25x real
@@ -1098,6 +1103,23 @@ _ABIL_AREA = None
 
 
 _LANDING_PHASE = None
+
+
+_STALKER = None
+
+
+def stalker_ticks_mult(souls):
+    """Mechanics.stalker_ticks: real Stalker DoT ticks per proc at net worth souls over the duels' own (data/stalker_ticks.json),
+    at most 1; 1.0 without the file."""
+    global _STALKER
+    if _STALKER is None:
+        fn = os.path.join(os.path.dirname(__file__), "..", "data", "stalker_ticks.json")
+        _STALKER = ()
+        if os.path.exists(fn):
+            with open(fn) as fh:
+                d = json.load(fh)
+            _STALKER = tuple((math.log(b["net_worth"]), b["ticks"] / d["sim_ticks"]) for b in d["bins"])
+    return min(1.0, _interp_ln(list(_STALKER), souls)) if _STALKER and souls else 1.0
 
 
 def landing_phase_mult(cls, souls):
