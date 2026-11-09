@@ -1354,7 +1354,7 @@ class MysticReverb(FX):
     and DelayDuration later the echo deals TechDamagePercent% of that damage. The tooltip adds MaxHealthDamage% of
     the target's current health ("Current Health Bonus Damage"), but real Phantom+ echoes on heroes don't scale with
     the target's health (260 replays, 1457 echoes: damage = 0.27 x the trigger + 0.006 x current + 0.007 x max
-    health + 83, median echo / trigger 0.48; scripts/fight_length/target_health.py items). Off since 2026-11-06
+    health + 83, median echo / trigger 0.48; scripts/fight_length/target_health.py items). Off since 2026-11-09
     (CURRENT_HEALTH_BONUS): the term was ~40% of the sim's echo damage and is why the per-hero factors ran into
     their 0.25 floor (Grey Talon) or apart (Kelvin 0.53 vs Grey Talon 0.76 real/sim on the fresh post-hotfix sample;
     1.23 / 1.25 without it). Pooled + per-hero factors refit without it held split-half (validation/README.md

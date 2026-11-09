@@ -4664,4 +4664,6 @@ refit the knife tilt stayed and held-out mix got worse.
   pooled Reverb 0.542 -> 0.675 (audit 1.25), then every hero's Reverb row 2 rounds (item_landing_heroes --item).
 - Whole fresh sample: mix 0.0148 -> 0.0146, per-source 0.0183 -> 0.0178, pooled Reverb real/sim 0.78 -> 0.99,
   Reverb hero rows error 0.239 -> 0.023; Grey Talon 0.0123 -> 0.0059, Kelvin 0.0149 -> 0.0069.
+- sim_vs_win (same local post-hotfix pools, main vs this): within slot and tier 27k 0.444 -> 0.440, 37k 0.414 -> 0.410,
+  damage items 0.337 -> 0.321 / 0.320 -> 0.305 (the expected Reverb cost).
 
