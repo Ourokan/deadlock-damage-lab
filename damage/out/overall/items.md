@@ -21,9 +21,9 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Cold Front | 3 | 16 | 2 |
 | Melee Charge | 8 | 1 | 2 |
 | Opening Rounds | 2 | 8 | 11 |
+| Titanic Magazine | 3 | 8 | 4 |
 | Mystic Expansion | 1 | 3 | 14 |
 | Mystic Vulnerability | 6 | 1 | 1 |
-| Titanic Magazine | 2 | 8 | 4 |
 | Healbane | 3 | 0 | 6 |
 | Close Quarters | 1 | 4 | 8 |
 | Battle Vest | 2 | 1 | 7 |
@@ -128,7 +128,7 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Spirit Lifesteal | 19 | 0 | 6 |
 | Torment Pulse | 15 | 6 | 7 |
 | Superior Duration | 9 | 15 | 13 |
-| Superior Cooldown | 7 | 7 | 22 |
+| Superior Cooldown | 8 | 7 | 22 |
 | Toxic Bullets | 6 | 20 | 7 |
 | Mystic Reverb | 12 | 7 | 2 |
 | Spirit Burn | 13 | 0 | 5 |
@@ -143,41 +143,41 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
 | weapon | 9764 | 11309 | 7582 |
-| spirit | 11400 | 20873 | 14836 |
-| vitality | 11364 | 509 | 9382 |
+| spirit | 11473 | 20873 | 14836 |
+| vitality | 11291 | 509 | 9382 |
 
 ## 50000 net worth
 
 | Item | Overall | Damage (dummy 15 s) | Popular |
 |---|---:|---:|---:|
-| Greater Expansion | 29 | 19 | 22 |
-| Escalating Exposure | 25 | 39 | 13 |
-| Heroic Aura | 36 | 0 | 1 |
+| Greater Expansion | 28 | 19 | 22 |
+| Escalating Exposure | 24 | 39 | 13 |
+| Heroic Aura | 38 | 0 | 1 |
 | Cheat Death | 30 | 0 | 2 |
-| Alchemical Fire | 21 | 24 | 0 |
-| Spirit Resilience | 23 | 0 | 16 |
-| Mystic Shot | 12 | 36 | 7 |
+| Spirit Resilience | 24 | 0 | 16 |
+| Alchemical Fire | 20 | 24 | 0 |
+| Mystic Shot | 13 | 36 | 7 |
 | Stalker | 22 | 6 | 6 |
 | Spirit Burn | 20 | 0 | 17 |
 | Diviner's Kevlar | 22 | 9 | 1 |
 | Superior Duration | 12 | 20 | 16 |
 | Torment Pulse | 17 | 8 | 9 |
-| Enchanter's Emblem | 15 | 14 | 9 |
-| Decay | 10 | 34 | 0 |
+| Enchanter's Emblem | 14 | 14 | 9 |
+| Decay | 9 | 34 | 0 |
 | Mystic Reverb | 16 | 8 | 4 |
-| Spirit Lifesteal | 18 | 0 | 1 |
 | Boundless Spirit | 4 | 20 | 22 |
-| Toxic Bullets | 5 | 22 | 7 |
-| Spirit Snatch | 9 | 9 | 8 |
+| Spirit Lifesteal | 17 | 0 | 1 |
+| Blood Tribute | 13 | 7 | 0 |
 | Rapid Recharge | 5 | 14 | 15 |
-| Arcane Surge | 13 | 0 | 4 |
+| Toxic Bullets | 4 | 22 | 7 |
+| Spirit Snatch | 8 | 9 | 8 |
 | Superior Cooldown | 7 | 7 | 13 |
-| Blood Tribute | 11 | 7 | 0 |
+| Arcane Surge | 12 | 0 | 4 |
 | Healbane | 6 | 0 | 22 |
 | Titanic Magazine | 6 | 13 | 8 |
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 11127 | 13400 | 9218 |
-| spirit | 18800 | 27927 | 20564 |
-| vitality | 13309 | 2236 | 11873 |
+| weapon | 11491 | 13400 | 9218 |
+| spirit | 18364 | 27927 | 20564 |
+| vitality | 13418 | 2236 | 11873 |
