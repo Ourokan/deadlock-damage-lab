@@ -1,7 +1,7 @@
 {
- "_note": "Overall-score multiplier per movement item: real Phantom+ chase (kill participation) x escape (deaths per 10 min) effect at the same hero, net worth and game length; only parts with |z| >= 2, item floor 1, cap 1.25. Static snapshot of patch 10-30 hotfix Phantom+ games (2026-10-31 to 2026-11-06, fight_rate_post timelines), not refit by patch reruns: rerun kill_participation.py --post on fresh fight_rate_post timelines (or fetch_kda.py + kill_participation.py) to refresh.",
+ "_note": "Overall-score multiplier per movement item: real Phantom+ chase (kill participation) x escape (deaths per 10 min) effect at the same hero, net worth and game length; only parts with |z| >= 2, item floor 1, cap 1.25; ESCAPE_OFF items (Arcane Surge) chase only. Static snapshot of patch 10-30 hotfix Phantom+ games (2026-10-31 to 2026-11-06, fight_rate_post timelines), not refit by patch reruns: rerun kill_participation.py --post on fresh fight_rate_post timelines (or fetch_kda.py + kill_participation.py) to refresh.",
  "items": {
-  "Arcane Surge": 1.0624,
+  "Arcane Surge": 1.0096,
   "Enduring Speed": 1.0178,
   "Ethereal Shift": 1.0072,
   "Fleetfoot": 1.0356,

@@ -65,6 +65,13 @@ CLOSE_MOVEMENT = {"Stalker": "ProcRadius"}
 HERO_MOVE_ID = {i: x["name"] for i, x in ITEMS.items() if any(x["name"] in v for v in HERO_MOVEMENT.values())}
 NW_BIN, DUR_BIN = 2500, 300
 Z_MIN, CAP = 2.0, 1.25
+# Items whose escape part is left out (value = chase only), 2026-11-10: Arcane Surge's holders die 5% less (z 12, also
+# at the same spirit share of the build) yet win less than the other spirit T2 items (-0.7 pt); its whole sim lead
+# was this factor (its duel gain is at or below the item it replaces in all 50 best builds holding it). Chase only
+# raises sim_vs_win_raw in all four day/budget splits and all 8 hero halves (+0.002..+0.008); pricing it on the
+# deaths per kills+assists scale (1.036) is half way. Dropping the escape of every movement item, or pricing all of
+# them like other items' deaths (overall_search.MOVEMENT_RATES), lowers it (sim/validation/arcane_surge_escape.md).
+ESCAPE_OFF = {"Arcane Surge"}
 
 
 def load_kda():
@@ -300,6 +307,9 @@ def main():
             continue
         e["high_kp_heroes"] = effect([r for r in rows if r["hero"] in high], lambda r, n=n: n in r["move"])
         e["other_heroes"] = effect([r for r in rows if r["hero"] not in high], lambda r, n=n: n in r["move"])
+        if n in ESCAPE_OFF:
+            e["value_with_escape"] = e["value"]
+            e["value"] = round(min(CAP, max(1.0, e["chase"] if abs(e["kp_z"]) >= Z_MIN else 1.0)), 4)
         items[n] = e
     hero_items = {}
     for h, names in HERO_MOVEMENT.items():
@@ -323,9 +333,9 @@ def main():
     json.dump({
         "_note": ("Overall-score multiplier per movement item: real Phantom+ chase (kill participation) x escape "
                   "(deaths per 10 min) effect at the same hero, net worth and game length; only parts with |z| >= 2, "
-                  "item floor 1, cap %.2f. Static snapshot of %s, not refit by patch reruns: rerun "
+                  "item floor 1, cap %.2f; ESCAPE_OFF items (%s) chase only. Static snapshot of %s, not refit by patch reruns: rerun "
                   "kill_participation.py --post on fresh fight_rate_post timelines (or fetch_kda.py + "
-                  "kill_participation.py) to refresh." % (CAP, SPAN())),
+                  "kill_participation.py) to refresh." % (CAP, ", ".join(sorted(ESCAPE_OFF)), SPAN())),
         "items": {n: e["value"] for n, e in sorted(items.items()) if e["value"] > 1.0},
         "_stack_note": ("Cap on a build's combined value when it holds 2 or 3+ of the movement_items (weighted or "
                         "not): the measured chase x escape of holding that many vs none (they overlap, so values "

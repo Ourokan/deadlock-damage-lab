@@ -1219,7 +1219,7 @@
    "ka10_diff": 0.066,
    "chase": 1.0096,
    "escape": 1.0523,
-   "value": 1.0624,
+   "value": 1.0096,
    "high_kp_heroes": {
     "holders": 6904,
     "kp": 0.5101,
@@ -1247,7 +1247,8 @@
     "chase": 1.0174,
     "escape": 1.0692,
     "value": 1.0878
-   }
+   },
+   "value_with_escape": 1.0624
   },
   "Kinetic Dash": {
    "holders": 12500,

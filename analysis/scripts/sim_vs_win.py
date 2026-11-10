@@ -68,6 +68,7 @@ def job(args):
         edges = json.load(f)["heroes"].get(str(hero), {})
     if os.environ.get("SVW_MOVE_FILE"):
         O.MOVE_PATH, O._move = os.environ["SVW_MOVE_FILE"], None
+    O.MOVEMENT_RATES = os.environ.get("SVW_MOVE_RATES") == "1"
     O.movement_value(())
     keep = os.environ.get("SVW_MOVEMENT", "")   # "" skip movement items, "keep" keep them, "only" only them
     moving = O._move[2] if not keep else set()
