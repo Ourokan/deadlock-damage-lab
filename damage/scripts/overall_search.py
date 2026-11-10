@@ -251,6 +251,11 @@ _rate = None
 # Movement items are left out: movement_value already counts their deaths (escape). An association at equal net
 # worth, not a controlled effect: players who die less may also pick certain items.
 DEATH_RATE = True
+# MOVEMENT_RATES (opt-in, OFF): movement items' real death and damage-taken ratios count in death_rate_value /
+# focus_value like every other item's (pair it with a chase-only movement_value.json). Tried 2026-11-10 for Arcane
+# Surge: sim_vs_win_raw falls in all four splits (-0.002..-0.006), so movement deaths stay in movement_value
+# (sim/validation/arcane_surge_escape.md).
+MOVEMENT_RATES = False
 DEATH_RATE_Z = 3.0
 DEATH_RATE_CLAMP = (0.5, 1.5)
 _drate = {}
@@ -456,10 +461,10 @@ def death_rates(souls):
     and from the DEATH_RATE_T1_FROM table up tier-1 items left out)."""
     d = fight_rate_data()["items"]
     b = min(d, key=lambda k: abs(math.log(int(k) / souls)))
-    key = (b, HEAL_DEATHS, DEATH_PER_KA, DEATH_RATE_T1_FROM)
+    key = (b, HEAL_DEATHS, DEATH_PER_KA, DEATH_RATE_T1_FROM, MOVEMENT_RATES)
     if key not in _drate:
         movement_value(())   # loads _move
-        moving = _move[2] | {i for row in _move[3].values() for i in row}
+        moving = set() if MOVEMENT_RATES else _move[2] | {i for row in _move[3].values() for i in row}
         skip = set() if HEAL_DEATHS else set(HEAL_ITEMS)
         if DEATH_RATE_T1_FROM is not None and int(b) >= DEATH_RATE_T1_FROM:
             skip |= {it.name for it in S.G().items.values() if it.tier == 1}
@@ -499,15 +504,15 @@ def taken_rates(souls):
     for the fit budget nearest souls (|z| >= DEATH_RATE_Z, movement, healing and FOCUS_SKIP items left out)."""
     d = fight_rate_data()["items"]
     b = min(d, key=lambda k: abs(math.log(int(k) / souls)))
-    if (b, FOCUS_KEY) not in _taken:
+    if (b, FOCUS_KEY, MOVEMENT_RATES) not in _taken:
         movement_value(())   # loads _move
-        moving = _move[2] | {i for row in _move[3].values() for i in row}
+        moving = set() if MOVEMENT_RATES else _move[2] | {i for row in _move[3].values() for i in row}
         lo, hi = DEATH_RATE_CLAMP
         by_name = {it.name: i for i, it in S.G().items.items()}
-        _taken[b, FOCUS_KEY] = {by_name[n]: max(lo, min(hi, e[FOCUS_KEY][0])) for n, e in d[b]["items"].items()
+        _taken[b, FOCUS_KEY, MOVEMENT_RATES] = {by_name[n]: max(lo, min(hi, e[FOCUS_KEY][0])) for n, e in d[b]["items"].items()
                                 if n in by_name and by_name[n] not in moving and n not in HEAL_ITEMS
                                 and n not in FOCUS_SKIP and abs(e[FOCUS_KEY][1]) >= DEATH_RATE_Z}
-    return _taken[b, FOCUS_KEY]
+    return _taken[b, FOCUS_KEY, MOVEMENT_RATES]
 
 
 def focus_value(items, souls):

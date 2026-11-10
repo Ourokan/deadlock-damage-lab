@@ -65,6 +65,9 @@ st = O.movement_value([ids["Stalker"]])
 assert st > 1.0 and O.movement_value([ids["Stalker"], ids["Stalker"]]) == st, st
 top = [ids[n] for n in ("Stalker", "Majestic Leap", "Arcane Surge", "Warp Stone")]
 caps = O._move[1]
+# Arcane Surge counts chase only (kill_participation.ESCAPE_OFF, sim/validation/arcane_surge_escape.md): a refit
+# that brings its escape back (1.06) fails here
+assert O.movement_value([ids["Arcane Surge"]]) < 1.02, O.movement_value([ids["Arcane Surge"]])
 assert O.movement_value(top) <= caps[max(caps)] and O.movement_value(top[:2]) <= caps[2], O.movement_value(top)
 # an unweighted movement item still counts toward the stack: Stalker + Sprint Boots is a 2-item stack
 assert O.movement_value([ids["Stalker"], ids["Warp Stone"], ids["Sprint Boots"]]) <= caps[max(caps)]
