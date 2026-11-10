@@ -33,3 +33,8 @@ the healing items, whose holders die less without winning more, `HEAL_ITEMS` in 
 
 `analysis/scripts/kill_participation.py` ESCAPE_OFF keeps it on refits (value_with_escape kept in the report json).
 `overall_search.MOVEMENT_RATES` stays as an OFF opt-in (sim_vs_win reads SVW_MOVE_RATES=1).
+
+Not changed: `stack_cap` (2 items 1.057, 3+ 1.105) is still measured on any movement items, Arcane Surge's escape
+included. It only caps a build's product from above, and with Arcane Surge at 1.0096 a two-item build with it stays
+under the cap unless the other item is above ~1.047 (only Majestic Leap, 1.075), so the effect is small.
+`pipeline/smoke_test.py` checks that Arcane Surge stays under 1.02.
