@@ -31,6 +31,9 @@ length, not a controlled game effect: players' skill and play style still ride a
 
     python3 scripts/kill_participation.py
     python3 scripts/kill_participation.py --close-only   # refresh only close_items (CLOSE_MOVEMENT)
+    python3 scripts/kill_participation.py --post         # from fight_rate_post timelines (post-hotfix, no KDA fetch)
+    KP_OUT=dir ...                                      # write the report somewhere else (movement_value.json still
+                                                        # goes to sim/data)
 """
 from __future__ import annotations
 
@@ -45,7 +48,7 @@ from collections import defaultdict
 ROOT = "/mnt/project-files"
 KDA = f"{ROOT}/analysis/work/kill_participation"
 BUILDS = f"{ROOT}/data/builds/player_builds"
-OUT = f"{ROOT}/analysis/out"
+OUT = os.environ.get("KP_OUT", f"{ROOT}/analysis/out")
 SIM_OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "sim", "data", "movement_value.json")
 ITEMS = {x["id"]: x for x in json.load(open(f"{ROOT}/data/game/shop_items.json"))}
 HEROES = {h["id"]: h["name"] for h in json.load(open(f"{ROOT}/data/game/heroes.json"))}
@@ -87,7 +90,52 @@ def load_items(keys):
     return held
 
 
+POST = f"{ROOT}/analysis/work/fight_rate_post"   # post-hotfix Phantom+ timelines (sim/scripts/fight_rate/fetch_rates.py)
+POST_SPAN = "patch 10-30 hotfix Phantom+ games (2026-10-31 to 2026-11-06, fight_rate_post timelines)"
+
+
+def players_post():
+    """The same rows from fight_rate_post (Phantom+ matches of 15+ min with every player's final kills, deaths,
+    assists and items with their sell times): no KDA fetch needed. Held at the end = bought and never sold (an
+    upgrade sells its component)."""
+    out = []
+    for p in sorted(glob.glob(f"{POST}/*.jsonl.gz")):
+        with gzip.open(p, "rt") as f:
+            for line in f:
+                m = json.loads(line)
+                if m.get("mode") not in (None, "Normal") or len(m["players"]) != 12:
+                    continue
+                kda, team_kills = {}, defaultdict(int)
+                for q in m["players"]:
+                    if not q["stats"]:
+                        break
+                    k, d, a = q["stats"][-1][4:7]
+                    kda[q["account_id"]] = (k, d, a)
+                    team_kills[q["team"]] += k
+                else:
+                    if min(team_kills.get("Team0", 0), team_kills.get("Team1", 0)) <= 0:
+                        continue
+                    mins = m["duration_s"] / 60
+                    for q in m["players"]:
+                        k, d, a = kda[q["account_id"]]
+                        final = {i for i, _, sold in q["items"] if not sold}
+                        out.append({
+                            "hero": q["hero_id"], "won": q["team"] == m["winning_team"], "nw": q["net_worth"],
+                            "dur": m["duration_s"], "kp": min(1.0, (k + a) / team_kills[q["team"]]),
+                            "d10": d / mins * 10, "ka10": (k + a) / mins * 10,
+                            "move": {MOVE_ID[i] for i in final if i in MOVE_ID},
+                            "hero_move": {HERO_MOVE_ID[i] for i in final if i in HERO_MOVE_ID},
+                        })
+    return out
+
+
+def SPAN():
+    return POST_SPAN if "--post" in sys.argv else "patch 09-29-2026 Phantom+ games (2026-09-30 to 2026-10-13)"
+
+
 def players():
+    if "--post" in sys.argv:
+        return players_post()
     kda = load_kda()
     teams = defaultdict(list)
     for k, r in kda.items():
@@ -275,9 +323,9 @@ def main():
     json.dump({
         "_note": ("Overall-score multiplier per movement item: real Phantom+ chase (kill participation) x escape "
                   "(deaths per 10 min) effect at the same hero, net worth and game length; only parts with |z| >= 2, "
-                  "item floor 1, cap %.2f. Static snapshot of patch 09-29-2026 Phantom+ games (2026-09-30 to "
-                  "2026-10-13), not refit by patch reruns: rerun analysis/scripts/fetch_kda.py and "
-                  "kill_participation.py from the project files to refresh." % CAP),
+                  "item floor 1, cap %.2f. Static snapshot of %s, not refit by patch reruns: rerun "
+                  "kill_participation.py --post on fresh fight_rate_post timelines (or fetch_kda.py + "
+                  "kill_participation.py) to refresh." % (CAP, SPAN())),
         "items": {n: e["value"] for n, e in sorted(items.items()) if e["value"] > 1.0},
         "_stack_note": ("Cap on a build's combined value when it holds 2 or 3+ of the movement_items (weighted or "
                         "not): the measured chase x escape of holding that many vs none (they overlap, so values "
@@ -295,7 +343,7 @@ def main():
 
 def write_md(res):
     L = ["# Kill participation and movement items (Phantom+)", "",
-         f"{res['players']:,} Phantom+ player rows (patch 09-29-2026, 2026-09-30 to 2026-10-13, games of 10+ min). "
+         f"{res['players']:,} Phantom+ player rows ({SPAN()}, games of {'15' if '--post' in sys.argv else '10'}+ min). "
          "KP = (kills + assists) / team kills. Movement items = held at the end of the match.", "",
          "## Heroes by kill participation", "",
          "| Hero | KP | Deaths / 10 min | Movement items held | vs same net worth | Most held |", "|---|---|---|---|---|---|"]

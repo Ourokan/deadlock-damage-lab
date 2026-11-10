@@ -66,8 +66,12 @@ def job(args):
     setup(kill, death, bounty, death_rate, fight_rate, elasticity, focus, farm, per_ka, focus_key, death_gamma)
     with open(EDGE) as f:
         edges = json.load(f)["heroes"].get(str(hero), {})
+    if os.environ.get("SVW_MOVE_FILE"):
+        O.MOVE_PATH, O._move = os.environ["SVW_MOVE_FILE"], None
     O.movement_value(())
-    moving = O._move[2]
+    keep = os.environ.get("SVW_MOVEMENT", "")   # "" skip movement items, "keep" keep them, "only" only them
+    moving = O._move[2] if not keep else set()
+    only = O._move[2] if keep == "only" else None
     pools = S.load_pools(b)
     ev = GP.make_evaluator(hero, b, pools)
     pop = S.popular_build(hero, GP.item_budget(b), pools)
@@ -81,7 +85,7 @@ def job(args):
     out = []
     for i, e in edges.items():
         i = int(i)
-        if i not in g.items or i in pop or i in moving:
+        if i not in g.items or i in pop or i in moving or (only is not None and i not in only):
             continue
         it = g.items[i]
         if it.cost > GP.item_budget(b):
@@ -133,7 +137,13 @@ def main():
     ap.add_argument("--no-trip-gate", action="store_true",
                     help="overall_search.TRIP_JUNGLE_GATE off (every field-heal item saves fountain trips)")
     ap.add_argument("--out", default="")
+    ap.add_argument("--movement", choices=("skip", "keep", "only"), default="skip",
+                    help="movement items: skipped (default), kept beside the others, or only them")
+    ap.add_argument("--move-file", default="", help="movement_value.json to score with (a refit variant)")
     a = ap.parse_args()
+    os.environ["SVW_MOVEMENT"] = "" if a.movement == "skip" else a.movement   # read by the workers (job)
+    if a.move_file:
+        os.environ["SVW_MOVE_FILE"] = os.path.abspath(a.move_file)
     O.TRIP_JUNGLE_GATE = not a.no_trip_gate   # workers fork after this
     g = S.G()
     heroes = [g.hero(int(h) if h.isdigit() else h).id for h in a.heroes.split(",") if h] or sorted(g.heroes)
