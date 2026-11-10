@@ -249,6 +249,17 @@ IMBUE_OVERRIDE.update({(h, "upgrade_arcane_extension"): a for h, a in (
 # echoes 3 s after a hit on the same hero follow Vexing Bolt damage 274 times vs Spectral Assistant 46; the usual slot by
 # listed damage is the Assistant, whose 15-damage shots fill the echo threshold slowly: Reverb read 2.4x under)
 IMBUE_OVERRIDE[("hero_magician", "upgrade_mystic_reverb")] = "ability_magician_magicbolt"
+# Mystic Reverb where real echoes say another slot than the usual one (replays, scripts/mechanics/imbue_slots.py: echoes
+# 3 s after a hit on the same hero): Lash 19 of 25 holders on Ground Strike while Quicksilver goes on Flog. Graves (4 of
+# 4 on Borrowed Decree) lowered sim_vs_win in all four splits: usual slot. Kelvin's echoes follow Frost Grenade too, but
+# that override held out worse (2026-11-08): usual slot.
+IMBUE_OVERRIDE[("hero_lash", "upgrade_mystic_reverb")] = "citadel_ability_lash_down_strike"
+# imbue slot of heroes without a fight_patterns "imbue" row, from the same replays (Quicksilver Reload and Mercurial
+# Magnum procs land on the imbued ability's hit tick), where the slot by listed damage got no real votes: Holliday Powder
+# Keg (Quicksilver 19 of 20 holders, Magnum 8 of 8; listed damage picked Crackshot), Mirage Fire Scarabs (Quicksilver
+# 9 of 14, the rest Djinn's Mark; not Dust Devil). Rat King Rat Swarm (7 of 7) and Violet Living Ink (6 of 6) are real
+# too but lowered sim_vs_win (net, with their refits): usual slot.
+IMBUE_SLOT = {"hero_astro": "ability_explosive_barrel", "hero_mirage": "mirage_fire_beetles"}
 IMBUE_OVERRIDE_MECH = {"birds_duration": {("hero_baba", "upgrade_arcane_extension"): "ability_baba_ultimate_2"}}
 
 
@@ -346,6 +357,9 @@ def make_fighter(engine, lo: Loadout, name=None):
                             and (i >= len(unlocked) or unlocked[i])), None)   # not unlocked yet: the usual slot
             if idx is None and skill.fight_pattern:
                 idx = patterns.imbue_target(hero, unlocked)
+            if idx is None and hero.class_name in IMBUE_SLOT:
+                idx = next((i for i, ab in enumerate(hero.abilities) if ab.class_name == IMBUE_SLOT[hero.class_name]
+                            and (i >= len(unlocked) or unlocked[i])), None)
             if idx is None:
                 idx = _default_imbue_target(hero, unlocked)
             imbue_map.setdefault(idx, []).append(it)

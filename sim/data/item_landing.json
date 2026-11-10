@@ -731,25 +731,70 @@
    }
   },
   "Holliday": {
+   "Alchemical Fire": {
+    "holders": 23,
+    "real_over_sim": 0.811,
+    "landing": 0.535
+   },
+   "Escalating Exposure": {
+    "holders": 53,
+    "real_over_sim": 0.852,
+    "landing": 0.353
+   },
    "Headhunter": {
-    "holders": 25,
-    "real_over_sim": 0.945,
-    "landing": 0.783
+    "holders": 126,
+    "real_over_sim": 1.014,
+    "landing": 0.884
+   },
+   "Headshot Booster": {
+    "holders": 162,
+    "real_over_sim": 1.103,
+    "landing": 1.135
+   },
+   "Lucky Shot": {
+    "holders": 96,
+    "real_over_sim": 1.215,
+    "landing": 1.031
+   },
+   "Mercurial Magnum": {
+    "holders": 76,
+    "real_over_sim": 1.053,
+    "landing": 0.992
    },
    "Mystic Burst": {
-    "holders": 33,
-    "real_over_sim": 0.963,
-    "landing": 0.832
+    "holders": 124,
+    "real_over_sim": 1.0,
+    "landing": 0.845
    },
-   "Ricochet": {
-    "holders": 22,
-    "real_over_sim": 0.814,
-    "landing": 0.638
+   "Mystic Shot": {
+    "holders": 70,
+    "real_over_sim": 1.015,
+    "landing": 0.83
+   },
+   "Quicksilver Reload": {
+    "holders": 205,
+    "real_over_sim": 0.997,
+    "landing": 1.143
+   },
+   "Spirit Burn": {
+    "holders": 57,
+    "real_over_sim": 0.964,
+    "landing": 0.949
+   },
+   "Spirit Snatch": {
+    "holders": 47,
+    "real_over_sim": 0.893,
+    "landing": 0.645
+   },
+   "Spirit Strike": {
+    "holders": 35,
+    "real_over_sim": 0.923,
+    "landing": 0.723
    },
    "Tankbuster": {
-    "holders": 48,
-    "real_over_sim": 0.973,
-    "landing": 0.936
+    "holders": 250,
+    "real_over_sim": 0.969,
+    "landing": 0.841
    }
   },
   "Infernus": {
@@ -910,74 +955,74 @@
   },
   "Lash": {
    "Alchemical Fire": {
-    "holders": 117,
-    "real_over_sim": 0.966,
-    "landing": 0.525
+    "holders": 20,
+    "real_over_sim": 0.826,
+    "landing": 0.404
    },
    "Arctic Blast": {
-    "holders": 156,
-    "real_over_sim": 0.972,
-    "landing": 0.9
+    "holders": 22,
+    "real_over_sim": 0.976,
+    "landing": 0.878
    },
    "Cold Front": {
-    "holders": 2388,
+    "holders": 299,
     "real_over_sim": 0.992,
-    "landing": 0.992
-   },
-   "Focus Lens": {
-    "holders": 42,
-    "real_over_sim": 1.026,
-    "landing": 0.779
+    "landing": 0.988
    },
    "Headhunter": {
-    "holders": 6305,
-    "real_over_sim": 0.991,
-    "landing": 0.792
+    "holders": 993,
+    "real_over_sim": 0.995,
+    "landing": 0.802
+   },
+   "Headshot Booster": {
+    "holders": 1022,
+    "real_over_sim": 1.076,
+    "landing": 1.135
    },
    "Mercurial Magnum": {
-    "holders": 130,
-    "real_over_sim": 1.138,
+    "holders": 22,
+    "real_over_sim": 1.115,
     "landing": 1.0
+   },
+   "Mystic Burst": {
+    "holders": 1471,
+    "real_over_sim": 1.104,
+    "landing": 1.018
    },
    "Mystic Reverb": {
     "holders": 186,
-    "real_over_sim": 1.047,
-    "landing": 0.839
+    "real_over_sim": 0.971,
+    "landing": 0.762
    },
    "Mystic Shot": {
-    "holders": 4494,
-    "real_over_sim": 0.989,
-    "landing": 0.559
+    "holders": 670,
+    "real_over_sim": 0.991,
+    "landing": 0.551
+   },
+   "Quicksilver Reload": {
+    "holders": 1248,
+    "real_over_sim": 1.211,
+    "landing": 1.17
    },
    "Silence Wave": {
-    "holders": 133,
-    "real_over_sim": 0.993,
-    "landing": 0.935
+    "holders": 33,
+    "real_over_sim": 0.985,
+    "landing": 0.92
    },
    "Siphon Bullets": {
-    "holders": 730,
-    "real_over_sim": 0.99,
-    "landing": 0.43
+    "holders": 177,
+    "real_over_sim": 0.997,
+    "landing": 0.437
    },
    "Spirit Burn": {
-    "holders": 802,
-    "real_over_sim": 1.002,
-    "landing": 1.008
-   },
-   "Spirit Snatch": {
-    "holders": 32,
-    "real_over_sim": 0.895,
-    "landing": 0.501
+    "holders": 513,
+    "real_over_sim": 0.996,
+    "landing": 1.003
    },
    "Tankbuster": {
-    "holders": 9309,
-    "real_over_sim": 0.988,
-    "landing": 0.868
-   },
-   "Toxic Bullets": {
-    "holders": 148,
-    "real_over_sim": 0.981,
-    "landing": 0.609
+    "holders": 1464,
+    "real_over_sim": 0.99,
+    "landing": 0.851
    }
   },
   "McGinnis": {
@@ -1020,15 +1065,45 @@
    }
   },
   "Mirage": {
+   "Escalating Exposure": {
+    "holders": 244,
+    "real_over_sim": 0.969,
+    "landing": 0.406
+   },
+   "Headhunter": {
+    "holders": 45,
+    "real_over_sim": 0.95,
+    "landing": 0.792
+   },
+   "Headshot Booster": {
+    "holders": 89,
+    "real_over_sim": 0.935,
+    "landing": 0.998
+   },
+   "Mystic Shot": {
+    "holders": 72,
+    "real_over_sim": 0.933,
+    "landing": 0.664
+   },
+   "Quicksilver Reload": {
+    "holders": 37,
+    "real_over_sim": 0.915,
+    "landing": 1.01
+   },
    "Ricochet": {
-    "holders": 592,
-    "real_over_sim": 1.036,
-    "landing": 0.724
+    "holders": 285,
+    "real_over_sim": 0.961,
+    "landing": 0.709
+   },
+   "Siphon Bullets": {
+    "holders": 22,
+    "real_over_sim": 1.044,
+    "landing": 0.407
    },
    "Toxic Bullets": {
-    "holders": 42,
-    "real_over_sim": 0.927,
-    "landing": 0.654
+    "holders": 334,
+    "real_over_sim": 0.968,
+    "landing": 0.713
    }
   },
   "Mo & Krill": {

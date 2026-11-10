@@ -281,28 +281,28 @@
     "landing": 0.554,
     "real_share": 0.3733,
     "sim_share": 0.3808,
-    "length_corr": 1.093
+    "length_corr": 1.073
    },
    "Bounce Pad": {
     "class": "ability_bounce_pad",
     "landing": 0.191,
     "real_share": 0.0226,
     "sim_share": 0.0226,
-    "length_corr": 1.125
+    "length_corr": 1.068
    },
    "Crackshot": {
     "class": "ability_crackshot",
     "landing": 1.323,
     "real_share": 0.091,
     "sim_share": 0.0898,
-    "length_corr": 0.718
+    "length_corr": 0.833
    },
    "Spirit Lasso": {
     "class": "ability_gravity_lasso",
     "landing": 0.377,
     "real_share": 0.0329,
     "sim_share": 0.0325,
-    "length_corr": 2.195
+    "length_corr": 1.873
    }
   },
   "Bebop": {
@@ -507,21 +507,21 @@
     "landing": 1.124,
     "real_share": 0.3397,
     "sim_share": 0.3517,
-    "length_corr": 1.514
+    "length_corr": 1.498
    },
    "Flog": {
     "class": "ability_lash_flog",
     "landing": 1.379,
     "real_share": 0.1757,
     "sim_share": 0.182,
-    "length_corr": 0.919
+    "length_corr": 0.918
    },
    "Death Slam": {
     "class": "citadel_ability_lash_ultimate",
     "landing": 0.598,
     "real_share": 0.0465,
     "sim_share": 0.048,
-    "length_corr": 1.761
+    "length_corr": 1.651
    }
   },
   "Viscous": {
@@ -583,21 +583,21 @@
     "landing": 0.48,
     "real_share": 0.1134,
     "sim_share": 0.1042,
-    "length_corr": 1.107
+    "length_corr": 0.941
    },
    "Dust Devil": {
     "class": "mirage_tornado",
     "landing": 0.45,
     "real_share": 0.0623,
     "sim_share": 0.0574,
-    "length_corr": 1.348
+    "length_corr": 1.379
    },
    "Djinn's Mark": {
     "class": "mirage_sand_phantom",
     "landing": 0.73,
     "real_share": 0.2795,
     "sim_share": 0.2562,
-    "length_corr": 3.604
+    "length_corr": 3.297
    }
   },
   "Vyper": {
