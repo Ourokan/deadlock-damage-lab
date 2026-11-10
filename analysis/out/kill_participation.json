@@ -1,78 +1,30 @@
 {
- "players": 457566,
+ "players": 269508,
  "bracket": "phantom",
  "nw_bin": 2500,
  "dur_bin": 300,
- "high_kp_cut": 0.5318,
+ "high_kp_cut": 0.5042,
  "heroes": [
   {
    "id": 16,
    "name": "Calico",
-   "players": 12050,
-   "kp": 0.5759,
-   "deaths10": 1.907,
-   "movement_items": 1.471,
+   "players": 5185,
+   "kp": 0.5477,
+   "deaths10": 2.147,
+   "movement_items": 1.44,
    "movement_items_vs_same_worth": 0.419,
    "top_movement": [
     [
      "Stalker",
-     0.8948547717842323
+     0.877917068466731
     ],
     [
      "Enduring Speed",
-     0.36489626556016597
+     0.39729990356798456
     ],
     [
-     "Fleetfoot",
-     0.06979253112033194
-    ]
-   ],
-   "high_kp": true
-  },
-  {
-   "id": 14,
-   "name": "Holliday",
-   "players": 10125,
-   "kp": 0.5652,
-   "deaths10": 1.689,
-   "movement_items": 1.138,
-   "movement_items_vs_same_worth": 0.077,
-   "top_movement": [
-    [
-     "Stamina Mastery",
-     0.809283950617284
-    ],
-    [
-     "Veil Walker",
-     0.1691851851851852
-    ],
-    [
-     "Extra Stamina",
-     0.06804938271604938
-    ]
-   ],
-   "high_kp": true
-  },
-  {
-   "id": 18,
-   "name": "Mo & Krill",
-   "players": 12406,
-   "kp": 0.5637,
-   "deaths10": 1.859,
-   "movement_items": 1.081,
-   "movement_items_vs_same_worth": 0.026,
-   "top_movement": [
-    [
-     "Warp Stone",
-     0.45050781879735613
-    ],
-    [
-     "Phantom Strike",
-     0.25326454941157506
-    ],
-    [
-     "Enduring Speed",
-     0.2048202482669676
+     "Shadow Weave",
+     0.03799421407907425
     ]
    ],
    "high_kp": true
@@ -80,47 +32,23 @@
   {
    "id": 3,
    "name": "Vindicta",
-   "players": 12169,
-   "kp": 0.5586,
-   "deaths10": 1.778,
-   "movement_items": 0.912,
-   "movement_items_vs_same_worth": -0.147,
+   "players": 7219,
+   "kp": 0.5395,
+   "deaths10": 1.938,
+   "movement_items": 0.799,
+   "movement_items_vs_same_worth": -0.234,
    "top_movement": [
     [
      "Enduring Speed",
-     0.4830306516558468
+     0.5407951239783904
     ],
     [
      "Fleetfoot",
-     0.3337989974525433
+     0.1910236874913423
     ],
     [
-     "Stamina Mastery",
-     0.0274467910263785
-    ]
-   ],
-   "high_kp": true
-  },
-  {
-   "id": 15,
-   "name": "Bebop",
-   "players": 17156,
-   "kp": 0.5584,
-   "deaths10": 2.211,
-   "movement_items": 1.502,
-   "movement_items_vs_same_worth": 0.444,
-   "top_movement": [
-    [
-     "Enduring Speed",
-     0.45535089764513875
-    ],
-    [
-     "Fleetfoot",
-     0.330205176031709
-    ],
-    [
-     "Veil Walker",
-     0.28363254837957563
+     "Warp Stone",
+     0.022163734589278294
     ]
    ],
    "high_kp": true
@@ -128,23 +56,23 @@
   {
    "id": 88,
    "name": "88",
-   "players": 14738,
-   "kp": 0.5559,
-   "deaths10": 1.914,
-   "movement_items": 0.376,
-   "movement_items_vs_same_worth": -0.68,
+   "players": 3506,
+   "kp": 0.5395,
+   "deaths10": 1.927,
+   "movement_items": 0.123,
+   "movement_items_vs_same_worth": -0.912,
    "top_movement": [
     [
      "Enduring Speed",
-     0.12077622472520017
-    ],
-    [
-     "Arcane Surge",
-     0.0822363957117655
+     0.05105533371363377
     ],
     [
      "Warp Stone",
-     0.06432351743791559
+     0.022247575584711923
+    ],
+    [
+     "Arcane Surge",
+     0.010838562464346835
     ]
    ],
    "high_kp": true
@@ -152,23 +80,71 @@
   {
    "id": 64,
    "name": "Drifter",
-   "players": 17260,
-   "kp": 0.5556,
-   "deaths10": 2.257,
-   "movement_items": 1.998,
-   "movement_items_vs_same_worth": 0.943,
+   "players": 11865,
+   "kp": 0.5339,
+   "deaths10": 2.444,
+   "movement_items": 2.034,
+   "movement_items_vs_same_worth": 1.005,
    "top_movement": [
     [
      "Stalker",
-     0.8112398609501739
-    ],
-    [
-     "Veil Walker",
-     0.2623406720741599
+     0.7517909818794775
     ],
     [
      "Kinetic Dash",
-     0.21888760139049826
+     0.3858407079646018
+    ],
+    [
+     "Shadow Weave",
+     0.32734934681837335
+    ]
+   ],
+   "high_kp": true
+  },
+  {
+   "id": 14,
+   "name": "Holliday",
+   "players": 6614,
+   "kp": 0.5337,
+   "deaths10": 1.882,
+   "movement_items": 1.13,
+   "movement_items_vs_same_worth": 0.098,
+   "top_movement": [
+    [
+     "Stamina Mastery",
+     0.8643785908678561
+    ],
+    [
+     "Veil Walker",
+     0.13547021469609918
+    ],
+    [
+     "Extra Stamina",
+     0.05352283035984276
+    ]
+   ],
+   "high_kp": true
+  },
+  {
+   "id": 15,
+   "name": "Bebop",
+   "players": 11768,
+   "kp": 0.5297,
+   "deaths10": 2.378,
+   "movement_items": 1.68,
+   "movement_items_vs_same_worth": 0.646,
+   "top_movement": [
+    [
+     "Enduring Speed",
+     0.5028891910265125
+    ],
+    [
+     "Stalker",
+     0.493711760707002
+    ],
+    [
+     "Veil Walker",
+     0.3425390890550646
     ]
    ],
    "high_kp": true
@@ -176,71 +152,23 @@
   {
    "id": 31,
    "name": "Lash",
-   "players": 18694,
-   "kp": 0.5555,
-   "deaths10": 1.849,
-   "movement_items": 1.339,
-   "movement_items_vs_same_worth": 0.28,
+   "players": 10198,
+   "kp": 0.5292,
+   "deaths10": 1.975,
+   "movement_items": 1.311,
+   "movement_items_vs_same_worth": 0.279,
    "top_movement": [
     [
      "Stamina Mastery",
-     0.8073713490959666
+     0.8302608354579329
     ],
     [
      "Warp Stone",
-     0.21985663849363432
+     0.20886448323200626
     ],
     [
      "Majestic Leap",
-     0.17866695196319674
-    ]
-   ],
-   "high_kp": true
-  },
-  {
-   "id": 67,
-   "name": "Paige",
-   "players": 13645,
-   "kp": 0.5503,
-   "deaths10": 1.59,
-   "movement_items": 0.475,
-   "movement_items_vs_same_worth": -0.581,
-   "top_movement": [
-    [
-     "Arcane Surge",
-     0.2806156101135947
-    ],
-    [
-     "Enduring Speed",
-     0.07182117991938439
-    ],
-    [
-     "Stamina Mastery",
-     0.06434591425430561
-    ]
-   ],
-   "high_kp": true
-  },
-  {
-   "id": 79,
-   "name": "Rem",
-   "players": 8212,
-   "kp": 0.55,
-   "deaths10": 1.452,
-   "movement_items": 0.507,
-   "movement_items_vs_same_worth": -0.547,
-   "top_movement": [
-    [
-     "Arcane Surge",
-     0.38321967851924016
-    ],
-    [
-     "Enduring Speed",
-     0.04529956161714564
-    ],
-    [
-     "Stamina Mastery",
-     0.02618119824646858
+     0.1669935281427731
     ]
    ],
    "high_kp": true
@@ -248,23 +176,95 @@
   {
    "id": 12,
    "name": "Kelvin",
-   "players": 7724,
-   "kp": 0.5496,
-   "deaths10": 1.578,
-   "movement_items": 0.644,
-   "movement_items_vs_same_worth": -0.411,
+   "players": 5602,
+   "kp": 0.5215,
+   "deaths10": 1.743,
+   "movement_items": 0.607,
+   "movement_items_vs_same_worth": -0.418,
    "top_movement": [
     [
      "Enduring Speed",
-     0.3535732780942517
+     0.3170296322741878
     ],
     [
      "Arcane Surge",
-     0.23627654065251166
+     0.22902534808996786
     ],
     [
-     "Fleetfoot",
-     0.01747799067840497
+     "Warp Stone",
+     0.018921813637986434
+    ]
+   ],
+   "high_kp": true
+  },
+  {
+   "id": 67,
+   "name": "Paige",
+   "players": 7058,
+   "kp": 0.5175,
+   "deaths10": 1.715,
+   "movement_items": 0.504,
+   "movement_items_vs_same_worth": -0.526,
+   "top_movement": [
+    [
+     "Arcane Surge",
+     0.30858600170019834
+    ],
+    [
+     "Stamina Mastery",
+     0.07551714366676113
+    ],
+    [
+     "Enduring Speed",
+     0.0626239727968263
+    ]
+   ],
+   "high_kp": true
+  },
+  {
+   "id": 18,
+   "name": "Mo & Krill",
+   "players": 4372,
+   "kp": 0.5173,
+   "deaths10": 2.118,
+   "movement_items": 1.149,
+   "movement_items_vs_same_worth": 0.122,
+   "top_movement": [
+    [
+     "Warp Stone",
+     0.5105215004574566
+    ],
+    [
+     "Phantom Strike",
+     0.2685269899359561
+    ],
+    [
+     "Enduring Speed",
+     0.24382433668801465
+    ]
+   ],
+   "high_kp": true
+  },
+  {
+   "id": 78,
+   "name": "Deadman Danny",
+   "players": 4710,
+   "kp": 0.514,
+   "deaths10": 2.064,
+   "movement_items": 0.326,
+   "movement_items_vs_same_worth": -0.707,
+   "top_movement": [
+    [
+     "Stamina Mastery",
+     0.08683651804670912
+    ],
+    [
+     "Warp Stone",
+     0.06220806794055202
+    ],
+    [
+     "Ethereal Shift",
+     0.040127388535031845
     ]
    ],
    "high_kp": true
@@ -272,23 +272,95 @@
   {
    "id": 27,
    "name": "Yamato",
-   "players": 14265,
-   "kp": 0.5492,
-   "deaths10": 2.104,
-   "movement_items": 0.734,
-   "movement_items_vs_same_worth": -0.326,
+   "players": 7114,
+   "kp": 0.512,
+   "deaths10": 2.399,
+   "movement_items": 0.437,
+   "movement_items_vs_same_worth": -0.594,
    "top_movement": [
     [
      "Stalker",
-     0.6936558009113214
-    ],
-    [
-     "Enduring Speed",
-     0.008131791097090781
+     0.39246556086589823
     ],
     [
      "Phantom Strike",
-     0.007220469681037504
+     0.009136913129041326
+    ],
+    [
+     "Warp Stone",
+     0.008996345234748383
+    ]
+   ],
+   "high_kp": true
+  },
+  {
+   "id": 79,
+   "name": "Rem",
+   "players": 3734,
+   "kp": 0.5093,
+   "deaths10": 1.651,
+   "movement_items": 0.45,
+   "movement_items_vs_same_worth": -0.576,
+   "top_movement": [
+    [
+     "Arcane Surge",
+     0.3449384038564542
+    ],
+    [
+     "Enduring Speed",
+     0.039903588644884844
+    ],
+    [
+     "Stamina Mastery",
+     0.013122656668452063
+    ]
+   ],
+   "high_kp": true
+  },
+  {
+   "id": 10,
+   "name": "Paradox",
+   "players": 8682,
+   "kp": 0.5084,
+   "deaths10": 2.081,
+   "movement_items": 0.891,
+   "movement_items_vs_same_worth": -0.141,
+   "top_movement": [
+    [
+     "Stamina Mastery",
+     0.4283575213084543
+    ],
+    [
+     "Shadow Weave",
+     0.12186132227597328
+    ],
+    [
+     "Veil Walker",
+     0.12001842893342547
+    ]
+   ],
+   "high_kp": true
+  },
+  {
+   "id": 6,
+   "name": "Abrams",
+   "players": 9794,
+   "kp": 0.5042,
+   "deaths10": 2.176,
+   "movement_items": 2.089,
+   "movement_items_vs_same_worth": 1.055,
+   "top_movement": [
+    [
+     "Stalker",
+     0.7425975086787829
+    ],
+    [
+     "Warp Stone",
+     0.5596283438840106
+    ],
+    [
+     "Phantom Strike",
+     0.5491117010414539
     ]
    ],
    "high_kp": true
@@ -296,287 +368,95 @@
   {
    "id": 20,
    "name": "Ivy",
-   "players": 11052,
-   "kp": 0.5409,
-   "deaths10": 1.558,
-   "movement_items": 0.55,
-   "movement_items_vs_same_worth": -0.509,
+   "players": 8571,
+   "kp": 0.5041,
+   "deaths10": 1.69,
+   "movement_items": 0.391,
+   "movement_items_vs_same_worth": -0.638,
    "top_movement": [
     [
+     "Enduring Speed",
+     0.13043985532609964
+    ],
+    [
      "Fleetfoot",
-     0.17191458559536735
+     0.10558861276397154
     ],
     [
      "Stamina Mastery",
-     0.12124502352515382
-    ],
-    [
-     "Enduring Speed",
-     0.11762576909156713
+     0.06043635515109089
     ]
    ],
-   "high_kp": true
+   "high_kp": false
   },
   {
-   "id": 11,
-   "name": "Dynamo",
-   "players": 7967,
-   "kp": 0.5318,
-   "deaths10": 1.698,
-   "movement_items": 1.686,
-   "movement_items_vs_same_worth": 0.628,
+   "id": 86,
+   "name": "86",
+   "players": 3215,
+   "kp": 0.5037,
+   "deaths10": 2.035,
+   "movement_items": 0.557,
+   "movement_items_vs_same_worth": -0.476,
    "top_movement": [
     [
      "Warp Stone",
-     0.7202209112589432
+     0.29517884914463455
+    ],
+    [
+     "Stamina Mastery",
+     0.06998444790046657
     ],
     [
      "Arcane Surge",
-     0.5623195682189029
-    ],
-    [
-     "Enduring Speed",
-     0.17007656583406552
+     0.06220839813374806
     ]
    ],
-   "high_kp": true
+   "high_kp": false
   },
   {
    "id": 80,
    "name": "Silver",
-   "players": 7446,
-   "kp": 0.5314,
-   "deaths10": 1.94,
-   "movement_items": 1.48,
-   "movement_items_vs_same_worth": 0.419,
+   "players": 5203,
+   "kp": 0.5035,
+   "deaths10": 2.112,
+   "movement_items": 1.545,
+   "movement_items_vs_same_worth": 0.512,
    "top_movement": [
     [
      "Stalker",
-     0.8084877786731131
+     0.7905054776090716
     ],
     [
      "Warp Stone",
-     0.266317485898469
+     0.31385738996732654
     ],
     [
      "Phantom Strike",
-     0.13215149073327961
+     0.1547184316740342
     ]
    ],
    "high_kp": false
   },
   {
-   "id": 10,
-   "name": "Paradox",
-   "players": 12229,
-   "kp": 0.5279,
-   "deaths10": 1.89,
-   "movement_items": 0.919,
-   "movement_items_vs_same_worth": -0.138,
+   "id": 11,
+   "name": "Dynamo",
+   "players": 4428,
+   "kp": 0.5031,
+   "deaths10": 1.864,
+   "movement_items": 1.718,
+   "movement_items_vs_same_worth": 0.687,
    "top_movement": [
-    [
-     "Stamina Mastery",
-     0.42497342382860415
-    ],
-    [
-     "Veil Walker",
-     0.22512061493171967
-    ],
-    [
-     "Extra Stamina",
-     0.08087333387848557
-    ]
-   ],
-   "high_kp": false
-  },
-  {
-   "id": 6,
-   "name": "Abrams",
-   "players": 10935,
-   "kp": 0.5272,
-   "deaths10": 1.956,
-   "movement_items": 2.037,
-   "movement_items_vs_same_worth": 0.977,
-   "top_movement": [
-    [
-     "Stalker",
-     0.6924554183813443
-    ],
-    [
-     "Phantom Strike",
-     0.5523548239597622
-    ],
     [
      "Warp Stone",
-     0.49657064471879286
-    ]
-   ],
-   "high_kp": false
-  },
-  {
-   "id": 72,
-   "name": "Billy",
-   "players": 8486,
-   "kp": 0.5268,
-   "deaths10": 1.982,
-   "movement_items": 1.031,
-   "movement_items_vs_same_worth": -0.031,
-   "top_movement": [
+     0.724706413730804
+    ],
     [
-     "Stalker",
-     0.6993872260193259
+     "Arcane Surge",
+     0.5898825654923215
     ],
     [
      "Enduring Speed",
-     0.11831251473014377
-    ],
-    [
-     "Fleetfoot",
-     0.0900306386990337
-    ]
-   ],
-   "high_kp": false
-  },
-  {
-   "id": 19,
-   "name": "Shiv",
-   "players": 12226,
-   "kp": 0.5251,
-   "deaths10": 1.897,
-   "movement_items": 0.453,
-   "movement_items_vs_same_worth": -0.606,
-   "top_movement": [
-    [
-     "Fleetfoot",
-     0.20431866513986585
-    ],
-    [
-     "Ethereal Shift",
-     0.10502208408310158
-    ],
-    [
-     "Warp Stone",
-     0.04735808931784721
-    ]
-   ],
-   "high_kp": false
-  },
-  {
-   "id": 77,
-   "name": "Apollo",
-   "players": 8686,
-   "kp": 0.5247,
-   "deaths10": 1.975,
-   "movement_items": 0.396,
-   "movement_items_vs_same_worth": -0.664,
-   "top_movement": [
-    [
-     "Stamina Mastery",
-     0.20101312456827078
-    ],
-    [
-     "Ethereal Shift",
-     0.05860004605111674
-    ],
-    [
-     "Extra Stamina",
-     0.04167626064932074
-    ]
-   ],
-   "high_kp": false
-  },
-  {
-   "id": 60,
-   "name": "Sinclair",
-   "players": 6620,
-   "kp": 0.5247,
-   "deaths10": 1.523,
-   "movement_items": 1.046,
-   "movement_items_vs_same_worth": -0.013,
-   "top_movement": [
-    [
-     "Arcane Surge",
-     0.24818731117824774
-    ],
-    [
-     "Warp Stone",
-     0.1959214501510574
-    ],
-    [
-     "Veil Walker",
-     0.1619335347432024
-    ]
-   ],
-   "high_kp": false
-  },
-  {
-   "id": 63,
-   "name": "Mina",
-   "players": 14814,
-   "kp": 0.5226,
-   "deaths10": 1.528,
-   "movement_items": 1.198,
-   "movement_items_vs_same_worth": 0.142,
-   "top_movement": [
-    [
-     "Stamina Mastery",
-     0.9632104765762117
-    ],
-    [
-     "Ethereal Shift",
-     0.19177804779262858
-    ],
-    [
-     "Extra Stamina",
-     0.0266639665181585
-    ]
-   ],
-   "high_kp": false
-  },
-  {
-   "id": 35,
-   "name": "Viscous",
-   "players": 4890,
-   "kp": 0.5223,
-   "deaths10": 1.602,
-   "movement_items": 0.795,
-   "movement_items_vs_same_worth": -0.261,
-   "top_movement": [
-    [
-     "Warp Stone",
-     0.22740286298568507
-    ],
-    [
-     "Arcane Surge",
-     0.2116564417177914
-    ],
-    [
-     "Veil Walker",
-     0.12658486707566463
-    ]
-   ],
-   "high_kp": false
-  },
-  {
-   "id": 81,
-   "name": "Celeste",
-   "players": 8590,
-   "kp": 0.522,
-   "deaths10": 1.548,
-   "movement_items": 0.524,
-   "movement_items_vs_same_worth": -0.538,
-   "top_movement": [
-    [
-     "Stamina Mastery",
-     0.2768335273573923
-    ],
-    [
-     "Ethereal Shift",
-     0.11012805587892899
-    ],
-    [
-     "Kinetic Dash",
-     0.05320139697322468
+     0.1960252935862692
     ]
    ],
    "high_kp": false
@@ -584,167 +464,191 @@
   {
    "id": 17,
    "name": "Grey Talon",
-   "players": 7289,
-   "kp": 0.5202,
-   "deaths10": 1.534,
-   "movement_items": 0.902,
-   "movement_items_vs_same_worth": -0.154,
+   "players": 6577,
+   "kp": 0.5028,
+   "deaths10": 1.681,
+   "movement_items": 0.936,
+   "movement_items_vs_same_worth": -0.093,
    "top_movement": [
     [
      "Stamina Mastery",
-     0.7653999176841817
+     0.8345750342101262
     ],
     [
      "Extra Stamina",
-     0.05295650980930169
-    ],
-    [
-     "Kinetic Dash",
-     0.0278501852105913
-    ]
-   ],
-   "high_kp": false
-  },
-  {
-   "id": 84,
-   "name": "Rat King",
-   "players": 29369,
-   "kp": 0.5132,
-   "deaths10": 1.708,
-   "movement_items": 1.366,
-   "movement_items_vs_same_worth": 0.302,
-   "top_movement": [
-    [
-     "Enduring Speed",
-     0.6176240253328339
-    ],
-    [
-     "Fleetfoot",
-     0.5439408900541387
-    ],
-    [
-     "Arcane Surge",
-     0.13442745752323879
-    ]
-   ],
-   "high_kp": false
-  },
-  {
-   "id": 13,
-   "name": "Haze",
-   "players": 25177,
-   "kp": 0.502,
-   "deaths10": 1.738,
-   "movement_items": 1.0,
-   "movement_items_vs_same_worth": -0.053,
-   "top_movement": [
-    [
-     "Enduring Speed",
-     0.46808595146363746
-    ],
-    [
-     "Fleetfoot",
-     0.3061921595106645
-    ],
-    [
-     "Kinetic Dash",
-     0.07427413909520594
-    ]
-   ],
-   "high_kp": false
-  },
-  {
-   "id": 50,
-   "name": "Pocket",
-   "players": 11018,
-   "kp": 0.5011,
-   "deaths10": 1.637,
-   "movement_items": 1.377,
-   "movement_items_vs_same_worth": 0.324,
-   "top_movement": [
-    [
-     "Majestic Leap",
-     0.8055000907605736
-    ],
-    [
-     "Warp Stone",
-     0.2370666182610274
+     0.04835031169226091
     ],
     [
      "Ethereal Shift",
-     0.1789798511526593
+     0.019765850691804775
     ]
    ],
    "high_kp": false
   },
   {
-   "id": 52,
-   "name": "Mirage",
-   "players": 4779,
-   "kp": 0.5008,
-   "deaths10": 1.595,
-   "movement_items": 0.412,
-   "movement_items_vs_same_worth": -0.641,
+   "id": 19,
+   "name": "Shiv",
+   "players": 9201,
+   "kp": 0.5027,
+   "deaths10": 2.152,
+   "movement_items": 0.311,
+   "movement_items_vs_same_worth": -0.721,
    "top_movement": [
     [
-     "Kinetic Dash",
-     0.23477715003138733
-    ],
-    [
-     "Arcane Surge",
-     0.12366603892027621
-    ],
-    [
-     "Enduring Speed",
-     0.021134128478761248
-    ]
-   ],
-   "high_kp": false
-  },
-  {
-   "id": 69,
-   "name": "The Doorman",
-   "players": 5623,
-   "kp": 0.493,
-   "deaths10": 1.486,
-   "movement_items": 0.489,
-   "movement_items_vs_same_worth": -0.564,
-   "top_movement": [
-    [
-     "Veil Walker",
-     0.11275120042681842
-    ],
-    [
-     "Enduring Speed",
-     0.10208073981860218
-    ],
-    [
-     "Kinetic Dash",
-     0.10065801173750667
-    ]
-   ],
-   "high_kp": false
-  },
-  {
-   "id": 65,
-   "name": "Venator",
-   "players": 16364,
-   "kp": 0.4908,
-   "deaths10": 1.766,
-   "movement_items": 1.478,
-   "movement_items_vs_same_worth": 0.418,
-   "top_movement": [
-    [
-     "Enduring Speed",
-     0.7104619897335614
+     "Ethereal Shift",
+     0.1370503206173242
     ],
     [
      "Fleetfoot",
-     0.6648741139085798
+     0.04553852842082382
     ],
     [
      "Warp Stone",
-     0.052493277927157175
+     0.030648842517117705
+    ]
+   ],
+   "high_kp": false
+  },
+  {
+   "id": 77,
+   "name": "Apollo",
+   "players": 4343,
+   "kp": 0.4991,
+   "deaths10": 2.384,
+   "movement_items": 0.32,
+   "movement_items_vs_same_worth": -0.716,
+   "top_movement": [
+    [
+     "Stamina Mastery",
+     0.13585079438176376
+    ],
+    [
+     "Ethereal Shift",
+     0.058945429426663594
+    ],
+    [
+     "Stalker",
+     0.0297029702970297
+    ]
+   ],
+   "high_kp": false
+  },
+  {
+   "id": 72,
+   "name": "Billy",
+   "players": 6672,
+   "kp": 0.4977,
+   "deaths10": 2.211,
+   "movement_items": 0.875,
+   "movement_items_vs_same_worth": -0.157,
+   "top_movement": [
+    [
+     "Stalker",
+     0.6223021582733813
+    ],
+    [
+     "Enduring Speed",
+     0.0861810551558753
+    ],
+    [
+     "Phantom Strike",
+     0.05800359712230216
+    ]
+   ],
+   "high_kp": false
+  },
+  {
+   "id": 63,
+   "name": "Mina",
+   "players": 8293,
+   "kp": 0.4963,
+   "deaths10": 1.726,
+   "movement_items": 1.184,
+   "movement_items_vs_same_worth": 0.161,
+   "top_movement": [
+    [
+     "Stamina Mastery",
+     0.9782949475461232
+    ],
+    [
+     "Ethereal Shift",
+     0.17798143012178946
+    ],
+    [
+     "Extra Stamina",
+     0.015555287591945013
+    ]
+   ],
+   "high_kp": false
+  },
+  {
+   "id": 35,
+   "name": "Viscous",
+   "players": 3353,
+   "kp": 0.494,
+   "deaths10": 1.808,
+   "movement_items": 0.96,
+   "movement_items_vs_same_worth": -0.069,
+   "top_movement": [
+    [
+     "Arcane Surge",
+     0.33402922755741127
+    ],
+    [
+     "Warp Stone",
+     0.3277661795407098
+    ],
+    [
+     "Phantom Strike",
+     0.16641813301521025
+    ]
+   ],
+   "high_kp": false
+  },
+  {
+   "id": 81,
+   "name": "Celeste",
+   "players": 5242,
+   "kp": 0.4875,
+   "deaths10": 1.853,
+   "movement_items": 0.48,
+   "movement_items_vs_same_worth": -0.547,
+   "top_movement": [
+    [
+     "Stamina Mastery",
+     0.20240366272415108
+    ],
+    [
+     "Kinetic Dash",
+     0.11484166348721862
+    ],
+    [
+     "Ethereal Shift",
+     0.08527279664250287
+    ]
+   ],
+   "high_kp": false
+  },
+  {
+   "id": 60,
+   "name": "Sinclair",
+   "players": 2079,
+   "kp": 0.4869,
+   "deaths10": 1.699,
+   "movement_items": 0.956,
+   "movement_items_vs_same_worth": -0.068,
+   "top_movement": [
+    [
+     "Veil Walker",
+     0.1822991822991823
+    ],
+    [
+     "Magic Carpet",
+     0.15921115921115922
+    ],
+    [
+     "Shadow Weave",
+     0.1418951418951419
     ]
    ],
    "high_kp": false
@@ -752,71 +656,167 @@
   {
    "id": 85,
    "name": "Solomon",
-   "players": 9510,
-   "kp": 0.4858,
-   "deaths10": 1.767,
-   "movement_items": 1.26,
-   "movement_items_vs_same_worth": 0.204,
+   "players": 2010,
+   "kp": 0.4748,
+   "deaths10": 1.502,
+   "movement_items": 1.412,
+   "movement_items_vs_same_worth": 0.383,
    "top_movement": [
     [
      "Stamina Mastery",
-     0.6198738170347003
-    ],
-    [
-     "Kinetic Dash",
-     0.2028391167192429
+     0.5383084577114428
     ],
     [
      "Warp Stone",
-     0.1288117770767613
+     0.37711442786069654
+    ],
+    [
+     "Extra Stamina",
+     0.13532338308457711
     ]
    ],
    "high_kp": false
   },
   {
-   "id": 58,
-   "name": "Vyper",
-   "players": 5778,
-   "kp": 0.4828,
-   "deaths10": 1.804,
-   "movement_items": 0.709,
-   "movement_items_vs_same_worth": -0.349,
+   "id": 50,
+   "name": "Pocket",
+   "players": 5879,
+   "kp": 0.4744,
+   "deaths10": 1.772,
+   "movement_items": 1.503,
+   "movement_items_vs_same_worth": 0.489,
    "top_movement": [
     [
-     "Stamina Mastery",
-     0.43977154724818274
+     "Majestic Leap",
+     0.7759823099166525
+    ],
+    [
+     "Warp Stone",
+     0.3876509610477972
+    ],
+    [
+     "Ethereal Shift",
+     0.20836877019901343
+    ]
+   ],
+   "high_kp": false
+  },
+  {
+   "id": 13,
+   "name": "Haze",
+   "players": 13232,
+   "kp": 0.4733,
+   "deaths10": 1.932,
+   "movement_items": 0.814,
+   "movement_items_vs_same_worth": -0.2,
+   "top_movement": [
+    [
+     "Enduring Speed",
+     0.3657043530834341
     ],
     [
      "Fleetfoot",
-     0.11041883004499826
+     0.3183192261185006
     ],
     [
-     "Enduring Speed",
-     0.09138110072689512
+     "Kinetic Dash",
+     0.07625453446191052
     ]
    ],
    "high_kp": false
   },
   {
-   "id": 76,
-   "name": "Graves",
-   "players": 8233,
-   "kp": 0.4803,
-   "deaths10": 1.746,
-   "movement_items": 1.31,
-   "movement_items_vs_same_worth": 0.254,
+   "id": 69,
+   "name": "The Doorman",
+   "players": 2485,
+   "kp": 0.468,
+   "deaths10": 1.605,
+   "movement_items": 0.436,
+   "movement_items_vs_same_worth": -0.588,
    "top_movement": [
     [
-     "Arcane Surge",
-     0.6105915219239645
+     "Warp Stone",
+     0.09698189134808853
     ],
     [
-     "Stamina Mastery",
-     0.4829345317624195
+     "Enduring Speed",
+     0.09054325955734406
+    ],
+    [
+     "Veil Walker",
+     0.05150905432595573
+    ]
+   ],
+   "high_kp": false
+  },
+  {
+   "id": 65,
+   "name": "Venator",
+   "players": 10106,
+   "kp": 0.4674,
+   "deaths10": 1.901,
+   "movement_items": 1.382,
+   "movement_items_vs_same_worth": 0.361,
+   "top_movement": [
+    [
+     "Fleetfoot",
+     0.61171581238868
+    ],
+    [
+     "Enduring Speed",
+     0.6015238472194736
     ],
     [
      "Warp Stone",
-     0.041297218510870884
+     0.05561052839897091
+    ]
+   ],
+   "high_kp": false
+  },
+  {
+   "id": 52,
+   "name": "Mirage",
+   "players": 2732,
+   "kp": 0.4621,
+   "deaths10": 1.791,
+   "movement_items": 0.297,
+   "movement_items_vs_same_worth": -0.72,
+   "top_movement": [
+    [
+     "Kinetic Dash",
+     0.2068081991215227
+    ],
+    [
+     "Stamina Mastery",
+     0.0314787701317716
+    ],
+    [
+     "Arcane Surge",
+     0.023792093704245974
+    ]
+   ],
+   "high_kp": false
+  },
+  {
+   "id": 87,
+   "name": "87",
+   "players": 3999,
+   "kp": 0.4598,
+   "deaths10": 1.609,
+   "movement_items": 2.076,
+   "movement_items_vs_same_worth": 1.042,
+   "top_movement": [
+    [
+     "Kinetic Dash",
+     0.8702175543885972
+    ],
+    [
+     "Arcane Surge",
+     0.6364091022755689
+    ],
+    [
+     "Stamina Mastery",
+     0.3655913978494624
     ]
    ],
    "high_kp": false
@@ -824,143 +824,23 @@
   {
    "id": 8,
    "name": "McGinnis",
-   "players": 4812,
-   "kp": 0.4779,
-   "deaths10": 1.747,
-   "movement_items": 1.257,
-   "movement_items_vs_same_worth": 0.2,
+   "players": 3010,
+   "kp": 0.4592,
+   "deaths10": 1.803,
+   "movement_items": 1.208,
+   "movement_items_vs_same_worth": 0.181,
    "top_movement": [
     [
      "Arcane Surge",
-     0.42622610141313383
+     0.4269102990033223
     ],
     [
      "Enduring Speed",
-     0.3229426433915212
+     0.3086378737541528
     ],
     [
      "Stamina Mastery",
-     0.20947630922693267
-    ]
-   ],
-   "high_kp": false
-  },
-  {
-   "id": 1,
-   "name": "Infernus",
-   "players": 12818,
-   "kp": 0.4757,
-   "deaths10": 1.962,
-   "movement_items": 0.371,
-   "movement_items_vs_same_worth": -0.687,
-   "top_movement": [
-    [
-     "Enduring Speed",
-     0.1632079887657981
-    ],
-    [
-     "Warp Stone",
-     0.15049149633328132
-    ],
-    [
-     "Fleetfoot",
-     0.01887970042128257
-    ]
-   ],
-   "high_kp": false
-  },
-  {
-   "id": 66,
-   "name": "Victor",
-   "players": 9113,
-   "kp": 0.4754,
-   "deaths10": 1.77,
-   "movement_items": 1.498,
-   "movement_items_vs_same_worth": 0.444,
-   "top_movement": [
-    [
-     "Enduring Speed",
-     0.7740590365412049
-    ],
-    [
-     "Warp Stone",
-     0.34544057939207723
-    ],
-    [
-     "Ethereal Shift",
-     0.20761549434873258
-    ]
-   ],
-   "high_kp": false
-  },
-  {
-   "id": 2,
-   "name": "Seven",
-   "players": 9089,
-   "kp": 0.4737,
-   "deaths10": 1.688,
-   "movement_items": 1.239,
-   "movement_items_vs_same_worth": 0.185,
-   "top_movement": [
-    [
-     "Arcane Surge",
-     0.6611288370557817
-    ],
-    [
-     "Fleetfoot",
-     0.3004730993508637
-    ],
-    [
-     "Enduring Speed",
-     0.2365496754318407
-    ]
-   ],
-   "high_kp": false
-  },
-  {
-   "id": 4,
-   "name": "Lady Geist",
-   "players": 5775,
-   "kp": 0.4707,
-   "deaths10": 1.838,
-   "movement_items": 1.638,
-   "movement_items_vs_same_worth": 0.581,
-   "top_movement": [
-    [
-     "Kinetic Dash",
-     0.6119480519480519
-    ],
-    [
-     "Fleetfoot",
-     0.40190476190476193
-    ],
-    [
-     "Enduring Speed",
-     0.22147186147186146
-    ]
-   ],
-   "high_kp": false
-  },
-  {
-   "id": 7,
-   "name": "Wraith",
-   "players": 17899,
-   "kp": 0.4695,
-   "deaths10": 1.479,
-   "movement_items": 0.351,
-   "movement_items_vs_same_worth": -0.701,
-   "top_movement": [
-    [
-     "Enduring Speed",
-     0.26442818034527066
-    ],
-    [
-     "Fleetfoot",
-     0.04145482987876418
-    ],
-    [
-     "Sprint Boots",
-     0.024526509860886083
+     0.22059800664451829
     ]
    ],
    "high_kp": false
@@ -968,720 +848,930 @@
   {
    "id": 25,
    "name": "Warden",
-   "players": 2177,
-   "kp": 0.4617,
-   "deaths10": 1.935,
-   "movement_items": 1.729,
-   "movement_items_vs_same_worth": 0.67,
+   "players": 5862,
+   "kp": 0.4573,
+   "deaths10": 1.917,
+   "movement_items": 1.521,
+   "movement_items_vs_same_worth": 0.497,
    "top_movement": [
     [
      "Fleetfoot",
-     0.7367937528709233
+     0.8563630160354828
     ],
     [
      "Enduring Speed",
-     0.6628387689480937
+     0.5245649948822927
     ],
     [
      "Arcane Surge",
-     0.1065686724850712
+     0.05322415557830092
+    ]
+   ],
+   "high_kp": false
+  },
+  {
+   "id": 58,
+   "name": "Vyper",
+   "players": 3628,
+   "kp": 0.4556,
+   "deaths10": 2.032,
+   "movement_items": 0.855,
+   "movement_items_vs_same_worth": -0.166,
+   "top_movement": [
+    [
+     "Stamina Mastery",
+     0.5424476295479603
+    ],
+    [
+     "Fleetfoot",
+     0.13009922822491732
+    ],
+    [
+     "Enduring Speed",
+     0.09785005512679162
+    ]
+   ],
+   "high_kp": false
+  },
+  {
+   "id": 76,
+   "name": "Graves",
+   "players": 5815,
+   "kp": 0.4539,
+   "deaths10": 1.951,
+   "movement_items": 1.108,
+   "movement_items_vs_same_worth": 0.087,
+   "top_movement": [
+    [
+     "Stamina Mastery",
+     0.8020636285468615
+    ],
+    [
+     "Arcane Surge",
+     0.16268271711092003
+    ],
+    [
+     "Extra Stamina",
+     0.04797936371453138
+    ]
+   ],
+   "high_kp": false
+  },
+  {
+   "id": 84,
+   "name": "Rat King",
+   "players": 3547,
+   "kp": 0.4492,
+   "deaths10": 1.745,
+   "movement_items": 1.103,
+   "movement_items_vs_same_worth": 0.075,
+   "top_movement": [
+    [
+     "Fleetfoot",
+     0.5607555680857063
+    ],
+    [
+     "Enduring Speed",
+     0.4739216239075275
+    ],
+    [
+     "Arcane Surge",
+     0.017479560191711305
+    ]
+   ],
+   "high_kp": false
+  },
+  {
+   "id": 1,
+   "name": "Infernus",
+   "players": 7485,
+   "kp": 0.448,
+   "deaths10": 2.15,
+   "movement_items": 0.37,
+   "movement_items_vs_same_worth": -0.653,
+   "top_movement": [
+    [
+     "Enduring Speed",
+     0.16993987975951905
+    ],
+    [
+     "Warp Stone",
+     0.1357381429525718
+    ],
+    [
+     "Fleetfoot",
+     0.024181696726786907
+    ]
+   ],
+   "high_kp": false
+  },
+  {
+   "id": 4,
+   "name": "Lady Geist",
+   "players": 3269,
+   "kp": 0.447,
+   "deaths10": 2.034,
+   "movement_items": 1.319,
+   "movement_items_vs_same_worth": 0.298,
+   "top_movement": [
+    [
+     "Kinetic Dash",
+     0.42000611807892324
+    ],
+    [
+     "Enduring Speed",
+     0.27500764759865404
+    ],
+    [
+     "Warp Stone",
+     0.2539002753135515
+    ]
+   ],
+   "high_kp": false
+  },
+  {
+   "id": 2,
+   "name": "Seven",
+   "players": 5205,
+   "kp": 0.4467,
+   "deaths10": 1.842,
+   "movement_items": 1.148,
+   "movement_items_vs_same_worth": 0.137,
+   "top_movement": [
+    [
+     "Arcane Surge",
+     0.6687800192122959
+    ],
+    [
+     "Fleetfoot",
+     0.2637848222862632
+    ],
+    [
+     "Enduring Speed",
+     0.18578290105667628
+    ]
+   ],
+   "high_kp": false
+  },
+  {
+   "id": 66,
+   "name": "Victor",
+   "players": 5183,
+   "kp": 0.4427,
+   "deaths10": 1.94,
+   "movement_items": 1.555,
+   "movement_items_vs_same_worth": 0.539,
+   "top_movement": [
+    [
+     "Enduring Speed",
+     0.7459000578815358
+    ],
+    [
+     "Warp Stone",
+     0.3949450125409994
+    ],
+    [
+     "Ethereal Shift",
+     0.2187922052865136
+    ]
+   ],
+   "high_kp": false
+  },
+  {
+   "id": 7,
+   "name": "Wraith",
+   "players": 11463,
+   "kp": 0.4419,
+   "deaths10": 1.695,
+   "movement_items": 0.292,
+   "movement_items_vs_same_worth": -0.716,
+   "top_movement": [
+    [
+     "Enduring Speed",
+     0.2417342754950711
+    ],
+    [
+     "Fleetfoot",
+     0.025124313007066214
+    ],
+    [
+     "Sprint Boots",
+     0.009334380179708628
     ]
    ],
    "high_kp": false
   }
  ],
  "correlation": {
-  "kp_vs_movement_items": -0.052,
-  "kp_vs_movement_items_same_worth": -0.053
+  "kp_vs_movement_items": -0.042,
+  "kp_vs_movement_items_same_worth": -0.05
  },
  "any_movement_item": {
-  "holders": 281447,
-  "kp": 0.5247,
-  "kp_others": 0.5191,
-  "kp_diff": 0.0057,
-  "kp_z": 6.9,
-  "deaths10": 1.818,
-  "deaths10_others": 1.897,
-  "deaths_z": 14.0,
-  "ka10_diff": 0.219,
-  "chase": 1.0109,
-  "escape": 1.0431,
-  "value": 1.0545
+  "holders": 145805,
+  "kp": 0.4963,
+  "kp_others": 0.4888,
+  "kp_diff": 0.0075,
+  "kp_z": 6.7,
+  "deaths10": 2.009,
+  "deaths10_others": 2.064,
+  "deaths_z": 7.3,
+  "ka10_diff": 0.225,
+  "chase": 1.0153,
+  "escape": 1.0274,
+  "value": 1.0431
  },
  "items": {
   "Sprint Boots": {
-   "holders": 3739,
-   "kp": 0.5069,
-   "kp_others": 0.5075,
-   "kp_diff": -0.0007,
-   "kp_z": -0.3,
-   "deaths10": 2.057,
-   "deaths10_others": 2.077,
-   "deaths_z": 1.4,
-   "ka10_diff": 0.232,
-   "chase": 0.9987,
-   "escape": 1.0098,
-   "value": 1.0,
+   "holders": 793,
+   "kp": 0.4691,
+   "kp_others": 0.4714,
+   "kp_diff": -0.0023,
+   "kp_z": -0.5,
+   "deaths10": 2.159,
+   "deaths10_others": 2.248,
+   "deaths_z": 2.8,
+   "ka10_diff": 0.192,
+   "chase": 0.9951,
+   "escape": 1.0411,
+   "value": 1.0411,
    "high_kp_heroes": {
-    "holders": 2169,
-    "kp": 0.5446,
-    "kp_others": 0.538,
-    "kp_diff": 0.0066,
-    "kp_z": 2.3,
-    "deaths10": 2.216,
-    "deaths10_others": 2.222,
-    "deaths_z": 0.3,
-    "ka10_diff": 0.406,
-    "chase": 1.0123,
-    "escape": 1.0029,
-    "value": 1.0123
+    "holders": 398,
+    "kp": 0.5026,
+    "kp_others": 0.4995,
+    "kp_diff": 0.0031,
+    "kp_z": 0.4,
+    "deaths10": 2.384,
+    "deaths10_others": 2.475,
+    "deaths_z": 1.9,
+    "ka10_diff": 0.252,
+    "chase": 1.0062,
+    "escape": 1.0382,
+    "value": 1.0
    },
    "other_heroes": {
-    "holders": 1570,
-    "kp": 0.4547,
-    "kp_others": 0.4655,
-    "kp_diff": -0.0107,
-    "kp_z": -2.9,
-    "deaths10": 1.837,
-    "deaths10_others": 1.876,
-    "deaths_z": 1.7,
-    "ka10_diff": -0.008,
-    "chase": 0.9769,
-    "escape": 1.0212,
-    "value": 1.0
+    "holders": 395,
+    "kp": 0.4353,
+    "kp_others": 0.4431,
+    "kp_diff": -0.0078,
+    "kp_z": -1.3,
+    "deaths10": 1.932,
+    "deaths10_others": 2.018,
+    "deaths_z": 2.1,
+    "ka10_diff": 0.131,
+    "chase": 0.9824,
+    "escape": 1.0447,
+    "value": 1.0447
    }
   },
   "Extra Stamina": {
-   "holders": 7924,
-   "kp": 0.5051,
-   "kp_others": 0.5047,
-   "kp_diff": 0.0004,
-   "kp_z": 0.2,
-   "deaths10": 1.908,
-   "deaths10_others": 1.935,
-   "deaths_z": 2.6,
-   "ka10_diff": 0.074,
-   "chase": 1.0008,
-   "escape": 1.0141,
-   "value": 1.0141,
+   "holders": 4288,
+   "kp": 0.4852,
+   "kp_others": 0.4838,
+   "kp_diff": 0.0014,
+   "kp_z": 0.7,
+   "deaths10": 2.042,
+   "deaths10_others": 2.069,
+   "deaths_z": 1.9,
+   "ka10_diff": 0.146,
+   "chase": 1.0028,
+   "escape": 1.0128,
+   "value": 1.0,
    "high_kp_heroes": {
-    "holders": 3006,
-    "kp": 0.5349,
-    "kp_others": 0.5342,
-    "kp_diff": 0.0007,
-    "kp_z": 0.3,
-    "deaths10": 1.898,
-    "deaths10_others": 1.94,
-    "deaths_z": 2.6,
-    "ka10_diff": 0.126,
-    "chase": 1.0014,
-    "escape": 1.022,
-    "value": 1.022
+    "holders": 2149,
+    "kp": 0.5044,
+    "kp_others": 0.5057,
+    "kp_diff": -0.0013,
+    "kp_z": -0.4,
+    "deaths10": 2.106,
+    "deaths10_others": 2.115,
+    "deaths_z": 0.4,
+    "ka10_diff": 0.159,
+    "chase": 0.9975,
+    "escape": 1.0041,
+    "value": 1.0
    },
    "other_heroes": {
-    "holders": 4918,
-    "kp": 0.4868,
-    "kp_others": 0.4867,
-    "kp_diff": 0.0002,
-    "kp_z": 0.1,
-    "deaths10": 1.915,
-    "deaths10_others": 1.932,
-    "deaths_z": 1.4,
-    "ka10_diff": 0.042,
-    "chase": 1.0004,
-    "escape": 1.0093,
-    "value": 1.0
+    "holders": 2139,
+    "kp": 0.4659,
+    "kp_others": 0.4619,
+    "kp_diff": 0.004,
+    "kp_z": 1.4,
+    "deaths10": 1.978,
+    "deaths10_others": 2.022,
+    "deaths_z": 2.3,
+    "ka10_diff": 0.134,
+    "chase": 1.0087,
+    "escape": 1.0222,
+    "value": 1.0222
    }
   },
   "Enduring Speed": {
-   "holders": 98396,
-   "kp": 0.5131,
-   "kp_others": 0.511,
-   "kp_diff": 0.0021,
-   "kp_z": 3.1,
-   "deaths10": 1.792,
-   "deaths10_others": 1.841,
-   "deaths_z": 12.4,
-   "ka10_diff": 0.093,
-   "chase": 1.004,
-   "escape": 1.0274,
-   "value": 1.0315,
+   "holders": 48331,
+   "kp": 0.4849,
+   "kp_others": 0.4836,
+   "kp_diff": 0.0013,
+   "kp_z": 1.6,
+   "deaths10": 2.006,
+   "deaths10_others": 2.042,
+   "deaths_z": 6.7,
+   "ka10_diff": 0.075,
+   "chase": 1.0027,
+   "escape": 1.0178,
+   "value": 1.0178,
    "high_kp_heroes": {
-    "holders": 31498,
-    "kp": 0.5534,
-    "kp_others": 0.5557,
-    "kp_diff": -0.0023,
-    "kp_z": -2.6,
-    "deaths10": 1.906,
-    "deaths10_others": 1.985,
-    "deaths_z": 14.0,
-    "ka10_diff": 0.068,
-    "chase": 0.9958,
-    "escape": 1.0416,
-    "value": 1.0373
+    "holders": 18089,
+    "kp": 0.5284,
+    "kp_others": 0.5258,
+    "kp_diff": 0.0026,
+    "kp_z": 2.2,
+    "deaths10": 2.15,
+    "deaths10_others": 2.229,
+    "deaths_z": 9.3,
+    "ka10_diff": 0.104,
+    "chase": 1.0049,
+    "escape": 1.0367,
+    "value": 1.0417
    },
    "other_heroes": {
-    "holders": 66898,
-    "kp": 0.4941,
-    "kp_others": 0.49,
-    "kp_diff": 0.0041,
-    "kp_z": 4.7,
-    "deaths10": 1.738,
-    "deaths10_others": 1.773,
-    "deaths_z": 6.7,
-    "ka10_diff": 0.104,
-    "chase": 1.0084,
-    "escape": 1.02,
-    "value": 1.0286
+    "holders": 30242,
+    "kp": 0.4589,
+    "kp_others": 0.4583,
+    "kp_diff": 0.0005,
+    "kp_z": 0.5,
+    "deaths10": 1.92,
+    "deaths10_others": 1.93,
+    "deaths_z": 1.5,
+    "ka10_diff": 0.057,
+    "chase": 1.0012,
+    "escape": 1.0052,
+    "value": 1.0
    }
   },
   "Arcane Surge": {
-   "holders": 41162,
-   "kp": 0.5153,
-   "kp_others": 0.5124,
-   "kp_diff": 0.0029,
-   "kp_z": 3.4,
-   "deaths10": 1.674,
-   "deaths10_others": 1.751,
-   "deaths_z": 15.3,
-   "ka10_diff": 0.044,
-   "chase": 1.0057,
-   "escape": 1.0456,
-   "value": 1.0516,
+   "holders": 20468,
+   "kp": 0.4833,
+   "kp_others": 0.4787,
+   "kp_diff": 0.0046,
+   "kp_z": 3.9,
+   "deaths10": 1.809,
+   "deaths10_others": 1.904,
+   "deaths_z": 12.2,
+   "ka10_diff": 0.066,
+   "chase": 1.0096,
+   "escape": 1.0523,
+   "value": 1.0624,
    "high_kp_heroes": {
-    "holders": 16919,
-    "kp": 0.5442,
-    "kp_others": 0.5431,
-    "kp_diff": 0.0012,
-    "kp_z": 1.0,
-    "deaths10": 1.663,
-    "deaths10_others": 1.721,
-    "deaths_z": 8.0,
-    "ka10_diff": 0.015,
-    "chase": 1.0021,
-    "escape": 1.0351,
-    "value": 1.0351
+    "holders": 6904,
+    "kp": 0.5101,
+    "kp_others": 0.5123,
+    "kp_diff": -0.0021,
+    "kp_z": -1.3,
+    "deaths10": 1.874,
+    "deaths10_others": 1.913,
+    "deaths_z": 3.5,
+    "ka10_diff": -0.027,
+    "chase": 0.9958,
+    "escape": 1.0208,
+    "value": 1.0208
    },
    "other_heroes": {
-    "holders": 24243,
-    "kp": 0.4951,
-    "kp_others": 0.491,
-    "kp_diff": 0.0041,
-    "kp_z": 3.5,
-    "deaths10": 1.683,
-    "deaths10_others": 1.771,
-    "deaths_z": 13.1,
-    "ka10_diff": 0.063,
-    "chase": 1.0084,
-    "escape": 1.0528,
-    "value": 1.0617
+    "holders": 13564,
+    "kp": 0.4697,
+    "kp_others": 0.4616,
+    "kp_diff": 0.008,
+    "kp_z": 5.1,
+    "deaths10": 1.776,
+    "deaths10_others": 1.899,
+    "deaths_z": 12.0,
+    "ka10_diff": 0.113,
+    "chase": 1.0174,
+    "escape": 1.0692,
+    "value": 1.0878
    }
   },
   "Kinetic Dash": {
-   "holders": 16141,
-   "kp": 0.5024,
-   "kp_others": 0.5064,
-   "kp_diff": -0.004,
-   "kp_z": -3.2,
-   "deaths10": 1.892,
-   "deaths10_others": 1.9,
-   "deaths_z": 1.0,
-   "ka10_diff": -0.055,
-   "chase": 0.9921,
-   "escape": 1.004,
-   "value": 1.0,
+   "holders": 12500,
+   "kp": 0.488,
+   "kp_others": 0.4861,
+   "kp_diff": 0.0019,
+   "kp_z": 1.0,
+   "deaths10": 2.036,
+   "deaths10_others": 2.089,
+   "deaths_z": 3.9,
+   "ka10_diff": 0.061,
+   "chase": 1.004,
+   "escape": 1.026,
+   "value": 1.026,
    "high_kp_heroes": {
-    "holders": 4425,
-    "kp": 0.5429,
-    "kp_others": 0.559,
-    "kp_diff": -0.0162,
-    "kp_z": -7.8,
-    "deaths10": 2.186,
-    "deaths10_others": 2.204,
-    "deaths_z": 1.2,
-    "ka10_diff": -0.407,
-    "chase": 0.971,
-    "escape": 1.0081,
+    "holders": 4774,
+    "kp": 0.5345,
+    "kp_others": 0.5352,
+    "kp_diff": -0.0008,
+    "kp_z": -0.4,
+    "deaths10": 2.388,
+    "deaths10_others": 2.413,
+    "deaths_z": 1.5,
+    "ka10_diff": -0.129,
+    "chase": 0.9986,
+    "escape": 1.0106,
     "value": 1.0
    },
    "other_heroes": {
-    "holders": 11716,
-    "kp": 0.4871,
-    "kp_others": 0.4865,
-    "kp_diff": 0.0006,
-    "kp_z": 0.4,
-    "deaths10": 1.781,
-    "deaths10_others": 1.784,
-    "deaths_z": 0.4,
-    "ka10_diff": 0.078,
-    "chase": 1.0013,
-    "escape": 1.002,
-    "value": 1.0
+    "holders": 7726,
+    "kp": 0.4593,
+    "kp_others": 0.4557,
+    "kp_diff": 0.0036,
+    "kp_z": 1.3,
+    "deaths10": 1.819,
+    "deaths10_others": 1.889,
+    "deaths_z": 3.6,
+    "ka10_diff": 0.179,
+    "chase": 1.0079,
+    "escape": 1.0385,
+    "value": 1.0385
    }
   },
   "Fleetfoot": {
-   "holders": 63885,
-   "kp": 0.5149,
-   "kp_others": 0.5133,
-   "kp_diff": 0.0016,
-   "kp_z": 2.3,
-   "deaths10": 1.785,
-   "deaths10_others": 1.813,
-   "deaths_z": 6.8,
-   "ka10_diff": 0.06,
-   "chase": 1.0031,
-   "escape": 1.0158,
-   "value": 1.019,
+   "holders": 27598,
+   "kp": 0.4793,
+   "kp_others": 0.4702,
+   "kp_diff": 0.0091,
+   "kp_z": 7.5,
+   "deaths10": 1.956,
+   "deaths10_others": 1.987,
+   "deaths_z": 4.2,
+   "ka10_diff": 0.144,
+   "chase": 1.0193,
+   "escape": 1.0159,
+   "value": 1.0356,
    "high_kp_heroes": {
-    "holders": 16088,
-    "kp": 0.5597,
-    "kp_others": 0.5557,
-    "kp_diff": 0.004,
-    "kp_z": 3.6,
-    "deaths10": 1.938,
-    "deaths10_others": 2.021,
-    "deaths_z": 11.2,
-    "ka10_diff": 0.127,
-    "chase": 1.0072,
-    "escape": 1.0424,
-    "value": 1.05
+    "holders": 5066,
+    "kp": 0.5373,
+    "kp_others": 0.5345,
+    "kp_diff": 0.0028,
+    "kp_z": 1.6,
+    "deaths10": 2.2,
+    "deaths10_others": 2.242,
+    "deaths_z": 3.2,
+    "ka10_diff": 0.054,
+    "chase": 1.0052,
+    "escape": 1.0188,
+    "value": 1.0188
    },
    "other_heroes": {
-    "holders": 47797,
-    "kp": 0.4998,
-    "kp_others": 0.499,
-    "kp_diff": 0.0008,
-    "kp_z": 0.9,
-    "deaths10": 1.733,
-    "deaths10_others": 1.743,
-    "deaths_z": 2.0,
-    "ka10_diff": 0.038,
-    "chase": 1.0015,
-    "escape": 1.0058,
-    "value": 1.0058
+    "holders": 22532,
+    "kp": 0.4663,
+    "kp_others": 0.4558,
+    "kp_diff": 0.0105,
+    "kp_z": 7.3,
+    "deaths10": 1.901,
+    "deaths10_others": 1.93,
+    "deaths_z": 3.4,
+    "ka10_diff": 0.164,
+    "chase": 1.0231,
+    "escape": 1.0152,
+    "value": 1.0386
    }
   },
   "Stalker": {
-   "holders": 56280,
-   "kp": 0.5506,
-   "kp_others": 0.5283,
-   "kp_diff": 0.0224,
-   "kp_z": 13.9,
-   "deaths10": 2.105,
-   "deaths10_others": 2.146,
-   "deaths_z": 3.9,
-   "ka10_diff": 0.653,
-   "chase": 1.0424,
-   "escape": 1.0193,
-   "value": 1.0625,
+   "holders": 35623,
+   "kp": 0.5212,
+   "kp_others": 0.5041,
+   "kp_diff": 0.0171,
+   "kp_z": 10.8,
+   "deaths10": 2.312,
+   "deaths10_others": 2.326,
+   "deaths_z": 1.3,
+   "ka10_diff": 0.564,
+   "chase": 1.0339,
+   "escape": 1.0062,
+   "value": 1.0339,
    "high_kp_heroes": {
-    "holders": 36588,
-    "kp": 0.5614,
-    "kp_others": 0.5373,
-    "kp_diff": 0.0242,
-    "kp_z": 11.0,
-    "deaths10": 2.166,
-    "deaths10_others": 2.203,
-    "deaths_z": 2.6,
-    "ka10_diff": 0.72,
-    "chase": 1.045,
-    "escape": 1.0173,
-    "value": 1.063
+    "holders": 27303,
+    "kp": 0.5268,
+    "kp_others": 0.5101,
+    "kp_diff": 0.0166,
+    "kp_z": 8.9,
+    "deaths10": 2.347,
+    "deaths10_others": 2.359,
+    "deaths_z": 0.9,
+    "ka10_diff": 0.554,
+    "chase": 1.0326,
+    "escape": 1.0051,
+    "value": 1.0326
    },
    "other_heroes": {
-    "holders": 19692,
-    "kp": 0.5306,
-    "kp_others": 0.5115,
-    "kp_diff": 0.0191,
-    "kp_z": 9.1,
-    "deaths10": 1.993,
-    "deaths10_others": 2.04,
-    "deaths_z": 3.6,
-    "ka10_diff": 0.527,
-    "chase": 1.0373,
-    "escape": 1.0235,
-    "value": 1.0617
+    "holders": 8320,
+    "kp": 0.5028,
+    "kp_others": 0.4842,
+    "kp_diff": 0.0186,
+    "kp_z": 6.5,
+    "deaths10": 2.195,
+    "deaths10_others": 2.216,
+    "deaths_z": 1.1,
+    "ka10_diff": 0.597,
+    "chase": 1.0383,
+    "escape": 1.0097,
+    "value": 1.0383
    }
   },
   "Stamina Mastery": {
-   "holders": 64745,
-   "kp": 0.5303,
-   "kp_others": 0.5326,
-   "kp_diff": -0.0023,
-   "kp_z": -1.6,
-   "deaths10": 1.707,
-   "deaths10_others": 1.739,
-   "deaths_z": 3.6,
-   "ka10_diff": -0.052,
-   "chase": 0.9957,
-   "escape": 1.0186,
-   "value": 1.0186,
+   "holders": 38353,
+   "kp": 0.4999,
+   "kp_others": 0.4991,
+   "kp_diff": 0.0008,
+   "kp_z": 0.4,
+   "deaths10": 1.887,
+   "deaths10_others": 1.927,
+   "deaths_z": 3.1,
+   "ka10_diff": 0.033,
+   "chase": 1.0016,
+   "escape": 1.0213,
+   "value": 1.0213,
    "high_kp_heroes": {
-    "holders": 25838,
-    "kp": 0.5598,
-    "kp_others": 0.5646,
-    "kp_diff": -0.0048,
-    "kp_z": -2.8,
-    "deaths10": 1.756,
-    "deaths10_others": 1.767,
-    "deaths_z": 1.0,
-    "ka10_diff": -0.099,
-    "chase": 0.9916,
-    "escape": 1.0063,
+    "holders": 17742,
+    "kp": 0.5264,
+    "kp_others": 0.5307,
+    "kp_diff": -0.0043,
+    "kp_z": -2.1,
+    "deaths10": 1.948,
+    "deaths10_others": 1.953,
+    "deaths_z": 0.4,
+    "ka10_diff": -0.08,
+    "chase": 0.9919,
+    "escape": 1.0027,
     "value": 1.0
    },
    "other_heroes": {
-    "holders": 38907,
-    "kp": 0.5108,
-    "kp_others": 0.5114,
-    "kp_diff": -0.0007,
-    "kp_z": -0.3,
-    "deaths10": 1.674,
-    "deaths10_others": 1.72,
-    "deaths_z": 3.6,
-    "ka10_diff": -0.02,
-    "chase": 0.9987,
-    "escape": 1.0271,
-    "value": 1.0271
+    "holders": 20611,
+    "kp": 0.4771,
+    "kp_others": 0.4719,
+    "kp_diff": 0.0052,
+    "kp_z": 1.7,
+    "deaths10": 1.834,
+    "deaths10_others": 1.904,
+    "deaths_z": 3.4,
+    "ka10_diff": 0.131,
+    "chase": 1.011,
+    "escape": 1.0383,
+    "value": 1.0383
    }
   },
   "Majestic Leap": {
-   "holders": 12337,
-   "kp": 0.5217,
-   "kp_others": 0.51,
-   "kp_diff": 0.0117,
-   "kp_z": 5.0,
-   "deaths10": 1.668,
-   "deaths10_others": 1.729,
-   "deaths_z": 4.6,
-   "ka10_diff": 0.234,
-   "chase": 1.023,
-   "escape": 1.037,
-   "value": 1.0609,
+   "holders": 6592,
+   "kp": 0.4928,
+   "kp_others": 0.4824,
+   "kp_diff": 0.0103,
+   "kp_z": 3.8,
+   "deaths10": 1.813,
+   "deaths10_others": 1.907,
+   "deaths_z": 5.4,
+   "ka10_diff": 0.256,
+   "chase": 1.0214,
+   "escape": 1.052,
+   "value": 1.0745,
    "high_kp_heroes": {
-    "holders": 3629,
-    "kp": 0.5584,
-    "kp_others": 0.558,
-    "kp_diff": 0.0004,
-    "kp_z": 0.2,
-    "deaths10": 1.795,
-    "deaths10_others": 1.835,
-    "deaths_z": 2.9,
-    "ka10_diff": 0.115,
-    "chase": 1.0007,
-    "escape": 1.0227,
-    "value": 1.0227
+    "holders": 1786,
+    "kp": 0.5334,
+    "kp_others": 0.5295,
+    "kp_diff": 0.0039,
+    "kp_z": 1.4,
+    "deaths10": 1.952,
+    "deaths10_others": 1.978,
+    "deaths_z": 1.2,
+    "ka10_diff": 0.074,
+    "chase": 1.0074,
+    "escape": 1.013,
+    "value": 1.0
    },
    "other_heroes": {
-    "holders": 8708,
-    "kp": 0.5065,
-    "kp_others": 0.49,
-    "kp_diff": 0.0164,
-    "kp_z": 5.2,
-    "deaths10": 1.615,
-    "deaths10_others": 1.685,
-    "deaths_z": 3.8,
-    "ka10_diff": 0.284,
-    "chase": 1.0336,
-    "escape": 1.0436,
-    "value": 1.0787
+    "holders": 4806,
+    "kp": 0.4776,
+    "kp_others": 0.465,
+    "kp_diff": 0.0127,
+    "kp_z": 3.6,
+    "deaths10": 1.761,
+    "deaths10_others": 1.881,
+    "deaths_z": 5.3,
+    "ka10_diff": 0.324,
+    "chase": 1.0273,
+    "escape": 1.068,
+    "value": 1.0972
    }
   },
   "Warp Stone": {
-   "holders": 41568,
-   "kp": 0.5323,
-   "kp_others": 0.528,
-   "kp_diff": 0.0044,
-   "kp_z": 5.6,
-   "deaths10": 1.771,
-   "deaths10_others": 1.823,
-   "deaths_z": 10.7,
-   "ka10_diff": 0.111,
-   "chase": 1.0083,
-   "escape": 1.0295,
-   "value": 1.038,
+   "holders": 28551,
+   "kp": 0.5019,
+   "kp_others": 0.4954,
+   "kp_diff": 0.0065,
+   "kp_z": 7.0,
+   "deaths10": 1.981,
+   "deaths10_others": 2.045,
+   "deaths_z": 10.1,
+   "ka10_diff": 0.142,
+   "chase": 1.0132,
+   "escape": 1.0321,
+   "value": 1.0457,
    "high_kp_heroes": {
-    "holders": 18252,
-    "kp": 0.5575,
-    "kp_others": 0.5522,
-    "kp_diff": 0.0053,
-    "kp_z": 4.1,
-    "deaths10": 1.802,
-    "deaths10_others": 1.848,
-    "deaths_z": 5.5,
-    "ka10_diff": 0.137,
-    "chase": 1.0096,
-    "escape": 1.0251,
-    "value": 1.035
+    "holders": 12907,
+    "kp": 0.5239,
+    "kp_others": 0.5115,
+    "kp_diff": 0.0125,
+    "kp_z": 9.1,
+    "deaths10": 2.138,
+    "deaths10_others": 2.197,
+    "deaths_z": 6.2,
+    "ka10_diff": 0.218,
+    "chase": 1.0244,
+    "escape": 1.0275,
+    "value": 1.0525
    },
    "other_heroes": {
-    "holders": 23316,
-    "kp": 0.5127,
-    "kp_others": 0.509,
-    "kp_diff": 0.0036,
-    "kp_z": 3.8,
-    "deaths10": 1.746,
-    "deaths10_others": 1.804,
-    "deaths_z": 9.9,
-    "ka10_diff": 0.091,
-    "chase": 1.0071,
-    "escape": 1.0331,
-    "value": 1.0405
+    "holders": 15644,
+    "kp": 0.4837,
+    "kp_others": 0.4821,
+    "kp_diff": 0.0016,
+    "kp_z": 1.3,
+    "deaths10": 1.851,
+    "deaths10_others": 1.919,
+    "deaths_z": 8.0,
+    "ka10_diff": 0.079,
+    "chase": 1.0033,
+    "escape": 1.0365,
+    "value": 1.0365
    }
   },
   "Veil Walker": {
-   "holders": 19931,
-   "kp": 0.547,
-   "kp_others": 0.543,
-   "kp_diff": 0.004,
-   "kp_z": 4.1,
-   "deaths10": 1.961,
-   "deaths10_others": 1.994,
-   "deaths_z": 5.4,
-   "ka10_diff": 0.191,
-   "chase": 1.0074,
-   "escape": 1.0171,
-   "value": 1.0246,
+   "holders": 7757,
+   "kp": 0.5259,
+   "kp_others": 0.5193,
+   "kp_diff": 0.0066,
+   "kp_z": 4.4,
+   "deaths10": 2.2,
+   "deaths10_others": 2.261,
+   "deaths_z": 5.6,
+   "ka10_diff": 0.215,
+   "chase": 1.0127,
+   "escape": 1.0277,
+   "value": 1.0407,
    "high_kp_heroes": {
-    "holders": 12702,
-    "kp": 0.5634,
-    "kp_others": 0.5589,
-    "kp_diff": 0.0045,
-    "kp_z": 3.7,
-    "deaths10": 2.076,
-    "deaths10_others": 2.124,
-    "deaths_z": 5.9,
-    "ka10_diff": 0.209,
-    "chase": 1.0081,
-    "escape": 1.0232,
-    "value": 1.0315
+    "holders": 6946,
+    "kp": 0.5305,
+    "kp_others": 0.5238,
+    "kp_diff": 0.0067,
+    "kp_z": 4.2,
+    "deaths10": 2.247,
+    "deaths10_others": 2.315,
+    "deaths_z": 5.8,
+    "ka10_diff": 0.234,
+    "chase": 1.0128,
+    "escape": 1.0304,
+    "value": 1.0436
    },
    "other_heroes": {
-    "holders": 7229,
-    "kp": 0.5183,
-    "kp_others": 0.5152,
-    "kp_diff": 0.0031,
-    "kp_z": 1.9,
-    "deaths10": 1.759,
-    "deaths10_others": 1.766,
-    "deaths_z": 0.8,
-    "ka10_diff": 0.159,
-    "chase": 1.0059,
-    "escape": 1.0045,
+    "holders": 811,
+    "kp": 0.4862,
+    "kp_others": 0.4806,
+    "kp_diff": 0.0056,
+    "kp_z": 1.3,
+    "deaths10": 1.801,
+    "deaths10_others": 1.798,
+    "deaths_z": -0.1,
+    "ka10_diff": 0.055,
+    "chase": 1.0117,
+    "escape": 0.9984,
     "value": 1.0
    }
   },
   "Shadow Weave": {
-   "holders": 6951,
-   "kp": 0.5474,
-   "kp_others": 0.5512,
-   "kp_diff": -0.0038,
-   "kp_z": -2.4,
-   "deaths10": 2.057,
-   "deaths10_others": 2.009,
-   "deaths_z": -4.6,
-   "ka10_diff": -0.006,
-   "chase": 0.9931,
-   "escape": 0.9764,
+   "holders": 7931,
+   "kp": 0.5226,
+   "kp_others": 0.5214,
+   "kp_diff": 0.0012,
+   "kp_z": 0.8,
+   "deaths10": 2.246,
+   "deaths10_others": 2.222,
+   "deaths_z": -2.3,
+   "ka10_diff": 0.142,
+   "chase": 1.0022,
+   "escape": 0.9892,
    "value": 1.0,
    "high_kp_heroes": {
-    "holders": 5209,
-    "kp": 0.5579,
-    "kp_others": 0.5614,
-    "kp_diff": -0.0034,
-    "kp_z": -1.9,
-    "deaths10": 2.153,
-    "deaths10_others": 2.115,
-    "deaths_z": -3.0,
-    "ka10_diff": -0.005,
-    "chase": 0.9939,
-    "escape": 0.9823,
+    "holders": 6396,
+    "kp": 0.5293,
+    "kp_others": 0.5302,
+    "kp_diff": -0.0009,
+    "kp_z": -0.6,
+    "deaths10": 2.3,
+    "deaths10_others": 2.296,
+    "deaths_z": -0.3,
+    "ka10_diff": 0.115,
+    "chase": 0.9982,
+    "escape": 0.9984,
     "value": 1.0
    },
    "other_heroes": {
-    "holders": 1742,
-    "kp": 0.5158,
-    "kp_others": 0.5207,
-    "kp_diff": -0.0049,
-    "kp_z": -1.6,
-    "deaths10": 1.769,
-    "deaths10_others": 1.689,
-    "deaths_z": -4.2,
-    "ka10_diff": -0.012,
-    "chase": 0.9905,
-    "escape": 0.9548,
+    "holders": 1535,
+    "kp": 0.4946,
+    "kp_others": 0.4848,
+    "kp_diff": 0.0098,
+    "kp_z": 3.3,
+    "deaths10": 2.021,
+    "deaths10_others": 1.911,
+    "deaths_z": -5.2,
+    "ka10_diff": 0.254,
+    "chase": 1.0203,
+    "escape": 0.9455,
     "value": 1.0
    }
   },
   "Phantom Strike": {
-   "holders": 12724,
-   "kp": 0.5491,
-   "kp_others": 0.5495,
-   "kp_diff": -0.0004,
-   "kp_z": -0.3,
-   "deaths10": 1.793,
-   "deaths10_others": 1.782,
-   "deaths_z": -1.3,
-   "ka10_diff": 0.084,
-   "chase": 0.9992,
-   "escape": 0.9939,
+   "holders": 9128,
+   "kp": 0.5131,
+   "kp_others": 0.5162,
+   "kp_diff": -0.0032,
+   "kp_z": -1.9,
+   "deaths10": 2.042,
+   "deaths10_others": 2.052,
+   "deaths_z": 0.9,
+   "ka10_diff": -0.008,
+   "chase": 0.9939,
+   "escape": 1.0049,
    "value": 1.0,
    "high_kp_heroes": {
-    "holders": 3937,
-    "kp": 0.5741,
-    "kp_others": 0.5798,
-    "kp_diff": -0.0056,
-    "kp_z": -2.8,
-    "deaths10": 1.813,
-    "deaths10_others": 1.761,
-    "deaths_z": -4.0,
-    "ka10_diff": -0.006,
-    "chase": 0.9903,
-    "escape": 0.9715,
+    "holders": 6800,
+    "kp": 0.5163,
+    "kp_others": 0.5185,
+    "kp_diff": -0.0022,
+    "kp_z": -1.0,
+    "deaths10": 2.087,
+    "deaths10_others": 2.103,
+    "deaths_z": 1.2,
+    "ka10_diff": 0.015,
+    "chase": 0.9958,
+    "escape": 1.008,
     "value": 1.0
    },
    "other_heroes": {
-    "holders": 8787,
-    "kp": 0.5379,
-    "kp_others": 0.536,
-    "kp_diff": 0.0019,
-    "kp_z": 1.0,
-    "deaths10": 1.783,
-    "deaths10_others": 1.791,
-    "deaths_z": 0.6,
-    "ka10_diff": 0.124,
-    "chase": 1.0035,
-    "escape": 1.004,
+    "holders": 2328,
+    "kp": 0.5037,
+    "kp_others": 0.5097,
+    "kp_diff": -0.0061,
+    "kp_z": -2.5,
+    "deaths10": 1.91,
+    "deaths10_others": 1.9,
+    "deaths_z": -0.6,
+    "ka10_diff": -0.075,
+    "chase": 0.9881,
+    "escape": 0.9948,
     "value": 1.0
    }
   },
   "Magic Carpet": {
-   "holders": 2988,
-   "kp": 0.5178,
-   "kp_others": 0.5331,
-   "kp_diff": -0.0153,
-   "kp_z": -6.4,
-   "deaths10": 1.5,
-   "deaths10_others": 1.586,
-   "deaths_z": 6.2,
-   "ka10_diff": -0.376,
-   "chase": 0.9712,
-   "escape": 1.0571,
-   "value": 1.0266,
+   "holders": 899,
+   "kp": 0.4991,
+   "kp_others": 0.5052,
+   "kp_diff": -0.0061,
+   "kp_z": -1.5,
+   "deaths10": 1.602,
+   "deaths10_others": 1.643,
+   "deaths_z": 1.6,
+   "ka10_diff": -0.095,
+   "chase": 0.9879,
+   "escape": 1.0259,
+   "value": 1.0,
    "high_kp_heroes": {
-    "holders": 817,
-    "kp": 0.5497,
-    "kp_others": 0.5655,
-    "kp_diff": -0.0158,
-    "kp_z": -3.6,
-    "deaths10": 1.663,
-    "deaths10_others": 1.688,
-    "deaths_z": 0.8,
-    "ka10_diff": -0.436,
+    "holders": 250,
+    "kp": 0.5273,
+    "kp_others": 0.5425,
+    "kp_diff": -0.0151,
+    "kp_z": -2.0,
+    "deaths10": 1.85,
+    "deaths10_others": 1.805,
+    "deaths_z": -1.0,
+    "ka10_diff": -0.314,
     "chase": 0.9721,
-    "escape": 1.015,
+    "escape": 0.9759,
     "value": 1.0
    },
    "other_heroes": {
-    "holders": 2171,
-    "kp": 0.5058,
-    "kp_others": 0.521,
-    "kp_diff": -0.0152,
-    "kp_z": -5.4,
-    "deaths10": 1.439,
-    "deaths10_others": 1.547,
-    "deaths_z": 7.0,
-    "ka10_diff": -0.353,
-    "chase": 0.9708,
-    "escape": 1.0754,
-    "value": 1.044
+    "holders": 649,
+    "kp": 0.4882,
+    "kp_others": 0.4908,
+    "kp_diff": -0.0026,
+    "kp_z": -0.5,
+    "deaths10": 1.506,
+    "deaths10_others": 1.581,
+    "deaths_z": 2.4,
+    "ka10_diff": -0.01,
+    "chase": 0.9947,
+    "escape": 1.0495,
+    "value": 1.0495
    }
   },
   "Ethereal Shift": {
-   "holders": 12227,
-   "kp": 0.542,
-   "kp_others": 0.5429,
-   "kp_diff": -0.0009,
-   "kp_z": -0.8,
-   "deaths10": 1.508,
-   "deaths10_others": 1.508,
-   "deaths_z": -0.0,
-   "ka10_diff": -0.049,
-   "chase": 0.9983,
-   "escape": 1.0,
-   "value": 1.0,
+   "holders": 6784,
+   "kp": 0.5161,
+   "kp_others": 0.5124,
+   "kp_diff": 0.0037,
+   "kp_z": 2.4,
+   "deaths10": 1.722,
+   "deaths10_others": 1.738,
+   "deaths_z": 1.6,
+   "ka10_diff": 0.03,
+   "chase": 1.0072,
+   "escape": 1.0089,
+   "value": 1.0072,
    "high_kp_heroes": {
-    "holders": 1216,
-    "kp": 0.5873,
-    "kp_others": 0.589,
-    "kp_diff": -0.0016,
-    "kp_z": -0.5,
-    "deaths10": 1.859,
-    "deaths10_others": 1.781,
-    "deaths_z": -3.9,
-    "ka10_diff": -0.072,
-    "chase": 0.9972,
-    "escape": 0.9581,
+    "holders": 726,
+    "kp": 0.552,
+    "kp_others": 0.549,
+    "kp_diff": 0.003,
+    "kp_z": 0.7,
+    "deaths10": 2.063,
+    "deaths10_others": 2.028,
+    "deaths_z": -1.3,
+    "ka10_diff": 0.066,
+    "chase": 1.0055,
+    "escape": 0.9827,
     "value": 1.0
    },
    "other_heroes": {
-    "holders": 11011,
-    "kp": 0.537,
-    "kp_others": 0.5378,
-    "kp_diff": -0.0008,
-    "kp_z": -0.6,
-    "deaths10": 1.469,
-    "deaths10_others": 1.478,
-    "deaths_z": 1.2,
-    "ka10_diff": -0.047,
-    "chase": 0.9984,
-    "escape": 1.0058,
-    "value": 1.0
+    "holders": 6058,
+    "kp": 0.5118,
+    "kp_others": 0.508,
+    "kp_diff": 0.0038,
+    "kp_z": 2.3,
+    "deaths10": 1.682,
+    "deaths10_others": 1.703,
+    "deaths_z": 2.1,
+    "ka10_diff": 0.025,
+    "chase": 1.0074,
+    "escape": 1.0128,
+    "value": 1.0203
    }
   }
  },
  "by_count": {
   "1": {
-   "holders": 172897,
-   "kp": 0.5239,
-   "kp_others": 0.5199,
-   "kp_diff": 0.004,
-   "kp_z": 5.6,
-   "deaths10": 1.813,
-   "deaths10_others": 1.863,
-   "deaths_z": 10.7,
-   "ka10_diff": 0.153,
-   "chase": 1.0078,
-   "escape": 1.0276,
-   "value": 1.0356
+   "holders": 91409,
+   "kp": 0.4945,
+   "kp_others": 0.4892,
+   "kp_diff": 0.0053,
+   "kp_z": 5.5,
+   "deaths10": 1.988,
+   "deaths10_others": 2.022,
+   "deaths_z": 5.4,
+   "ka10_diff": 0.152,
+   "chase": 1.0109,
+   "escape": 1.0174,
+   "value": 1.0285
   },
   "2": {
-   "holders": 89070,
-   "kp": 0.525,
-   "kp_others": 0.5172,
-   "kp_diff": 0.0078,
-   "kp_z": 6.7,
-   "deaths10": 1.822,
-   "deaths10_others": 1.934,
-   "deaths_z": 13.9,
-   "ka10_diff": 0.301,
-   "chase": 1.0151,
-   "escape": 1.0615,
-   "value": 1.0776
+   "holders": 41852,
+   "kp": 0.4961,
+   "kp_others": 0.4869,
+   "kp_diff": 0.0092,
+   "kp_z": 5.7,
+   "deaths10": 2.033,
+   "deaths10_others": 2.109,
+   "deaths_z": 6.8,
+   "ka10_diff": 0.295,
+   "chase": 1.0189,
+   "escape": 1.0372,
+   "value": 1.0568
   },
   "3": {
-   "holders": 18922,
-   "kp": 0.5315,
-   "kp_others": 0.5204,
-   "kp_diff": 0.011,
-   "kp_z": 5.4,
-   "deaths10": 1.857,
-   "deaths10_others": 2.036,
-   "deaths_z": 11.8,
-   "ka10_diff": 0.439,
-   "chase": 1.0212,
-   "escape": 1.0963,
-   "value": 1.1196
+   "holders": 12088,
+   "kp": 0.5109,
+   "kp_others": 0.4928,
+   "kp_diff": 0.0181,
+   "kp_z": 5.9,
+   "deaths10": 2.098,
+   "deaths10_others": 2.235,
+   "deaths_z": 6.4,
+   "ka10_diff": 0.54,
+   "chase": 1.0368,
+   "escape": 1.0655,
+   "value": 1.1047
+  }
+ },
+ "hero_items": {
+  "63": {
+   "Mystic Expansion": {
+    "holders": 3378,
+    "kp": 0.4883,
+    "kp_others": 0.4811,
+    "kp_diff": 0.0072,
+    "kp_z": 2.2,
+    "deaths10": 1.816,
+    "deaths10_others": 1.877,
+    "deaths_z": 2.9,
+    "ka10_diff": 0.269,
+    "chase": 1.0149,
+    "escape": 1.0337,
+    "value": 1.0491
+   }
   }
  }
 }

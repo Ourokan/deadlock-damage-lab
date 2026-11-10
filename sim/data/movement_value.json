@@ -1,16 +1,17 @@
 {
- "_note": "Overall-score multiplier per movement item: real Phantom+ chase (kill participation) x escape (deaths per 10 min) effect at the same hero, net worth and game length; only parts with |z| >= 2, item floor 1, cap 1.25. Static snapshot of patch 09-29-2026 Phantom+ games (2026-09-30 to 2026-10-13), not refit by patch reruns: rerun analysis/scripts/fetch_kda.py and kill_participation.py from the project files to refresh.",
+ "_note": "Overall-score multiplier per movement item: real Phantom+ chase (kill participation) x escape (deaths per 10 min) effect at the same hero, net worth and game length; only parts with |z| >= 2, item floor 1, cap 1.25. Static snapshot of patch 10-30 hotfix Phantom+ games (2026-10-31 to 2026-11-06, fight_rate_post timelines), not refit by patch reruns: rerun kill_participation.py --post on fresh fight_rate_post timelines (or fetch_kda.py + kill_participation.py) to refresh.",
  "items": {
-  "Arcane Surge": 1.0516,
-  "Enduring Speed": 1.0315,
-  "Extra Stamina": 1.0141,
-  "Fleetfoot": 1.019,
-  "Magic Carpet": 1.0266,
-  "Majestic Leap": 1.0609,
-  "Stalker": 1.0625,
-  "Stamina Mastery": 1.0186,
-  "Veil Walker": 1.0246,
-  "Warp Stone": 1.038
+  "Arcane Surge": 1.0624,
+  "Enduring Speed": 1.0178,
+  "Ethereal Shift": 1.0072,
+  "Fleetfoot": 1.0356,
+  "Kinetic Dash": 1.026,
+  "Majestic Leap": 1.0745,
+  "Sprint Boots": 1.0411,
+  "Stalker": 1.0339,
+  "Stamina Mastery": 1.0213,
+  "Veil Walker": 1.0407,
+  "Warp Stone": 1.0457
  },
  "_stack_note": "Cap on a build's combined value when it holds 2 or 3+ of the movement_items (weighted or not): the measured chase x escape of holding that many vs none (they overlap, so values don't multiply).",
  "movement_items": [
@@ -33,20 +34,20 @@
  "_hero_note": "hero_items: items that are movement for one hero only (HERO_MOVEMENT), measured the same way on that hero's players.",
  "hero_items": {
   "63": {
-   "Mystic Expansion": 1.0441
+   "Mystic Expansion": 1.0491
   }
  },
  "stack_cap": {
-  "2": 1.0775,
-  "3": 1.1195
+  "2": 1.0568,
+  "3": 1.1047
  },
  "_close_note": "close_items: movement items whose speed comes from weapon hits within radius_m. Their value above 1 is scaled by the hero's reach share at its real median fight distance / holder_share, the holders' mean (a far hero like Vindicta procs Stalker's speed about a quarter as often as the close heroes who buy it).",
  "close_items": {
   "Stalker": {
    "radius_m": 8.0,
    "cooldown_s": 6.0,
-   "holder_share": 0.7005,
-   "holders": 60519
+   "holder_share": 0.6862,
+   "holders": 38465
   }
  }
 }
