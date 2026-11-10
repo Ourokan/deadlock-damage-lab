@@ -29,7 +29,8 @@ import casts_by_build as CB  # noqa: E402
 from deadsim import game  # noqa: E402
 
 HEROES = {"Paige": ("ability_bookworm_aoemagic", "ability_bookworm_dragonfire"),
-          "Vyper": ("ability_viper_debuffdagger",), "Apollo": ("ability_fencer_throwblade",)}
+          "Vyper": ("ability_viper_debuffdagger",), "Apollo": ("ability_fencer_throwblade",),
+          "Mirage": ("mirage_tornado",)}
 BINS = (0, 5000, 10000, 15000, 22000, 30000, 10 ** 9)
 K = 50   # casts of shrinkage toward the pooled share
 # lane-only rows: bins from this net worth on are held at rel 1.0. Vyper's Screwjab Dagger lands 1.19x its match share
@@ -39,6 +40,10 @@ K = 50   # casts of shrinkage toward the pooled share
 # Apollo's Disengaging Sigil (throwblade) lands 1.11x / 1.07x its match share below 10k and ~0.85x late (both replay
 # halves); the audit read it 1.42 / 1.14x under in the first two fifths. Lane-only: a row held to 15k pushed the 3rd fifth
 # over on both audit halves (2026-11-08, validation/README.md "Haze's Bullet Dance in replays; Apollo's lane Sigil")
+# Mirage's Dust Devil hits an enemy hero on 0.68-0.82 of casts below 15k souls, 0.51 at 22-30k and 0.34 past 30k (both
+# replay halves: 0.67 / 0.32 at 22-30k, 0.32 / 0.35 past 30k; late it is mostly a getaway or a team-fight engage that
+# misses); the fresh audit read it 1.26x over real in the last fifth, Djinn's Mark 1.17x and the gun 0.84x under
+# (2026-11-10, validation/README.md "Mirage's Dust Devil late")
 LANE_ONLY = {"ability_viper_debuffdagger": 10000, "ability_fencer_throwblade": 10000}
 OUT = os.path.join(ROOT, "data", "landing_phase.json")
 
