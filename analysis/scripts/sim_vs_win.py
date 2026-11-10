@@ -16,8 +16,11 @@ per fight and max health of both builds and both scores (for offline fight-rate 
 Earlier ad hoc check: Pearson 0.05 over 16 heroes x 27k/37k (build_win_check.md). This script, all heroes at 27k
 (2026-10-24): all pairs 0.10 without the kill weight, 0.14 with it.
 
+--items NAME,NAME scores only those items (a change to a few items: merge the rows into a full run's by hero, budget and
+item, and rerun in full the heroes whose popular build holds one of them).
+
 usage: python3 analysis/scripts/sim_vs_win.py [--budgets 27000] [--heroes all] [--workers 4] [--no-kill] [--death]
-       [--bounty 1] [--out FILE]
+       [--bounty 1] [--items NAMES] [--out FILE]
 """
 import argparse
 import json
@@ -73,6 +76,7 @@ def job(args):
     keep = os.environ.get("SVW_MOVEMENT", "")   # "" skip movement items, "keep" keep them, "only" only them
     moving = O._move[2] if not keep else set()
     only = O._move[2] if keep == "only" else None
+    names = {n for n in os.environ.get("SVW_ITEMS", "").split(",") if n}   # --items: score only these
     pools = S.load_pools(b)
     ev = GP.make_evaluator(hero, b, pools)
     pop = S.popular_build(hero, GP.item_budget(b), pools)
@@ -87,6 +91,8 @@ def job(args):
     for i, e in edges.items():
         i = int(i)
         if i not in g.items or i in pop or i in moving or (only is not None and i not in only):
+            continue
+        if names and g.items[i].name not in names:
             continue
         it = g.items[i]
         if it.cost > GP.item_budget(b):
@@ -141,7 +147,10 @@ def main():
     ap.add_argument("--movement", choices=("skip", "keep", "only"), default="skip",
                     help="movement items: skipped (default), kept beside the others, or only them")
     ap.add_argument("--move-file", default="", help="movement_value.json to score with (a refit variant)")
+    ap.add_argument("--items", default="", help="comma-separated item names: score only these (screening a change "
+                    "to a few items; merge the rows into a full run's by hero, budget and item)")
     a = ap.parse_args()
+    os.environ["SVW_ITEMS"] = a.items
     os.environ["SVW_MOVEMENT"] = "" if a.movement == "skip" else a.movement   # read by the workers (job)
     if a.move_file:
         os.environ["SVW_MOVE_FILE"] = os.path.abspath(a.move_file)
@@ -155,6 +164,9 @@ def main():
     with Pool(a.workers) as p:
         for r in p.imap_unordered(job, jobs):
             rows += r
+    if a.out:   # before the summary, which needs more than one item per slot and tier
+        with open(a.out, "w") as f:
+            json.dump(rows, f)
     with open(KILL) as f:
         dmg_items = set(json.load(f)["items"])
     print(f"kill weight {'off' if a.no_kill else 'on'}, death cost {'on' if a.death else 'off'}, death rate "
@@ -166,6 +178,8 @@ def main():
           f"{O.FARM_GAMMA if a.farm_gamma is None else a.farm_gamma:g}; {len(rows)} (hero, item) pairs")
     for label, rs in (("all items", rows), ("damage items", [r for r in rows if r[2] in dmg_items]),
                       ("edges clear of noise", [r for r in rows if abs(r[4]) > 1.96 * r[5]])):
+        if len(rs) < 2:
+            continue
         x, y = [r[3] for r in rs], [r[4] for r in rs]
         print(f"  {label:22s} n {len(rs):5d}  Pearson {pearson(x, y):+.3f}  Spearman {spearman(x, y):+.3f}")
     # the real edge is against same-slot same-tier items, so also compare the sim gain against the hero's other
@@ -175,6 +189,8 @@ def main():
     for r in rows:
         grp.setdefault((r[0], *slot[r[2]]), []).append(r)
     cen = [(r[3] - statistics.mean(q[3] for q in rs), r[4]) for rs in grp.values() if len(rs) > 1 for r in rs]
+    if len(cen) < 3:
+        return   # --items: too few items for the summary (rows are in --out)
     print(f"  {'within slot and tier':22s} n {len(cen):5d}  Pearson {pearson(*zip(*cen)):+.3f}  Spearman "
           f"{spearman(*zip(*cen)):+.3f}")
     by = {}
@@ -182,9 +198,6 @@ def main():
         by.setdefault(r[2], []).append(r)
     items = [(n, statistics.mean(r[3] for r in rs), statistics.mean(r[4] for r in rs), len(rs))
              for n, rs in by.items() if len(rs) >= 5]
-    if a.out:
-        with open(a.out, "w") as f:
-            json.dump(rows, f)
     if len(items) < 3:
         return   # one or two heroes: no item seen on 5 of them
     print(f"  per item (mean over heroes) n {len(items)}  Pearson "

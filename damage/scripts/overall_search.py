@@ -325,7 +325,12 @@ HEAL_ITEMS = frozenset((
 # hero halves at 27k and 37k: 27k all pairs 0.223 -> 0.238, within slot and tier 0.263 -> 0.278, damage items 0.108 ->
 # 0.145; 37k within 0.250 -> 0.257 (validation/focus_cost.md). It does not rescue Return Fire's aim fix. 0 = off.
 FOCUS_GAMMA = 0.4
-FOCUS_SKIP = frozenset(("Cheat Death",))
+# Colossus and Lifestrike join FOCUS_SKIP (2026-11-10, items ranked furthest from real wins): their holders take 10%
+# more damage per minute (z 20-46), the most of any non-healing item, yet win (Colossus +2.3 pt within vitality T4):
+# Colossus's resist active is for standing in and soaking, Lifestrike heals heavy melee back like Melee Lifesteal
+# (a healing item); the duel already counts both. sim_vs_win_raw +0.0013..+0.0018 in all four splits, every hero half
+# up; as a HEAL_ITEMS member Lifestrike was weaker (+0.0006..+0.0011, its duel heal halved) (validation/focus_skip.md).
+FOCUS_SKIP = frozenset(("Cheat Death", "Colossus", "Lifestrike"))
 # Team share (2026-10-28, Debuff Reducer: real edge third of its tier, sim twelfth of 14), tried, OFF: holders' damage
 # taken per minute also rides on how bloody their games are (Debuff Reducer holders' enemy teams deal 1.029x / 1.042x
 # per minute at 27k / 37k, so half their 1.054x / 1.068x is the game). fight_rate.json "tshare" is the player's share
