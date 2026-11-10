@@ -4687,3 +4687,25 @@ refit the knife tilt stayed and held-out mix got worse.
   11-19k, 0.41 past 34k), but a log-odds shift of mirage.MARK_GAPS by it left the audit flat (late Djinn's Mark
   share 0.257 -> 0.257, 2 seeds). Real late pops carry fewer marks (mean x1.6 vs 2.2 mid); the rest of the late tilt is the
   generic late gun share ("Late gun tilt").
+
+
+## Sinclair's Mystic Reverb goes on Vexing Bolt (2026-11-10)
+
+- Fresh audit (same 4,000-match sample as Mirage's section, with Mirage's fix in): Sinclair had the biggest whole-match
+  mix gap of the heroes not already worked on (0.030, per fifth 0.030); her Reverb holders (43) got 2.4x more Reverb
+  damage than the sim gave them (0.151 of their damage vs 0.063). Her Reverb row was at the 1.0 cap.
+- Cause: the sim imbued Reverb on Spectral Assistant, the non-ultimate with the highest listed damage (Vexing Bolt lists
+  only MinDamage / MaxDamage, which fight._default_imbue_target doesn't read). Its 15-damage turret shots fill the echo
+  threshold slowly. Replays (scripts/mechanics/sinclair_reverb.py, 51 post-hotfix Phantom+ holders): echoes 3 s after
+  a hit on the same hero follow Vexing Bolt 274 times, the Assistant 46, Rabbit Hex 4 (328 match none: the echo
+  splashes other heroes). fight.IMBUE_OVERRIDE now puts Sinclair's Reverb on Vexing Bolt; her Reverb row refit
+  (2 rounds, item_landing_heroes --hero Sinclair --item "Mystic Reverb") 1.0 -> 0.644.
+- Split-half (fit on one match_id half of her 352 matches, audit the other) vs main: mix 0.025 -> 0.020 and
+  0.034 -> 0.025, per fifth 0.026 -> 0.023 and 0.034 -> 0.025, per-source 0.035 -> 0.029 and 0.032 -> 0.026. Against
+  main's imbue with all her item rows refit the same way: mix 0.026 / 0.038, so the refit alone doesn't do it.
+  Refitting all her item rows with the override was about the same as Reverb alone; only the Reverb row is changed.
+- Whole sample: Sinclair mix 0.030 -> 0.022, per fifth 0.030 -> 0.024, per-source 0.030 -> 0.023, Reverb holders
+  real/sim 2.40 -> 0.91. sim_vs_win_raw (Sinclair only, vs main): 27k A -0.0037, 37k A -0.0027, 27k B +0.0129,
+  37k B +0.0161.
+- Other heroes without a fight_patterns "imbue" row whose damage ability lists no Damage/DPS key may be mis-imbued the
+  same way (Kelvin's Frost Grenade case was checked and not kept).
