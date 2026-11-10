@@ -4667,3 +4667,23 @@ refit the knife tilt stayed and held-out mix got worse.
 - sim_vs_win (same local post-hotfix pools, main vs this): within slot and tier 27k 0.444 -> 0.440, 37k 0.414 -> 0.410,
   damage items 0.337 -> 0.321 / 0.320 -> 0.305 (the expected Reverb cost).
 
+
+## Mirage's Dust Devil late (2026-11-10)
+
+- Fresh audit (4,000 Phantom+ matches 2026-11-06..11-10, mix 0.0154, per fifth 0.025): Mirage had the biggest per-fifth
+  gap after Apollo (0.040, last fifth 0.063): Dust Devil 1.26x and Djinn's Mark 1.17x over real against the gun late.
+- Replays (casts_by_build.py real rows, 259 pair-fight matches): Dust Devil hits an enemy hero on 0.68 / 0.82 / 0.60 /
+  0.76 of casts below 22k souls, 0.51 at 22-30k and 0.34 past 30k (replay halves 0.67 / 0.32 and 0.32 / 0.35 late).
+  The sim landed it at one rate all game. landing_phase.py now has a Mirage row (rel 1.05 / 1.18 / 0.97 / 1.09 / 0.91
+  / 0.75 by net worth), then Dust Devil's length_corr refit alone (1.634 -> 1.348, Fire Scarabs and Djinn's Mark
+  skipped: the 2026-11-08 refit of all three lowered 37k sim_vs_win).
+- Split-half (fit the row on one replay half and the corr on one audit half, audit the other), against the same
+  Dust Devil-only refit without the row: per fifth 0.0335 -> 0.0330 and 0.0345 -> 0.0325, per-source 0.0256 -> 0.0254
+  and 0.0293 -> 0.0287, mix the same, last fifth 0.0405 -> 0.0400 and 0.0555 -> 0.0530.
+- Whole sample (2 seeds): Mirage mix 0.029 -> 0.020, per fifth 0.038 -> 0.031, last fifth 0.058 -> 0.045, Dust Devil
+  real/sim 0.81 -> 1.02. sim_vs_win_raw (Mirage only, vs main): 27k A +0.0011, 37k A +0.0005, 27k B +0.0002, 37k B
+  -0.0029.
+- Not it: Djinn's Mark gaps by net worth. Real marks are dropped more often late (no next mark within 8 s: 0.16 at
+  11-19k, 0.41 past 34k), but a log-odds shift of mirage.MARK_GAPS by it left the audit flat (late Djinn's Mark
+  share 0.257 -> 0.257, 2 seeds). Real late pops carry fewer marks (mean x1.6 vs 2.2 mid); the rest of the late tilt is the
+  generic late gun share ("Late gun tilt").
