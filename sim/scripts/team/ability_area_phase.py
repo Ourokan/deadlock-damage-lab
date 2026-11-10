@@ -49,8 +49,14 @@ SHRINK = 60
 # the phase term, per-phase source distance at 30 / 60 / 90% of the match on the other half lower both ways and mix
 # distance not worse by more than 0.002). Haze, Infernus and Deadman Danny got clearly worse (their sim ability share
 # already followed the real one by phase: something else in their model leans the other way), the rest flat.
-HEROES = ["Baba", "Bebop", "Dynamo", "Grey Talon", "Kelvin", "Mina", "Mo & Krill", "Nurse Harrow", "Paige", "Paradox",
+HEROES = ["Baba", "Bebop", "Celeste", "Dynamo", "Grey Talon", "Kelvin", "Mina", "Mo & Krill", "Nurse Harrow", "Paige", "Paradox",
           "Pocket", "Rat King", "Violet", "Viscous"]
+# heroes whose rows are only for these abilities. Celeste (2026-11-10, fresh Phantom+ audit, validation/README.md
+# "Celeste's Radiant Daggers by phase"): Radiant Daggers hits 0.79x its pooled heroes per main hit in the lane and
+# 1.20x late (Dazzling Trick 0.83 -> 1.12, Shining Wonder 0.82 -> 1.08); all three rows lowered her mix / phase / source
+# distance on both match-id halves (3 seeds each, no refit) but cut sim_vs_win_raw at 37k (-0.014 / -0.005); the
+# Daggers row alone keeps most of the audit gain at a smaller cost (-0.003 / +0.001 at 27k, -0.001 / -0.002 at 37k)
+ONLY = {"Celeste": ("ability_unicorn_luminousstrike",)}
 
 
 def nw_at(curve, t):
@@ -194,6 +200,8 @@ def main():
         pooled = sum(f * x for f, x in zip(fit, w)) / sum(w)   # the fitted curve's main-damage-weighted mean
         name = f"{G.heroes[hid].name}: {ab.name}"
         if G.heroes[hid].name not in HEROES and "--all" not in args:
+            continue
+        if G.heroes[hid].name in ONLY and ab.class_name not in ONLY[G.heroes[hid].name] and "--all" not in args:
             continue
         res["abilities"][ab.class_name] = {
             "name": name, "fights": N, "pooled": round(pooled, 4),

@@ -4709,3 +4709,27 @@ refit the knife tilt stayed and held-out mix got worse.
   37k B +0.0161.
 - Other heroes without a fight_patterns "imbue" row whose damage ability lists no Damage/DPS key may be mis-imbued the
   same way (Kelvin's Frost Grenade case was checked and not kept).
+
+
+## Celeste's Radiant Daggers by phase (2026-11-10)
+
+- Fresh audit (same 4,000-match sample, main after #287: mix 0.0150, per fifth 0.0247): Celeste had the biggest
+  whole-match mix gap of the heroes not already worked on (0.025, per fifth 0.027, lane fifth 0.047). In the lane
+  the sim overrated Radiant Daggers (real 0.139 of her damage vs sim 0.190) and underrated the gun; late it
+  underrated Shining Wonder (0.178 vs 0.152).
+- Replays: her area abilities hit more heroes per main-target hit as the game goes on (ability_area_phase.py --all,
+  fight_length raw): Radiant Daggers 0.79x its pooled rate at ~5k souls, 1.20x past 40k (1,202 fights), Dazzling
+  Trick 0.83 -> 1.12 (587), Shining Wonder 0.82 -> 1.08 (397). Daggers also land on a hero more often late
+  (casts_by_build real rows: 0.48 of casts below 5k -> 0.63 past 30k, both replay halves).
+- Split-half (Celeste's matches by match_id parity, 3 seeds each, no refit): all three area rows lowered mix
+  0.0240 -> 0.0230 / 0.0237 -> 0.0223, per fifth 0.0280 -> 0.0267 / 0.0287 -> 0.0263, per-source 0.0271 -> 0.0264 /
+  0.0294 -> 0.0293. Daggers row alone: mix 0.0230 / 0.0230, per fifth 0.0267 / 0.0270, per-source 0.0260 / 0.0291.
+  Refits on top (Daggers-only or all four corrs) were worse held out; a landing_phase Daggers row on top of or
+  instead of the area row was no better.
+- sim_vs_win_raw (Celeste only, vs main; 27k A / 37k A / 27k B / 37k B): all three rows -0.0063 / -0.0136 / +0.0011 /
+  -0.0049; landing row -0.0155 / -0.0040 / -0.0038 / -0.0066; Daggers area row alone -0.0026 / -0.0005 / +0.0014 /
+  -0.0017. Shipped: the Daggers row only (ability_area_phase.ONLY).
+- Whole sample: Celeste mix 0.025 -> 0.024, per fifth 0.027 -> 0.025, lane fifth 0.047 -> 0.033, last fifth
+  0.033 -> 0.029, per-source 0.0274 -> 0.0269; overall audit unchanged (0.0150 / 0.0247).
+- Left: Dazzling Trick 0.71x real against the gun in every fifth (its length_corr 2.16 and Shining Wonder's 3.29 are
+  large fudges on a prism pop / bounce model that is a guess); Torment Pulse 0.84x.
