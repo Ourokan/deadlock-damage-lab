@@ -46,11 +46,11 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Enchanter's Emblem | 27 | 10 | 8 |
 | Mystic Shot | 16 | 39 | 5 |
 | Spirit Lifesteal | 20 | 0 | 4 |
+| Spirit Resilience | 19 | 0 | 1 |
 | Torment Pulse | 17 | 0 | 5 |
-| Spirit Resilience | 18 | 0 | 1 |
-| Stalker | 15 | 0 | 7 |
 | Mystic Expansion | 10 | 5 | 17 |
-| Improved Spirit | 1 | 23 | 20 |
+| Stalker | 14 | 0 | 7 |
+| Improved Spirit | 1 | 22 | 20 |
 | Titanic Magazine | 7 | 17 | 6 |
 | Arcane Surge | 11 | 0 | 8 |
 | Healbane | 6 | 0 | 22 |
@@ -60,18 +60,18 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Close Quarters | 6 | 7 | 8 |
 | Toxic Bullets | 2 | 24 | 2 |
 | Mystic Burst | 3 | 7 | 14 |
-| Battle Vest | 5 | 4 | 9 |
+| Melee Charge | 8 | 3 | 2 |
 | Opening Rounds | 3 | 6 | 13 |
 | Mystic Vulnerability | 4 | 10 | 6 |
 | Extra Charge | 4 | 6 | 9 |
-| Melee Charge | 7 | 3 | 2 |
 | Alchemical Fire | 4 | 14 | 0 |
+| Battle Vest | 4 | 4 | 9 |
 | Superior Duration | 7 | 2 | 0 |
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 5891 | 7764 | 4455 |
-| spirit | 4800 | 6873 | 5509 |
+| weapon | 5891 | 7727 | 4455 |
+| spirit | 4800 | 6909 | 5509 |
 | vitality | 4364 | 564 | 5109 |
 
 ## 27000 net worth
@@ -114,16 +114,16 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 
 | Item | Overall | Damage (dummy 15 s) | Popular |
 |---|---:|---:|---:|
-| Heroic Aura | 43 | 0 | 1 |
+| Heroic Aura | 44 | 0 | 1 |
 | Enchanter's Emblem | 28 | 7 | 12 |
 | Greater Expansion | 19 | 15 | 16 |
 | Mystic Shot | 14 | 33 | 7 |
 | Cheat Death | 24 | 0 | 0 |
-| Alchemical Fire | 18 | 15 | 0 |
+| Alchemical Fire | 19 | 15 | 0 |
 | Spirit Resilience | 18 | 0 | 13 |
 | Superior Duration | 12 | 16 | 14 |
 | Spirit Lifesteal | 20 | 0 | 6 |
-| Escalating Exposure | 8 | 33 | 8 |
+| Escalating Exposure | 7 | 33 | 8 |
 | Stalker | 17 | 4 | 7 |
 | Decay | 9 | 34 | 1 |
 | Diviner's Kevlar | 20 | 1 | 0 |
@@ -142,8 +142,8 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 9582 | 11964 | 7582 |
-| spirit | 11436 | 20164 | 14655 |
+| weapon | 9727 | 11964 | 7582 |
+| spirit | 11291 | 20164 | 14655 |
 | vitality | 11473 | 582 | 9600 |
 
 ## 50000 net worth
@@ -151,33 +151,33 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Item | Overall | Damage (dummy 15 s) | Popular |
 |---|---:|---:|---:|
 | Greater Expansion | 29 | 20 | 22 |
-| Heroic Aura | 39 | 0 | 1 |
+| Heroic Aura | 42 | 0 | 1 |
 | Escalating Exposure | 20 | 37 | 13 |
-| Cheat Death | 30 | 0 | 2 |
-| Alchemical Fire | 20 | 26 | 0 |
+| Cheat Death | 29 | 0 | 2 |
+| Alchemical Fire | 21 | 25 | 0 |
 | Superior Duration | 15 | 20 | 16 |
 | Spirit Burn | 21 | 1 | 17 |
-| Stalker | 23 | 5 | 6 |
-| Spirit Resilience | 20 | 0 | 16 |
-| Diviner's Kevlar | 21 | 10 | 1 |
+| Spirit Resilience | 21 | 0 | 16 |
+| Stalker | 22 | 5 | 6 |
+| Diviner's Kevlar | 21 | 9 | 1 |
 | Torment Pulse | 16 | 9 | 9 |
+| Mystic Shot | 8 | 33 | 7 |
 | Blood Tribute | 19 | 7 | 0 |
 | Enchanter's Emblem | 13 | 15 | 9 |
-| Decay | 9 | 35 | 0 |
-| Mystic Shot | 7 | 33 | 7 |
+| Decay | 7 | 34 | 0 |
 | Spirit Lifesteal | 18 | 0 | 1 |
-| Toxic Bullets | 7 | 24 | 7 |
 | Boundless Spirit | 3 | 20 | 22 |
-| Superior Cooldown | 9 | 6 | 14 |
-| Rapid Recharge | 5 | 16 | 15 |
-| Healbane | 8 | 1 | 21 |
-| Spirit Snatch | 6 | 9 | 9 |
+| Toxic Bullets | 6 | 24 | 7 |
+| Superior Cooldown | 9 | 7 | 14 |
+| Rapid Recharge | 5 | 15 | 15 |
+| Healbane | 7 | 1 | 21 |
+| Spirit Snatch | 7 | 9 | 9 |
+| Arcane Surge | 11 | 0 | 4 |
 | Bullet Resist Shredder | 10 | 0 | 6 |
 | Titanic Magazine | 4 | 13 | 8 |
-| Glass Cannon | 8 | 8 | 0 |
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 12655 | 14164 | 9000 |
-| spirit | 17036 | 26891 | 20745 |
-| vitality | 13509 | 2509 | 11727 |
+| weapon | 12691 | 14509 | 9000 |
+| spirit | 17182 | 26709 | 20745 |
+| vitality | 13345 | 2327 | 11727 |
