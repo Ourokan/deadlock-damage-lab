@@ -245,6 +245,10 @@ IMBUE_OVERRIDE = {("hero_vampirebat", "upgrade_magic_reach"): "ability_vampireba
 IMBUE_OVERRIDE.update({(h, "upgrade_arcane_extension"): a for h, a in (
     ("hero_nurse", "ability_nurse_fear"), ("hero_necro", "ability_necro_gravestone"))})
 # overrides that come with an opt-in mechanic: Mechanics field -> {(hero, item): ability}
+# Sinclair's Mystic Reverb on Vexing Bolt (replays, scripts/mechanics/sinclair_reverb.py: 51 post-hotfix Phantom+ holders,
+# echoes 3 s after a hit on the same hero follow Vexing Bolt damage 274 times vs Spectral Assistant 46; the usual slot by
+# listed damage is the Assistant, whose 15-damage shots fill the echo threshold slowly: Reverb read 2.4x under)
+IMBUE_OVERRIDE[("hero_magician", "upgrade_mystic_reverb")] = "ability_magician_magicbolt"
 IMBUE_OVERRIDE_MECH = {"birds_duration": {("hero_baba", "upgrade_arcane_extension"): "ability_baba_ultimate_2"}}
 
 
