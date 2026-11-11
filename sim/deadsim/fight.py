@@ -155,12 +155,16 @@ LANE_ORDER_SOULS = 10000
 # above, plus mid-game windows set by the fifths of the match where the median order was closer to real on both
 # halves of the post-hotfix sample (validation/README.md "Real ability order in the middle of the match"; ~4k / 9.5k /
 # 16.5k / 25k net worth bound the 2nd to 4th fifths). Every window ends below the 27k / 37k budgets sim_vs_win scores.
+# Nurse Harrow 4k-16.5k since 2026-11-11 (3-seed recheck of the 11-08 one-seed rejection): her 2nd/3rd fifths 0.033 /
+# 0.049 -> 0.020 / 0.021 on the fresh sample; with her ability corrs refit on one match_id half the other half's per
+# fifth went 0.042 -> 0.037 / 0.045 -> 0.040 and per-source was lower on both (validation/README.md "Mid-game order
+# rechecked over seeds").
 # Infernus starts at 0 since 2026-11-11: his lane fifth had Flame Dash 1.24x over (sim 0.196 of his damage vs real
 # 0.158) on the popular order; the median order from the lane cut the lane fifth 0.023 -> 0.010 / 0.016 -> 0.009 on both
 # halves of the fresh 11-06..11-10 sample (3 seeds) and 0.020 -> 0.013 on the post-hotfix 11-07 sample
 # (validation/README.md "Infernus's lane order")
 ORDER_WINDOWS = {name: (0, LANE_ORDER_SOULS) for name in LANE_ORDER_HEROES}
-ORDER_WINDOWS.update({"Lash": (0, 16500), "The Doorman": (4000, 16500), "Infernus": (0, 16500),
+ORDER_WINDOWS.update({"Lash": (0, 16500), "The Doorman": (4000, 16500), "Infernus": (0, 16500), "Nurse Harrow": (4000, 16500),
                       "Wraith": (4000, 9500), "Shiv": (4000, 9500), "Baba": (9500, 25000)})
 
 
