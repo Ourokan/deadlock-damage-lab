@@ -4768,3 +4768,20 @@ refit the knife tilt stayed and held-out mix got worse.
   0.027 -> 0.026, Haze 0.025 -> 0.022 (lane 0.016 -> 0.019, 2nd fifth 0.059 -> 0.035).
 - Shipped: Rem, Billy, Mina, Abrams and Haze in fight.LANE_ORDER_HEROES (median order below 10k). Below the 27k / 37k
   budgets, so sim_vs_win is unchanged.
+
+
+## Mid-game order rechecked over seeds (2026-11-11)
+
+- The 2026-11-08 mid-window picks ("Real ability order in the middle of the match") were one seed. Rechecked the heroes
+  it rejected, median order to 16.5k souls (from 4k, or from 0 for the lane heroes Billy and Danny), match_id halves
+  of the fresh 11-06..11-10 sample, 3 seeds each. Per fifth (half 0 / half 1), base -> median order:
+  - Nurse 0.046 -> 0.039 / 0.045 -> 0.035 (3rd fifth 0.049 -> 0.021 / 0.052 -> 0.020), but mix 0.016 -> 0.014 /
+    0.009 -> 0.016 and per-source worse: her corrs were fitted to the popular order.
+  - Billy, Silver: flat. Deadman Danny, Grey Talon, Rat King, McGinnis, Yamato: worse.
+- Nurse with her corrs refit on one half (2 rounds, ability_corr_heroes.py), audited on the other (3 seeds), against
+  the same refit on the popular order: per fifth 0.042 -> 0.037 / 0.045 -> 0.040, per-source 0.0184 -> 0.0176 /
+  0.0155 -> 0.0143, mix 0.024 -> 0.025 / 0.015 -> 0.014. Post-hotfix 11-07 sample (no refit): per fifth 0.035 -> 0.031.
+- Shipped: ORDER_WINDOWS Nurse Harrow (4000, 16500) + her corrs refit on the whole fresh sample (3 rounds: Leech
+  Therapy 1.741 -> 1.708, Lurking Terrors 0.811 -> 0.869). Whole sample (3 seeds): per fifth 0.042 -> 0.033, 2nd/3rd
+  fifths 0.036 / 0.051 -> 0.021 / 0.018; mix 0.012 -> 0.015 and per-source 0.008 -> 0.011 (the old corrs were fitted on
+  this sample; held out both were better). sim_vs_win_raw (Nurse, vs main): +0.0010 / +0.0008 / +0.0005 / +0.0005.
