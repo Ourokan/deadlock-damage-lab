@@ -140,10 +140,16 @@ def median_ability_order(hero_id):
 # heroes on their real players' median order in the lane only (net worth below LANE_ORDER_SOULS), the popular order
 # after, with no corr refit: the lane gap of the real order without the whole-match refits that cost sim_vs_win when
 # Vindicta and Rem were tried in ORDER_HEROES. Picked on split halves of the post-hotfix sample: lane fifth and per-fifth
-# distance better on both halves with real lane tiers and with the median order (Rem, Billy, Mina, Infernus, Wraith
-# passed on real tiers but not on the median order; validation/README.md "Real ability order in the lane only").
+# distance better on both halves with real lane tiers and with the median order (on 11-08 Rem, Billy, Mina, Infernus and
+# Wraith passed on real tiers but not on the median order, one seed; validation/README.md "Real ability order in the
+# lane only"; see the 2026-11-11 note below for the three-seed recheck).
 # Below the 27k / 37k budgets the win check scores, so sim_vs_win is unchanged by construction.
-LANE_ORDER_HEROES = ("Lash", "Warden", "Vyper", "Deadman Danny", "Mo & Krill", "Vindicta")
+# Rem, Billy, Mina, Abrams and Haze added 2026-11-11: the 11-08 check (one seed) had the median order hurt them, but the
+# audit's lane fifth swings ~0.02 by seed; averaged over 3 seeds the per-fifth distance was lower on both match_id halves
+# of the fresh 11-06..11-10 sample and on the post-hotfix 11-07 sample (validation/README.md "Lane order rechecked
+# over seeds"). McGinnis, Grey Talon, Solomon, Drifter, Pocket and Nurse still fail.
+LANE_ORDER_HEROES = ("Lash", "Warden", "Vyper", "Deadman Danny", "Mo & Krill", "Vindicta",
+                     "Rem", "Billy", "Mina", "Abrams", "Haze")
 LANE_ORDER_SOULS = 10000
 # hero -> (low, high) net worth window where it follows its median order (the popular one outside): the lane heroes
 # above, plus mid-game windows set by the fifths of the match where the median order was closer to real on both
