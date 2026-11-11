@@ -4747,3 +4747,24 @@ refit the knife tilt stayed and held-out mix got worse.
   Post-hotfix 11-07 sample (853 players, 3 seeds): lane 0.020 -> 0.013, per fifth 0.027 -> 0.026, mix the same.
   The 11-08 check had Infernus fail the lane with the median order; with seed averaging on two samples it now passes.
 - Shipped: ORDER_WINDOWS Infernus (0, 16500). The window ends below the 27k / 37k budgets, so sim_vs_win is unchanged.
+
+
+## Lane order rechecked over seeds (2026-11-11)
+
+- The audit's lane fifth swings ~0.02 by AUDIT_SEED for one hero (Celeste 0.026-0.074, Infernus likewise), so the
+  2026-11-08 lane-order picks, made on one seed, could reject heroes wrongly (Infernus was one: "Infernus's lane order").
+- Rechecked the heroes with a lane fifth >= 0.04 that are on no order list, median order below 10k souls
+  (AUDIT_ORDER_WINDOWS="Hero:0:10000"), match_id halves of the fresh 11-06..11-10 sample, 3 seeds each. Per fifth
+  (half 0 / half 1) and lane fifth, base -> median order:
+  - Rem 0.028 -> 0.026 / 0.031 -> 0.027, lane 0.066 -> 0.041 / 0.069 -> 0.049
+  - Billy 0.033 -> 0.029 / 0.035 -> 0.032, lane 0.050 -> 0.034 / 0.049 -> 0.042, 2nd fifth 0.052 -> 0.032 / 0.047 -> 0.026
+  - Mina 0.017 -> 0.015 / 0.017 -> 0.016, lane 0.047 -> 0.028 / 0.048 -> 0.032
+  - Abrams 0.027 -> 0.026 / 0.028 -> 0.027, lane 0.091 -> 0.077 / 0.084 -> 0.072
+  - Haze 0.023 -> 0.021 / 0.024 -> 0.022, 2nd fifth 0.056 -> 0.037 / 0.048 -> 0.027
+  - Nurse 0.046 -> 0.042 / 0.046 -> 0.041 (fails the post-hotfix sample: 0.036 -> 0.037)
+  - Worse on both halves: McGinnis (lane 0.03 -> 0.11), Grey Talon, Solomon, Drifter, Pocket.
+  Whole-match mix +0.001 to +0.002 for the kept five (corrs fitted to the popular order).
+- Post-hotfix 11-07 sample, 3 seeds, per fifth: Rem 0.027 -> 0.025, Billy 0.030 -> 0.026, Mina 0.016 -> 0.014, Abrams
+  0.027 -> 0.026, Haze 0.025 -> 0.022 (lane 0.016 -> 0.019, 2nd fifth 0.059 -> 0.035).
+- Shipped: Rem, Billy, Mina, Abrams and Haze in fight.LANE_ORDER_HEROES (median order below 10k). Below the 27k / 37k
+  budgets, so sim_vs_win is unchanged.
