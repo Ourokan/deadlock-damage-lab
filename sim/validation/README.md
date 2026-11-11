@@ -4733,3 +4733,17 @@ refit the knife tilt stayed and held-out mix got worse.
   0.033 -> 0.029, per-source 0.0274 -> 0.0269; overall audit unchanged (0.0150 / 0.0247).
 - Left: Dazzling Trick 0.71x real against the gun in every fifth (its length_corr 2.16 and Shining Wonder's 3.29 are
   large fudges on a prism pop / bounce model that is a guess); Torment Pulse 0.84x.
+
+
+## Infernus's lane order (2026-11-11)
+
+- Fresh audit (4,000 Phantom+ matches 2026-11-06..11-10, main after #289): Infernus's lane fifth had Flame Dash at 0.196
+  of his damage vs real 0.158 (1.24x). In replays (casts_by_build real rows) Flame Dash lands 0.83-0.88 of casts and is
+  cast 0.47-0.56 times per fight at every net worth, so neither landing nor cast rate moves with the phase; he had the
+  popular order below 4k souls and his players' median order from 4k to 16.5k (fight.ORDER_WINDOWS).
+- Median order from 0 (AUDIT_ORDER_WINDOWS="Infernus:0:16500"), Infernus's matches by match_id parity, 3 seeds each:
+  lane fifth 0.023 -> 0.010 and 0.016 -> 0.009, 2nd fifth 0.025 -> 0.021 and 0.029 -> 0.024, per fifth 0.021 -> 0.019 and
+  0.028 -> 0.027, mix 0.014 -> 0.013 and 0.022 -> 0.022, per-source +0.001 / +0.002 (corrs fitted to the old order).
+  Post-hotfix 11-07 sample (853 players, 3 seeds): lane 0.020 -> 0.013, per fifth 0.027 -> 0.026, mix the same.
+  The 11-08 check had Infernus fail the lane with the median order; with seed averaging on two samples it now passes.
+- Shipped: ORDER_WINDOWS Infernus (0, 16500). The window ends below the 27k / 37k budgets, so sim_vs_win is unchanged.
