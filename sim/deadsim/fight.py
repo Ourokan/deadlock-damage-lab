@@ -336,6 +336,15 @@ def make_fighter(engine, lo: Loadout, name=None):
         if c and skill.item_landing:
             il = skill.item_landing
             skill = dataclasses.replace(skill, item_landing={k: il.get(k, 1.0) * c.get(k, 1.0) for k in set(il) | set(c)})
+    if engine.mech is not None and getattr(engine.mech, "item_phase", False) and skill.item_landing:
+        from .mechanics import item_phase_mult, item_phase_rows
+        rows = item_phase_rows()
+        if any(it.name in rows for it in items):
+            il = dict(skill.item_landing)
+            for it in items:
+                if it.name in rows:
+                    il[it.name] = il.get(it.name, 1.0) * item_phase_mult(it.name, st.souls)
+            skill = dataclasses.replace(skill, item_landing=il)
     if skill.melee_item_mult:
         skill = dataclasses.replace(skill, melee_rate=skill.melee_rate * melee_build_mult(skill, items))
     if engine.mech is not None and getattr(engine.mech, "melee_phase", False) and skill.melee_rate > 0:

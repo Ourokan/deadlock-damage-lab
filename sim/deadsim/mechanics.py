@@ -462,6 +462,17 @@ class Mechanics:
     # +0.0027, 37k B -0.0039; weapon and fire rate alone -0.0009 / -0.0022 / +0.0034 / -0.0046): the extra gun lifts
     # weapon items over spirit ones, against their real edges (validation/README.md "Permanent map pickups")
     map_pickups: bool = False
+    # item damage by game phase (2026-11-12): an item's landing factor is one number over the match, but some items'
+    # real share of their holders' damage grows differently over the match than the sim's (fresh audit: Tankbuster
+    # 0.72x real in the second fifth, 1.03x in the last; Toxic Bullets 0.76 -> 1.04, Quicksilver 0.93 -> 1.20). On:
+    # items with a row in data/item_phase.json (scripts/mechanics/item_phase.py, fitted to the audit's fifths like
+    # melee_phase; only items that held the split-half audit) scale their landing factor by rel at the holder's net
+    # worth (item_phase_mult)
+    # Kept OFF: 12 items' held-out per-fifth error fell on both match_id halves (Quicksilver 0.094 -> 0.050 /
+    # 0.072 -> 0.035, Mystic Shot 0.077 -> 0.033 / 0.097 -> 0.073) and the overall phase distance moved 0.0245 ->
+    # 0.0242 / flat, but sim_vs_win_raw fell in all four splits (27k A -0.0004, 37k A -0.0010, 27k B -0.0006, 37k B
+    # -0.0015), spread over other items' gains, not the 12 items' own (validation/README.md "Item damage by phase")
+    item_phase: bool = False
 
 
 KILL_HEAL_TICK = 0.5   # s between Mechanics.kill_heals heal steps
@@ -2211,3 +2222,26 @@ def apply_map_pickups(st, pk):
     if pk.get("spirit_resist_pct"):
         st.spirit_resist = list(st.spirit_resist) + [pk["spirit_resist_pct"] / 100]
     return st
+
+
+_ITEM_PHASE = None
+
+
+def item_phase_rows():
+    """{item name: [(ln net worth, rel)]} from data/item_phase.json (Mechanics.item_phase)."""
+    global _ITEM_PHASE
+    if _ITEM_PHASE is None:
+        fn = os.environ.get("ITEM_PHASE_FILE") or os.path.join(os.path.dirname(__file__), "..", "data", "item_phase.json")
+        _ITEM_PHASE = {}
+        if os.path.exists(fn):
+            with open(fn) as fh:
+                for v in json.load(fh)["items"].values():
+                    _ITEM_PHASE[v["name"]] = [(math.log(b["net_worth"]), b["rel"]) for b in v["bins"]]
+    return _ITEM_PHASE
+
+
+def item_phase_mult(name, souls):
+    """Mechanics.item_phase: item name's damage factor at net worth souls (linear in ln nw, flat outside); 1.0 without
+    a row."""
+    pts = item_phase_rows().get(name)
+    return _interp_ln(pts, souls) if pts and souls else 1.0

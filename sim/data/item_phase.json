@@ -1,0 +1,465 @@
+{
+ "source": "scripts/mechanics/item_phase.py (main_full.json, fresh_2026-11-10_sample.jsonl.gz)",
+ "note": "item damage x rel(nw) at the holder's net worth, linear in ln nw between bins, flat outside (Mechanics.item_phase)",
+ "items": {
+  "upgrade_magic_burst": {
+   "bins": [
+    {
+     "net_worth": 1825,
+     "fifth": 0,
+     "real_over_sim": 0.989,
+     "weight": 607.4,
+     "rel": 1.0223
+    },
+    {
+     "net_worth": 6265,
+     "fifth": 1,
+     "real_over_sim": 0.961,
+     "weight": 629.0,
+     "rel": 0.9962
+    },
+    {
+     "net_worth": 13315,
+     "fifth": 2,
+     "real_over_sim": 0.947,
+     "weight": 311.9,
+     "rel": 0.9843
+    },
+    {
+     "net_worth": 21075,
+     "fifth": 3,
+     "real_over_sim": 0.897,
+     "weight": 121.9,
+     "rel": 0.9526
+    },
+    {
+     "net_worth": 30374,
+     "fifth": 4,
+     "real_over_sim": 1.012,
+     "weight": 46.1,
+     "rel": 1.0212
+    }
+   ],
+   "name": "Mystic Burst"
+  },
+  "upgrade_melee_charge": {
+   "bins": [
+    {
+     "net_worth": 1825,
+     "fifth": 0,
+     "real_over_sim": 0.826,
+     "weight": 27.2,
+     "rel": 0.9427
+    },
+    {
+     "net_worth": 6265,
+     "fifth": 1,
+     "real_over_sim": 0.915,
+     "weight": 131.6,
+     "rel": 0.9347
+    },
+    {
+     "net_worth": 13315,
+     "fifth": 2,
+     "real_over_sim": 1.035,
+     "weight": 180.2,
+     "rel": 1.0177
+    },
+    {
+     "net_worth": 21075,
+     "fifth": 3,
+     "real_over_sim": 1.066,
+     "weight": 173.6,
+     "rel": 1.0402
+    },
+    {
+     "net_worth": 30374,
+     "fifth": 4,
+     "real_over_sim": 1.042,
+     "weight": 127.7,
+     "rel": 1.0206
+    }
+   ],
+   "name": "Melee Charge"
+  },
+  "upgrade_weapon_backstabber": {
+   "bins": [
+    {
+     "net_worth": 1825,
+     "fifth": 0,
+     "real_over_sim": 0.953,
+     "weight": 282.4,
+     "rel": 0.9255
+    },
+    {
+     "net_worth": 6265,
+     "fifth": 1,
+     "real_over_sim": 1.052,
+     "weight": 586.4,
+     "rel": 1.0032
+    },
+    {
+     "net_worth": 13315,
+     "fifth": 2,
+     "real_over_sim": 1.1,
+     "weight": 404.1,
+     "rel": 1.0435
+    },
+    {
+     "net_worth": 21075,
+     "fifth": 3,
+     "real_over_sim": 1.066,
+     "weight": 279.1,
+     "rel": 1.0139
+    },
+    {
+     "net_worth": 30374,
+     "fifth": 4,
+     "real_over_sim": 1.04,
+     "weight": 184.8,
+     "rel": 0.994
+    }
+   ],
+   "name": "Stalker"
+  },
+  "upgrade_cold_front": {
+   "bins": [
+    {
+     "net_worth": 1825,
+     "fifth": 0,
+     "real_over_sim": 1.122,
+     "weight": 47.2,
+     "rel": 1.0714
+    },
+    {
+     "net_worth": 6265,
+     "fifth": 1,
+     "real_over_sim": 1.006,
+     "weight": 211.7,
+     "rel": 1.033
+    },
+    {
+     "net_worth": 13315,
+     "fifth": 2,
+     "real_over_sim": 0.95,
+     "weight": 189.4,
+     "rel": 0.9882
+    },
+    {
+     "net_worth": 21075,
+     "fifth": 3,
+     "real_over_sim": 0.909,
+     "weight": 122.6,
+     "rel": 0.9613
+    },
+    {
+     "net_worth": 30374,
+     "fifth": 4,
+     "real_over_sim": 0.875,
+     "weight": 70.9,
+     "rel": 0.9496
+    }
+   ],
+   "name": "Cold Front"
+  },
+  "upgrade_magic_shock": {
+   "bins": [
+    {
+     "net_worth": 6265,
+     "fifth": 1,
+     "real_over_sim": 1.39,
+     "weight": 117.6,
+     "rel": 1.2406
+    },
+    {
+     "net_worth": 13315,
+     "fifth": 2,
+     "real_over_sim": 1.071,
+     "weight": 797.8,
+     "rel": 1.0462
+    },
+    {
+     "net_worth": 21075,
+     "fifth": 3,
+     "real_over_sim": 1.025,
+     "weight": 1471.2,
+     "rel": 1.005
+    },
+    {
+     "net_worth": 30374,
+     "fifth": 4,
+     "real_over_sim": 0.968,
+     "weight": 1758.1,
+     "rel": 0.9505
+    }
+   ],
+   "name": "Tankbuster"
+  },
+  "upgrade_crackshot": {
+   "bins": [
+    {
+     "net_worth": 1825,
+     "fifth": 0,
+     "real_over_sim": 1.388,
+     "weight": 41.9,
+     "rel": 1.1727
+    },
+    {
+     "net_worth": 6265,
+     "fifth": 1,
+     "real_over_sim": 1.081,
+     "weight": 166.1,
+     "rel": 1.0773
+    },
+    {
+     "net_worth": 13315,
+     "fifth": 2,
+     "real_over_sim": 0.974,
+     "weight": 229.3,
+     "rel": 0.997
+    },
+    {
+     "net_worth": 21075,
+     "fifth": 3,
+     "real_over_sim": 0.915,
+     "weight": 223.6,
+     "rel": 0.9497
+    },
+    {
+     "net_worth": 30374,
+     "fifth": 4,
+     "real_over_sim": 0.873,
+     "weight": 186.6,
+     "rel": 0.919
+    }
+   ],
+   "name": "Mystic Shot"
+  },
+  "upgrade_mystic_reverb": {
+   "bins": [
+    {
+     "net_worth": 6265,
+     "fifth": 1,
+     "real_over_sim": 1.0,
+     "weight": 2.1,
+     "rel": 0.9987
+    },
+    {
+     "net_worth": 13315,
+     "fifth": 2,
+     "real_over_sim": 1.052,
+     "weight": 64.5,
+     "rel": 1.0066
+    },
+    {
+     "net_worth": 21075,
+     "fifth": 3,
+     "real_over_sim": 1.044,
+     "weight": 256.9,
+     "rel": 1.0043
+    },
+    {
+     "net_worth": 30374,
+     "fifth": 4,
+     "real_over_sim": 1.035,
+     "weight": 552.8,
+     "rel": 0.9965
+    }
+   ],
+   "name": "Mystic Reverb"
+  },
+  "upgrade_quick_silver": {
+   "bins": [
+    {
+     "net_worth": 1825,
+     "fifth": 0,
+     "real_over_sim": 1.11,
+     "weight": 189.9,
+     "rel": 1.0815
+    },
+    {
+     "net_worth": 6265,
+     "fifth": 1,
+     "real_over_sim": 1.081,
+     "weight": 373.2,
+     "rel": 1.0671
+    },
+    {
+     "net_worth": 13315,
+     "fifth": 2,
+     "real_over_sim": 0.992,
+     "weight": 286.1,
+     "rel": 0.9912
+    },
+    {
+     "net_worth": 21075,
+     "fifth": 3,
+     "real_over_sim": 0.893,
+     "weight": 202.6,
+     "rel": 0.9155
+    },
+    {
+     "net_worth": 30374,
+     "fifth": 4,
+     "real_over_sim": 0.831,
+     "weight": 141.1,
+     "rel": 0.8797
+    }
+   ],
+   "name": "Quicksilver Reload"
+  },
+  "upgrade_toxic_bullets": {
+   "bins": [
+    {
+     "net_worth": 6265,
+     "fifth": 1,
+     "real_over_sim": 1.316,
+     "weight": 53.3,
+     "rel": 1.139
+    },
+    {
+     "net_worth": 13315,
+     "fifth": 2,
+     "real_over_sim": 1.068,
+     "weight": 332.3,
+     "rel": 1.0439
+    },
+    {
+     "net_worth": 21075,
+     "fifth": 3,
+     "real_over_sim": 1.012,
+     "weight": 568.6,
+     "rel": 0.9972
+    },
+    {
+     "net_worth": 30374,
+     "fifth": 4,
+     "real_over_sim": 0.966,
+     "weight": 639.3,
+     "rel": 0.9553
+    }
+   ],
+   "name": "Toxic Bullets"
+  },
+  "upgrade_headhunter": {
+   "bins": [
+    {
+     "net_worth": 1825,
+     "fifth": 0,
+     "real_over_sim": 1.32,
+     "weight": 16.5,
+     "rel": 1.0716
+    },
+    {
+     "net_worth": 6265,
+     "fifth": 1,
+     "real_over_sim": 1.094,
+     "weight": 198.9,
+     "rel": 1.0796
+    },
+    {
+     "net_worth": 13315,
+     "fifth": 2,
+     "real_over_sim": 1.019,
+     "weight": 309.0,
+     "rel": 1.0231
+    },
+    {
+     "net_worth": 21075,
+     "fifth": 3,
+     "real_over_sim": 0.954,
+     "weight": 295.2,
+     "rel": 0.9683
+    },
+    {
+     "net_worth": 30374,
+     "fifth": 4,
+     "real_over_sim": 0.902,
+     "weight": 257.9,
+     "rel": 0.9264
+    }
+   ],
+   "name": "Headhunter"
+  },
+  "upgrade_chain_lightning": {
+   "bins": [
+    {
+     "net_worth": 1825,
+     "fifth": 0,
+     "real_over_sim": 1.525,
+     "weight": 85.6,
+     "rel": 1.291
+    },
+    {
+     "net_worth": 6265,
+     "fifth": 1,
+     "real_over_sim": 1.03,
+     "weight": 599.1,
+     "rel": 1.0089
+    },
+    {
+     "net_worth": 13315,
+     "fifth": 2,
+     "real_over_sim": 0.965,
+     "weight": 480.2,
+     "rel": 0.9517
+    },
+    {
+     "net_worth": 21075,
+     "fifth": 3,
+     "real_over_sim": 0.98,
+     "weight": 260.0,
+     "rel": 0.9683
+    },
+    {
+     "net_worth": 30374,
+     "fifth": 4,
+     "real_over_sim": 0.937,
+     "weight": 146.4,
+     "rel": 0.9421
+    }
+   ],
+   "name": "Tesla Bullets"
+  },
+  "upgrade_express_shot": {
+   "bins": [
+    {
+     "net_worth": 1825,
+     "fifth": 0,
+     "real_over_sim": 1.304,
+     "weight": 10.7,
+     "rel": 1.0583
+    },
+    {
+     "net_worth": 6265,
+     "fifth": 1,
+     "real_over_sim": 0.96,
+     "weight": 101.2,
+     "rel": 1.0129
+    },
+    {
+     "net_worth": 13315,
+     "fifth": 2,
+     "real_over_sim": 1.028,
+     "weight": 208.7,
+     "rel": 1.0722
+    },
+    {
+     "net_worth": 21075,
+     "fifth": 3,
+     "real_over_sim": 0.919,
+     "weight": 299.6,
+     "rel": 0.9806
+    },
+    {
+     "net_worth": 30374,
+     "fifth": 4,
+     "real_over_sim": 0.884,
+     "weight": 312.6,
+     "rel": 0.9501
+    }
+   ],
+   "name": "Express Shot"
+  }
+ }
+}

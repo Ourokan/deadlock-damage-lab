@@ -4838,3 +4838,27 @@ refit the knife tilt stayed and held-out mix got worse.
 - Rejected the same night: Violet's Flow State landing by phase (replays 1.10x its match share in lane, ~0.96x after).
   The row alone moved the audit by ~0.0003 and the refit on top made it worse; sim_vs_win_raw -0.0059 / +0.0003 /
   +0.0047 / +0.0001.
+
+
+## Item damage by phase (2026-11-12, kept off)
+
+- Survey: the damage audit on main (4,000-match post-hotfix sample, every source with AUDIT_FIFTH_MIN=0.0005), each
+  item's share pooled over heroes, sim / real by fifth of the match. Several items' curves differ from real: Tankbuster
+  0.72 in the 2nd fifth -> 1.03 in the last, Toxic Bullets 0.76 -> 1.04, Headhunter 0.91 -> 1.11, Mystic Shot 0.93 ->
+  1.15, Quicksilver 0.93 -> 1.20, Headshot Booster 1.22 -> 2.09; Split Shot and Ricochet go the other way. Map pickups
+  (section above) don't change these.
+- Replays (399 post-hotfix matches with hero-vs-hero damage by source) per hero hit: Tankbuster's real release is
+  89 / 102 / 108 / 108 from the 2nd to the last fifth while the sim's keeps growing (55 / 60 / 67 / 73); Mystic Shot's
+  growth matches real (real 90 -> 141, sim 72 -> 110).
+- Mechanics.item_phase (scripts/mechanics/item_phase.py, data/item_phase.json): like melee_phase, a per-item curve fitted
+  to the audit's fifths, real / sim over its real-damage-weighted mean (the item_landing level stays), shrunk toward 1,
+  at each fifth's log-mean net worth, applied to the item's landing factor at the holder's net worth.
+- Split-half (curves from one match_id half's audit, audit the other): 12 items' held-out per-fifth error fell on both
+  halves (Mystic Shot 0.077 -> 0.033 / 0.097 -> 0.073, Quicksilver 0.094 -> 0.050 / 0.072 -> 0.035, Headhunter
+  0.055 -> 0.029 / 0.069 -> 0.048, Tankbuster 0.041 -> 0.023 / 0.050 -> 0.033, plus Express Shot, Melee Charge, Cold
+  Front, Toxic Bullets, Mystic Reverb, Tesla Bullets, Stalker, Mystic Burst); Spirit Burn, Siphon Bullets, Capacitor,
+  Torment Pulse, Acolyte's Glove, Escalating Exposure and Headshot Booster were worse or mixed and get no row. Overall
+  mix and phase distance moved little (phase 0.0245 -> 0.0242 / 0.0254 -> 0.0254).
+- sim_vs_win_raw with the 12 rows: 27k A -0.0004, 37k A -0.0010, 27k B -0.0006, 37k B -0.0015 (pooled days 27k
+  -0.0007, 37k -0.0013). Putting any one item's rows back changes it by 0.0001 or less: the drop is spread over other
+  items' gains through the popular builds. Kept OFF; the audit can run with it (AUDIT_ITEM_PHASE=1).
