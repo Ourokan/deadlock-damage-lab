@@ -4818,3 +4818,23 @@ refit the knife tilt stayed and held-out mix got worse.
   weapon items (Headshot Booster, Split Shot, Close Quarters) and lowers spirit ones (Extra Spirit, Mystic Expansion)
   against their real edges, the same way a late melee refit did on 2026-11-09. Kept OFF; the damage audit can run
   with it (AUDIT_MAP_PICKUPS=1).
+
+## Sinclair's copied ultimate by net worth (2026-11-12)
+
+- Fresh 11-06..11-10 audit (3 seeds): Audience Participation 1.3x over real in the 2nd-4th fifths (0.146 / 0.162 /
+  0.186 of her damage vs real 0.112 / 0.128 / 0.149) and under in the last (0.163 vs 0.180).
+- Replays (scripts/mechanics/copy_ult_phase.py): Sinclair's pawn deals ~145 damage from another hero's ultimate in the
+  12 s after a cast at 7k net worth, 249 at 13k, 501 at 21k, 669 at 29k, 968 at 41k (both match_id halves rise 3-7x).
+  The audit duels' copy deals 383 at 6.5k, 392 at 11.5k, 501 at 16k, 772 at 28.5k (~2x).
+- Mechanics.copy_ult_phase (on): the copy's factor x real / sim per cast at her net worth, normalised to a mean of 1
+  (data/copy_ult_phase.json: 0.55 / 0.85 / 1.16 / 1.26 / 1.50), plus a refit of Audience Participation's corr only
+  (2.155 -> 1.798).
+- Split-half (corr refit on one match_id half, other half audited over 3 seeds), against the same refit without the
+  curve: per fifth 0.0250 -> 0.0247 / 0.0237 -> 0.0223, per-source 0.0252 -> 0.0249 / 0.0261 -> 0.0254, mix 0.0197 ->
+  0.0203 / 0.0183 -> 0.0190.
+- Whole sample against main (3 seeds): mix 0.0217 -> 0.0193, per fifth 0.0250 -> 0.0227 (2nd-4th fifths 0.030 / 0.025 /
+  0.027 -> 0.020 / 0.020 / 0.025), per-source 0.022 -> 0.019. sim_vs_win_raw (Sinclair): +0.0072 / +0.0044 / -0.0046 /
+  +0.0001.
+- Rejected the same night: Violet's Flow State landing by phase (replays 1.10x its match share in lane, ~0.96x after).
+  The row alone moved the audit by ~0.0003 and the refit on top made it worse; sim_vs_win_raw -0.0059 / +0.0003 /
+  +0.0047 / +0.0001.

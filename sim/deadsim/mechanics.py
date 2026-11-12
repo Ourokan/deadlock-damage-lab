@@ -418,6 +418,12 @@ class Mechanics:
     # (within slot and tier 0.381 -> 0.366, all 0.360 -> 0.349) where the plain Audience Participation refit held
     # (0.380 / 0.358): kept off, the refit alone is in data/landing_rates_mech.json
     copy_ult: bool = False
+    # Sinclair's copy by net worth (2026-11-12): in Phantom+ replays a copied ultimate deals ~145 damage per Audience
+    # Participation cast at 7k net worth and ~870 at 37k (both match_id halves rise 3-7x), the audit duels' copy 380 ->
+    # ~900 (2.1x): the copy was too strong early and the fresh audit read Audience Participation 1.3x over real in the
+    # 2nd-4th fifths and under in the last. On: the copy's factor x rel at Sinclair's net worth (real / sim per cast,
+    # normalised; data/copy_ult_phase.json, scripts/mechanics/copy_ult_phase.py, copy_ult_phase_mult)
+    copy_ult_phase: bool = True
     # Ballistic Enchantment stacks (2026-10-28, items ranked furthest from real wins): +20% weapon damage per unique
     # enemy hero the imbued ability damaged in the last 20 s, but a duel has one enemy, so the sim's holder had at most
     # one stack. Real holders deal 1.15x the hero damage per minute of non-holders (27k, same hero, net worth and game
@@ -1121,6 +1127,20 @@ _LANDING_PHASE = None
 
 
 _STALKER = None
+_COPY_PHASE = None
+
+
+def copy_ult_phase_mult(souls):
+    """Mechanics.copy_ult_phase: real / sim copy damage per Audience Participation cast at net worth souls, normalised
+    (data/copy_ult_phase.json, linear in ln net worth between bins, flat outside); 1.0 without the file."""
+    global _COPY_PHASE
+    if _COPY_PHASE is None:
+        fn = os.path.join(os.path.dirname(__file__), "..", "data", "copy_ult_phase.json")
+        _COPY_PHASE = ()
+        if os.path.exists(fn):
+            with open(fn) as fh:
+                _COPY_PHASE = tuple((math.log(b["net_worth"]), b["rel"]) for b in json.load(fh)["bins"])
+    return _interp_ln(list(_COPY_PHASE), souls) if _COPY_PHASE and souls else 1.0
 
 
 def stalker_ticks_mult(souls):

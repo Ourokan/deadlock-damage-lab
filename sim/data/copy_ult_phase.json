@@ -1,0 +1,71 @@
+{
+  "source": "scripts/mechanics/copy_ult_phase.py (fight_length + cast_timing raw replays; damage audit duels)",
+  "note": "copy damage x rel(nw) at Sinclair's net worth, linear in ln nw between bins, flat outside",
+  "sim": [
+    {
+      "frac": 0.3,
+      "net_worth": 6490,
+      "per_cast": 383.1,
+      "casts": 1217,
+      "dmg": 466227
+    },
+    {
+      "frac": 0.45,
+      "net_worth": 11508,
+      "per_cast": 392.4,
+      "casts": 2178,
+      "dmg": 854606
+    },
+    {
+      "frac": 0.6,
+      "net_worth": 16024,
+      "per_cast": 500.9,
+      "casts": 2272,
+      "dmg": 1138146
+    },
+    {
+      "frac": 0.9,
+      "net_worth": 28474,
+      "per_cast": 771.6,
+      "casts": 2077,
+      "dmg": 1602669
+    }
+  ],
+  "bins": [
+    {
+      "net_worth": 7335,
+      "real": 144.6,
+      "casts": 55,
+      "sim": 385.1,
+      "rel": 0.55
+    },
+    {
+      "net_worth": 12963,
+      "real": 249.0,
+      "casts": 78,
+      "sim": 431.4,
+      "rel": 0.8455
+    },
+    {
+      "net_worth": 21262,
+      "real": 501.2,
+      "casts": 94,
+      "sim": 634.1,
+      "rel": 1.1578
+    },
+    {
+      "net_worth": 28682,
+      "real": 668.5,
+      "casts": 65,
+      "sim": 775.0,
+      "rel": 1.2635
+    },
+    {
+      "net_worth": 41451,
+      "real": 968.1,
+      "casts": 128,
+      "sim": 948.4,
+      "rel": 1.4952
+    }
+  ]
+}
