@@ -451,7 +451,11 @@ class Mechanics:
     # +10.6% weapon, +5.2% fire rate, +7.8 spirit power, +106 health, ~2% cooldown and resists at 37k, so the sim's gun
     # fell behind real late (audit last fifth gun 0.94x). On: both fighters get the mean pickups at their net worth
     # (data/map_pickups.json, scripts/mechanics/map_pickups.py, apply_map_pickups)
-    map_pickups: bool = os.environ.get("MAP_PICKUPS", "0") == "1"   # TEMP
+    # Kept OFF: the audit held split-half (mix 0.0155 -> 0.0152 / 0.0157 -> 0.0155, last fifth 0.0286 -> 0.0273 /
+    # 0.0279 -> 0.0268) but sim_vs_win_raw fell at 37k on both day halves (27k A +0.0000, 37k A -0.0006, 27k B
+    # +0.0027, 37k B -0.0039; weapon and fire rate alone -0.0009 / -0.0022 / +0.0034 / -0.0046): the extra gun lifts
+    # weapon items over spirit ones, against their real edges (validation/README.md "Permanent map pickups")
+    map_pickups: bool = False
 
 
 KILL_HEAL_TICK = 0.5   # s between Mechanics.kill_heals heal steps
