@@ -2,9 +2,9 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-10, 80,471 Ritualist+ matches (refreshed 2026-11-12T00:45:46Z).
+Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-10, 80,471 Ritualist+ matches (refreshed 2026-11-12T02:39:19Z).
 
-- Recommended item slots with data: 1892; mean edge +1.3 (popular builds +0.1); clearly positive 1072, clearly negative 6.
+- Recommended item slots with data: 1893; mean edge +1.3 (popular builds +0.1); clearly positive 1074, clearly negative 7.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
@@ -16,7 +16,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 
 | Item | slot/tier | builds | heroes (edge) |
 |---|---|---:|---|
-| Kinetic Dash | weapon 2 | 5 | Warden -4.5, Seven -4.2, Celeste -2.0, Haze -1.8 |
+| Kinetic Dash | weapon 2 | 6 | Warden -4.5, Seven -4.2, Celeste -2.0, Haze -1.8 |
 | Escalating Exposure | spirit 4 | 1 | Victor -1.7 |
 
 ## Strong items the sim never picks (edge >= +1.5, lower 95% bound > 0)
@@ -35,7 +35,6 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Witchmail | vitality 4 | 2 | Mo & Krill +2.1, Warden +1.6 |
 | Sprint Boots | vitality 1 | 2 | Warden +1.8, Mo & Krill +1.6 |
 | Mystic Reverb | spirit 4 | 2 | Viscous +2.3, Shiv +1.6 |
-| Spirit Strike | spirit 1 | 1 | Bebop +2.1 |
 | Superior Cooldown | spirit 3 | 1 | Drifter +1.6 |
 | Spiritual Overflow | weapon 4 | 1 | Graves +1.6 |
 | Rapid Recharge | spirit 3 | 1 | Haze +3.0 |
@@ -61,7 +60,6 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Grit +2.7, Mystic Expansion +2.0
 
 ### Bebop
-- never picked: Spirit Strike +2.1
 
 ### Billy
 
@@ -131,6 +129,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 
 ### Seven
 - 27k: Kinetic Dash -4.2
+- 37k: Kinetic Dash -4.2
 - never picked: Monster Rounds +1.7
 
 ### Shiv
