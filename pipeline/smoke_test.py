@@ -208,7 +208,7 @@ with open(os.path.join(_tmp, "w.json"), "w") as _f:
     json.dump({"meta": {"patch": RW.P.load()["patch"]},
                "heroes": {_hz: {str(ids["Decay"]): [-1.5, 1.0, 100, -1.5], str(ids["Mystic Shot"]): [1.5, 1.0, 100, 1.5]}}}, _f)
 _we, O.WIN_EDGE, O._win = O.WIN_EDGE, os.path.join(_tmp, "w.json"), None
-assert abs(O.win_value([ids["Decay"]], int(_hz)) - math.exp(-1.5 * O.WIN_K)) < 1e-9
+assert abs(O.win_value([ids["Decay"]], int(_hz)) - math.exp(-1.5 * O.WIN_K * O.WIN_REALIZED)) < 1e-9
 assert O.win_value([ids["Mystic Shot"]], int(_hz)) == 1.0
 O.WIN_EDGE, O._win = _we, None
 shutil.rmtree(_tmp)
