@@ -191,6 +191,14 @@ async function testTab(page, where) {
       $("#marks").textContent, !!$("#timeline circle title")]);
     if (!reach[0] && reach[1] && !(/max HP in [\d.]+ s/.test(reach[2]) && reach[3]))
       throw new Error("Refill HP run reached max HP but shows no 'max HP dealt' time or marker");
+    // an untouched preset follows a net worth change to a build that net worth can pay for, then back
+    for (const souls of [15000, 27000]) {
+      const n = await runId(page);
+      await page.fill("#a-souls", String(souls)); await page.dispatchEvent("#a-souls", "change");
+      await liveResult(page, n);
+      const c = await page.evaluate(() => [S.last.req.souls, S.last.req.items.reduce((t, i) => t + S.items[i].cost, 0), S.A.preset]);
+      if (c[0] !== souls || c[2] !== "popular" || c[1] > souls) throw new Error(`preset at ${souls} souls: ${JSON.stringify(c)}`);
+    }
   });
   await step(page, where, "edits rerun by themselves", async () => {
     // an untouched preset build follows a hero change, and the test reruns without pressing Run
