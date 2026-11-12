@@ -186,6 +186,11 @@ async function testTab(page, where) {
     await liveResult(page, 0);
     const d = await page.evaluate(() => S.last.res.damage["15s"]);
     if (!(d > 0)) throw new Error(`15 s damage is ${d}`);
+    // Refill HP on (default): no death, so the result says when the damage reached max HP, with a marker on the chart
+    const reach = await page.evaluate(() => [S.last.res.kill_time, S.last.res.damage["30s"] >= S.last.res.dummy_max_hp,
+      $("#marks").textContent, !!$("#timeline circle title")]);
+    if (!reach[0] && reach[1] && !(/max HP dealt in [\d.]+ s/.test(reach[2]) && reach[3]))
+      throw new Error("Refill HP run reached max HP but shows no 'max HP dealt' time or marker");
   });
   await step(page, where, "edits rerun by themselves", async () => {
     // an untouched preset build follows a hero change, and the test reruns without pressing Run

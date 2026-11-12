@@ -5,7 +5,7 @@ Static site, no server. Open `index.html` through any static host (or `python3 -
 - **Damage test** (main feature): pick a hero, net worth, aim (ranked percentile or your own accuracy and headshot
   numbers) and items; set the target as a training dummy (HP, bullet/spirit/melee resist) or an enemy hero with
   items; run. Shows damage and DPS at 5/15/30 s, 15 s damage per 1,000 item souls, damage by source, a damage
-  timeline and kill time. Every change to the build or target reruns the test by itself (debounced; a run takes well under a second) and
+  timeline and kill time (with "Refill HP" on: when the damage reached the target's max HP, hollow marker). Every change to the build or target reruns the test by itself (debounced; a run takes well under a second) and
   each number shows how it moved against the previous run; while the result is scrolled out of view a bar pinned to the
   bottom shows the 15 s damage and its change. An untouched preset build (Popular, Most dmg) follows a hero or net
   worth change; a hand-made build stays. Bad numbers (no HP, resist outside -100..95%) show a message instead of
