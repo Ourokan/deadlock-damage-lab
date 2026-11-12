@@ -46,16 +46,16 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Enchanter's Emblem | 28 | 11 | 10 |
 | Mystic Shot | 13 | 39 | 5 |
 | Spirit Resilience | 21 | 0 | 0 |
-| Torment Pulse | 18 | 0 | 5 |
 | Spirit Lifesteal | 18 | 0 | 5 |
+| Torment Pulse | 17 | 0 | 5 |
 | Improved Spirit | 2 | 22 | 20 |
 | Sprint Boots | 16 | 0 | 0 |
 | Titanic Magazine | 8 | 16 | 6 |
 | Decay | 3 | 33 | 0 |
 | Mystic Vulnerability | 8 | 11 | 6 |
 | Healbane | 6 | 0 | 22 |
+| Mystic Expansion | 6 | 4 | 17 |
 | Bullet Resist Shredder | 10 | 0 | 7 |
-| Mystic Expansion | 5 | 4 | 17 |
 | Toxic Bullets | 3 | 24 | 2 |
 | Spirit Shielding | 10 | 0 | 4 |
 | Spirit Snatch | 6 | 10 | 6 |
@@ -65,14 +65,14 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Opening Rounds | 3 | 6 | 13 |
 | Greater Expansion | 8 | 1 | 2 |
 | Melee Charge | 7 | 3 | 2 |
-| Alchemical Fire | 4 | 13 | 0 |
 | Close Quarters | 3 | 7 | 8 |
+| Alchemical Fire | 3 | 13 | 0 |
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 5564 | 7545 | 4400 |
-| spirit | 4618 | 7036 | 5509 |
-| vitality | 4964 | 600 | 5109 |
+| weapon | 5491 | 7545 | 4400 |
+| spirit | 4673 | 7036 | 5509 |
+| vitality | 4982 | 600 | 5109 |
 
 ## 27000 net worth
 
@@ -80,14 +80,14 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 |---|---:|---:|---:|
 | Heroic Aura | 44 | 0 | 1 |
 | Enchanter's Emblem | 26 | 11 | 13 |
-| Mystic Shot | 16 | 37 | 6 |
+| Mystic Shot | 17 | 37 | 6 |
 | Spirit Resilience | 21 | 0 | 9 |
 | Opening Rounds | 15 | 10 | 13 |
 | Decay | 9 | 34 | 1 |
 | Spirit Lifesteal | 18 | 0 | 6 |
 | Toxic Bullets | 9 | 27 | 5 |
-| Kinetic Dash | 16 | 4 | 3 |
 | Superior Duration | 13 | 6 | 8 |
+| Kinetic Dash | 15 | 4 | 3 |
 | Torment Pulse | 14 | 3 | 6 |
 | Titanic Magazine | 7 | 18 | 9 |
 | Improved Spirit | 1 | 20 | 19 |
@@ -118,7 +118,7 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Enchanter's Emblem | 25 | 8 | 12 |
 | Greater Expansion | 19 | 14 | 17 |
 | Mystic Shot | 15 | 34 | 7 |
-| Alchemical Fire | 21 | 16 | 0 |
+| Alchemical Fire | 22 | 16 | 0 |
 | Decay | 13 | 36 | 1 |
 | Superior Duration | 12 | 18 | 15 |
 | Spirit Resilience | 17 | 0 | 12 |
@@ -127,8 +127,8 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Diviner's Kevlar | 20 | 0 | 0 |
 | Spirit Lifesteal | 17 | 0 | 6 |
 | Torment Pulse | 14 | 4 | 8 |
-| Kinetic Dash | 15 | 6 | 2 |
 | Toxic Bullets | 6 | 25 | 7 |
+| Kinetic Dash | 13 | 6 | 2 |
 | Escalating Exposure | 1 | 34 | 8 |
 | Superior Cooldown | 5 | 7 | 22 |
 | Healbane | 6 | 0 | 25 |
@@ -163,7 +163,7 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Diviner's Kevlar | 20 | 8 | 1 |
 | Blood Tribute | 20 | 4 | 0 |
 | Torment Pulse | 14 | 11 | 9 |
-| Decay | 8 | 34 | 0 |
+| Decay | 7 | 34 | 0 |
 | Boundless Spirit | 3 | 22 | 22 |
 | Toxic Bullets | 6 | 25 | 7 |
 | Spirit Lifesteal | 16 | 0 | 1 |
@@ -174,7 +174,7 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Stalker | 10 | 3 | 6 |
 | Superior Cooldown | 5 | 8 | 14 |
 | Titanic Magazine | 5 | 14 | 8 |
-| Kinetic Dash | 9 | 5 | 2 |
+| Tankbuster | 5 | 1 | 20 |
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|

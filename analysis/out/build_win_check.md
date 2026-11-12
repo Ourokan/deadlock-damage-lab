@@ -2,9 +2,9 @@
 
 Per-hero real win edge (Ritualist+, current patch builds, matched on hero/time/lead/own souls, vs other same-slot same-tier items, shrunk toward the item's all-hero edge, lowered for items the hero seldom buys) for every item in the Phantom+ "Best overall" builds. Clearly negative = upper 95% bound < 0. Script `analysis/scripts/build_win_check.py`.
 
-Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-10, 80,471 Ritualist+ matches (refreshed 2026-11-11T22:48:07Z).
+Edges: patch 09-29-2026, matches 2026-10-31 to 2026-11-10, 80,471 Ritualist+ matches (refreshed 2026-11-12T00:45:46Z).
 
-- Recommended item slots with data: 1891; mean edge +1.3 (popular builds +0.1); clearly positive 1071, clearly negative 6.
+- Recommended item slots with data: 1892; mean edge +1.3 (popular builds +0.1); clearly positive 1072, clearly negative 6.
 
 Findings 2026-10-24 (one-off checks, not rerun by this script):
 - Sim marginal item value (popular Phantom+ build + item, overall score per soul, z-scored within slot/tier) vs real per-hero edge, 16 heroes x 27k/37k, 4,515 pairs: Pearson 0.05, Spearman 0.07. The 1v1 damage-before-death score does not rank items the way real wins do.
@@ -24,8 +24,8 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 | Item | slot/tier | heroes | heroes (edge) |
 |---|---|---:|---|
 | Ethereal Shift | spirit 4 | 9 | Pocket +2.8, Deadman Danny +2.6, Celeste +2.5, Calico +2.5, Venator +2.4, Mina +2.1, Apollo +2.0, Victor +1.8, Shiv +1.7 |
-| Mystic Expansion | spirit 1 | 4 | Lady Geist +3.1, Baba +2.0, Mina +1.9, Celeste +1.5 |
 | Magic Carpet | spirit 4 | 4 | Lash +4.2, Graves +3.9, Solomon +2.8, Sinclair +1.9 |
+| Mystic Expansion | spirit 1 | 3 | Lady Geist +3.1, Baba +2.0, Celeste +1.5 |
 | Duration Extender | spirit 2 | 2 | Abrams +1.9, Kelvin +1.8 |
 | Grit | vitality 1 | 2 | Baba +2.7, Deadman Danny +1.9 |
 | Lucky Shot | weapon 4 | 2 | Calico +2.3, Ivy +2.0 |
@@ -109,7 +109,7 @@ Findings 2026-10-24 (one-off checks, not rerun by this script):
 - never picked: Stamina Mastery +2.2
 
 ### Mina
-- never picked: Ethereal Shift +2.1, Mystic Expansion +1.9
+- never picked: Ethereal Shift +2.1
 
 ### Mirage
 
