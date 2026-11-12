@@ -6,7 +6,7 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 
 | Item | Overall | Damage (dummy 15 s) | Popular |
 |---|---:|---:|---:|
-| Guardian Ward | 31 | 0 | 2 |
+| Guardian Ward | 30 | 0 | 2 |
 | Mystic Shot | 8 | 36 | 3 |
 | Enchanter's Emblem | 17 | 3 | 4 |
 | Mystic Burst | 7 | 12 | 18 |
@@ -22,11 +22,11 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Cold Front | 2 | 16 | 2 |
 | Titanic Magazine | 3 | 9 | 5 |
 | Battle Vest | 5 | 1 | 7 |
+| Spirit Strike | 3 | 9 | 5 |
 | Opening Rounds | 1 | 8 | 11 |
 | Spirit Resilience | 7 | 0 | 0 |
 | Mystic Expansion | 1 | 4 | 14 |
 | Close Quarters | 3 | 4 | 8 |
-| Spirit Strike | 2 | 9 | 5 |
 | Decay | 2 | 8 | 0 |
 | Extra Regen | 0 | 0 | 13 |
 | Quicksilver Reload | 1 | 3 | 7 |
@@ -35,8 +35,8 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
 | weapon | 2309 | 4291 | 2855 |
-| spirit | 2491 | 3545 | 3127 |
-| vitality | 3200 | 164 | 1891 |
+| spirit | 2509 | 3545 | 3127 |
+| vitality | 3182 | 164 | 1891 |
 
 ## 18000 net worth
 
@@ -106,9 +106,9 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 8582 | 10618 | 5964 |
+| weapon | 8600 | 10618 | 5964 |
 | spirit | 6618 | 12727 | 9945 |
-| vitality | 8745 | 636 | 7818 |
+| vitality | 8727 | 636 | 7818 |
 
 ## 37000 net worth
 
@@ -119,32 +119,32 @@ Count of heroes whose build holds the item, per budget. Slot spend = mean souls 
 | Greater Expansion | 19 | 14 | 17 |
 | Mystic Shot | 15 | 34 | 7 |
 | Alchemical Fire | 22 | 16 | 0 |
-| Decay | 13 | 36 | 1 |
-| Superior Duration | 12 | 18 | 15 |
+| Decay | 14 | 36 | 1 |
+| Superior Duration | 11 | 18 | 15 |
 | Spirit Resilience | 17 | 0 | 12 |
 | Cheat Death | 21 | 0 | 0 |
 | Spirit Burn | 19 | 0 | 5 |
 | Diviner's Kevlar | 20 | 0 | 0 |
-| Spirit Lifesteal | 17 | 0 | 6 |
+| Spirit Lifesteal | 18 | 0 | 6 |
 | Torment Pulse | 14 | 4 | 8 |
+| Kinetic Dash | 15 | 6 | 2 |
 | Toxic Bullets | 6 | 25 | 7 |
-| Kinetic Dash | 13 | 6 | 2 |
 | Escalating Exposure | 1 | 34 | 8 |
 | Superior Cooldown | 5 | 7 | 22 |
 | Healbane | 6 | 0 | 25 |
 | Titanic Magazine | 7 | 13 | 8 |
+| Rapid Recharge | 4 | 14 | 14 |
 | Bullet Resist Shredder | 10 | 1 | 9 |
-| Spirit Snatch | 7 | 10 | 8 |
-| Rapid Recharge | 3 | 14 | 14 |
+| Spirit Snatch | 6 | 10 | 8 |
 | Sprint Boots | 12 | 0 | 0 |
 | Dispel Magic | 6 | 0 | 10 |
 | Stalker | 5 | 4 | 7 |
 
 | Slot spend | Overall | Damage | Popular |
 |---|---:|---:|---:|
-| weapon | 10145 | 11927 | 7473 |
-| spirit | 10709 | 20291 | 14855 |
-| vitality | 11709 | 491 | 9600 |
+| weapon | 10218 | 11927 | 7473 |
+| spirit | 10673 | 20291 | 14855 |
+| vitality | 11673 | 491 | 9600 |
 
 ## 50000 net worth
 
