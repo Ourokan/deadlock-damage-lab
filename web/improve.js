@@ -498,7 +498,7 @@ async function imRender() {
       <td><div class="build">${x.best.map((id) => tile(id, { static: true, cls: x.hit.includes(id) ? "" : "im-miss" })).join("")}</div></td><td class="n">${x.hit.length} of ${x.best.length}</td></tr>`).join("")}
     </tbody></table></div><p class="fine">Faded items are ones you didn't have (or anything built from them) when your net worth reached that point. Sim builds are for Phantom+, ranked by damage before dying against the typical real build of every hero.</p></div>` : "";
 
-  const matchHtml = `<div class="card"><h3>The matches</h3><div class="scroll"><table><thead><tr><th>Hero</th><th>Result</th><th class="n">Length</th><th class="n">K / D / A</th><th class="n">Souls /min</th><th class="n">Damage /min</th><th class="n">Accuracy</th></tr></thead><tbody>
+  const matchHtml = `<div class="card"><h3>The matches</h3><div class="scroll"><table class="stk-cells"><thead><tr><th>Hero</th><th>Result</th><th class="n">Length</th><th class="n">K / D / A</th><th class="n">Souls /min</th><th class="n">Damage /min</th><th class="n">Accuracy</th></tr></thead><tbody>
     ${rows.map((r) => `<tr><td>${esc(imHero(r.hero))}</td><td class="${r.win ? "good" : "bad"}">${r.win ? "Win" : "Loss"}</td><td class="n">${imClock(r.dur)}</td><td class="n">${r.kills} / ${r.deaths} / ${r.assists}</td>
       <td class="n">${fmt(r.v["all.spm"])}</td><td class="n">${fmt(r.v["all.dpm"])}</td><td class="n">${r.x?.v["x.acc"] != null ? pct(r.x.v["x.acc"]) : "–"}</td></tr>`).join("")}
     </tbody></table></div></div>`;

@@ -167,7 +167,7 @@ function rpList() {
   const who = M.a != null ? esc(heroName(pl(M.a).hero)) : "";
   $("#r-only-who").textContent = who ? heroName(pl(M.a).hero) : "the player";
   if (R.fights.length) rpStatus(`${fs.length === R.fights.length ? plural(fs.length, "fight", "fights") : `${fs.length} of the match's ${plural(R.fights.length, "fight", "fights")} shown`}.${fs.length ? " Pick one to replay it." : ""}`);
-  $("#r-list").innerHTML = fs.length ? `<div class="scroll"><table class="r-fights"><thead><tr><th>When</th><th class="n">Length</th>
+  $("#r-list").innerHTML = fs.length ? `<div class="scroll"><table class="r-fights stk-cells"><thead><tr><th>When</th><th class="n">Length</th>
     <th>${TEAM[0]}</th><th>${TEAM[1]}</th><th>Deaths</th><th></th></tr></thead><tbody>${fs.map((F) => {
       const i = R.fights.indexOf(F), dead = F.deaths.map((d) => esc(heroName(pl(d.slot).hero))).join(", ");
       return `<tr class="${R.f === F ? "pop" : ""}"><td>${clock(F.t0)}</td><td class="n">${F.t1 - F.t0 + 1} s</td><td>${rpHeroes(rpSide(F, 0))}</td><td>${rpHeroes(rpSide(F, 1))}</td>
@@ -313,13 +313,13 @@ function rpResult() {
     const parts = [];
     if (dk) parts.push(`${dk > 0 ? `${dk} more` : `${-dk} fewer`} enem${Math.abs(dk) === 1 ? "y" : "ies"} killed`);
     if (dl) parts.push(`${dl > 0 ? `${dl} more` : `${-dl} fewer`} of team ${TEAM[pl(R.focus).team]} dead`);
-    head = `<p class="r-head ${ds > 0 ? "up" : ds < 0 ? "down" : ""}">With the changed items team ${TEAM[pl(R.focus).team]} comes out ${fmt(Math.abs(ds))} HP ${ds >= 0 ? "ahead" : "behind"} of the replay with the real items${parts.length ? `: ${parts.join(", ")}` : ""}.</p>`;
+    head = `<p class="r-head ${ds > 0 ? "up" : ds < 0 ? "down" : ""}">With the changed items team ${TEAM[pl(R.focus).team]} comes out ${fmt(Math.abs(ds))} HP ${ds >= 0 ? "ahead of" : "behind"} the replay with the real items${parts.length ? `: ${parts.join(", ")}` : ""}.</p>`;
   }
   $("#r-out").innerHTML = `${head}<div class="kv kv3 r-sum"><span></span><span>Kills / deaths</span><span>HP swing</span>
       ${line("Real fight", realDead("A"), realDead("B"), realSwing)}${line("Sim, real items", rpDead(base, "A"), rpDead(base, "B"), rpSwing(base))}
       ${mine ? line("Sim, changed items", rpDead(mine, "A"), rpDead(mine, "B"), rpSwing(mine)) : ""}</div>
     <p class="fine">Kills and deaths are for team ${TEAM[pl(R.focus).team]}; HP swing is the health the enemies lost minus the health team ${TEAM[pl(R.focus).team]} lost (heals count).</p>
-    <div class="scroll"><table class="r-table"><thead><tr><th>Team</th><th>Hero</th><th class="n">Real health</th><th class="n">Sim end</th><th class="n">Sim damage</th>
+    <div class="scroll"><table class="r-table stk-cells"><thead><tr><th>Team</th><th>Hero</th><th class="n">Real health</th><th class="n">Sim end</th><th class="n">Sim damage</th>
       ${mine ? '<th class="n">Changed: end</th><th class="n">Changed: damage</th><th class="n">Damage change</th>' : ""}</tr></thead>
       <tbody>${slots.map(row).join("")}</tbody></table></div>${R.swaps ? rpSwapsHTML() : ""}`;
 }

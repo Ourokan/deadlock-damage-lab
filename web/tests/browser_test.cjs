@@ -351,6 +351,9 @@ async function matchTab(page, where) {
     if (!(await page.$("#r-fight .r-map polyline"))) throw new Error("no fight map");
     const real = await page.$eval("#r-out .r-sum", (e) => e.textContent);
     if (!/Real fight/.test(real)) throw new Error(`no real outcome: ${real}`);
+    // phones: the fight list and the result table label their text cells (when, teams, deaths), not bare names
+    if (where === "phone" && !(await page.$('#r-list td[data-label="When"]') && await page.$('#r-out .r-table td[data-label="Hero"]')))
+      throw new Error("the fight list or result table has unlabelled cells on the phone");
     // the map's 10 m scale sits inside the drawing, not cut off below it
     const clip = await page.$eval("#r-fight .r-map", (svg) => { const a = svg.getBoundingClientRect(), b = svg.querySelector("text.r-scale").getBoundingClientRect(); return b.bottom > a.bottom + 1 || b.top < a.top; });
     if (clip) throw new Error("the map's 10 m scale is cut off");
@@ -377,6 +380,15 @@ async function staticTabs(page, where, sim) {
     await step(page, where, `${tab} tab`, async () => {
       await go(page, tab);
       await page.waitForFunction((s) => $(s).children.length > 0, out, { timeout: 30000 });
+      // a change under half a percent reads 0%, never "-0%"
+      const negZero = await page.$eval(out, (e) => (e.textContent.match(/(^|[^\d.])-0%/) || [])[0]);
+      if (negZero) throw new Error(`"-0%" shown in the ${tab} tab`);
+      // tank: a damage margin whose best build is the same as the stricter one's shares its card
+      if (tab === "tank") {
+        // the popular card (first) can match a margin's build; only the margin cards must differ
+        const sets = await page.$$eval(`${out} .card`, (cs) => cs.slice(1).map((c) => [...c.querySelectorAll(".it")].map((i) => i.textContent.trim()).sort().join()));
+        if (new Set(sets).size !== sets.length) throw new Error("two tank cards show the same build");
+      }
       // What changed: only the newest entry is open; a newest run with no changed builds leaves its Test buttons hidden
       const btn = await page.$(tab === "changes" ? `${out} details[open] [data-test]` : `${out} [data-test]`);
       if (!sim) return;

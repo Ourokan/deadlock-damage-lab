@@ -7,7 +7,8 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&l
 const fmt = (n, d = 0) => (n == null || !isFinite(n) ? "–" : Number(n).toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d }));
 const pct = (n, d = 0) => (n == null ? "–" : fmt(n * 100, d) + "%");
 const plural = (n, one, many) => `${fmt(n)} ${n === 1 ? one : many}`;
-const signed = (n) => (n > 0 ? "+" : "") + fmt(n * 100, 0) + "%";
+// rounds first: a change under half a percent shows as 0%, never "-0%"
+const signed = (n) => { const r = Math.round(n * 100); return r ? (r > 0 ? "+" : "") + fmt(r, 0) + "%" : "0%"; };
 const getJSON = async (u) => { const r = await fetch(u); if (!r.ok) throw new Error(u + " " + r.status); return r.json(); };
 
 const OBJ = { burst_5s: "5 s", fight_15s: "15 s", sustained_30s: "30 s" };
@@ -770,8 +771,8 @@ async function renderOverallTab() {
     <div class="cards">${card("Best overall build", b.best, true)}${card("Popular real build", b.popular, false)}${b.damage_best ? card("Best raw damage build", b.damage_best, true) : ""}</div>
     ${d ? `<div class="scroll"><table><thead><tr><th>Build</th><th>Items</th><th class="n">Cost</th><th class="n" title="What the builds are ranked by">Score</th><th class="n">Damage before dying</th><th class="n">Time alive</th><th class="n">Survives 30 s</th><th></th></tr></thead>
     <tbody>${d.builds.map((x, i) => row(x, `#${i + 1}`)).join("")}</tbody></table></div>
-    <p class="hint">Ranked by score: damage before dying weighted by each item's real win edge, how often holders take part in kills and die, and team value. So a build lower down can deal more damage before dying and still rank below one that wins more real games.</p>
-    <div class="cards"><div class="card"><h3>What each best-build item adds</h3><p class="hint">Share of the build's damage before dying lost if that item is removed (1.0 = the popular build's total), and the item's real win edge on this hero.</p>
+    <p class="hint">Ranked by score (the popular build scores 1.00): damage before dying weighted by each item's real win edge, how often holders take part in kills and die, and team value. So a build lower down can deal more damage before dying and still rank below one that wins more real games.</p>
+    <div class="cards"><div class="card"><h3>What each best-build item adds</h3><p class="hint">How much the build's score drops if that item is removed (the popular build scores 1.00, this one ${fmt(d.builds[0].F.score, 2)}), and the item's real win edge on this hero. Scores multiply, so the drops can add up to more than the score.</p>
       <div class="kv kv3"><span></span><span>Sim</span><span title="Win-rate points vs other items of the same slot and tier">Real win</span>${loss.map(([i, v]) => `<span>${tile(i, { static: true })}</span><span>${fmt(v, 3)}</span><span>${edgeTxt(i)}</span>`).join("")}</div></div>
     ${Object.keys(we).length ? `<div class="card"><h3>Checked against real games</h3><p class="hint">Real win edge: how much more often players on this hero win when they buy the item instead of another item of the same slot and tier, matched on game time, team lead and own souls (Ritualist and up, points of win rate, shrunk toward the item's edge on all heroes). Green and red are clear of the 95% noise band. Damage in a 1v1 can't see team auras, vision or objectives, so a red sim pick is worth a second look. ${weMeta.matches ? `${Number(weMeta.matches).toLocaleString()} matches, ${esc(weMeta.matches_from)} to ` : "Matches through "}${esc(weMeta.matches_through || "?")}, refreshed after each patch.${weStale}</p>
       ${losing.length ? `<p><b>Picked here but losing real games:</b></p>${tiles(losing, { static: true })}` : `<p class="hint">No item in the best build loses real games on this hero.</p>`}
@@ -846,7 +847,7 @@ async function renderPathTab() {
       + `<td class="n">${fmt(s.paid)}</td><td>${s.spikes.map(spikeTag).join("")}</td></tr>`;
   }).join("");
   const lin = d.lineages.map((x) => `<tr class="${x.start === d.start ? "pop" : ""}"><td>${esc(START_LABEL[x.start] || x.start)}</td>${x.stage_scores.map((v) => `<td class="n ${v >= 1 ? "up" : "down"}">${signed(v - 1)}</td>`).join("")}<td class="n"><b>${fmt(x.path_score, 3)}</b></td></tr>`).join("");
-  out.innerHTML = `<p class="hint">Each stage's score is its damage compared with the most popular real build at that net worth (+0% = popular): over a lane of short trades at 3k and 6k (so regen and healing between trades count), half lane and half the 30 s fight at 10k, the 30 s fight after that. Starts from ${esc(START_LABEL[d.start] || d.start)}.${stale} Tap any item to see what it adds.</p>
+  out.innerHTML = `<p class="hint">Each stage's score is the Best overall builds score (damage before dying, weighted by each item's real win edge, how often holders take part in kills and die, and team value) compared with the most popular real build at that net worth (+0% = popular), so a stage can beat popular while dealing less damage before dying. It is fought over a lane of short trades at 3k and 6k (so regen and healing between trades count), half lane and half the 30 s fight at 10k, the 30 s fight after that. Starts from ${esc(START_LABEL[d.start] || d.start)}.${stale} Tap any item to see what it adds.</p>
     <div class="stages">${cards}</div>
     <div class="card" style="margin-top:16px"><h3>Buy order and investment spikes</h3>
     <p class="hint">Each step buys the piece with the most fight value per soul against the next stage's enemies; two pieces that only cross a slot threshold together are valued as a pair, so spikes are hit as early as the souls allow. Net worth is when you can afford it at the share of souls real players hold in items. Spike tags are the slot bonus reached (weapon damage %, max health %, flat spirit).</p>
@@ -856,6 +857,18 @@ async function renderPathTab() {
     <div class="scroll"><table><thead><tr><th>Start</th>${d.budgets.map((b) => `<th class="n">${fmt(b / 1000)}k</th>`).join("")}<th class="n">Path</th></tr></thead><tbody>${lin}</tbody></table></div></div>`;
 }
 
+// one card per damage margin; a margin whose best build is the same as the stricter one's joins that card's title
+function tankCards(margins, names) {
+  const cards = [];
+  for (const [m, v] of Object.entries(margins)) {
+    const x = v.builds?.[0], key = x && [...x.items].sort().join();
+    if (!x) continue;
+    const prev = cards[cards.length - 1];
+    if (prev && prev[2] === key) prev[0] += `, or give up to ${fmt(Number(m) * 100)}%`;
+    else cards.push([names[m] || m, x, key]);
+  }
+  return cards;
+}
 async function renderTankTab() {
   const out = $("#t-out"), id = $("#t-hero").value, d = await load(`data/tank/heroes/${id}.json`);
   if (!d) { out.innerHTML = '<p class="empty">No survival results for this hero.</p>'; return; }
@@ -869,7 +882,7 @@ async function renderTankTab() {
     <span>Damage by 15 s</span><span>${fmt(x.damage?.fight_15s)}${x.damage_vs_popular != null && note ? ` (${signed(x.damage_vs_popular)})` : ""}</span>
     <span>Cost</span><span>${fmt(x.cost)}</span></div>${testBtn(Number(id), bk, x.items, title)}</div>`;
   out.innerHTML = `<p class="hint">Core items kept in every build: ${b.core.map((i) => S.items[i]?.name).filter(Boolean).join(", ") || "none"}.</p>
-    <div class="cards">${card("Popular real build", b.popular, false)}${Object.entries(b.margins).map(([m, v]) => v.builds?.[0] ? card(names[m] || m, v.builds[0], true) : "").join("")}</div>`;
+    <div class="cards">${card("Popular real build", b.popular, false)}${tankCards(b.margins, names).map(([t, x]) => card(t, x, true)).join("")}</div>`;
   void core;
 }
 
@@ -946,7 +959,7 @@ function healLabel(k) {
   return `${src} heal`;
 }
 const healGain = (h) => Object.entries(h || {}).filter(([, v]) => v >= 1).sort((a, b) => b[1] - a[1]);
-const healList = (rows, n = 4) => rows.slice(0, n).map(([k, v]) => `${esc(healLabel(k))} ${fmt(v)}`).join(", ") + (rows.length > n ? `, ${plural(rows.length - n, "other source", "other sources")}` : "");
+const healList = (rows, n = 4) => rows.slice(0, n).map(([k, v]) => `${esc(healLabel(k))} ${fmt(v)} HP`).join(", ") + (rows.length > n ? `, ${plural(rows.length - n, "other source", "other sources")}` : "");
 
 // what the item does, as short sentences (Damage tab facts the Why tab explains)
 function whatItDoes(ctx, d, x, m) {
@@ -1087,7 +1100,8 @@ async function renderCounterTab() {
       + `<td class="n ${x.trig > 1.1 ? "up" : x.trig < 0.9 ? "down" : ""}">${x.trig ? "×" + fmt(x.trig, 2) : "–"}</td>`
       + `<td class="n ${cls(x.edge, 0.002)}">${x.edge == null ? "–" : (x.edge > 0 ? "+" : "") + fmt(x.edge * 100, 1)}</td></tr>`;
   const who = me ? esc(idx.heroes[me]) : "the average hero (weighted by how often each reaches this net worth)";
-  out.innerHTML = `<p class="hint">Sim values are for ${who} in ${esc(idx.bracket === "phantom" ? "Phantom and up" : idx.bracket)} games at ${fmt(bk / 1000)}k souls, with the item added on top of the popular build (built ${esc(idx.built.slice(0, 10))}). <b>Vs ${esc(ename)}</b> is how much more damage the build deals before dying in that matchup, as a share of the popular build's average over all matchups; <b>vs average</b> is the same over all enemies; <b>extra vs ${esc(ename)}</b> is the difference, so a high number means the item is a real counter to ${esc(ename)} rather than just good. Real-player columns come from ${fmt(idx.real?.matches || 0)} ranked matches of the patch the analysis ran on, all ranks: <b>overall per 1k souls</b> is the overall score gain per 1,000 souls, which also counts the item's real win edge on this hero (like the Best overall builds tab), so items real buyers lose with (Metal Skin, Return Fire) rank low there even when the sim likes them; <b>bought more</b> is how much more often players buy it in the 5 minutes after facing ${esc(ename)}; <b>win edge</b> is the buyers' win rate against same-price defensive alternatives, in points.</p>
+  out.innerHTML = `<p class="hint">Sim values are for ${who} in ${esc(idx.bracket === "phantom" ? "Phantom and up" : idx.bracket)} games at ${fmt(bk / 1000)}k souls, with the item added on top of the popular build (built ${esc(idx.built.slice(0, 10))}). Sorted by <b>vs ${esc(ename)}</b>; a high <b>extra vs ${esc(ename)}</b> marks a real counter rather than an item that is just good.</p>
+    <details class="hint cols"><summary>What the columns mean</summary><p><b>Vs ${esc(ename)}</b> is how much more damage the build deals before dying in that matchup, as a share of the popular build's average over all matchups; <b>vs average</b> is the same over all enemies; <b>extra vs ${esc(ename)}</b> is the difference, so a high number means the item is a real counter to ${esc(ename)} rather than just good. Real-player columns come from ${fmt(idx.real?.matches || 0)} ranked matches of the patch the analysis ran on, all ranks: <b>overall per 1k souls</b> is the overall score gain per 1,000 souls, which also counts the item's real win edge on this hero (like the Best overall builds tab), so items real buyers lose with (Metal Skin, Return Fire) rank low there even when the sim likes them; <b>bought more</b> is how much more often players buy it in the 5 minutes after facing ${esc(ename)}; <b>win edge</b> is the buyers' win rate against same-price defensive alternatives, in points.</p></details>
     <div class="scroll"><table><thead><tr><th>Item</th><th class="n">Cost</th><th class="n">Vs ${esc(ename)}</th><th class="n">Vs average</th><th class="n">Extra vs ${esc(ename)}</th><th class="n" title="Overall score gain per 1,000 souls, including the real win edge">Overall per 1k souls</th><th class="n" title="Real players: buy rate with this hero on the enemy team / without">Bought more</th><th class="n" title="Real players: win rate of buyers minus same-price defensive alternatives, percentage points">Win edge</th></tr></thead>
     <tbody>${rows.map(row).join("")}</tbody></table></div>
     <p class="fine">The sim adds the item for free, so every item looks good on a fragile hero; compare items with each other and read the extra column for counters. Real win edges are observational (being focused or out-played isn't captured).</p>`;
@@ -1159,10 +1173,12 @@ function stackTables() {
     const rows = [...(t.tBodies[0]?.rows || [])].filter((r) => !r.dataset.stk);
     if (!rows.length || !t.tHead || !t.querySelector("tbody td:not(.n)") || !t.querySelector("tbody td.n")) continue;
     const heads = [...(t.tHead.rows[0]?.cells || [])].map((c) => c.textContent.trim());
+    const cells = t.classList.contains("stk-cells");
     for (const r of rows) {
       let col = 0;   // header column of each cell, counting colspans
       for (const c of r.cells) {
-        if (c.colSpan > 1 || !c.classList.contains("n")) c.classList.add("wide");
+        // stk-cells tables (fight lists, team fight results): short text cells get a label and a grid cell like the numbers
+        if (c.colSpan > 1 || (!c.classList.contains("n") && !(cells && heads[col] && !c.querySelector(".it")))) c.classList.add("wide");
         else if (heads[col]) c.dataset.label = heads[col];
         col += c.colSpan;
       }
