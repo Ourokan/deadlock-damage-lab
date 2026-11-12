@@ -85,7 +85,8 @@ EXTRA_TIER_HEROES = {x.strip() for x in os.environ.get("AUDIT_TIER_HEROES", "").
 AREA_PHASE = os.environ.get("AUDIT_AREA_PHASE", "1") != "0"   # area abilities' extra heroes by phase (Mechanics.ability_area_phase)
 ALLY_VAPORS = os.environ.get("AUDIT_ALLY_VAPORS", "1") != "0"   # an allied Nurse's vapors on the real teams (Mechanics.ally_vapors)
 ITEM_PHASE = os.environ.get("AUDIT_ITEM_PHASE") == "1"   # items' damage by phase (Mechanics.item_phase, opt-in)
-MAP_PICKUPS = os.environ.get("AUDIT_MAP_PICKUPS") == "1"   # both fighters carry the real mean map pickups (Mechanics.map_pickups, opt-in)
+# both fighters carry the real mean map pickups (Mechanics.map_pickups, on by default); AUDIT_MAP_PICKUPS=0 turns them off
+MAP_PICKUPS = {"1": True, "0": False}.get(os.environ.get("AUDIT_MAP_PICKUPS", ""))
 # whole-match cover (main sets AUDIT_COVER=1; importers of sim_player keep the duels at L.FRACS): COVER_DUELS duels per
 # player-match at times drawn from the player's real damage over the match, the sim mix of each fifth of the match
 # weighted by the real damage in it
@@ -311,7 +312,7 @@ def sim_player(job, both=False):
                 if ALLY_VAPORS else (0.0, 0.0)
             mech = dataclasses.replace(MECH, extra_targets=real_nearby("extra", RICOCHET_RADIUS, souls), ally_vapors=vapors,
                                        ability_area_phase=MECH.ability_area_phase and AREA_PHASE,
-                                       map_pickups=MECH.map_pickups or MAP_PICKUPS,
+                                       map_pickups=MECH.map_pickups if MAP_PICKUPS is None else MAP_PICKUPS,
                                        item_phase=MECH.item_phase or ITEM_PHASE,
                                        fight_length=real_length(souls) if LENGTH else None)
             r = duel(a, b, distance=default_distance(h.name), max_time=L.FIGHT_TIME, rng=random.Random(rnd.random()),

@@ -348,14 +348,16 @@ class Items(unittest.TestCase):
         self.assertAlmostEqual(shots_hit(a, Hit("bullet", "gun", 100, 100, hits=9)), 1.0)
 
     def test_mystic_burst_needs_80_damage(self):
-        e = Engine()
+        import dataclasses
+        from deadsim.mechanics import DEFAULT
+        e = Engine(mech=dataclasses.replace(DEFAULT, map_pickups=False))   # the target's pickup resist trims the 40
         a = make_fighter(e, Loadout("Infernus", ["Mystic Burst"], souls=800))
         b = make_fighter(e, Loadout("Abrams", [], souls=800))
         a.enemy, b.enemy = b, a
         e.damage(a, b, 50, "spirit", "small", is_ability=True)
         self.assertNotIn("Mystic Burst", a.dmg_out)
         e.damage(a, b, 120, "spirit", "big", is_ability=True)
-        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 40.0, places=2)   # the target's map pickup resist trims ~0.001
+        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 40.0, places=6)
 
     def test_capacitor_shock_still_procs_after_its_active(self):
         # the 40 s active cooldown used to switch the passive shock off too

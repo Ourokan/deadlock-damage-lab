@@ -11,7 +11,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from deadsim import Loadout, Skill, duel  # noqa: E402
 from deadsim.engine import Engine  # noqa: E402
 from deadsim.fight import make_fighter  # noqa: E402
-from deadsim.mechanics import Mechanics  # noqa: E402
+import dataclasses  # noqa: E402
+from deadsim.mechanics import DEFAULT, Mechanics  # noqa: E402
+
+NO_PICKUPS = dataclasses.replace(DEFAULT, map_pickups=False)
 
 
 def pair(e, a_hero, a_items, souls=800):
@@ -23,22 +26,22 @@ def pair(e, a_hero, a_items, souls=800):
 
 class MysticBurstCharge(unittest.TestCase):
     def test_release_grows_with_time_since_last(self):
-        e = Engine()
+        e = Engine(mech=NO_PICKUPS)   # the target's pickup resist would trim the exact release
         a, b = pair(e, "Infernus", ["Mystic Burst"])
         e.damage(a, b, 120, "spirit", "big", is_ability=True)            # charged before the fight: full 40
-        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 40.0, places=2)   # the target's map pickup resist trims ~0.001
+        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 40.0, places=6)
         e.t = 7.0                                                         # half of the 14 s charge
         e.damage(a, b, 120, "spirit", "big", is_ability=True)
-        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 60.0, places=2)
+        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 60.0, places=6)
         e.t = 7.0                                                         # nothing charged since
         e.damage(a, b, 120, "spirit", "big", is_ability=True)
-        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 60.0, places=2)
+        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 60.0, places=6)
         e.t = 40.0                                                        # capped at a full charge
         e.damage(a, b, 120, "spirit", "big", is_ability=True)
-        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 100.0, places=2)
+        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 100.0, places=6)
 
     def test_tankbuster_release_scales_current_health_and_ignores_resist(self):
-        e = Engine()
+        e = Engine(mech=NO_PICKUPS)   # the target's pickup resist would trim the exact release
         a, b = pair(e, "Infernus", ["Tankbuster"], souls=9000)
         b.st.spirit_resist = [0.5]
         hp = b.hp
@@ -56,7 +59,7 @@ class MysticBurstCharge(unittest.TestCase):
     def test_tankbuster_minimum_is_before_the_targets_resist(self):
         """Tankbuster's 165 minimum checks the hit before the target's resist (replays: its trigger share ramps from
         80 to 165 dealt damage); Mystic Burst's 80 checks the damage dealt (a step at 80 dealt)."""
-        e = Engine()
+        e = Engine(mech=NO_PICKUPS)   # the target's pickup resist would trim the exact release
         a, b = pair(e, "Infernus", ["Tankbuster", "Mystic Burst"], souls=9000)
         b.st.spirit_resist = [0.4]
         e.damage(a, b, 120, "spirit", "small", is_ability=True)          # 120 before resist, 72 dealt
