@@ -115,7 +115,8 @@ holder's status resist counts x FOCUS (deadsim Mechanics.status_focus, sim/valid
 Not counted: vision, lane farming, objective damage, debuffs from area items on the other enemies.
 
 Real win edge (Tyler 2026-10-24, "blend win edge into score"): the score is also multiplied by
-exp(WIN_K x the sum of the held items' real win edges on this hero) / the popular build's (win_value). Edge = win-rate
+exp(WIN_K x WIN_REALIZED x the sum of the held items' real win edges on this hero) / the popular build's (win_value),
+WIN_REALIZED 0.35 being the share of summed edges real games bear out (2026-11-12). Edge = win-rate
 points vs other same-slot same-tier items, Ritualist+, matched and shrunk toward the item's all-hero edge (lower for
 items the hero seldom buys, build_win_check.rarity_fit)
 (analysis/out/hero_item_edge.json; each patch rerun refreshes it from the new patch's builds with
@@ -179,6 +180,11 @@ WIN_EDGE = os.path.join(ROOT, "..", "analysis", "out", "hero_item_edge.json")
 # the sim value Decay adds over a typical spirit item (~0.3-0.5 of the popular build's score at 27k)
 WIN_K = 0.05
 WIN_CAP = 4.0   # points
+# share of the summed per-item edges that real games bear out (2026-11-12, analysis/scripts/win_edge_additivity.py):
+# in later games a player whose held items sum to 1 more point of edge wins only 0.35-0.40 points more (every day x
+# account split 0.32-0.43), and the search stacked edges far past any real build (Haze 22 points, real 24k builds
+# p95 5), which made its best overall build x3.3 on the blend alone with no damage gain
+WIN_REALIZED = 0.35
 # losses need a narrower band than gains (one-sided 90%, not 95%): the band guards against the search chasing noisy
 # gains, and rare picks' losses hold up on independent players while their honest, wider band
 # (build_win_check.rarity_fit) would let Decay and co. back in at 1.96. 8 heroes at 27k with the rare-pick prior:
@@ -720,7 +726,7 @@ def win_value(items, hero):
                          if int(i) not in moving and (v[0] > 1.96 * v[1] or v[0] < -WIN_NEG_Z * v[1])}
                 for h, row in d["heroes"].items()}
     row = _win.get(int(hero), {})
-    return math.exp(WIN_K * sum(row.get(i, 0.0) for i in set(items)))
+    return math.exp(WIN_K * WIN_REALIZED * sum(row.get(i, 0.0) for i in set(items)))
 
 
 def movement_value(items, hero=None):
