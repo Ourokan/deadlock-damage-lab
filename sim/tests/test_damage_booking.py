@@ -26,16 +26,16 @@ class MysticBurstCharge(unittest.TestCase):
         e = Engine()
         a, b = pair(e, "Infernus", ["Mystic Burst"])
         e.damage(a, b, 120, "spirit", "big", is_ability=True)            # charged before the fight: full 40
-        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 40.0, places=6)
+        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 40.0, places=2)   # the target's map pickup resist trims ~0.001
         e.t = 7.0                                                         # half of the 14 s charge
         e.damage(a, b, 120, "spirit", "big", is_ability=True)
-        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 60.0, places=6)
+        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 60.0, places=2)
         e.t = 7.0                                                         # nothing charged since
         e.damage(a, b, 120, "spirit", "big", is_ability=True)
-        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 60.0, places=6)
+        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 60.0, places=2)
         e.t = 40.0                                                        # capped at a full charge
         e.damage(a, b, 120, "spirit", "big", is_ability=True)
-        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 100.0, places=6)
+        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 100.0, places=2)
 
     def test_tankbuster_release_scales_current_health_and_ignores_resist(self):
         e = Engine()

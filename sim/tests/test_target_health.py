@@ -47,7 +47,7 @@ class TargetHealth(unittest.TestCase):
             self.assertEqual(f.item_assist, 0.0)   # Abrams holds no such item
             self.assertEqual(g.item_assist, M.TARGET_ASSIST)
             self.assertEqual(g.hp, g.max_hp)       # health stays
-            self.assertEqual(g.gate_frac, 1.0 - g.entry_gap)
+            self.assertAlmostEqual(g.gate_frac, 1.0 - g.entry_gap, places=12)
             gaps.append(g.item_gap)
         self.assertTrue(any(x > 0.05 for x in gaps))
         self.assertGreater(sum(x == 0 for x in gaps), 0.3 * len(gaps))   # many fights start full

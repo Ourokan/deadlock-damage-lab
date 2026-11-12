@@ -34,10 +34,11 @@ DUELS = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift, all 
             # the abilities (Mechanics.range_reach); Ivy too (Divine Barrier's 10% + her corrections refit)
             # Abrams vs Seven re-pinned 2026-11-06 for the late-October game data hotfix (no sim change)
             # Abrams vs Seven re-pinned 2026-11-07: Storm Cloud strike lands 0.43 of casts, Seven corrs refit
+            # all re-pinned 2026-11-12: permanent map pickups on (Mechanics.map_pickups)
     ("Haze", ["Rapid Rounds", "Toxic Bullets", "Restorative Locket"], "Infernus",
-     ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Infernus (B)", 25.1, 2339.4, 2213.2),
-    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 25.8, 2014.6, 3202.3),   # re-pinned 2026-11-08: Abrams melee phase lane point
-    ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1455.7, 1281.5),
+     ["Extra Spirit", "Mystic Burst", "Healing Nova"], "Infernus (B)", 24.9, 2401.7, 2285.7),
+    ("Abrams", ["Extra Health", "Ricochet"], "Seven", ["Mystic Burst", "Split Shot", "Rescue Beam"], "Seven (B)", 25.6, 2076.7, 3279.5),   # re-pinned 2026-11-08: Abrams melee phase lane point
+    ("Ivy", ["Extra Spirit", "Divine Barrier"], "Dynamo", ["Hunter's Aura", "Extra Health"], None, 30.0, 1502.5, 1316.0),
 ]
 
 

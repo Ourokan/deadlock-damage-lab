@@ -114,8 +114,10 @@ class Abilities(unittest.TestCase):
     def test_cooldown_reduction_multiplies(self):
         e = Engine()
         f = make_fighter(e, Loadout("Infernus", ["Superior Cooldown"], souls=3200, tiers=[0, 0, 0, 0]))
-        # Napalm 25 s * (1 - 20%)
-        self.assertAlmostEqual(f.abilities[0].cooldown(), 25 * 0.8, places=6)
+        # Napalm 25 s * (1 - 20%) * (1 - the map pickups' cooldown reduction at 3200 souls)
+        from deadsim.mechanics import map_pickups_at
+        pk = map_pickups_at(3200).get("cdr_pct", 0.0) / 100
+        self.assertAlmostEqual(f.abilities[0].cooldown(), 25 * 0.8 * (1 - pk), places=6)
 
 
 class Items(unittest.TestCase):
@@ -353,7 +355,7 @@ class Items(unittest.TestCase):
         e.damage(a, b, 50, "spirit", "small", is_ability=True)
         self.assertNotIn("Mystic Burst", a.dmg_out)
         e.damage(a, b, 120, "spirit", "big", is_ability=True)
-        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 40.0, places=6)
+        self.assertAlmostEqual(a.dmg_out["Mystic Burst"], 40.0, places=2)   # the target's map pickup resist trims ~0.001
 
     def test_capacitor_shock_still_procs_after_its_active(self):
         # the 40 s active cooldown used to switch the passive shock off too

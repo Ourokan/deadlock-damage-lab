@@ -457,11 +457,12 @@ class Mechanics:
     # +10.6% weapon, +5.2% fire rate, +7.8 spirit power, +106 health, ~2% cooldown and resists at 37k, so the sim's gun
     # fell behind real late (audit last fifth gun 0.94x). On: both fighters get the mean pickups at their net worth
     # (data/map_pickups.json, scripts/mechanics/map_pickups.py, apply_map_pickups)
-    # Kept OFF: the audit held split-half (mix 0.0155 -> 0.0152 / 0.0157 -> 0.0155, last fifth 0.0286 -> 0.0273 /
-    # 0.0279 -> 0.0268) but sim_vs_win_raw fell at 37k on both day halves (27k A +0.0000, 37k A -0.0006, 27k B
-    # +0.0027, 37k B -0.0039; weapon and fire rate alone -0.0009 / -0.0022 / +0.0034 / -0.0046): the extra gun lifts
-    # weapon items over spirit ones, against their real edges (validation/README.md "Permanent map pickups")
-    map_pickups: bool = False
+    # On since 2026-11-12 (Tyler's call): the audit holds split-half (mix 0.0155 -> 0.0152 / 0.0157 -> 0.0155, last fifth
+    # 0.0286 -> 0.0273 / 0.0279 -> 0.0268). sim_vs_win_raw on the tuning days (10-31..11-05) fell at 37k, but that check
+    # falls at 37k for any perturbation (negated pickups -0.0061, random item curves too); on fresh days it never saw
+    # (11-06..11-11, 48k Ritualist+ matches) pickups score +0.0037 at 27k and -0.0002 at 37k (both day halves up) while
+    # negated pickups score -0.0023 / -0.0070 (validation/README.md "Permanent map pickups")
+    map_pickups: bool = True
     # item damage by game phase (2026-11-12): an item's landing factor is one number over the match, but some items'
     # real share of their holders' damage grows differently over the match than the sim's (fresh audit: Tankbuster
     # 0.72x real in the second fifth, 1.03x in the last; Toxic Bullets 0.76 -> 1.04, Quicksilver 0.93 -> 1.20). On:
