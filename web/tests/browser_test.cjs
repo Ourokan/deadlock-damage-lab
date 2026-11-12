@@ -189,7 +189,7 @@ async function testTab(page, where) {
     // Refill HP on (default): no death, so the result says when the damage reached max HP, with a marker on the chart
     const reach = await page.evaluate(() => [S.last.res.kill_time, S.last.res.damage["30s"] >= S.last.res.dummy_max_hp,
       $("#marks").textContent, !!$("#timeline circle title")]);
-    if (!reach[0] && reach[1] && !(/max HP dealt in [\d.]+ s/.test(reach[2]) && reach[3]))
+    if (!reach[0] && reach[1] && !(/max HP in [\d.]+ s/.test(reach[2]) && reach[3]))
       throw new Error("Refill HP run reached max HP but shows no 'max HP dealt' time or marker");
   });
   await step(page, where, "edits rerun by themselves", async () => {
@@ -202,6 +202,10 @@ async function testTab(page, where) {
     const pop = await page.evaluate(async (h) => (await damageHero(h)).budgets["27000"].popular.items.join("."), abrams);
     if (st.hero !== abrams || st.preset !== "popular" || st.items !== pop) throw new Error(`hero change kept the old build: ${JSON.stringify(st)}`);
     n = await runId(page);
+    if (where === "phone") {   // the shop starts closed on phones
+      if (await page.$eval("#a-picker", (d) => d.open)) throw new Error("item shop starts open on a phone");
+      await page.click("#a-picker summary");
+    }
     await page.click("#a-shop .it:not(.owned)");
     await liveResult(page, n);
     if (!(await page.$("#marks .dl"))) throw new Error("no change against the last run shown");

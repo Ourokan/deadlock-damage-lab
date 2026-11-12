@@ -146,7 +146,11 @@ async function followPreset() {
   const hero = S.A.hero, d = await damageHero(hero);
   if (S.A.hero !== hero || S.A.preset !== k) return;
   if (!d) { S.A.preset = S.A.label = null; return; } // no precomputed builds for this hero: keep the items, drop the stale name
-  const souls = S.A.souls, bk = nearestBudget(Object.keys(d.budgets), souls);
+  // the nearest budget whose build the net worth can pay for (at 15k souls the 18k build holds more items than the
+  // player could own); the cheapest budget when none fits
+  const souls = S.A.souls, keys = Object.keys(d.budgets).map(Number).sort((a, b) => Math.abs(a - souls) - Math.abs(b - souls) || a - b);
+  const cost = (bk) => { const b = d.budgets[String(bk)]; return (k === "popular" ? b.popular.items : b.objectives[k].builds[0].items).reduce((t, i) => t + (S.items[i]?.cost || 0), 0); };
+  const bk = keys.find((b) => cost(b) <= souls) ?? Math.min(...keys);
   applyPreset(d, k, Number(bk)); S.A.souls = souls;
   renderAttacker();
 }
@@ -535,7 +539,7 @@ function hpReach(r) {
   }
   return null;
 }
-const reachText = (x) => !x ? "" : x.kill ? `kills in ${fmt(x.t, 1)} s` : `max HP dealt in ${fmt(x.t, 1)} s`;
+const reachText = (x) => !x ? "" : x.kill ? `kills in ${fmt(x.t, 1)} s` : `max HP in ${fmt(x.t, 1)} s`;
 
 function renderResult() {
   const L = S.last; if (!L) return;
@@ -543,12 +547,16 @@ function renderResult() {
   const per1k = cost > 0 ? r.damage["15s"] / (cost / 1000) : null;
   const mark = (k, l) => `<div class="mk"><span class="l">Damage by ${l}</span><span class="v">${fmt(r.damage[k])}</span><span class="s">${fmt(r.dps[k])} DPS</span>${delta(k)}</div>`;
   $("#marks").innerHTML = mark("5s", "5 s") + mark("15s", "15 s") + mark("30s", "30 s")
-    + `<div class="mk eff"><span class="l">15 s damage per 1k souls</span><span class="v">${fmt(per1k)}</span><span class="s">${fmt(cost)} souls in items${hpReach(r) ? `<br>${reachText(hpReach(r))}` : ""}</span></div>`;
+    + `<div class="mk eff"><span class="l">15 s damage per 1k souls</span><span class="v">${fmt(per1k)}</span><span class="s">${fmt(cost)} souls in items${hpReach(r) ? `<br><span title="${hpReach(r).kill ? "The target died" : "Refill HP is on, so the target never dies: this is when the damage reached its max HP"}">${reachText(hpReach(r))}</span>` : ""}</span></div>`;
   $("#pin").disabled = !r.timeline;
   $("#res-build").innerHTML = L.req.hero != null && L.req.items.length
     ? `<p class="hint">Tap an item to see how much of this damage it adds.</p>${bdTiles({ kind: "test", hero: L.req.hero, souls: L.req.souls, items: L.req.items, req: L.req })}` : "";
   drawTimeline();
   drawSources(r.sources, r.damage["30s"]);
+  // healing the build would give over the 30 s (the dummy never hits back, so the attacker stays full: what's on
+  // offer, not what was used); health regen alone isn't worth a line
+  const heal = healGain(r.heals).filter(([k]) => k !== "regen"), healed = heal.reduce((t, [, v]) => t + v, 0);
+  if (healed >= 50) $("#sources").insertAdjacentHTML("beforeend", `<p class="hint heal-note">Healing on offer over 30 s: <b>${fmt(healed)} HP</b> (${healList(heal, 3)}). The dummy doesn't hit back, so this is what the build could heal, not what it needed.</p>`);
   const u = r.used;
   $("#used").textContent = u
     ? `${u.hero} at ${fmt(r.attacker_souls)} souls · aim ${pct(u.accuracy, 1)} hero accuracy, ${pct(u.headshot, 1)} headshots · ${fmt(u.distance, 1)} m · ${u.melee_rate != null ? `${fmt(u.melee_rate, 3)} melee hits/s · ` : ""}target ${L.req.dummy?.hero === "Haze" && !L.req.dummy.items.length ? targetLabel(L.req) : `${targetLabel(L.req)}, ${fmt(r.dummy_max_hp)} max HP`}${L.ms ? ` · ran in ${fmt(L.ms)} ms` : ""}`
@@ -1209,6 +1217,8 @@ async function boot() {
     if (p.results_built) $("#patch-updated").textContent = `, results updated ${p.results_built.slice(0, 10)}`;
   });
 
+  // phones: the item shop starts closed, so the target and the result sit a short scroll below the build
+  if (matchMedia("(max-width: 640px)").matches) $("#a-picker").open = false;
   // starting state: Haze's most popular real 27k build against the standard dummy
   const d = await damageHero(S.A.hero);
   const b = d?.budgets["27000"];

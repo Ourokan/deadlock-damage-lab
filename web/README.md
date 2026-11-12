@@ -8,7 +8,7 @@ Static site, no server. Open `index.html` through any static host (or `python3 -
   timeline and kill time (with "Refill HP" on: when the damage reached the target's max HP, hollow marker). Every change to the build or target reruns the test by itself (debounced; a run takes well under a second) and
   each number shows how it moved against the previous run; while the result is scrolled out of view a bar pinned to the
   bottom shows the 15 s damage and its change. An untouched preset build (Popular, Most dmg) follows a hero or net
-  worth change; a hand-made build stays. Bad numbers (no HP, resist outside -100..95%) show a message instead of
+  worth change; a hand-made build stays. Healing the build has on offer (lifesteal, healing abilities) is listed under the sources. An untouched preset follows a net worth change to the nearest budget whose build that net worth can pay for. On a phone the item shop starts closed. Bad numbers (no HP, resist outside -100..95%) show a message instead of
   running. "Keep for comparison" pins up to 5 runs on the same chart and table. The whole setup
   is kept in the address bar after each run (and "Copy link" copies it), so a link reopens and reruns the same test.
   "My own numbers" takes accuracy, headshot rate and fight distance, or loads them from a player's last 10 matches
