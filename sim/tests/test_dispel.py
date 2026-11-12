@@ -11,6 +11,7 @@ from deadsim.accuracy import _dispel_fit, dot_cleanse_delay, dot_cleanse_share, 
 from deadsim.engine import Engine  # noqa: E402
 from deadsim.fight import make_fighter  # noqa: E402
 from deadsim.items_fx import DispelMagic  # noqa: E402
+from deadsim.mechanics import DEFAULT as MECH  # noqa: E402
 
 
 def decay_taken(share, phase=None):
@@ -112,7 +113,9 @@ class DispelAfterburn(unittest.TestCase):
         def burn(share_buildup):
             sk = dataclasses.replace(hero_default_skill("Haze", badge=91, counterplay=True), dot_cleanse_share=0.0,
                                      dot_cleanse_share_buildup=share_buildup)
-            r = duel(a, Loadout("Haze", ["Rapid Rounds", "Swift Striker", "Dispel Magic"], souls=25000, skill=sk))
+            # map pickups off: one duel's timing, not the cleanse rule, decides the margin with them (8% vs 10% cut)
+            r = duel(a, Loadout("Haze", ["Rapid Rounds", "Swift Striker", "Dispel Magic"], souls=25000, skill=sk),
+                     mechanics=dataclasses.replace(MECH, map_pickups=False))
             return r.a_dmg.get("Afterburn", 0.0) / r.time   # per second: the two duels can end at different times
         self.assertLess(burn(1.0), 0.9 * burn(0.0))
 

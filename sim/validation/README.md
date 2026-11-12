@@ -4799,7 +4799,7 @@ refit the knife tilt stayed and held-out mix got worse.
   1.812 -> 1.995). Whole sample (3 seeds): mix 0.0113 -> 0.0077, per fifth 0.0147 -> 0.0127, per-source 0.024 ->
   0.016. sim_vs_win_raw (Mina, vs main): +0.0053 / +0.0007 / +0.0041 / -0.0003.
 
-## Permanent map pickups (2026-11-11, kept off)
+## Permanent map pickups (2026-11-11, on since 2026-11-12)
 
 - Fresh audit on main (4,000-match post-hotfix sample from 11-06..11-10, 42k players): the last fifth of the match is
   the worst phase after the lane (per fifth 0.036 / 0.025 / 0.021 / 0.020 / 0.028), and pooled over heroes the sim's
@@ -4816,8 +4816,15 @@ refit the knife tilt stayed and held-out mix got worse.
 - sim_vs_win_raw (27k + 37k, --movement keep, post-hotfix pools): 27k A +0.0000, 37k A -0.0006, 27k B +0.0027,
   37k B -0.0039. Weapon and fire rate pickups alone: -0.0009 / -0.0022 / +0.0034 / -0.0046. At 37k the extra gun lifts
   weapon items (Headshot Booster, Split Shot, Close Quarters) and lowers spirit ones (Extra Spirit, Mystic Expansion)
-  against their real edges, the same way a late melee refit did on 2026-11-09. Kept OFF; the damage audit can run
-  with it (AUDIT_MAP_PICKUPS=1).
+  against their real edges, the same way a late melee refit did on 2026-11-09. Kept OFF at first (see the held-out check
+  below for why it is on now); AUDIT_MAP_PICKUPS=0 runs the damage audit without pickups.
+- Held-out win check (2026-11-12). The tuning-window check falls at 37k for any perturbation: negated pickups
+  (scale -1) +0.0006 / -0.0061, item phase curves inverted +0.0002 / -0.0006, random-sign +0.0002 / -0.0005 (all days
+  pooled, 27k / 37k), so weeks of changes kept only when it rose have fitted it to those days' noise. On fresh builds
+  11-06..11-11 (48,230 Ritualist+ matches, never used in tuning; same sim rows): pickups +0.0037 at 27k (day halves
+  +0.0005 / +0.0042, hero halves +0.0020 / +0.0059) and -0.0002 at 37k (day halves +0.0007 / +0.0016); negated
+  pickups -0.0023 / -0.0070; weapon and fire rate alone +0.0009 / -0.0049. Phantom+ only (thin): +0.0018 / +0.0016.
+  Turned ON (Tyler's choice).
 
 ## Sinclair's copied ultimate by net worth (2026-11-12)
 

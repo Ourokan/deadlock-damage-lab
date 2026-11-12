@@ -114,8 +114,10 @@ class Abilities(unittest.TestCase):
     def test_cooldown_reduction_multiplies(self):
         e = Engine()
         f = make_fighter(e, Loadout("Infernus", ["Superior Cooldown"], souls=3200, tiers=[0, 0, 0, 0]))
-        # Napalm 25 s * (1 - 20%)
-        self.assertAlmostEqual(f.abilities[0].cooldown(), 25 * 0.8, places=6)
+        # Napalm 25 s * (1 - 20%) * (1 - the map pickups' cooldown reduction at 3200 souls)
+        from deadsim.mechanics import map_pickups_at
+        pk = map_pickups_at(3200).get("cdr_pct", 0.0) / 100
+        self.assertAlmostEqual(f.abilities[0].cooldown(), 25 * 0.8 * (1 - pk), places=6)
 
 
 class Items(unittest.TestCase):
@@ -346,7 +348,9 @@ class Items(unittest.TestCase):
         self.assertAlmostEqual(shots_hit(a, Hit("bullet", "gun", 100, 100, hits=9)), 1.0)
 
     def test_mystic_burst_needs_80_damage(self):
-        e = Engine()
+        import dataclasses
+        from deadsim.mechanics import DEFAULT
+        e = Engine(mech=dataclasses.replace(DEFAULT, map_pickups=False))   # the target's pickup resist trims the 40
         a = make_fighter(e, Loadout("Infernus", ["Mystic Burst"], souls=800))
         b = make_fighter(e, Loadout("Abrams", [], souls=800))
         a.enemy, b.enemy = b, a

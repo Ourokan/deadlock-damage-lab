@@ -142,10 +142,12 @@ PINNED = [   # re-pinned 2026-10-21 for range spread (mechanics range_drift, all
             # re-pinned 2026-10-26 for Warden shooting while Last Stand pulses (warden.PULSE_FREE)
             # re-pinned 2026-10-27 for in-fight bullet shred x Mechanics.shred_uptime (Haze's Sleep Dagger shred)
             # re-pinned 2026-11-06 for the late-October game data hotfix (no sim change; same on main before)
-    ("Mo & Krill", "Haze", None, 30.0, 1349.8, 1446.6),
-    ("Paradox", "Abrams", None, 30.0, 2481.6, 1483.6),   # re-pinned 2026-11-08: Paradox real ability order + refit
-    ("Venator", "Lash", "Venator (A)", 18.3, 2121.9, 877.0),
-    ("Warden", "Seven", "Seven (B)", 25.9, 1318.9, 2955.8),   # re-pinned 2026-11-08: others soak barriers, trigger barrier items not always ready
+            # all re-pinned 2026-11-12: permanent map pickups on (Mechanics.map_pickups); Venator/Warden fights now end in a
+            # disengage before a kill
+    ("Mo & Krill", "Haze", None, 30.0, 1351.1, 1511.8),
+    ("Paradox", "Abrams", None, 30.0, 2646.8, 1473.1),   # re-pinned 2026-11-08: Paradox real ability order + refit
+    ("Venator", "Lash", None, 13.1, 1878.2, 911.9),
+    ("Warden", "Seven", None, 18.7, 1364.0, 2778.8),   # re-pinned 2026-11-08: others soak barriers, trigger barrier items not always ready
 ]
 
 
