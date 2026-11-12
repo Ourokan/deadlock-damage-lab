@@ -4785,3 +4785,16 @@ refit the knife tilt stayed and held-out mix got worse.
   Therapy 1.741 -> 1.708, Lurking Terrors 0.811 -> 0.869). Whole sample (3 seeds): per fifth 0.042 -> 0.033, 2nd/3rd
   fifths 0.036 / 0.051 -> 0.021 / 0.018; mix 0.012 -> 0.015 and per-source 0.008 -> 0.011 (the old corrs were fitted on
   this sample; held out both were better). sim_vs_win_raw (Nurse, vs main): +0.0010 / +0.0008 / +0.0005 / +0.0005.
+
+
+## Refits rechecked over seeds (2026-11-12)
+
+- Ability corr refits once rejected on a one-seed split-half, retested on the fresh 11-06..11-10 sample: refit on one
+  match_id half (2 rounds, ability_corr_heroes.py), audit the other (3 seeds), against no refit. Mix / per fifth /
+  per-source (half 0 / half 1):
+  - Mina: 0.0117 -> 0.0077 / 0.0110 -> 0.0097, 0.0160 -> 0.0130 / 0.0150 -> 0.0137, 0.024 -> 0.017 / 0.026 -> 0.018
+  - Baba: mix 0.017 -> 0.039 / 0.011 -> 0.024 (worse). Shiv, Bebop: mixed. Vindicta: sources much better, per fifth flat,
+    lane worse.
+- Shipped: Mina's corrs refit on the whole sample (3 rounds: Rake 1.720 -> 1.734, Love Bites 1.107 -> 1.086, Nox Nostra
+  1.812 -> 1.995). Whole sample (3 seeds): mix 0.0113 -> 0.0077, per fifth 0.0147 -> 0.0127, per-source 0.024 ->
+  0.016. sim_vs_win_raw (Mina, vs main): +0.0053 / +0.0007 / +0.0041 / -0.0003.
