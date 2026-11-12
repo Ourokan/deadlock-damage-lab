@@ -114,6 +114,9 @@ class AudienceParticipation(AbilityImpl):
         ab.landing_key = self.s.ab.name   # real games book it under the copied hero's class; fitted as one source
         if getattr(c.engine.mech, "copy_ult", False):
             ab.landing_mult = copy_ult_factors().get(foe_ult.ab.class_name, 1.0)
+        if getattr(c.engine.mech, "copy_ult_phase", False):
+            from ..mechanics import copy_ult_phase_mult
+            ab.landing_mult = getattr(ab, "landing_mult", 1.0) * copy_ult_phase_mult(c.me.st.souls)
         cp = AbilityState(c.me, ab, tier=c.tier, unlocked=True)
         cp.start()
         until = c.now + c.dur("CopiedUltWindow", 9.0)
