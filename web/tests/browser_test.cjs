@@ -385,7 +385,8 @@ async function staticTabs(page, where, sim) {
       if (negZero) throw new Error(`"-0%" shown in the ${tab} tab`);
       // tank: a damage margin whose best build is the same as the stricter one's shares its card
       if (tab === "tank") {
-        const sets = await page.$$eval(`${out} .card`, (cs) => cs.map((c) => [...c.querySelectorAll(".it")].map((i) => i.textContent.trim()).sort().join()));
+        // the popular card (first) can match a margin's build; only the margin cards must differ
+        const sets = await page.$$eval(`${out} .card`, (cs) => cs.slice(1).map((c) => [...c.querySelectorAll(".it")].map((i) => i.textContent.trim()).sort().join()));
         if (new Set(sets).size !== sets.length) throw new Error("two tank cards show the same build");
       }
       // What changed: only the newest entry is open; a newest run with no changed builds leaves its Test buttons hidden
