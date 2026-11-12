@@ -445,6 +445,17 @@ class Mechanics:
     # 0.3637 -> 0.3628, 0.3565 / 0.3721 -> 0.3563 / 0.3705): Healbane's sim gain was already above its real edge
     # (validation/kill_heals.md)
     kill_heals: bool = False
+    # permanent map pickups (2026-11-11): breakables and urn drops leave weapon damage, fire rate, spirit power, health,
+    # cooldown and resist pickups (match "power_ups"; validate_stats.py: the real stat sheet is the build plus these), but
+    # the sim's fighters had none. Real Phantom+ players carry ~+3.5% weapon damage and +34 health at 12k net worth and
+    # +10.6% weapon, +5.2% fire rate, +7.8 spirit power, +106 health, ~2% cooldown and resists at 37k, so the sim's gun
+    # fell behind real late (audit last fifth gun 0.94x). On: both fighters get the mean pickups at their net worth
+    # (data/map_pickups.json, scripts/mechanics/map_pickups.py, apply_map_pickups)
+    # Kept OFF: the audit held split-half (mix 0.0155 -> 0.0152 / 0.0157 -> 0.0155, last fifth 0.0286 -> 0.0273 /
+    # 0.0279 -> 0.0268) but sim_vs_win_raw fell at 37k on both day halves (27k A +0.0000, 37k A -0.0006, 27k B
+    # +0.0027, 37k B -0.0039; weapon and fire rate alone -0.0009 / -0.0022 / +0.0034 / -0.0046): the extra gun lifts
+    # weapon items over spirit ones, against their real edges (validation/README.md "Permanent map pickups")
+    map_pickups: bool = False
 
 
 KILL_HEAL_TICK = 0.5   # s between Mechanics.kill_heals heal steps
@@ -2142,3 +2153,41 @@ def attach(f, items):
             f.items_fx.append(fx)
             if hasattr(fx, "stat"):
                 f.stat_hooks.append(fx.stat)
+
+
+_MAP_PICKUPS = None
+
+
+def map_pickups_at(souls):
+    """Mechanics.map_pickups: the mean permanent pickups at net worth souls ({stat: value}, data/map_pickups.json,
+    linear in ln net worth between bins, flat outside); {} without the file."""
+    global _MAP_PICKUPS
+    if _MAP_PICKUPS is None:
+        fn = os.path.join(os.path.dirname(__file__), "..", "data", "map_pickups.json")
+        _MAP_PICKUPS = []
+        if os.path.exists(fn):
+            with open(fn) as fh:
+                _MAP_PICKUPS = json.load(fh)["bins"]
+    if not _MAP_PICKUPS or not souls:
+        return {}
+    keys = [k for k in _MAP_PICKUPS[0] if k not in ("net_worth", "n")]
+    return {k: _interp_ln([(math.log(b["net_worth"]), b[k]) for b in _MAP_PICKUPS], souls) for k in keys}
+
+
+def apply_map_pickups(st, pk):
+    """Add map pickups pk (map_pickups_at) to a Stats in place: flat health and spirit power on top of the build's
+    (validate_stats.py), weapon damage / fire rate percent points to the build's, cooldown and resists as one more
+    stacking source."""
+    if not pk:
+        return st
+    st.max_health += pk.get("health", 0.0)
+    st.spirit_power += pk.get("spirit", 0.0)
+    st.weapon_pct += pk.get("weapon_pct", 0.0) / 100
+    st.fire_rate_pct += pk.get("fire_rate_pct", 0.0) / 100
+    if pk.get("cdr_pct"):
+        st.cdr = 1.0 - (1.0 - st.cdr) * (1.0 - pk["cdr_pct"] / 100)
+    if pk.get("bullet_resist_pct"):
+        st.bullet_resist = list(st.bullet_resist) + [pk["bullet_resist_pct"] / 100]
+    if pk.get("spirit_resist_pct"):
+        st.spirit_resist = list(st.spirit_resist) + [pk["spirit_resist_pct"] / 100]
+    return st

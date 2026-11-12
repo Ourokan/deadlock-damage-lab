@@ -320,6 +320,9 @@ def make_fighter(engine, lo: Loadout, name=None):
     load_heroes()
     hero, items = lo.resolve()
     st = compute_stats(hero, items, lo.souls, lo.level)
+    if engine.mech is not None and getattr(engine.mech, "map_pickups", False):
+        from .mechanics import apply_map_pickups, map_pickups_at
+        apply_map_pickups(st, map_pickups_at(st.souls))
     skill = lo.skill
     if engine.mech is not None and skill.ability_landing_mech:
         skill = dataclasses.replace(skill, ability_landing=skill.ability_landing_mech)

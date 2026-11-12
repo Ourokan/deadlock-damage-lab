@@ -1,0 +1,116 @@
+{
+ "source": "scripts/mechanics/map_pickups.py (fresh_2026-11-10_sample.jsonl.gz)",
+ "note": "mean permanent pickups collected by a stats snapshot, by its net-worth bin; percent stats in points (4.0 = +4%); Mechanics.map_pickups, linear in ln net worth, flat outside",
+ "bins": [
+  {
+   "net_worth": 1864,
+   "n": 49184,
+   "weapon_pct": 0.015,
+   "fire_rate_pct": 0.007,
+   "spirit": 0.008,
+   "health": 0.13,
+   "cdr_pct": 0.002,
+   "bullet_resist_pct": 0.002,
+   "spirit_resist_pct": 0.002
+  },
+  {
+   "net_worth": 4250,
+   "n": 57192,
+   "weapon_pct": 0.611,
+   "fire_rate_pct": 0.301,
+   "spirit": 0.414,
+   "health": 6.148,
+   "cdr_pct": 0.101,
+   "bullet_resist_pct": 0.102,
+   "spirit_resist_pct": 0.101
+  },
+  {
+   "net_worth": 7886,
+   "n": 63477,
+   "weapon_pct": 1.762,
+   "fire_rate_pct": 0.866,
+   "spirit": 1.206,
+   "health": 17.605,
+   "cdr_pct": 0.299,
+   "bullet_resist_pct": 0.297,
+   "spirit_resist_pct": 0.298
+  },
+  {
+   "net_worth": 12297,
+   "n": 60215,
+   "weapon_pct": 3.458,
+   "fire_rate_pct": 1.715,
+   "spirit": 2.443,
+   "health": 34.368,
+   "cdr_pct": 0.609,
+   "bullet_resist_pct": 0.608,
+   "spirit_resist_pct": 0.606
+  },
+  {
+   "net_worth": 17598,
+   "n": 38390,
+   "weapon_pct": 5.166,
+   "fire_rate_pct": 2.572,
+   "spirit": 3.749,
+   "health": 51.911,
+   "cdr_pct": 0.937,
+   "bullet_resist_pct": 0.933,
+   "spirit_resist_pct": 0.933
+  },
+  {
+   "net_worth": 23050,
+   "n": 43455,
+   "weapon_pct": 6.726,
+   "fire_rate_pct": 3.348,
+   "spirit": 4.917,
+   "health": 67.162,
+   "cdr_pct": 1.222,
+   "bullet_resist_pct": 1.224,
+   "spirit_resist_pct": 1.223
+  },
+  {
+   "net_worth": 29456,
+   "n": 50597,
+   "weapon_pct": 8.389,
+   "fire_rate_pct": 4.182,
+   "spirit": 6.154,
+   "health": 83.851,
+   "cdr_pct": 1.541,
+   "bullet_resist_pct": 1.529,
+   "spirit_resist_pct": 1.542
+  },
+  {
+   "net_worth": 37107,
+   "n": 50781,
+   "weapon_pct": 10.575,
+   "fire_rate_pct": 5.216,
+   "spirit": 7.752,
+   "health": 105.553,
+   "cdr_pct": 1.927,
+   "bullet_resist_pct": 1.916,
+   "spirit_resist_pct": 1.93
+  },
+  {
+   "net_worth": 46955,
+   "n": 29294,
+   "weapon_pct": 13.611,
+   "fire_rate_pct": 6.546,
+   "spirit": 9.84,
+   "health": 135.585,
+   "cdr_pct": 2.447,
+   "bullet_resist_pct": 2.423,
+   "spirit_resist_pct": 2.437
+  },
+  {
+   "net_worth": 61563,
+   "n": 6395,
+   "weapon_pct": 17.409,
+   "fire_rate_pct": 8.251,
+   "spirit": 12.537,
+   "health": 174.199,
+   "cdr_pct": 3.09,
+   "bullet_resist_pct": 3.067,
+   "spirit_resist_pct": 3.102
+  }
+ ]
+}

@@ -4798,3 +4798,23 @@ refit the knife tilt stayed and held-out mix got worse.
 - Shipped: Mina's corrs refit on the whole sample (3 rounds: Rake 1.720 -> 1.734, Love Bites 1.107 -> 1.086, Nox Nostra
   1.812 -> 1.995). Whole sample (3 seeds): mix 0.0113 -> 0.0077, per fifth 0.0147 -> 0.0127, per-source 0.024 ->
   0.016. sim_vs_win_raw (Mina, vs main): +0.0053 / +0.0007 / +0.0041 / -0.0003.
+
+## Permanent map pickups (2026-11-11, kept off)
+
+- Fresh audit on main (4,000-match post-hotfix sample from 11-06..11-10, 42k players): the last fifth of the match is
+  the worst phase after the lane (per fifth 0.036 / 0.025 / 0.021 / 0.020 / 0.028), and pooled over heroes the sim's
+  gun share there is 0.201 vs real 0.213 (earlier checks found no per-player shooting deficit behind it).
+- Real players collect permanent pickups from breakables and urn drops (the sample's `power_ups`; validate_stats.py
+  rebuilds the real stat sheet as build + pickups). Mean by net worth (scripts/mechanics/map_pickups.py,
+  data/map_pickups.json): +3.5% weapon damage, +1.7% fire rate, +2.4 spirit power, +34 health at 12k; +10.6% weapon,
+  +5.2% fire rate, +7.8 spirit, +106 health and ~1.9% cooldown / bullet / spirit resist at 37k. The sim's fighters
+  had none, and the gun (tooltip x the player's real accuracy) has no fitted factor that could have absorbed it.
+- Mechanics.map_pickups (both fighters get the curve at their net worth, fight.make_fighter) with no refit: mix
+  0.0150 -> 0.0148, per fifth 0.0247 -> 0.0243, last fifth 0.0278 -> 0.0264, last-fifth gun 0.201 -> 0.206 (mid-game
+  gun, already over, 0.244 -> 0.247). Split-half (curve from the other match_id half): mix 0.0155 -> 0.0152 and
+  0.0157 -> 0.0155, per fifth 0.0251 -> 0.0249 and 0.0258 -> 0.0257, last fifth 0.0286 -> 0.0273 and 0.0279 -> 0.0268.
+- sim_vs_win_raw (27k + 37k, --movement keep, post-hotfix pools): 27k A +0.0000, 37k A -0.0006, 27k B +0.0027,
+  37k B -0.0039. Weapon and fire rate pickups alone: -0.0009 / -0.0022 / +0.0034 / -0.0046. At 37k the extra gun lifts
+  weapon items (Headshot Booster, Split Shot, Close Quarters) and lowers spirit ones (Extra Spirit, Mystic Expansion)
+  against their real edges, the same way a late melee refit did on 2026-11-09. Kept OFF; the damage audit can run
+  with it (AUDIT_MAP_PICKUPS=1).
