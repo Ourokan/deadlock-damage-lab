@@ -522,13 +522,28 @@ async function copyShare() {
 }
 
 // ---------- results ----------
+// when the run dealt the target's max HP: its death time, or with "Refill HP" on (no death) the first moment the
+// cumulative damage reaches max HP, read off the timeline. {t, kill} or null.
+function hpReach(r) {
+  if (r.kill_time) return { t: r.kill_time, kill: true };
+  const hp = r.dummy_max_hp, tl = r.timeline;
+  if (!(hp > 0) || !tl) return null;
+  let p0 = [0, 0];
+  for (const p of tl) {
+    if (p[1] >= hp) return { t: p[1] > p0[1] ? p0[0] + (p[0] - p0[0]) * (hp - p0[1]) / (p[1] - p0[1]) : p[0], kill: false };
+    p0 = p;
+  }
+  return null;
+}
+const reachText = (x) => !x ? "" : x.kill ? `kills in ${fmt(x.t, 1)} s` : `max HP dealt in ${fmt(x.t, 1)} s`;
+
 function renderResult() {
   const L = S.last; if (!L) return;
   const r = L.res, cost = r.used?.item_cost ?? L.req.items.reduce((s, i) => s + S.items[i].cost, 0);
   const per1k = cost > 0 ? r.damage["15s"] / (cost / 1000) : null;
   const mark = (k, l) => `<div class="mk"><span class="l">Damage by ${l}</span><span class="v">${fmt(r.damage[k])}</span><span class="s">${fmt(r.dps[k])} DPS</span>${delta(k)}</div>`;
   $("#marks").innerHTML = mark("5s", "5 s") + mark("15s", "15 s") + mark("30s", "30 s")
-    + `<div class="mk eff"><span class="l">15 s damage per 1k souls</span><span class="v">${fmt(per1k)}</span><span class="s">${r.kill_time ? `kills in ${fmt(r.kill_time, 1)} s` : `${fmt(cost)} souls in items`}</span></div>`;
+    + `<div class="mk eff"><span class="l">15 s damage per 1k souls</span><span class="v">${fmt(per1k)}</span><span class="s">${fmt(cost)} souls in items${hpReach(r) ? `<br>${reachText(hpReach(r))}` : ""}</span></div>`;
   $("#pin").disabled = !r.timeline;
   $("#res-build").innerHTML = L.req.hero != null && L.req.items.length
     ? `<p class="hint">Tap an item to see how much of this damage it adds.</p>${bdTiles({ kind: "test", hero: L.req.hero, souls: L.req.souls, items: L.req.items, req: L.req })}` : "";
@@ -571,7 +586,8 @@ function drawTimeline() {
     const d = pts.map((p) => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(" ");
     const end = pts[pts.length - 1];
     const area = s.current && S.pins.length === 0 ? `<polygon points="${X(0)},${Y(0)} ${d} ${X(end[0])},${Y(0)}" fill="${s.color}" fill-opacity=".12" />` : "";
-    const kill = s.res.kill_time ? `<circle cx="${X(s.res.kill_time)}" cy="${Y(s.res.dummy_max_hp)}" r="4" fill="${s.color}" />` : "";
+    const hr = hpReach(s.res);
+    const kill = hr ? `<circle cx="${X(hr.t)}" cy="${Y(s.res.dummy_max_hp)}" r="4" ${hr.kill ? `fill="${s.color}"` : `fill="${css("--panel")}" stroke="${s.color}" stroke-width="2"`}><title>${reachText(hr)}</title></circle>` : "";
     return `${area}<polyline points="${d}" fill="none" stroke="${s.color}" stroke-width="${s.current ? 2.5 : 1.8}" stroke-linejoin="round" />${kill}<circle cx="${X(end[0])}" cy="${Y(end[1])}" r="3" fill="${s.color}" />`;
   }).join("");
   box.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Cumulative damage over 30 seconds">${g}${lines}</svg>`
@@ -586,10 +602,10 @@ function renderCompare() {
     return `<tr><td><span class="swatch" style="background:${css(SERIES[(i + 1) % SERIES.length])}"></span>${esc(p.label)}<br><span class="hint">${esc(r.used.hero)} vs ${esc(targetLabel(p.req))}</span></td>`
       + `<td>${tiles(p.req.items, { static: true })}</td><td class="n">${fmt(cost)}</td>`
       + ["5s", "15s", "30s"].map((k) => `<td class="n">${fmt(r.damage[k])}</td>`).join("")
-      + `<td class="n">${fmt(per)}</td><td class="n">${r.kill_time ? fmt(r.kill_time, 1) + " s" : "–"}</td>`
+      + `<td class="n">${fmt(per)}</td><td class="n">${hpReach(r) ? fmt(hpReach(r).t, 1) + " s" : "–"}</td>`
       + `<td><button class="chip-btn" data-load="${i}">Load</button> <button class="chip-btn" data-drop="${i}">Remove</button></td></tr>`;
   }).join("");
-  $("#cmp").innerHTML = `<thead><tr><th>Run</th><th>Items</th><th class="n">Item souls</th><th class="n">5 s</th><th class="n">15 s</th><th class="n">30 s</th><th class="n">15 s per 1k souls</th><th class="n">Kill</th><th></th></tr></thead><tbody>${rows}</tbody>`;
+  $("#cmp").innerHTML = `<thead><tr><th>Run</th><th>Items</th><th class="n">Item souls</th><th class="n">5 s</th><th class="n">15 s</th><th class="n">30 s</th><th class="n">15 s per 1k souls</th><th class="n" title="Death time, or with Refill HP on, when the damage reached max HP">Max HP dealt</th><th></th></tr></thead><tbody>${rows}</tbody>`;
 }
 
 // ---------- precomputed tabs ----------
