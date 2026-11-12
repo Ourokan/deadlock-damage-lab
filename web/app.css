@@ -362,6 +362,8 @@ button.link { border: 0; background: none; padding: 0; color: var(--accent); fon
   table.cards-sm td[data-label]::before { content: attr(data-label); display: block; font: 600 .66rem var(--head); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
   table.cards-sm td.wide { grid-column: 1 / -1; }
   table.cards-sm td.wide::before { display: none; }
+  /* a row that starts with a number (buy orders: net worth, item, pays) keeps its numbers on one line above the item */
+  table.cards-sm tr > td.n:first-child ~ td.wide { order: 1; }
   table.cards-sm td:empty { display: none; }
   table.cards-sm .chip-btn { padding-inline: 18px; }
 }
@@ -416,3 +418,8 @@ button.link { border: 0; background: none; padding: 0; color: var(--accent); fon
 .it.im-miss { opacity: .4; }
 .chg > .cards { padding: 0 14px 14px; }
 .heal-note { margin: 14px 0 0; padding-top: 10px; border-top: 1px solid var(--line); }
+
+/* column notes folded under a summary line (Counter items) */
+details.cols { margin: 0 0 12px; }
+details.cols > summary { cursor: pointer; color: var(--accent); }
+details.cols > p { margin: 6px 0 0; }

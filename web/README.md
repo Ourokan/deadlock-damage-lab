@@ -72,7 +72,9 @@ Static site, no server. Open `index.html` through any static host (or `python3 -
 
 ## Phones
 Under 640 px the tabs sit in a 3x3 grid, long intros fold to three lines, and every table with a text column turns
-into stacked cards (`stackTables()` in `app.js` labels each number with its column). Touch screens get 36 px+ controls
+into stacked cards (`stackTables()` in `app.js` labels each number with its column; tables marked `stk-cells`, like
+the fight list and team fight results, label their short text cells too, and a buy order row keeps net worth and price
+on one line above the item). Touch screens get 36 px+ controls
 and 16 px inputs (no iOS zoom on focus). On touch screens the Build maker's suggestions run on the page's sim worker
 instead of a second Pyodide instance, which would cost another ~15 MB download and enough memory to make mobile
 browsers reload the tab.
